@@ -5,6 +5,7 @@
 using namespace std;
 
 int main() {
+    system("cls");
     string input;
     printf("hello\n");
     
@@ -13,6 +14,7 @@ int main() {
         cin >> input;
         if(input == "exit") { break; }
         cout << "---------- " << input << endl;
+        system("pause");
     }
     return 0;
 }
