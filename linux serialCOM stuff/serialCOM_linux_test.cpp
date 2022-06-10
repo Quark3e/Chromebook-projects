@@ -17,3 +17,13 @@ int main() {
     }
     fclose(file);
 }
+
+/*
+int readBuffer(FILE *stream)
+{
+    int c;
+    c = fgetc(stream);
+    ungetc(c, stream);
+    return c;
+}
+*/
