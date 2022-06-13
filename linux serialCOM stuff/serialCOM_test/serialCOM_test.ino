@@ -42,7 +42,7 @@ void loop()
         if(input==',') {
           num=calc();
           j=-1;
-          Serial.println(num);
+          Serial.println(num, DEC);
           if(num = 69) {
             digitalWrite(LED, HIGH);
             delay(1000);
