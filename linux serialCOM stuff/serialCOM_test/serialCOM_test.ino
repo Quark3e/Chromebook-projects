@@ -28,36 +28,35 @@ int calc()
 void loop()
 {
     if(Serial.available()>0) {
-        Serial.println("starting...");
-        delay(3000);
-        //input=Serial.read();
-        inp = Serial.readStringUntil('\n');
         
-        if(inp.toInt() == 69) {
-          Serial.println("nice");
-          delay(2000);
-        }
-        else {
-          Serial.println("not 69");
-        }
-        //if(input==',') {
-        //  num=calc();
-        //  j=-1;
-        //  Serial.println(num);
-        //  digitalWrite(LED, HIGH);
-        //  delay(1000);
-        //  digitalWrite(LED, LOW);
+        //inp = Serial.readStringUntil('\n');
+        
+        //if(inp.toInt() == 69) {
+        //  Serial.println("nice");
+        //  delay(2000);
         //}
         //else {
-        //  j++;
-        //  buff[j]=input;
+        //  Serial.println("not 69");
         //}
-        while(Serial.available()>0) {
-          Serial.read();
+
+        input=Serial.read();
+        if(input==',') {
+          num=calc();
+          j=-1;
+          Serial.println(num);
+          if(num = 69) {
+            digitalWrite(LED, HIGH);
+            delay(1000);
+            digitalWrite(LED, LOW);
+            delay(1000);
+          }
         }
+        else {
+          j++;
+          buff[j]=input;
+        }
+        //while(Serial.available()>0) {
+        //  Serial.read();
+        //}
     }
-    digitalWrite(LED, HIGH);
-    delay(100);
-    digitalWrite(LED, LOW);
-    delay(100);
 }
