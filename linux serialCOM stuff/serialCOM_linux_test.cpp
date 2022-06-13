@@ -30,7 +30,7 @@ int main() {
     // }
 
     int data[] = {10,69,13};  //Random data we want to send
-    this_thread::sleep_for(milliseconds(2000));
+    // this_thread::sleep_for(milliseconds(2000));
     cout << "The test is sent in: ";
     for(int i=3; i>0; i++) {
         this_thread::sleep_for(milliseconds(1000));

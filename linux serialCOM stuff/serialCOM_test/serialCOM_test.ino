@@ -38,7 +38,6 @@ void loop()
         //else {
         //  Serial.println("not 69");
         //}
-
         input=Serial.read();
         if(input==',') {
           num=calc();
