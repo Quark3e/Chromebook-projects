@@ -24,7 +24,8 @@ int main()
         getnum = stoi(input);
         cin.clear();
         cin.ignore();
-        fprintf(file, "%d\n", getnum); //Writing to the file
+        // fprintf(file, "%d\n", getnum); //Writing to the file
+        fprintf(file, "%s\n", input);
         
     }
 
