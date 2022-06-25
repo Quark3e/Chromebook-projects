@@ -18,7 +18,7 @@ void loop() {
     if (Serial.available() > 0) {
       // read the incoming byte:
         incomingByte = Serial.read();
-        
+
         switch (incomingByte) {
         case '1':
             bright = 10;
@@ -36,4 +36,13 @@ void loop() {
       analogWrite(led, bright);
       delay(100);
     }
+}
+
+void blinkLED(int numberOfTimes) {
+  for(int i=0; i<numberOfTimes; i++) {
+    analogWrite(led, 255);
+    delay(250);
+    analogWrite(led, 0);
+    delay(250); 
+  }
 }

@@ -25,7 +25,7 @@ int main()
         cin.clear();
         cin.ignore();
         // fprintf(file, "%d\n", getnum); //Writing to the file
-        fprintf(file, "%s\n", input);
+        fprintf(file, "%d\n", getnum);
         
     }
 
