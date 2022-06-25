@@ -12,7 +12,7 @@ int main()
     int getnum;
     string input;
 
-    file = fopen("/dev/ttyACM5", "w");
+    file = fopen("/dev/ttyUSB0", "w");
 
     while (true) {
         cout << ">>" << endl;
