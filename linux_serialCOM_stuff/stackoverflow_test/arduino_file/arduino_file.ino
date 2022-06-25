@@ -1,12 +1,16 @@
 
-char incomingByte = 0;   // for incoming serial data
+int incomingByte = 0;   // for incoming serial data
+String input;
 int led = 11;
 int bright;
 
-void setup()
-{
+void setup() {
     Serial.begin(9600);     // opens serial port, sets data rate to 9600 bps
     pinMode(led, OUTPUT);
+
+    analogWrite(led, 255);
+    delay(1000);
+    analogWrite(led, 0);
 }
 
 void loop() {
@@ -14,7 +18,7 @@ void loop() {
     if (Serial.available() > 0) {
       // read the incoming byte:
         incomingByte = Serial.read();
-
+        
         switch (incomingByte) {
         case '1':
             bright = 10;
@@ -28,8 +32,8 @@ void loop() {
         default:
             bright = 0;
             break;
-        }
+      }
       analogWrite(led, bright);
-      Serial.println(incomingByte);
+      delay(500);
     }
 }

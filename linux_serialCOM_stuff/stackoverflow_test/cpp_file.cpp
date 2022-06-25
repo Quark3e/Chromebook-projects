@@ -15,15 +15,17 @@ int main()
     file = fopen("/dev/ttyUSB0", "w");
 
     while (true) {
-        cout << ">>" << endl;
+        cout << ">> ";
         cin >> input;
         if(input == "exit") {
             break;
         }
+        cout << endl;
         getnum = stoi(input);
         cin.clear();
         cin.ignore();
         fprintf(file, "%d\n", getnum); //Writing to the file
+        
     }
 
     fclose(file);
