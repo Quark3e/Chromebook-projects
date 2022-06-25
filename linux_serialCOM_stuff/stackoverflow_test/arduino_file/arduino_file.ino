@@ -34,6 +34,6 @@ void loop() {
             break;
       }
       analogWrite(led, bright);
-      delay(500);
+      delay(100);
     }
 }
