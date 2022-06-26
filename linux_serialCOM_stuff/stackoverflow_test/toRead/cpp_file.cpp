@@ -11,7 +11,7 @@ int main()
 
     int getnum;
     string input;
-
+    
     file = fopen("/dev/ttyUSB0", "w");
 
     while (true) {
