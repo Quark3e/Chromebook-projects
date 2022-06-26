@@ -4,8 +4,8 @@
 
 using namespace std;
 
-int main()
-{
+int main() {
+    
     FILE *file;
     //Opening device file
 
