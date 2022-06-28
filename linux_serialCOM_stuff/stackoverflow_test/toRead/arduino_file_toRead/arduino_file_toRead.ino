@@ -16,19 +16,7 @@ void setup() {
 
 void loop() {
   // send data only when you receive data:
-  if (Serial.available() > 0) {
-    // read the incoming byte:
-
-    input = Serial.readStringUntil('\n');
-
     
-    if (input.toInt() == 69) {
-      blinkLED(12);
-    }
-
-    if (input.toInt() <= 10) {
-      bright = 255 * (float(input.toInt())/10);
-    }
 
     analogWrite(led, bright);
     delay(100);

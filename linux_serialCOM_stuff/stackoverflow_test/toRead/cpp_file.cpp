@@ -1,3 +1,5 @@
+//Nathax - arduino forum
+
 #include <iostream>
 #include <stdio.h>
 #include <string>
@@ -7,23 +9,28 @@
 using namespace std;
 using namespace chrono;
 
+char serialPortFilename[] = "/dev/ttyUSB0";
+
 int main() {
     
-    FILE *file;
-    //Opening device file
+    char readBuffer[1024];
+    int numBytesRead;
 
-    int getnum;
-    string output = "";
-    
-    file = fopen("/dev/ttyUSB0", "r+");
+    FILE *serPort = fopen(serialPortFilename, "r");
 
-    while (true) {
-        // fprintf(file, "%d\n", getnum); //Writing to the file
-        fscanf(file, "%s", output);
-        rewind(file);
-        printf(">> %s\n", output);
-        this_thread::sleep_for(milliseconds(100));     
-    }
+	if (serPort == NULL) {
+		printf("ERROR");	
+		return 0;
+	}
 
-    fclose(file);
+	printf(serialPortFilename);
+	printf(":\n");
+	while(1) {
+		memset(readBuffer, 0, 1024);
+		fread(readBuffer, sizeof(char),1024,serPort);
+		if(sizeof(readBuffer) != 0)
+		{
+			printf(readBuffer);
+		}
+	}
 }
