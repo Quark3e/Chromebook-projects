@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <string>
+#include <string.h>
 #include <chrono>
 #include <thread>
 
@@ -25,7 +26,7 @@ int main() {
 
 	printf(serialPortFilename);
 	printf(":\n");
-	while(1) {
+	while(true) {
 		memset(readBuffer, 0, 1024);
 		fread(readBuffer, sizeof(char),1024,serPort);
 		if(sizeof(readBuffer) != 0)
