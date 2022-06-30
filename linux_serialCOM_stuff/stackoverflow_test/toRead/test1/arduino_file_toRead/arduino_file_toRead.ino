@@ -1,7 +1,7 @@
 
 
 int button = 2;
-int led = 11;
+int led = 13;
 float bright;
 
 
@@ -10,19 +10,19 @@ void setup() {
   pinMode(led, OUTPUT);
   pinMode(button, INPUT_PULLUP);
   
-  analogWrite(led, 255);
+  digitalWrite(led, 255);
   delay(1000);
-  analogWrite(led, 0);
+  digitalWrite(led, 0);
 }
 
 void loop() {
   // send data only when you receive data:
   if(digitalRead(button) == LOW) {
-    analogWrite(led, 255);
+    digitalWrite(led, HIGH);
     Serial.println("Pressed");
   }
   else {
-    analogWrite(led, 0);
+    digitalWrite(led, LOW);
   }
   delay(20);
 }
