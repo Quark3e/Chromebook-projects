@@ -13,7 +13,7 @@ void setup() {
   //digitalWrite(led, 255);
   //delay(1000);
   //digitalWrite(led, 0);
-  delay(10000);
+  delay(1000);
 }
 
 void loop() {
