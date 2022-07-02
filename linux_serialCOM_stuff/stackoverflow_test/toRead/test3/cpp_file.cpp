@@ -6,11 +6,19 @@ https://blog.mbedded.ninja/programming/operating-systems/linux/linux-serial-port
 #include <stdio.h>
 #include <string.h>
 
+#include <chrono>
+#include <thread>
+#include <iostream>
+
+
 // Linux headers
 #include <fcntl.h> // Contains file controls like O_RDWR
 #include <errno.h> // Error integer and strerror() function
 #include <termios.h> // Contains POSIX terminal control definitions
 #include <unistd.h> // write(), read(), close()
+
+using namespace std;
+using namespace chrono;
 
 int main() {
     // Open the serial port. Change device path as needed (currently set to an standard FTDI USB-UART cable type device)
@@ -57,10 +65,23 @@ int main() {
         printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
         return 1;
     }
+    sleep(1);
+    // this_thread::sleep_for(milliseconds(1000));
+    cout << "sending message in:";
+    for (int i=3; i>0; i--) {
+        cout << " " << i;
+        // this_thread::sleep_for(milliseconds(1000));
+        sleep(1);
+    }
+    cout << endl;
 
     // Write to serial port
-    unsigned char msg[] = { 'H', 'e', 'l', 'l', 'o', '\r' };
+    // unsigned char msg[] = { 'H', 'e', 'l', 'l', 'o', ';', '\r' };
+    unsigned char msg[] = { '6', '9', ';', '\r' };
+
     write(serial_port, msg, sizeof(msg));
+
+    this_thread::sleep_for(milliseconds(100));
 
     // Allocate memory for read buffer, set size according to your needs
     char read_buf [256];
@@ -83,7 +104,7 @@ int main() {
 
     // Here we assume we received ASCII data, but you might be sending raw bytes (in that case, don't try and
     // print it to the screen like this!)
-    printf("Read %i bytes. Received message: %s", num_bytes, read_buf);
+    printf("Read %i bytes. Received message: %s\n", num_bytes, read_buf);
 
     close(serial_port);
     return 0; // success
