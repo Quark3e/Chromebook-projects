@@ -77,7 +77,7 @@ int main() {
 
     // Write to serial port
     // unsigned char msg[] = { 'H', 'e', 'l', 'l', 'o', ';', '\r' };
-    unsigned char msg[] = { '6', '9', '\n', '\r' };
+    unsigned char msg[] = { '6', '9', ';', '\r' };
 
     write(serial_port, msg, sizeof(msg));
 
