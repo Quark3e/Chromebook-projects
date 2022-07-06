@@ -21,7 +21,7 @@ void loop() {
   String input;
   digitalWrite(led, LOW);
   if(Serial.available() > 0) {
-    input = Serial.readStringUntil('\n');
+    input = Serial.readStringUntil(';');
     if(input.toInt() == 69) {
       for(int i=0; i<3; i++) {
         digitalWrite(led, HIGH);

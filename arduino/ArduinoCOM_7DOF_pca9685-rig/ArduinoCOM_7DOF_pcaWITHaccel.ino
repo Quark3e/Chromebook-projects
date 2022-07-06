@@ -139,7 +139,7 @@ void global_driveServo(
 
 
 void setup() {
-    Serial.begin(250000);
+    Serial.begin(115200);
 
     pwm.begin();
 
@@ -205,6 +205,7 @@ void loop() {
 
     if (Serial.available() > 0) {
         count = 0;
+        //format: q1 : q2 : q3 : q4 : q5 : q6 s ServoSpeed t USETIMER(string) \n 
         s1_Degree = (Serial.readStringUntil(':')).toInt();
         s2_Degree = (Serial.readStringUntil(':')).toInt();
         s3_Degree = (Serial.readStringUntil(':')).toInt();
@@ -214,6 +215,7 @@ void loop() {
         servoSpeed = (Serial.readStringUntil('t')).toInt(); // 't' is the initializer symbol for wether to use a servo speed
         input = (Serial.readStringUntil('\n')).toInt();
         if(input == "true") { useTimer = true; }
+        else { useTimer = false; }
 
         // if(s1_Degree < 0) {s1_Degree = 0;}
         // if(s2_Degree < 0) {s2_Degree = 0;}
