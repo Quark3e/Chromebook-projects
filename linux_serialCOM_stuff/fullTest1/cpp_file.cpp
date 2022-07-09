@@ -57,8 +57,8 @@ int main() {
     tty.c_cc[VMIN] = 0;
 
     // Set in/out baud rate to be 9600
-    cfsetispeed(&tty, B9600);
-    cfsetospeed(&tty, B9600);
+    cfsetispeed(&tty, B115200);
+    cfsetospeed(&tty, B115200);
 
     // Save tty settings, also checking for error
     if (tcsetattr(serial_port, TCSANOW, &tty) != 0) {
@@ -66,45 +66,57 @@ int main() {
         return 1;
     }
     sleep(1);
-    // this_thread::sleep_for(milliseconds(1000));
-    cout << "sending message in:";
-    for (int i=3; i>0; i--) {
-        cout << " " << i;
+
+    while(true) {
+
         // this_thread::sleep_for(milliseconds(1000));
-        sleep(1);
+        //format: q1 : q2 : q3 : q4 : q5 : q6 s ServoSpeed t USETIMER(string) \n 
+        //note:
+
+        // Write to serial port
+        // unsigned char msg[] = { 'H', 'e', 'l', 'l', 'o', ';', '\r' };
+        // string toSend = "90:45:180:45:-90:90s5ttrue\n";
+        string toSend, input;
+        cout << " Enter servo rotations, in format: q1:q2:q3:q4:q5:q6\n";
+        cout << " input: ";
+        cin >> input;
+        if(input == "exit") { break; }
+        toSend = input + "s2ttrue\n";
+        cin.clear();
+        cin.ignore();
+
+        unsigned char* msg = (unsigned char*)toSend.c_str();
+        // unsigned char msg[] = { 0'6', '9', ';', '\r' };
+
+
+        write(serial_port, msg, sizeof(msg));
+
+        this_thread::sleep_for(milliseconds(100));
+
+        // Allocate memory for read buffer, set size according to your needs
+        char read_buf [256];
+
+        // Normally you wouldn't do this memset() call, but since we will just receive
+        // ASCII data for this example, we'll set everything to 0 so we can
+        // call printf() easily.
+        memset(&read_buf, '\0', sizeof(read_buf));
+
+        // Read bytes. The behaviour of read() (e.g. does it block?,
+        // how long does it block for?) depends on the configuration
+        // settings above, specifically VMIN and VTIME
+        int num_bytes = read(serial_port, &read_buf, sizeof(read_buf));
+
+        // n is the number of bytes read. n may be 0 if no bytes were received, and can also be -1 to signal an error.
+        if (num_bytes < 0) {
+            printf("Error reading: %s", strerror(errno));
+            return 1;
+        }
+
+        // Here we assume we received ASCII data, but you might be sending raw bytes (in that case, don't try and
+        // print it to the screen like this!)
+        printf("Read %i bytes. Received message: %s\n", num_bytes, read_buf);
+
     }
-    cout << endl;
-
-    // Write to serial port
-    // unsigned char msg[] = { 'H', 'e', 'l', 'l', 'o', ';', '\r' };
-    unsigned char msg[] = { '6', '9', ';', '\r' };
-
-    write(serial_port, msg, sizeof(msg));
-
-    this_thread::sleep_for(milliseconds(100));
-
-    // Allocate memory for read buffer, set size according to your needs
-    char read_buf [256];
-
-    // Normally you wouldn't do this memset() call, but since we will just receive
-    // ASCII data for this example, we'll set everything to 0 so we can
-    // call printf() easily.
-    memset(&read_buf, '\0', sizeof(read_buf));
-
-    // Read bytes. The behaviour of read() (e.g. does it block?,
-    // how long does it block for?) depends on the configuration
-    // settings above, specifically VMIN and VTIME
-    int num_bytes = read(serial_port, &read_buf, sizeof(read_buf));
-
-    // n is the number of bytes read. n may be 0 if no bytes were received, and can also be -1 to signal an error.
-    if (num_bytes < 0) {
-        printf("Error reading: %s", strerror(errno));
-        return 1;
-    }
-
-    // Here we assume we received ASCII data, but you might be sending raw bytes (in that case, don't try and
-    // print it to the screen like this!)
-    printf("Read %i bytes. Received message: %s\n", num_bytes, read_buf);
 
     close(serial_port);
     return 0; // success
