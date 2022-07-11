@@ -199,7 +199,7 @@ void loop() {
     String returnText;
     String input;
 
-    int delayTimer = 1;
+    int delayTimer = 0;
  
     readAccelerometer();
 
