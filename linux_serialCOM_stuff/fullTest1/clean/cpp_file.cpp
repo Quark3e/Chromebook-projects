@@ -81,14 +81,13 @@ int main() {
         cout << " input: ";
         cin >> input;
         if(input == "exit") { break; }
-        toSend = input + "s2ttrue\n";
-        cin.clear();
-        cin.ignore();
+        toSend = input + "s2tfalse\n";
 
         unsigned char* msg = (unsigned char*)toSend.c_str();
         // unsigned char msg[] = { 0'6', '9', ';', '\r' };
 
-
+        cout << msg << endl;
+        cout << sizeof(msg);
         write(serial_port, msg, sizeof(msg));
 
         // this_thread::sleep_for(milliseconds(100));
