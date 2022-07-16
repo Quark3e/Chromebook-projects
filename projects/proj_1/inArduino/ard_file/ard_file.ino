@@ -21,7 +21,7 @@ uint16_t s[7]; // the previous rotation value
 int ADXL345 = 0x53; // The ADXL345 sensor I2C address
 float X_out, Y_out, Z_out;  // Outputs
 float roll, pitch;
-float Roll, Pitch; //filtered roll and pitch
+float Roll = 0, Pitch = 0; //filtered roll and pitch
 int resolutionOpt = 32;
 
 void readAccelerometer() {
@@ -51,12 +51,11 @@ void readAccelerometer() {
     Serial.print(Y_out);
     Serial.print("   Za= ");
     Serial.print(Z_out);*/
-    Serial.print(":r");
-    Serial.print(Roll);
-    Serial.print(":p");
-    Serial.print(Pitch);
-
-    Serial.println(":");
+    // Serial.print(":r");
+    // Serial.print(Roll);
+    // Serial.print(":p");
+    // Serial.print(Pitch);
+    // Serial.println(":");
 }
 
 void driveServo(int servoNum, int degree, bool useTimer = false) {
@@ -309,6 +308,9 @@ void loop() {
     String returnText;
     String input;
     float posX, posY, posZ, posX2, posY2, posZ2; //coords / end_effector position(s)
+    posX = 0;
+    posY = d5 + d6 + 127;
+    posZ = 200;
     float q1, q2, q3, q4, q5, q6;
 
     int q1_default = 90, //in degrees
@@ -346,13 +348,34 @@ void loop() {
 		else {}
 
         
+        get_Angles(posX, posY, posZ, &q1, &q2, &q3, &q4, &q5, &q6, &a1, &b1, &posX2, &posY2, &posZ2, a, b, Y, posOption, 1, 1, true);
 
-        if(isnan(q1) ||
+        if(!(isnan(q1) ||
 		isnan(q2) ||
 		isnan(q3) ||
 		isnan(q4) ||
 		isnan(q5) ||
-		isnan(q6)) {
+		isnan(q6))) {
+            
+            if (q1_default - int(round(toDegrees(q1))) < 0) { q1 = toRadians(0 + q1_default); }
+            if (q2_default + int(round(toDegrees(q2))) < 0) { q2 = toRadians(0 - q2_default); }
+            if (q3_default + int(round(toDegrees(q3))) < 0) { q3 = toRadians(0 - q3_default); }
+            if (q4_default + int(round(toDegrees(q4))) < 0) { q4 = toRadians(0 - q4_default); }
+            if (q5_default + int(round(toDegrees(q5))) < 0) { q5 = toRadians(0 - q5_default); }
+            if (q6_default + int(round(toDegrees(q6))) < 0) { q6 = toRadians(0 - q6_default); }
+            if (q1_default - int(round(toDegrees(q1))) > 180) { q1 = toRadians(0 - q1_default); }
+            if (q2_default + int(round(toDegrees(q2))) > 180) { q2 = toRadians(180 - q2_default); }
+            if (q3_default + int(round(toDegrees(q3))) > 180) { q3 = toRadians(180 - q3_default); }
+            if (q4_default + int(round(toDegrees(q4))) > 180) { q4 = toRadians(180 - q4_default); }
+            if (q5_default + int(round(toDegrees(q5))) > 180) { q5 = toRadians(180 - q5_default); }
+            if (q6_default + int(round(toDegrees(q6))) > 180) { q6 = toRadians(180 - q6_default); }
+
+            s1_Degree = q1_default - int(round(toDegrees(q1)));
+            s2_Degree = q2_default + int(round(toDegrees(q2)));
+            s3_Degree = q3_default + int(round(toDegrees(q3)));
+            s4_Degree = q4_default + int(round(toDegrees(q4)));
+            s5_Degree = q5_default + int(round(toDegrees(q5)));
+            s6_Degree = q6_default + int(round(toDegrees(q6)));
 
             driveServo(6, s6_Degree, useTimer); delay(delayTimer);
             driveServo(5, s5_Degree, useTimer); delay(delayTimer);
