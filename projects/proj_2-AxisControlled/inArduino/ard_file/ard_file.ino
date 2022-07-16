@@ -45,12 +45,12 @@ void readAccelerometer() {
     Roll = 0.8 * Roll + 0.2 * roll;
     Pitch = 0.8 * Pitch + 0.2 * pitch;
 
-    /*Serial.print("Xa= ");
+    Serial.print("Xa= ");
     Serial.print(X_out);
     Serial.print("   Ya= ");
     Serial.print(Y_out);
     Serial.print("   Za= ");
-    Serial.print(Z_out);*/
+    Serial.println(Z_out);
     // Serial.print(":r");
     // Serial.print(Roll);
     // Serial.print(":p");
@@ -348,7 +348,7 @@ void loop() {
 		else {}
 
         
-        get_Angles(posX, posY, posZ, &q1, &q2, &q3, &q4, &q5, &q6, &a1, &b1, &posX2, &posY2, &posZ2, a, b, Y, posOption, 1, 1, true);
+        get_Angles(posX, posY, posZ, &q1, &q2, &q3, &q4, &q5, &q6, &a1, &b1, &posX2, &posY2, &posZ2, a, b, Y, posOption, 1, 1);
 
         if(!(isnan(q1) ||
 		isnan(q2) ||
