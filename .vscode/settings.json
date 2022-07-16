@@ -2,6 +2,12 @@
     "files.associations": {
         "thread": "cpp",
         "iostream": "cpp",
-        "*.tcc": "cpp"
+        "*.tcc": "cpp",
+        "bit": "cpp",
+        "list": "cpp",
+        "functional": "cpp",
+        "random": "cpp",
+        "limits": "cpp",
+        "variant": "cpp"
     }
 }

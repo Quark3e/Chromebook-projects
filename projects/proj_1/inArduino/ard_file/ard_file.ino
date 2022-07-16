@@ -91,6 +91,175 @@ void driveServo(int servoNum, int degree, bool useTimer = false) {
 }
 
 
+float d1 = 140; //axial "roll"
+float d2 = 135; //axial "pitch"
+float d3 = 70; //axial "pitch"
+float d4 = 80; //axial "roll"
+float d5 = 45; //axial "pitch
+float d6 = 30; //axial "roll" (?)
+
+float toDegrees(float radians) {
+	return (radians * 180) / PI;
+}
+
+float toRadians(float degrees) {
+	return (degrees * PI) / 180;
+}
+
+void get_Angles(
+	// Vector3f PP,
+    float posX,
+    float posY,
+    float posZ,
+	float* q1,
+	float* q2,
+	float* q3,
+	float* q4,
+	float* q5,
+	float* q6,
+	float* a1,
+	float* b1,
+	// Vector3f* P2,
+    float* posX2,
+    float* posY2,
+    float* posZ2,
+	float a,
+	float b,
+	float Y,
+	char posOption,
+	float length_scalar = 1,
+	float coord_scalar = 1,
+	bool printText = false
+) {
+	float lambda, mu;
+	float d5x, d5z;
+
+	posX = posX * coord_scalar;
+	posY = posY * coord_scalar;
+	posZ = posZ * coord_scalar;
+
+	d1 = d1 * length_scalar;
+	d2 = d2 * length_scalar;
+	d3 = d3 * length_scalar;
+	d4 = d4 * length_scalar;
+	d5 = d5 * length_scalar;
+	d6 = d6 * length_scalar;
+
+
+	float l = (d5+d6) * cos(b);
+	(*posX2) = posX - l * sin(a);
+	(*posY2) = posY - l * cos(a);
+	(*posZ2) = posZ - (d5+d6) * sin(b);
+
+	if ((*posY2) == 0) {
+		(*posY2) = 0.00001;
+	}
+	else if ((*posY2) < 0) {
+		(*posY2) = 0;
+	}
+
+	(*q1) = atan((*posX2) / (*posY2));
+
+	if (posOption == '+') {
+		(*q3) = acos(
+			(pow((*posX2), 2) + pow((*posY2), 2) + pow(*posZ2 - d1, 2) - pow(d2, 2) - pow(d3 + d4, 2)) /
+			(2 * d2 * (d3 + d4))
+		);
+	}
+	else if (posOption == '-') {
+		(*q3) = acos(
+			(pow((*posX2), 2) + pow((*posY2), 2) + pow(*posZ2 - d1, 2) - pow(d2, 2) - pow(d3 + d4, 2)) /
+			(2 * d2 * (d3 + d4))
+		);
+	}
+	lambda = atan((*posZ2 - d1) / sqrt(pow((*posX2), 2) + pow((*posY2), 2)));
+	mu = atan(
+		((d3 + d4) * sin(*q3)) /
+		(d2 + (d3 + d4) * cos(*q3))
+	);
+
+	//cout << "lambda: " << toDegrees(lambda) << " mu: " << toDegrees(mu) << endl;
+
+	if (posOption == '+')
+		(*q2) = lambda - mu;
+	else if (posOption == '-') {
+		(*q2) = lambda + mu;
+		(*q3) = 0 - (*q3);
+	}
+
+	(*a1) = a - (*q1);
+	(*b1) = b - (*q2 + *q3);
+
+	d5x = (d5+d6) * cos(*b1) * sin(*a1); //NOTE: The x and y axis of the X1Y1Z1 frame in the paper was reverse (compared to this. The names need to be changed!)
+	d5z = (d5+d6) * sin(*b1);
+
+	if ((*b1) == 0)
+		(*q4) = 0;
+	else if ((*b1) < 0 || (*b1) > 0)
+		(*q4) = atan(d5x / d5z);
+
+	/*if (cos(*b1) * cos(*a1) == 0) {
+		(*q5) = 0;
+	}*/
+	//else {
+	double check = asin(sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6));
+	if (isnan(check)) {
+		if (printText) {
+			Serial.print("asin(sqrt(pow(d5x, 2) + pow(d5z, 2)) / d5)  is NaN\n");
+		}
+	}
+	else {
+		if (sqrt(pow(d5x, 2) + pow(d5z, 2)) > 90.0) {
+			(*q5) = toRadians(90);
+		}
+		else {
+			(*q5) = asin(
+				sqrt(pow(d5x, 2) + pow(d5z, 2)) /
+				(d5+d6)
+			);
+		}
+	}
+
+
+	if (d5z < 0) {
+		(*q5) = 0.0 - (*q5);
+	}
+
+	if (b <= PI / 2 && b >= 0 - PI / 2)
+		(*q6) = Y - (*q4);
+	else if (b >= PI / 2 || b <= 0 - PI / 2)
+		(*q6) = PI - (Y - (*q6));
+
+    if (printText) {
+        Serial.print("q1:");
+        Serial.print(*q1);
+        Serial.print(" q2:");
+        Serial.print(*q2);
+        Serial.print(" q3:");
+        Serial.print(*q3);
+        Serial.print(" q4:");
+        Serial.print(*q4);
+        Serial.print(" q5:");
+        Serial.print(*q5);
+        Serial.print(" q6:");
+        Serial.println(*q6);
+
+		printf("\nq1:%f q2:%f q3:%f q4:%f q5:%f q6:%f\n",
+			toDegrees(*q1),
+			toDegrees(*q2),
+			toDegrees(*q3),
+			toDegrees(*q4),
+			toDegrees(*q5),
+			toDegrees(*q6)
+		);
+    }
+}   
+// note: all angles ares in radian, whether input or output;
+// it will not let point P2 be behind the X-axis 
+// (i.e have a negative Y value)
+
+
+
 void setup() {
     Serial.begin(115200);
 
