@@ -309,7 +309,7 @@ void loop() {
     String input;
     float posX, posY, posZ, posX2, posY2, posZ2; //coords / end_effector position(s)
     posX = 0;
-    posY = d5 + d6 + 127;
+    posY = d5 + d6 + 175;
     posZ = 200;
     float q1, q2, q3, q4, q5, q6;
 
