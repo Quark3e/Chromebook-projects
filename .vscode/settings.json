@@ -8,6 +8,7 @@
         "functional": "cpp",
         "random": "cpp",
         "limits": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "cmath": "cpp"
     }
 }

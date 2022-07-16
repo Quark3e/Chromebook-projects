@@ -107,7 +107,6 @@ float toRadians(float degrees) {
 }
 
 void get_Angles(
-	// Vector3f PP,
     float posX,
     float posY,
     float posZ,
@@ -119,7 +118,6 @@ void get_Angles(
 	float* q6,
 	float* a1,
 	float* b1,
-	// Vector3f* P2,
     float* posX2,
     float* posY2,
     float* posZ2,
@@ -232,26 +230,17 @@ void get_Angles(
 
     if (printText) {
         Serial.print("q1:");
-        Serial.print(*q1);
+        Serial.print(toDegrees(*q1));
         Serial.print(" q2:");
-        Serial.print(*q2);
+        Serial.print(toDegrees(*q2));
         Serial.print(" q3:");
-        Serial.print(*q3);
+        Serial.print(toDegrees(*q3));
         Serial.print(" q4:");
-        Serial.print(*q4);
+        Serial.print(toDegrees(*q4));
         Serial.print(" q5:");
-        Serial.print(*q5);
+        Serial.print(toDegrees(*q5));
         Serial.print(" q6:");
-        Serial.println(*q6);
-
-		printf("\nq1:%f q2:%f q3:%f q4:%f q5:%f q6:%f\n",
-			toDegrees(*q1),
-			toDegrees(*q2),
-			toDegrees(*q3),
-			toDegrees(*q4),
-			toDegrees(*q5),
-			toDegrees(*q6)
-		);
+        Serial.println(toDegrees(*q6));
     }
 }   
 // note: all angles ares in radian, whether input or output;
@@ -317,64 +306,73 @@ void loop() {
     // Drive each servo one at a time using setPWM()
     String s;
     int count;
-    uint16_t s1_Degree, s2_Degree, s3_Degree, s4_Degree, s5_Degree, s6_Degree;
     String returnText;
     String input;
+    float posX, posY, posZ, posX2, posY2, posZ2; //coords / end_effector position(s)
+    float q1, q2, q3, q4, q5, q6;
+
+    int q1_default = 90, //in degrees
+		q2_default = 0, //in degrees
+		q3_default = 135, //in degrees
+		q4_default = 90, //in degrees
+		q5_default = 90, //in degrees
+		q6_default = 90; //in degrees
+
+    int s1_Degree,
+        s2_Degree,
+        s3_Degree,
+        s4_Degree,
+        s5_Degree,
+        s6_Degree;
+
+    float a = toRadians(0), a1, b = toRadians(-45), b1, Y = toRadians(0);
+    char posOption = '-';
+
 
     int delayTimer = 0;
- 
-    readAccelerometer();
+    
+    while(true) {
+        bool bPos = false;
+		if (Pitch <= float(90) && Pitch >= -90) {
+			b = toRadians(Pitch * 0.9 + toDegrees(b) * 0.1);
+			if(b < 0) { bPos = false; }
+			if (b > 0) { bPos = true; }
+		}
+		else {}
+		if (Roll <= float(90) && Roll >= -90) { 
+			if (!bPos) { a = toRadians(0 - (Roll * 0.9 + toDegrees(a) * 0.1)); }
+			else if (bPos) { a = toRadians((Roll * 0.9 + toDegrees(a) * 0.1)); }
+		}
+		else {}
 
-    if (Serial.available() > 0) {
-        count = 0;
-        //format: q1 : q2 : q3 : q4 : q5 : q6 s ServoSpeed t USETIMER(string) \n 
-        s1_Degree = (Serial.readStringUntil(':')).toInt();
-        s2_Degree = (Serial.readStringUntil(':')).toInt();
-        s3_Degree = (Serial.readStringUntil(':')).toInt();
-        s4_Degree = (Serial.readStringUntil(':')).toInt();
-        s5_Degree = (Serial.readStringUntil(':')).toInt();
-        s6_Degree = (Serial.readStringUntil('s')).toInt(); // 's' is the initializer symbol for the servo's speed
-        servoSpeed = (Serial.readStringUntil('t')).toInt(); // 't' is the initializer symbol for wether to use a servo speed
-        input = (Serial.readStringUntil('\n')).toInt();
-        if(input == "true") { useTimer = true; }
-        else { useTimer = false; }
+        
 
-        // if(s1_Degree < 0) {s1_Degree = 0;}
-        // if(s2_Degree < 0) {s2_Degree = 0;}
-        // if(s3_Degree < 0) {s3_Degree = 0;}
-        // if(s4_Degree < 0) {s4_Degree = 0;}
-        // if(s5_Degree < 0) {s5_Degree = 0;}
-        // if(s6_Degree < 0) {s6_Degree = 0;}
-        // if(s1_Degree > 180) {s1_Degree = 180;}
-        // if(s2_Degree > 180) {s2_Degree = 180;}
-        // if(s3_Degree > 180) {s3_Degree = 180;}
-        // if(s4_Degree > 180) {s4_Degree = 180;}
-        // if(s5_Degree > 180) {s5_Degree = 180;}
-        // if(s6_Degree > 180) {s6_Degree = 180;}
+        if(isnan(q1) ||
+		isnan(q2) ||
+		isnan(q3) ||
+		isnan(q4) ||
+		isnan(q5) ||
+		isnan(q6)) {
 
-        // returnText = "received: q1:" + String(s1_Degree)
-        //             + " q2:" + String(s2_Degree)
-        //             + " q3:" + String(s3_Degree)
-        //             + " q4:" + String(s4_Degree)
-        //             + " q5:" + String(s5_Degree)
-        //             + " q6:" + String(s6_Degree);
-        // Serial.println(returnText);
+            driveServo(6, s6_Degree, useTimer); delay(delayTimer);
+            driveServo(5, s5_Degree, useTimer); delay(delayTimer);
+            driveServo(4, s4_Degree, useTimer); delay(delayTimer);
+            driveServo(3, s3_Degree, useTimer); delay(delayTimer);
+            driveServo(2, s2_Degree, useTimer); delay(delayTimer);
+            driveServo(1, s1_Degree, useTimer);
+            driveServo(7, 0 - (s2_Degree + s3_Degree + s5_Degree), useTimer);
+        }
 
-        driveServo(6, s6_Degree, useTimer); delay(delayTimer);
-        driveServo(5, s5_Degree, useTimer); delay(delayTimer);
-        driveServo(4, s4_Degree, useTimer); delay(delayTimer);
-        driveServo(3, s3_Degree, useTimer); delay(delayTimer);
-        driveServo(2, s2_Degree, useTimer); delay(delayTimer);
-        driveServo(1, s1_Degree, useTimer);
-        // global_driveServo(
-        //     s1_Degree,
-        //     s2_Degree,
-        //     s3_Degree,
-        //     s4_Degree,
-        //     s5_Degree,
-        //     s6_Degree
-        // );
-        driveServo(7, 0 - (s2_Degree + s3_Degree + s5_Degree), useTimer);
-        // driveServo(8, s2_Degree);
+
+
+        if (Serial.available() > 0) {
+            // format: x:y:z\n
+            posX = (Serial.readStringUntil(':')).toFloat();
+            posY = (Serial.readStringUntil(':')).toFloat();
+            posZ = (Serial.readStringUntil('\n')).toFloat();
+        }
+
+
+        readAccelerometer();
     }
 }
