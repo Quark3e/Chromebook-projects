@@ -20,9 +20,19 @@ uint16_t s[7]; // the previous rotation value
 //accelerometer variables
 int ADXL345 = 0x53; // The ADXL345 sensor I2C address
 float X_out, Y_out, Z_out;  // Outputs
+float filt_X, filt_Y, filt_Z; // filters to use on Outputs to subtract gravitational acceleration
 float roll, pitch;
 float Roll = 0, Pitch = 0; //filtered roll and pitch
-int resolutionOpt = 32;
+int resolutionOpt = 32, resDefault_val = 10; // resDefault_val is dependant on what output resolutionOpt gives
+
+
+float toDegrees(float radians) {
+  return (radians * 180) / PI;
+}
+
+float toRadians(float degrees) {
+  return (degrees * PI) / 180;
+}
 
 void readAccelerometer() {
     // === Read acceleromter data === //
@@ -45,17 +55,32 @@ void readAccelerometer() {
     Roll = 0.8 * Roll + 0.2 * roll;
     Pitch = 0.8 * Pitch + 0.2 * pitch;
 
-    Serial.print("Xa= ");
-    Serial.print(X_out);
-    Serial.print("   Ya= ");
-    Serial.print(Y_out);
-    Serial.print("   Za= ");
-    Serial.println(Z_out);
+    // Serial.print("Xa= ");
+    // Serial.print(X_out);
+    // Serial.print("   Ya= ");
+    // Serial.print(Y_out);
+    // Serial.print("   Za= ");
+    // Serial.println(Z_out);
+
     // Serial.print(":r");
     // Serial.print(Roll);
     // Serial.print(":p");
     // Serial.print(Pitch);
     // Serial.println(":");
+
+    filt_X = resDefault_val * cos(toRadians(90 - (0 - roll)));
+    filt_Y = resDefault_val * cos(toRadians(90 - pitch));
+    if (abs(roll) > abs(pitch)) { filt_Z = resDefault_val * sin(toRadians(90 - roll)); }
+    else { filt_Z = resDefault_val * sin(toRadians(90 - pitch)); }
+    Serial.print("   Xa= ");
+    Serial.print(X_out - filt_X);
+    Serial.print("   Ya= ");
+    Serial.print(Y_out - filt_Y);
+    // Serial.print("   Za= ");
+    // Serial.print(Z_out - filt_Z);
+    Serial.println();
+
+
 }
 
 void driveServo(int servoNum, int degree, bool useTimer = false) {
@@ -97,13 +122,6 @@ float d4 = 80; //axial "roll"
 float d5 = 45; //axial "pitch
 float d6 = 30; //axial "roll" (?)
 
-float toDegrees(float radians) {
-	return (radians * 180) / PI;
-}
-
-float toRadians(float degrees) {
-	return (degrees * PI) / 180;
-}
 
 void get_Angles(
     float posX,
