@@ -10,6 +10,13 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define USMAX  2400 // This is the rounded 'maximum' microsecond length based on the maximum pulse of 600
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
 
+int xPin = 8;
+int yPin = 9;
+int zPin = 10;
+int reversePin = 11;
+float axisVal = 10;
+
+
 uint8_t servonum = 0; // servo counter
 
 int servoSpeed = 5; // the increase steps in the for loop
@@ -251,6 +258,11 @@ void get_Angles(
 void setup() {
     Serial.begin(115200);
 
+    pinMode(xPin, INPUT_PULLUP);
+    pinMode(yPin, INPUT_PULLUP);
+    pinMode(zPin, INPUT_PULLUP);
+    pinMode(reversePin, INPUT_PULLUP);
+
     pwm.begin();
 
     pwm.setOscillatorFrequency(27000000);
@@ -334,14 +346,27 @@ void loop() {
     int delayTimer = 0;
     
     while(true) {
+        if(digitalRead(xPin) == LOW) {
+            if(digitalRead(reversePin) == LOW) { posX-=axisVal; }
+            else { posX+=axisVal; }
+        }
+        if(digitalRead(yPin) == LOW) {
+            if(digitalRead(reversePin) == LOW) { posY-=axisVal; }
+            else { posY+=axisVal; }
+        }
+        if(digitalRead(zPin) == LOW) {
+            if(digitalRead(reversePin) == LOW) { posZ-=axisVal; }
+            else { posZ+=axisVal; }
+        }
+        
         bool bPos = false;
-		if (Pitch <= float(90) && Pitch >= -90) {
+		if(Pitch <= float(90) && Pitch >= -90) {
 			b = toRadians(Pitch * 0.9 + toDegrees(b) * 0.1);
 			if(b < 0) { bPos = false; }
 			if (b > 0) { bPos = true; }
 		}
 		else {}
-		if (Roll <= float(90) && Roll >= -90) { 
+		if(Roll <= float(90) && Roll >= -90) { 
 			if (!bPos) { a = toRadians(0 - (Roll * 0.9 + toDegrees(a) * 0.1)); }
 			else if (bPos) { a = toRadians((Roll * 0.9 + toDegrees(a) * 0.1)); }
 		}
