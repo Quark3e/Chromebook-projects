@@ -1,3 +1,6 @@
+#define xPin A0
+#define yPin A1
+
 
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
@@ -10,11 +13,13 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define USMAX  2400 // This is the rounded 'maximum' microsecond length based on the maximum pulse of 600
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
 
-int xPin = 8;
-int yPin = 9;
-int zPin = 10;
+// int xPin = 8;
+// int yPin = 9;
+// int zPin = 10;
 int reversePin = 11;
-float axisVal = 10;
+int analogstickPin = 12; // button for when the joystick is pressed down
+
+float axisVal = 2;
 
 
 uint8_t servonum = 0; // servo counter
@@ -93,7 +98,7 @@ void driveServo(int servoNum, int degree, bool useTimer = false) {
     }
     s[servoNum - 1] = microsec_dur;
     
-    delay(10);
+    delay(2);
 }
 
 
@@ -258,10 +263,11 @@ void get_Angles(
 void setup() {
     Serial.begin(115200);
 
-    pinMode(xPin, INPUT_PULLUP);
-    pinMode(yPin, INPUT_PULLUP);
-    pinMode(zPin, INPUT_PULLUP);
+    // pinMode(xPin, INPUT_PULLUP);
+    // pinMode(yPin, INPUT_PULLUP);
+    // pinMode(zPin, INPUT_PULLUP);
     pinMode(reversePin, INPUT_PULLUP);
+    pinMode(analogstickPin, INPUT_PULLUP);
 
     pwm.begin();
 
@@ -346,19 +352,27 @@ void loop() {
     int delayTimer = 0;
     
     while(true) {
-        if(digitalRead(xPin) == LOW) {
-            if(digitalRead(reversePin) == LOW) { posX-=axisVal; }
-            else { posX+=axisVal; }
-        }
-        if(digitalRead(yPin) == LOW) {
-            if(digitalRead(reversePin) == LOW) { posY-=axisVal; }
-            else { posY+=axisVal; }
-        }
-        if(digitalRead(zPin) == LOW) {
-            if(digitalRead(reversePin) == LOW) { posZ-=axisVal; }
-            else { posZ+=axisVal; }
-        }
         
+        posX+=5 * axisVal * (float(map(analogRead(xPin), 0, 1023, 0, 100)) / 100) - 2.5 * axisVal;
+        posY+=5 * axisVal * (float(map(analogRead(yPin), 0, 1023, 0, 100)) / 100) - 2.5 * axisVal;
+        if(digitalRead(analogstickPin) == LOW) { posZ+=axisVal; }
+        if(digitalRead(reversePin) == LOW) { posZ-=axisVal; }
+
+        // {
+        // if(digitalRead(xPin) == LOW) {
+        //     if(digitalRead(reversePin) == LOW) { posX-=axisVal; }
+        //     else { posX+=axisVal; }
+        // }
+        // if(digitalRead(yPin) == LOW) {
+        //     if(digitalRead(reversePin) == LOW) { posY-=axisVal; }
+        //     else { posY+=axisVal; }
+        // }
+        // if(digitalRead(zPin) == LOW) {
+        //     if(digitalRead(reversePin) == LOW) { posZ-=axisVal; }
+        //     else { posZ+=axisVal; }
+        // }
+        // }
+
         bool bPos = false;
 		if(Pitch <= float(90) && Pitch >= -90) {
 			b = toRadians(Pitch * 0.9 + toDegrees(b) * 0.1);
