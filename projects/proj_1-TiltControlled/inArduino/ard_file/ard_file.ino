@@ -17,10 +17,12 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 // int yPin = 9;
 // int zPin = 10;
 int reversePin = 11;
-int analogstickPin = 12; // button for when the joystick is pressed down
+int zUp = 8;
+int zDown = 9;
 
 float axisVal = 2;
-
+float XminVal = 4;
+float YminVal = 2;
 
 uint8_t servonum = 0; // servo counter
 
@@ -266,8 +268,9 @@ void setup() {
     // pinMode(xPin, INPUT_PULLUP);
     // pinMode(yPin, INPUT_PULLUP);
     // pinMode(zPin, INPUT_PULLUP);
-    pinMode(reversePin, INPUT_PULLUP);
-    pinMode(analogstickPin, INPUT_PULLUP);
+    // pinMode(reversePin, INPUT_PULLUP);
+    pinMode(zUp, INPUT_PULLUP);
+    pinMode(zDown, INPUT_PULLUP);
 
     pwm.begin();
 
@@ -351,12 +354,17 @@ void loop() {
 
     int delayTimer = 0;
     
+    float val1, val2;
+
     while(true) {
         
-        posX+=5 * axisVal * (float(map(analogRead(xPin), 0, 1023, 0, 100)) / 100) - 2.5 * axisVal;
-        posY+=5 * axisVal * (float(map(analogRead(yPin), 0, 1023, 0, 100)) / 100) - 2.5 * axisVal;
-        if(digitalRead(analogstickPin) == LOW) { posZ+=axisVal; }
-        if(digitalRead(reversePin) == LOW) { posZ-=axisVal; }
+        val1 = 5 * axisVal * (float(map(analogRead(xPin), 0, 1023, 0, 100)) / 100) - 2.5 * axisVal;
+        val2 = 2.5 * axisVal * (float(map(analogRead(yPin), 0, 1023, 0, 100)) / 100) - 1.25 * axisVal;
+        if(abs(val1) >= XminVal) { posX-=val1; }
+        if(abs(val2) >= YminVal) { posY-=val2; }
+
+        if(digitalRead(zUp) == LOW) { posZ+=1.5 * axisVal; }
+        else if(digitalRead(zDown) == LOW) { posZ-=1.5 * axisVal; }
 
         // {
         // if(digitalRead(xPin) == LOW) {
