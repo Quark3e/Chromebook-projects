@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 import imutils
 
-ser = serial.Serial('/dev/ttyUSB1', 115200, timeout=1)
+ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)
 ser.reset_input_buffer()
 
 # Replace the below URL with your own. Make sure to add "/shot.jpg" at last.
