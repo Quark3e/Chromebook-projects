@@ -1,7 +1,6 @@
 #define xPin A0
 #define yPin A1
 
-
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 
@@ -357,6 +356,12 @@ void loop() {
     float val1, val2;
 
     while(true) {
+        if (Serial.available() > 0) {
+            // format: x:y:z\n
+            posX = (Serial.readStringUntil(':')).toFloat();
+            posY = (Serial.readStringUntil(':')).toFloat();
+            posZ = (Serial.readStringUntil('\n')).toFloat();
+        }
         
         val1 = 5 * axisVal * (float(map(analogRead(xPin), 0, 1023, 0, 100)) / 100) - 2.5 * axisVal;
         val2 = 2.5 * axisVal * (float(map(analogRead(yPin), 0, 1023, 0, 100)) / 100) - 1.25 * axisVal;
@@ -431,15 +436,6 @@ void loop() {
             driveServo(2, s2_Degree, useTimer); delay(delayTimer);
             driveServo(1, s1_Degree, useTimer);
             driveServo(7, 0 - (s2_Degree + s3_Degree + s5_Degree), useTimer);
-        }
-
-
-
-        if (Serial.available() > 0) {
-            // format: x:y:z\n
-            posX = (Serial.readStringUntil(':')).toFloat();
-            posY = (Serial.readStringUntil(':')).toFloat();
-            posZ = (Serial.readStringUntil('\n')).toFloat();
         }
 
 

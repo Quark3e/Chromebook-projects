@@ -77,11 +77,11 @@ int main() {
         // unsigned char msg[] = { 'H', 'e', 'l', 'l', 'o', ';', '\r' };
         // string toSend = "90:45:180:45:-90:90s5ttrue\n";
         string toSend, input;
-        cout << " Enter servo rotations, in format: q1:q2:q3:q4:q5:q6\n";
+        cout << " Enter servo rotations, in format: x:y:z\n";
         cout << " input: ";
         cin >> input;
         if(input == "exit") { break; }
-        toSend = input + "s2tfalse\n";
+        toSend = input + "\n";
 
         unsigned char* msg = (unsigned char*)toSend.c_str();
         // unsigned char msg[] = { 0'6', '9', ';', '\r' };

@@ -9,19 +9,18 @@ int main() {
     FILE *file;
     //Opening device file
 
-    int getnum;
+    string getnum;
     string input;
     
     file = fopen("/dev/ttyUSB0", "w");
 
     while (true) {
-        cout << ">> ";
+        cout << "send coods in x:y:z >> ";
         cin >> input;
         if(input == "exit") {
             break;
         }
-        cout << endl;
-        getnum = stoi(input);
+        getnum = input;
         cin.clear();
         cin.ignore();
         // fprintf(file, "%d\n", getnum); //Writing to the file
@@ -30,4 +29,5 @@ int main() {
     }
 
     fclose(file);
+    return 0;
 }
