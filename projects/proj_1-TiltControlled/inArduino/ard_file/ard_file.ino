@@ -358,9 +358,9 @@ void loop() {
     while(true) {
         if (Serial.available() > 0) {
             // format: x:y:z\n
-            posX = (Serial.readStringUntil(':')).toFloat();
-            posY = (Serial.readStringUntil(':')).toFloat();
-            posZ = (Serial.readStringUntil('\n')).toFloat();
+            posX = (Serial.readStringUntil(':')).toInt();
+            posY = (Serial.readStringUntil(':')).toInt();
+            posZ = (Serial.readStringUntil('\n')).toInt();
             Serial.print("received: \"x:");
             Serial.print(posX);
             Serial.print(" y:");

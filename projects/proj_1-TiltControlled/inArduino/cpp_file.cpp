@@ -98,7 +98,7 @@ int main() {
         write(serial_port, msg, sizeof(msg));
 
 
-        this_thread::sleep_for(milliseconds(50));
+        // this_thread::sleep_for(milliseconds(100));
 
         char read_buf [256];
         memset(&read_buf, '\0', sizeof(read_buf));
