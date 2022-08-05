@@ -361,6 +361,13 @@ void loop() {
             posX = (Serial.readStringUntil(':')).toFloat();
             posY = (Serial.readStringUntil(':')).toFloat();
             posZ = (Serial.readStringUntil('\n')).toFloat();
+            Serial.print("received: \"x:");
+            Serial.print(posX);
+            Serial.print(" y:");
+            Serial.print(posY);
+            Serial.print(" z:");
+            Serial.print(posZ);
+            Serial.println("\"");
         }
         
         val1 = 5 * axisVal * (float(map(analogRead(xPin), 0, 1023, 0, 100)) / 100) - 2.5 * axisVal;
@@ -400,7 +407,7 @@ void loop() {
 		else {}
 
         
-        get_Angles(posX, posY, posZ, &q1, &q2, &q3, &q4, &q5, &q6, &a1, &b1, &posX2, &posY2, &posZ2, a, b, Y, posOption, 1, 1, true);
+        get_Angles(posX, posY, posZ, &q1, &q2, &q3, &q4, &q5, &q6, &a1, &b1, &posX2, &posY2, &posZ2, a, b, Y, posOption, 1, 1, false);
 
         if(!(isnan(q1) ||
 		isnan(q2) ||

@@ -12,7 +12,14 @@ int main() {
     string getnum;
     string input;
     
-    file = fopen("/dev/ttyUSB0", "w");
+    string usbName;
+    cout << "Enter usb name: ";
+    cin >> usbName;
+
+    // Open the serial port. Change device path as needed (currently set to an standard FTDI USB-UART cable type device)
+    usbName = "/dev/tty" + usbName;
+    const char* c = usbName.c_str();
+    file = fopen(c, "w");
 
     while (true) {
         cout << "send coods in x:y:z >> ";

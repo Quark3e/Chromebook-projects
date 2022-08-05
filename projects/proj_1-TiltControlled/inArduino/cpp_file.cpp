@@ -30,7 +30,7 @@ int main() {
     const char* c = usbName.c_str();
     int serial_port = open(c, O_RDWR);
     
-    
+
     // Create new termios struct, we call it 'tty' for convention
     struct termios tty;
 
@@ -93,24 +93,25 @@ int main() {
         unsigned char* msg = (unsigned char*)toSend.c_str();
         // unsigned char msg[] = { 0'6', '9', ';', '\r' };
 
-        cout << msg << endl;
+        cout << "sent:" << msg << endl;
         cout << sizeof(msg);
         write(serial_port, msg, sizeof(msg));
 
-        // this_thread::sleep_for(milliseconds(100));
 
-        // char read_buf [256];
-        // memset(&read_buf, '\0', sizeof(read_buf));
+        this_thread::sleep_for(milliseconds(50));
 
-        // // Read bytes. The behaviour of read() (e.g. does it block?,
-        // // how long does it block for?) depends on the configuration
-        // // settings above, specifically VMIN and VTIME
-        // int num_bytes = read(serial_port, &read_buf, sizeof(read_buf));
-        // if (num_bytes < 0) {
-        //     printf("Error reading: %s", strerror(errno));
-        //     return 1;
-        // }
-        // printf("Read %i bytes. Received message: %s\n", num_bytes, read_buf);
+        char read_buf [256];
+        memset(&read_buf, '\0', sizeof(read_buf));
+
+        // Read bytes. The behaviour of read() (e.g. does it block?,
+        // how long does it block for?) depends on the configuration
+        // settings above, specifically VMIN and VTIME
+        int num_bytes = read(serial_port, &read_buf, sizeof(read_buf));
+        if (num_bytes < 0) {
+            printf("Error reading: %s", strerror(errno));
+            return 1;
+        }
+        printf("Read %i bytes. Received message: %s\n", num_bytes, read_buf);
 
     }
 
