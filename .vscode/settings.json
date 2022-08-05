@@ -9,6 +9,7 @@
         "random": "cpp",
         "limits": "cpp",
         "variant": "cpp",
-        "cmath": "cpp"
+        "cmath": "cpp",
+        "ostream": "cpp"
     }
 }

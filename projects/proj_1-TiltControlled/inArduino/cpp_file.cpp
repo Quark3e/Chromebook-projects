@@ -60,7 +60,7 @@ int main() {
     // tty.c_oflag &= ~OXTABS; // Prevent conversion of tabs to spaces (NOT PRESENT ON LINUX)
     // tty.c_oflag &= ~ONOEOT; // Prevent removal of C-d chars (0x004) in output (NOT PRESENT ON LINUX)
 
-    tty.c_cc[VTIME] = 1;    // Wait for up to 1s (10 deciseconds), returning as soon as any data is received.
+    tty.c_cc[VTIME] = 10;    // Wait for up to 1s (10 deciseconds), returning as soon as any data is received.
     tty.c_cc[VMIN] = 0;
 
     // Set in/out baud rate to be 9600
@@ -84,18 +84,17 @@ int main() {
         // unsigned char msg[] = { 'H', 'e', 'l', 'l', 'o', ';', '\r' };
         // string toSend = "90:45:180:45:-90:90s5ttrue\n";
         string toSend, input;
-        cout << " Enter servo rotations, in format: x:y:z\n";
-        cout << " input: ";
+        cout << "Enter servo rotations, in format: x:y:z: ";
         cin >> input;
         if(input == "exit") { break; }
         toSend = input + "\n";
-
+        cout << sizeof(toSend) << endl;
         unsigned char* msg = (unsigned char*)toSend.c_str();
         // unsigned char msg[] = { 0'6', '9', ';', '\r' };
 
-        cout << "sent:" << msg << endl;
-        cout << sizeof(msg);
-        write(serial_port, msg, sizeof(msg));
+        cout << "sent:" << msg;
+        cout << "msg size: " << sizeof(msg) << " bytes" << endl;
+        write(serial_port, msg, sizeof(msg+3));
 
 
         // this_thread::sleep_for(milliseconds(100));
@@ -111,6 +110,7 @@ int main() {
             printf("Error reading: %s", strerror(errno));
             return 1;
         }
+        printf("---------------\n");
         printf("Read %i bytes. Received message: %s\n", num_bytes, read_buf);
 
     }
