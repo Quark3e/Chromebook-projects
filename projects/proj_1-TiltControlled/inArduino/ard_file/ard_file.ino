@@ -354,6 +354,7 @@ void loop() {
     int delayTimer = 0;
     
     float val1, val2;
+    String toSend = "";
 
     while(true) {
         if (Serial.available() > 0) {
@@ -361,13 +362,15 @@ void loop() {
             posX = (Serial.readStringUntil(':')).toInt();
             posY = (Serial.readStringUntil(':')).toInt();
             posZ = (Serial.readStringUntil('\n')).toInt();
-            Serial.print("received: \"x:");
-            Serial.print(posX);
-            Serial.print(" y:");
-            Serial.print(posY);
-            Serial.print(" z:");
-            Serial.print(posZ);
-            Serial.println("\"");
+            toSend = "\"x:" + String(posX) + " y:" + String(posY) + " z:" + String(posZ) + "\"";
+            Serial.println(toSend);
+            //Serial.print("received: \"x:");
+            //Serial.print(posX);
+            //Serial.print(" y:");
+            //Serial.print(posY);
+            //Serial.print(" z:");
+            //Serial.print(posZ);
+            //Serial.println("\"");
         }
         
         val1 = 5 * axisVal * (float(map(analogRead(xPin), 0, 1023, 0, 100)) / 100) - 2.5 * axisVal;

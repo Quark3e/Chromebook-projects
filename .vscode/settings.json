@@ -10,6 +10,8 @@
         "limits": "cpp",
         "variant": "cpp",
         "cmath": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "string_view": "cpp",
+        "regex": "cpp"
     }
 }
