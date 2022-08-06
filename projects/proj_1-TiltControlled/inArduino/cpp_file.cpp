@@ -1,15 +1,9 @@
-/*
-god bleaseth!
-https://blog.mbedded.ninja/programming/operating-systems/linux/linux-serial-ports-using-c-cpp/
-*/
-// C library headers
+
 #include <stdio.h>
 #include <string.h>
-
 #include <chrono>
 #include <thread>
 #include <iostream>
-
 
 // Linux headers
 #include <fcntl.h> // Contains file controls like O_RDWR
@@ -25,16 +19,13 @@ int main() {
     cout << "Enter usb name: ";
     cin >> usbName;
 
-    // Open the serial port. Change device path as needed (currently set to an standard FTDI USB-UART cable type device)
     usbName = "/dev/tty" + usbName;
     const char* c = usbName.c_str();
     int serial_port = open(c, O_RDWR);
     
 
-    // Create new termios struct, we call it 'tty' for convention
     struct termios tty;
 
-    // Read in existing settings, and handle any error
     if(tcgetattr(serial_port, &tty) != 0) {
         printf("Error %i from tcgetattr: %s\n", errno, strerror(errno));
         return 1;
@@ -57,17 +48,13 @@ int main() {
 
     tty.c_oflag &= ~OPOST; // Prevent special interpretation of output bytes (e.g. newline chars)
     tty.c_oflag &= ~ONLCR; // Prevent conversion of newline to carriage return/line feed
-    // tty.c_oflag &= ~OXTABS; // Prevent conversion of tabs to spaces (NOT PRESENT ON LINUX)
-    // tty.c_oflag &= ~ONOEOT; // Prevent removal of C-d chars (0x004) in output (NOT PRESENT ON LINUX)
 
     tty.c_cc[VTIME] = 0;    // Wait for up to 1s (10 deciseconds), returning as soon as any data is received.
     tty.c_cc[VMIN] = 0;
 
-    // Set in/out baud rate to be 9600
     cfsetispeed(&tty, B115200);
     cfsetospeed(&tty, B115200);
 
-    // Save tty settings, also checking for error
     if (tcsetattr(serial_port, TCSANOW, &tty) != 0) {
         printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
         return 1;
@@ -75,35 +62,19 @@ int main() {
     sleep(1);
 
     while(true) {
-
-        // this_thread::sleep_for(milliseconds(1000));
-        //format: q1 : q2 : q3 : q4 : q5 : q6 s ServoSpeed t USETIMER(string) \n 
-        //note:
-
-        // Write to serial port
-        // unsigned char msg[] = { 'H', 'e', 'l', 'l', 'o', ';', '\r' };
-        // string toSend = "90:45:180:45:-90:90s5ttrue\n";
         string toSend, input;
         cout << "Enter servo rotations, in format: x:y:z: ";
         cin >> input;
         if(input == "exit") { break; }
         toSend = input + "\n";
-        // cout << sizeof(toSend) << endl;
         unsigned char* msg = (unsigned char*)toSend.c_str();
 
         cout << "sent:" << msg;
         cout << "msg size: " << toSend.length() << " bytes" << endl;
         write(serial_port, msg, toSend.length());
-
-
-        // this_thread::sleep_for(milliseconds(100));
-
         char read_buf [256];
         memset(&read_buf, '\0', sizeof(read_buf));
 
-        // Read bytes. The behaviour of read() (e.g. does it block?,
-        // how long does it block for?) depends on the configuration
-        // settings above, specifically VMIN and VTIME
         int num_bytes = read(serial_port, &read_buf, sizeof(read_buf));
         if (num_bytes < 0) {
             printf("Error reading: %s", strerror(errno));
@@ -111,9 +82,7 @@ int main() {
         }
         printf("---------------\n");
         printf("Read %i bytes. Received message: %s\n", num_bytes, read_buf);
-
     }
-
     close(serial_port);
     return 0; // success
 };
