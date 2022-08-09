@@ -12,6 +12,7 @@
         "cmath": "cpp",
         "ostream": "cpp",
         "string_view": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "string": "cpp"
     }
 }
