@@ -6,7 +6,7 @@ void itemPrefix_specifier(string abilityspecifier) {
     else if (abilityspecifier == "CriticalStrike") { itemPrefix = "%. crit"; }
     else if (abilityspecifier == "AttackSpeed") { itemPrefix = "%. atk"; }
     else if (abilityspecifier == "Lethality") { itemPrefix = "Lethalilty"; }
-    else if (abilityspecifier == "ArmorPenetration") { itemPrefix = "Armor pen."; }
+    else if (abilityspecifier == "ArmorPenetration") { itemPrefix = "%. Armor pen"; }
     else if (abilityspecifier == "Omnivamp") { itemPrefix = "Omnivamp"; }
     else if (abilityspecifier == "LifeSteal") { itemPrefix = "LifeSteal"; }
     else if (abilityspecifier == "AbilityHaste") { itemPrefix = "AH"; }
@@ -17,6 +17,7 @@ void itemPrefix_specifier(string abilityspecifier) {
     else if (abilityspecifier == "HealthRegen") { itemPrefix = "%. Health regen."; }
     else if (abilityspecifier == "ManaRegen") { itemPrefix = "%. Mana regen."; }
     else if (abilityspecifier == "ApPenetration") { itemPrefix = "%. AP pen"; }
+    else if (abilityspecifier == "MovementSpeed") { itemPrefix = "ms"; }
 }
 
 int itemRow_finder(string itemName) {
@@ -161,6 +162,11 @@ int abilityType_StringToInt(string abilityType) {
         false_check = 0;
         return abilityTypeVar;
     }
+    else if (abilityType == "MovementSpeed") {
+        abilityTypeVar = 18;
+        false_check = 0;
+        return abilityTypeVar;
+    }
     if (false_check = 1) { abilityTypeVar = 69; return abilityTypeVar; }
 
     return abilityTypeVar;
@@ -176,12 +182,20 @@ int StatCalculator(string statString) {
         pos = statString.find(addSign);
         baseStat = statString.substr(0, pos);
         statString.erase(0, pos + addSign.length());
+        cout << "checkpoint if: ";
+        cout << baseStat;
+        cout << " " << statString;
+        statVal = stoi(baseStat) + stoi(statString);
+        cout << " :end\n";
     }
     else {
+        cout << "checkpoint else: ";
+        cout << statString;
         statVal = stoi(statString);
+        cout << " :end\n";
         return statVal;
     }
-    statVal = stoi(baseStat) + stoi(statString);
+    
     return statVal;
 }
 
