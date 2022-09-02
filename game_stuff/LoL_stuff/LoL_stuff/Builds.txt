@@ -546,6 +546,23 @@ Items:
 - Youmuu's Ghostblade / Serylda's Grudge
 - Edge of Night / Ravenous Hydra / Chempunk Chainsword
 :
+WillStarve
+Runes:
+- First Strike
+    -Magical Footwear
+    -Future's Market / Minion Dematerializer / Biscuit Delivery
+    -Cosmic Insight
+- Nimbus Cloak / Celerity
+    -Celerity / Waterwalking
+[Adaptive Force / Ability Haste, Adaptive Force, Armor]
+Items:
+- Galeforce, Eclipse
+- Umbral Glaive
+- Ravenous Hydra
+- Serylda's Grudge, Black Cleaver
+- (free choice) Muramana/Manamune, Youmuu's Ghostblade, Edge of Night
+- Boots: Mobility Boots, Ionian Boots, Mercury's Treads , Mobility Boots
+:
 ;
 champion:Tristana
 TheYordleWizard
