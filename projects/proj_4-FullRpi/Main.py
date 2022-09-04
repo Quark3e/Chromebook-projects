@@ -37,11 +37,11 @@ servo[5].angle = 90
 cap = cv2.VideoCapture(0)
 brightVal = 75
 zDefaultVal = 3000000
-L_values, U_values = [43, 136, 30], [85, 255, 184]
+L_values, U_values = [31, 4, 49], [97, 117, 205]
 cv2.namedWindow("Windows")
 
 X_out, Y_out, Z_out = accelerometer.acceleration #acceleration values for each axis
-Roll, Pitch = 0
+Roll, Pitch = 0.1, 0.1
 
 d1 = 140; #axial "roll"
 d2 = 135; #axial "pitch"
@@ -50,9 +50,9 @@ d4 = 80; #axial "roll"
 d5 = 45; #axial "pitch
 d6 = 30; #axial "roll" (?)
 
-q1, q2, q3, q4, q5, q6, q7 = 0 #NOTE: q1 = servo[0]
-posX2, posY2, posZ2 = 0
-a1, b1 = 0
+q1, q2, q3, q4, q5, q6, q7 = 0, 0, 0, 0, 0, 0, 0 #NOTE: q1 = servo[0]
+posX2, posY2, posZ2 = 0.01, 0.01, 0.01
+a1, b1 = 0.1, 0.1
 
 def toDegrees(radians):
     return (radians * 180) / math.pi
@@ -89,24 +89,15 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
     if posY2 == 0:
         posY2 = 0.00001
     elif posY2 < 0:
-        posY2 = 0
+        posY2 = 0.00001
     
     q1 = math.atan(posX2 / posY2)
     if posOption == '+':
-        q3 = math.acos(
-            (pow(posX2, 2) + pow(posY2, 2) + pow(posZ2 - d1, 2) - pow(d2, 2) - pow(d3 + d4, 2)) /
-            (2 * d2 * (d3 + d4))
-        )
+        q3 = math.acos((pow(posX2, 2) + pow(posY2, 2) + pow(posZ2 - d1, 2) - pow(d2, 2) - pow(d3 + d4, 2)) /(2 * d2 * (d3 + d4)))
     elif posOption == '-':
-        q3 = math.acos(
-            (pow(posX2, 2) + pow(posY2, 2) + pow(posZ2 - d1, 2) - pow(d2, 2) - pow(d3 + d4, 2)) /
-            (2 * d2 * (d3 + d4))
-        )
+        q3 = math.acos((pow(posX2, 2) + pow(posY2, 2) + pow(posZ2 - d1, 2) - pow(d2, 2) - pow(d3 + d4, 2)) /(2 * d2 * (d3 + d4)))
     lambdaVar = math.atan((posZ2 - d1) / math.sqrt(pow(posX2, 2) + pow(posY2, 2)))
-    muVar = math.atan(
-		((d3 + d4) * math.sin(q3)) /
-		(d2 + (d3 + d4) * math.cos(q3))
-	)
+    muVar = math.atan(((d3 + d4) * math.sin(q3)) /(d2 + (d3 + d4) * math.cos(q3)))
     if posOption == '+':
         q2 = lambdaVar - muVar
     elif posOption == '-':
@@ -154,8 +145,9 @@ q5_default = 90
 q6_default = 90
 posOption = '-'
 
-a, b, Y = 90, 0, 90
-posX, posY, posZ = 0
+a, b, Y = 90, 0.1, 90
+posX, posY, posZ = 0.1, 0.1, 0.1
+xScaling, yScaling, zScaling = 0.8, 0.5, 1
 
 while True:
     #get accelerations, roll and pitch
@@ -187,10 +179,10 @@ while True:
             cX, cY = 0, 0
         cv2.circle(img, (cX, cY), 5, (255, 255, 255), -1)
         cv2.putText(img, "centroid" + str(cv2.contourArea(contours[0])), (cX - 25, cY - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        coord = "x:" + str(cX - 320) + " y:" + str(480 - cY) + " z:" +  str((M["m00"] / zDefaultVal)*150) #str(cv2.contourArea(contours))
-        posX = cX - 320
-        posY = 480 - cY
-        posZ = (M["m00"] / zDefaultVal)*150
+        coord = "x:" + str(int(xScaling*(cX - 320))) + " y:" + str(int(yScaling*(480 - cY))) + " z:" +  str(int(zScaling*(150 - (M["m00"] / zDefaultVal)*150))) #str(cv2.contourArea(contours))
+        posX = int(xScaling*(cX - 320))
+        posY = int(yScaling*(480 - cY))
+        posZ = int(zScaling*(150 - (M["m00"] / zDefaultVal)*150))
         print(coord)
     stacked = np.hstack((img, filtered))
     cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7))
