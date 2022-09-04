@@ -41,12 +41,13 @@ Roll, Pitch = 0
 def readAccelerometer():
     global X_out, Y_out, Z_out, Roll, Pitch, roll, pitch
     X_out, Y_out, Z_out = accelerometer.acceleration
-    #x is roll and y is pitch (it's switched so the servo can be fit to the ser>
-    pitch = math.atan(Y_out / math.sqrt(pow(X_out, 2) + pow(Z_out, 2))) * 180 />
-    roll = math.atan(-1 * X_out / math.sqrt(pow(Y_out, 2) + pow(Z_out, 2))) * 1>
+    #x is roll and y is pitch (it's switched so the servo can be fit to the servo robot arm)
+    pitch = math.atan(Y_out / math.sqrt(pow(X_out, 2) + pow(Z_out, 2))) * 180 / math.pi
+    roll = math.atan(-1 * X_out / math.sqrt(pow(Y_out, 2) + pow(Z_out, 2))) * 180 / math.pi
     #filter
     Roll = 0.8 * Roll + 0.2 * roll
     Pitch = 0.8 * Pitch + 0.2 * pitch
+
 
 
 while True:
