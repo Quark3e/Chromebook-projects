@@ -8,6 +8,7 @@ import imutils
 import time
 import math
 import adafruit_adxl34x
+import sys
 
 from board import SCL, SDA
 import busio
@@ -28,16 +29,29 @@ servo = [servo.Servo(pca.channels[0]),
          servo.Servo(pca.channels[5])]
 
 servo[0].angle = 90
-servo[1].angle = 45
-servo[2].angle = 180 - 180
+servo[1].angle = 90
+servo[2].angle = 180 - 0
 servo[3].angle = 90
 servo[4].angle = 180 - 0
 servo[5].angle = 90
 
+
+time.sleep(1)
+servo[3].angle = 0
+time.sleep(1)
+servo[3].angle = 180
+time.sleep(2)
+
 cap = cv2.VideoCapture(0)
 brightVal = 75
 zDefaultVal = 3000000
-L_values, U_values = [31, 4, 49], [97, 117, 205]
+L_values, U_values = [56, 39, 97], [114, 192, 255]
+#L_values, U_values = input("Enter L- and U-values without comma: "), input()
+diffCheck = 100
+globalPrint = False
+endAnglePrint = False
+firstAnglePrint = False
+posOption = '-'
 cv2.namedWindow("Windows")
 
 X_out, Y_out, Z_out = accelerometer.acceleration #acceleration values for each axis
@@ -51,6 +65,8 @@ d5 = 45; #axial "pitch
 d6 = 30; #axial "roll" (?)
 
 q1, q2, q3, q4, q5, q6, q7 = 0, 0, 0, 0, 0, 0, 0 #NOTE: q1 = servo[0]
+s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
+
 posX2, posY2, posZ2 = 0.01, 0.01, 0.01
 a1, b1 = 0.1, 0.1
 
@@ -101,8 +117,15 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
     if posOption == '+':
         q2 = lambdaVar - muVar
     elif posOption == '-':
-        q2 = lambdaVar + muVar
+        #if (s[1] < diffCheck and lambdaVar + muVar < 0) or (lambdaVar + muVar > 0):
+        if lambdaVar + muVar > 0:
+            q2 = lambdaVar + muVar #NOTE: the negative muVar value hasnt been solved. so this is a temp. fix 
+        else:
+            print("q2 error occured")
         q3 = 0 - q3
+    
+    #print("lambda:", toDegrees(lambdaVar), " mu:", toDegrees(muVar), end="")
+    #print(" q3:", toDegrees(q3), " sin:", math.sin(q3), " cos:", math.cos(q3))
     a1 = a - q1
     b1 = b - (q2 + q3)
     d5x = (d5+d6) * math.cos(b1) * math.sin(a1)
@@ -129,7 +152,7 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
         q6 = math.pi - (Y - q6)
     if printText:
         print(
-            "q1: ", toDegrees(q1),
+            " q1: ", toDegrees(q1),
             " q2: ", toDegrees(q2),
             " q3: ", toDegrees(q3),
             " q4: ", toDegrees(q4),
@@ -143,11 +166,12 @@ q3_default = 135
 q4_default = 90
 q5_default = 90
 q6_default = 90
-posOption = '-'
 
+zMax = 300
 a, b, Y = 90, 0.1, 90
 posX, posY, posZ = 0.1, 0.1, 0.1
 xScaling, yScaling, zScaling = 0.8, 0.5, 1
+coord = ""
 
 while True:
     #get accelerations, roll and pitch
@@ -179,13 +203,14 @@ while True:
             cX, cY = 0, 0
         cv2.circle(img, (cX, cY), 5, (255, 255, 255), -1)
         cv2.putText(img, "centroid" + str(cv2.contourArea(contours[0])), (cX - 25, cY - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        coord = "x:" + str(int(xScaling*(cX - 320))) + " y:" + str(int(yScaling*(480 - cY))) + " z:" +  str(int(zScaling*(150 - (M["m00"] / zDefaultVal)*150))) #str(cv2.contourArea(contours))
+        coord = "x:" + str(int(xScaling*(cX - 320))) + " y:" + str(int(yScaling*(480 - cY))) + " z:" +  str(int(zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax))) #str(cv2.contourArea(contours))
         posX = int(xScaling*(cX - 320))
         posY = int(yScaling*(480 - cY))
-        posZ = int(zScaling*(150 - (M["m00"] / zDefaultVal)*150))
-        print(coord)
-    stacked = np.hstack((img, filtered))
-    cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7))
+        posZ = int(zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax))
+    if globalPrint:
+        print(coord, end="")
+    #stacked = np.hstack((img, filtered))
+    #cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7))
     
     # Calculate the servo rotations
     bPos = False
@@ -200,32 +225,59 @@ while True:
             a = toRadians(0 - (Roll * 0.9 + toDegrees(a) * 0.1))
         elif bPos:
             a = toRadians(Roll * 0.9 + toDegrees(a) * 0.1)
-    getAngles(posX, posY, posZ, a, b, Y, posOption)
-    if not (math.isnan(q1) or
-        math.isnan(q2) or
-        math.isnan(q3) or
-        math.isnan(q4) or
-        math.isnan(q5) or
-        math.isnan(q6)):
-        if q1_default - int(round(toDegrees(q1))) < 0: q1 = toRadians(0 + q1_default)
-        if q2_default + int(round(toDegrees(q2))) < 0: q2 = toRadians(0 - q2_default)
-        if q3_default + int(round(toDegrees(q3))) < 0: q3 = toRadians(0 - q3_default)
-        if q4_default + int(round(toDegrees(q4))) < 0: q4 = toRadians(0 - q4_default)
-        if q5_default + int(round(toDegrees(q5))) < 0: q5 = toRadians(0 - q5_default)
-        if q6_default + int(round(toDegrees(q6))) < 0: q6 = toRadians(0 - q6_default)
-        if q1_default - int(round(toDegrees(q1))) > 180: q1 = toRadians(0 - q1_default)
-        if q2_default + int(round(toDegrees(q2))) > 180: q2 = toRadians(180 - q2_default)
-        if q3_default + int(round(toDegrees(q3))) > 180: q3 = toRadians(180 - q3_default)
-        if q4_default + int(round(toDegrees(q4))) > 180: q4 = toRadians(180 - q4_default)
-        if q5_default + int(round(toDegrees(q5))) > 180: q5 = toRadians(180 - q5_default)
-        if q6_default + int(round(toDegrees(q6))) > 180: q6 = toRadians(180 - q6_default)
-        servo[5].angle = q6_default - int(round(toDegrees(q6)))
-        servo[4].angle = 180 - q5_default - int(round(toDegrees(q5)))
-        servo[3].angle = q4_default - int(round(toDegrees(q4)))
-        servo[2].angle = 180 - q3_default - int(round(toDegrees(q3)))
-        servo[1].angle = q2_default + int(round(toDegrees(q2)))
-        servo[0].angle = q1_default - int(round(toDegrees(q1)))
+    getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
+    #q3 = toRadians(toDegrees(q3) - 20)
+    q5 -= toRadians(30)
+    if toDegrees(q2) - s[1] < diffCheck:
+        if not (math.isnan(q1) or
+            math.isnan(q2) or
+            math.isnan(q3) or
+            math.isnan(q4) or
+            math.isnan(q5) or
+            math.isnan(q6)):
+            if q1_default - int(round(toDegrees(q1))) < 0: q1 = toRadians(0 + q1_default)
+            if q2_default + int(round(toDegrees(q2))) < 0: q2 = toRadians(0 - q2_default)
+            if q3_default + int(round(toDegrees(q3))) < 0: q3 = toRadians(0 - q3_default)
+            if q4_default + int(round(toDegrees(q4))) < 0: q4 = toRadians(0 - q4_default)
+            if q5_default + int(round(toDegrees(q5))) < 0: q5 = toRadians(0 - q5_default)
+            if q6_default + int(round(toDegrees(q6))) < 0: q6 = toRadians(0 - q6_default)
+            if q1_default - int(round(toDegrees(q1))) > 180: q1 = toRadians(0 - q1_default)
+            if q2_default + int(round(toDegrees(q2))) > 180: q2 = toRadians(180 - q2_default)
+            if q3_default + int(round(toDegrees(q3))) > 180: q3 = toRadians(180 - q3_default)
+            if q4_default + int(round(toDegrees(q4))) > 180: q4 = toRadians(180 - q4_default)
+            if q5_default + int(round(toDegrees(q5))) > 180: q5 = toRadians(180 - q5_default)
+            if q6_default + int(round(toDegrees(q6))) > 180: q6 = toRadians(180 - q6_default)
+            s[5] = q6_default - int(round(toDegrees(q6)))
+            s[4] = 180 - q5_default - int(round(toDegrees(q5)))
+            s[3] = q4_default - int(round(toDegrees(q4)))
+            s[2] = 180 - q3_default - int(toDegrees(q3))
+            s[1] = q2_default + int(round(toDegrees(q2)))
+            s[0] = q1_default - int(round(toDegrees(q1)))
+            for x in range(7):
+                servo[x-1].angle = s[x-1]
+        if firstAnglePrint:
+            print(
+                " q1:", toDegrees(q1), 
+                " q2:", toDegrees(q2),
+                " q3:", toDegrees(q3),
+                " q4:", toDegrees(q4),
+                " q5:", toDegrees(q5), 
+                " q6:", toDegrees(q6),
+                " Roll:", Roll,
+                " Pitch:", Pitch
+            )
 
+        if globalPrint or endAnglePrint:
+            print(
+                " q1:", servo[0].angle, 
+                " q2:", servo[1].angle,
+                " q3:", servo[2].angle,
+                " q4:", servo[3].angle,
+                " q5:", servo[4].angle, 
+                " q6:", servo[5].angle,
+                " Roll:", Roll,
+                " Pitch:", Pitch
+            )
 
     # Press Esc key to exit
     if cv2.waitKey(1) == 27:
