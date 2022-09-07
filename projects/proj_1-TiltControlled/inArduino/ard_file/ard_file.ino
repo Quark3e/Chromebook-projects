@@ -373,13 +373,13 @@ void loop() {
             //Serial.println("\"");
         }
         
-        val1 = 5 * axisVal * (float(map(analogRead(xPin), 0, 1023, 0, 100)) / 100) - 2.5 * axisVal;
-        val2 = 2.5 * axisVal * (float(map(analogRead(yPin), 0, 1023, 0, 100)) / 100) - 1.25 * axisVal;
-        if(abs(val1) >= XminVal) { posX-=val1; }
-        if(abs(val2) >= YminVal) { posY-=val2; }
+        //val1 = 5 * axisVal * (float(map(analogRead(xPin), 0, 1023, 0, 100)) / 100) - 2.5 * axisVal;
+        //val2 = 2.5 * axisVal * (float(map(analogRead(yPin), 0, 1023, 0, 100)) / 100) - 1.25 * axisVal;
+        //if(abs(val1) >= XminVal) { posX-=val1; }
+        //if(abs(val2) >= YminVal) { posY-=val2; }
 
-        if(digitalRead(zUp) == LOW) { posZ+=1.5 * axisVal; }
-        else if(digitalRead(zDown) == LOW) { posZ-=1.5 * axisVal; }
+        //if(digitalRead(zUp) == LOW) { posZ+=1.5 * axisVal; }
+        //else if(digitalRead(zDown) == LOW) { posZ-=1.5 * axisVal; }
 
         // {
         // if(digitalRead(xPin) == LOW) {
