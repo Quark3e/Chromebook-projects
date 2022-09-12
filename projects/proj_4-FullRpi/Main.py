@@ -267,7 +267,7 @@ while True:
             s[5] = q6_default - int(round(toDegrees(q6)))
             s[4] = 180 - q5_default - int(round(toDegrees(q5)))
             s[3] = q4_default + int(round(toDegrees(q4)))
-            s[2] = 180 - q3_default - int(toDegrees(q3))
+            s[2] = 180 - q3_default - int(round(toDegrees(q3)))
             s[1] = q2_default + int(round(toDegrees(q2)))
             s[0] = q1_default - int(round(toDegrees(q1)))
             for x in range(7):
