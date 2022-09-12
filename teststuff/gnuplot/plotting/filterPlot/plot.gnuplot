@@ -4,4 +4,4 @@ set style line 1 \
     linetype 1 linewidth 2 \
     pointtype 7 pointsize 1.5
 
-plot 'filterPlot1.dat' with linespoints linestyle 1
+plot 'filterPlot.dat' with linespoints linestyle 1

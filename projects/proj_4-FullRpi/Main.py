@@ -39,16 +39,17 @@ servo[3].angle = 90
 servo[4].angle = 180 - 90
 servo[5].angle = 90
 
-time.sleep(1.5)
-#for i in range(6):
-#    servo[i].angle = 45
-#    time.sleep(0.5)
-#    servo[i].angle = 90
-#    time.sleep(0.5)
-#    servo[i].angle = 135
-#    time.sleep(0.5)
-#    servo[i].angle = 90
-#    time.sleep(0.8)
+#def smoothServo(newAng, oldAng, servoNum):
+#    k1, k2 = 0.1, 0.9
+#    oA = oldAng-1
+#    while oldAng<newAng:
+#        oldAng=k1*newAng+k2*oldAng
+#        servoNum.angle = int(round(oldAng))
+#        if int(round(oldAng))==oA:
+#            break
+#        oA=int(round(oldAng))
+#        time.sleep(0.01)
+
 
 time.sleep(1)
 
