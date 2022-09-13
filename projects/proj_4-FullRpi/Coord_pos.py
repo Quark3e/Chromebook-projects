@@ -8,7 +8,7 @@ import imutils
 import time
 import math
 import sys
-from threading import Thread
+#from threading import Thread
 
 from board import SCL, SDA
 import busio
@@ -38,16 +38,24 @@ servo[3].angle = 90
 servo[4].angle = 180 - 90
 servo[5].angle = 90
 
-def smoothServo(newAng, oldAng, servoNum, delayTimer = 0.01):
+def smoothServo_2(newAng, oldAng, servoNum, delayTimer = 0.01):
     k1, k2 = 0.1, 0.9
     oA = oldAng-1
+    n = 0
     while oldAng<newAng:
         oldAng=k1*newAng+k2*oldAng
         servoNum.angle = int(round(oldAng))
-        if int(round(oldAng))==oA:
-            break
-        oA=int(round(oldAng))
+        #if int(round(oldAng))==oA:
+            #break
+        #oA=int(round(oldAng))
         time.sleep(delayTimer)
+        n+=1
+        if n>=100:
+            break
+
+def smoothServo(newAng, oldAng, servoNum, delayTimer = 0.01):
+    for i in range(int(round(oldAng)), int(round(newAng))):
+        servoNum.angle = i
 
 
 time.sleep(1)
@@ -218,7 +226,8 @@ posX, posY, posZ = 0.1, 0.1, 0.1
 coord = ""
 
 while True:
-    posX, posY, posZ = input("Enter X Y Z coord:").split()
+    xTemp, yTemp, zTemp = input("Enter X Y Z coord:").split()
+    posX, posY, posZ = float(xTemp), float(yTemp), float(zTemp)
 
     # Calculate the servo rotations
     getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
@@ -242,37 +251,51 @@ while True:
         if q4_default + int(round(toDegrees(q4))) > 180: q4 = toRadians(180 - q4_default)
         if q5_default + int(round(toDegrees(q5))) > 180: q5 = toRadians(180 - q5_default)
         if q6_default + int(round(toDegrees(q6))) > 180: q6 = toRadians(180 - q6_default)
-        t6 = Thread(target=smoothServo, args=[q6_default - int(round(toDegrees(q6))), s[5], servo[5]])
-        t5 = Thread(target=smoothServo, args=[180 - q5_default - int(round(toDegrees(q5))), s[4], servo[4]])
-        t4 = Thread(target=smoothServo, args=[q4_default + int(round(toDegrees(q4))), s[3], servo[3]])
-        t3 = Thread(target=smoothServo, args=[180 - q3_default - int(round(toDegrees(q3))), s[2], servo[2]])
-        t2 = Thread(target=smoothServo, args=[q2_default + int(round(toDegrees(q2))), s[1], servo[1]])
-        t1 = Thread(target=smoothServo, args=[q1_default - int(round(toDegrees(q1))), s[0], servo[0]])
-        t6.start()
-        t5.start()
-        t4.start()
-        t3.start()
-        t2.start()
-        t1.start()
-        t6.join()
-        t5.join()
-        t4.join()
-        t3.join()
-        t2.join()
-        t1.join()
-        # smoothServo(q6_default - int(round(toDegrees(q6))), s[5], servo[5])
-        # smoothServo(180 - q5_default - int(round(toDegrees(q5))), s[4], servo[4])
-        # smoothServo(q4_default + int(round(toDegrees(q4))), s[3], servo[3])
-        # smoothServo(180 - q3_default - int(round(toDegrees(q3))), s[2], servo[2])
-        # smoothServo(q2_default + int(round(toDegrees(q2))), s[1], servo[1])
-        # smoothServo(q1_default - int(round(toDegrees(q1))), s[0], servo[0])
+        #t6 = Thread(target=smoothServo, args=[q6_default - int(round(toDegrees(q6))), s[5], servo[5]])
+        #t5 = Thread(target=smoothServo, args=[180 - q5_default - int(round(toDegrees(q5))), s[4], servo[4]])
+        #t4 = Thread(target=smoothServo, args=[q4_default + int(round(toDegrees(q4))), s[3], servo[3]])
+        #t3 = Thread(target=smoothServo, args=[180 - q3_default - int(round(toDegrees(q3))), s[2], servo[2]])
+        #t2 = Thread(target=smoothServo, args=[q2_default + int(round(toDegrees(q2))), s[1], servo[1]])
+        #t1 = Thread(target=smoothServo, args=[q1_default - int(round(toDegrees(q1))), s[0], servo[0]])
+        #t6.start()
+        #t5.start()
+        #t4.start()
+        #t3.start()
+        #t2.start()
+        #t1.start()
+        #t6.join()
+        #t5.join()
+        #t4.join()
+        #t3.join()
+        #t2.join()
+        #t1.join()
+        #smoothServo(q6_default - int(round(toDegrees(q6))), s[5], servo[5])
+        #smoothServo(180 - q5_default - int(round(toDegrees(q5))), s[4], servo[4])
+        #smoothServo(q4_default + int(round(toDegrees(q4))), s[3], servo[3])
+        #smoothServo(180 - q3_default - int(round(toDegrees(q3))), s[2], servo[2])
+        #smoothServo(q2_default + int(round(toDegrees(q2))), s[1], servo[1])
+        #smoothServo(q1_default - int(round(toDegrees(q1))), s[0], servo[0])
         s[5] = q6_default - int(round(toDegrees(q6)))
         s[4] = 180 - q5_default - int(round(toDegrees(q5)))
         s[3] = q4_default + int(round(toDegrees(q4)))
         s[2] = 180 - q3_default - int(round(toDegrees(q3)))
         s[1] = q2_default + int(round(toDegrees(q2)))
         s[0] = q1_default - int(round(toDegrees(q1)))
+        #smoothServo(s[5], servo[5].angle, servo[5])
+        #time.sleep(0.05)
+        #smoothServo(s[4], servo[4].angle, servo[4])
+        #time.sleep(0.05)
+        #smoothServo(s[3], servo[3].angle, servo[3])
+        #time.sleep(0.05)
+        #smoothServo(s[2], servo[2].angle, servo[2])
+        #time.sleep(0.05)
+        #smoothServo(s[1], servo[1].angle, servo[1])
+        #time.sleep(0.05)
+        #smoothServo(s[0], servo[0].angle, servo[0])
 
+        for x in range(7):
+            servo[x-1].angle = s[x-1]
+        
         if firstAnglePrint:
             print(
                 " q1:", toDegrees(q1), 
