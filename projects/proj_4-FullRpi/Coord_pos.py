@@ -213,7 +213,7 @@ q5_default = 90
 q6_default = 90
 
 zMax = 300
-a, b, Y = 0, -90, 90
+a, b, Y = 0, -45, 90
 posX, posY, posZ = 0.1, 0.1, 0.1
 coord = ""
 
@@ -242,12 +242,30 @@ while True:
         if q4_default + int(round(toDegrees(q4))) > 180: q4 = toRadians(180 - q4_default)
         if q5_default + int(round(toDegrees(q5))) > 180: q5 = toRadians(180 - q5_default)
         if q6_default + int(round(toDegrees(q6))) > 180: q6 = toRadians(180 - q6_default)
-        smoothServo(q6_default - int(round(toDegrees(q6))), s[5], servo[5])
-        smoothServo(180 - q5_default - int(round(toDegrees(q5))), s[4], servo[4])
-        smoothServo(q4_default + int(round(toDegrees(q4))), s[3], servo[3])
-        smoothServo(180 - q3_default - int(round(toDegrees(q3))), s[2], servo[2])
-        smoothServo(q2_default + int(round(toDegrees(q2))), s[1], servo[1])
-        smoothServo(q1_default - int(round(toDegrees(q1))), s[0], servo[0])
+        t6 = Thread(target=smoothServo, args=[q6_default - int(round(toDegrees(q6))), s[5], servo[5]])
+        t5 = Thread(target=smoothServo, args=[180 - q5_default - int(round(toDegrees(q5))), s[4], servo[4]])
+        t4 = Thread(target=smoothServo, args=[q4_default + int(round(toDegrees(q4))), s[3], servo[3]])
+        t3 = Thread(target=smoothServo, args=[180 - q3_default - int(round(toDegrees(q3))), s[2], servo[2]])
+        t2 = Thread(target=smoothServo, args=[q2_default + int(round(toDegrees(q2))), s[1], servo[1]])
+        t1 = Thread(target=smoothServo, args=[q1_default - int(round(toDegrees(q1))), s[0], servo[0]])
+        t6.start()
+        t5.start()
+        t4.start()
+        t3.start()
+        t2.start()
+        t1.start()
+        t6.join()
+        t5.join()
+        t4.join()
+        t3.join()
+        t2.join()
+        t1.join()
+        # smoothServo(q6_default - int(round(toDegrees(q6))), s[5], servo[5])
+        # smoothServo(180 - q5_default - int(round(toDegrees(q5))), s[4], servo[4])
+        # smoothServo(q4_default + int(round(toDegrees(q4))), s[3], servo[3])
+        # smoothServo(180 - q3_default - int(round(toDegrees(q3))), s[2], servo[2])
+        # smoothServo(q2_default + int(round(toDegrees(q2))), s[1], servo[1])
+        # smoothServo(q1_default - int(round(toDegrees(q1))), s[0], servo[0])
         s[5] = q6_default - int(round(toDegrees(q6)))
         s[4] = 180 - q5_default - int(round(toDegrees(q5)))
         s[3] = q4_default + int(round(toDegrees(q4)))
