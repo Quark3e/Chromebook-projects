@@ -212,7 +212,6 @@ def getPos():
         cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7))
 
 
-
 q1_default = 90
 q2_default = 0
 q3_default = 135
@@ -225,11 +224,51 @@ a, b, Y = 0, -45, 90
 posX, posY, posZ = 0.1, 0.1, 0.1
 coord = ""
 
+
+def findAlphaBeta(posX, posY, posZ, posOption):
+    global a, b
+    #Find the a, b combination that is valid
+    breakVal = False
+    for beta in range(-90, 0):
+        for alpha in range(-90, 90):
+            getAngles(posX, posY, posZ, toRadians(alpha), toRadians(beta), Y, posOption, 1, 1, False)
+            if not (math.isnan(q1) or
+                math.isnan(q2) or
+                math.isnan(q3) or
+                math.isnan(q4) or
+                math.isnan(q5) or
+                math.isnan(q6)):
+                a = toRadians(alpha)
+                b = toRadians(beta)
+                breakVal = True
+                break
+        if breakVal:
+            break
+    if not breakVal:
+        for beta in range(0, 90):
+            for alpha in range(-90, 90):
+                getAngles(posX, posY, posZ, toRadians(alpha), toRadians(beta), Y, posOption, 1, 1, False)
+                if not (math.isnan(q1) or
+                    math.isnan(q2) or
+                    math.isnan(q3) or
+                    math.isnan(q4) or
+                    math.isnan(q5) or
+                    math.isnan(q6)):
+                    a = toRadians(alpha)
+                    b = toRadians(beta)
+                    breakVal = True
+                    break
+            if breakVal:
+                break
+    return a, b
+
+
+
 while True:
     xTemp, yTemp, zTemp = input("Enter X Y Z coord:").split()
     posX, posY, posZ = float(xTemp), float(yTemp), float(zTemp)
 
-    # Calculate the servo rotations
+
     getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
     #q3 = toRadians(toDegrees(q3) - 20)
     #q5 -= toRadians(30)
@@ -281,17 +320,6 @@ while True:
         s[2] = 180 - q3_default - int(round(toDegrees(q3)))
         s[1] = q2_default + int(round(toDegrees(q2)))
         s[0] = q1_default - int(round(toDegrees(q1)))
-        #smoothServo(s[5], servo[5].angle, servo[5])
-        #time.sleep(0.05)
-        #smoothServo(s[4], servo[4].angle, servo[4])
-        #time.sleep(0.05)
-        #smoothServo(s[3], servo[3].angle, servo[3])
-        #time.sleep(0.05)
-        #smoothServo(s[2], servo[2].angle, servo[2])
-        #time.sleep(0.05)
-        #smoothServo(s[1], servo[1].angle, servo[1])
-        #time.sleep(0.05)
-        #smoothServo(s[0], servo[0].angle, servo[0])
 
         for x in range(7):
             servo[x-1].angle = s[x-1]
