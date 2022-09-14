@@ -74,8 +74,25 @@ globalPrint = False
 endAnglePrint = False
 firstAnglePrint = False
 posOption = '-'
-if showImage:
-    cv2.namedWindow("Windows")
+
+cv2.namedWindow("Windows")
+
+newSize = (640, 480)
+
+#Temporary window so the webcam position can be adjusted
+while True:
+    ret, imgTemp = cap.read()
+    img = cv2.resize(imgTemp, newSize)
+    img = cv2.flip(img, 1)
+    cv2.circle(img, (newSize[0]*0.5, newSize[1]), 50*(1/xScaling), (255, 255, 255), 1)
+    cv2.circle(img, (newSize[0]*0.5, newSize[1]), 100*(1/xScaling), (255, 255, 255), 1)
+    cv2.circle(img, (newSize[0]*0.5, newSize[1]), 150*(1/xScaling), (255, 255, 255), 1)
+    cv2.circle(img, (newSize[0]*0.5, newSize[1]), 200*(1/xScaling), (255, 255, 255), 1)
+    cv2.imshow('Windows', cv2.resize(img, None, fx=0.7, fy=0.7))
+
+    if cv2.waitKey(1) == 27:
+        cv2.destroyAllWindows()
+        break
 
 
 d1 = 140; #axial "roll"
@@ -251,9 +268,8 @@ def findAlphaBeta(posX, posY, posZ, posOption):
 
 axisFilter2 = 1
 def getPos():
-    global readX, readY, readZ
+    global readX, readY, readZ, newSize
     ret, imgTemp = cap.read()
-    newSize = (640, 480)
     img = cv2.resize(imgTemp, newSize)
     img = cv2.flip(img, 1)
     into_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
