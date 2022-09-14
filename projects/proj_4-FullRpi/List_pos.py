@@ -79,6 +79,34 @@ cv2.namedWindow("Windows")
 
 newSize = (640, 480)
 
+manualInput = False
+readX, readY, readZ = 0.1, 0.1, 0.1 #Values that are to be compared with the given values
+axisFilter2 = 1
+
+# function to display the coordinates of
+# of the points clicked on the image
+def click_event(event, x, y, flags, params):
+    global readX, readY, readZ
+    if event == cv2.EVENT_LBUTTONDOWN:
+        # print(x, ' ', y)
+        # font = cv2.FONT_HERSHEY_SIMPLEX
+        # cv2.putText(img, str(x) + ',' + str(y), (x,y), font, 1, (255, 0, 0), 2)
+        # cv2.imshow('image', img)
+        readX = int(axisFilter2 * xScaling*(x - newSize[0]*0.5) + (1-axisFilter2) * readX)
+        readY = int(axisFilter2 * yScaling*(newSize[1] - y) + (1-axisFilter2) * readY)
+        readZ = 1
+        print("x:", readX, " y:", readY)
+
+    # if event==cv2.EVENT_RBUTTONDOWN:
+        # print(x, ' ', y)
+        # font = cv2.FONT_HERSHEY_SIMPLEX
+        # b = img[y, x, 0]
+        # g = img[y, x, 1]
+        # r = img[y, x, 2]
+        # cv2.putText(img, str(b) + ',' + str(g) + ',' + str(r), (x,y), font, 1, (255, 255, 0), 2)
+        # cv2.imshow('image', img)
+ 
+
 #Temporary window so the webcam position can be adjusted
 while True:
     ret, imgTemp = cap.read()
@@ -89,7 +117,7 @@ while True:
     cv2.circle(img, (newSize[0]*0.5, newSize[1]), 150*(1/xScaling), (255, 255, 255), 1)
     cv2.circle(img, (newSize[0]*0.5, newSize[1]), 200*(1/xScaling), (255, 255, 255), 1)
     cv2.imshow('Windows', cv2.resize(img, None, fx=0.7, fy=0.7))
-
+    cv2.setMouseCallback('Windows', click_event)
     if cv2.waitKey(1) == 27:
         cv2.destroyAllWindows()
         break
@@ -212,7 +240,6 @@ accWriteFile = open(fileName + "_acc" + fileExtension, "w") #Note: add +"\n" at 
 
 
 posX, posY, posZ = 0.1, 0.1, 0.1
-readX, readY, readZ = 0.1, 0.1, 0.1 #Values that are to be compared with the given values
 coord = ""
 
 def check_qMinMax():
@@ -266,46 +293,48 @@ def findAlphaBeta(posX, posY, posZ, posOption):
                 break
     return a, b
 
-axisFilter2 = 1
 def getPos():
     global readX, readY, readZ, newSize
     ret, imgTemp = cap.read()
     img = cv2.resize(imgTemp, newSize)
     img = cv2.flip(img, 1)
-    into_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    #L, U color values: [[62, 108, 0], [85, 238, 249]]
-    L_limit = np.array(L_values)
-    U_limit = np.array(U_values)
-    threshold = cv2.inRange(into_hsv, L_limit, U_limit)
-    filtered = cv2.bitwise_and(img, img, mask = threshold)
-    #filtered = increase_brightness(filtered, brightVal)
-    filtered[filtered!=0] = 255 #change to value of everything that's not 0 to 255(white)
-    filtered = cv2.erode(filtered, np.ones((5,5), np.uint8), iterations = 1)
-    filtered = cv2.dilate(filtered, np.ones((5,5), np.uint8), iterations = 1)
-    gray_image = cv2.cvtColor(filtered, cv2.COLOR_BGR2GRAY)
-    ret,thresh = cv2.threshold(gray_image,127,255,0)
-    contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
-    for c in contours:
-        M = cv2.moments(c)
-        M = cv2.moments(thresh)
-        if M["m00"] != 0:
-            cX = int(M["m10"] / M["m00"])
-            cY = int(M["m01"] / M["m00"])
-        else:
-            cX, cY = 0, 0
-        cv2.circle(img, (cX, cY), 5, (255, 255, 255), -1)
-        cv2.putText(img, "centroid" + str(cv2.contourArea(contours[0])), (cX - 25, cY - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        # coord = "x:" + str(int(xScaling*(cX - newSize[0]*0.5))) + " y:" + str(int(yScaling*(newSize[1] - cY))) + " z:" +  str(int(zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax))) #str(cv2.contourArea(contours))
-        cv2.circle(img, (newSize[0]*0.5, newSize[1]), 50*(1/xScaling), (255, 255, 255), 1)
-        cv2.circle(img, (newSize[0]*0.5, newSize[1]), 100*(1/xScaling), (255, 255, 255), 1)
-        cv2.circle(img, (newSize[0]*0.5, newSize[1]), 150*(1/xScaling), (255, 255, 255), 1)
-        cv2.circle(img, (newSize[0]*0.5, newSize[1]), 200*(1/xScaling), (255, 255, 255), 1)
-        readX = int(axisFilter2 * xScaling*(cX - newSize[0]*0.5) + (1-axisFilter2) * readX)
-        readY = int(axisFilter2 * yScaling*(newSize[1] - cY) + (1-axisFilter2) * readY)
-        readZ = int(axisFilter2 * zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax) + (1-axisFilter2) * readZ)
+    cv2.circle(img, (newSize[0]*0.5, newSize[1]), 50*(1/xScaling), (255, 255, 255), 1)
+    cv2.circle(img, (newSize[0]*0.5, newSize[1]), 100*(1/xScaling), (255, 255, 255), 1)
+    cv2.circle(img, (newSize[0]*0.5, newSize[1]), 150*(1/xScaling), (255, 255, 255), 1)
+    cv2.circle(img, (newSize[0]*0.5, newSize[1]), 200*(1/xScaling), (255, 255, 255), 1)
+    if manualInput:
+        cv2.setMouseCallback('Windows', click_event)
+    elif not manualInput:
+        into_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        #L, U color values: [[62, 108, 0], [85, 238, 249]]
+        L_limit = np.array(L_values)
+        U_limit = np.array(U_values)
+        threshold = cv2.inRange(into_hsv, L_limit, U_limit)
+        filtered = cv2.bitwise_and(img, img, mask = threshold)
+        #filtered = increase_brightness(filtered, brightVal)
+        filtered[filtered!=0] = 255 #change to value of everything that's not 0 to 255(white)
+        filtered = cv2.erode(filtered, np.ones((5,5), np.uint8), iterations = 1)
+        filtered = cv2.dilate(filtered, np.ones((5,5), np.uint8), iterations = 1)
+        gray_image = cv2.cvtColor(filtered, cv2.COLOR_BGR2GRAY)
+        ret,thresh = cv2.threshold(gray_image,127,255,0)
+        contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
+        for c in contours:
+            M = cv2.moments(c)
+            M = cv2.moments(thresh)
+            if M["m00"] != 0:
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
+            else:
+                cX, cY = 0, 0
+            cv2.circle(img, (cX, cY), 5, (255, 255, 255), -1)
+            cv2.putText(img, "centroid" + str(cv2.contourArea(contours[0])), (cX - 25, cY - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            # coord = "x:" + str(int(xScaling*(cX - newSize[0]*0.5))) + " y:" + str(int(yScaling*(newSize[1] - cY))) + " z:" +  str(int(zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax))) #str(cv2.contourArea(contours))
+            readX = int(axisFilter2 * xScaling*(cX - newSize[0]*0.5) + (1-axisFilter2) * readX)
+            readY = int(axisFilter2 * yScaling*(newSize[1] - cY) + (1-axisFilter2) * readY)
+            readZ = int(axisFilter2 * zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax) + (1-axisFilter2) * readZ)
     if globalPrint:
         print(coord, end="")
-    if showImage:
+    if showImage and manualInput:
         stacked = np.hstack((img, filtered))
         cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7))
 
