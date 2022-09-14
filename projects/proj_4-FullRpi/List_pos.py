@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # Import essential libraries
+from fileinput import filename
 import requests
 import cv2
 import numpy as np
@@ -173,43 +174,6 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
             " q6: ", toDegrees(q6),
         )
 
-def getPos():
-    global posX, posY, posZ
-    ret, imgTemp = cap.read()
-    img = cv2.resize(imgTemp, (640, 480))
-    img = cv2.flip(img, 1)
-    into_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    #L, U color values: [[62, 108, 0], [85, 238, 249]]
-    L_limit = np.array(L_values)
-    U_limit = np.array(U_values)
-    threshold = cv2.inRange(into_hsv, L_limit, U_limit)
-    filtered = cv2.bitwise_and(img, img, mask = threshold)
-    #filtered = increase_brightness(filtered, brightVal)
-    filtered[filtered!=0] = 255 #change to value of everything that's not 0 to 255(white)
-    filtered = cv2.erode(filtered, np.ones((5,5), np.uint8), iterations = 1)
-    filtered = cv2.dilate(filtered, np.ones((5,5), np.uint8), iterations = 1)
-    gray_image = cv2.cvtColor(filtered, cv2.COLOR_BGR2GRAY)
-    ret,thresh = cv2.threshold(gray_image,127,255,0)
-    contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
-    for c in contours:
-        M = cv2.moments(c)
-        M = cv2.moments(thresh)
-        if M["m00"] != 0:
-            cX = int(M["m10"] / M["m00"])
-            cY = int(M["m01"] / M["m00"])
-        else:
-            cX, cY = 0, 0
-        cv2.circle(img, (cX, cY), 5, (255, 255, 255), -1)
-        cv2.putText(img, "centroid" + str(cv2.contourArea(contours[0])), (cX - 25, cY - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        coord = "x:" + str(int(xScaling*(cX - 320))) + " y:" + str(int(yScaling*(480 - cY))) + " z:" +  str(int(zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax))) #str(cv2.contourArea(contours))
-        posX = int(axisFilter * xScaling*(cX - 320) + (1-axisFilter) * posX)
-        posY = int(axisFilter * yScaling*(480 - cY) + (1-axisFilter) * posY)
-        posZ = int(axisFilter * zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax) + (1-axisFilter) * posZ)
-    if globalPrint:
-        print(coord, end="")
-    if showImage:
-        stacked = np.hstack((img, filtered))
-        cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7))
 
 
 q1_default = 90
@@ -220,8 +184,18 @@ q5_default = 90
 q6_default = 90
 
 zMax = 300
+
 a, b, Y = 0, -45, 90
+fileName = "" #Dont enter filetype
+fileExtension = ".dat"
+rowLength = 0
+toReadFile = open(fileName + fileExtension, "r")
+toWriteFile = open(fileName + "_read" + fileExtension, "w") #Note: add +"\n" at the end of each write
+accWriteFile = open(fileName + "_acc" + fileExtension, "w") #Note: add +"\n" at the end of each write
+
+
 posX, posY, posZ = 0.1, 0.1, 0.1
+readX, readY, readZ = 0.1, 0.1, 0.1 #Values that are to be compared with the given values
 coord = ""
 
 def check_qMinMax():
@@ -275,34 +249,75 @@ def findAlphaBeta(posX, posY, posZ, posOption):
                 break
     return a, b
 
+axisFilter2 = 1
+def getPos():
+    global readX, readY, readZ
+    ret, imgTemp = cap.read()
+    newSize = (640, 480)
+    img = cv2.resize(imgTemp, newSize)
+    img = cv2.flip(img, 1)
+    into_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    #L, U color values: [[62, 108, 0], [85, 238, 249]]
+    L_limit = np.array(L_values)
+    U_limit = np.array(U_values)
+    threshold = cv2.inRange(into_hsv, L_limit, U_limit)
+    filtered = cv2.bitwise_and(img, img, mask = threshold)
+    #filtered = increase_brightness(filtered, brightVal)
+    filtered[filtered!=0] = 255 #change to value of everything that's not 0 to 255(white)
+    filtered = cv2.erode(filtered, np.ones((5,5), np.uint8), iterations = 1)
+    filtered = cv2.dilate(filtered, np.ones((5,5), np.uint8), iterations = 1)
+    gray_image = cv2.cvtColor(filtered, cv2.COLOR_BGR2GRAY)
+    ret,thresh = cv2.threshold(gray_image,127,255,0)
+    contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
+    for c in contours:
+        M = cv2.moments(c)
+        M = cv2.moments(thresh)
+        if M["m00"] != 0:
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
+        else:
+            cX, cY = 0, 0
+        cv2.circle(img, (cX, cY), 5, (255, 255, 255), -1)
+        cv2.putText(img, "centroid" + str(cv2.contourArea(contours[0])), (cX - 25, cY - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        # coord = "x:" + str(int(xScaling*(cX - newSize[0]*0.5))) + " y:" + str(int(yScaling*(newSize[1] - cY))) + " z:" +  str(int(zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax))) #str(cv2.contourArea(contours))
+        cv2.circle(img, (newSize[0]*0.5, newSize[1]), 50*(1/xScaling), (255, 255, 255), 1)
+        cv2.circle(img, (newSize[0]*0.5, newSize[1]), 100*(1/xScaling), (255, 255, 255), 1)
+        cv2.circle(img, (newSize[0]*0.5, newSize[1]), 150*(1/xScaling), (255, 255, 255), 1)
+        cv2.circle(img, (newSize[0]*0.5, newSize[1]), 200*(1/xScaling), (255, 255, 255), 1)
+        readX = int(axisFilter2 * xScaling*(cX - newSize[0]*0.5) + (1-axisFilter2) * readX)
+        readY = int(axisFilter2 * yScaling*(newSize[1] - cY) + (1-axisFilter2) * readY)
+        readZ = int(axisFilter2 * zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax) + (1-axisFilter2) * readZ)
+    if globalPrint:
+        print(coord, end="")
+    if showImage:
+        stacked = np.hstack((img, filtered))
+        cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7))
 
-while True:
+
+for n in range(rowLength):
     # get xyz a b values
     ##check values just in case that they don't return NaN angles
     # send values to robot arm (i.e solve angles and send those)
-    # store the coordinate that's read from openCV in a new, corresponding file
+    # read store the coordinate that's read from openCV in a new, corresponding file
     # repeat
 
-    fileName = ""
-    myfile = open(".dat", "r")
-    fileLine = myfile.readline()
-
+    #Read line and get the xyz value
+    fileLine = toReadFile.readline()
     posX = float(fileLine[0:fileLine.find(" ")+1])
     fileLine = fileLine.replace(fileLine[0:fileLine.find(" ")+1], '')
     posY = float(fileLine[0:fileLine.find(" ")+1])
     fileLine = fileLine.replace(fileLine[0:fileLine.find(" ")+1], '')
     posZ = float(fileLine[0:fileLine.find(" ")+1])
 
-
+    #Check if values are NaN
     getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
-    #q3 = toRadians(toDegrees(q3) - 20)
-    #q5 -= toRadians(30)
     if not (math.isnan(q1) or
         math.isnan(q2) or
         math.isnan(q3) or
         math.isnan(q4) or
         math.isnan(q5) or
         math.isnan(q6)):
+        #Send angles to servo motors
         check_qMinMax()
         s[5] = q6_default - int(round(toDegrees(q6)))
         s[4] = 180 - q5_default - int(round(toDegrees(q5)))
@@ -310,10 +325,8 @@ while True:
         s[2] = 180 - q3_default - int(round(toDegrees(q3)))
         s[1] = q2_default + int(round(toDegrees(q2)))
         s[0] = q1_default - int(round(toDegrees(q1)))
-
         for x in range(7):
             servo[x-1].angle = s[x-1]
-        
         if firstAnglePrint:
             print(
                 " q1:", toDegrees(q1), 
@@ -323,7 +336,6 @@ while True:
                 " q5:", toDegrees(q5), 
                 " q6:", toDegrees(q6)
             )
-
         if globalPrint or endAnglePrint:
             print(
                 " q1:", servo[0].angle, 
@@ -333,6 +345,11 @@ while True:
                 " q5:", servo[4].angle, 
                 " q6:", servo[5].angle
             )
+        
+        #Read values from webcam
+        getPos()
+        toWriteFile.write(str(readX) + " " + str(readY) + " " + str(readZ) + "\n")
+        accWriteFile.write(str(abs(readX-posX)) + " " + str(abs(readY-posY)) + " " + str(1) + "\n")
 
     # Press Esc key to exit
     if cv2.waitKey(1) == 27:
@@ -341,4 +358,6 @@ while True:
 if showImage:
     cv2.destroyAllWindows()
 pca.deinit()
-
+toReadFile.close()
+toWriteFile.close()
+accWriteFile.close()
