@@ -283,8 +283,10 @@ while True:
     # store the coordinate that's read from openCV in a new, corresponding file
     # repeat
 
+    fileName = ""
     myfile = open(".dat", "r")
     fileLine = myfile.readline()
+
     posX = float(fileLine[0:fileLine.find(" ")+1])
     fileLine = fileLine.replace(fileLine[0:fileLine.find(" ")+1], '')
     posY = float(fileLine[0:fileLine.find(" ")+1])
