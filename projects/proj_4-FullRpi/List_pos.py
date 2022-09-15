@@ -65,7 +65,7 @@ def toRadians(degrees):
 
 time.sleep(1)
 
-fileName = "0.-90-z_val" #Dont enter filetype
+fileName = "res10_z216" #Dont enter filetype
 a, b, Y = toRadians(0), toRadians(-90), toRadians(90)
 
 axisFilter = 0.7 #On the new value end
