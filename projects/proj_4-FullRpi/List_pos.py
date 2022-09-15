@@ -58,10 +58,16 @@ def smoothServo(newAng, oldAng, servoNum, delayTimer = 0.01):
     for i in range(int(round(oldAng)), int(round(newAng))):
         servoNum.angle = i
 
+def toDegrees(radians):
+    return (radians * 180) / math.pi
+def toRadians(degrees):
+    return (degrees * math.pi) / 180
+
 
 time.sleep(1)
 
 fileName = "0.-90-z_val" #Dont enter filetype
+a, b, Y = toRadians(0), toRadians(-90), toRadians(90)
 
 axisFilter = 0.7 #On the new value end
 xScaling, yScaling, zScaling = 0.8, 0.8, 1.2
@@ -141,11 +147,6 @@ s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
 
 posX2, posY2, posZ2 = 0.01, 0.01, 0.01
 a1, b1 = 0.1, 0.1
-
-def toDegrees(radians):
-    return (radians * 180) / math.pi
-def toRadians(degrees):
-    return (degrees * math.pi) / 180
 
 
 def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_scalar = 1, printText = False):
@@ -236,7 +237,6 @@ q6_default = 90
 
 zMax = 300
 
-a, b, Y = 0, -45, 90
 fileExtension = ".dat"
 rowLength = 0
 toReadFile = open(fileName + fileExtension, "r")
