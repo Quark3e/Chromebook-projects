@@ -61,6 +61,8 @@ def smoothServo(newAng, oldAng, servoNum, delayTimer = 0.01):
 
 time.sleep(1)
 
+fileName = "0.-90-z_val" #Dont enter filetype
+
 axisFilter = 0.7 #On the new value end
 xScaling, yScaling, zScaling = 0.8, 0.8, 1.2
 cap = cv2.VideoCapture(0)
@@ -79,7 +81,7 @@ cv2.namedWindow("Windows")
 
 newSize = (640, 480)
 
-manualInput = False
+manualInput = True
 readX, readY, readZ = 0.1, 0.1, 0.1 #Values that are to be compared with the given values
 axisFilter2 = 1
 
@@ -121,7 +123,7 @@ while True:
     cv2.circle(img, (newSize[0]*0.5, newSize[1]), 150*(1/xScaling), (255, 255, 255), 1)
     cv2.circle(img, (newSize[0]*0.5, newSize[1]), 200*(1/xScaling), (255, 255, 255), 1)
     cv2.imshow('Windows', cv2.resize(img, None, fx=0.7, fy=0.7))
-    cv2.setMouseCallback('Windows', click_event)
+    # cv2.setMouseCallback('Windows', click_event)
     if cv2.waitKey(1) == 27:
         cv2.destroyAllWindows()
         break
@@ -235,7 +237,6 @@ q6_default = 90
 zMax = 300
 
 a, b, Y = 0, -45, 90
-fileName = "" #Dont enter filetype
 fileExtension = ".dat"
 rowLength = 0
 toReadFile = open(fileName + fileExtension, "r")
@@ -316,7 +317,7 @@ def getPos():
         threshold = cv2.inRange(into_hsv, L_limit, U_limit)
         filtered = cv2.bitwise_and(img, img, mask = threshold)
         #filtered = increase_brightness(filtered, brightVal)
-        filtered[filtered!=0] = 255 #change to value of everything that's not 0 to 255(white)
+        filtered[filtered!=0] = 255 #change to value of everything that's not 0(black) to 255(white)
         filtered = cv2.erode(filtered, np.ones((5,5), np.uint8), iterations = 1)
         filtered = cv2.dilate(filtered, np.ones((5,5), np.uint8), iterations = 1)
         gray_image = cv2.cvtColor(filtered, cv2.COLOR_BGR2GRAY)
@@ -338,9 +339,11 @@ def getPos():
             readZ = int(axisFilter2 * zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax) + (1-axisFilter2) * readZ)
     if globalPrint:
         print(coord, end="")
-    if showImage and manualInput:
+    if showImage and not manualInput:
         stacked = np.hstack((img, filtered))
         cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7))
+    if manualInput and showImage:
+        cv2.imshow('Windows', cv2.resize(img, None, fx=0.7, fy=0.7))
 
 
 for n in range(rowLength):
