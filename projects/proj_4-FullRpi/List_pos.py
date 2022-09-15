@@ -87,15 +87,19 @@ axisFilter2 = 1
 # of the points clicked on the image
 def click_event(event, x, y, flags, params):
     global readX, readY, readZ
-    if event == cv2.EVENT_LBUTTONDOWN:
-        # print(x, ' ', y)
-        # font = cv2.FONT_HERSHEY_SIMPLEX
-        # cv2.putText(img, str(x) + ',' + str(y), (x,y), font, 1, (255, 0, 0), 2)
-        # cv2.imshow('image', img)
-        readX = int(axisFilter2 * xScaling*(x - newSize[0]*0.5) + (1-axisFilter2) * readX)
-        readY = int(axisFilter2 * yScaling*(newSize[1] - y) + (1-axisFilter2) * readY)
-        readZ = 1
-        print("x:", readX, " y:", readY)
+    print("Waiting for left button press...")
+    while True:
+        if event == cv2.EVENT_LBUTTONDOWN:
+            print("Left button press read")
+            break
+    # print(x, ' ', y)
+    # font = cv2.FONT_HERSHEY_SIMPLEX
+    # cv2.putText(img, str(x) + ',' + str(y), (x,y), font, 1, (255, 0, 0), 2)
+    # cv2.imshow('image', img)
+    readX = int(axisFilter2 * xScaling*(x - newSize[0]*0.5) + (1-axisFilter2) * readX)
+    readY = int(axisFilter2 * yScaling*(newSize[1] - y) + (1-axisFilter2) * readY)
+    readZ = 1
+    print("x:", readX, " y:", readY)
 
     # if event==cv2.EVENT_RBUTTONDOWN:
         # print(x, ' ', y)
