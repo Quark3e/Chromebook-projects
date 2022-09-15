@@ -63,7 +63,6 @@ def toDegrees(radians):
 def toRadians(degrees):
     return (degrees * math.pi) / 180
 
-
 time.sleep(1)
 
 fileName = "0.-90-z_val" #Dont enter filetype
