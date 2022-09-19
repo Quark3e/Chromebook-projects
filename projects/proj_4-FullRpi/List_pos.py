@@ -96,28 +96,27 @@ cv2.namedWindow("Windows")
 
 newSize = (640, 480)
 
-manualInput = False
+manualInput = True
 readX, readY, readZ = 0.1, 0.1, 0.1 #Values that are to be compared with the given values
 axisFilter2 = 1
 
 # function to display the coordinates of
 # of the points clicked on the image
+exitClickEvent = False
 def click_event(event, x, y, flags, params):
-    global readX, readY, readZ
+    global readX, readY, readZ, exitClickEvent
     print("Waiting for left button press...")
-    while True:
-        if event == cv2.EVENT_LBUTTONDOWN:
-            print("Left button press read")
-            break
+    if event == cv2.EVENT_LBUTTONDOWN:
+        print("Left button press read")
+        readX = int(axisFilter2 * xScaling*(x - newSize[0]*0.5) + (1-axisFilter2) * readX)
+        readY = int(axisFilter2 * yScaling*(newSize[1] - y) + (1-axisFilter2) * readY)
+        readZ = 1
+        print("x:", readX, " y:", readY)
+        exitClickEvent = True
     # print(x, ' ', y)
     # font = cv2.FONT_HERSHEY_SIMPLEX
     # cv2.putText(img, str(x) + ',' + str(y), (x,y), font, 1, (255, 0, 0), 2)
     # cv2.imshow('image', img)
-    readX = int(axisFilter2 * xScaling*(x - newSize[0]*0.5) + (1-axisFilter2) * readX)
-    readY = int(axisFilter2 * yScaling*(newSize[1] - y) + (1-axisFilter2) * readY)
-    readZ = 1
-    print("x:", readX, " y:", readY)
-
     # if event==cv2.EVENT_RBUTTONDOWN:
         # print(x, ' ', y)
         # font = cv2.FONT_HERSHEY_SIMPLEX
@@ -145,7 +144,6 @@ while True:
         sys.exit()
 
 time.sleep(1)
-
 
 q1, q2, q3, q4, q5, q6, q7 = 0, 0, 0, 0, 0, 0, 0 #NOTE: q1 = servo[0]
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
@@ -231,8 +229,6 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
             " q6: ", toDegrees(q6),
         )
 
-
-
 q1_default = 90
 q2_default = 0
 q3_default = 135
@@ -246,7 +242,6 @@ fileExtension = ".dat"
 toReadFile = open(fileName + fileExtension, "r")
 toWriteFile = open("testResult/" + fileName + "_read" + fileExtension, "w") #Note: add +"\n" at the end of each write
 accWriteFile = open("testResult/" + fileName + "_acc" + fileExtension, "w") #Note: add +"\n" at the end of each write
-
 
 posX, posY, posZ = 0.1, 0.1, 0.1
 coord = ""
@@ -303,6 +298,8 @@ def findAlphaBeta(posX, posY, posZ, posOption):
                 break
     return a, b
 
+cv2.setMouseCallback('Windows', click_event)
+
 def getPos():
     global readX, readY, readZ, newSize
     ret, imgTemp = cap.read()
@@ -313,7 +310,16 @@ def getPos():
     cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(150*(1/xScaling)), (255, 255, 255), 1)
     cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(200*(1/xScaling)), (255, 255, 255), 1)
     if manualInput:
-        cv2.setMouseCallback('Windows', click_event)
+        exitClickEvent = False
+        print("Waiting for key input...")
+        while not exitClickEvent:
+            if cv2.waitKey(1) == 27:
+                print("Exiting.", end='')
+                for i in range(3):
+                    time.sleep(0.5)
+                    print(" .", end='')
+                print()
+                sys.exit()
     elif not manualInput:
         into_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         #L, U color values: [[62, 108, 0], [85, 238, 249]]
