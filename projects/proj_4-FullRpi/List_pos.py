@@ -75,7 +75,7 @@ time.sleep(1)
 
 winScaleX, winScaleY = 1, 1
 fileName = "basicTest_1" #Dont enter filetype
-rowLength = 39
+rowLength = 30
 a, b, Y = toRadians(0), toRadians(-90), toRadians(90)
 
 axisFilter = 0.7 #On the new value end
