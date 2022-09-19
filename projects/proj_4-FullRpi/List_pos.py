@@ -25,7 +25,7 @@ pca.frequency = 50
 
 servo = [servo.Servo(pca.channels[0]),
          servo.Servo(pca.channels[1]),
-         servo.Servo(pca.channels[8]),
+         servo.Servo(pca.channels[2]),
          servo.Servo(pca.channels[3]),
          servo.Servo(pca.channels[4]),
          servo.Servo(pca.channels[5])]
@@ -75,7 +75,7 @@ time.sleep(1)
 
 winScaleX, winScaleY = 1, 1
 fileName = "basicTest_1" #Dont enter filetype
-rowLength = 30
+rowLength = 36
 a, b, Y = toRadians(0), toRadians(-90), toRadians(90)
 
 axisFilter = 0.7 #On the new value end
@@ -86,7 +86,7 @@ zDefaultVal = 3000000
 L_values, U_values = [0, 0, 255], [0, 0, 255]
 #L_values, U_values = input("Enter L- and U-values without comma: "), input()
 diffCheck = 100
-showImage = False
+showImage = True
 globalPrint = False
 endAnglePrint = False
 firstAnglePrint = False
@@ -105,7 +105,7 @@ axisFilter2 = 1
 exitClickEvent = False
 def click_event(event, x, y, flags, params):
     global readX, readY, readZ, exitClickEvent
-    print("Waiting for left button press...")
+    #print("Waiting for left button press...")
     if event == cv2.EVENT_LBUTTONDOWN:
         print("Left button press read")
         readX = int(axisFilter2 * xScaling*(x - newSize[0]*0.5) + (1-axisFilter2) * readX)
@@ -113,6 +113,8 @@ def click_event(event, x, y, flags, params):
         readZ = 1
         print("x:", readX, " y:", readY)
         exitClickEvent = True
+        #return
+
     # print(x, ' ', y)
     # font = cv2.FONT_HERSHEY_SIMPLEX
     # cv2.putText(img, str(x) + ',' + str(y), (x,y), font, 1, (255, 0, 0), 2)
@@ -301,18 +303,20 @@ def findAlphaBeta(posX, posY, posZ, posOption):
 cv2.setMouseCallback('Windows', click_event)
 
 def getPos():
-    global readX, readY, readZ, newSize
-    ret, imgTemp = cap.read()
-    img = cv2.resize(imgTemp, newSize)
-    img = cv2.flip(img, 1)
-    cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(50*(1/xScaling)), (255, 255, 255), 1)
-    cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(100*(1/xScaling)), (255, 255, 255), 1)
-    cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(150*(1/xScaling)), (255, 255, 255), 1)
-    cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(200*(1/xScaling)), (255, 255, 255), 1)
+    global readX, readY, readZ, newSize, exitClickEvent
     if manualInput:
         exitClickEvent = False
         print("Waiting for key input...")
         while not exitClickEvent:
+            ret, imgTemp = cap.read()
+            img = cv2.resize(imgTemp, newSize)
+            img = cv2.flip(img, 1)
+            cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(50*(1/xScaling)), (255, 255, 255), 1)
+            cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(100*(1/xScaling)), (255, 255, 255), 1)
+            cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(150*(1/xScaling)), (255, 255, 255), 1)
+            cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(200*(1/xScaling)), (255, 255, 255), 1)
+            cv2.imshow('Windows', cv2.resize(img, None, fx=winScaleX, fy=winScaleY))
+
             if cv2.waitKey(1) == 27:
                 print("Exiting.", end='')
                 for i in range(3):
@@ -320,7 +324,18 @@ def getPos():
                     print(" .", end='')
                 print()
                 sys.exit()
+            #if exitClickEvent:
+                #print("loop ended. coord found")
+                #break
     elif not manualInput:
+        ret, imgTemp = cap.read()
+        img = cv2.resize(imgTemp, newSize)
+        img = cv2.flip(img, 1)
+        cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(50*(1/xScaling)), (255, 255, 255), 1)
+        cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(100*(1/xScaling)), (255, 255, 255), 1)
+        cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(150*(1/xScaling)), (255, 255, 255), 1)
+        cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(200*(1/xScaling)), (255, 255, 255), 1)
+        
         into_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         #L, U color values: [[62, 108, 0], [85, 238, 249]]
         L_limit = np.array(L_values)
