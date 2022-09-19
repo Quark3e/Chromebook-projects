@@ -39,6 +39,14 @@ servo[3].angle = 90
 servo[4].angle = 180 - 90
 servo[5].angle = 90
 
+d1 = 140; #axial "roll"
+d2 = 135; #axial "pitch"
+d3 = 70; #axial "pitch"
+d4 = 80; #axial "roll"
+d5 = 45; #axial "pitch
+d6 = 45; #axial "roll" (?)
+
+
 def smoothServo_2(newAng, oldAng, servoNum, delayTimer = 0.01):
     k1, k2 = 0.1, 0.9
     oA = oldAng-1
@@ -65,7 +73,9 @@ def toRadians(degrees):
 
 time.sleep(1)
 
-fileName = "res10_z216" #Dont enter filetype
+winScaleX, winScaleY = 1, 1
+fileName = "basicTest_1" #Dont enter filetype
+rowLength = 39
 a, b, Y = toRadians(0), toRadians(-90), toRadians(90)
 
 axisFilter = 0.7 #On the new value end
@@ -73,7 +83,7 @@ xScaling, yScaling, zScaling = 0.8, 0.8, 1.2
 cap = cv2.VideoCapture(0)
 brightVal = 75
 zDefaultVal = 3000000
-L_values, U_values = [36, 72, 8], [86, 240, 204]
+L_values, U_values = [0, 0, 255], [0, 0, 255]
 #L_values, U_values = input("Enter L- and U-values without comma: "), input()
 diffCheck = 100
 showImage = False
@@ -86,7 +96,7 @@ cv2.namedWindow("Windows")
 
 newSize = (640, 480)
 
-manualInput = True
+manualInput = False
 readX, readY, readZ = 0.1, 0.1, 0.1 #Values that are to be compared with the given values
 axisFilter2 = 1
 
@@ -123,23 +133,19 @@ while True:
     ret, imgTemp = cap.read()
     img = cv2.resize(imgTemp, newSize)
     img = cv2.flip(img, 1)
-    cv2.circle(img, (newSize[0]*0.5, newSize[1]), 50*(1/xScaling), (255, 255, 255), 1)
-    cv2.circle(img, (newSize[0]*0.5, newSize[1]), 100*(1/xScaling), (255, 255, 255), 1)
-    cv2.circle(img, (newSize[0]*0.5, newSize[1]), 150*(1/xScaling), (255, 255, 255), 1)
-    cv2.circle(img, (newSize[0]*0.5, newSize[1]), 200*(1/xScaling), (255, 255, 255), 1)
-    cv2.imshow('Windows', cv2.resize(img, None, fx=0.7, fy=0.7))
+    cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(50*(1/xScaling)), (255, 255, 255), 1)
+    cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(100*(1/xScaling)), (255, 255, 255), 1)
+    cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(150*(1/xScaling)), (255, 255, 255), 1)
+    cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(200*(1/xScaling)), (255, 255, 255), 1)
+    cv2.imshow('Windows', cv2.resize(img, None, fx=winScaleX, fy=winScaleY))
     # cv2.setMouseCallback('Windows', click_event)
-    if cv2.waitKey(1) == 27:
-        cv2.destroyAllWindows()
+    if cv2.waitKey(1) == 32:
         break
+    if cv2.waitKey(1) == 27:
+        sys.exit()
 
+time.sleep(1)
 
-d1 = 140; #axial "roll"
-d2 = 135; #axial "pitch"
-d3 = 70; #axial "pitch"
-d4 = 80; #axial "roll"
-d5 = 45; #axial "pitch
-d6 = 30; #axial "roll" (?)
 
 q1, q2, q3, q4, q5, q6, q7 = 0, 0, 0, 0, 0, 0, 0 #NOTE: q1 = servo[0]
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
@@ -237,16 +243,16 @@ q6_default = 90
 zMax = 300
 
 fileExtension = ".dat"
-rowLength = 0
 toReadFile = open(fileName + fileExtension, "r")
-toWriteFile = open(fileName + "_read" + fileExtension, "w") #Note: add +"\n" at the end of each write
-accWriteFile = open(fileName + "_acc" + fileExtension, "w") #Note: add +"\n" at the end of each write
+toWriteFile = open("testResult/" + fileName + "_read" + fileExtension, "w") #Note: add +"\n" at the end of each write
+accWriteFile = open("testResult/" + fileName + "_acc" + fileExtension, "w") #Note: add +"\n" at the end of each write
 
 
 posX, posY, posZ = 0.1, 0.1, 0.1
 coord = ""
 
 def check_qMinMax():
+    global q1, q2, q3, q4, q5, q6
     if q1_default - int(round(toDegrees(q1))) < 0: q1 = toRadians(0 + q1_default)
     if q2_default + int(round(toDegrees(q2))) < 0: q2 = toRadians(0 - q2_default)
     if q3_default + int(round(toDegrees(q3))) < 0: q3 = toRadians(0 - q3_default)
@@ -302,10 +308,10 @@ def getPos():
     ret, imgTemp = cap.read()
     img = cv2.resize(imgTemp, newSize)
     img = cv2.flip(img, 1)
-    cv2.circle(img, (newSize[0]*0.5, newSize[1]), 50*(1/xScaling), (255, 255, 255), 1)
-    cv2.circle(img, (newSize[0]*0.5, newSize[1]), 100*(1/xScaling), (255, 255, 255), 1)
-    cv2.circle(img, (newSize[0]*0.5, newSize[1]), 150*(1/xScaling), (255, 255, 255), 1)
-    cv2.circle(img, (newSize[0]*0.5, newSize[1]), 200*(1/xScaling), (255, 255, 255), 1)
+    cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(50*(1/xScaling)), (255, 255, 255), 1)
+    cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(100*(1/xScaling)), (255, 255, 255), 1)
+    cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(150*(1/xScaling)), (255, 255, 255), 1)
+    cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(200*(1/xScaling)), (255, 255, 255), 1)
     if manualInput:
         cv2.setMouseCallback('Windows', click_event)
     elif not manualInput:
@@ -340,9 +346,9 @@ def getPos():
         print(coord, end="")
     if showImage and not manualInput:
         stacked = np.hstack((img, filtered))
-        cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7))
+        cv2.imshow('Windows', cv2.resize(stacked, None, fx=winScaleX, fy=winScaleY))
     if manualInput and showImage:
-        cv2.imshow('Windows', cv2.resize(img, None, fx=0.7, fy=0.7))
+        cv2.imshow('Windows', cv2.resize(img, None, fx=winScaleX, fy=winScaleY))
 
 
 for n in range(rowLength):
@@ -354,11 +360,22 @@ for n in range(rowLength):
 
     #Read line and get the xyz value
     fileLine = toReadFile.readline()
+    print("fileLine:", fileLine, end='', sep='')
     posX = float(fileLine[0:fileLine.find(" ")+1])
-    fileLine = fileLine.replace(fileLine[0:fileLine.find(" ")+1], '')
+    print("posX:", fileLine[0:fileLine.find(" ")+1], end='', sep='')
+    fileLine = fileLine.replace(fileLine[0:fileLine.find(" ")+1], '', 1)
     posY = float(fileLine[0:fileLine.find(" ")+1])
-    fileLine = fileLine.replace(fileLine[0:fileLine.find(" ")+1], '')
+    print(" posY:", fileLine[0:fileLine.find(" ")+1], end='', sep='')
+    fileLine = fileLine.replace(fileLine[0:fileLine.find(" ")+1], '', 1)
     posZ = float(fileLine[0:fileLine.find(" ")+1])
+    print(" posZ:", fileLine[0:fileLine.find(" ")+1], end='', sep='')
+    fileLine = fileLine.replace(fileLine[0:fileLine.find(" ")+1], '', 1)
+    a = toRadians(float(fileLine[0:fileLine.find(" ")+1]))
+    print(" a:", fileLine[0:fileLine.find(" ")+1], end='', sep='')
+    fileLine = fileLine.replace(fileLine[0:fileLine.find(" ")+1], '', 1)
+    b = toRadians(float(fileLine[0:fileLine.find("\n")+1]))
+    print(" b:", fileLine[0:fileLine.find(" ")+1], "\n", sep='')
+
 
     #Check if values are NaN
     getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
@@ -397,6 +414,7 @@ for n in range(rowLength):
                 " q6:", servo[5].angle
             )
         
+        time.sleep(2)
         #Read values from webcam
         getPos()
         toWriteFile.write(str(readX) + " " + str(readY) + " " + str(readZ) + "\n")
