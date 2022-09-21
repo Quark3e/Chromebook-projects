@@ -20,9 +20,11 @@ set cntrparam
 
 # set dgrid3d 30, 30
 
-set style fill solid 1
+set style fill transparent #0.5
+
+scalar = 1
 
 #u 1:2:3 w points lt 1 pt 10 ps variable #with circles palette
 
-plot "testResult/basicTest_1_result.dat" u 1:2:(abs($3-$4)) with circles palette title "error val: X"#, \
+plot "testResult/basicTest_1_result.dat" u 1:2:(abs(abs($1-$3)-abs($2-$4))*scalar) with circles title "error value: uses both x and y"#, \
 # "testResult/basicTest_1_result.dat" u 1:2:4 with circles
