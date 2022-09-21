@@ -438,6 +438,7 @@ for n in range(rowLength):
         time.sleep(2)
         #Read values from webcam
         getPos()
+        readX = 0 - readX
         toWriteFile.write(str(readX) + " " + str(readY) + " " + str(readZ) + "\n")
         accWriteFile.write(str(abs(readX-posX)) + " " + str(abs(readY-posY)) + " " + str(1) + "\n")
 

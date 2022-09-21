@@ -7,12 +7,13 @@ import readline
 
 rowLine = 36
 
+folderName = "test1"
 basicFileName = "basicTest_1"
 readFileName = basicFileName + "_read"
 resultFileName = basicFileName + "_result"
 
 
-directPath = "/home/berkhme/vscode repo/SchoolRelated/teststuff/python/random/data files/testResult/"
+directPath = "/home/berkhme/vscode repo/SchoolRelated/teststuff/python/random/data files/testResult/" + folderName + "/"
 fileExtension = ".dat"
 
 basicFile = open(directPath + basicFileName + fileExtension, "r")
