@@ -1,4 +1,4 @@
-cd "/home/berkhme/vscode repo/SchoolRelated/old serialCOM files/ws-calc/opencv acc. test"
+cd "/home/berkhme/vscode repo/SchoolRelated/old serialCOM files/ws-calc/"
 
 
 set title "data plotting test"
@@ -8,7 +8,7 @@ set zlabel "z -axis"
 
 
 set xrange [-400:400]
-set yrange [-50:400]
+set yrange [0:400]
 set zrange [0:540]
 
 
@@ -21,4 +21,4 @@ set cntrparam
 # set dgrid3d 30, 30
 
 
-splot "res10_z216.dat"
+splot "testResult/basicTest_1.dat" u 1:2:3 with lines palette
