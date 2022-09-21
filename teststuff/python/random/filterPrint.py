@@ -1,4 +1,6 @@
 
+#creates a .dat file with the x=iteration, y=value for the iteration filter
+
 f = open("filter_6-4.dat", "w")
 f.write("#x y\n")
 # open and read the file after the appending:

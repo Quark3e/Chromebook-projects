@@ -25,7 +25,7 @@ pca.frequency = 50
 
 servo = [servo.Servo(pca.channels[0]),
          servo.Servo(pca.channels[1]),
-         servo.Servo(pca.channels[8]),
+         servo.Servo(pca.channels[2]),
          servo.Servo(pca.channels[3]),
          servo.Servo(pca.channels[4]),
          servo.Servo(pca.channels[5])]
