@@ -5,12 +5,12 @@
 import readline
 
 
-rowLine = 36
-
-folderName = "test1"
-basicFileName = "basicTest_1"
-readFileName = basicFileName + "_read"
-resultFileName = basicFileName + "_result"
+rowLine = 68
+folderName = "test2"
+angleName = "_0.-45"
+basicFileName = "basicTest_2"
+readFileName = basicFileName + angleName  + "_read"
+resultFileName = basicFileName + angleName + "_result"
 
 
 directPath = "/home/berkhme/vscode repo/SchoolRelated/teststuff/python/random/data files/testResult/" + folderName + "/"
@@ -21,7 +21,7 @@ readFile = open(directPath + readFileName + fileExtension, "r")
 resultFile = open(directPath + resultFileName + fileExtension, "w")
 
 
-for i in range(36):
+for i in range(rowLine):
     basicLine = basicFile.readline()
     readLine = readFile.readline()
     resultLine = basicLine[0:basicLine.find(" ") + 1] #It includes the space
