@@ -34,9 +34,9 @@ for i in range(6):
 
 servo[0].angle = 90
 servo[1].angle = 90
-servo[2].angle = 180 - 90
+servo[2].angle = 180 - 0
 servo[3].angle = 90
-servo[4].angle = 180 - 90
+servo[4].angle = 180 - 135
 servo[5].angle = 90
 
 d1 = 140; #axial "roll"
@@ -74,8 +74,11 @@ def toRadians(degrees):
 time.sleep(1)
 
 winScaleX, winScaleY = 1, 1
-fileName = "basicTest_1" #Dont enter filetype
-rowLength = 36
+fileName = "basicTest_2" #Dont enter filetype
+hardSetAngle = [0, 45]
+useHardSetAngle = True
+
+rowLength = 68
 a, b, Y = toRadians(0), toRadians(-90), toRadians(90)
 
 axisFilter = 0.7 #On the new value end
@@ -242,8 +245,8 @@ zMax = 300
 
 fileExtension = ".dat"
 toReadFile = open(fileName + fileExtension, "r")
-toWriteFile = open("testResult/" + fileName + "_read" + fileExtension, "w") #Note: add +"\n" at the end of each write
-accWriteFile = open("testResult/" + fileName + "_acc" + fileExtension, "w") #Note: add +"\n" at the end of each write
+toWriteFile = open("testResult/" + fileName + "_" + str(hardSetAngle[0]) + "." + str(hardSetAngle[1]) + "_read" + fileExtension, "w") #Note: add +"\n" at the end of each write
+accWriteFile = open("testResult/" + fileName + "_" + str(hardSetAngle[0]) + "." + str(hardSetAngle[1]) + "_acc" + fileExtension, "w") #Note: add +"\n" at the end of each write
 
 posX, posY, posZ = 0.1, 0.1, 0.1
 coord = ""
@@ -397,6 +400,9 @@ for n in range(rowLength):
     b = toRadians(float(fileLine[0:fileLine.find("\n")+1]))
     print(" b:", fileLine[0:fileLine.find(" ")+1], "\n", sep='')
 
+    if useHardSetAngle:
+        a = toRadians(hardSetAngle[0])
+        b = toRadians(hardSetAngle[1])
 
     #Check if values are NaN
     getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
