@@ -1,7 +1,8 @@
 cd "/home/berkhme/vscode repo/SchoolRelated/old serialCOM files/ws-calc/"
 
 
-set title "data plotting test: a:0 b:-45 [degrees]"
+
+set title "data plotting test: a:0 b:-90 [degrees]"
 set xlabel "x -axis"
 set ylabel "y -axis"
 set zlabel "z -axis"
@@ -20,14 +21,15 @@ set cntrparam
 
 # set dgrid3d 30, 30
 
-set style fill solid #0.5
+set style fill transparent #0.1
 
 
-scalar = 1
+scalar = 1.3
 
 #u 1:2:3 w points lt 1 pt 10 ps variable #with circles palette
-# plot "testResult/test2/basicTest_2_0.-90_result.dat" u 1:2:(abs(abs($4-$2))*scalar) with circles palette title "error value: mean value", \
+plot "testResult/test2/basicTest_2_0.-45_result.dat" u 1:2:(abs($4-$2)*scalar) with circles title "error value: mean value", \
+     "testResult/test2/basicTest_2_0.-45_result.dat" u 1:4 with points ls 7
 
-plot "testResult/test2/basicTest_2_0.-45_result.dat" u 1:2:((abs(abs($3-$1)+abs($4-$2))/2)*scalar) with circles palette title "error value: mean value", \
+# plot "testResult/test2/basicTest_2_0.-90_result.dat" u 1:2:((abs(abs($3-$1)+abs($4-$2))/2)*scalar) with circles title "error value: mean value", \
     # "testResult/test2/basicTest_2_0.-90_read.dat" u 1:2 with points title "read position", \
     # "testResult/test2/basicTest_2.dat" u 1:2 with points
