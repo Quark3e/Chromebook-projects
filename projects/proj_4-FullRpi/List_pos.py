@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+#remote test: sent
+#remote test: received
+
 # Import essential libraries
 from fileinput import filename
 import requests
@@ -458,3 +461,4 @@ pca.deinit()
 toReadFile.close()
 toWriteFile.close()
 accWriteFile.close()
+                                                                                                                                                                                                                                                                                                                            
