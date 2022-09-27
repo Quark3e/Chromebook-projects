@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #remote test: sent
-#remote test: received
+#remote test: received: LETS GOOO ITS INSTANT TRANSFER!!!
 
 # Import essential libraries
 from fileinput import filename
@@ -34,6 +34,10 @@ servo = [servo.Servo(pca.channels[0]),
          servo.Servo(pca.channels[5])]
 for i in range(6):
     servo[i].set_pulse_width_range(500, 2500)
+
+fileName = "basicTest_2" #Dont enter filetype
+hardSetAngle = [0, -60]
+useHardSetAngle = True
 
 servo[0].angle = 90
 servo[1].angle = 90
@@ -76,10 +80,9 @@ def toRadians(degrees):
 
 time.sleep(1)
 
+distanceFromCam = 600 #in mm
+webcamFOV = [60, 40] #Unit: degrees, [0] = x fov, [1] = y fov
 winScaleX, winScaleY = 1, 1
-fileName = "basicTest_2" #Dont enter filetype
-hardSetAngle = [0, 45]
-useHardSetAngle = True
 
 rowLength = 68
 a, b, Y = toRadians(0), toRadians(-90), toRadians(90)
@@ -104,6 +107,7 @@ newSize = (640, 480)
 
 manualInput = True
 readX, readY, readZ = 0.1, 0.1, 0.1 #Values that are to be compared with the given values
+actualValues = [0, 0]
 axisFilter2 = 1
 
 # function to display the coordinates of
@@ -114,6 +118,7 @@ def click_event(event, x, y, flags, params):
     #print("Waiting for left button press...")
     if event == cv2.EVENT_LBUTTONDOWN:
         print("Left button press read")
+        actualValues = [x, y]
         readX = int(axisFilter2 * xScaling*(x - newSize[0]*0.5) + (1-axisFilter2) * readX)
         readY = int(axisFilter2 * yScaling*(newSize[1] - y) + (1-axisFilter2) * readY)
         readZ = 1
@@ -250,6 +255,8 @@ fileExtension = ".dat"
 toReadFile = open(fileName + fileExtension, "r")
 toWriteFile = open("testResult/" + fileName + "_" + str(hardSetAngle[0]) + "." + str(hardSetAngle[1]) + "_read" + fileExtension, "w") #Note: add +"\n" at the end of each write
 accWriteFile = open("testResult/" + fileName + "_" + str(hardSetAngle[0]) + "." + str(hardSetAngle[1]) + "_acc" + fileExtension, "w") #Note: add +"\n" at the end of each write
+correctWriteFile = open("testResult/" + fileName + "_" + str(hardSetAngle[0]) + "." + str(hardSetAngle[1]) + "_correct" + fileExtension, "w") #Note: add +"\n" at the end of each write
+
 
 posX, posY, posZ = 0.1, 0.1, 0.1
 coord = ""
@@ -395,13 +402,13 @@ for n in range(rowLength):
     print(" posY:", fileLine[0:fileLine.find(" ")+1], end='', sep='')
     fileLine = fileLine.replace(fileLine[0:fileLine.find(" ")+1], '', 1)
     posZ = float(fileLine[0:fileLine.find(" ")+1])
-    print(" posZ:", fileLine[0:fileLine.find(" ")+1], end='', sep='')
+    print(" posZ:", fileLine[0:fileLine.find(" ")+1], end='\n', sep='')
     fileLine = fileLine.replace(fileLine[0:fileLine.find(" ")+1], '', 1)
     a = toRadians(float(fileLine[0:fileLine.find(" ")+1]))
-    print(" a:", fileLine[0:fileLine.find(" ")+1], end='', sep='')
+    # print(" a:", fileLine[0:fileLine.find(" ")+1], end='', sep='')
     fileLine = fileLine.replace(fileLine[0:fileLine.find(" ")+1], '', 1)
     b = toRadians(float(fileLine[0:fileLine.find("\n")+1]))
-    print(" b:", fileLine[0:fileLine.find(" ")+1], "\n", sep='')
+    # print(" b:", fileLine[0:fileLine.find(" ")+1], "\n", sep='')
 
     if useHardSetAngle:
         a = toRadians(hardSetAngle[0])
@@ -444,11 +451,17 @@ for n in range(rowLength):
                 " q6:", servo[5].angle
             )
         
-        time.sleep(2)
+        if not manualInput:
+            time.sleep(2)
         #Read values from webcam
         getPos()
         readX = 0 - readX
         toWriteFile.write(str(readX) + " " + str(readY) + " " + str(readZ) + "\n")
+        correctWriteFile.write(
+            str(math.atan(toRadians((abs(actualValues[0] - newSize[0]*0.5) * webcamFOV[0])/(newSize[0]*0.5))) * distanceFromCam) + " " +
+            str(math.atan(toRadians((abs(actualValues[1] - newSize[1]*0.5) * webcamFOV[1])/(newSize[1]*0.5))) * distanceFromCam) + " " +
+            str(readZ) + "\n"
+            )
         accWriteFile.write(str(abs(readX-posX)) + " " + str(abs(readY-posY)) + " " + str(1) + "\n")
 
     # Press Esc key to exit
@@ -461,4 +474,4 @@ pca.deinit()
 toReadFile.close()
 toWriteFile.close()
 accWriteFile.close()
-                                                                                                                                                                                                                                                                                                                            
+correctWriteFile.close()
