@@ -7,7 +7,7 @@ import sys
 
 rowLine = 68
 folderName = "test2"
-angleName = "_-15.-45"
+angleName = "_45.-45"
 basicFileName = "basicTest_2"
 readFileName = basicFileName + angleName  + "_read"
 resultFileName = basicFileName + angleName + "_result"
@@ -18,7 +18,7 @@ fileExtension = ".dat"
 
 basicFile = open(directPath + basicFileName + fileExtension, "r")
 readFile = open(directPath + readFileName + fileExtension, "r")
-resultFile = open(directPath + resultFileName + fileExtension, "r+")
+resultFile = open(directPath + resultFileName + fileExtension, "w")
 
 def addReadOnBasic():
     global basicLine, readLine, resultLine, resultFile
@@ -46,23 +46,24 @@ def getMeanValue():
     input("\nEnter any key and Enter to continue...")
 
 
-if __name__ == "__main__":
-    while True:
-        print(" Options:")
-        print("1. Add \"Read\"-position values beside \"Given\"-position values")
-        print("2. Get average/mean error value of given column")
-        print("3. exit")
+addReadOnBasic()
+# if __name__ == "__main__":
+#     while True:
+#         print(" Options:")
+#         print("1. Add \"Read\"-position values beside \"Given\"-position values")
+#         print("2. Get average/mean error value of given column")
+#         print("3. exit")
 
-        option = int(input("input: "))
-        if option==1:
-            addReadOnBasic()
-        if option==2:
-            getMeanValue()
-        elif option==3:
-            basicFile.close()
-            readFile.close()
-            resultFile.close()
-            sys.exit()
+#         option = int(input("input: "))
+#         if option==1:
+#             addReadOnBasic()
+#         if option==2:
+#             getMeanValue()
+#         elif option==3:
+#             basicFile.close()
+#             readFile.close()
+#             resultFile.close()
+#             sys.exit()
 
 
 
