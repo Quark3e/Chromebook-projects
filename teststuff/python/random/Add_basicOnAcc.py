@@ -7,13 +7,13 @@ import sys
 
 rowLine = 68
 folderName = "test2"
-angleName = "_0.-90"
+angleName = "_-15.-45"
 basicFileName = "basicTest_2"
 readFileName = basicFileName + angleName  + "_read"
 resultFileName = basicFileName + angleName + "_result"
 
 
-directPath = "/home/berkhme/vscode repo/SchoolRelated/teststuff/python/random/data files/testResult/" + folderName + "/"
+directPath = "/home/berkhme/vscode repo/Chromebook-projects/teststuff/python/random/data files/testResult/" + folderName + "/"
 fileExtension = ".dat"
 
 basicFile = open(directPath + basicFileName + fileExtension, "r")

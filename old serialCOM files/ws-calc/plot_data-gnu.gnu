@@ -1,4 +1,4 @@
-cd "/home/berkhme/vscode repo/SchoolRelated/old serialCOM files/ws-calc/"
+cd "/home/berkhme/vscode repo/Chromebook-projects/old serialCOM files/ws-calc/"
 
 
 
