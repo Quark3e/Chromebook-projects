@@ -9,6 +9,7 @@ import time
 import math
 import adafruit_adxl34x
 import sys
+# import matplotlib.pyplot as plt
 
 from board import SCL, SDA
 import busio
@@ -32,6 +33,10 @@ servo = [servo.Servo(pca.channels[0]),
 for i in range(6):
     servo[i].set_pulse_width_range(500, 2500)
 
+
+def getServo4Offset(degrees):
+    return 90-(90/130)*degrees
+
 servo[0].angle = 90
 servo[1].angle = 90
 servo[2].angle = 180 - 90
@@ -39,16 +44,13 @@ servo[3].angle = 90
 servo[4].angle = 180 - 90
 servo[5].angle = 90
 
-time.sleep(1.5)
-#for i in range(6):
-#    servo[i].angle = 45
-#    time.sleep(0.5)
-#    servo[i].angle = 90
-#    time.sleep(0.5)
-#    servo[i].angle = 135
-#    time.sleep(0.5)
-#    servo[i].angle = 90
-#    time.sleep(0.8)
+# plt.xlabel("x - axis")
+# plt.ylabel("y - axis")
+# plt.title("xyz value over time")
+# xGraph = 100*[0]
+# yGraph = 100*[0]
+# zGraph = 100*[0]
+# plt.plot([-150, -100, -50, 0, 50, 100, 150], [0, 50, 100, 150, 100, 50, 0], [0, 50, 100, 150, 100, 50, 0])
 
 time.sleep(1)
 
@@ -57,11 +59,12 @@ xScaling, yScaling, zScaling = 0.8, 0.8, 1.2
 cap = cv2.VideoCapture(0)
 brightVal = 75
 zDefaultVal = 3000000
-L_values, U_values = [36, 72, 8], [86, 240, 204]
+L_values, U_values = [48, 134, 0], [111, 255, 151] #[49, 131, 39], [87, 255, 124]
 #L_values, U_values = input("Enter L- and U-values without comma: "), input()
 diffCheck = 100
 showImage = False
 globalPrint = False
+printCoord = True
 endAnglePrint = False
 firstAnglePrint = False
 posOption = '-'
@@ -76,7 +79,7 @@ d2 = 135; #axial "pitch"
 d3 = 70; #axial "pitch"
 d4 = 80; #axial "roll"
 d5 = 45; #axial "pitch
-d6 = 30; #axial "roll" (?)
+d6 = 45; #axial "roll" (?)
 
 q1, q2, q3, q4, q5, q6, q7 = 0, 0, 0, 0, 0, 0, 0 #NOTE: q1 = servo[0]
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
@@ -223,8 +226,8 @@ while True:
         posX = int(axisFilter * xScaling*(cX - 320) + (1-axisFilter) * posX)
         posY = int(axisFilter * yScaling*(480 - cY) + (1-axisFilter) * posY)
         posZ = int(axisFilter * zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax) + (1-axisFilter) * posZ)
-    if globalPrint:
-        print(coord, end="")
+    if globalPrint or printCoord:
+        print(coord)
     if showImage:
         stacked = np.hstack((img, filtered))
         cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7))
@@ -243,8 +246,13 @@ while True:
         elif bPos:
             a = toRadians(Roll * 0.9 + toDegrees(a) * 0.1)
     getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
-    #q3 = toRadians(toDegrees(q3) - 20)
-    #q5 -= toRadians(30)
+
+    servoExceeded = False
+    # "under" = given < 0
+    # "over" = given < 180
+    whichServoExceeded = 6*[False]
+    typeOfExceeded = 6*["null"]
+
     if toDegrees(q2) - s[1] < diffCheck:
         if not (math.isnan(q1) or
             math.isnan(q2) or
@@ -252,26 +260,36 @@ while True:
             math.isnan(q4) or
             math.isnan(q5) or
             math.isnan(q6)):
-            if q1_default - int(round(toDegrees(q1))) < 0: q1 = toRadians(0 + q1_default)
-            if q2_default + int(round(toDegrees(q2))) < 0: q2 = toRadians(0 - q2_default)
-            if q3_default + int(round(toDegrees(q3))) < 0: q3 = toRadians(0 - q3_default)
-            if q4_default + int(round(toDegrees(q4))) < 0: q4 = toRadians(0 - q4_default)
-            if q5_default + int(round(toDegrees(q5))) < 0: q5 = toRadians(0 - q5_default)
-            if q6_default + int(round(toDegrees(q6))) < 0: q6 = toRadians(0 - q6_default)
-            if q1_default - int(round(toDegrees(q1))) > 180: q1 = toRadians(0 - q1_default)
-            if q2_default + int(round(toDegrees(q2))) > 180: q2 = toRadians(180 - q2_default)
-            if q3_default + int(round(toDegrees(q3))) > 180: q3 = toRadians(180 - q3_default)
-            if q4_default + int(round(toDegrees(q4))) > 180: q4 = toRadians(180 - q4_default)
-            if q5_default + int(round(toDegrees(q5))) > 180: q5 = toRadians(180 - q5_default)
-            if q6_default + int(round(toDegrees(q6))) > 180: q6 = toRadians(180 - q6_default)
+            if q1_default - int(round(toDegrees(q1))) < 0: q1 = toRadians(0 + q1_default); servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "under"
+            if q2_default + int(round(toDegrees(q2))) < 0: q2 = toRadians(0 - q2_default); servoExceeded = True; whichServoExceeded[1] = True; typeOfExceeded[1] = "under"
+            if q3_default + int(round(toDegrees(q3))) < 0: q3 = toRadians(0 - q3_default); servoExceeded = True; whichServoExceeded[2] = True; typeOfExceeded[2] = "under"
+            if q4_default + int(round(toDegrees(q4))) < 0: q4 = toRadians(0 - q4_default); servoExceeded = True; whichServoExceeded[3] = True; typeOfExceeded[3] = "under"
+            if q5_default + int(round(toDegrees(q5))) < 0: q5 = toRadians(0 - q5_default); servoExceeded = True; whichServoExceeded[4] = True; typeOfExceeded[4] = "under"
+            if q6_default + int(round(toDegrees(q6))) < 0: q6 = toRadians(0 - q6_default); servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "under"
+            if q1_default - int(round(toDegrees(q1))) > 180: q1 = toRadians(0 - q1_default); servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "over"
+            if q2_default + int(round(toDegrees(q2))) > 180: q2 = toRadians(180 - q2_default); servoExceeded = True; whichServoExceeded[1] = True; typeOfExceeded[1] = "over"
+            if q3_default + int(round(toDegrees(q3))) > 180: q3 = toRadians(180 - q3_default); servoExceeded = True; whichServoExceeded[2] = True; typeOfExceeded[2] = "over"
+            if q4_default + int(round(toDegrees(q4))) > 180: q4 = toRadians(180 - q4_default); servoExceeded = True; whichServoExceeded[3] = True; typeOfExceeded[3] = "over"
+            if q5_default + int(round(toDegrees(q5))) > 180: q5 = toRadians(180 - q5_default); servoExceeded = True; whichServoExceeded[4] = True; typeOfExceeded[4] = "over"
+            if q6_default + int(round(toDegrees(q6))) > 180: q6 = toRadians(180 - q6_default); servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "over"
+            if servoExceeded:
+                for i in range(5):
+                    if whichServoExceeded[i]:
+                        print("\tServo motor: q", i+1, " exceeded \"", typeOfExceeded[i], "\"", sep='')
             s[5] = q6_default - int(round(toDegrees(q6)))
             s[4] = 180 - q5_default - int(round(toDegrees(q5)))
             s[3] = q4_default + int(round(toDegrees(q4)))
             s[2] = 180 - q3_default - int(toDegrees(q3))
             s[1] = q2_default + int(round(toDegrees(q2)))
             s[0] = q1_default - int(round(toDegrees(q1)))
-            for x in range(7):
-                servo[x-1].angle = s[x-1]
+            for x in range(6):
+                if x == 4:
+                    if s[4]<90:
+                        servo[4].angle = getServo4Offset(180 - q5_default - s[4])
+                    else:
+                        servo[4].angle = s[4]
+                else:
+                    servo[x].angle = s[x]
         if firstAnglePrint:
             print(
                 " q1:", toDegrees(q1), 
@@ -299,6 +317,7 @@ while True:
     # Press Esc key to exit
     if cv2.waitKey(1) == 27:
         break
+    # plt.show()
         
 if showImage:
     cv2.destroyAllWindows()

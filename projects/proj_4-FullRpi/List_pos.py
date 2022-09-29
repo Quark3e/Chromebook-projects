@@ -39,11 +39,16 @@ fileName = "basicTest_2" #Dont enter filetype
 hardSetAngle = [0, -60]
 useHardSetAngle = True
 
+def getServo4Offset(degrees):
+    return 90-(90/130)*degrees
+#0-90 is inaccurate where the actual angle is 130 for the given 90 degrees
+#Note: Only use this function if the rotation value is 
+
 servo[0].angle = 90
-servo[1].angle = 90
+servo[1].angle = 45
 servo[2].angle = 180 - 0
 servo[3].angle = 90
-servo[4].angle = 180 - 135
+servo[4].angle = getServo4Offset(90)
 servo[5].angle = 90
 
 d1 = 140; #axial "roll"
@@ -430,8 +435,14 @@ for n in range(rowLength):
         s[2] = 180 - q3_default - int(round(toDegrees(q3)))
         s[1] = q2_default + int(round(toDegrees(q2)))
         s[0] = q1_default - int(round(toDegrees(q1)))
-        for x in range(7):
-            servo[x-1].angle = s[x-1]
+        for x in range(6):
+            if x == 4:
+                if s[4]<90:
+                    servo[4].angle = getServo4Offset(180 - q5_default - s[4])
+                else:
+                    servo[4].angle = s[4]
+            else:
+                servo[x].angle = s[x]
         if firstAnglePrint:
             print(
                 " q1:", toDegrees(q1), 
