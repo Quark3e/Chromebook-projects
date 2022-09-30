@@ -47,6 +47,7 @@ def getServo4Offset(degrees):
 #0-90 is inaccurate where the actual angle is 130 for the given 90 degrees
 #Note: Only use this function if the rotation value is 
 
+#servo[0].angle = 0
 time.sleep(0.5)
 
 for i in range(0,181):
@@ -64,9 +65,28 @@ for i in range(180,1, -1):
         time.sleep(0.01)
 time.sleep(1.5)
 
-servo[4].angle = 90
+#for i in range(0,181):
+#    servo[0].angle = i
+#    if i == 90:
+#        time.sleep(1)
+#    else:
+#        time.sleep(0.01)
+#time.sleep(1)
+#for i in range(180,1, -1):
+#    servo[0].angle = i
+#    if i == 90:
+#        time.sleep(1)
+#    else:
+#        time.sleep(0.01)
+time.sleep(1.5)
+
+servo[4].angle = 135
 time.sleep(1)
 servo[2].angle = 180 - 0
+servo[1].angle = 90
+time.sleep(1)
+#servo[0].angle = 90
+
 
 axisFilter = 0.7 #On the new value end
 xScaling, yScaling, zScaling = 0.8, 0.8, 1.2
@@ -161,6 +181,9 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
     d5x = (d5+d6) * math.cos(b1) * math.sin(a1)
     #NOTE: The x and y axis of the X1Y1Z1 frame in the paper was reverse (compared to this. The names need to be changed!)
     d5z = (d5+d6) * math.sin(b1)
+    print(" d5z:", d5z)
+    print(" tan(a1):", math.atan(a1))
+    print(" q1:", q1, "rad")
     if b1 == 0:
         q4 = 0
     elif b1 < 0 or b1 > 0:
@@ -170,10 +193,13 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
         if printText:
             print("asin(sqrt(pow(d5x, 2) + pow(d5z, 2)) / d5)  is NaN")
     else:
-        if math.sqrt(pow(d5x, 2) + pow(d5z, 2)) > 90:
-            q5 = toRadians(90)
-        else:
-            q5 = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
+    #    if math.sqrt(pow(d5x, 2) + pow(d5z, 2)) > 90:
+    #        q5 = toRadians(90)
+    #    else:
+        q5 = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
+    #      q5 = math.atan(math.sqrt(pow(d5x,2) + pow(d5z, 2)) / (math.cos(b1)*math.cos(a1)))
+    #     q5 = math.atan(math.sqrt(pow(d5x, 2) + pow(d5z, 2))/(d5x/(math.tan(a1))))
+   
     if d5z < 0:
         q5 = 0-q5
     if b <= math.pi / 2 and b >= 0 - math.pi / 2:

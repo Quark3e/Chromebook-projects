@@ -150,10 +150,11 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
         if printText:
             print("asin(sqrt(pow(d5x, 2) + pow(d5z, 2)) / d5)  is NaN")
     else:
-        if math.sqrt(pow(d5x, 2) + pow(d5z, 2)) > 90:
-            q5 = toRadians(90)
-        else:
-            q5 = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
+        # if math.sqrt(pow(d5x, 2) + pow(d5z, 2)) > 90:
+        #     q5 = toRadians(90)
+        # else:
+        #     q5 = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
+        q5 = math.atan(math.sqrt(pow(d5x,2) + pow(d5z, 2)) / (math.cos(b1)*math.cos(a1)))
     if d5z < 0:
         q5 = 0-q5
     if b <= math.pi / 2 and b >= 0 - math.pi / 2:
@@ -162,12 +163,12 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
         q6 = math.pi - (Y - q6)
     if printText:
         print(
-            " q1: ", toDegrees(q1),
-            " q2: ", toDegrees(q2),
-            " q3: ", toDegrees(q3),
-            " q4: ", toDegrees(q4),
-            " q5: ", toDegrees(q5),
-            " q6: ", toDegrees(q6),
+            " q1: ", round(toDegrees(q1), 1),
+            " q2: ", round(toDegrees(q2), 1),
+            " q3: ", round(toDegrees(q3), 1),
+            " q4: ", round(toDegrees(q4), 1),
+            " q5: ", round(toDegrees(q5), 1),
+            " q6: ", round(toDegrees(q6), 1),
             sep=''
         )
 
