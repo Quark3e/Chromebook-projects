@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #/*
-# Manual Mode where the coordinate and orientation variables are input
+# Solves the position of end-effector from link lengths (d) and solved angles
 #*/
 
 # Import essential libraries
@@ -10,63 +10,23 @@ import numpy as np
 import imutils
 import time
 import math
-import adafruit_adxl34x
 import sys
 
-from board import SCL, SDA
-import busio
 
-from adafruit_motor import servo
-from adafruit_servokit import ServoKit
-from adafruit_pca9685 import PCA9685
+servo = 6*[0] #The final angle. Do not use this for reverse calculations as it includes default values
 
-i2c = busio.I2C(SCL, SDA)
-pca = PCA9685(i2c)
-accelerometer = adafruit_adxl34x.ADXL345(i2c)
 
-pca.frequency = 50
-
-servo = [servo.Servo(pca.channels[0]),
-         servo.Servo(pca.channels[1]),
-         servo.Servo(pca.channels[2]),
-         servo.Servo(pca.channels[3]),
-         servo.Servo(pca.channels[4]),
-         servo.Servo(pca.channels[5])]
-for i in range(6):
-    servo[i].set_pulse_width_range(500, 2500)
-
-servo[0].angle = 90
-servo[1].angle = 45
-servo[2].angle = 180 - 45
-servo[3].angle = 90
-servo[4].angle = 180 - 180
-servo[5].angle = 90
+servo[0] = 90
+servo[1] = 45
+servo[2] = 180 - 45
+servo[3] = 90
+servo[4] = 180 - 180
+servo[5] = 90
 
 def getServo4Offset(degrees):
     return 90-(90/130)*degrees
 #0-90 is inaccurate where the actual angle is 130 for the given 90 degrees
 #Note: Only use this function if the rotation value is 
-
-time.sleep(0.5)
-
-for i in range(0,181):
-    servo[4].angle = i
-    if i == 90:
-        time.sleep(1)
-    else:
-        time.sleep(0.01)
-time.sleep(1)
-for i in range(180,1, -1):
-    servo[4].angle = i
-    if i == 90:
-        time.sleep(1)
-    else:
-        time.sleep(0.01)
-time.sleep(1.5)
-
-servo[4].angle = 90
-time.sleep(1)
-servo[2].angle = 180 - 0
 
 axisFilter = 0.7 #On the new value end
 xScaling, yScaling, zScaling = 0.8, 0.8, 1.2
@@ -81,7 +41,6 @@ endAnglePrint = False
 firstAnglePrint = False
 posOption = '-'
 
-X_out, Y_out, Z_out = accelerometer.acceleration #acceleration values for each axis
 Roll, Pitch = 0.1, 0.1
 
 d1 = 140; #axial "roll"
@@ -103,15 +62,36 @@ def toRadians(degrees):
     return (degrees * math.pi) / 180
 
 
-def readAccelerometer():
-    global X_out, Y_out, Z_out, Roll, Pitch, roll, pitch
-    X_out, Y_out, Z_out = accelerometer.acceleration
-    #x is roll and y is pitch (it's switched so the servo can be fit to the servo robot arm)
-    pitch = math.atan(Y_out / math.sqrt(pow(X_out, 2) + pow(Z_out, 2))) * 180 / math.pi
-    roll = math.atan(-1 * X_out / math.sqrt(pow(Y_out, 2) + pow(Z_out, 2))) * 180 / math.pi
-    #filter
-    Roll = 0.8 * Roll + 0.2 * roll
-    Pitch = 0.8 * Pitch + 0.2 * pitch
+def getP1():
+    return [0, 0, 0]
+def getP2():
+    return (0, 0, d1)
+def getP3(q1, q2): #in radians
+    return [
+        d2*math.cos(q2)*math.sin(q1),
+        d2*math.cos(q2)*math.cos(q1),
+        d1+d2*math.sin(q2)
+        ]
+def getP4(P3, q1, q2, q3): #in radians
+    return [
+        P3[0]+d3*math.cos(q2+q3)*math.sin(q1),
+        P3[1]+d3*math.cos(q2+q3)*math.cos(q1),
+        P3[2]+d3*math.sin(q2+q3)
+        ]
+def getP5(P3, q1, q2, q3): #in radians
+    return [
+        P3[0]+(d3+d4)*math.cos(q2+q3)*math.sin(q1),
+        P3[1]+(d3+d4)*math.cos(q2+q3)*math.cos(q1),
+        P3[2]+(d3+d4)*math.sin(q2+q3)
+        ]
+
+def getPP(P5, a, b): #in radians
+    return [
+        P5[0]+(d5+d6)*math.cos(b)*math.sin(a),
+        P5[1]+(d5+d6)*math.cos(b)*math.cos(a),
+        P5[2]+(d5+d6)*math.sin(b)
+    ]
+
 
 def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_scalar = 1, printText = False):
     global d1, d2, d3, d4, d5, d6, q1, q2, q3, q4, q5, q6, q7, posX2, posY2, posZ2
@@ -188,6 +168,7 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
             " q4: ", toDegrees(q4),
             " q5: ", toDegrees(q5),
             " q6: ", toDegrees(q6),
+            sep=''
         )
 
 q1_default = 90
@@ -252,6 +233,21 @@ while True:
                 for i in range(6):
                     if whichServoExceeded[i]:
                         print("\tServo motor: q", i+1, " exceeded \"", typeOfExceeded[i], "\"", sep='')
+            P1 = getP1()
+            P2 = getP2()
+            P3 = getP3(q1, q2)
+            P4 = getP4(P3, q1, q2, q3)
+            P5 = getP5(P3, q1, q2, q3)
+            PP = getPP(P5, a, b)
+            print("----------------------")
+            print(" P1: x:", P1[0], " y:", P1[1], " z:", P1[2], sep='')
+            print(" P2: x:", P2[0], " y:", P2[1], " z:", P2[2], sep='')
+            print(" P3: x:", P3[0], " y:", P3[1], " z:", P3[2], sep='')
+            print(" P4: x:", P4[0], " y:", P4[1], " z:", P4[2], sep='')
+            print(" P5: x:", P5[0], " y:", P5[1], " z:", P5[2], sep='')
+            print(" PP: x:", PP[0], " y:", PP[1], " z:", PP[2], sep='')
+            print("----------------------")
+
             s[5] = q6_default - int(round(toDegrees(q6)))
             s[4] = 180 - q5_default - int(round(toDegrees(q5)))
             s[3] = q4_default + int(round(toDegrees(q4)))
@@ -261,11 +257,11 @@ while True:
             for x in range(6):
                 if x == 4:
                     if s[4]<90:
-                        servo[4].angle = getServo4Offset(180 - q5_default - s[4])
+                        servo[4] = getServo4Offset(180 - q5_default - s[4])
                     else:
-                        servo[4].angle = s[4]
+                        servo[4] = s[4]
                 else:
-                    servo[x].angle = s[x]
+                    servo[x] = s[x]
         if firstAnglePrint:
             print(
                 " q1:", toDegrees(q1), 
@@ -278,14 +274,14 @@ while True:
                 " Pitch:", Pitch
             )
 
-        if globalPrint or endAnglePrint:
+        if globalPrint and endAnglePrint:
             print(
-                " q1:", servo[0].angle, 
-                " q2:", servo[1].angle,
-                " q3:", servo[2].angle,
-                " q4:", servo[3].angle,
-                " q5:", servo[4].angle, 
-                " q6:", servo[5].angle,
+                " q1:", servo[0], 
+                " q2:", servo[1],
+                " q3:", servo[2],
+                " q4:", servo[3],
+                " q5:", servo[4], 
+                " q6:", servo[5],
                 " Roll:", Roll,
                 " Pitch:", Pitch
             )
