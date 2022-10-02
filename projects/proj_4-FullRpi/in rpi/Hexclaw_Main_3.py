@@ -5,6 +5,8 @@
 #*/
 
 # Import essential libraries
+from __future__ import print_function
+import argparse
 import requests
 import cv2
 import numpy as np
@@ -13,7 +15,6 @@ import time
 import math
 import adafruit_adxl34x
 import sys
-# import matplotlib.pyplot as plt
 
 from board import SCL, SDA
 import busio
@@ -48,22 +49,15 @@ servo[3].angle = 90
 servo[4].angle = 180 - 90
 servo[5].angle = 90
 
-# plt.xlabel("x - axis")
-# plt.ylabel("y - axis")
-# plt.title("xyz value over time")
-# xGraph = 100*[0]
-# yGraph = 100*[0]
-# zGraph = 100*[0]
-# plt.plot([-150, -100, -50, 0, 50, 100, 150], [0, 50, 100, 150, 100, 50, 0], [0, 50, 100, 150, 100, 50, 0])
-
 time.sleep(1)
 
 axisFilter = 0.7 #On the new value end
+
+newSize = [640, 480]
 xScaling, yScaling, zScaling = 0.8, 0.8, 1.2
 cap = cv2.VideoCapture(0)
 brightVal = 75
-zDefaultVal = 3000000
-L_values, U_values = [48, 134, 0], [111, 255, 151] #[49, 131, 39], [87, 255, 124]
+zDefaultVal = 100000
 #L_values, U_values = input("Enter L- and U-values without comma: "), input()
 diffCheck = 100
 showImage = False
@@ -184,6 +178,38 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
             " q6: ", toDegrees(q6),
         )
 
+cX, cY, cW, cH = 0, 0, 0, 0
+
+frame_gray = 0
+readObjects = False
+
+def detectAndDisplay(frame):
+    global cX, cY, cW, cH, frame_gray, readObjects
+    frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    frame_gray = cv2.equalizeHist(frame_gray)
+    #-- Detect objects
+    objects = object_cascade.detectMultiScale(frame_gray, 1.5, 1, 0, [int(round(newSize[0]/3)), int(round(newSize[0]/3))], [int(round(newSize[0]*0.4)), int(round(newSize[1]*0.4))])
+    for (x,y,w,h) in objects:
+        readObjects = True
+        center = (x + w//2, y + h//2)
+        # print("x:", x+w//2, " y:", y+h//2, " width:", w, " height:", h, " area:", w*h, sep='')
+        print(" area:", w*h, " w:", w, " h:", h, sep='', end='')
+        frame = cv2.ellipse(frame, center, (w//2, h//2), 0, 0, 360, (255, 0, 255), 4)
+        cX, cY, cW, cH = x, y, w, h
+        break
+    cv2.imshow('Capture - Face detection', frame)
+
+haarCascadePath = "/home/pi/OpenCV/haarcascades/"
+parser = argparse.ArgumentParser(description='Code for Cascade Classifier tutorial.')
+parser.add_argument('--object_cascade', help='Path to face cascade.', default= haarCascadePath + 'Hand.Cascade.1.xml')
+parser.add_argument('--camera', help='Camera divide number.', type=int, default=0)
+args = parser.parse_args()
+object_cascade_name = args.object_cascade
+object_cascade = cv2.CascadeClassifier()
+if not object_cascade.load(cv2.samples.findFile(object_cascade_name)):
+    print('--(!)Error loading face cascade')
+    exit(0)
+
 q1_default = 90
 q2_default = 0
 q3_default = 135
@@ -201,39 +227,19 @@ while True:
     readAccelerometer()
 
     ret, imgTemp = cap.read()
-    img = cv2.resize(imgTemp, (640, 480))
+    img = cv2.resize(imgTemp, (newSize[0], newSize[1]))
     img = cv2.flip(img, 1)
-    into_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    #L, U color values: [[62, 108, 0], [85, 238, 249]]
-    L_limit = np.array(L_values)
-    U_limit = np.array(U_values)
-    threshold = cv2.inRange(into_hsv, L_limit, U_limit)
-    filtered = cv2.bitwise_and(img, img, mask = threshold)
-    #filtered = increase_brightness(filtered, brightVal)
-    filtered[filtered!=0] = 255 #change to value of everything that's not 0 to 255(white)
-    filtered = cv2.erode(filtered, np.ones((5,5), np.uint8), iterations = 1)
-    filtered = cv2.dilate(filtered, np.ones((5,5), np.uint8), iterations = 1)
-    gray_image = cv2.cvtColor(filtered, cv2.COLOR_BGR2GRAY)
-    ret,thresh = cv2.threshold(gray_image,127,255,0)
-    contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
-    for c in contours:
-        M = cv2.moments(c)
-        M = cv2.moments(thresh)
-        if M["m00"] != 0:
-            cX = int(M["m10"] / M["m00"])
-            cY = int(M["m01"] / M["m00"])
-        else:
-            cX, cY = 0, 0
-        cv2.circle(img, (cX, cY), 5, (255, 255, 255), -1)
-        cv2.putText(img, "centroid" + str(cv2.contourArea(contours[0])), (cX - 25, cY - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        coord = "x:" + str(int(xScaling*(cX - 320))) + " y:" + str(int(yScaling*(480 - cY))) + " z:" +  str(int(zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax))) #str(cv2.contourArea(contours))
-        posX = int(axisFilter * xScaling*(cX - 320) + (1-axisFilter) * posX)
-        posY = int(axisFilter * yScaling*(480 - cY) + (1-axisFilter) * posY)
-        posZ = int(axisFilter * zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax) + (1-axisFilter) * posZ)
+
+    detectAndDisplay(img)
+
+    coord = "x:" + str(int(xScaling*(cX - newSize[0]*0.5))) + " y:" + str(int(yScaling*(newSize[1] - cY))) + " z:" +  str(int(zScaling*(zMax - ((cW*cH) / zDefaultVal)*zMax))) #str(cv2.contourArea(contours))
+    posX = int(axisFilter * xScaling*(cX - newSize[0]*0.5) + (1-axisFilter) * posX)
+    posY = int(axisFilter * yScaling*(newSize[1] - cY) + (1-axisFilter) * posY)
+    posZ = int(axisFilter * zScaling*(zMax - ((cW*cH) / zDefaultVal)*zMax) + (1-axisFilter) * posZ)
     if globalPrint or printCoord:
         print(coord)
     if showImage:
-        stacked = np.hstack((img, filtered))
+        stacked = np.hstack((img, frame_gray))
         cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7))
     
     # Calculate the servo rotations
@@ -257,7 +263,7 @@ while True:
     whichServoExceeded = 6*[False]
     typeOfExceeded = 6*["null"]
 
-    if toDegrees(q2) - s[1] < diffCheck:
+    if toDegrees(q2) - s[1] < diffCheck and readObjects:
         if not (math.isnan(q1) or
             math.isnan(q2) or
             math.isnan(q3) or
@@ -306,7 +312,7 @@ while True:
                 " Pitch:", Pitch
             )
 
-        if globalPrint or endAnglePrint:
+        if globalPrint and endAnglePrint:
             print(
                 " q1:", servo[0].angle, 
                 " q2:", servo[1].angle,
