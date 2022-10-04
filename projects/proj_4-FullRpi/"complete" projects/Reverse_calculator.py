@@ -85,7 +85,14 @@ def getP5(P3, q1, q2, q3): #in radians
         P3[2]+(d3+d4)*math.sin(q2+q3)
         ]
 
-def getPP(P5, a, b): #in radians
+def getPP(P5, q1, q2, q3, q4, q5): #in radians
+    # return [
+    #     P5[0]+(d5+d6)*math.cos(b)*math.sin(a),
+    #     P5[1]+(d5+d6)*math.cos(b)*math.cos(a),
+    #     P5[2]+(d5+d6)*math.sin(b)
+    # ]
+    b = math.asin((d5*math.sin(q5)*math.cos(q4))/d5)+q2+q3
+    a = q1+math.atan((d5*math.sin(q5)*math.cos(q4))/(d5*math.cos(q5)))
     return [
         P5[0]+(d5+d6)*math.cos(b)*math.sin(a),
         P5[1]+(d5+d6)*math.cos(b)*math.cos(a),
