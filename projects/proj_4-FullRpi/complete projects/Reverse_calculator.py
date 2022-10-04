@@ -93,6 +93,7 @@ def getPP(P5, q1, q2, q3, q4, q5): #in radians
     # ]
     b = math.asin((d5*math.sin(q5)*math.cos(q4))/d5)+q2+q3
     a = q1+math.atan((d5*math.sin(q5)*math.cos(q4))/(d5*math.cos(q5)))
+    print("calculated: alpha: ", toDegrees(a), " beta:", toDegrees(b), sep='')
     return [
         P5[0]+(d5+d6)*math.cos(b)*math.sin(a),
         P5[1]+(d5+d6)*math.cos(b)*math.cos(a),
@@ -116,10 +117,9 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
     posX2 = posX - l * math.sin(a)
     posY2 = posY - l * math.cos(a)
     posZ2 = posZ - (d5+d6) * math.sin(b)
-    if posY2 == 0:
+    if posY2 == 0 or posY2 < 0:
         posY2 = 0.00001
-    elif posY2 < 0:
-        posY2 = 0.00001
+        print("posY2 reached Y0 value!")
     
     q1 = math.atan(posX2 / posY2)
     try:
@@ -148,7 +148,7 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
     d5x = (d5+d6) * math.cos(b1) * math.sin(a1)
     #NOTE: The x and y axis of the X1Y1Z1 frame in the paper was reverse (compared to this. The names need to be changed!)
     d5z = (d5+d6) * math.sin(b1)
-    if b1 == 0:
+    if d5z == 0:
         q4 = 0
     elif b1 < 0 or b1 > 0:
         q4 = math.atan(d5x / d5z)
@@ -160,8 +160,9 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
         # if math.sqrt(pow(d5x, 2) + pow(d5z, 2)) > 90:
         #     q5 = toRadians(90)
         # else:
-        #     q5 = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
-        q5 = math.atan(math.sqrt(pow(d5x,2) + pow(d5z, 2)) / (math.cos(b1)*math.cos(a1)))
+        q5 = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
+        #q5 = math.atan(math.sqrt(pow(d5x,2) + pow(d5z, 2)) / (math.cos(b1)*math.cos(a1)))
+        #q5 = math.atan(math.sqrt(pow(d5x, 2) + pow(d5z, 2))/(d5x/(math.tan(a1))))
     if d5z < 0:
         q5 = 0-q5
     if b <= math.pi / 2 and b >= 0 - math.pi / 2:
@@ -246,7 +247,7 @@ while True:
             P3 = getP3(q1, q2)
             P4 = getP4(P3, q1, q2, q3)
             P5 = getP5(P3, q1, q2, q3)
-            PP = getPP(P5, a, b)
+            PP = getPP(P5, q1, q2, q3, q4, q5)
             print("----------------------")
             print(" P1: x:", P1[0], " y:", P1[1], " z:", P1[2], sep='')
             print(" P2: x:", P2[0], " y:", P2[1], " z:", P2[2], sep='')
@@ -254,6 +255,7 @@ while True:
             print(" P4: x:", P4[0], " y:", P4[1], " z:", P4[2], sep='')
             print(" P5: x:", P5[0], " y:", P5[1], " z:", P5[2], sep='')
             print(" PP: x:", PP[0], " y:", PP[1], " z:", PP[2], sep='')
+            print("\n\tError value: x:", float(PP[0])-posX, " y:", float(PP[1])-posY, " z:", float(PP[2])-posZ, sep='')
             print("----------------------")
 
             s[5] = q6_default - int(round(toDegrees(q6)))

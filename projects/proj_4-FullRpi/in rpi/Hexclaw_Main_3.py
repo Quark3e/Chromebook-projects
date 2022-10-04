@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #/*
-# "Automatic" Mode where the coordinate and orientation variables are given by opencv color tracking and accelerometer
+# "Automatic" Mode where the coordinate and orientation variables are given by opencv color hand tracking
 #*/
 
 # Import essential libraries
