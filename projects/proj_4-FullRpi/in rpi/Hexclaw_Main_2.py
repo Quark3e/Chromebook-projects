@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 #/*
+# Terminal User input
 # Manual Mode where the coordinate and orientation variables are input
 #*/
 

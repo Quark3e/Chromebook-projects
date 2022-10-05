@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 #/*
+# OpenCV Color Tracking and ADXL345 accelerometer
 # "Automatic" Mode where the coordinate and orientation variables are given by opencv color tracking and accelerometer
 #*/
 
