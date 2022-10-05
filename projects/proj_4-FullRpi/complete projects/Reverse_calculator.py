@@ -98,8 +98,18 @@ def getPP(P5, q1, q2, q3, q4, q5): #in radians
         P5[0]+(d5+d6)*math.cos(b)*math.sin(a),
         P5[1]+(d5+d6)*math.cos(b)*math.cos(a),
         P5[2]+(d5+d6)*math.sin(b)
-    ]
+        ]
 
+def getQ4fromQ5(a, b, q1, q2, q3, q5): #returns two answers: [0] from alpha equation, [1] from beta equation
+    return [
+        math.acos(math.tan(a-q1)/math.tan(q5)),
+        math.acos(math.sin(b-q2-q3)/math.sin(q5))
+        ]
+def getQ5fromQ4(a, b, q1, q2, q3, q4):
+    return [
+        math.atan(math.tan(a-q1)/math.cos(q4)),
+        math.asin(math.sin(b-q2-q3)/math.cos(q4))
+        ]
 
 def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_scalar = 1, printText = False):
     global d1, d2, d3, d4, d5, d6, q1, q2, q3, q4, q5, q6, q7, posX2, posY2, posZ2
@@ -248,6 +258,17 @@ while True:
             P4 = getP4(P3, q1, q2, q3)
             P5 = getP5(P3, q1, q2, q3)
             PP = getPP(P5, q1, q2, q3, q4, q5)
+
+            q4_from_q5 = getQ4fromQ5(a, b, q1, q2, q3, q5) #[0]=a, [1]=b
+            q5_from_q4 = getQ5fromQ4(a, b, q1, q2, q3, q4) #[0]=a, [1]=b
+            PP_fromAlpha_fromQ5 = getPP(P5, q1, q2, q3, q4_from_q5[0], q5)
+            PP_fromAlpha_fromQ4 = getPP(P5, q1, q2, q3, q4, q5_from_q4[0])
+            PP_fromAlpha_fromBoth = getPP(P5, q1, q2, q3, q4_from_q5[0], q5_from_q4[0])
+
+            PP_fromBeta_fromQ5 = getPP(P5, q1, q2, q3, q4_from_q5[1], q5)
+            PP_fromBeta_fromQ4 = getPP(P5, q1, q2, q3, q4, q5_from_q4[1])
+            PP_fromBeta_fromBoth = getPP(P5, q1, q2, q3, q4_from_q5[1], q5_from_q4[1])
+
             print("----------------------")
             print(" P1: x:", P1[0], " y:", P1[1], " z:", P1[2], sep='')
             print(" P2: x:", P2[0], " y:", P2[1], " z:", P2[2], sep='')
@@ -256,6 +277,15 @@ while True:
             print(" P5: x:", P5[0], " y:", P5[1], " z:", P5[2], sep='')
             print(" PP: x:", PP[0], " y:", PP[1], " z:", PP[2], sep='')
             print("\n\tError value: x:", float(PP[0])-posX, " y:", float(PP[1])-posY, " z:", float(PP[2])-posZ, sep='')
+
+            print("\n _fromAlpha: from (default)q5: x:", PP_fromAlpha_fromQ5[0], " y:", PP_fromAlpha_fromQ5[1], " z:", PP_fromAlpha_fromQ5[2], sep='') 
+            print(" _fromAlpha: from (default)q4: x:", PP_fromAlpha_fromQ4[0], " y:", PP_fromAlpha_fromQ4[1], " z:", PP_fromAlpha_fromQ4[2], sep='') 
+            print(" _fromAlpha: from both: x:", PP_fromAlpha_fromBoth[0], " y:", PP_fromAlpha_fromBoth[1], " z:", PP_fromAlpha_fromBoth[2], sep='') 
+
+            print(" _fromBeta:  from (default)q5: x:", PP_fromBeta_fromQ5[0], " y:", PP_fromBeta_fromQ5[1], " z:", PP_fromBeta_fromQ5[2], sep='')
+            print(" _fromBeta:  from (default)q4: x:", PP_fromBeta_fromQ4[0], " y:", PP_fromBeta_fromQ4[1], " z:", PP_fromBeta_fromQ4[2], sep='')
+            print(" _fromBeta:  from both: x:", PP_fromBeta_fromBoth[0], " y:", PP_fromBeta_fromBoth[1], " z:", PP_fromBeta_fromBoth[2], sep='')
+
             print("----------------------")
 
             s[5] = q6_default - int(round(toDegrees(q6)))

@@ -50,42 +50,61 @@ def getServo4Offset(degrees):
 #servo[0].angle = 0
 time.sleep(0.5)
 
-for i in range(0,181):
-    servo[4].angle = i
-    if i == 90:
-        time.sleep(1)
-    else:
-        time.sleep(0.01)
-time.sleep(1)
-for i in range(180,1, -1):
-    servo[4].angle = i
-    if i == 90:
-        time.sleep(1)
-    else:
-        time.sleep(0.01)
-time.sleep(1.5)
+diagnostics = True
 
-#for i in range(0,181):
-#    servo[0].angle = i
-#    if i == 90:
-#        time.sleep(1)
-#    else:
-#        time.sleep(0.01)
-#time.sleep(1)
-#for i in range(180,1, -1):
-#    servo[0].angle = i
-#    if i == 90:
-#        time.sleep(1)
-#    else:
-#        time.sleep(0.01)
-time.sleep(1.5)
+if False:
+    for i in range(0,181):
+        servo[4].angle = i
+        if i == 90:
+            time.sleep(1)
+        else:
+            time.sleep(0.01)
+    time.sleep(1)
+    for i in range(180,1, -1):
+        servo[4].angle = i
+        if i == 90:
+            time.sleep(1)
+        else:
+            time.sleep(0.01)
+    time.sleep(1.5)
+if False:
+    for i in range(0,181):
+        servo[0].angle = i
+        if i == 45 or i == 90 or i == 135:
+            time.sleep(0.5)
+        else:
+            time.sleep(0.01)
+    time.sleep(1)
+    for i in range(180,1, -1):
+        servo[0].angle = i
+        if i == 45 or i == 90 or i == 135:
+            time.sleep(0.5)
+        else:
+            time.sleep(0.01)
+    time.sleep(1.5)
+if False:
+    for i in range(0,181, 10):
+        servo[0].angle = i
+        if i == 45 or i == 90 or i == 135:
+            time.sleep(0.5)
+        else:
+            time.sleep(0.75)
+    time.sleep(1)
+    for i in range(180,1, -10):
+        servo[0].angle = i
+        if i == 45 or i == 90 or i == 135:
+            time.sleep(0.5)
+        else:
+            time.sleep(0.75)
+    time.sleep(1.5)
 
+
+servo[0].angle = 90
 servo[4].angle = 135
-time.sleep(1)
+#time.sleep(1)
 servo[2].angle = 180 - 0
 servo[1].angle = 90
-time.sleep(1)
-#servo[0].angle = 90
+#time.sleep(1)
 
 
 axisFilter = 0.7 #On the new value end
@@ -149,6 +168,8 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
     posX2 = posX - l * math.sin(a)
     posY2 = posY - l * math.cos(a)
     posZ2 = posZ - (d5+d6) * math.sin(b)
+    if diagnostics:
+        print("pos2X:", posX2, " pos2Y:", posY2, " pos2Z:", posZ2, sep='')
     if posY2 == 0:
         posY2 = 0.00001
     elif posY2 < 0:
@@ -178,13 +199,18 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
     #print(" q3:", toDegrees(q3), " sin:", math.sin(q3), " cos:", math.cos(q3))
     a1 = a - q1
     b1 = b - (q2 + q3)
+    if diagnostics:
+        print(" a1:", toDegrees(a1), " b1:", toDegrees(b1), sep='')
     d5x = (d5+d6) * math.cos(b1) * math.sin(a1)
+    # d5x = (d5+d6) * math.sin(q5) * math.sin(q4)
     #NOTE: The x and y axis of the X1Y1Z1 frame in the paper was reverse (compared to this. The names need to be changed!)
     d5z = (d5+d6) * math.sin(b1)
-    print(" d5z:", d5z)
-    print(" tan(a1):", math.atan(a1))
-    print(" q1:", q1, "rad")
-    if b1 == 0:
+    # d5z = (d5+d6) * math.sin(q5) * math.cos(q4)
+
+    # print(" d5z:", d5z)
+    # print(" tan(a1):", math.atan(a1))
+    # print(" q1:", q1, "rad")
+    if d5z == 0:
         q4 = 0
     elif b1 < 0 or b1 > 0:
         q4 = math.atan(d5x / d5z)
@@ -208,13 +234,16 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
         q6 = math.pi - (Y - q6)
     if printText:
         print(
+            " Read:"
             " q1: ", toDegrees(q1),
             " q2: ", toDegrees(q2),
             " q3: ", toDegrees(q3),
             " q4: ", toDegrees(q4),
             " q5: ", toDegrees(q5),
             " q6: ", toDegrees(q6),
+            sep=''
         )
+
 
 q1_default = 90
 q2_default = 0
@@ -240,14 +269,20 @@ while True:
         posX = (float(tempInput_1[0]))
         posY = (float(tempInput_1[1]))
         posZ = (float(tempInput_1[2]))
-    print()
     tempInput_2 = input("Enter orientation values [a b Y] in degrees: ").split()
     a = toRadians(float(tempInput_2[0]))
     b = toRadians(float(tempInput_2[1]))
     Y = toRadians(float(tempInput_2[2]))
 
-    print("x:", posX, " y:", posY, " z:", posZ, " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
+    print()
+    if diagnostics:
+        print("x:", posX, " y:", posY, " z:", posZ, " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
     getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
+
+    if diagnostics:
+        print(" Read: alpha:", toDegrees(q1+math.atan((d5*math.sin(q5)*math.cos(q4))/(d5*math.cos(q5)))), end='')
+        print(" beta:", toDegrees(math.asin((d5*math.sin(q5)*math.cos(q4))/d5)+q2+q3))
+        
 
     servoExceeded = False
     # "under" = given < 0
@@ -294,6 +329,7 @@ while True:
                     servo[x].angle = s[x]
         if firstAnglePrint:
             print(
+                " read:\n"
                 " q1:", toDegrees(q1), 
                 " q2:", toDegrees(q2),
                 " q3:", toDegrees(q3),
@@ -306,14 +342,14 @@ while True:
 
         if globalPrint or endAnglePrint:
             print(
-                " q1:", servo[0].angle, 
+                " Sent: q1:", servo[0].angle, 
                 " q2:", servo[1].angle,
                 " q3:", servo[2].angle,
                 " q4:", servo[3].angle,
                 " q5:", servo[4].angle, 
                 " q6:", servo[5].angle,
-                " Roll:", Roll,
-                " Pitch:", Pitch
+                # " Roll:", Roll,
+                # " Pitch:", Pitch
             )
 
 pca.deinit()

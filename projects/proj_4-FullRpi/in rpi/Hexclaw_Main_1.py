@@ -58,12 +58,16 @@ servo[5].angle = 90
 
 time.sleep(1)
 
-axisFilter = 0.7 #On the new value end
+axisFilter = 0.3 #On the new value end
+accelFilter = 0.1
 xScaling, yScaling, zScaling = 0.8, 0.8, 1.2
 cap = cv2.VideoCapture(0)
 brightVal = 75
 zDefaultVal = 3000000
-L_values, U_values = [48, 134, 0], [111, 255, 151] #[49, 131, 39], [87, 255, 124]
+
+# L_values, U_values = [48, 134, 0], [111, 255, 151]
+# L_values, U_values = [49, 131, 39], [87, 255, 124]
+L_values, U_values = [66, 95, 81], [92, 231, 212]
 #L_values, U_values = input("Enter L- and U-values without comma: "), input()
 diffCheck = 100
 showImage = False
@@ -83,7 +87,7 @@ d2 = 135; #axial "pitch"
 d3 = 70; #axial "pitch"
 d4 = 80; #axial "roll"
 d5 = 45; #axial "pitch
-d6 = 45; #axial "roll" (?)
+d6 = 30; #axial "roll" (?)
 
 q1, q2, q3, q4, q5, q6, q7 = 0, 0, 0, 0, 0, 0, 0 #NOTE: q1 = servo[0]
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
@@ -104,8 +108,8 @@ def readAccelerometer():
     pitch = math.atan(Y_out / math.sqrt(pow(X_out, 2) + pow(Z_out, 2))) * 180 / math.pi
     roll = math.atan(-1 * X_out / math.sqrt(pow(Y_out, 2) + pow(Z_out, 2))) * 180 / math.pi
     #filter
-    Roll = 0.8 * Roll + 0.2 * roll
-    Pitch = 0.8 * Pitch + 0.2 * pitch
+    Roll = (1-accelFilter) * Roll + accelFilter * roll
+    Pitch = (1-accelFilter) * Pitch + accelFilter * pitch
 
 def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_scalar = 1, printText = False):
     global d1, d2, d3, d4, d5, d6, q1, q2, q3, q4, q5, q6, q7, posX2, posY2, posZ2
@@ -164,10 +168,10 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
         if printText:
             print("asin(sqrt(pow(d5x, 2) + pow(d5z, 2)) / d5)  is NaN")
     else:
-        if math.sqrt(pow(d5x, 2) + pow(d5z, 2)) > 90:
-            q5 = toRadians(90)
-        else:
-            q5 = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
+        # if math.sqrt(pow(d5x, 2) + pow(d5z, 2)) > 90:
+        #     q5 = toRadians(90)
+        # else:
+        q5 = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
     if d5z < 0:
         q5 = 0-q5
     if b <= math.pi / 2 and b >= 0 - math.pi / 2:
@@ -227,9 +231,9 @@ while True:
         cv2.circle(img, (cX, cY), 5, (255, 255, 255), -1)
         cv2.putText(img, "centroid" + str(cv2.contourArea(contours[0])), (cX - 25, cY - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
         coord = "x:" + str(int(xScaling*(cX - 320))) + " y:" + str(int(yScaling*(480 - cY))) + " z:" +  str(int(zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax))) #str(cv2.contourArea(contours))
-        posX = int(axisFilter * xScaling*(cX - 320) + (1-axisFilter) * posX)
-        posY = int(axisFilter * yScaling*(480 - cY) + (1-axisFilter) * posY)
-        posZ = int(axisFilter * zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax) + (1-axisFilter) * posZ)
+        posX = int(axisFilter * xScaling*(cX - 320) + (float(1)-axisFilter) * posX)
+        posY = int(axisFilter * yScaling*(480 - cY) + (float(1)-axisFilter) * posY)
+        posZ = int(axisFilter * zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax) + (float(1)-axisFilter) * posZ)
     if globalPrint or printCoord:
         print(coord)
     if showImage:
