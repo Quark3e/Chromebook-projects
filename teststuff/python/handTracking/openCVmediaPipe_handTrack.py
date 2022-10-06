@@ -8,6 +8,8 @@ import cv2
 import numpy as np
 import imutils
 import mediapipe as mp
+import math
+import time
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -26,7 +28,8 @@ else:
     url = url_start + input('Enter full ip address including port: ') + url_end
   
 imgRes = [float(640), float(480)]
-zDefault = 1000
+zDefault = 300
+xScaling, yScaling = 0.5, 0.5
 
 # For static images:
 IMAGE_FILES = []
@@ -75,6 +78,7 @@ with mp_hands.Hands(
     min_tracking_confidence=0.5) as hands:
     
     handPoints = []
+    start_time = time.time()
     while True:
         img_resp = requests.get(url)
         img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
@@ -91,18 +95,26 @@ with mp_hands.Hands(
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
-                pointPos = [hand_landmarks.landmark[9].x*imgRes[0]-imgRes[0]*0.5, imgRes[1]-imgRes[1]*hand_landmarks.landmark[9].y, 300+20*zDefault*hand_landmarks.landmark[9].z]
+                pointPos = [xScaling*(hand_landmarks.landmark[9].x*imgRes[0]-imgRes[0]*0.5), yScaling*(imgRes[1]-imgRes[1]*hand_landmarks.landmark[9].y),
+                zDefault-math.sqrt(pow(abs(hand_landmarks.landmark[0].y*imgRes[1]-hand_landmarks.landmark[5].y*imgRes[1]), 2)+pow(abs(hand_landmarks.landmark[0].x*imgRes[0]-hand_landmarks.landmark[5].x*imgRes[0]), 2))
+                ]
                 print(" x:", pointPos[0], " y:", pointPos[1], " z:", pointPos[2], sep='')
-                cv2.circle(image, (int(pointPos[0]+imgRes[0]*0.5), int(imgRes[1]-pointPos[1])), 10, (0, 0, 0), -1)
-                mp_drawing.draw_landmarks(
-                    image,
-                    hand_landmarks,
-                    mp_hands.HAND_CONNECTIONS,
-                    mp_drawing_styles.get_default_hand_landmarks_style(),
-                    mp_drawing_styles.get_default_hand_connections_style())
+                # cv2.circle(image, (int(pointPos[0]/xScaling+imgRes[0]*0.5), int(imgRes[1]/yScaling-pointPos[1])), 10, (0, 0, 0), -1)
+                cv2.circle(image, (int(hand_landmarks.landmark[9].x*image.shape[1]), int(hand_landmarks.landmark[9].y*image.shape[0])), 10, (0, 0, 0), -1)
+
+                # mp_drawing.draw_landmarks(
+                #     image,
+                #     hand_landmarks,
+                #     mp_hands.HAND_CONNECTIONS,
+                #     mp_drawing_styles.get_default_hand_landmarks_style(),
+                #     mp_drawing_styles.get_default_hand_connections_style())
+        fps = int(round(1 / (time.time()-start_time)))
+        print("fps:", fps, end='')
+        # print()
         cv2.imshow('MediaPipe Hands', cv2.resize(image, None, fx=1, fy=1))
-        if cv2.waitKey(5) & 0xFF == 27 or cv2.waitKey(1) == 27:
+        if cv2.waitKey(5) & 0xFF == 27: # or cv2.waitKey(5) == 27:
             break
+        start_time = time.time()
 cv2.destroyAllWindows()
 
 

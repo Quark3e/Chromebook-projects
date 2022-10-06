@@ -14,6 +14,7 @@ Introduction:
 *visuals of the parts of the video*
     "*serious/professional, points at where visuals are* - What is an articulated robot (in comparison to other types of robots)"
     "*serious/professional, points slightly lower* - Where are articulated robots used"
+    
     "*serious/professional* *fades in image of why is gamora meme* *points lower, slight pause*- Why-"
 *cuts in the middle of "why-" to next scene*
     "The method of moving the robot (The Inverse Kinematics)"
