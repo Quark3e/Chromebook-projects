@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
 #/*
-# OpenCV HSV-range and ADXL345 accelerometer with two video feeds (webcam, url)
+# OpenCV HSV-range and ADXL345 accelerometer with two video feeds (webcam[0] and webcam[1])
 # "Automatic" Mode where the coordinate and orientation variables are given by opencv color tracking and accelerometer
 #*/
 
 # Import essential libraries
-import requests
 import cv2
 import numpy as np
 import imutils
@@ -54,26 +53,91 @@ axisFilter = 0.3 #On the new value end
 accelFilter = 0.1
 xScaling, yScaling, zScaling = 0.8, 0.8, 1.2
 
-useDefaultAddress = True
-url_start = "http://"
-url_end = "/shot.jpg"
-if useDefaultAddress:
-    url = url_start + "192.168.1.124:8080" + url_end
-else:
-    url = url_start + input('Enter full ip address including port: ') + url_end
 
-cap = cv2.VideoCapture(0)
-
+webcam = (cv2.VideoCapture(0), cv2.VideoCapture(1)) #[0]-True for the webcam that has high resolution
 
 
 brightVal = 75
 zDefaultVal = 3000000
+zOffset = 100
 
-# L_values, U_values = [48, 134, 0], [111, 255, 151]
-# L_values, U_values = [49, 131, 39], [87, 255, 124]
-L_values1, U_values1 = [1, 105, 173], [50, 203, 255]
-L_values2, U_values2 = [54, 65, 38], [103, 169, 119]
-#L_values, U_values = input("Enter L- and U-values without comma: "), input()
+
+def nothing(x):
+    pass
+
+cv2.namedWindow("Webcam0")
+cv2.createTrackbar("L - H", "Webcam0", 0, 179, nothing)
+cv2.createTrackbar("L - S", "Webcam0", 0, 255, nothing)
+cv2.createTrackbar("L - V", "Webcam0", 0, 255, nothing)
+cv2.createTrackbar("U - H", "Webcam0", 179, 179, nothing)
+cv2.createTrackbar("U - S", "Webcam0", 255, 255, nothing)
+cv2.createTrackbar("U - V", "Webcam0", 255, 255, nothing)
+while True:
+    ret0, frame = webcam[0].read()
+    frame = cv2.flip(frame, 1 ) 
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    l_h = cv2.getTrackbarPos("L - H", "Webcam0")
+    l_s = cv2.getTrackbarPos("L - S", "Webcam0")
+    l_v = cv2.getTrackbarPos("L - V", "Webcam0")
+    u_h = cv2.getTrackbarPos("U - H", "Webcam0")
+    u_s = cv2.getTrackbarPos("U - S", "Webcam0")
+    u_v = cv2.getTrackbarPos("U - V", "Webcam0")
+    lower_range = np.array([l_h, l_s, l_v])
+    upper_range = np.array([u_h, u_s, u_v])
+    mask = cv2.inRange(hsv, lower_range, upper_range) 
+    res = cv2.bitwise_and(frame, frame, mask=mask)
+    mask_3 = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)    
+    stacked = np.hstack((mask_3,frame,res))    
+    cv2.imshow('Webcam0',cv2.resize(stacked,None,fx=0.4,fy=0.4))    
+    key = cv2.waitKey(1)
+    if key == 27:
+        break    
+    if key == ord('s'):
+        thearray = [[l_h,l_s,l_v],[u_h, u_s, u_v]]
+        L_values0, U_values0 = [l_h,l_s,l_v],[u_h, u_s, u_v]
+        print(thearray)        
+        np.save('hsv_value',thearray)
+        break
+cv2.destroyAllWindows()
+
+time.sleep(1)
+
+cv2.namedWindow("Webcam1")
+cv2.createTrackbar("L - H", "Webcam1", 0, 179, nothing)
+cv2.createTrackbar("L - S", "Webcam1", 0, 255, nothing)
+cv2.createTrackbar("L - V", "Webcam1", 0, 255, nothing)
+cv2.createTrackbar("U - H", "Webcam1", 179, 179, nothing)
+cv2.createTrackbar("U - S", "Webcam1", 255, 255, nothing)
+cv2.createTrackbar("U - V", "Webcam1", 255, 255, nothing)
+while True:
+    ret1, frame = webcam[1].read()
+    frame = cv2.flip(frame, 1 ) 
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    l_h = cv2.getTrackbarPos("L - H", "Webcam1")
+    l_s = cv2.getTrackbarPos("L - S", "Webcam1")
+    l_v = cv2.getTrackbarPos("L - V", "Webcam1")
+    u_h = cv2.getTrackbarPos("U - H", "Webcam1")
+    u_s = cv2.getTrackbarPos("U - S", "Webcam1")
+    u_v = cv2.getTrackbarPos("U - V", "Webcam1")
+    lower_range = np.array([l_h, l_s, l_v])
+    upper_range = np.array([u_h, u_s, u_v])
+    mask = cv2.inRange(hsv, lower_range, upper_range) 
+    res = cv2.bitwise_and(frame, frame, mask=mask)
+    mask_3 = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)    
+    stacked = np.hstack((mask_3,frame,res))    
+    cv2.imshow('Webcam1',cv2.resize(stacked,None,fx=0.4,fy=0.4))    
+    key = cv2.waitKey(1)
+    if key == 27:
+        break    
+    if key == ord('s'):
+        thearray = [[l_h,l_s,l_v],[u_h, u_s, u_v]]
+        L_values1, U_values1 = [l_h,l_s,l_v],[u_h, u_s, u_v]
+        print(thearray)        
+        np.save('hsv_value',thearray)
+        break
+cv2.destroyAllWindows()
+
+
 diffCheck = 100
 showImage = True
 globalPrint = False
@@ -205,7 +269,7 @@ a, b, Y = 90, 0.1, 90
 coord = ""
 
 
-def getCoords(img, resizeImg = False, useWebcamValues = True): #Returns [x, y, z, frame/img, filtered]
+def getCoords(img, valueSrc, resizeImg = False): #Returns [x, y, z, frame/img, filtered]
     posX, posY, posZ = 0.1, 0.1, 0.1
      #Read frame from webcam
     if resizeImg:
@@ -213,12 +277,12 @@ def getCoords(img, resizeImg = False, useWebcamValues = True): #Returns [x, y, z
     img = cv2.flip(img, 1)
     into_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     #L, U color values: [[62, 108, 0], [85, 238, 249]]
-    if useWebcamValues:
+    if valueSrc == 0:
+        L_limit = np.array(L_values0)
+        U_limit = np.array(U_values0)
+    elif valueSrc == 1:
         L_limit = np.array(L_values1)
         U_limit = np.array(U_values1)
-    elif not useWebcamValues:
-        L_limit = np.array(L_values2)
-        U_limit = np.array(U_values2)
     threshold = cv2.inRange(into_hsv, L_limit, U_limit)
     filtered = cv2.bitwise_and(img, img, mask = threshold)
     #filtered = increase_brightness(filtered, brightVal)
@@ -249,20 +313,16 @@ while True:
     #get accelerations, roll and pitch
     readAccelerometer()
 
-    ret, temp1 = cap.read()
+    ret0, temp0 = webcam[0].read()
+    ret1, temp1 = webcam[1].read()
 
-    img_resp = requests.get(url)
-    img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
-    temp2 = cv2.imdecode(img_arr, -1)
-    
-
-    source1 = getCoords(temp1, True, True) #X Y, [0] [1]
-    source2 = getCoords(temp2, False, False) #Y Z, [1]
+    source0 = getCoords(temp0, 0, True) #X Y, [0] [1]
+    source1 = getCoords(temp1, 1, False) #Y Z, [1]
 
     if globalPrint or printCoord:
         print(coord)
     if showImage:
-        stacked = np.hstack((source1[3], source2[3], source1[4], source2[4]))
+        stacked = np.hstack((source0[3], source1[3], source0[4], source1[4]))
         cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7))
     
     # Calculate the servo rotations
@@ -278,7 +338,7 @@ while True:
             a = toRadians(0 - (Roll * 0.9 + toDegrees(a) * 0.1))
         elif bPos:
             a = toRadians(Roll * 0.9 + toDegrees(a) * 0.1)
-    getAngles(source1[0], source1[1], source2[1], a, b, Y, posOption, 1, 1, globalPrint)
+    getAngles(source0[0], source0[1], source1[1], a, b, Y, posOption, 1, 1, globalPrint)
 
     servoExceeded = False
     # "under" = given < 0
