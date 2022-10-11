@@ -66,10 +66,47 @@ cap = cv2.VideoCapture(0)
 brightVal = 75
 zDefaultVal = 3000000
 
-# L_values, U_values = [48, 134, 0], [111, 255, 151]
-# L_values, U_values = [49, 131, 39], [87, 255, 124]
-L_values, U_values = [66, 95, 81], [92, 231, 212]
-#L_values, U_values = input("Enter L- and U-values without comma: "), input()
+L_values, U_values = [53, 41, 86], [103, 234, 233]
+
+def nothing(x):
+    pass
+
+cv2.namedWindow("Webcam - XY")
+cv2.createTrackbar("L - H", "Webcam - XY", 0, 179, nothing)
+cv2.createTrackbar("L - S", "Webcam - XY", 0, 255, nothing)
+cv2.createTrackbar("L - V", "Webcam - XY", 0, 255, nothing)
+cv2.createTrackbar("U - H", "Webcam - XY", 179, 179, nothing)
+cv2.createTrackbar("U - S", "Webcam - XY", 255, 255, nothing)
+cv2.createTrackbar("U - V", "Webcam - XY", 255, 255, nothing)
+while True:
+    ret0, frame = cap.read()
+    frame = cv2.flip(frame, 1 ) 
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    l_h = cv2.getTrackbarPos("L - H", "Webcam - XY")
+    l_s = cv2.getTrackbarPos("L - S", "Webcam - XY")
+    l_v = cv2.getTrackbarPos("L - V", "Webcam - XY")
+    u_h = cv2.getTrackbarPos("U - H", "Webcam - XY")
+    u_s = cv2.getTrackbarPos("U - S", "Webcam - XY")
+    u_v = cv2.getTrackbarPos("U - V", "Webcam - XY")
+    lower_range = np.array([l_h, l_s, l_v])
+    upper_range = np.array([u_h, u_s, u_v])
+    mask = cv2.inRange(hsv, lower_range, upper_range) 
+    res = cv2.bitwise_and(frame, frame, mask=mask)
+    mask_3 = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+    stacked = np.hstack((mask_3,frame,res))    
+    cv2.imshow('Webcam - XY',cv2.resize(stacked,None,fx=0.4,fy=0.4))    
+    key = cv2.waitKey(1)
+    if key == 27:
+        sys.exit()    
+    if key == ord('s'):
+        thearray = [[l_h,l_s,l_v],[u_h, u_s, u_v]]
+        L_values, U_values = [l_h,l_s,l_v],[u_h, u_s, u_v]
+        print(thearray)        
+        np.save('hsv_value',thearray)
+        break
+cv2.destroyAllWindows()
+
+
 diffCheck = 100
 showImage = False
 globalPrint = False
