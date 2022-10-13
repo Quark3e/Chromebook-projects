@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 
 #/*
-# OpenCV HSV-range and ADXL345 accelerometer with two video feeds (webcam[0] and webcam[1])
+# OpenCV Color Tracking and ADXL345 accelerometer
 # "Automatic" Mode where the coordinate and orientation variables are given by opencv color tracking and accelerometer
 #*/
 
 # Import essential libraries
+import requests
 import cv2
 import numpy as np
 import imutils
+import time
 import math
 import adafruit_adxl34x
 import sys
-from time import perf_counter, sleep
 from threading import Thread
 
 class WebcamVideoStream:
@@ -43,6 +44,7 @@ class WebcamVideoStream:
     def stop(self):
 		# indicate that the thread should be stopped
         self.stopped = True
+
 
 
 from board import SCL, SDA
@@ -78,21 +80,29 @@ servo[3].angle = 90
 servo[4].angle = 180 - 90
 servo[5].angle = 90
 
-sleep(1)
+# plt.xlabel("x - axis")
+# plt.ylabel("y - axis")
+# plt.title("xyz value over time")
+# xGraph = 100*[0]
+# yGraph = 100*[0]
+# zGraph = 100*[0]
+# plt.plot([-150, -100, -50, 0, 50, 100, 150], [0, 50, 100, 150, 100, 50, 0], [0, 50, 100, 150, 100, 50, 0])
 
-axisFilter = 1 #On the new value end
+time.sleep(1)
+
+axisFilter = 0.3 #On the new value end
 accelFilter = 0.1
-xScaling, yScaling, zScaling = 0.8, 0.6, 0.5
+xScaling, yScaling, zScaling = 0.8, 0.8, 1.2
 
 
-# webcam = (cv2.VideoCapture(0), cv2.VideoCapture(2)) #[0]-True for the webcam that has high resolution
-webcam = (WebcamVideoStream(src=0).start(), WebcamVideoStream(src=2).start())
+cap = WebcamVideoStream(src=0).start()
 
 
 brightVal = 75
 zDefaultVal = 3000000
-zOffset = 100
 
+useDefaultLimit = False
+defaultLimitIndex = 0
 
 def nothing(x):
     pass
@@ -105,7 +115,7 @@ cv2.createTrackbar("U - H", "Webcam - XY", 179, 179, nothing)
 cv2.createTrackbar("U - S", "Webcam - XY", 255, 255, nothing)
 cv2.createTrackbar("U - V", "Webcam - XY", 255, 255, nothing)
 while True:
-    frame = webcam[0].read()
+    frame = cap.read()
     frame = cv2.flip(frame, 1 ) 
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     l_h = cv2.getTrackbarPos("L - H", "Webcam - XY")
@@ -126,59 +136,30 @@ while True:
         sys.exit()    
     if key == ord('s'):
         thearray = [[l_h,l_s,l_v],[u_h, u_s, u_v]]
-        L_values0, U_values0 = [l_h,l_s,l_v],[u_h, u_s, u_v]
+        L_values, U_values = [l_h,l_s,l_v],[u_h, u_s, u_v]
         print(thearray)        
         np.save('hsv_value',thearray)
         break
-    if key == ord('k'):
-        L_values0, U_values0 = [56, 93, 30], [93, 255, 237]
+    elif key == ord('l'):
+        useDefaultLimit = True
+        defaultLimitIndex = 0
         break
-cv2.destroyAllWindows()
-# L_values0, U_values0 = [48, 152, 19], [94, 249, 77]
-
-
-cv2.namedWindow("Webcam - YZ")
-cv2.createTrackbar("L - H", "Webcam - YZ", 0, 179, nothing)
-cv2.createTrackbar("L - S", "Webcam - YZ", 0, 255, nothing)
-cv2.createTrackbar("L - V", "Webcam - YZ", 0, 255, nothing)
-cv2.createTrackbar("U - H", "Webcam - YZ", 179, 179, nothing)
-cv2.createTrackbar("U - S", "Webcam - YZ", 255, 255, nothing)
-cv2.createTrackbar("U - V", "Webcam - YZ", 255, 255, nothing)
-while True:
-    frame = webcam[1].read()
-    frame = cv2.flip(frame, 1 ) 
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    l_h = cv2.getTrackbarPos("L - H", "Webcam - YZ")
-    l_s = cv2.getTrackbarPos("L - S", "Webcam - YZ")
-    l_v = cv2.getTrackbarPos("L - V", "Webcam - YZ")
-    u_h = cv2.getTrackbarPos("U - H", "Webcam - YZ")
-    u_s = cv2.getTrackbarPos("U - S", "Webcam - YZ")
-    u_v = cv2.getTrackbarPos("U - V", "Webcam - YZ")
-    lower_range = np.array([l_h, l_s, l_v])
-    upper_range = np.array([u_h, u_s, u_v])
-    mask = cv2.inRange(hsv, lower_range, upper_range) 
-    res = cv2.bitwise_and(frame, frame, mask=mask)
-    mask_3 = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)    
-    stacked = np.hstack((mask_3,frame,res))    
-    cv2.imshow('Webcam - YZ',cv2.resize(stacked,None,fx=0.4,fy=0.4))    
-    key = cv2.waitKey(1)
-    if key == 27:
-        sys.exit()    
-    if key == ord('s'):
-        thearray = [[l_h,l_s,l_v],[u_h, u_s, u_v]]
-        L_values1, U_values1 = [l_h,l_s,l_v],[u_h, u_s, u_v]
-        print(thearray)        
-        np.save('hsv_value',thearray)
+    elif key == ord('k'):
+        useDefaultLimit = True
+        defaultLimitIndex = 1
         break
-    if key == ord('k'):
-        L_values1, U_values1 = [56, 93, 30], [93, 255, 237]
+
 cv2.destroyAllWindows()
 
-# L_values0, U_values0 = [63, 163, 36], [83, 255, 171]
-# L_values1, U_values1 = [145, 125, 40], [176, 255, 255]
+if useDefaultLimit:
+    if defaultLimitIndex == 0:
+        L_values, U_values = [64, 73, 88], [103, 213, 255] #plexgear
+    elif defaultLimitIndex == 1:
+        L_values, U_values = [68, 207, 92], [112, 255, 238] #trust exis webcam
+
 
 diffCheck = 100
-showImage = True
+showImage = False
 globalPrint = False
 printCoord = True
 endAnglePrint = False
@@ -305,25 +286,20 @@ q6_default = 90
 
 zMax = 300
 a, b, Y = 90, 0.1, 90
+posX, posY, posZ = 0.1, 0.1, 0.1
 coord = ""
 
-posX, posY, posZ = 0, 200, 150
+while True:
+    #get accelerations, roll and pitch
+    readAccelerometer()
 
-def getCoords(img, valueSrc, resizeImg = False): #Returns [x, y, z, frame/img, filtered]
-    global coord, posX, posY, posZ
-    # posX, posY, posZ = 0.1, 0.1, 0.1
-     #Read frame from webcam
-    if True:
-        img = cv2.resize(img, (640, 480))
+    imgTemp = cap.read()
+    img = cv2.resize(imgTemp, (640, 480))
     img = cv2.flip(img, 1)
     into_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     #L, U color values: [[62, 108, 0], [85, 238, 249]]
-    if valueSrc == 0:
-        L_limit = np.array(L_values0)
-        U_limit = np.array(U_values0)
-    elif valueSrc == 1:
-        L_limit = np.array(L_values1)
-        U_limit = np.array(U_values1)
+    L_limit = np.array(L_values)
+    U_limit = np.array(U_values)
     threshold = cv2.inRange(into_hsv, L_limit, U_limit)
     filtered = cv2.bitwise_and(img, img, mask = threshold)
     #filtered = increase_brightness(filtered, brightVal)
@@ -343,71 +319,16 @@ def getCoords(img, valueSrc, resizeImg = False): #Returns [x, y, z, frame/img, f
             cX, cY = 0, 0
         cv2.circle(img, (cX, cY), 5, (255, 255, 255), -1)
         cv2.putText(img, "centroid" + str(cv2.contourArea(contours[0])), (cX - 25, cY - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        if valueSrc == 0:
-            # print(cX)
-            posX = int(axisFilter * xScaling*(cX - 320) + (float(1)-axisFilter) * posX)
-            posY = int(axisFilter * yScaling*(480 - cY) + (float(1)-axisFilter) * posY)
-        elif valueSrc == 1:
-            posZ = int(axisFilter * zScaling*(480 - cY) + (float(1)-axisFilter) * posZ)
-        # posZ = int(axisFilter * zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax) + (float(1)-axisFilter) * posZ)
-        # coord = "x:" + str(posX) + " y:" + str(posY) + " z:" + str(posZ)
-    return [posX, posY, posZ, img, filtered]
-
-def threadTest(valueSrc, boolVal):
-    if valueSrc == 0:
-        img = webcam[0].read()
-    elif valueSrc == 1:
-        img = webcam[1].read()
-
-    getCoords(img, valueSrc, boolVal)
-
-getTime = False
-
-while True:
-    #get accelerations, roll and pitch
-    if cv2.waitKey(1) == 32:
-        getTime = True
-    
-    # if getTime:
-    #     start_time = perf_counter()
-    # readAccelerometer()
-    # if getTime:
-    #     end_time = perf_counter()
-    #     print(" readAccelerometer:", end_time-start_time)
-    #     start_time = perf_counter()
-    # ret0, temp0 = webcam[0].read()
-    # ret1, temp1 = webcam[1].read()
-    # if getTime:
-    #     end_time = perf_counter()
-    #     print(" webcam.read():", end_time-start_time)
-    
-    # source0 = getCoords(temp0, 0, True) #X Y, [0] [1]
-    # source1 = getCoords(temp1, 1, False) #Y Z, [1]
-
-    if getTime:
-        start_time = perf_counter()
-
-    threadTest(0, True)
-    threadTest(1, False)
-
-    if getTime:
-        end_time = perf_counter()
-        print(" getCoords(), both threads:", end_time-start_time)
-
+        coord = "x:" + str(int(xScaling*(cX - 320))) + " y:" + str(int(yScaling*(480 - cY))) + " z:" +  str(int(zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax))) #str(cv2.contourArea(contours))
+        posX = int(axisFilter * xScaling*(cX - 320) + (float(1)-axisFilter) * posX)
+        posY = int(axisFilter * yScaling*(480 - cY) + (float(1)-axisFilter) * posY)
+        posZ = int(axisFilter * zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax) + (float(1)-axisFilter) * posZ)
     if globalPrint or printCoord:
-        print("x:", posX, " y:", posY, " z:", posZ, sep='')
-
-    showImage = False
-
+        print(coord)
     if showImage:
-        stacked = np.hstack((source0[3], source1[3], source0[4], source1[4]))
+        stacked = np.hstack((img, filtered))
         cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7))
     
-    if cv2.waitKey(1) == 32:
-        showImage = not showImage
-
-    if getTime:
-        start_time = perf_counter()
     # Calculate the servo rotations
     bPos = False
     if Pitch <= 90 and Pitch >= -90:
@@ -421,21 +342,13 @@ while True:
             a = toRadians(0 - (Roll * 0.9 + toDegrees(a) * 0.1))
         elif bPos:
             a = toRadians(Roll * 0.9 + toDegrees(a) * 0.1)
-    # getAngles(source0[0], source0[1], source1[2], a, b, Y, posOption, 1, 1, globalPrint)
     getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
-
-    if getTime:
-        end_time = perf_counter()
-        print(" read accel, calc getAngles():", end_time-start_time)
 
     servoExceeded = False
     # "under" = given < 0
     # "over" = given < 180
     whichServoExceeded = 6*[False]
     typeOfExceeded = 6*["null"]
-
-    if getTime:
-        start_time = perf_counter()
 
     if toDegrees(q2) - s[1] < diffCheck:
         if not (math.isnan(q1) or
@@ -501,14 +414,10 @@ while True:
     # Press Esc key to exit
     if cv2.waitKey(1) == 27:
         break
-
-    if getTime:
-        end_time = perf_counter()
-        print(" send coords to pca board:", end_time-start_time)
-        sys.exit()        
+    # plt.show()
+        
 if showImage:
     cv2.destroyAllWindows()
-webcam[0].stop()
-webcam[1].stop()
+cap.stop()
 pca.deinit()
 

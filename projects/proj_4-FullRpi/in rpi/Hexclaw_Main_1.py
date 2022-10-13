@@ -66,10 +66,13 @@ cap = cv2.VideoCapture(0)
 brightVal = 75
 zDefaultVal = 3000000
 
-L_values, U_values = [53, 41, 86], [103, 234, 233]
+# L_values, U_values = [53, 41, 86], [103, 234, 233]
 
 def nothing(x):
     pass
+
+useDefaultLimit = False
+defaultLimitIndex = 0
 
 cv2.namedWindow("Webcam - XY")
 cv2.createTrackbar("L - H", "Webcam - XY", 0, 179, nothing)
@@ -104,7 +107,23 @@ while True:
         print(thearray)        
         np.save('hsv_value',thearray)
         break
+    elif key == ord('l'):
+        useDefaultLimit = True
+        defaultLimitIndex = 0
+        break
+    elif key == ord('k'):
+        useDefaultLimit = True
+        defaultLimitIndex = 1
+        break
+
+
 cv2.destroyAllWindows()
+
+if useDefaultLimit:
+    if defaultLimitIndex == 0:
+        L_values, U_values = [64, 73, 88], [103, 213, 255] #plexgear
+    elif defaultLimitIndex == 1:
+        L_values, U_values = [68, 207, 92], [112, 255, 238] #trust exis webcam
 
 
 diffCheck = 100
