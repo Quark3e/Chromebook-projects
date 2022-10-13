@@ -12,6 +12,7 @@ import imutils
 import math
 import adafruit_adxl34x
 import sys
+import requests
 from time import perf_counter, sleep
 from threading import Thread
 
@@ -43,6 +44,36 @@ class WebcamVideoStream:
     def stop(self):
 		# indicate that the thread should be stopped
         self.stopped = True
+
+
+class IpVideoStream:
+    def __init__(self, ipaddress="192.168.1.124:8080"):
+        # Replace the below URL with your own. Make sure to add "/shot.jpg" at last.
+        url_start = "http://"
+        url_end = "/shot.jpg"
+        self.address = url_start + ipaddress + url_end
+        
+        img_resp = requests.get(self.address)
+        img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
+        self.frame = cv2.imdecode(img_arr, -1)
+
+        self.stopped = False
+    def start(self):
+        Thread(target=self.update_ip, args=()).start()
+        return self
+    def update_ip(self):
+        while True:
+            if self.stopped:
+                return
+            img_temp = requests.get(self.address)
+            img_array = np.array(bytearray(img_temp.content), dtype=np.uint8)
+            self.frame = cv2.imdecode(img_array, -1)
+    def read(self):
+        return self.frame
+    def stop(self):
+        self.stopped = True
+
+
 
 
 from board import SCL, SDA
@@ -85,8 +116,18 @@ accelFilter = 0.1
 xScaling, yScaling, zScaling = 0.8, 0.6, 0.5
 
 
-# webcam = (cv2.VideoCapture(0), cv2.VideoCapture(2)) #[0]-True for the webcam that has high resolution
-webcam = (WebcamVideoStream(src=0).start(), WebcamVideoStream(src=2).start())
+camOption = input("Which video source to use as second webcam:\n 1.Exis webcam\n 2.ip webcam\n input:")
+
+if camOption == "exit":
+    sys.exit()
+elif int(camOption) == 1:
+    webcam = (WebcamVideoStream(src=0).start(), WebcamVideoStream(src=2).start())
+elif int(camOption) == 2:
+    tempAddress = input("Enter ip address: ")
+    if tempAddress == "default":
+        webcam = (WebcamVideoStream(src=0).start(), IpVideoStream().start())
+    else:
+        webcam = (WebcamVideoStream(src=0).start(), IpVideoStream(ipaddress=tempAddress).start())
 
 
 brightVal = 75
@@ -131,7 +172,7 @@ while True:
         np.save('hsv_value',thearray)
         break
     if key == ord('k'):
-        L_values0, U_values0 = [56, 93, 30], [93, 255, 237]
+        L_values0, U_values0 = [44, 165, 0], [102, 255, 121]
         break
 cv2.destroyAllWindows()
 # L_values0, U_values0 = [48, 152, 19], [94, 249, 77]
