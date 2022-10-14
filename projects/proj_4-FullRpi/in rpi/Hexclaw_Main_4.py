@@ -405,6 +405,7 @@ def threadTest(valueSrc, boolVal):
 getTime = False
 
 while True:
+    readAccelerometer()
     #get accelerations, roll and pitch
     if cv2.waitKey(1) == 32:
         getTime = True
