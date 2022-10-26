@@ -150,10 +150,16 @@ while True:
     ret, imgTemp = cap.read()
     img = cv2.resize(imgTemp, newSize)
     img = cv2.flip(img, 1)
+    for i in range(1, 5):
+        cv2.line(img, (int(newSize[0]*0.5+i*50*(1/xScaling)), int(newSize[1])),  (int(newSize[0]*0.5+i*50*(1/xScaling)), int(newSize[1]-i*50*(1/xScaling))), (0, 255, 0), 1)
+        cv2.line(img, (int(newSize[0]*0.5-i*50*(1/xScaling)), int(newSize[1])),  (int(newSize[0]*0.5-i*50*(1/xScaling)), int(newSize[1]-i*50*(1/xScaling))), (0, 255, 0), 1)
+        cv2.line(img, (int(newSize[0]*0.5+i*50*(1/xScaling)), int(newSize[1]-i*50*(1/xScaling))),  (int(newSize[0]*0.5-i*50*(1/xScaling)), int(newSize[1]-i*50*(1/xScaling))), (0, 255, 0), 1)
+
     cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(50*(1/xScaling)), (255, 255, 255), 1)
     cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(100*(1/xScaling)), (255, 255, 255), 1)
     cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(150*(1/xScaling)), (255, 255, 255), 1)
     cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(200*(1/xScaling)), (255, 255, 255), 1)
+
     cv2.imshow('Windows', cv2.resize(img, None, fx=winScaleX, fy=winScaleY))
     # cv2.setMouseCallback('Windows', click_event)
     if cv2.waitKey(1) == 32:
