@@ -39,6 +39,13 @@ fileName = "basicTest_2" #Dont enter filetype
 hardSetAngle = [0, -60]
 useHardSetAngle = True
 
+if useHardSetAngle:
+    ans = input(" Enter alpha and beta values to test (with space): ").split()
+    if ans[0] == "exit":
+        sys.exit()
+    hardSetAngle = [int(ans[0]), int(ans[1])]
+
+
 def getServo4Offset(degrees):
     return 90-(90/130)*degrees
 #0-90 is inaccurate where the actual angle is 130 for the given 90 degrees

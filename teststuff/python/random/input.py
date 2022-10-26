@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import sys
+
 def testFunc(x):
     for i in range(len(x)):
         x[i] = 2*x[i]
@@ -8,7 +10,13 @@ def testFunc(x):
 var1, var2, var3 = 0, 0, 0
 
 
-var3 = int(input("Enter three values: ").split())
+var3 = input("Enter three values: ").split()
+print(var3)
+if var3[0] == 'exit':
+    print("detected \"exit\", is exiting...")
+    sys.exit()
+else:
+    var3 = int(var3)
 
 if len(var3) == 3:
     test1 = 2*float(var3[0])
