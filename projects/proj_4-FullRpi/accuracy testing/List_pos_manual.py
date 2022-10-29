@@ -10,7 +10,6 @@ import imutils
 import time
 import math
 import sys
-#from threading import Thread
 
 from board import SCL, SDA
 import busio
@@ -218,6 +217,8 @@ fileExtension = ".dat"
 toReadFile = open(fileName + fileExtension, "r")
 toWriteFile = open("testResult/" + fileName + "_" + str(hardSetAngle[0]) + "." + str(hardSetAngle[1]) + "_read" + fileExtension, "w") #Note: add +"\n" at the end of each write
 accWriteFile = open("testResult/" + fileName + "_" + str(hardSetAngle[0]) + "." + str(hardSetAngle[1]) + "_acc" + fileExtension, "w") #Note: add +"\n" at the end of each write
+resultFile = open("testResult/" + fileName + "_" + str(hardSetAngle[0]) + "." + str(hardSetAngle[1]) + "_Result" + fileExtension, "w") #Note: add +"\n" at the end of each write
+
 
 posX, posY, posZ = 0.1, 0.1, 0.1
 coord = ""
@@ -279,7 +280,7 @@ for n in range(rowLength):
     # get xyz a b values
     ##check values just in case that they don't return NaN angles
     # send values to robot arm (i.e solve angles and send those)
-    # read store the coordinate that's read from openCV in a new, corresponding file
+    # read and write the real coordinate and write it to the corresponding file
     # repeat
 
     #Read line and get the xyz value
@@ -357,9 +358,11 @@ for n in range(rowLength):
         readX, readY, readZ = ans[0], ans[1], ans[2]
 
         toWriteFile.write(readX + " " + readY + " " + readZ + "\n")
-        accWriteFile.write(str(abs(readX-posX)) + " " + str(abs(readY-posY)) + " " + str(1) + "\n")
+        accWriteFile.write(str(abs(float(readX)-posX)) + " " + str(abs(float(readY)-posY)) + " " + str(abs(float(readZ)-posZ)) + "\n")
+        resultFile.write(str(posX) + " " + str(posY) + " " + str(posZ) + " " + readX + " " + readY + " " + readZ + "\n")
 
 pca.deinit()
 toReadFile.close()
 toWriteFile.close()
 accWriteFile.close()
+resultFile.close()
