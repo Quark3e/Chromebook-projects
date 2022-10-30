@@ -126,7 +126,7 @@ axisFilter2 = 1
 # of the points clicked on the image
 exitClickEvent = False
 def click_event(event, x, y, flags, params):
-    global readX, readY, readZ, exitClickEvent
+    global readX, readY, readZ, exitClickEvent, actualValues
     #print("Waiting for left button press...")
     if event == cv2.EVENT_LBUTTONDOWN:
         print("Left button press read")
@@ -274,7 +274,7 @@ toReadFile = open(fileName + fileExtension, "r")
 toWriteFile = open("testResult/" + fileName + "_" + str(hardSetAngle[0]) + "." + str(hardSetAngle[1]) + "_read" + fileExtension, "w") #Note: add +"\n" at the end of each write
 accWriteFile = open("testResult/" + fileName + "_" + str(hardSetAngle[0]) + "." + str(hardSetAngle[1]) + "_acc" + fileExtension, "w") #Note: add +"\n" at the end of each write
 correctWriteFile = open("testResult/" + fileName + "_" + str(hardSetAngle[0]) + "." + str(hardSetAngle[1]) + "_correct" + fileExtension, "w") #Note: add +"\n" at the end of each write
-
+resultFile = open("testResult/" + fileName + "_" + str(hardSetAngle[0]) + "." + str(hardSetAngle[1]) + "_Result" + fileExtension, "w")
 
 posX, posY, posZ = 0.1, 0.1, 0.1
 coord = ""
@@ -482,11 +482,23 @@ for n in range(rowLength):
         readX = 0 - readX
         toWriteFile.write(str(readX) + " " + str(readY) + " " + str(readZ) + "\n")
         correctWriteFile.write(
-            str(math.atan(toRadians((abs(actualValues[0] - newSize[0]*0.5) * webcamFOV[0])/(newSize[0]*0.5))) * distanceFromCam) + " " +
-            str(math.atan(toRadians((abs(actualValues[1] - newSize[1]*0.5) * webcamFOV[1])/(newSize[1]*0.5))) * distanceFromCam) + " " +
+            str(math.tan((abs(newSize[0]*0.5-actualValues[0])*(webcamFOV[0]*0.5))/newSize[0])*distanceFromCam) + " " +
+            # str(math.atan(toRadians((abs(actualValues[0] - newSize[0]*0.5) * webcamFOV[0])/(newSize[0]*0.5))) * distanceFromCam) + " " +
+            str(readY) + " " +
+            # str(math.atan(toRadians((abs(actualValues[1] - newSize[1]*0.5) * webcamFOV[1])/(newSize[1]*0.5))) * distanceFromCam) + " " +
             str(readZ) + "\n"
             )
         accWriteFile.write(str(abs(readX-posX)) + " " + str(abs(readY-posY)) + " " + str(1) + "\n")
+        resultFile.write(
+            str(posX) + " " + 
+            str(posY) + " " + 
+            str(posZ) + " " + 
+            str(math.tan((abs(newSize[0]*0.5-actualValues[0])*(webcamFOV[0]*0.5))/newSize[0])*distanceFromCam) + " " +
+            str(readY) + " " +
+            str(posZ) + "\n" 
+            # Even though posZ is not measured it's still added in the "_Result"
+            #-file in case a seconds webcam for z-axis measuring is added later on.
+        )
 
     # Press Esc key to exit
     if cv2.waitKey(1) == 27:
