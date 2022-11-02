@@ -3,6 +3,7 @@
 #/*
 # OpenCV Color Tracking and ADXL345 accelerometer
 # "Automatic" Mode where the coordinate and orientation variables are given by opencv color tracking and accelerometer
+# uses python threading where cv2::read() is run in a separate thread in a class
 #*/
 
 # Import essential libraries
@@ -250,11 +251,11 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
     d5z = (d5+d6) * math.sin(b1)
     if d5z == 0:
     	if d5x < 0:
-    	    q4 = toRadians(-90)
+            q4 = toRadians(-90)
         elif d5x > 0:
-        	q4 = toRadians(90)
+            q4 = toRadians(90)
         else:
-        	q4 = 0
+            q4 = 0
     elif b1 < 0 or b1 > 0:
         q4 = math.atan(d5x / d5z)
     checkVar = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))

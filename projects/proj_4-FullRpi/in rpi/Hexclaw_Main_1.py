@@ -3,6 +3,7 @@
 #/*
 # OpenCV Color Tracking and ADXL345 accelerometer
 # "Automatic" Mode where the coordinate and orientation variables are given by opencv color tracking and accelerometer
+# *doesnt use threading*
 #*/
 
 # Import essential libraries
