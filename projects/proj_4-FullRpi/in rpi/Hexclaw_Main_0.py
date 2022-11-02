@@ -248,8 +248,13 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
     d5x = (d5+d6) * math.cos(b1) * math.sin(a1)
     #NOTE: The x and y axis of the X1Y1Z1 frame in the paper was reverse (compared to this. The names need to be changed!)
     d5z = (d5+d6) * math.sin(b1)
-    if b1 == 0:
-        q4 = 0
+    if d5z == 0:
+    	if d5x < 0:
+    	    q4 = toRadians(-90)
+        elif d5x > 0:
+        	q4 = toRadians(90)
+        else:
+        	q4 = 0
     elif b1 < 0 or b1 > 0:
         q4 = math.atan(d5x / d5z)
     checkVar = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
