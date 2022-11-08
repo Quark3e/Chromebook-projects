@@ -92,8 +92,18 @@ def getPP(P5, q1, q2, q3, q4, q5): #in radians
     #     P5[2]+(d5+d6)*math.sin(b)
     # ]
     b = math.asin((d5*math.sin(q5)*math.cos(q4))/d5)+q2+q3
-    a = q1+math.atan((d5*math.sin(q5)*math.cos(q4))/(d5*math.cos(q5)))
-    print("calculated: alpha: ", toDegrees(a), " beta:", toDegrees(b), sep='')
+    if int(toDegrees(q5)) == 90 or int(toDegrees(q5)) == -90:
+        if (d5*math.sin(q5)*math.cos(q4)) == 0:
+            a = 0
+        elif (d5*math.sin(q5)*math.cos(q4)) > 0:
+            a = toRadians(90)
+        elif (d5*math.sin(q5)*math.cos(q4)) < 0:
+            a = toRadians(-90)
+    else:
+        a = q1+math.atan((d5*math.sin(q5)*math.cos(q4))/(d5*math.cos(q5)))
+    print("calculated: alpha: ", int(round(toDegrees(a))), " beta:", int(round(toDegrees(b))), 
+    "   \tsolved y:", int(round((d5+d6)*math.cos(b)*math.cos(a))), 
+    " \tgiven: q4:", int(round(toDegrees(q4))), " \tgiven: q5:", int(round(toDegrees(q5))), sep='')
     return [
         P5[0]+(d5+d6)*math.cos(b)*math.sin(a),
         P5[1]+(d5+d6)*math.cos(b)*math.cos(a),
@@ -181,12 +191,12 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
         q6 = math.pi - (Y - q6)
     if printText:
         print(
-            " q1: ", round(toDegrees(q1), 1),
-            " q2: ", round(toDegrees(q2), 1),
-            " q3: ", round(toDegrees(q3), 1),
-            " q4: ", round(toDegrees(q4), 1),
-            " q5: ", round(toDegrees(q5), 1),
-            " q6: ", round(toDegrees(q6), 1),
+            " q1:", round(toDegrees(q1), 1),
+            " q2:", round(toDegrees(q2), 1),
+            " q3:", round(toDegrees(q3), 1),
+            " q4:", round(toDegrees(q4), 1),
+            " q5:", round(toDegrees(q5), 1),
+            " q6:", round(toDegrees(q6), 1),
             sep=''
         )
 
@@ -202,11 +212,28 @@ a, b, Y = toRadians(0), toRadians(-45), toRadians(90)
 posX, posY, posZ = 0.1, 0.1, 0.1
 coord = ""
 
+def getErrorRate(comparedTo, toCompare, getRawVal = True, getTotalAverage = True):
+    errorRate = [
+        (comparedTo[0] - abs(toCompare[0] - comparedTo[0]))/comparedTo[0],
+        (comparedTo[1] - abs(toCompare[1] - comparedTo[1]))/comparedTo[1],
+        (comparedTo[2] - abs(toCompare[2] - comparedTo[2]))/comparedTo[2]
+        ]
+    if getTotalAverage:
+        if getRawVal:
+            return int(100*(errorRate[0]+errorRate[1]+errorRate[2]) / 3)
+        else:
+            return (errorRate[0]+errorRate[1]+errorRate[2]) / 3
+    else:
+        if getRawVal:
+            return [int(100*errorRate[0]), int(100*errorRate[1]), int(100*errorRate[2])]
+        else:
+            return errorRate
+
 while True:
     #get accelerations, roll and pitch
 
     # readAccelerometer()
-    
+    print()
     tempInput_1 = input("Enter coordinates [x y z] in mm: ").split()
     if tempInput_1[0] == "exit":
         sys.exit()
@@ -214,13 +241,14 @@ while True:
         posX = (float(tempInput_1[0]))
         posY = (float(tempInput_1[1]))
         posZ = (float(tempInput_1[2]))
-    print()
     tempInput_2 = input("Enter orientation values [a b Y] in degrees: ").split()
     a = toRadians(float(tempInput_2[0]))
     b = toRadians(float(tempInput_2[1]))
     Y = toRadians(float(tempInput_2[2]))
 
-    print("x:", posX, " y:", posY, " z:", posZ, " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
+    print()
+
+    print(" x:", posX, " y:", posY, " z:", posZ, " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
     getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
 
     servoExceeded = False
@@ -272,19 +300,20 @@ while True:
             print("----------------------")
             print(" P1: x:", P1[0], " y:", P1[1], " z:", P1[2], sep='')
             print(" P2: x:", P2[0], " y:", P2[1], " z:", P2[2], sep='')
-            print(" P3: x:", P3[0], " y:", P3[1], " z:", P3[2], sep='')
-            print(" P4: x:", P4[0], " y:", P4[1], " z:", P4[2], sep='')
-            print(" P5: x:", P5[0], " y:", P5[1], " z:", P5[2], sep='')
-            print(" PP: x:", PP[0], " y:", PP[1], " z:", PP[2], sep='')
+            print(" P3: x:", int(round(P3[0])), " y:", int(round(P3[1])), " z:", int(round(P3[2])), sep='')
+            print(" P4: x:", int(round(P4[0])), " y:", int(round(P4[1])), " z:", int(round(P4[2])), sep='')
+            print(" P5: x:", int(round(P5[0])), " y:", int(round(P5[1])), " z:", int(round(P5[2])), sep='')
+            print(" PP: x:", int(round(PP[0])), " y:", int(round(PP[1])), " z:", int(round(PP[2])), sep='')
             print("\n\tError value: x:", float(PP[0])-posX, " y:", float(PP[1])-posY, " z:", float(PP[2])-posZ, sep='')
 
-            print("\n _fromAlpha: from (default)q5: x:", PP_fromAlpha_fromQ5[0], " y:", PP_fromAlpha_fromQ5[1], " z:", PP_fromAlpha_fromQ5[2], sep='') 
-            print(" _fromAlpha: from (default)q4: x:", PP_fromAlpha_fromQ4[0], " y:", PP_fromAlpha_fromQ4[1], " z:", PP_fromAlpha_fromQ4[2], sep='') 
-            print(" _fromAlpha: from both: x:", PP_fromAlpha_fromBoth[0], " y:", PP_fromAlpha_fromBoth[1], " z:", PP_fromAlpha_fromBoth[2], sep='') 
+            print()
+            print(" _fromAlpha: from (default)q5: \tx:", int(round(PP_fromAlpha_fromQ5[0])), " y:", int(round(PP_fromAlpha_fromQ5[1])), " z:", int(round(PP_fromAlpha_fromQ5[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromQ5), "%", sep='') 
+            print(" _fromAlpha: from (default)q4: \tx:", int(round(PP_fromAlpha_fromQ4[0])), " y:", int(round(PP_fromAlpha_fromQ4[1])), " z:", int(round(PP_fromAlpha_fromQ4[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromQ4), "%", sep='') 
+            print(" _fromAlpha: from both: \tx:", int(round(PP_fromAlpha_fromBoth[0])), " y:", int(round(PP_fromAlpha_fromBoth[1])), " z:", int(round(PP_fromAlpha_fromBoth[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromBoth), "%", sep='') 
 
-            print(" _fromBeta:  from (default)q5: x:", PP_fromBeta_fromQ5[0], " y:", PP_fromBeta_fromQ5[1], " z:", PP_fromBeta_fromQ5[2], sep='')
-            print(" _fromBeta:  from (default)q4: x:", PP_fromBeta_fromQ4[0], " y:", PP_fromBeta_fromQ4[1], " z:", PP_fromBeta_fromQ4[2], sep='')
-            print(" _fromBeta:  from both: x:", PP_fromBeta_fromBoth[0], " y:", PP_fromBeta_fromBoth[1], " z:", PP_fromBeta_fromBoth[2], sep='')
+            print(" _fromBeta:  from (default)q5: \tx:", int(round(PP_fromBeta_fromQ5[0])), " y:", int(round(PP_fromBeta_fromQ5[1])), " z:", int(round(PP_fromBeta_fromQ5[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromQ5), "%", sep='')
+            print(" _fromBeta:  from (default)q4: \tx:", int(round(PP_fromBeta_fromQ4[0])), " y:", int(round(PP_fromBeta_fromQ4[1])), " z:", int(round(PP_fromBeta_fromQ4[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromQ4), "%", sep='')
+            print(" _fromBeta:  from both: \tx:", int(round(PP_fromBeta_fromBoth[0])), " y:", int(round(PP_fromBeta_fromBoth[1])), " z:", int(round(PP_fromBeta_fromBoth[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromBoth), "%", sep='')
 
             print("----------------------")
 
