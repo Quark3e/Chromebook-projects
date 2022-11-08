@@ -47,25 +47,6 @@ def getMeanValue():
 
 
 addReadOnBasic()
-# if __name__ == "__main__":
-#     while True:
-#         print(" Options:")
-#         print("1. Add \"Read\"-position values beside \"Given\"-position values")
-#         print("2. Get average/mean error value of given column")
-#         print("3. exit")
-
-#         option = int(input("input: "))
-#         if option==1:
-#             addReadOnBasic()
-#         if option==2:
-#             getMeanValue()
-#         elif option==3:
-#             basicFile.close()
-#             readFile.close()
-#             resultFile.close()
-#             sys.exit()
-
-
 
 basicFile.close()
 readFile.close()
