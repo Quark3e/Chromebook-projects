@@ -326,33 +326,33 @@ if checkList:
 
                 readX, readY, readZ = str(PP[0]), str(PP[1]), str(PP[2])
 
-                q4_from_q5 = getQ4fromQ5(a, b, q1, q2, q3, q5) #[0]=a, [1]=b
-                q5_from_q4 = getQ5fromQ4(a, b, q1, q2, q3, q4) #[0]=a, [1]=b
-                PP_fromAlpha_fromQ5 = getPP(P5, q1, q2, q3, q4_from_q5[0], q5)
-                PP_fromAlpha_fromQ4 = getPP(P5, q1, q2, q3, q4, q5_from_q4[0])
-                PP_fromAlpha_fromBoth = getPP(P5, q1, q2, q3, q4_from_q5[0], q5_from_q4[0])
+                # q4_from_q5 = getQ4fromQ5(a, b, q1, q2, q3, q5) #[0]=a, [1]=b
+                # q5_from_q4 = getQ5fromQ4(a, b, q1, q2, q3, q4) #[0]=a, [1]=b
+                # PP_fromAlpha_fromQ5 = getPP(P5, q1, q2, q3, q4_from_q5[0], q5)
+                # PP_fromAlpha_fromQ4 = getPP(P5, q1, q2, q3, q4, q5_from_q4[0])
+                # PP_fromAlpha_fromBoth = getPP(P5, q1, q2, q3, q4_from_q5[0], q5_from_q4[0])
 
-                PP_fromBeta_fromQ5 = getPP(P5, q1, q2, q3, q4_from_q5[1], q5)
-                PP_fromBeta_fromQ4 = getPP(P5, q1, q2, q3, q4, q5_from_q4[1])
-                PP_fromBeta_fromBoth = getPP(P5, q1, q2, q3, q4_from_q5[1], q5_from_q4[1])
+                # PP_fromBeta_fromQ5 = getPP(P5, q1, q2, q3, q4_from_q5[1], q5)
+                # PP_fromBeta_fromQ4 = getPP(P5, q1, q2, q3, q4, q5_from_q4[1])
+                # PP_fromBeta_fromBoth = getPP(P5, q1, q2, q3, q4_from_q5[1], q5_from_q4[1])
 
-                print("----------------------")
-                print(" P1: x:", P1[0], " y:", P1[1], " z:", P1[2], sep='')
-                print(" P2: x:", P2[0], " y:", P2[1], " z:", P2[2], sep='')
-                print(" P3: x:", int(round(P3[0])), " y:", int(round(P3[1])), " z:", int(round(P3[2])), sep='')
-                print(" P4: x:", int(round(P4[0])), " y:", int(round(P4[1])), " z:", int(round(P4[2])), sep='')
-                print(" P5: x:", int(round(P5[0])), " y:", int(round(P5[1])), " z:", int(round(P5[2])), sep='')
-                print(" PP: x:", int(round(PP[0])), " y:", int(round(PP[1])), " z:", int(round(PP[2])), sep='')
-                print("\n\tError value: x:", float(PP[0])-posX, " y:", float(PP[1])-posY, " z:", float(PP[2])-posZ, sep='')
+                # print("----------------------")
+                # print(" P1: x:", P1[0], " y:", P1[1], " z:", P1[2], sep='')
+                # print(" P2: x:", P2[0], " y:", P2[1], " z:", P2[2], sep='')
+                # print(" P3: x:", int(round(P3[0])), " y:", int(round(P3[1])), " z:", int(round(P3[2])), sep='')
+                # print(" P4: x:", int(round(P4[0])), " y:", int(round(P4[1])), " z:", int(round(P4[2])), sep='')
+                # print(" P5: x:", int(round(P5[0])), " y:", int(round(P5[1])), " z:", int(round(P5[2])), sep='')
+                # print(" PP: x:", int(round(PP[0])), " y:", int(round(PP[1])), " z:", int(round(PP[2])), sep='')
+                # print("\n\tError value: x:", float(PP[0])-posX, " y:", float(PP[1])-posY, " z:", float(PP[2])-posZ, sep='')
 
-                print()
-                print(" _fromAlpha: from (default)q5: \tx:", int(round(PP_fromAlpha_fromQ5[0])), " y:", int(round(PP_fromAlpha_fromQ5[1])), " z:", int(round(PP_fromAlpha_fromQ5[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromQ5), "%", sep='') 
-                print(" _fromAlpha: from (default)q4: \tx:", int(round(PP_fromAlpha_fromQ4[0])), " y:", int(round(PP_fromAlpha_fromQ4[1])), " z:", int(round(PP_fromAlpha_fromQ4[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromQ4), "%", sep='') 
-                print(" _fromAlpha: from both: \tx:", int(round(PP_fromAlpha_fromBoth[0])), " y:", int(round(PP_fromAlpha_fromBoth[1])), " z:", int(round(PP_fromAlpha_fromBoth[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromBoth), "%", sep='') 
+                # print()
+                # print(" _fromAlpha: from (default)q5: \tx:", int(round(PP_fromAlpha_fromQ5[0])), " y:", int(round(PP_fromAlpha_fromQ5[1])), " z:", int(round(PP_fromAlpha_fromQ5[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromQ5), "%", sep='') 
+                # print(" _fromAlpha: from (default)q4: \tx:", int(round(PP_fromAlpha_fromQ4[0])), " y:", int(round(PP_fromAlpha_fromQ4[1])), " z:", int(round(PP_fromAlpha_fromQ4[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromQ4), "%", sep='') 
+                # print(" _fromAlpha: from both: \tx:", int(round(PP_fromAlpha_fromBoth[0])), " y:", int(round(PP_fromAlpha_fromBoth[1])), " z:", int(round(PP_fromAlpha_fromBoth[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromBoth), "%", sep='') 
 
-                print(" _fromBeta:  from (default)q5: \tx:", int(round(PP_fromBeta_fromQ5[0])), " y:", int(round(PP_fromBeta_fromQ5[1])), " z:", int(round(PP_fromBeta_fromQ5[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromQ5), "%", sep='')
-                print(" _fromBeta:  from (default)q4: \tx:", int(round(PP_fromBeta_fromQ4[0])), " y:", int(round(PP_fromBeta_fromQ4[1])), " z:", int(round(PP_fromBeta_fromQ4[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromQ4), "%", sep='')
-                print(" _fromBeta:  from both: \tx:", int(round(PP_fromBeta_fromBoth[0])), " y:", int(round(PP_fromBeta_fromBoth[1])), " z:", int(round(PP_fromBeta_fromBoth[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromBoth), "%", sep='')
+                # print(" _fromBeta:  from (default)q5: \tx:", int(round(PP_fromBeta_fromQ5[0])), " y:", int(round(PP_fromBeta_fromQ5[1])), " z:", int(round(PP_fromBeta_fromQ5[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromQ5), "%", sep='')
+                # print(" _fromBeta:  from (default)q4: \tx:", int(round(PP_fromBeta_fromQ4[0])), " y:", int(round(PP_fromBeta_fromQ4[1])), " z:", int(round(PP_fromBeta_fromQ4[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromQ4), "%", sep='')
+                # print(" _fromBeta:  from both: \tx:", int(round(PP_fromBeta_fromBoth[0])), " y:", int(round(PP_fromBeta_fromBoth[1])), " z:", int(round(PP_fromBeta_fromBoth[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromBoth), "%", sep='')
 
                 print("----------------------")
 
