@@ -1,4 +1,4 @@
-cd "/home/berkhme/vscode repo/Chromebook-projects/old serialCOM files/ws-calc/"
+cd "/home/berkhme/Chromebook-projects/projects/proj_4-FullRpi/accuracy testing/"
 
 
 
@@ -13,7 +13,7 @@ set yrange [0:250]
 
 
 # set contour
-set view 0, 0, 1.1, 1
+set view 50, 90, 1.1, 1
 # set dgrid3d
 set grid
 set cntrparam
@@ -26,16 +26,18 @@ set style fill transparent #0.1
 
 scalar = 1.1
 
-set title "data plotting test: a:0 b:-70 [degrees]"
+alpha = "0"
+beta = "-45"
+setAngles = alpha.".".beta
 
-#u 1:2:3 w points lt 1 pt 10 ps variable #with circles palette
-# plot "testResult/test2/basicTest_2_0.-45_result.dat" u 1:2:(abs($4-$2)*scalar) with circles title "error value: mean value", \
-     "testResult/test2/basicTest_2_0.-45_result.dat" u 1:4 with points ls 7
+set title "data plotting test: a:".alpha." b:".beta."[degrees]"
 
-plot "testResult/test2/basicTest_2_0.-90_result.dat" u 1:2:($3-$1):($4-$2) with vectors nohead ls 8 title "error value: mean value of x and y", \
-     "testResult/test2/basicTest_2_0.-90_result.dat" u 1:2 with points ls 7 title "given position", \
-     "testResult/test2/basicTest_2_0.-90_result.dat" u 3:4 with points ls 4 title "read position"
+filename = "test2/basicTest_2_".setAngles."_Result"
 
-# plot "testResult/test2/basicTest_2_0.-90_result.dat" u 1:2:(sqrt(($3-$1)**2+($4-$2)**2)*scalar) with circles palette title "error value: mean value of x and y", \
-     # "testResult/test2/basicTest_2_0.-90_result.dat" u 3:4 with points ls 7 title "read position", \
-    # "testResult/test2/basicTest_2.dat" u 1:2 with points
+# splot filename.".dat" u 1:2:3:($4-$1):($5-$2):($6-$3) with vectors nohead ls 8 title "error value: mean value of x and y", \
+#      filename.".dat" u 1:2:3 with points ls 7 title "given position", \
+#      filename.".dat" u 4:5:6 with points ls 4 title "read position"
+
+plot filename.".dat" u 1:2:($4-$1):($5-$2) with vectors nohead ls 8 title "error value: mean value of x and y", \
+     filename.".dat" u 1:2 with points ls 7 title "given position", \
+     filename.".dat" u 4:5 with points ls 4 title "read position"

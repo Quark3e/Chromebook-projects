@@ -100,21 +100,24 @@ def getP5(P3, q1, q2, q3): #in radians
         ]
 
 def getPP(P5, q1, q2, q3, q4, q5): #in radians
+    global a, b
     # return [
     #     P5[0]+(d5+d6)*math.cos(b)*math.sin(a),
     #     P5[1]+(d5+d6)*math.cos(b)*math.cos(a),
     #     P5[2]+(d5+d6)*math.sin(b)
     # ]
-    b = math.asin((d5*math.sin(q5)*math.cos(q4))/d5)+q2+q3
+    b = math.asin(((d5+d6)*math.sin(q5)*math.cos(q4))/(d5+d6))+q2+q3
     if int(toDegrees(q5)) == 90 or int(toDegrees(q5)) == -90:
-        if (d5*math.sin(q5)*math.cos(q4)) == 0:
+        if ((d5+d6)*math.sin(q5)*math.cos(q4)) == 0:
             a = 0
-        elif (d5*math.sin(q5)*math.cos(q4)) > 0:
+        elif ((d5+d6)*math.sin(q5)*math.cos(q4)) > 0:
             a = toRadians(90)
-        elif (d5*math.sin(q5)*math.cos(q4)) < 0:
+        elif ((d5+d6)*math.sin(q5)*math.cos(q4)) < 0:
             a = toRadians(-90)
     else:
-        a = q1+math.atan((d5*math.sin(q5)*math.cos(q4))/(d5*math.cos(q5)))
+        a = q1-math.atan(
+            ((d5+d6)*math.sin(q5)*math.sin(q4)) / ((d5+d6)*math.cos(q5))
+            )
     print("calculated: alpha: ", int(round(toDegrees(a))), " beta:", int(round(toDegrees(b))), 
     "   \tsolved y:", int(round((d5+d6)*math.cos(b)*math.cos(a))), 
     " \tgiven: q4:", int(round(toDegrees(q4))), " \tgiven: q5:", int(round(toDegrees(q5))), sep='')
@@ -136,7 +139,7 @@ def getQ5fromQ4(a, b, q1, q2, q3, q4):
         ]
 
 def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_scalar = 1, printText = False):
-    global d1, d2, d3, d4, d5, d6, q1, q2, q3, q4, q5, q6, q7, posX2, posY2, posZ2
+    global d1, d2, d3, d4, d5, d6, q1, q2, q3, q4, q5, q6, q7, posX2, posY2, posZ2, b1, a1
 
     posX = posX * coord_scalar
     posY = posY * coord_scalar
@@ -184,7 +187,7 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
     if d5z == 0:
         q4 = 0
     elif b1 < 0 or b1 > 0:
-        q4 = math.atan(d5x / d5z)
+        q4 = math.atan((0-d5x) / d5z)
     checkVar = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
     if math.isnan(checkVar):
         if printText:
@@ -287,6 +290,7 @@ if checkList:
 
             print(" x:", posX, " y:", posY, " z:", posZ, " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
             getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
+            print(" a1:", int(toDegrees(a1)), " b1:", int(toDegrees(b1)), sep='')
 
             servoExceeded = False
             # "under" = given < 0
@@ -323,6 +327,7 @@ if checkList:
                     P4 = getP4(P3, q1, q2, q3)
                     P5 = getP5(P3, q1, q2, q3)
                     PP = getPP(P5, q1, q2, q3, q4, q5)
+                    
 
                     readX, readY, readZ = str(PP[0]), str(PP[1]), str(PP[2])
 
@@ -425,6 +430,8 @@ elif not checkList:
 
         print(" x:", posX, " y:", posY, " z:", posZ, " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
         getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
+        print(" a1:", toDegrees(a1), " b1:", toDegrees(b1), sep='')
+
 
         servoExceeded = False
         # "under" = given < 0
@@ -479,6 +486,7 @@ elif not checkList:
                 print(" P4: x:", int(round(P4[0])), " y:", int(round(P4[1])), " z:", int(round(P4[2])), sep='')
                 print(" P5: x:", int(round(P5[0])), " y:", int(round(P5[1])), " z:", int(round(P5[2])), sep='')
                 print(" PP: x:", int(round(PP[0])), " y:", int(round(PP[1])), " z:", int(round(PP[2])), sep='')
+                print(" a:", int(toDegrees(a)), " b:", int(toDegrees(b)), sep='')
                 print("\n\tError value: x:", float(PP[0])-posX, " y:", float(PP[1])-posY, " z:", float(PP[2])-posZ, sep='')
 
                 print()
