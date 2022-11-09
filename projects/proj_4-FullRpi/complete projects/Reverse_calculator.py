@@ -236,6 +236,11 @@ posX, posY, posZ = 0.1, 0.1, 0.1
 coord = ""
 
 def getErrorRate(comparedTo, toCompare, getRawVal = True, getTotalAverage = True):
+    for i in range(3):
+        if comparedTo[i] == 0:
+            comparedTo[i] = comparedTo[i]+1
+            toCompare[i] = toCompare[i]+1
+    
     errorRate = [
         (comparedTo[0] - abs(toCompare[0] - comparedTo[0]))/comparedTo[0],
         (comparedTo[1] - abs(toCompare[1] - comparedTo[1]))/comparedTo[1],
