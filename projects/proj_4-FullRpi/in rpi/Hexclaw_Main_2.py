@@ -154,7 +154,7 @@ def readAccelerometer():
     Pitch = 0.8 * Pitch + 0.2 * pitch
 
 def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_scalar = 1, printText = False):
-    global d1, d2, d3, d4, d5, d6, q1, q2, q3, q4, q5, q6, q7, posX2, posY2, posZ2
+    global d1, d2, d3, d4, d5, d6, q1, q2, q3, q4, q5, q6, q7, posX2, posY2, posZ2, b1, a1
 
     posX = posX * coord_scalar
     posY = posY * coord_scalar
@@ -169,12 +169,9 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
     posX2 = posX - l * math.sin(a)
     posY2 = posY - l * math.cos(a)
     posZ2 = posZ - (d5+d6) * math.sin(b)
-    if diagnostics:
-        print("pos2X:", posX2, " pos2Y:", posY2, " pos2Z:", posZ2, sep='')
-    if posY2 == 0:
+    if posY2 == 0 or posY2 < 0:
         posY2 = 0.00001
-    elif posY2 < 0:
-        posY2 = 0.00001
+        print("posY2 reached Y0 value!")
     
     q1 = math.atan(posX2 / posY2)
     try:
@@ -184,49 +181,34 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
             q3 = math.acos((pow(posX2, 2) + pow(posY2, 2) + pow(posZ2 - d1, 2) - pow(d2, 2) - pow(d3 + d4, 2)) /(2 * d2 * (d3 + d4)))
     except ValueError:
         print("domain error triggered")
+    
     lambdaVar = math.atan((posZ2 - d1) / math.sqrt(pow(posX2, 2) + pow(posY2, 2)))
     muVar = math.atan(((d3 + d4) * math.sin(q3)) /(d2 + (d3 + d4) * math.cos(q3)))
+    
     if posOption == '+':
         q2 = lambdaVar - muVar
     elif posOption == '-':
-        #if (s[1] < diffCheck and lambdaVar + muVar < 0) or (lambdaVar + muVar > 0):
         if lambdaVar + muVar > 0:
             q2 = lambdaVar + muVar #NOTE: the negative muVar value hasnt been solved. so this is a temp. fix 
         else:
             print("q2 error occured")
         q3 = 0 - q3
-    
-    #print("lambda:", toDegrees(lambdaVar), " mu:", toDegrees(muVar), end="")
-    #print(" q3:", toDegrees(q3), " sin:", math.sin(q3), " cos:", math.cos(q3))
+
     a1 = a - q1
     b1 = b - (q2 + q3)
-    if diagnostics:
-        print(" a1:", toDegrees(a1), " b1:", toDegrees(b1), sep='')
     d5x = (d5+d6) * math.cos(b1) * math.sin(a1)
-    # d5x = (d5+d6) * math.sin(q5) * math.sin(q4)
     #NOTE: The x and y axis of the X1Y1Z1 frame in the paper was reverse (compared to this. The names need to be changed!)
     d5z = (d5+d6) * math.sin(b1)
-    # d5z = (d5+d6) * math.sin(q5) * math.cos(q4)
-
-    # print(" d5z:", d5z)
-    # print(" tan(a1):", math.atan(a1))
-    # print(" q1:", q1, "rad")
     if d5z == 0:
         q4 = 0
     elif b1 < 0 or b1 > 0:
-        q4 = math.atan(d5x / d5z)
+        q4 = math.atan((0-d5x) / d5z)
     checkVar = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
     if math.isnan(checkVar):
         if printText:
             print("asin(sqrt(pow(d5x, 2) + pow(d5z, 2)) / d5)  is NaN")
     else:
-    #    if math.sqrt(pow(d5x, 2) + pow(d5z, 2)) > 90:
-    #        q5 = toRadians(90)
-    #    else:
         q5 = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
-    #      q5 = math.atan(math.sqrt(pow(d5x,2) + pow(d5z, 2)) / (math.cos(b1)*math.cos(a1)))
-    #     q5 = math.atan(math.sqrt(pow(d5x, 2) + pow(d5z, 2))/(d5x/(math.tan(a1))))
-   
     if d5z < 0:
         q5 = 0-q5
     if b <= math.pi / 2 and b >= 0 - math.pi / 2:
@@ -235,13 +217,12 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
         q6 = math.pi - (Y - q6)
     if printText:
         print(
-            " Read:"
-            " q1: ", toDegrees(q1),
-            " q2: ", toDegrees(q2),
-            " q3: ", toDegrees(q3),
-            " q4: ", toDegrees(q4),
-            " q5: ", toDegrees(q5),
-            " q6: ", toDegrees(q6),
+            " q1:", round(toDegrees(q1), 1),
+            " q2:", round(toDegrees(q2), 1),
+            " q3:", round(toDegrees(q3), 1),
+            " q4:", round(toDegrees(q4), 1),
+            " q5:", round(toDegrees(q5), 1),
+            " q6:", round(toDegrees(q6), 1),
             sep=''
         )
 
