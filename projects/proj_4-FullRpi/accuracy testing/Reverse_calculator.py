@@ -252,7 +252,7 @@ if checkList:
 
         rowLength = 68
         fileExtension = ".dat"
-        filePath = "/home/berkhme/Chromebook-projects/projects/proj_4-FullRpi/complete projects/test2/"
+        filePath = "/home/berkhme/Chromebook-projects/projects/proj_4-FullRpi/accuracy testing/test2/"
         toReadFile = open(filePath + fileName + fileExtension, "r")
         # toWriteFile = open(filePath + fileName + "_" + str(hardSetAngle[0]) + "." + str(hardSetAngle[1]) + "_read" + fileExtension, "w") #Note: add +"\n" at the end of each write
         # accWriteFile = open(filePath + fileName + "_" + str(hardSetAngle[0]) + "." + str(hardSetAngle[1]) + "_acc" + fileExtension, "w") #Note: add +"\n" at the end of each write

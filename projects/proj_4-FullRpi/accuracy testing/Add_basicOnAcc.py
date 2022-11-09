@@ -13,7 +13,7 @@ readFileName = basicFileName + angleName  + "_read"
 resultFileName = basicFileName + angleName + "_result"
 
 
-directPath = "/home/berkhme/vscode repo/Chromebook-projects/teststuff/python/random/data files/testResult/" + folderName + "/"
+directPath = "/home/berkhme/Chromebook-projects/projects/proj_4-FullRpi/accuracy testing/" + folderName + "/"
 fileExtension = ".dat"
 
 basicFile = open(directPath + basicFileName + fileExtension, "r")
