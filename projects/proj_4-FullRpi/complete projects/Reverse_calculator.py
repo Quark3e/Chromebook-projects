@@ -319,7 +319,7 @@ if checkList:
                 P5 = getP5(P3, q1, q2, q3)
                 PP = getPP(P5, q1, q2, q3, q4, q5)
 
-                readX, readY, readZ = PP
+                readX, readY, readZ = str(PP[0]), str(PP[1]), str(PP[2])
 
                 q4_from_q5 = getQ4fromQ5(a, b, q1, q2, q3, q5) #[0]=a, [1]=b
                 q5_from_q4 = getQ5fromQ4(a, b, q1, q2, q3, q4) #[0]=a, [1]=b
