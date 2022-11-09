@@ -398,10 +398,10 @@ if checkList:
                         " Roll:", Roll,
                         " Pitch:", Pitch
                     )
-    toReadFile.close()
-    # toWriteFile.close()
-    # accWriteFile.close()
-    resultFile.close()
+        toReadFile.close()
+        # toWriteFile.close()
+        # accWriteFile.close()
+        resultFile.close()
 
 elif not checkList:
     while True:
