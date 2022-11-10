@@ -241,74 +241,45 @@ a, b, Y = toRadians(0), toRadians(-45), toRadians(90)
 posX, posY, posZ = 0.1, 0.1, 0.1
 coord = ""
 
-while True:
-
-    tempInput_1 = input("Enter coordinates [x y z] in mm: ").split()
-    if tempInput_1[0] == "exit":
-        sys.exit()
-    else:
-        posX = (float(tempInput_1[0]))
-        posY = (float(tempInput_1[1]))
-        posZ = (float(tempInput_1[2]))
-    tempInput_2 = input("Enter orientation values [a b Y] in degrees: ").split()
-    a = toRadians(float(tempInput_2[0]))
-    b = toRadians(float(tempInput_2[1]))
-    Y = toRadians(float(tempInput_2[2]))
-
-    print()
-    if diagnostics:
-        print("x:", posX, " y:", posY, " z:", posZ, " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
-    getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
-
-    if diagnostics:
-        print(" Read: alpha:", toDegrees(q1+math.atan((d5*math.sin(q5)*math.cos(q4))/(d5*math.cos(q5)))), end='')
-        print(" beta:", toDegrees(math.asin((d5*math.sin(q5)*math.cos(q4))/d5)+q2+q3))
-        
-
-    servoExceeded = False
-    # "under" = given < 0
-    # "over" = given < 180
-    whichServoExceeded = 6*[False]
-    typeOfExceeded = 6*["null"]
-
-    if toDegrees(q2) - s[1] < diffCheck:
-        if not (math.isnan(q1) or
+def sendToServo():
+    global q1, q2, q3, q4, q5, q6, s, servo
+    if not (math.isnan(q1) or
             math.isnan(q2) or
             math.isnan(q3) or
             math.isnan(q4) or
             math.isnan(q5) or
             math.isnan(q6)):
-            if q1_default - int(round(toDegrees(q1))) < 0: q1 = toRadians(0 + q1_default); servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "under"
-            if q2_default + int(round(toDegrees(q2))) < 0: q2 = toRadians(0 - q2_default); servoExceeded = True; whichServoExceeded[1] = True; typeOfExceeded[1] = "under"
-            if q3_default + int(round(toDegrees(q3))) < 0: q3 = toRadians(0 - q3_default); servoExceeded = True; whichServoExceeded[2] = True; typeOfExceeded[2] = "under"
-            if q4_default + int(round(toDegrees(q4))) < 0: q4 = toRadians(0 - q4_default); servoExceeded = True; whichServoExceeded[3] = True; typeOfExceeded[3] = "under"
-            if q5_default + int(round(toDegrees(q5))) < 0: q5 = toRadians(0 - q5_default); servoExceeded = True; whichServoExceeded[4] = True; typeOfExceeded[4] = "under"
-            if q6_default + int(round(toDegrees(q6))) < 0: q6 = toRadians(0 - q6_default); servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "under"
-            if q1_default - int(round(toDegrees(q1))) > 180: q1 = toRadians(0 - q1_default); servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "over"
-            if q2_default + int(round(toDegrees(q2))) > 180: q2 = toRadians(180 - q2_default); servoExceeded = True; whichServoExceeded[1] = True; typeOfExceeded[1] = "over"
-            if q3_default + int(round(toDegrees(q3))) > 180: q3 = toRadians(180 - q3_default); servoExceeded = True; whichServoExceeded[2] = True; typeOfExceeded[2] = "over"
-            if q4_default + int(round(toDegrees(q4))) > 180: q4 = toRadians(180 - q4_default); servoExceeded = True; whichServoExceeded[3] = True; typeOfExceeded[3] = "over"
-            if q5_default + int(round(toDegrees(q5))) > 180: q5 = toRadians(180 - q5_default); servoExceeded = True; whichServoExceeded[4] = True; typeOfExceeded[4] = "over"
-            if q6_default + int(round(toDegrees(q6))) > 180: q6 = toRadians(180 - q6_default); servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "over"
-            if servoExceeded:
-                for i in range(6):
-                    if whichServoExceeded[i]:
-                        print("\tServo motor: q", i+1, " exceeded \"", typeOfExceeded[i], "\"", sep='')
-            s[5] = q6_default - int(round(toDegrees(q6)))
-            s[4] = 180 - q5_default - int(round(toDegrees(q5)))
-            s[3] = q4_default + int(round(toDegrees(q4)))
-            s[2] = 180 - q3_default - int(toDegrees(q3))
-            s[1] = q2_default + int(round(toDegrees(q2)))
-            s[0] = q1_default - int(round(toDegrees(q1)))
-            for x in range(6):
-                if x == 4:
-                    if s[4]<90:
-                        servo[4].angle = getServo4Offset(180 - q5_default - s[4])
-                    else:
-                        servo[4].angle = s[4]
+        if q1_default - int(round(toDegrees(q1))) < 0: q1 = toRadians(0 + q1_default); servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "under"
+        if q2_default + int(round(toDegrees(q2))) < 0: q2 = toRadians(0 - q2_default); servoExceeded = True; whichServoExceeded[1] = True; typeOfExceeded[1] = "under"
+        if q3_default + int(round(toDegrees(q3))) < 0: q3 = toRadians(0 - q3_default); servoExceeded = True; whichServoExceeded[2] = True; typeOfExceeded[2] = "under"
+        if q4_default + int(round(toDegrees(q4))) < 0: q4 = toRadians(0 - q4_default); servoExceeded = True; whichServoExceeded[3] = True; typeOfExceeded[3] = "under"
+        if q5_default + int(round(toDegrees(q5))) < 0: q5 = toRadians(0 - q5_default); servoExceeded = True; whichServoExceeded[4] = True; typeOfExceeded[4] = "under"
+        if q6_default + int(round(toDegrees(q6))) < 0: q6 = toRadians(0 - q6_default); servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "under"
+        if q1_default - int(round(toDegrees(q1))) > 180: q1 = toRadians(0 - q1_default); servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "over"
+        if q2_default + int(round(toDegrees(q2))) > 180: q2 = toRadians(180 - q2_default); servoExceeded = True; whichServoExceeded[1] = True; typeOfExceeded[1] = "over"
+        if q3_default + int(round(toDegrees(q3))) > 180: q3 = toRadians(180 - q3_default); servoExceeded = True; whichServoExceeded[2] = True; typeOfExceeded[2] = "over"
+        if q4_default + int(round(toDegrees(q4))) > 180: q4 = toRadians(180 - q4_default); servoExceeded = True; whichServoExceeded[3] = True; typeOfExceeded[3] = "over"
+        if q5_default + int(round(toDegrees(q5))) > 180: q5 = toRadians(180 - q5_default); servoExceeded = True; whichServoExceeded[4] = True; typeOfExceeded[4] = "over"
+        if q6_default + int(round(toDegrees(q6))) > 180: q6 = toRadians(180 - q6_default); servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "over"
+        if servoExceeded:
+            for i in range(6):
+                if whichServoExceeded[i]:
+                    print("\tServo motor: q", i+1, " exceeded \"", typeOfExceeded[i], "\"", sep='')
+        s[5] = q6_default - int(round(toDegrees(q6)))
+        s[4] = 180 - q5_default - int(round(toDegrees(q5)))
+        s[3] = q4_default + int(round(toDegrees(q4)))
+        s[2] = 180 - q3_default - int(toDegrees(q3))
+        s[1] = q2_default + int(round(toDegrees(q2)))
+        s[0] = q1_default - int(round(toDegrees(q1)))
+        for x in range(6):
+            if x == 4:
+                if s[4]<90:
+                    servo[4].angle = getServo4Offset(180 - q5_default - s[4])
                 else:
-                    servo[x].angle = s[x]
-        if firstAnglePrint:
+                    servo[4].angle = s[4]
+            else:
+                servo[x].angle = s[x]
+    if firstAnglePrint:
             print(
                 " read:\n"
                 " q1:", toDegrees(q1), 
@@ -320,8 +291,7 @@ while True:
                 " Roll:", Roll,
                 " Pitch:", Pitch
             )
-
-        if globalPrint or endAnglePrint:
+    if globalPrint or endAnglePrint:
             print(
                 " Sent: q1:", servo[0].angle, 
                 " q2:", servo[1].angle,
@@ -333,5 +303,42 @@ while True:
                 # " Pitch:", Pitch
             )
 
+
+while True:
+    
+    option = input(" Options:\n 1.Sweep given servo motor\n 2.Send direct rotation to servo motors\n input: ")
+    if option == "exit":
+        sys.exit()
+    elif option == "1":
+        while True:
+            toSweep = input(" Enter what servo to sweep [q(n)]: n=")
+            if toSweep == "exit":
+                break
+            servo[int(toSweep)-1].angle = 180
+            time.sleep(0.75)
+            servo[int(toSweep)-1].angle = 135
+            time.sleep(0.75)
+            servo[int(toSweep)-1].angle = 90
+            time.sleep(0.75)
+            servo[int(toSweep)-1].angle = 45
+            time.sleep(0.75)
+            servo[int(toSweep)-1].angle = 0
+            time.sleep(1)
+            
+            for i in range(0,181):
+                servo[int(toSweep)-1].angle = i
+                if i == 45 or i == 90 or i == 135:
+                    time.sleep(0.5)
+                else:
+                    time.sleep(0.01)
+            time.sleep(1)
+            for i in range(180,1, -1):
+                servo[int(toSweep)-1].angle = i
+                if i == 45 or i == 90 or i == 135:
+                    time.sleep(0.5)
+                else:
+                    time.sleep(0.01)
+            time.sleep(1.5)
+             
 pca.deinit()
 
