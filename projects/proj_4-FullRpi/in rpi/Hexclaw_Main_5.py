@@ -3,8 +3,11 @@
 #/*
 # Terminal User input
 # "Manually" control the servo motors with either different motions like:
-#  - sweeps
-#  - direct rotation commands
+#   - sweeps
+#   - direct rotation commands
+#   - move end-effector in a given pattern
+#       -pre-set pattern
+#       -from given .dat file (where user input file-path)
 #*/
 
 # Import essential libraries
@@ -45,7 +48,7 @@ servo[3].angle = 90
 servo[4].angle = 180 - 180
 servo[5].angle = 90
 
-def getServo4Offset(degrees):
+def getServo4Offset(degrees): #s4 = q5
     return 90-(90/130)*degrees
 #0-90 is inaccurate where the actual angle is 130 for the given 90 degrees
 #Note: Only use this function if the rotation value is 
@@ -53,61 +56,7 @@ def getServo4Offset(degrees):
 #servo[0].angle = 0
 time.sleep(0.5)
 
-diagnostics = True
-
-if False:
-    for i in range(0,181):
-        servo[4].angle = i
-        if i == 90:
-            time.sleep(1)
-        else:
-            time.sleep(0.01)
-    time.sleep(1)
-    for i in range(180,1, -1):
-        servo[4].angle = i
-        if i == 90:
-            time.sleep(1)
-        else:
-            time.sleep(0.01)
-    time.sleep(1.5)
-if False:
-    for i in range(0,181):
-        servo[0].angle = i
-        if i == 45 or i == 90 or i == 135:
-            time.sleep(0.5)
-        else:
-            time.sleep(0.01)
-    time.sleep(1)
-    for i in range(180,1, -1):
-        servo[0].angle = i
-        if i == 45 or i == 90 or i == 135:
-            time.sleep(0.5)
-        else:
-            time.sleep(0.01)
-    time.sleep(1.5)
-if False:
-    for i in range(0,181, 10):
-        servo[0].angle = i
-        if i == 45 or i == 90 or i == 135:
-            time.sleep(0.5)
-        else:
-            time.sleep(0.75)
-    time.sleep(1)
-    for i in range(180,1, -10):
-        servo[0].angle = i
-        if i == 45 or i == 90 or i == 135:
-            time.sleep(0.5)
-        else:
-            time.sleep(0.75)
-    time.sleep(1.5)
-
-
-servo[0].angle = 90
-servo[4].angle = 135
-#time.sleep(1)
-servo[2].angle = 180 - 0
-servo[1].angle = 90
-#time.sleep(1)
+diagnostics = False
 
 
 axisFilter = 0.7 #On the new value end
@@ -118,7 +67,7 @@ L_values, U_values = [36, 72, 8], [86, 240, 204]
 #L_values, U_values = input("Enter L- and U-values without comma: "), input()
 diffCheck = 100
 showImage = False
-globalPrint = True
+globalPrint = False
 endAnglePrint = False
 firstAnglePrint = False
 posOption = '-'
@@ -155,7 +104,7 @@ def readAccelerometer():
     Roll = 0.8 * Roll + 0.2 * roll
     Pitch = 0.8 * Pitch + 0.2 * pitch
 
-def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_scalar = 1, printText = False):
+def getAngles(posX, posY, posZ, a, b, Y, posOption = '-', length_scalar = 1, coord_scalar = 1, printText = False):
     global d1, d2, d3, d4, d5, d6, q1, q2, q3, q4, q5, q6, q7, posX2, posY2, posZ2, b1, a1
 
     posX = posX * coord_scalar
@@ -241,8 +190,12 @@ a, b, Y = toRadians(0), toRadians(-45), toRadians(90)
 posX, posY, posZ = 0.1, 0.1, 0.1
 coord = ""
 
+servoExceeded = False
+whichServoExceeded = [False, False, False, False, False, False]
+typeOfExceeded = ["none", "none", "none", "none", "none", "none"]
+
 def sendToServo():
-    global q1, q2, q3, q4, q5, q6, s, servo
+    global q1, q2, q3, q4, q5, q6, s, servo, servoExceeded, whichServoExceeded, typeOfExceeded
     if not (math.isnan(q1) or
             math.isnan(q2) or
             math.isnan(q3) or
@@ -303,10 +256,41 @@ def sendToServo():
                 # " Pitch:", Pitch
             )
 
+square = [
+    [-150, 150, 150],
+    [-50, 150, 150],
+    [-50, 50, 150],
+    [-150, 50, 150],
+    [-150, 150, 150],
+    [-150, 150, 50],
+    [-50, 150, 50],
+    [-50, 50, 50],
+    [-150, 50, 50],
+    [0, 150, 150],
+    [150, 150, 150],
+    [50, 150, 150],
+    [50, 50, 150],
+    [150, 50, 150],
+    [150, 150, 150],
+    [150, 150, 50],
+    [50, 150, 50],
+    [50, 50, 50],
+    [150, 50, 150],
+]
 
 while True:
-    
-    option = input(" Options:\n 1.Sweep given servo motor\n 2.Send direct rotation to servo motors\n input: ")
+    servo[0].angle = 90
+    servo[1].angle = 45
+    servo[2].angle = 180 - 0
+    servo[3].angle = 90
+    servo[4].angle = getServo4Offset(90)
+    servo[5].angle = 90
+
+    print(" Options:")
+    print(" 1.Sweep given joint/servo motor")
+    print(" 2.Send direct rotation to servo motors")
+    print(" 3.Move the end-effector in a pattern")
+    option = input(" input: ")
     if option == "exit":
         sys.exit()
     elif option == "1":
@@ -339,6 +323,70 @@ while True:
                 else:
                     time.sleep(0.01)
             time.sleep(1.5)
+    elif option == "2":
+        while True:
+            toMove = input(" Enter what servo to move [q(n)]: n=")
+            if toMove == "exit":
+                break
+            moveAmount = input(" Enter servo rotation to move:")
+            if moveAmount == "exit":
+                break
+            if int(toMove) == 3 or int(toMove) == 5:
+                servo[int(toMove)-1].angle = 180 - int(moveAmount)
+            elif int(toMove) == 1 or int(toMove) == 2 or int(toMove) == 4 or int(toMove) == 6:
+                servo[int(toMove)-1].angle = int(moveAmount)
+    elif option == "3":
+        while True:
+            print(" Movement patterns:")
+            print(" 1.square (corners)")
+            print(" 2.cuboid(/3d rectangle) (sides)")
+            option = input(" enter what pattern [number]:")
+            if option == "exit":
+                break
+            if option == "1":
+                for i in range(len(square)):
+                    getAngles(square[i][0], square[i][1], square[i][2], 0, toRadians(-90), 0, '-')
+                    sendToServo()
+                    time.sleep(1)
+                break
+            if option == "2":
+                for i in range(-150, 150):
+                    getAngles(i, 150, 150, 0, -90, 0)
+                    sendToServo()
+                    time.sleep(0.004)
+                for i in range(150, 50, -1):
+                    getAngles(150, i, 150, 0, -90, 0)
+                    sendToServo()
+                    time.sleep(0.01)
+                for i in range(150, -150, -1):
+                    getAngles(i, 50, 150, 0, -90, 0)
+                    sendToServo()
+                    time.sleep(0.004)
+                for i in range(50, 150):
+                    getAngles(-150, i, 150, 0, -90, 0)
+                    sendToServo()
+                    time.sleep(0.01)
+                for i in range(150, 50, -1):
+                    getAngles(-150, 150, i, 0, -90, 0)
+                    sendToServo()
+                    time.sleep(0.01)
+                for i in range(-150, 150):
+                    getAngles(i, 150, 50, 0, -90, 0)
+                    sendToServo()
+                    time.sleep(0.004)
+                for i in range(150, 50, -1):
+                    getAngles(150, i, 50, 0, -90, 0)
+                    sendToServo()
+                    time.sleep(0.01)
+                for i in range(150, -150, -1):
+                    getAngles(i, 50, 50, 0, -90, 0)
+                    sendToServo()
+                    time.sleep(0.004)
+                for i in range(50, 150):
+                    getAngles(-150, i, 50, 0, -90, 0)
+                    sendToServo()
+                    time.sleep(0.01)
+                break
              
 pca.deinit()
 
