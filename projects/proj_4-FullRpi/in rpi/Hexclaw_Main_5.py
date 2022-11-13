@@ -278,6 +278,8 @@ square = [
     [150, 50, 150],
 ]
 
+
+
 while True:
     servo[0].angle = 90
     servo[1].angle = 45
