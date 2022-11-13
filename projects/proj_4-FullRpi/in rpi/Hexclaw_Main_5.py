@@ -153,7 +153,7 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption = '-', length_scalar = 1, coo
     if d5z == 0:
         q4 = 0
     elif b1 < 0 or b1 > 0:
-        q4 = math.atan((0-d5x) / d5z)
+        q4 = math.atan((d5x) / d5z)
     checkVar = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
     if math.isnan(checkVar):
         if printText:
@@ -291,11 +291,13 @@ while True:
     print(" 2.Send direct rotation to servo motors")
     print(" 3.Move the end-effector in a pattern")
     option = input(" input: ")
+    print()
     if option == "exit":
         sys.exit()
     elif option == "1":
         while True:
             toSweep = input(" Enter what servo to sweep [q(n)]: n=")
+            print()
             if toSweep == "exit":
                 break
             servo[int(toSweep)-1].angle = 180
@@ -326,6 +328,7 @@ while True:
     elif option == "2":
         while True:
             toMove = input(" Enter what servo to move [q(n)]: n=")
+            print()
             if toMove == "exit":
                 break
             moveAmount = input(" Enter servo rotation to move:")
@@ -340,7 +343,9 @@ while True:
             print(" Movement patterns:")
             print(" 1.square (corners)")
             print(" 2.cuboid(/3d rectangle) (sides)")
+            print(" 3.x-axis with a:0 b:0 test")
             option = input(" enter what pattern [number]:")
+            print()
             if option == "exit":
                 break
             if option == "1":
@@ -354,39 +359,61 @@ while True:
                     getAngles(i, 150, 150, 0, -90, 0)
                     sendToServo()
                     time.sleep(0.004)
+                time.sleep(1)
                 for i in range(150, 50, -1):
                     getAngles(150, i, 150, 0, -90, 0)
                     sendToServo()
                     time.sleep(0.01)
+                time.sleep(1)
                 for i in range(150, -150, -1):
                     getAngles(i, 50, 150, 0, -90, 0)
                     sendToServo()
                     time.sleep(0.004)
+                time.sleep(1)
                 for i in range(50, 150):
                     getAngles(-150, i, 150, 0, -90, 0)
                     sendToServo()
                     time.sleep(0.01)
+                time.sleep(1)
                 for i in range(150, 50, -1):
                     getAngles(-150, 150, i, 0, -90, 0)
                     sendToServo()
                     time.sleep(0.01)
+                time.sleep(1)
                 for i in range(-150, 150):
                     getAngles(i, 150, 50, 0, -90, 0)
                     sendToServo()
                     time.sleep(0.004)
+                time.sleep(1)
                 for i in range(150, 50, -1):
                     getAngles(150, i, 50, 0, -90, 0)
                     sendToServo()
                     time.sleep(0.01)
+                time.sleep(1)
                 for i in range(150, -150, -1):
                     getAngles(i, 50, 50, 0, -90, 0)
                     sendToServo()
                     time.sleep(0.004)
+                time.sleep(1)
                 for i in range(50, 150):
                     getAngles(-150, i, 50, 0, -90, 0)
                     sendToServo()
                     time.sleep(0.01)
+                time.sleep(1)
                 break
-             
+            if option == "3":
+                zLevel = input(" enter z-axis to run axis test on: ")
+                print()
+                if zLevel == "exit":
+                    break
+                for i in range(-200, 200):
+                    getAngles(i, 200, int(zLevel), 0, 0, 0)
+                    sendToServo()
+                    time.sleep(0.005)
+                for i in range(200, -200, -1):
+                    getAngles(i, 200, int(zLevel), 0, 0, 0)
+                    sendToServo()
+                    time.sleep(0.005)
+
 pca.deinit()
 
