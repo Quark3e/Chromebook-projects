@@ -479,13 +479,14 @@ while True:
                     coord = input(" enter coord to run the test on [x y z]: ").split()
                     for i in range(-90, 90):
                         if option == "a":
-                            getAngles(int(coord[0]), int(coord[1]), int(coord[2]), toRadians(i), 0, 0)
+                            getAngles(int(coord[0]), int(coord[1]), int(coord[2]), toRadians(i), 0, 0, '-', 1, 1, True)
                         elif option == "b":
-                            getAngles(int(coord[0]), int(coord[1]), int(coord[2]), 0, toRadians(i), 0)
+                            getAngles(int(coord[0]), int(coord[1]), int(coord[2]), 0, toRadians(i), 0, '-', 1, 1, True)
                         elif option == "Y":
-                            getAngles(int(coord[0]), int(coord[1]), int(coord[2]), 0, 0, toRadians(i))
+                            getAngles(int(coord[0]), int(coord[1]), int(coord[2]), 0, 0, toRadians(i), '-', 1, 1, True)
+                        
                         sendToServo()
-                        time.sleep(0.2)
+                        time.sleep(0.05)
 
 pca.deinit()
 
