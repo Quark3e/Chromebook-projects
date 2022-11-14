@@ -340,7 +340,8 @@ while True:
                     print("\n\t Correction factor for servo motor q", toCheck, " = ", correction, sep='')
                     print()
                 elif opt == "2":
-                    given = input(" enter rotation to send to servo motor q", toCheck, ": ", sep='')
+                    print(" enter rotation to send to servo motor q", toCheck, ": ", sep='', end='')
+                    given = input("")
                     servo[int(toCheck)-1].angle = int(given)
                 elif opt == "3":
                     break
