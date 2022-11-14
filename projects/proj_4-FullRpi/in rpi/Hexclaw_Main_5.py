@@ -289,13 +289,67 @@ while True:
     servo[5].angle = 90
 
     print(" Options:")
+    print(" 0.Calibrate given servo motor")
     print(" 1.Sweep given joint/servo motor")
     print(" 2.Send direct rotation to servo motors")
     print(" 3.Move the end-effector in a pattern")
     option = input(" input: ")
     print()
+    breakVal_0 = False
     if option == "exit":
         sys.exit()
+    elif option == "0":
+        while True:
+            toCheck = input(" Enter what servo to calibrate/check [q(n)]: n=")
+            print()
+            correction, read, given, isCorrect_90 = 0, 0, 0, True
+            if toCheck == "exit":
+                break
+            servo[int(toCheck)-1].angle = 90
+            time.sleep(0.1)
+            servo[int(toCheck)-1].angle = 180-90
+            time.sleep(0.9)
+            for i in range(0, 181, 45):
+                servo[int(toCheck)-1].angle = i
+                time.sleep(1.5)
+            for i in range(180, -1, -45):
+                servo[int(toCheck)-1].angle = i
+                time.sleep(1.5)
+            time.sleep(2)
+            temp = input(" was 90° correct? [y/n]: ")
+            if temp == "y":
+                isCorrect_90 = True
+            elif temp == "n":
+                isCorrect_90 = False
+            print()
+            while True:
+                print(" 1. enter read value to get the correction factor")
+                print(" 2. send rotation value to given servo")
+                print(" 3. change given/chosen servo motor (to check/calibrate a different motor)")
+                print(" 4. exit this option")
+                opt = input(" input: ")
+                print()
+                if opt == "1":
+                    given = input(" enter rotation to send input for (degrees): ")
+                    servo[int(toCheck)-1].angle = int(given)
+                    read = input(" enter the read angle: ")
+                    if isCorrect_90:
+                        correciton = (90-int(given)) / (90-int(read))
+                    elif not isCorrect_90:
+                        correciton = int(given) / int(read)
+                    print("\n\t Correction factor for servo motor q", toCheck, " = ", correction, sep='')
+                    print()
+                elif opt == "2":
+                    given = input(" enter rotation to send to servo motor q", toCheck, ": ", sep='')
+                    servo[int(toCheck)-1].angle = int(given)
+                elif opt == "3":
+                    break
+                elif opt == "4":
+                    breakVal_0 = True
+                    break
+            if breakVal_0:
+                break
+
     elif option == "1":
         while True:
             toSweep = input(" Enter what servo to sweep [q(n)]: n=")
@@ -327,6 +381,7 @@ while True:
                 else:
                     time.sleep(0.01)
             time.sleep(1.5)
+            break
     elif option == "2":
         while True:
             toMove = input(" Enter what servo to move [q(n)]: n=")

@@ -37,10 +37,15 @@ for i in range(6):
     servo[i].set_pulse_width_range(500, 2500)
 
 servo[0].angle = 90
+time.sleep(0.1)
 servo[1].angle = 45
+time.sleep(0.1)
 servo[2].angle = 180 - 45
+time.sleep(0.1)
 servo[3].angle = 90
+time.sleep(0.1)
 servo[4].angle = 180 - 180
+time.sleep(0.1)
 servo[5].angle = 90
 
 def getServo4Offset(degrees):
