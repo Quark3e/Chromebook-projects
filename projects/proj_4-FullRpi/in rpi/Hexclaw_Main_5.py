@@ -279,7 +279,6 @@ square = [
 ]
 
 
-
 while True:
     servo[0].angle = 90
     servo[1].angle = 45
@@ -350,7 +349,6 @@ while True:
                     break
             if breakVal_0:
                 break
-
     elif option == "1":
         while True:
             toSweep = input(" Enter what servo to sweep [q(n)]: n=")
@@ -402,6 +400,7 @@ while True:
             print(" 1.square (corners)")
             print(" 2.cuboid(/3d rectangle) (sides)")
             print(" 3.x-axis with a:0 b:0 test")
+            print(" 4.orientation test")
             option = input(" enter what pattern [number]:")
             print()
             if option == "exit":
@@ -472,6 +471,21 @@ while True:
                     getAngles(i, 200, int(zLevel), 0, 0, 0)
                     sendToServo()
                     time.sleep(0.005)
+            if option == "4":
+                while True:
+                    option = input(" which orientation variable to test: [a/b/Y]: ")
+                    if option == "exit":
+                        break
+                    coord = input(" enter coord to run the test on [x y z]: ").split()
+                    for i in range(-90, 90):
+                        if option == "a":
+                            getAngles(int(coord[0]), int(coord[1]), int(coord[2]), toRadians(i), 0, 0)
+                        elif option == "b":
+                            getAngles(int(coord[0]), int(coord[1]), int(coord[2]), 0, toRadians(i), 0)
+                        elif option == "Y":
+                            getAngles(int(coord[0]), int(coord[1]), int(coord[2]), 0, 0, toRadians(i))
+                        sendToServo()
+                        time.sleep(0.2)
 
 pca.deinit()
 
