@@ -399,8 +399,9 @@ while True:
             print(" Movement patterns:")
             print(" 1.square (corners)")
             print(" 2.cuboid(/3d rectangle) (sides)")
-            print(" 3.x-axis with a:0 b:0 test")
-            print(" 4.orientation test")
+            print(" 3.x-axis, a:0 b:0 test")
+            print(" 4.z-axis, a:0 b:0 test")
+            print(" 5.orientation test")
             option = input(" enter what pattern [number]:")
             print()
             if option == "exit":
@@ -472,6 +473,19 @@ while True:
                     sendToServo()
                     time.sleep(0.005)
             if option == "4":
+                coord = input(" enter xy coord to run z-axis test on [x y]: ").split()
+                print()
+                if coord[0] == "exit":
+                    break
+                for i in range(50, 300):
+                    getAngles(coord[0], coord[1], i, 0, 0, 0)
+                    sendToServo()
+                    time.sleep(0.005)
+                for i in range(300, 50, -1):
+                    getAngles(coord[0], coord[1], i, 0, 0, 0)
+                    sendToServo()
+                    time.sleep(0.005)
+            if option == "5":
                 while True:
                     option = input(" which orientation variable to test: [a/b/Y]: ")
                     if option == "exit":
