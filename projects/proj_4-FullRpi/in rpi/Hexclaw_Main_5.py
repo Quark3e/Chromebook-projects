@@ -399,8 +399,8 @@ while True:
             print(" Movement patterns:")
             print(" 1.square (corners)")
             print(" 2.cuboid(/3d rectangle) (sides)")
-            print(" 3.x-axis, a:0 b:0 test")
-            print(" 4.z-axis, a:0 b:0 test")
+            print(" 3.x-axis test")
+            print(" 4.z-axis test")
             print(" 5.orientation test")
             option = input(" enter what pattern [number]:")
             print()
@@ -460,31 +460,35 @@ while True:
                 time.sleep(1)
                 break
             if option == "3":
-                zLevel = input(" enter z-axis to run axis test on: ")
-                print()
-                if zLevel == "exit":
+                coord = input(" enter yz coord to run axis test on [y z]: ").split()
+                if coord[0] == "exit":
                     break
+                angles = input(" enter a b orientation values for test [a b [degrees]]: ").split()
+                print()
                 for i in range(-200, 200):
-                    getAngles(i, 200, int(zLevel), 0, 0, 0)
+                    getAngles(i, int(coord[0]), int(coord[1]), toRadians(int(angles[0])), toRadians(int(angles[1])), 0)
                     sendToServo()
                     time.sleep(0.005)
                 for i in range(200, -200, -1):
-                    getAngles(i, 200, int(zLevel), 0, 0, 0)
+                    getAngles(i, int(coord[0]), int(coord[1]), toRadians(int(angles[0])), toRadians(int(angles[1])), 0)
                     sendToServo()
                     time.sleep(0.005)
             if option == "4":
                 coord = input(" enter xy coord to run z-axis test on [x y]: ").split()
-                print()
                 if coord[0] == "exit":
                     break
+                angles = input(" enter a b orientation values for test [a b [degrees]]: ").split()
+                print()
                 for i in range(50, 300):
-                    getAngles(coord[0], coord[1], i, 0, 0, 0)
+                    getAngles(int(coord[0]), int(coord[1]), i, toRadians(int(angles[0])), toRadians(int(angles[1])), 0)
                     sendToServo()
-                    time.sleep(0.005)
+                    time.sleep(0.02)
+                    print("z:", i, sep='')
                 for i in range(300, 50, -1):
-                    getAngles(coord[0], coord[1], i, 0, 0, 0)
+                    getAngles(int(coord[0]), int(coord[1]), i, toRadians(int(angles[0])), toRadians(int(angles[1])), 0)
                     sendToServo()
-                    time.sleep(0.005)
+                    time.sleep(0.02)
+                    print("z:", i, sep='')
             if option == "5":
                 while True:
                     option = input(" which orientation variable to test: [a/b/Y]: ")
