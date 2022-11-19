@@ -37,15 +37,10 @@ for i in range(6):
     servo[i].set_pulse_width_range(500, 2500)
 
 servo[0].angle = 90
-time.sleep(0.1)
 servo[1].angle = 45
-time.sleep(0.1)
 servo[2].angle = 180 - 45
-time.sleep(0.1)
 servo[3].angle = 90
-time.sleep(0.1)
 servo[4].angle = 180 - 180
-time.sleep(0.1)
 servo[5].angle = 90
 
 def getServo4Offset(degrees):
@@ -207,7 +202,7 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
     if d5z == 0:
         q4 = 0
     elif b1 < 0 or b1 > 0:
-        q4 = math.atan((0-d5x) / d5z)
+        q4 = math.atan((d5x) / d5z)
     checkVar = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
     if math.isnan(checkVar):
         if printText:
@@ -267,8 +262,8 @@ while True:
     getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
 
     if diagnostics:
-        print(" Read: alpha:", toDegrees(q1+math.atan((d5*math.sin(q5)*math.cos(q4))/(d5*math.cos(q5)))), end='')
-        print(" beta:", toDegrees(math.asin((d5*math.sin(q5)*math.cos(q4))/d5)+q2+q3))
+        print(" Read: alpha:", toDegrees(q1 + math.atan((d5*math.sin(q5)*math.cos(q4)) / (d5*math.cos(q5))) ), end='')
+        print(" beta:", toDegrees(math.asin((d5*math.sin(q5)*math.cos(q4)) / d5) + q2+q3))
         
 
     servoExceeded = False
@@ -329,15 +324,17 @@ while True:
 
         if globalPrint or endAnglePrint:
             print(
-                " Sent: q1:", servo[0].angle, 
-                " q2:", servo[1].angle,
-                " q3:", servo[2].angle,
-                " q4:", servo[3].angle,
-                " q5:", servo[4].angle, 
-                " q6:", servo[5].angle,
+                " Sent: q1:", int(servo[0].angle), 
+                " q2:", int(servo[1].angle),
+                " q3:", int(servo[2].angle),
+                " q4:", int(servo[3].angle),
+                " q5:", int(servo[4].angle), 
+                " q6:", int(servo[5].angle),
                 # " Roll:", Roll,
                 # " Pitch:", Pitch
+                sep=''
             )
 
 pca.deinit()
 
+                                                

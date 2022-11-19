@@ -16,7 +16,7 @@ import numpy as np
 import imutils
 import time
 import math
-import adafruit_adxl34x
+# import adafruit_adxl34x
 import sys
 
 from board import SCL, SDA
@@ -28,7 +28,7 @@ from adafruit_pca9685 import PCA9685
 
 i2c = busio.I2C(SCL, SDA)
 pca = PCA9685(i2c)
-accelerometer = adafruit_adxl34x.ADXL345(i2c)
+# accelerometer = adafruit_adxl34x.ADXL345(i2c)
 
 pca.frequency = 50
 
@@ -72,8 +72,8 @@ endAnglePrint = False
 firstAnglePrint = False
 posOption = '-'
 
-X_out, Y_out, Z_out = accelerometer.acceleration #acceleration values for each axis
-Roll, Pitch = 0.1, 0.1
+# X_out, Y_out, Z_out = accelerometer.acceleration #acceleration values for each axis
+# Roll, Pitch = 0.1, 0.1
 
 d1 = 140; #axial "roll"
 d2 = 135; #axial "pitch"
@@ -94,15 +94,15 @@ def toRadians(degrees):
     return (degrees * math.pi) / 180
 
 
-def readAccelerometer():
-    global X_out, Y_out, Z_out, Roll, Pitch, roll, pitch
-    X_out, Y_out, Z_out = accelerometer.acceleration
-    #x is roll and y is pitch (it's switched so the servo can be fit to the servo robot arm)
-    pitch = math.atan(Y_out / math.sqrt(pow(X_out, 2) + pow(Z_out, 2))) * 180 / math.pi
-    roll = math.atan(-1 * X_out / math.sqrt(pow(Y_out, 2) + pow(Z_out, 2))) * 180 / math.pi
-    #filter
-    Roll = 0.8 * Roll + 0.2 * roll
-    Pitch = 0.8 * Pitch + 0.2 * pitch
+# def readAccelerometer():
+#     global X_out, Y_out, Z_out, Roll, Pitch, roll, pitch
+#     X_out, Y_out, Z_out = accelerometer.acceleration
+#     #x is roll and y is pitch (it's switched so the servo can be fit to the servo robot arm)
+#     pitch = math.atan(Y_out / math.sqrt(pow(X_out, 2) + pow(Z_out, 2))) * 180 / math.pi
+#     roll = math.atan(-1 * X_out / math.sqrt(pow(Y_out, 2) + pow(Z_out, 2))) * 180 / math.pi
+#     #filter
+#     Roll = 0.8 * Roll + 0.2 * roll
+#     Pitch = 0.8 * Pitch + 0.2 * pitch
 
 def getAngles(posX, posY, posZ, a, b, Y, posOption = '-', length_scalar = 1, coord_scalar = 1, printText = False):
     global d1, d2, d3, d4, d5, d6, q1, q2, q3, q4, q5, q6, q7, posX2, posY2, posZ2, b1, a1
@@ -322,6 +322,7 @@ while True:
                 isCorrect_90 = False
             print()
             while True:
+                print(" Note: The rotation values are betwee 0-180")
                 print(" 1. enter read value to get the correction factor")
                 print(" 2. send rotation value to given servo")
                 print(" 3. change given/chosen servo motor (to check/calibrate a different motor)")
@@ -333,9 +334,9 @@ while True:
                     servo[int(toCheck)-1].angle = int(given)
                     read = input(" enter the read angle: ")
                     if isCorrect_90:
-                        correciton = (90-int(given)) / (90-int(read))
+                        correction = (90-float(given)) / (90-float(read))
                     elif not isCorrect_90:
-                        correciton = int(given) / int(read)
+                        correction = float(given) / float(read)
                     print("\n\t Correction factor for servo motor q", toCheck, " = ", correction, sep='')
                     print()
                 elif opt == "2":
