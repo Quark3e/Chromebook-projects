@@ -299,11 +299,9 @@ while True:
         sys.exit()
     elif option == "0":
         while True:
-            toCheck = input(" Enter what servo to calibrate/check [q(n)]: n=")
-            print()
-            correction, read, given, isCorrect_90 = 0, 0, 0, True
-            if toCheck == "exit":
-                break
+            toCheck = input(" -Enter what servo to calibrate/check [q(n)]: n=")
+            correction, read, given, isCorrect_90, bothSidesEqual = 0, 0, 0, True, True
+            if toCheck == "exit": break
             servo[int(toCheck)-1].angle = 90
             time.sleep(0.1)
             servo[int(toCheck)-1].angle = 180-90
@@ -315,14 +313,18 @@ while True:
                 servo[int(toCheck)-1].angle = i
                 time.sleep(1.5)
             time.sleep(2)
-            temp = input(" was 90° correct? [y/n]: ")
-            if temp == "y":
-                isCorrect_90 = True
-            elif temp == "n":
-                isCorrect_90 = False
+            
+            temp = input(" -was 90° correct? [y/n]: ")
+            if temp == "y": isCorrect_90 = True
+            elif temp == "n": isCorrect_90 = False
+            
+            temp = input(" -are both sides (0-90 and 90-180) equal? [y/n]: ")
+            if temp == "y": bothSidesEqual = True
+            elif temp == "n": bothSidesEqual = False
+            
             print()
             while True:
-                print(" Note: The rotation values are betwee 0-180")
+                print(" Note: The rotation values are between 0-180")
                 print(" 1. enter read value to get the correction factor")
                 print(" 2. send rotation value to given servo")
                 print(" 3. change given/chosen servo motor (to check/calibrate a different motor)")
@@ -337,14 +339,14 @@ while True:
                         correction = (90-float(given)) / (90-float(read))
                     elif not isCorrect_90:
                         correction = float(given) / float(read)
-                    print("\n\t Correction factor for servo motor q", toCheck, " = ", correction, sep='')
+                    if bothSidesEqual: print("\n\t Correction factor for servo motor q", toCheck, " = ", correction, ": applies on \"both sides\" of the rotation span", sep='')
+                    elif not bothSidesEqual: print("\n\t Correction factor for servo motor q", toCheck, " = ", correction, ": does NOT apply on \"both sides\" of the rotation span", sep='')
                     print()
                 elif opt == "2":
                     print(" enter rotation to send to servo motor q", toCheck, ": ", sep='', end='')
                     given = input("")
                     servo[int(toCheck)-1].angle = int(given)
-                elif opt == "3":
-                    break
+                elif opt == "3": break
                 elif opt == "4":
                     breakVal_0 = True
                     break
