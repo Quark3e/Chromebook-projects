@@ -75,7 +75,6 @@ class IpVideoStream:
 
 
 
-
 from board import SCL, SDA
 import busio
 
@@ -120,14 +119,11 @@ camOption = input("Which video source to use as second webcam:\n 1.Exis webcam\n
 
 if camOption == "exit":
     sys.exit()
-elif int(camOption) == 1:
-    webcam = (WebcamVideoStream(src=0).start(), WebcamVideoStream(src=2).start())
+elif int(camOption) == 1: webcam = (WebcamVideoStream(src=0).start(), WebcamVideoStream(src=2).start())
 elif int(camOption) == 2:
     tempAddress = input("Enter ip address: ")
-    if tempAddress == "default":
-        webcam = (WebcamVideoStream(src=0).start(), IpVideoStream().start())
-    else:
-        webcam = (WebcamVideoStream(src=0).start(), IpVideoStream(ipaddress=tempAddress).start())
+    if tempAddress == "default": webcam = (WebcamVideoStream(src=0).start(), IpVideoStream().start())
+    else: webcam = (WebcamVideoStream(src=0).start(), IpVideoStream(ipaddress=tempAddress).start())
 
 
 brightVal = 75
