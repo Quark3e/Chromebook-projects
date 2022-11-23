@@ -100,6 +100,36 @@ if False:
     time.sleep(1.5)
 
 
+allCorrect = True
+centerAccurate = [True, True, True, True, True, True] #True if 90 degrees is correct
+notAccurate = [False, False, False, False, False, False] #True if it's not accurate and needs to be fixed
+u_isAccurate, l_isAccurate = notAccurate, notAccurate
+u_correction, l_correction = [1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1] #1 if it doesnt need correction
+
+opt = input(" Does any servo need to be corrected?\n input [y/n]: ")
+if opt == "exit":
+    sys.exit()
+elif opt == "n" or opt == "":
+    allCorrect = True
+elif opt == "y":
+    allCorrect = False
+    print("\n Servo correction: centerAccurate u_isAccurate l_isAccurate u_correction l_correction [y/n y/n y/n float float (1 if y)]: ")
+    for i in range(6):
+        print("\n servo q", i+1, ": ", sep='', end='')
+        opt = input("").split()
+        if opt[0] == "y": centerAccurate[i] = True
+        elif opt[0] == "n": centerAccurate[i] = False; notAccurate[i] = True
+
+        if opt[1] == "y": u_isAccurate[i] = True
+        elif opt[1] == "n": u_isAccurate[i] = False; notAccurate[i] = True
+        
+        if opt[2] == "y": l_isAccurate[i] = True
+        elif opt[2] == "n": l_isAccurate[i] = False; notAccurate[i] = True
+
+        u_correction[i] = float(opt[3])
+        l_correction[i] = float(opt[4])
+
+
 servo[0].angle = 90
 servo[4].angle = 135
 #time.sleep(1)
@@ -302,12 +332,22 @@ while True:
             s[1] = q2_default + int(round(toDegrees(q2)))
             s[0] = q1_default - int(round(toDegrees(q1)))
             for x in range(6):
-                if x == 4:
-                    if s[4]<90:
-                        servo[4].angle = getServo4Offset(180 - q5_default - s[4])
-                    else:
-                        servo[4].angle = s[4]
-                else:
+                if notAccurate[i]:
+                    if centerAccurate[i]:
+                        if not u_isAccurate: #90-180 not accurate
+                            if s[x]>90: servo[x].angle = s[x] * u_correction
+                            else: servo[x].angle = s[x]
+                        if not l_isAccurate: #0-90 not accurate
+                            if s[x]<90: servo[x].angle = s[x] * l_correction
+                            else: servo[x].angle = s[x]
+                    elif not centerAccurate[i]:
+                        servo[x].angle = s[x] * u_correction
+
+                elif not notAccurate[i]:
+                    # if x == 4:
+                    #     if s[4]<90: servo[4].angle = getServo4Offset(180 - q5_default - s[4])
+                    #     else: servo[4].angle = s[4]
+                    # else: servo[x].angle = s[x]
                     servo[x].angle = s[x]
         if firstAnglePrint:
             print(
