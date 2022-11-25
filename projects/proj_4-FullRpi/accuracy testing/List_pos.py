@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-#remote test: sent
-#remote test: received: LETS GOOO ITS INSTANT TRANSFER!!!
+
 
 # Import essential libraries
 from fileinput import filename
@@ -13,6 +12,8 @@ import time
 import math
 import sys
 #from threading import Thread
+from IK_module import sendToServo
+
 
 from board import SCL, SDA
 import busio
@@ -66,25 +67,6 @@ d5 = 45; #axial "pitch
 d6 = 45; #axial "roll" (?)
 
 
-def smoothServo_2(newAng, oldAng, servoNum, delayTimer = 0.01):
-    k1, k2 = 0.1, 0.9
-    oA = oldAng-1
-    n = 0
-    while oldAng<newAng:
-        oldAng=k1*newAng+k2*oldAng
-        servoNum.angle = int(round(oldAng))
-        #if int(round(oldAng))==oA:
-            #break
-        #oA=int(round(oldAng))
-        time.sleep(delayTimer)
-        n+=1
-        if n>=100:
-            break
-
-def smoothServo(newAng, oldAng, servoNum, delayTimer = 0.01):
-    for i in range(int(round(oldAng)), int(round(newAng))):
-        servoNum.angle = i
-
 def toDegrees(radians):
     return (radians * 180) / math.pi
 def toRadians(degrees):
@@ -136,20 +118,6 @@ def click_event(event, x, y, flags, params):
         readZ = 1
         print("x:", readX, " y:", readY)
         exitClickEvent = True
-        #return
-
-    # print(x, ' ', y)
-    # font = cv2.FONT_HERSHEY_SIMPLEX
-    # cv2.putText(img, str(x) + ',' + str(y), (x,y), font, 1, (255, 0, 0), 2)
-    # cv2.imshow('image', img)
-    # if event==cv2.EVENT_RBUTTONDOWN:
-        # print(x, ' ', y)
-        # font = cv2.FONT_HERSHEY_SIMPLEX
-        # b = img[y, x, 0]
-        # g = img[y, x, 1]
-        # r = img[y, x, 2]
-        # cv2.putText(img, str(b) + ',' + str(g) + ',' + str(r), (x,y), font, 1, (255, 255, 0), 2)
-        # cv2.imshow('image', img)
  
 
 #Temporary window so the webcam position can be adjusted
@@ -199,57 +167,46 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
     posX2 = posX - l * math.sin(a)
     posY2 = posY - l * math.cos(a)
     posZ2 = posZ - (d5+d6) * math.sin(b)
+
+    if posY2 < 0:
+        posY2 = 0
     if posY2 == 0:
-        posY2 = 0.00001
-    elif posY2 < 0:
-        posY2 = 0.00001
+        if posX2 > 0: q1 = toRadians(90)
+        elif posX2 < 0: q1 = toRadians(-90)
+        elif posX2 == 0: q1 = toRadians(0)
+    else: q1 = math.atan(posX2 / posY2)
     
-    q1 = math.atan(posX2 / posY2)
     try:
-        if posOption == '+':
-            q3 = math.acos((pow(posX2, 2) + pow(posY2, 2) + pow(posZ2 - d1, 2) - pow(d2, 2) - pow(d3 + d4, 2)) /(2 * d2 * (d3 + d4)))
-        elif posOption == '-':
-            q3 = math.acos((pow(posX2, 2) + pow(posY2, 2) + pow(posZ2 - d1, 2) - pow(d2, 2) - pow(d3 + d4, 2)) /(2 * d2 * (d3 + d4)))
-    except ValueError:
-        print("domain error triggered")
+        if posOption == '+': q3 = math.acos((pow(posX2, 2) + pow(posY2, 2) + pow(posZ2 - d1, 2) - pow(d2, 2) - pow(d3 + d4, 2)) /(2 * d2 * (d3 + d4)))
+        elif posOption == '-': q3 = math.acos((pow(posX2, 2) + pow(posY2, 2) + pow(posZ2 - d1, 2) - pow(d2, 2) - pow(d3 + d4, 2)) /(2 * d2 * (d3 + d4)))
+    except ValueError: print("domain error triggered")
+    
     lambdaVar = math.atan((posZ2 - d1) / math.sqrt(pow(posX2, 2) + pow(posY2, 2)))
     muVar = math.atan(((d3 + d4) * math.sin(q3)) /(d2 + (d3 + d4) * math.cos(q3)))
-    if posOption == '+':
-        q2 = lambdaVar - muVar
+    if posOption == '+': q2 = lambdaVar - muVar
     elif posOption == '-':
         #if (s[1] < diffCheck and lambdaVar + muVar < 0) or (lambdaVar + muVar > 0):
-        if lambdaVar + muVar > 0:
-            q2 = lambdaVar + muVar #NOTE: the negative muVar value hasnt been solved. so this is a temp. fix 
-        else:
-            print("q2 error occured")
+        if lambdaVar + muVar > 0: q2 = lambdaVar + muVar #NOTE: the negative muVar value hasnt been solved. so this is a temp. fix 
+        else: print("q2 error occured")
         q3 = 0 - q3
     
-    #print("lambda:", toDegrees(lambdaVar), " mu:", toDegrees(muVar), end="")
-    #print(" q3:", toDegrees(q3), " sin:", math.sin(q3), " cos:", math.cos(q3))
     a1 = a - q1
     b1 = b - (q2 + q3)
     d5x = (d5+d6) * math.cos(b1) * math.sin(a1)
     #NOTE: The x and y axis of the X1Y1Z1 frame in the paper was reverse (compared to this. The names need to be changed!)
     d5z = (d5+d6) * math.sin(b1)
-    if b1 == 0:
-        q4 = 0
-    elif b1 < 0 or b1 > 0:
-        q4 = math.atan(d5x / d5z)
+
+    if b1 == 0: q4 = 0
+    elif b1 < 0 or b1 > 0: q4 = math.atan(d5x / d5z)
     checkVar = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
     if math.isnan(checkVar):
-        if printText:
-            print("asin(sqrt(pow(d5x, 2) + pow(d5z, 2)) / d5)  is NaN")
+        if printText: print("asin(sqrt(pow(d5x, 2) + pow(d5z, 2)) / d5)  is NaN")
     else:
-        if math.sqrt(pow(d5x, 2) + pow(d5z, 2)) > 90:
-            q5 = toRadians(90)
-        else:
-            q5 = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
-    if d5z < 0:
-        q5 = 0-q5
-    if b <= math.pi / 2 and b >= 0 - math.pi / 2:
-        q6 = Y - q4
-    elif b >= math.pi / 2 or b <= 0 - math.pi / 2:
-        q6 = math.pi - (Y - q6)
+        if math.sqrt(pow(d5x, 2) + pow(d5z, 2)) > 90: q5 = toRadians(90)
+        else: q5 = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
+    if d5z < 0: q5 = 0-q5
+    if b <= math.pi / 2 and b >= 0 - math.pi / 2: q6 = Y - q4
+    elif b >= math.pi / 2 or b <= 0 - math.pi / 2: q6 = math.pi - (Y - q6)
     if printText:
         print(
             " q1: ", toDegrees(q1),
@@ -434,71 +391,32 @@ for n in range(rowLength):
 
     #Check if values are NaN
     getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
-    if not (math.isnan(q1) or
-        math.isnan(q2) or
-        math.isnan(q3) or
-        math.isnan(q4) or
-        math.isnan(q5) or
-        math.isnan(q6)):
-        #Send angles to servo motors
-        check_qMinMax()
-        s[5] = q6_default - int(round(toDegrees(q6)))
-        s[4] = 180 - q5_default - int(round(toDegrees(q5)))
-        s[3] = q4_default + int(round(toDegrees(q4)))
-        s[2] = 180 - q3_default - int(round(toDegrees(q3)))
-        s[1] = q2_default + int(round(toDegrees(q2)))
-        s[0] = q1_default - int(round(toDegrees(q1)))
-        for x in range(6):
-            if x == 4:
-                if s[4]<90:
-                    servo[4].angle = getServo4Offset(180 - q5_default - s[4])
-                else:
-                    servo[4].angle = s[4]
-            else:
-                servo[x].angle = s[x]
-        if firstAnglePrint:
-            print(
-                " q1:", toDegrees(q1), 
-                " q2:", toDegrees(q2),
-                " q3:", toDegrees(q3),
-                " q4:", toDegrees(q4),
-                " q5:", toDegrees(q5), 
-                " q6:", toDegrees(q6)
-            )
-        if globalPrint or endAnglePrint:
-            print(
-                " q1:", servo[0].angle, 
-                " q2:", servo[1].angle,
-                " q3:", servo[2].angle,
-                " q4:", servo[3].angle,
-                " q5:", servo[4].angle, 
-                " q6:", servo[5].angle
-            )
-        
-        if not manualInput:
-            time.sleep(2)
-        #Read values from webcam
-        getPos()
-        readX = 0 - readX
-        toWriteFile.write(str(readX) + " " + str(readY) + " " + str(readZ) + "\n")
-        correctWriteFile.write(
-            str(math.tan((abs(newSize[0]*0.5-actualValues[0])*(webcamFOV[0]*0.5))/newSize[0])*distanceFromCam) + " " +
-            # str(math.atan(toRadians((abs(actualValues[0] - newSize[0]*0.5) * webcamFOV[0])/(newSize[0]*0.5))) * distanceFromCam) + " " +
-            str(readY) + " " +
-            # str(math.atan(toRadians((abs(actualValues[1] - newSize[1]*0.5) * webcamFOV[1])/(newSize[1]*0.5))) * distanceFromCam) + " " +
-            str(readZ) + "\n"
-            )
-        accWriteFile.write(str(abs(readX-posX)) + " " + str(abs(readY-posY)) + " " + str(1) + "\n")
-        resultFile.write(
-            str(posX) + " " + 
-            str(posY) + " " + 
-            str(posZ) + " " + 
-            str(math.tan((abs(newSize[0]*0.5-actualValues[0])*(webcamFOV[0]*0.5))/newSize[0])*distanceFromCam) + " " +
-            str(readY) + " " +
-            str(posZ) + "\n" 
-            # Even though posZ is not measured it's still added in the "_Result"
-            #-file in case a seconds webcam for z-axis measuring is added later on.
+    sendToServo()
+    
+    if not manualInput:
+        time.sleep(2)
+    #Read values from webcam
+    getPos()
+    readX = 0 - readX
+    toWriteFile.write(str(readX) + " " + str(readY) + " " + str(readZ) + "\n")
+    correctWriteFile.write(
+        str(math.tan((abs(newSize[0]*0.5-actualValues[0])*(webcamFOV[0]*0.5))/newSize[0])*distanceFromCam) + " " +
+        # str(math.atan(toRadians((abs(actualValues[0] - newSize[0]*0.5) * webcamFOV[0])/(newSize[0]*0.5))) * distanceFromCam) + " " +
+        str(readY) + " " +
+        # str(math.atan(toRadians((abs(actualValues[1] - newSize[1]*0.5) * webcamFOV[1])/(newSize[1]*0.5))) * distanceFromCam) + " " +
+        str(readZ) + "\n"
         )
+    accWriteFile.write(str(abs(readX-posX)) + " " + str(abs(readY-posY)) + " " + str(1) + "\n")
+    resultFile.write(
+        str(posX) + " " + 
+        str(posY) + " " + 
+        str(posZ) + " " + 
+        str(math.tan((abs(newSize[0]*0.5-actualValues[0])*(webcamFOV[0]*0.5))/newSize[0])*distanceFromCam) + " " +
+        str(readY) + " " +
+        str(posZ) + "\n" 
+        # Even though posZ is not measured it's still added in the "_Result"
+        #-file in case a seconds webcam for z-axis measuring is added later on.
+    )
 
     # Press Esc key to exit
     if cv2.waitKey(1) == 27:
