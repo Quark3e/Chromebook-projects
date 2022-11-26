@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-
+# *add a calibration method for x and y axis
 
 # Import essential libraries
 from fileinput import filename
@@ -12,7 +12,7 @@ import time
 import math
 import sys
 #from threading import Thread
-from IK_module import sendToServo
+from IK_module import sendToServo, correctionSetup, toDegrees, toRadians
 
 
 from board import SCL, SDA
@@ -46,17 +46,13 @@ if useHardSetAngle:
         sys.exit()
     hardSetAngle = [int(ans[0]), int(ans[1])]
 
-
-def getServo4Offset(degrees):
-    return 90-(90/130)*degrees
-#0-90 is inaccurate where the actual angle is 130 for the given 90 degrees
-#Note: Only use this function if the rotation value is 
+correctionSetup()
 
 servo[0].angle = 90
 servo[1].angle = 45
 servo[2].angle = 180 - 0
 servo[3].angle = 90
-servo[4].angle = getServo4Offset(90)
+servo[4].angle = 90-(90/130)*90
 servo[5].angle = 90
 
 d1 = 140; #axial "roll"
@@ -66,11 +62,6 @@ d4 = 80; #axial "roll"
 d5 = 45; #axial "pitch
 d6 = 45; #axial "roll" (?)
 
-
-def toDegrees(radians):
-    return (radians * 180) / math.pi
-def toRadians(degrees):
-    return (degrees * math.pi) / 180
 
 time.sleep(1)
 
@@ -121,6 +112,7 @@ def click_event(event, x, y, flags, params):
  
 
 #Temporary window so the webcam position can be adjusted
+#used for calibration of two points for each axis (x y)
 while True:
     ret, imgTemp = cap.read()
     img = cv2.resize(imgTemp, newSize)
@@ -146,9 +138,11 @@ time.sleep(1)
 
 q1, q2, q3, q4, q5, q6, q7 = 0, 0, 0, 0, 0, 0, 0 #NOTE: q1 = servo[0]
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
-
 posX2, posY2, posZ2 = 0.01, 0.01, 0.01
 a1, b1 = 0.1, 0.1
+q1_default, q2_default, q3_default, q4_default, q5_default, q6_default = 90, 0, 135, 90, 90, 90
+zMax = 300
+posX, posY, posZ = 0.1, 0.1, 0.1
 
 
 def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_scalar = 1, printText = False):
@@ -217,14 +211,6 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
             " q6: ", toDegrees(q6),
         )
 
-q1_default = 90
-q2_default = 0
-q3_default = 135
-q4_default = 90
-q5_default = 90
-q6_default = 90
-
-zMax = 300
 
 fileExtension = ".dat"
 toReadFile = open(fileName + fileExtension, "r")
@@ -233,7 +219,6 @@ accWriteFile = open("testResult/" + fileName + "_" + str(hardSetAngle[0]) + "." 
 correctWriteFile = open("testResult/" + fileName + "_" + str(hardSetAngle[0]) + "." + str(hardSetAngle[1]) + "_correct" + fileExtension, "w") #Note: add +"\n" at the end of each write
 resultFile = open("testResult/" + fileName + "_" + str(hardSetAngle[0]) + "." + str(hardSetAngle[1]) + "_Result" + fileExtension, "w")
 
-posX, posY, posZ = 0.1, 0.1, 0.1
 coord = ""
 
 def check_qMinMax():
@@ -290,6 +275,17 @@ def findAlphaBeta(posX, posY, posZ, posOption):
 
 cv2.setMouseCallback('Windows', click_event)
 
+
+def drawGrid(img, spacing):
+    height, width = img.shape[:2]
+    for x in range(0, width, spacing): cv2.line(img, (x, 0), (x, height), (255, 255, 255), 1)
+    for y in range(0, height, spacing): cv2.line(img, (0, y), (width, y), (255, 255, 255), 1)
+    return img
+def drawCircles(img, center, spacings, atCenter=True): #NOTE: Enter array in "spacings"
+    height, width = img.shape[:2]
+    for i in range(0, len(spacings)): cv2.circle(img, center, spacings[i], (255, 255, 255), 1)
+    return img
+
 def getPos():
     global readX, readY, readZ, newSize, exitClickEvent
     if manualInput:
@@ -297,12 +293,9 @@ def getPos():
         print("Waiting for key input...")
         while not exitClickEvent:
             ret, imgTemp = cap.read()
-            img = cv2.resize(imgTemp, newSize)
-            img = cv2.flip(img, 1)
-            cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(50*(1/xScaling)), (255, 255, 255), 1)
-            cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(100*(1/xScaling)), (255, 255, 255), 1)
-            cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(150*(1/xScaling)), (255, 255, 255), 1)
-            cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(200*(1/xScaling)), (255, 255, 255), 1)
+            img = drawCircles(cv2.flip(cv2.resize(imgTemp, newSize), 1), (int(newSize[0]*0.5), int(newSize[1])),
+            [50*(1/xScaling), 100*(1/xScaling), 150*(1/xScaling), 200*(1/xScaling)])
+
             cv2.imshow('Windows', cv2.resize(img, None, fx=winScaleX, fy=winScaleY))
 
             if cv2.waitKey(1) == 27:
@@ -312,31 +305,24 @@ def getPos():
                     print(" .", end='')
                 print()
                 sys.exit()
-            #if exitClickEvent:
-                #print("loop ended. coord found")
-                #break
     elif not manualInput:
         ret, imgTemp = cap.read()
-        img = cv2.resize(imgTemp, newSize)
-        img = cv2.flip(img, 1)
-        cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(50*(1/xScaling)), (255, 255, 255), 1)
-        cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(100*(1/xScaling)), (255, 255, 255), 1)
-        cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(150*(1/xScaling)), (255, 255, 255), 1)
-        cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(200*(1/xScaling)), (255, 255, 255), 1)
+        img = drawCircles(cv2.flip(cv2.resize(imgTemp, newSize), 1), (int(newSize[0]*0.5), int(newSize[1])),
+        [50*(1/xScaling), 100*(1/xScaling), 150*(1/xScaling), 200*(1/xScaling)])
         
         into_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        #L, U color values: [[62, 108, 0], [85, 238, 249]]
         L_limit = np.array(L_values)
         U_limit = np.array(U_values)
         threshold = cv2.inRange(into_hsv, L_limit, U_limit)
         filtered = cv2.bitwise_and(img, img, mask = threshold)
-        #filtered = increase_brightness(filtered, brightVal)
         filtered[filtered!=0] = 255 #change to value of everything that's not 0(black) to 255(white)
         filtered = cv2.erode(filtered, np.ones((5,5), np.uint8), iterations = 1)
         filtered = cv2.dilate(filtered, np.ones((5,5), np.uint8), iterations = 1)
         gray_image = cv2.cvtColor(filtered, cv2.COLOR_BGR2GRAY)
-        ret,thresh = cv2.threshold(gray_image,127,255,0)
-        contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
+        ret,thresh = cv2.threshold(gray_image,127,255, 0)
+        # contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
+        contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+        print("Number of contours ", len(contours))
         for c in contours:
             M = cv2.moments(c)
             M = cv2.moments(thresh)
@@ -347,17 +333,14 @@ def getPos():
                 cX, cY = 0, 0
             cv2.circle(img, (cX, cY), 5, (255, 255, 255), -1)
             cv2.putText(img, "centroid" + str(cv2.contourArea(contours[0])), (cX - 25, cY - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-            # coord = "x:" + str(int(xScaling*(cX - newSize[0]*0.5))) + " y:" + str(int(yScaling*(newSize[1] - cY))) + " z:" +  str(int(zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax))) #str(cv2.contourArea(contours))
             readX = int(axisFilter2 * xScaling*(cX - newSize[0]*0.5) + (1-axisFilter2) * readX)
             readY = int(axisFilter2 * yScaling*(newSize[1] - cY) + (1-axisFilter2) * readY)
             readZ = int(axisFilter2 * zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax) + (1-axisFilter2) * readZ)
-    if globalPrint:
-        print(coord, end="")
+    if globalPrint: print(coord, end="")
     if showImage and not manualInput:
         stacked = np.hstack((img, filtered))
         cv2.imshow('Windows', cv2.resize(stacked, None, fx=winScaleX, fy=winScaleY))
-    if manualInput and showImage:
-        cv2.imshow('Windows', cv2.resize(img, None, fx=winScaleX, fy=winScaleY))
+    if manualInput and showImage: cv2.imshow('Windows', cv2.resize(img, None, fx=winScaleX, fy=winScaleY))
 
 
 for n in range(rowLength):

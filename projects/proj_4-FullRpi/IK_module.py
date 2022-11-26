@@ -1,12 +1,51 @@
+import sys
+from math import isnan, pi
+
+def toDegrees(radians): return (radians * 180) / pi
+def toRadians(degrees): return (degrees * pi) / 180
+
+def correctionSetup():
+    global allCorrect, centerAccurate, notAccurate
+    global u_isAccurate, l_isAccurate, u_correction, l_correction
+
+    allCorrect = True
+    centerAccurate = [True, True, True, True, True, True] #True if 90 degrees is correct
+    notAccurate = [False, False, False, False, False, False] #True if it's not accurate and needs to be fixed
+    u_isAccurate, l_isAccurate = notAccurate, notAccurate
+    u_correction, l_correction = [1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1] #1 if it doesnt need correction
+
+    opt = input(" Does any servo need to be corrected?\n input [y/n]: ")
+    if opt == "exit":
+        sys.exit()
+    elif opt == "n" or opt == "":
+        allCorrect = True
+    elif opt == "y":
+        allCorrect = False
+        print("\n Servo correction: centerAccurate u_isAccurate l_isAccurate u_correction l_correction [y/n y/n y/n float float (1 if y)]: ")
+        for i in range(6):
+            print("\n servo q", i+1, ": ", sep='', end='')
+            opt = input("").split()
+            if opt[0] == "y": centerAccurate[i] = True
+            elif opt[0] == "n": centerAccurate[i] = False; notAccurate[i] = True
+
+            if opt[1] == "y": u_isAccurate[i] = True
+            elif opt[1] == "n": u_isAccurate[i] = False; notAccurate[i] = True
+            
+            if opt[2] == "y": l_isAccurate[i] = True
+            elif opt[2] == "n": l_isAccurate[i] = False; notAccurate[i] = True
+
+            u_correction[i] = float(opt[3])
+            l_correction[i] = float(opt[4])
+
 
 def sendToServo():
     global q1, q2, q3, q4, q5, q6, s, servo, servoExceeded, whichServoExceeded, typeOfExceeded
-    if not (math.isnan(q1) or
-            math.isnan(q2) or
-            math.isnan(q3) or
-            math.isnan(q4) or
-            math.isnan(q5) or
-            math.isnan(q6)):
+    if not (isnan(q1) or
+            isnan(q2) or
+            isnan(q3) or
+            isnan(q4) or
+            isnan(q5) or
+            isnan(q6)):
         if q1_default - int(round(toDegrees(q1))) < 0: q1 = toRadians(0 + q1_default); servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "under"
         if q2_default + int(round(toDegrees(q2))) < 0: q2 = toRadians(0 - q2_default); servoExceeded = True; whichServoExceeded[1] = True; typeOfExceeded[1] = "under"
         if q3_default + int(round(toDegrees(q3))) < 0: q3 = toRadians(0 - q3_default); servoExceeded = True; whichServoExceeded[2] = True; typeOfExceeded[2] = "under"

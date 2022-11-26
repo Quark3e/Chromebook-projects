@@ -1,3 +1,7 @@
+from math import atan, pi
+
+def mathTest(inp):
+    return atan(float(inp))*180/pi
 
 test = "HELLO WORLD"
 
