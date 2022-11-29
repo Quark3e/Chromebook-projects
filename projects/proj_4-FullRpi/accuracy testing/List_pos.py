@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # *add a calibration method for x and y axis
+# define center origo where everything is calibrated off of that.
 
 # Import essential libraries
 from fileinput import filename
@@ -12,8 +13,9 @@ import time
 import math
 import sys
 #from threading import Thread
-from IK_module import sendToServo, correctionSetup, toDegrees, toRadians
+from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles
 
+correctionSetup()
 
 from board import SCL, SDA
 import busio
@@ -46,7 +48,6 @@ if useHardSetAngle:
         sys.exit()
     hardSetAngle = [int(ans[0]), int(ans[1])]
 
-correctionSetup()
 
 servo[0].angle = 90
 servo[1].angle = 45
@@ -61,7 +62,6 @@ d3 = 70; #axial "pitch"
 d4 = 80; #axial "roll"
 d5 = 45; #axial "pitch
 d6 = 45; #axial "roll" (?)
-
 
 time.sleep(1)
 
@@ -91,7 +91,7 @@ cv2.namedWindow("Windows")
 newSize = (640, 480)
 
 manualInput = True
-readX, readY, readZ = 0.1, 0.1, 0.1 #Values that are to be compared with the given values
+readX, readY, readZ = 0.1, 0.1, 1 #Values that are to be compared with the given values
 actualValues = [0, 0]
 axisFilter2 = 1
 
@@ -99,14 +99,13 @@ axisFilter2 = 1
 # of the points clicked on the image
 exitClickEvent = False
 def click_event(event, x, y, flags, params):
-    global readX, readY, readZ, exitClickEvent, actualValues
+    global readX, readY, exitClickEvent, actualValues
     #print("Waiting for left button press...")
     if event == cv2.EVENT_LBUTTONDOWN:
         print("Left button press read")
         actualValues = [x, y]
         readX = int(axisFilter2 * xScaling*(x - newSize[0]*0.5) + (1-axisFilter2) * readX)
         readY = int(axisFilter2 * yScaling*(newSize[1] - y) + (1-axisFilter2) * readY)
-        readZ = 1
         print("x:", readX, " y:", readY)
         exitClickEvent = True
  
@@ -143,73 +142,6 @@ a1, b1 = 0.1, 0.1
 q1_default, q2_default, q3_default, q4_default, q5_default, q6_default = 90, 0, 135, 90, 90, 90
 zMax = 300
 posX, posY, posZ = 0.1, 0.1, 0.1
-
-
-def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_scalar = 1, printText = False):
-    global d1, d2, d3, d4, d5, d6, q1, q2, q3, q4, q5, q6, q7, posX2, posY2, posZ2
-
-    posX = posX * coord_scalar
-    posY = posY * coord_scalar
-    posZ = posZ * coord_scalar
-    d1 = d1 * length_scalar
-    d2 = d2 * length_scalar
-    d3 = d3 * length_scalar
-    d4 = d4 * length_scalar
-    d5 = d5 * length_scalar
-    d6 = d6 * length_scalar
-    l = (d5+d6) * math.cos(b)
-    posX2 = posX - l * math.sin(a)
-    posY2 = posY - l * math.cos(a)
-    posZ2 = posZ - (d5+d6) * math.sin(b)
-
-    if posY2 < 0:
-        posY2 = 0
-    if posY2 == 0:
-        if posX2 > 0: q1 = toRadians(90)
-        elif posX2 < 0: q1 = toRadians(-90)
-        elif posX2 == 0: q1 = toRadians(0)
-    else: q1 = math.atan(posX2 / posY2)
-    
-    try:
-        if posOption == '+': q3 = math.acos((pow(posX2, 2) + pow(posY2, 2) + pow(posZ2 - d1, 2) - pow(d2, 2) - pow(d3 + d4, 2)) /(2 * d2 * (d3 + d4)))
-        elif posOption == '-': q3 = math.acos((pow(posX2, 2) + pow(posY2, 2) + pow(posZ2 - d1, 2) - pow(d2, 2) - pow(d3 + d4, 2)) /(2 * d2 * (d3 + d4)))
-    except ValueError: print("domain error triggered")
-    
-    lambdaVar = math.atan((posZ2 - d1) / math.sqrt(pow(posX2, 2) + pow(posY2, 2)))
-    muVar = math.atan(((d3 + d4) * math.sin(q3)) /(d2 + (d3 + d4) * math.cos(q3)))
-    if posOption == '+': q2 = lambdaVar - muVar
-    elif posOption == '-':
-        #if (s[1] < diffCheck and lambdaVar + muVar < 0) or (lambdaVar + muVar > 0):
-        if lambdaVar + muVar > 0: q2 = lambdaVar + muVar #NOTE: the negative muVar value hasnt been solved. so this is a temp. fix 
-        else: print("q2 error occured")
-        q3 = 0 - q3
-    
-    a1 = a - q1
-    b1 = b - (q2 + q3)
-    d5x = (d5+d6) * math.cos(b1) * math.sin(a1)
-    #NOTE: The x and y axis of the X1Y1Z1 frame in the paper was reverse (compared to this. The names need to be changed!)
-    d5z = (d5+d6) * math.sin(b1)
-
-    if b1 == 0: q4 = 0
-    elif b1 < 0 or b1 > 0: q4 = math.atan(d5x / d5z)
-    checkVar = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
-    if math.isnan(checkVar):
-        if printText: print("asin(sqrt(pow(d5x, 2) + pow(d5z, 2)) / d5)  is NaN")
-    else:
-        if math.sqrt(pow(d5x, 2) + pow(d5z, 2)) > 90: q5 = toRadians(90)
-        else: q5 = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
-    if d5z < 0: q5 = 0-q5
-    if b <= math.pi / 2 and b >= 0 - math.pi / 2: q6 = Y - q4
-    elif b >= math.pi / 2 or b <= 0 - math.pi / 2: q6 = math.pi - (Y - q6)
-    if printText:
-        print(
-            " q1: ", toDegrees(q1),
-            " q2: ", toDegrees(q2),
-            " q3: ", toDegrees(q3),
-            " q4: ", toDegrees(q4),
-            " q5: ", toDegrees(q5),
-            " q6: ", toDegrees(q6),
-        )
 
 
 fileExtension = ".dat"
@@ -273,8 +205,6 @@ def findAlphaBeta(posX, posY, posZ, posOption):
                 break
     return a, b
 
-cv2.setMouseCallback('Windows', click_event)
-
 
 def drawGrid(img, spacing):
     height, width = img.shape[:2]
@@ -288,6 +218,7 @@ def drawCircles(img, center, spacings, atCenter=True): #NOTE: Enter array in "sp
 
 def getPos():
     global readX, readY, readZ, newSize, exitClickEvent
+    cv2.setMouseCallback('Windows', click_event)
     if manualInput:
         exitClickEvent = False
         print("Waiting for key input...")
@@ -316,8 +247,8 @@ def getPos():
         threshold = cv2.inRange(into_hsv, L_limit, U_limit)
         filtered = cv2.bitwise_and(img, img, mask = threshold)
         filtered[filtered!=0] = 255 #change to value of everything that's not 0(black) to 255(white)
-        filtered = cv2.erode(filtered, np.ones((5,5), np.uint8), iterations = 1)
-        filtered = cv2.dilate(filtered, np.ones((5,5), np.uint8), iterations = 1)
+        filtered = cv2.erode(filtered, np.ones((5,5), np.uint8), iterations = 2)
+        filtered = cv2.dilate(filtered, np.ones((5,5), np.uint8), iterations = 2)
         gray_image = cv2.cvtColor(filtered, cv2.COLOR_BGR2GRAY)
         ret,thresh = cv2.threshold(gray_image,127,255, 0)
         # contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
@@ -325,7 +256,7 @@ def getPos():
         print("Number of contours ", len(contours))
         for c in contours:
             M = cv2.moments(c)
-            M = cv2.moments(thresh)
+            # M = cv2.moments(thresh)
             if M["m00"] != 0:
                 cX = int(M["m10"] / M["m00"])
                 cY = int(M["m01"] / M["m00"])
@@ -341,6 +272,12 @@ def getPos():
         stacked = np.hstack((img, filtered))
         cv2.imshow('Windows', cv2.resize(stacked, None, fx=winScaleX, fy=winScaleY))
     if manualInput and showImage: cv2.imshow('Windows', cv2.resize(img, None, fx=winScaleX, fy=winScaleY))
+
+def getAngle():
+    # Marks two dots which are visible on the img/frame displayed on the window
+    # a line between first and second dot is formed the moment the second dot is placed, calculates and displays angle, pause, continues to end of function
+    global readAlpha, readBeta, newSize, exitClickEvent
+
 
 
 for n in range(rowLength):
