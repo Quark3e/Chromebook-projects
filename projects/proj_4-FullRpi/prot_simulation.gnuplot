@@ -35,14 +35,16 @@ q4 = 0
 q5 = 0
 q6 = 0
 
-posX = -150
-posY = 150
-posZ = 150
-a = 45 #radians
-b = -45
+
+posX = 150
+posY = 200
+posZ = 200
+a = 45
+b = -60
 Y = 0
 
-set view 40, 200, 1.1, 1
+posX = 0-posX
+set view 70, 220, 1.1, 1
 
 
 l = (d5+d6)*cos(b)
@@ -88,7 +90,7 @@ test = sqrt(d5x**2+d5z**2)/(d5+d6)
 if (test < 1 || test > -1) {
     q5 = asin(sqrt(d5x**2+d5z**2)/(d5+d6))
 } else { q5 = 0; print "q5 out of reach"; }
-if (d5z<0) { q5=0-q5 }
+if (d5z<0) { q5=-q5 } #doesnt matter if b>0
 
 if (b<=toDegrees(pi)/2 && b>=0-toDegrees(pi)/2) { q6 = Y-q4 }
 if (b>=toDegrees(pi)/2 || b<=0-toDegrees(pi)/2) { q6 = toDegrees(pi)-(Y-q6) }
@@ -138,9 +140,9 @@ P5 u (P5[1]):(P5[2]):(P5[3]):(PP[1]-P5[1]):(PP[2]-P5[2]):(PP[3]-P5[3]) with vect
 '+' u (P4[1]):(P4[2]):(P4[3]) lt rgb "orange" title "P4", \
 '+' u (P5[1]):(P5[2]):(P5[3]) lt rgb "grey" title "P5", \
 '+' u (P6[1]):(P6[2]):(P6[3]) lt rgb "purple" title "P6", \
-'+' u (posX2):(posY2):(posZ2) lt rgb "brown" title "pos2", \
+'+' u (-posX2):(posY2):(posZ2) lt rgb "brown" title "pos2", \
 '+' u (PP[1]):(PP[2]):(PP[3]) lt rgb "black" title "PP", \
-'+' u (posX):(posY):(posZ) lt rgb "red" title "given pos"
+'+' u (-posX):(posY):(posZ) lt rgb "red" title "given pos"
 
 
 
