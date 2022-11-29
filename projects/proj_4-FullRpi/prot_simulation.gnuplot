@@ -26,7 +26,7 @@ d2 = 135 #axial "pitch"
 d3 = 70 #axial "pitch"
 d4 = 80 #axial "roll"
 d5 = 45 #axial "pitch
-d6 = 45 #axial "roll" (?)
+d6 = 15 #axial "roll" (?)
 
 q1 = 0
 q2 = 0
@@ -36,15 +36,15 @@ q5 = 0
 q6 = 0
 
 
-posX = 150
-posY = 200
-posZ = 200
-a = 45
-b = -60
+posX = -150
+posY = 150
+posZ = 150
+a = 0
+b = 0
 Y = 0
 
 posX = 0-posX
-set view 70, 220, 1.1, 1
+set view 45, 225, 1.1, 1
 
 
 l = (d5+d6)*cos(b)
