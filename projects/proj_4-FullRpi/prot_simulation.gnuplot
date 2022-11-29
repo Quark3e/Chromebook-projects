@@ -35,14 +35,14 @@ q4 = 0
 q5 = 0
 q6 = 0
 
-posX = 150
+posX = -150
 posY = 150
 posZ = 150
 a = 45 #radians
 b = -45
 Y = 0
 
-set view 50, 180, 1.1, 1
+set view 40, 200, 1.1, 1
 
 
 l = (d5+d6)*cos(b)
