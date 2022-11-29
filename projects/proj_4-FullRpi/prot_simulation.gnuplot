@@ -35,17 +35,20 @@ q4 = 0
 q5 = 0
 q6 = 0
 
-x = 0
-y = 200
-z = 200
-a = 0 #radians
-b = 0
+posX = 150
+posY = 150
+posZ = 150
+a = 45 #radians
+b = -45
 Y = 0
 
+set view 50, 180, 1.1, 1
+
+
 l = (d5+d6)*cos(b)
-posX2 = x - l*sin(a)
-posY2 = y - l*cos(a)
-posZ2 = z - (d5+d6)*sin(b)
+posX2 = posX - l*sin(a)
+posY2 = posY - l*cos(a)
+posZ2 = posZ - (d5+d6)*sin(b)
 
 print int(posX2), int(posY2), int(posZ2)
 
@@ -54,7 +57,7 @@ if (posY2 == 0) {
     if (posX2 > 0) { q1=90 }
     if (posX2 < 0) { q1=-90 }
     if (posX2 == 0) { q1=0 }
-} else { q1 = atan(posX2/posY2) }
+} else { q1 = atan(-posX2/posY2) }
 
 q3 = acos(((posX2)**2+(posY2)**2 + (posZ2-d1)**2 - d2**2 - (d3 + d4)**2) / (2*d2*(d3+d4)))
 
@@ -112,9 +115,8 @@ print "read alpha and beta: ", a, b
 array PP[3] = [P5[1]+(d5+d6)*sin(a)*sin(b), P5[2]+(d5+d6)*cos(b)*cos(a), P5[3]+(d5+d6)*sin(b)]
 array P6[3] = [P5[1]+(d5)*sin(a)*sin(b), P5[2]+(d5)*cos(b)*cos(a), P5[3]+(d5)*sin(b)]
 
-set title "in-program line connected plotting: x".x." y".y." z".z
+set title "in-program line connected plotting: x".posX." y".posY." z".posZ
 
-set view 90, 90, 1.1, 1
 
 print "\n"
 print "P1", P1
@@ -137,7 +139,8 @@ P5 u (P5[1]):(P5[2]):(P5[3]):(PP[1]-P5[1]):(PP[2]-P5[2]):(PP[3]-P5[3]) with vect
 '+' u (P5[1]):(P5[2]):(P5[3]) lt rgb "grey" title "P5", \
 '+' u (P6[1]):(P6[2]):(P6[3]) lt rgb "purple" title "P6", \
 '+' u (posX2):(posY2):(posZ2) lt rgb "brown" title "pos2", \
-'+' u (PP[1]):(PP[2]):(PP[3]) lt rgb "black" title "Given pos"
+'+' u (PP[1]):(PP[2]):(PP[3]) lt rgb "black" title "PP", \
+'+' u (posX):(posY):(posZ) lt rgb "red" title "given pos"
 
 
 
