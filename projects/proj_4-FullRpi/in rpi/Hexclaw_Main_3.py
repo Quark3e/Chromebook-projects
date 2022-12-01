@@ -83,9 +83,10 @@ d4 = 80; #axial "roll"
 d5 = 45; #axial "pitch
 d6 = 45; #axial "roll" (?)
 
-q1, q2, q3, q4, q5, q6, q7 = 0, 0, 0, 0, 0, 0, 0 #NOTE: q1 = servo[0]
-s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
 
+q = [0]*6 #NOTE: q = q[0] = servo[0]
+default_q = [90, 0, 135, 90, 90, 90]
+s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
 posX2, posY2, posZ2 = 0.01, 0.01, 0.01
 a1, b1 = 0.1, 0.1
 
@@ -133,12 +134,6 @@ if not object_cascade.load(cv2.samples.findFile(object_cascade_name)):
     print('--(!)Error loading face cascade')
     exit(0)
 
-q1_default = 90
-q2_default = 0
-q3_default = 135
-q4_default = 90
-q5_default = 90
-q6_default = 90
 
 zMax = 300
 a, b, Y = 90, 0.1, 90
@@ -173,7 +168,7 @@ while True:
     if Roll <= 90 and Roll >= -90:
         if not bPos: a = toRadians(0 - (Roll * 0.9 + toDegrees(a) * 0.1))
         elif bPos: a = toRadians(Roll * 0.9 + toDegrees(a) * 0.1)
-    getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
+    q = getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
 
     servoExceeded = False
     # "under" = given < 0

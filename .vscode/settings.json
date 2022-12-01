@@ -14,5 +14,6 @@
         "string_view": "cpp",
         "regex": "cpp",
         "string": "cpp"
-    }
+    },
+    "python.analysis.typeCheckingMode": "off"
 }

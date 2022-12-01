@@ -135,11 +135,11 @@ while True:
 
 time.sleep(1)
 
-q1, q2, q3, q4, q5, q6, q7 = 0, 0, 0, 0, 0, 0, 0 #NOTE: q1 = servo[0]
+q = [0]*6 #NOTE: q = q[0] = servo[0]
+default_q = [90, 0, 135, 90, 90, 90]
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
 posX2, posY2, posZ2 = 0.01, 0.01, 0.01
 a1, b1 = 0.1, 0.1
-q1_default, q2_default, q3_default, q4_default, q5_default, q6_default = 90, 0, 135, 90, 90, 90
 zMax = 300
 posX, posY, posZ = 0.1, 0.1, 0.1
 
@@ -155,18 +155,18 @@ coord = ""
 
 def check_qMinMax():
     global q1, q2, q3, q4, q5, q6
-    if q1_default - int(round(toDegrees(q1))) < 0: q1 = toRadians(0 + q1_default)
-    if q2_default + int(round(toDegrees(q2))) < 0: q2 = toRadians(0 - q2_default)
-    if q3_default + int(round(toDegrees(q3))) < 0: q3 = toRadians(0 - q3_default)
-    if q4_default + int(round(toDegrees(q4))) < 0: q4 = toRadians(0 - q4_default)
-    if q5_default + int(round(toDegrees(q5))) < 0: q5 = toRadians(0 - q5_default)
-    if q6_default + int(round(toDegrees(q6))) < 0: q6 = toRadians(0 - q6_default)
-    if q1_default - int(round(toDegrees(q1))) > 180: q1 = toRadians(0 - q1_default)
-    if q2_default + int(round(toDegrees(q2))) > 180: q2 = toRadians(180 - q2_default)
-    if q3_default + int(round(toDegrees(q3))) > 180: q3 = toRadians(180 - q3_default)
-    if q4_default + int(round(toDegrees(q4))) > 180: q4 = toRadians(180 - q4_default)
-    if q5_default + int(round(toDegrees(q5))) > 180: q5 = toRadians(180 - q5_default)
-    if q6_default + int(round(toDegrees(q6))) > 180: q6 = toRadians(180 - q6_default)
+    if default_q[0] - int(round(toDegrees(q1))) < 0: q1 = toRadians(0 + default_q[0])
+    if default_q[1] + int(round(toDegrees(q2))) < 0: q2 = toRadians(0 - default_q[1])
+    if default_q[2] + int(round(toDegrees(q3))) < 0: q3 = toRadians(0 - default_q[2])
+    if default_q[3] + int(round(toDegrees(q4))) < 0: q4 = toRadians(0 - default_q[3])
+    if default_q[4] + int(round(toDegrees(q5))) < 0: q5 = toRadians(0 - default_q[4])
+    if default_q[5] + int(round(toDegrees(q6))) < 0: q6 = toRadians(0 - default_q[5])
+    if default_q[0] - int(round(toDegrees(q1))) > 180: q1 = toRadians(0 - default_q[0])
+    if default_q[1] + int(round(toDegrees(q2))) > 180: q2 = toRadians(180 - default_q[1])
+    if default_q[2] + int(round(toDegrees(q3))) > 180: q3 = toRadians(180 - default_q[2])
+    if default_q[3] + int(round(toDegrees(q4))) > 180: q4 = toRadians(180 - default_q[3])
+    if default_q[4] + int(round(toDegrees(q5))) > 180: q5 = toRadians(180 - default_q[4])
+    if default_q[5] + int(round(toDegrees(q6))) > 180: q6 = toRadians(180 - default_q[5])
 
 def findAlphaBeta(posX, posY, posZ, posOption):
     global a, b
@@ -174,7 +174,7 @@ def findAlphaBeta(posX, posY, posZ, posOption):
     breakVal = False
     for beta in range(-90, 0):
         for alpha in range(-90, 90):
-            getAngles(posX, posY, posZ, toRadians(alpha), toRadians(beta), Y, posOption, 1, 1, False)
+            q = getAngles(posX, posY, posZ, toRadians(alpha), toRadians(beta), Y, posOption, 1, 1, False)
             if not (math.isnan(q1) or
                 math.isnan(q2) or
                 math.isnan(q3) or
@@ -190,7 +190,7 @@ def findAlphaBeta(posX, posY, posZ, posOption):
     if not breakVal:
         for beta in range(0, 90):
             for alpha in range(-90, 90):
-                getAngles(posX, posY, posZ, toRadians(alpha), toRadians(beta), Y, posOption, 1, 1, False)
+                q = getAngles(posX, posY, posZ, toRadians(alpha), toRadians(beta), Y, posOption, 1, 1, False)
                 if not (math.isnan(q1) or
                     math.isnan(q2) or
                     math.isnan(q3) or
@@ -310,7 +310,7 @@ for n in range(rowLength):
         b = toRadians(hardSetAngle[1])
 
     #Check if values are NaN
-    getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
+    q = getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
     sendToServo()
     
     if not manualInput:

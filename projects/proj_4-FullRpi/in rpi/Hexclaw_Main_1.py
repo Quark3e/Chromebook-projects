@@ -143,7 +143,8 @@ d4 = 80; #axial "roll"
 d5 = 45; #axial "pitch
 d6 = 30; #axial "roll" (?)
 
-q1, q2, q3, q4, q5, q6, q7 = 0, 0, 0, 0, 0, 0, 0 #NOTE: q1 = servo[0]
+q = [0]*6 #NOTE: q1 = q[0] = servo[0]
+default_q = [90, 0, 135, 90, 90, 90]
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
 
 posX2, posY2, posZ2 = 0.01, 0.01, 0.01
@@ -160,13 +161,6 @@ def readAccelerometer():
     Roll = (1-accelFilter) * Roll + accelFilter * roll
     Pitch = (1-accelFilter) * Pitch + accelFilter * pitch
 
-
-q1_default = 90
-q2_default = 0
-q3_default = 135
-q4_default = 90
-q5_default = 90
-q6_default = 90
 
 zMax = 300
 a, b, Y = 90, 0.1, 90
@@ -221,7 +215,7 @@ while True:
     if Roll <= 90 and Roll >= -90:
         if not bPos: a = toRadians(0 - (Roll * 0.9 + toDegrees(a) * 0.1))
         elif bPos: a = toRadians(Roll * 0.9 + toDegrees(a) * 0.1)
-    getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
+    q = getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
 
     servoExceeded = False
     # "under" = given < 0

@@ -88,7 +88,8 @@ d4 = 80; #axial "roll"
 d5 = 45; #axial "pitch
 d6 = 45; #axial "roll" (?)
 
-q1, q2, q3, q4, q5, q6, q7 = 0, 0, 0, 0, 0, 0, 0 #NOTE: q1 = servo[0]
+q = [0]*6 #NOTE: q = q[0] = servo[0]
+default_q = [90, 0, 135, 90, 90, 90]
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
 
 posX2, posY2, posZ2 = 0.01, 0.01, 0.01
@@ -111,12 +112,6 @@ def readAccelerometer():
     Pitch = 0.8 * Pitch + 0.2 * pitch
 
 
-q1_default = 90
-q2_default = 0
-q3_default = 135
-q4_default = 90
-q5_default = 90
-q6_default = 90
 
 zMax = 300
 a, b, Y = toRadians(0), toRadians(-45), toRadians(90)
@@ -139,11 +134,11 @@ while True:
     print()
     if diagnostics:
         print("x:", posX, " y:", posY, " z:", posZ, " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
-    getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
+    q = getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
 
     if diagnostics:
-        print(" Read: alpha:", toDegrees(q1 + math.atan((d5*math.sin(q5)*math.cos(q4)) / (d5*math.cos(q5))) ), end='')
-        print(" beta:", toDegrees(math.asin((d5*math.sin(q5)*math.cos(q4)) / d5) + q2+q3))
+        print(" Read: alpha:", toDegrees(q[0] + math.atan((d5*math.sin(q[4])*math.cos(q[3])) / (d5*math.cos(q[4]))) ), end='')
+        print(" beta:", toDegrees(math.asin((d5*math.sin(q[4])*math.cos(q[3])) / d5) + q[1]+q[2]))
         
 
     servoExceeded = False

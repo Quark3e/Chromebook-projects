@@ -84,7 +84,8 @@ d4 = 80; #axial "roll"
 d5 = 45; #axial "pitch
 d6 = 45; #axial "roll" (?)
 
-q1, q2, q3, q4, q5, q6, q7 = 0, 0, 0, 0, 0, 0, 0 #NOTE: q1 = servo[0]
+q = [0]*6 #NOTE: q = q[0] = servo[0]
+default_q = [90, 0, 135, 90, 90, 90]
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
 
 posX2, posY2, posZ2 = 0.01, 0.01, 0.01
@@ -101,14 +102,6 @@ a1, b1 = 0.1, 0.1
 #     Roll = 0.8 * Roll + 0.2 * roll
 #     Pitch = 0.8 * Pitch + 0.2 * pitch
 
-
-
-q1_default = 90
-q2_default = 0
-q3_default = 135
-q4_default = 90
-q5_default = 90
-q6_default = 90
 
 zMax = 300
 a, b, Y = toRadians(0), toRadians(-45), toRadians(90)
@@ -275,53 +268,53 @@ while True:
                 break
             if option == "1":
                 for i in range(len(square)):
-                    getAngles(square[i][0], square[i][1], square[i][2], 0, toRadians(-90), 0, '-')
+                    q = getAngles(square[i][0], square[i][1], square[i][2], 0, toRadians(-90), 0, '-')
                     sendToServo()
                     time.sleep(1)
                 break
             if option == "2":
                 for i in range(-150, 150):
-                    getAngles(i, 150, 150, 0, -90, 0)
+                    q = getAngles(i, 150, 150, 0, -90, 0)
                     sendToServo()
                     time.sleep(0.004)
                 time.sleep(1)
                 for i in range(150, 50, -1):
-                    getAngles(150, i, 150, 0, -90, 0)
+                    q = getAngles(150, i, 150, 0, -90, 0)
                     sendToServo()
                     time.sleep(0.01)
                 time.sleep(1)
                 for i in range(150, -150, -1):
-                    getAngles(i, 50, 150, 0, -90, 0)
+                    q = getAngles(i, 50, 150, 0, -90, 0)
                     sendToServo()
                     time.sleep(0.004)
                 time.sleep(1)
                 for i in range(50, 150):
-                    getAngles(-150, i, 150, 0, -90, 0)
+                    q = getAngles(-150, i, 150, 0, -90, 0)
                     sendToServo()
                     time.sleep(0.01)
                 time.sleep(1)
                 for i in range(150, 50, -1):
-                    getAngles(-150, 150, i, 0, -90, 0)
+                    q = getAngles(-150, 150, i, 0, -90, 0)
                     sendToServo()
                     time.sleep(0.01)
                 time.sleep(1)
                 for i in range(-150, 150):
-                    getAngles(i, 150, 50, 0, -90, 0)
+                    q = getAngles(i, 150, 50, 0, -90, 0)
                     sendToServo()
                     time.sleep(0.004)
                 time.sleep(1)
                 for i in range(150, 50, -1):
-                    getAngles(150, i, 50, 0, -90, 0)
+                    q = getAngles(150, i, 50, 0, -90, 0)
                     sendToServo()
                     time.sleep(0.01)
                 time.sleep(1)
                 for i in range(150, -150, -1):
-                    getAngles(i, 50, 50, 0, -90, 0)
+                    q = getAngles(i, 50, 50, 0, -90, 0)
                     sendToServo()
                     time.sleep(0.004)
                 time.sleep(1)
                 for i in range(50, 150):
-                    getAngles(-150, i, 50, 0, -90, 0)
+                    q = getAngles(-150, i, 50, 0, -90, 0)
                     sendToServo()
                     time.sleep(0.01)
                 time.sleep(1)
@@ -333,11 +326,11 @@ while True:
                 angles = input(" enter a b orientation values for test [a b [degrees]]: ").split()
                 print()
                 for i in range(-200, 200):
-                    getAngles(i, int(coord[0]), int(coord[1]), toRadians(int(angles[0])), toRadians(int(angles[1])), 0)
+                    q = getAngles(i, int(coord[0]), int(coord[1]), toRadians(int(angles[0])), toRadians(int(angles[1])), 0)
                     sendToServo()
                     time.sleep(0.005)
                 for i in range(200, -200, -1):
-                    getAngles(i, int(coord[0]), int(coord[1]), toRadians(int(angles[0])), toRadians(int(angles[1])), 0)
+                    q = getAngles(i, int(coord[0]), int(coord[1]), toRadians(int(angles[0])), toRadians(int(angles[1])), 0)
                     sendToServo()
                     time.sleep(0.005)
             if option == "4":
@@ -347,12 +340,12 @@ while True:
                 angles = input(" enter a b orientation values for test [a b [degrees]]: ").split()
                 print()
                 for i in range(50, 300):
-                    getAngles(int(coord[0]), int(coord[1]), i, toRadians(int(angles[0])), toRadians(int(angles[1])), 0)
+                    q = getAngles(int(coord[0]), int(coord[1]), i, toRadians(int(angles[0])), toRadians(int(angles[1])), 0)
                     sendToServo()
                     time.sleep(0.02)
                     print("z:", i, sep='')
                 for i in range(300, 50, -1):
-                    getAngles(int(coord[0]), int(coord[1]), i, toRadians(int(angles[0])), toRadians(int(angles[1])), 0)
+                    q = getAngles(int(coord[0]), int(coord[1]), i, toRadians(int(angles[0])), toRadians(int(angles[1])), 0)
                     sendToServo()
                     time.sleep(0.02)
                     print("z:", i, sep='')
@@ -364,11 +357,11 @@ while True:
                     coord = input(" enter coord to run the test on [x y z]: ").split()
                     for i in range(-90, 90):
                         if option == "a":
-                            getAngles(int(coord[0]), int(coord[1]), int(coord[2]), toRadians(i), 0, 0, '-', 1, 1, True)
+                            q = getAngles(int(coord[0]), int(coord[1]), int(coord[2]), toRadians(i), 0, 0, '-', 1, 1, True)
                         elif option == "b":
-                            getAngles(int(coord[0]), int(coord[1]), int(coord[2]), 0, toRadians(i), 0, '-', 1, 1, True)
+                            q = getAngles(int(coord[0]), int(coord[1]), int(coord[2]), 0, toRadians(i), 0, '-', 1, 1, True)
                         elif option == "Y":
-                            getAngles(int(coord[0]), int(coord[1]), int(coord[2]), 0, 0, toRadians(i), '-', 1, 1, True)
+                            q = getAngles(int(coord[0]), int(coord[1]), int(coord[2]), 0, 0, toRadians(i), '-', 1, 1, True)
                         
                         sendToServo()
                         time.sleep(0.05)
