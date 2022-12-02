@@ -17,15 +17,15 @@ def printTest():
 
 
 # function which will be called on mouse input
-def drawRectangle(action, x, y, flags, *userdata):
+def drawRectangle(event, x, y, flags, *userdata):
   # Referencing global variables 
   global top_left_corner, bottom_right_corner, temp_bottom_right_corner, buttonPressed
   # Mark the top left corner when left mouse button is pressed
-  if action == cv2.EVENT_LBUTTONDOWN:
+  if event == cv2.EVENT_LBUTTONDOWN:
     top_left_corner = [(x,y)]
     buttonPressed = True
     # When left mouse button is released, mark bottom right corner
-  elif action == cv2.EVENT_LBUTTONUP:
+  elif event == cv2.EVENT_LBUTTONUP:
     bottom_right_corner = [(x,y)]    
     # Draw the rectangle
     cv2.rectangle(image, top_left_corner[0], bottom_right_corner[0], (0,255,0),2, 8)
