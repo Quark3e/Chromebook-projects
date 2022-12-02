@@ -1,63 +1,41 @@
-#!/usr/bin/env python3
-# Import packages
+import numpy as np
 import cv2
- 
-# Lists to store the bounding box coordinates
-top_left_corner=[]
-bottom_right_corner=[]
-temp_bottom_right_corner=[]
+drawing = False # true if mouse is pressed
 buttonPressed = False
+x1,y1,x2,y2 = -1,-1,-1,-1
+# mouse callback function
+def draw_circle(event,x,y,flags,param):
+    global x1,y1,x2,y2,drawing,temp, buttonPressed, img
+    x2,y2 = x,y
+    if drawing:
+      img = np.zeros((512,512,3), np.uint8)
+    if event == cv2.EVENT_LBUTTONDOWN:
+        drawing = True
+        x1,y1 = x2,y2
+    elif event == cv2.EVENT_MOUSEMOVE:
+        buttonPressed = True
+        if drawing == True:
+            cv2.rectangle(img,(x1,y1),(x2,y2),(0,255,0),2)
+            img = cv2.putText(img, "x"+str(abs(x2-x1)), (int(x1+(x2-x1)/2), int(y2+20)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+            img = cv2.putText(img, "y"+str(abs(y2-y1)), (int(x2+10), int(y1+(y2-y1)/2)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+    elif event == cv2.EVENT_LBUTTONUP:
+        buttonPressed = False
+        drawing = False
+        cv2.rectangle(img,(x1,y1),(x2,y2),(0,255,0),-1)
+        img = cv2.putText(img, "x"+str(abs(x2-x1)), (int(x1+(x2-x1)/2), int(y2+20)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+        img = cv2.putText(img, "y"+str(abs(y2-y1)), (int(x2+10), int(y1+(y2-y1)/2)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
+img = np.zeros((512,512,3), np.uint8)
+temp = img
+cv2.namedWindow('image')
+cv2.setMouseCallback('image',draw_circle)
+while(1):
+    cv2.imshow('image',img)
 
-l = 0
-def printTest():
-  global l
-  l = l+1
-  print("test:", l)
+    k = cv2.waitKey(1) & 0xFF
 
-
-# function which will be called on mouse input
-def drawRectangle(event, x, y, flags, *userdata):
-  # Referencing global variables 
-  global top_left_corner, bottom_right_corner, temp_bottom_right_corner, buttonPressed
-  # Mark the top left corner when left mouse button is pressed
-  if event == cv2.EVENT_LBUTTONDOWN:
-    top_left_corner = [(x,y)]
-    buttonPressed = True
-    # When left mouse button is released, mark bottom right corner
-  elif event == cv2.EVENT_LBUTTONUP:
-    bottom_right_corner = [(x,y)]    
-    # Draw the rectangle
-    cv2.rectangle(image, top_left_corner[0], bottom_right_corner[0], (0,255,0),2, 8)
-    cv2.imshow("Window",image)
-    buttonPressed = False
-  elif buttonPressed:
-    temp_bottom_right_corner = [(x,y)]    
-    # Draw the rectangle
-    cv2.rectangle(image, top_left_corner[0], temp_bottom_right_corner[0], (0,255,0),2, 8)
-    cv2.imshow("Window",image)
-
- 
-# Read Images
-image = cv2.imread("/home/berkhme/Chromebook-projects/teststuff/python/openCV/img1.jpg")
-# Make a temporary image, will be useful to clear the drawing
-image = cv2.resize(image, (640, 360))
-temp = image
-# Create a named window
-cv2.namedWindow("Window")
-# highgui function called when mouse events occur
-cv2.setMouseCallback("Window", drawRectangle)
- 
-k=0
-# Close the window when key q is pressed
-while k!=113:
-  image = temp
-  # Display the image
-  cv2.imshow("Window", image)
-  k = cv2.waitKey(0)
-  # If c is pressed, clear the window, using the dummy image
-  if k == 99:
-    image= temp
-    cv2.imshow("Window", image)
- 
+    if k == 27:
+        break
+    elif k == 99:
+        img = np.zeros((512,512,3), np.uint8)
 cv2.destroyAllWindows()
