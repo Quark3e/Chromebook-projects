@@ -1,6 +1,15 @@
 import sys
 from math import isnan, pi, sin, cos, tan, asin, acos, atan, sqrt
 
+d1 = 140; #axial "roll"
+d2 = 135; #axial "pitch"
+d3 = 70; #axial "pitch"
+d4 = 80; #axial "roll"
+d5 = 45; #axial "pitch
+d6 = 30; #axial "roll" (?)
+link = [d1,d2,d3,d4,d5,d6]
+default_q = [90, 0, 135, 90, 90, 90]
+
 
 def toDegrees(radians): return (radians * 180) / pi
 def toRadians(degrees): return (degrees * pi) / 180
@@ -8,47 +17,59 @@ def toRadians(degrees): return (degrees * pi) / 180
 def getDistance(p1, p2):
     return sqrt(pow(p2[0]-p1[0], 2)+pow(p2[1]-p1[1], 2)+pow(p2[2]-p1[2], 2))
 
-def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_scalar = 1, printText = False):
-    global d1, d2, d3, d4, d5, d6, posX2, posY2, posZ2, a1_exceed, b1_exceed
+def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False):
+    '''
+    The Bank object contains info about all the accounts
+
+    Args:
+        PP (float/int) [mm]: The end-effector position in list for
+        a (float) [radians]: alpha orientation variable
+        b (float) [radians]: beta orientation variable
+        Y (float) [radians]: gamma orienation variable
+        posOption (str/char): different mode to use
+            '-' is q3(/q[2]) above line between P2 and P4/P5;
+            '+' is q3(/q[2]) under line between P2 and P4/P5
+    '''
+    a1_exceed, b1_exceed = False, False
     q=[0]*6
+    P5 = [0]*3
+    PP[0] = 0 - PP[0]
 
-    posX = 0 - posX
+    PP[0] = PP[0] * coord_scalar
+    PP[1] = PP[1] * coord_scalar
+    PP[2] = PP[2] * coord_scalar
+    link[0] = link[0] * length_scalar
+    link[1] = link[1] * length_scalar
+    link[2] = link[2] * length_scalar
+    link[3] = link[3] * length_scalar
+    link[4] = link[4] * length_scalar
+    link[5] = link[5] * length_scalar
+    l = (link[4]+link[5]) * cos(b)
+    P5[0] = PP[0] - l * sin(a)
+    P5[1] = PP[1] - l * cos(a)
+    P5[2] = PP[2] - (link[4]+link[5]) * sin(b)
 
-    posX = posX * coord_scalar
-    posY = posY * coord_scalar
-    posZ = posZ * coord_scalar
-    d1 = d1 * length_scalar
-    d2 = d2 * length_scalar
-    d3 = d3 * length_scalar
-    d4 = d4 * length_scalar
-    d5 = d5 * length_scalar
-    d6 = d6 * length_scalar
-    l = (d5+d6) * cos(b)
-    posX2 = posX - l * sin(a)
-    posY2 = posY - l * cos(a)
-    posZ2 = posZ - (d5+d6) * sin(b)
-
-    if posY2 < 0:
-        posY2 = 0
-    if posY2 == 0:
-        if posX2 > 0: q[0] = toRadians(90)
-        elif posX2 < 0: q[0] = toRadians(-90)
-        elif posX2 == 0: q[0] = toRadians(0)
-    else: q[0] = atan(-posX2 / posY2)
+    if P5[1] < 0:
+        P5[1] = 0
+    if P5[1] == 0:
+        if P5[0] > 0: q[0] = toRadians(90) # type: ignore
+        elif P5[0] < 0: q[0] = toRadians(-90) # type: ignore
+        elif P5[0] == 0: q[0] = toRadians(0) # type: ignore
+    else: q[0] = atan(-P5[0] / P5[1]) # type: ignore
     
     try:
-        if posOption == '+': q[2] = acos((pow(posX2, 2) + pow(posY2, 2) + pow(posZ2 - d1, 2) - pow(d2, 2) - pow(d3 + d4, 2)) /(2 * d2 * (d3 + d4)))
-        elif posOption == '-': q[2] = acos((pow(posX2, 2) + pow(posY2, 2) + pow(posZ2 - d1, 2) - pow(d2, 2) - pow(d3 + d4, 2)) /(2 * d2 * (d3 + d4)))
+        if posOption == '+': q[2] = acos((pow(P5[0], 2) + pow(P5[1], 2) + pow(P5[2] - link[0], 2) - pow(link[1], 2) - pow(link[2] + link[3], 2)) /(2 * link[1] * (link[2] + link[3]))) # type: ignore
+        elif posOption == '-': q[2] = acos((pow(P5[0], 2) + pow(P5[1], 2) + pow(P5[2] - link[0], 2) - pow(link[1], 2) - pow(link[2] + link[3], 2)) /(2 * link[1] * (link[2] + link[3]))) # type: ignore
     except ValueError: print("domain error triggered")
     
-    lambdaVar = atan((posZ2 - d1) / sqrt(pow(posX2, 2) + pow(posY2, 2)))
-    muVar = atan(((d3 + d4) * sin(q[2])) /(d2 + (d3 + d4) * cos(q[2])))
-    if posOption == '+': q[1] = lambdaVar - muVar
+    lambdaVar = atan((P5[2] - link[0]) / sqrt(pow(P5[0], 2) + pow(P5[1], 2)))
+    muVar = atan(((link[2] + link[3]) * sin(q[2])) /(link[1] + (link[2] + link[3]) * cos(q[2])))
+    if posOption == '+': q[1] = lambdaVar - muVar # type: ignore
     elif posOption == '-':
         #if (s[1] < diffCheck and lambdaVar + muVar < 0) or (lambdaVar + muVar > 0):
-        if lambdaVar + muVar > 0: q[1] = lambdaVar + muVar #NOTE: the negative muVar value hasnt been solved. so this is a temp. fix 
+        if lambdaVar + muVar > 0: q[1] = lambdaVar + muVar # type: ignore #NOTE: the negative muVar value hasnt been solved. so this is a temp. fix 
         else: print("q[1] error occured")
-        q[2] = 0 - q[2]
+        q[2] = 0 - q[2] # type: ignore
     
     a1 = a - q[0]
     b1 = b - (q[1] + q[2])
@@ -59,23 +80,23 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
     elif toDegrees(b1)<90: b1_exceed = -1
 
 
-    d5x = (d5+d6) * cos(b1) * sin(a1)
+    frame1X = (link[4]+link[5]) * cos(b1) * sin(a1)
     #NOTE: The x and y axis of the X1Y1Z1 frame in the paper was reverse (compared to this. The names need to be changed!)
     #nvm, the frame X0Y0Z0: x axis flipped and then itäs flipped in the function
-    d5z = (d5+d6) * sin(b1)
+    frame1Z = (link[4]+link[5]) * sin(b1)
 
     if b1 == 0:
-        if d5x > 0: q[3] = toRadians(90)
-        elif d5x < 0: q[3] = toRadians(-90)
-        elif d5x == 0: q[3] = toRadians(0)
-    elif b1 < 0 or b1 > 0: q[3] = atan(d5x / d5z)
-    checkVar = asin(sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
+        if frame1X > 0: q[3] = toRadians(90)  # type: ignore
+        elif frame1X < 0: q[3] = toRadians(-90) # type: ignore
+        elif frame1X == 0: q[3] = toRadians(0) # type: ignore
+    elif b1 < 0 or b1 > 0: q[3] = atan(frame1X / frame1Z) # type: ignore
+    checkVar = asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5]))
     if isnan(checkVar):
-        if printText: print("asin(sqrt(pow(d5x, 2) + pow(d5z, 2)) / d5)  is NaN")
+        if printText: print("asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / link[4])  is NaN")
     else:
-        if sqrt(pow(d5x, 2) + pow(d5z, 2)) > 90: q[4] = toRadians(90)
-        else: q[4] = asin(sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
-    if d5z < 0: q[4] = 0-q[4]
+        if sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) > 90: q[4] = toRadians(90) # type: ignore
+        else: q[4] = asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5])) # type: ignore
+    if frame1Z < 0: q[4] = 0-q[4] # type: ignore
     if b <= pi / 2 and b >= 0 - pi / 2: q[5] = Y - q[3]
     elif b >= pi / 2 or b <= 0 - pi / 2: q[5] = pi - (Y - q[5])
     if printText:
@@ -88,7 +109,6 @@ def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_sca
             " q[5]: ", toDegrees(q[5]),
         )
     return q
-
 
 
 def correctionSetup():
@@ -121,12 +141,11 @@ def correctionSetup():
             if opt[2] == "y": l_isAccurate[i] = True
             elif opt[2] == "n": l_isAccurate[i] = False; notAccurate[i] = True
 
-            u_correction[i] = float(opt[3])
-            l_correction[i] = float(opt[4])
+            u_correction[i] = float(opt[3]) # type: ignore
+            l_correction[i] = float(opt[4]) # type: ignore
 
 
-def sendToServo():
-    global q, default_q, s, servo, servoExceeded, whichServoExceeded, typeOfExceeded
+def sendToServo(q, s, servo, servoExceeded, whichServoExceeded, typeOfExceeded):
     if not (isnan(q[0]) or
             isnan(q[1]) or
             isnan(q[2]) or
@@ -159,17 +178,17 @@ def sendToServo():
         s[0] = default_q[0] - int(round(toDegrees(q[0])))
 
         for x in range(6):
-            if notAccurate[i]:
-                if centerAccurate[i]:
+            if notAccurate[x]:
+                if centerAccurate[x]:
                     if not u_isAccurate: #90-180 not accurate
                         if s[x]>90: servo[x].angle = s[x] * u_correction
                         else: servo[x].angle = s[x]
                     if not l_isAccurate: #0-90 not accurate
                         if s[x]<90: servo[x].angle = s[x] * l_correction
                         else: servo[x].angle = s[x]
-                elif not centerAccurate[i]:
+                elif not centerAccurate[x]:
                     servo[x].angle = s[x] * u_correction
-            elif not notAccurate[i]:
+            elif not notAccurate[x]:
                     # if x == 4:
                     #     if s[4]<90: servo[4].angle = getServo4Offset(180 - default_q[4] - s[4])
                     #     else: servo[4].angle = s[4]

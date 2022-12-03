@@ -21,12 +21,12 @@ import sys
 from IK_module import correctionSetup, sendToServo, toRadians, toDegrees, getAngles
 
 
-from board import SCL, SDA
-import busio
+from board import SCL, SDA # type: ignore
+import busio # type: ignore
 
-from adafruit_motor import servo
-from adafruit_servokit import ServoKit
-from adafruit_pca9685 import PCA9685
+from adafruit_motor import servo # type: ignore
+from adafruit_servokit import ServoKit # type: ignore
+from adafruit_pca9685 import PCA9685 # type: ignore
 
 i2c = busio.I2C(SCL, SDA)
 pca = PCA9685(i2c)
@@ -77,19 +77,8 @@ posOption = '-'
 # X_out, Y_out, Z_out = accelerometer.acceleration #acceleration values for each axis
 # Roll, Pitch = 0.1, 0.1
 
-d1 = 140; #axial "roll"
-d2 = 135; #axial "pitch"
-d3 = 70; #axial "pitch"
-d4 = 80; #axial "roll"
-d5 = 45; #axial "pitch
-d6 = 45; #axial "roll" (?)
-
 q = [0]*6 #NOTE: q = q[0] = servo[0]
-default_q = [90, 0, 135, 90, 90, 90]
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
-
-posX2, posY2, posZ2 = 0.01, 0.01, 0.01
-a1, b1 = 0.1, 0.1
 
 
 # def readAccelerometer():
@@ -105,7 +94,8 @@ a1, b1 = 0.1, 0.1
 
 zMax = 300
 a, b, Y = toRadians(0), toRadians(-45), toRadians(90)
-posX, posY, posZ = 0.1, 0.1, 0.1
+PP = [float(0)]*3
+PP[0], PP[1], PP[2] = 0.1, 0.1, 0.1
 coord = ""
 
 servoExceeded = False
@@ -268,54 +258,54 @@ while True:
                 break
             if option == "1":
                 for i in range(len(square)):
-                    q = getAngles(square[i][0], square[i][1], square[i][2], 0, toRadians(-90), 0, '-')
-                    sendToServo()
+                    q = getAngles(square[i], 0, toRadians(-90), 0, '-')
+                    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                     time.sleep(1)
                 break
             if option == "2":
                 for i in range(-150, 150):
-                    q = getAngles(i, 150, 150, 0, -90, 0)
-                    sendToServo()
+                    q = getAngles([i, 150, 150], 0, -90, 0, '-')
+                    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                     time.sleep(0.004)
                 time.sleep(1)
                 for i in range(150, 50, -1):
-                    q = getAngles(150, i, 150, 0, -90, 0)
-                    sendToServo()
+                    q = getAngles([150, i, 150], 0, -90, 0, '-')
+                    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                     time.sleep(0.01)
                 time.sleep(1)
                 for i in range(150, -150, -1):
-                    q = getAngles(i, 50, 150, 0, -90, 0)
-                    sendToServo()
+                    q = getAngles([i, 50, 150], 0, -90, 0, '-')
+                    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                     time.sleep(0.004)
                 time.sleep(1)
                 for i in range(50, 150):
-                    q = getAngles(-150, i, 150, 0, -90, 0)
-                    sendToServo()
+                    q = getAngles([-150, i, 150], 0, -90, 0, '-')
+                    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                     time.sleep(0.01)
                 time.sleep(1)
                 for i in range(150, 50, -1):
-                    q = getAngles(-150, 150, i, 0, -90, 0)
-                    sendToServo()
+                    q = getAngles([-150, 150, i], 0, -90, 0, '-')
+                    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                     time.sleep(0.01)
                 time.sleep(1)
                 for i in range(-150, 150):
-                    q = getAngles(i, 150, 50, 0, -90, 0)
-                    sendToServo()
+                    q = getAngles([i, 150, 50], 0, -90, 0, '-')
+                    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                     time.sleep(0.004)
                 time.sleep(1)
                 for i in range(150, 50, -1):
-                    q = getAngles(150, i, 50, 0, -90, 0)
-                    sendToServo()
+                    q = getAngles([150, i, 50], 0, -90, 0, '-')
+                    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                     time.sleep(0.01)
                 time.sleep(1)
                 for i in range(150, -150, -1):
-                    q = getAngles(i, 50, 50, 0, -90, 0)
-                    sendToServo()
+                    q = getAngles([i, 50, 50], 0, -90, 0, '-')
+                    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                     time.sleep(0.004)
                 time.sleep(1)
                 for i in range(50, 150):
-                    q = getAngles(-150, i, 50, 0, -90, 0)
-                    sendToServo()
+                    q = getAngles([-150, i, 50], 0, -90, 0, '-')
+                    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                     time.sleep(0.01)
                 time.sleep(1)
                 break
@@ -326,12 +316,12 @@ while True:
                 angles = input(" enter a b orientation values for test [a b [degrees]]: ").split()
                 print()
                 for i in range(-200, 200):
-                    q = getAngles(i, int(coord[0]), int(coord[1]), toRadians(int(angles[0])), toRadians(int(angles[1])), 0)
-                    sendToServo()
+                    q = getAngles([i, int(coord[0]), int(coord[1])], toRadians(int(angles[0])), toRadians(int(angles[1])), 0, '-')
+                    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                     time.sleep(0.005)
                 for i in range(200, -200, -1):
-                    q = getAngles(i, int(coord[0]), int(coord[1]), toRadians(int(angles[0])), toRadians(int(angles[1])), 0)
-                    sendToServo()
+                    q = getAngles([i, int(coord[0]), int(coord[1])], toRadians(int(angles[0])), toRadians(int(angles[1])), 0, '-')
+                    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                     time.sleep(0.005)
             if option == "4":
                 coord = input(" enter xy coord to run z-axis test on [x y]: ").split()
@@ -340,13 +330,13 @@ while True:
                 angles = input(" enter a b orientation values for test [a b [degrees]]: ").split()
                 print()
                 for i in range(50, 300):
-                    q = getAngles(int(coord[0]), int(coord[1]), i, toRadians(int(angles[0])), toRadians(int(angles[1])), 0)
-                    sendToServo()
+                    q = getAngles([int(coord[0]), int(coord[1]), i], toRadians(int(angles[0])), toRadians(int(angles[1])), 0, '-')
+                    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                     time.sleep(0.02)
                     print("z:", i, sep='')
                 for i in range(300, 50, -1):
-                    q = getAngles(int(coord[0]), int(coord[1]), i, toRadians(int(angles[0])), toRadians(int(angles[1])), 0)
-                    sendToServo()
+                    q = getAngles([int(coord[0]), int(coord[1]), i], toRadians(int(angles[0])), toRadians(int(angles[1])), 0, '-')
+                    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                     time.sleep(0.02)
                     print("z:", i, sep='')
             if option == "5":
@@ -357,13 +347,13 @@ while True:
                     coord = input(" enter coord to run the test on [x y z]: ").split()
                     for i in range(-90, 90):
                         if option == "a":
-                            q = getAngles(int(coord[0]), int(coord[1]), int(coord[2]), toRadians(i), 0, 0, '-', 1, 1, True)
+                            q = getAngles([int(coord[0]), int(coord[1]), int(coord[2])], toRadians(i), 0, 0, '-', 1, 1, True)
                         elif option == "b":
-                            q = getAngles(int(coord[0]), int(coord[1]), int(coord[2]), 0, toRadians(i), 0, '-', 1, 1, True)
+                            q = getAngles([int(coord[0]), int(coord[1]), int(coord[2])], 0, toRadians(i), 0, '-', 1, 1, True)
                         elif option == "Y":
-                            q = getAngles(int(coord[0]), int(coord[1]), int(coord[2]), 0, 0, toRadians(i), '-', 1, 1, True)
+                            q = getAngles([int(coord[0]), int(coord[1]), int(coord[2])], 0, 0, toRadians(i), '-', 1, 1, True)
                         
-                        sendToServo()
+                        sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                         time.sleep(0.05)
 
 pca.deinit()

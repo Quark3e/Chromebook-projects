@@ -10,7 +10,7 @@ import cv2
 import numpy as np
 import imutils
 import math
-import adafruit_adxl34x
+import adafruit_adxl34x # type: ignore
 import sys
 import requests
 from time import perf_counter, sleep
@@ -78,12 +78,12 @@ class IpVideoStream:
 
 
 
-from board import SCL, SDA
-import busio
+from board import SCL, SDA # type: ignore
+import busio # type: ignore
 
-from adafruit_motor import servo
-from adafruit_servokit import ServoKit
-from adafruit_pca9685 import PCA9685
+from adafruit_motor import servo # type: ignore
+from adafruit_servokit import ServoKit # type: ignore
+from adafruit_pca9685 import PCA9685 # type: ignore
 
 i2c = busio.I2C(SCL, SDA)
 pca = PCA9685(i2c)
@@ -143,7 +143,7 @@ cv2.createTrackbar("U - H", "Webcam - XY", 179, 179, nothing)
 cv2.createTrackbar("U - S", "Webcam - XY", 255, 255, nothing)
 cv2.createTrackbar("U - V", "Webcam - XY", 255, 255, nothing)
 while True:
-    frame = webcam[0].read()
+    frame = webcam[0].read() # type: ignore
     frame = cv2.flip(frame, 1 ) 
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     l_h = cv2.getTrackbarPos("L - H", "Webcam - XY")
@@ -158,7 +158,7 @@ while True:
     res = cv2.bitwise_and(frame, frame, mask=mask)
     mask_3 = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
     stacked = np.hstack((mask_3,frame,res))    
-    cv2.imshow('Webcam - XY',cv2.resize(stacked,None,fx=0.4,fy=0.4))    
+    cv2.imshow('Webcam - XY',cv2.resize(stacked,None,fx=0.4,fy=0.4))   # type: ignore  
     key = cv2.waitKey(1)
     if key == 27:
         sys.exit()    
@@ -183,7 +183,7 @@ cv2.createTrackbar("U - H", "Webcam - YZ", 179, 179, nothing)
 cv2.createTrackbar("U - S", "Webcam - YZ", 255, 255, nothing)
 cv2.createTrackbar("U - V", "Webcam - YZ", 255, 255, nothing)
 while True:
-    frame = webcam[1].read()
+    frame = webcam[1].read() # type: ignore
     frame = cv2.flip(frame, 1 ) 
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     l_h = cv2.getTrackbarPos("L - H", "Webcam - YZ")
@@ -198,7 +198,7 @@ while True:
     res = cv2.bitwise_and(frame, frame, mask=mask)
     mask_3 = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)    
     stacked = np.hstack((mask_3,frame,res))    
-    cv2.imshow('Webcam - YZ',cv2.resize(stacked,None,fx=0.4,fy=0.4))    
+    cv2.imshow('Webcam - YZ',cv2.resize(stacked,None,fx=0.4,fy=0.4)) # type: ignore
     key = cv2.waitKey(1)
     if key == 27:
         sys.exit()    
@@ -228,20 +228,8 @@ if showImage:
 X_out, Y_out, Z_out = accelerometer.acceleration #acceleration values for each axis
 Roll, Pitch = 0.1, 0.1
 
-d1 = 140; #axial "roll"
-d2 = 135; #axial "pitch"
-d3 = 70; #axial "pitch"
-d4 = 80; #axial "roll"
-d5 = 45; #axial "pitch
-d6 = 30; #axial "roll" (?)
-
 q = [0]*6 #NOTE: q = q[0] = servo[0]
-default_q = [90, 0, 135, 90, 90, 90]
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
-
-posX2, posY2, posZ2 = 0.01, 0.01, 0.01
-a1, b1 = 0.1, 0.1
-
 
 
 def readAccelerometer():
@@ -255,16 +243,15 @@ def readAccelerometer():
     Pitch = (1-accelFilter) * Pitch + accelFilter * pitch
 
 
-
 zMax = 300
 a, b, Y = 90, 0.1, 90
+PP = [float(0)]*3
 coord = ""
-
-posX, posY, posZ = 0, 200, 150
+PP[0], PP[1], PP[2] = 0, 200, 150
 
 def getCoords(img, valueSrc, resizeImg = False): #Returns [x, y, z, frame/img, filtered]
-    global coord, posX, posY, posZ
-    # posX, posY, posZ = 0.1, 0.1, 0.1
+    global coord, PP
+    # PP[0], PP[1], PP[2] = 0.1, 0.1, 0.1
      #Read frame from webcam
     if True:
         img = cv2.resize(img, (640, 480))
@@ -277,7 +264,7 @@ def getCoords(img, valueSrc, resizeImg = False): #Returns [x, y, z, frame/img, f
     elif valueSrc == 1:
         L_limit = np.array(L_values1)
         U_limit = np.array(U_values1)
-    threshold = cv2.inRange(into_hsv, L_limit, U_limit)
+    threshold = cv2.inRange(into_hsv, L_limit, U_limit) # type: ignore
     filtered = cv2.bitwise_and(img, img, mask = threshold)
     #filtered = increase_brightness(filtered, brightVal)
     filtered[filtered!=0] = 255 #change to value of everything that's not 0 to 255(white)
@@ -298,21 +285,21 @@ def getCoords(img, valueSrc, resizeImg = False): #Returns [x, y, z, frame/img, f
         cv2.putText(img, "centroid" + str(cv2.contourArea(contours[0])), (cX - 25, cY - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
         if valueSrc == 0:
             # print(cX)
-            posX = int(axisFilter * xScaling*(cX - 320) + (float(1)-axisFilter) * posX)
-            posY = int(axisFilter * yScaling*(480 - cY) + (float(1)-axisFilter) * posY)
+            PP[0] = int(axisFilter * xScaling*(cX - 320) + (float(1)-axisFilter) * PP[0])
+            PP[1] = int(axisFilter * yScaling*(480 - cY) + (float(1)-axisFilter) * PP[1])
         elif valueSrc == 1:
-            posZ = int(axisFilter * zScaling*(480 - cY) + (float(1)-axisFilter) * posZ)
-        # posZ = int(axisFilter * zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax) + (float(1)-axisFilter) * posZ)
-        # coord = "x:" + str(posX) + " y:" + str(posY) + " z:" + str(posZ)
-    return [posX, posY, posZ, img, filtered]
+            PP[2] = int(axisFilter * zScaling*(480 - cY) + (float(1)-axisFilter) * PP[2])
+        # PP[2] = int(axisFilter * zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax) + (float(1)-axisFilter) * PP[2])
+        # coord = "x:" + str(PP[0]) + " y:" + str(PP[1]) + " z:" + str(PP[2])
+    return [PP[0], PP[1], PP[2], img, filtered]
 
 def threadTest(valueSrc, boolVal):
     if valueSrc == 0:
-        img = webcam[0].read()
+        img = webcam[0].read() # type: ignore
     elif valueSrc == 1:
-        img = webcam[1].read()
+        img = webcam[1].read() # type: ignore
 
-    getCoords(img, valueSrc, boolVal)
+    getCoords(img, valueSrc, boolVal) # type: ignore
 
 getTime = False
 
@@ -346,16 +333,16 @@ while True:
 
     if getTime:
         end_time = perf_counter()
-        print(" getCoords(), both threads:", end_time-start_time)
+        print(" getCoords(), both threads:", end_time-start_time) # type: ignore
 
     if globalPrint or printCoord:
-        print("x:", posX, " y:", posY, " z:", posZ, sep='')
+        print("x:", PP[0], " y:", PP[1], " z:", PP[2], sep='')
 
     showImage = False
 
     if showImage:
-        stacked = np.hstack((source0[3], source1[3], source0[4], source1[4]))
-        cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7))
+        stacked = np.hstack((source0[3], source1[3], source0[4], source1[4])) # type: ignore
+        cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7)) # type: ignore
     
     if cv2.waitKey(1) == 32:
         showImage = not showImage
@@ -366,21 +353,17 @@ while True:
     bPos = False
     if Pitch <= 90 and Pitch >= -90:
         b = toRadians(Pitch * 0.9 + toDegrees(b) * 0.1)
-        if b < 0:
-            bPos = False
-        if b > 0:
-            bPos = True
+        if b < 0: bPos = False
+        if b > 0: bPos = True
     if Roll <= 90 and Roll >= -90:
-        if not bPos:
-            a = toRadians(0 - (Roll * 0.9 + toDegrees(a) * 0.1))
-        elif bPos:
-            a = toRadians(Roll * 0.9 + toDegrees(a) * 0.1)
+        if not bPos: a = toRadians(0 - (Roll * 0.9 + toDegrees(a) * 0.1))
+        elif bPos: a = toRadians(Roll * 0.9 + toDegrees(a) * 0.1)
     # getAngles(source0[0], source0[1], source1[2], a, b, Y, posOption, 1, 1, globalPrint)
-    q = getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
+    q = getAngles(PP,a,b,Y,'-')
 
     if getTime:
         end_time = perf_counter()
-        print(" read accel, calc getAngles():", end_time-start_time)
+        print(" read accel, calc getAngles():", end_time-start_time) # type: ignore
 
     servoExceeded = False
     # "under" = given < 0
@@ -391,7 +374,7 @@ while True:
     if getTime:
         start_time = perf_counter()
 
-    sendToServo()
+    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
 
     # Press Esc key to exit
     if cv2.waitKey(1) == 27:
@@ -399,11 +382,11 @@ while True:
 
     if getTime:
         end_time = perf_counter()
-        print(" send coords to pca board:", end_time-start_time)
+        print(" send coords to pca board:", end_time-start_time) # type: ignore
         sys.exit()        
 if showImage:
     cv2.destroyAllWindows()
-webcam[0].stop()
-webcam[1].stop()
+webcam[0].stop() # type: ignore
+webcam[1].stop() # type: ignore
 pca.deinit()
 

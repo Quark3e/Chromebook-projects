@@ -11,16 +11,16 @@ import numpy as np
 import imutils
 import time
 import math
-import adafruit_adxl34x
+import adafruit_adxl34x # type: ignore
 import sys
 from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles
 
-from board import SCL, SDA
-import busio
+from board import SCL, SDA # type: ignore
+import busio # type: ignore
 
-from adafruit_motor import servo
-from adafruit_servokit import ServoKit
-from adafruit_pca9685 import PCA9685
+from adafruit_motor import servo # type: ignore
+from adafruit_servokit import ServoKit # type: ignore
+from adafruit_pca9685 import PCA9685 # type: ignore
 
 i2c = busio.I2C(SCL, SDA)
 pca = PCA9685(i2c)
@@ -81,19 +81,8 @@ posOption = '-'
 X_out, Y_out, Z_out = accelerometer.acceleration #acceleration values for each axis
 Roll, Pitch = 0.1, 0.1
 
-d1 = 140; #axial "roll"
-d2 = 135; #axial "pitch"
-d3 = 70; #axial "pitch"
-d4 = 80; #axial "roll"
-d5 = 45; #axial "pitch
-d6 = 45; #axial "roll" (?)
-
 q = [0]*6 #NOTE: q = q[0] = servo[0]
-default_q = [90, 0, 135, 90, 90, 90]
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
-
-posX2, posY2, posZ2 = 0.01, 0.01, 0.01
-a1, b1 = 0.1, 0.1
 
 def toDegrees(radians):
     return (radians * 180) / math.pi
@@ -115,7 +104,7 @@ def readAccelerometer():
 
 zMax = 300
 a, b, Y = toRadians(0), toRadians(-45), toRadians(90)
-posX, posY, posZ = 0.1, 0.1, 0.1
+PP = [0]*3
 coord = ""
 
 while True:    
@@ -123,9 +112,9 @@ while True:
     if tempInput_1[0] == "exit":
         sys.exit()
     else:
-        posX = (float(tempInput_1[0]))
-        posY = (float(tempInput_1[1]))
-        posZ = (float(tempInput_1[2]))
+        PP[0] = (float(tempInput_1[0])) # type: ignore
+        PP[1] = (float(tempInput_1[1])) # type: ignore
+        PP[2] = (float(tempInput_1[2])) # type: ignore
     tempInput_2 = input("Enter orientation values [a b Y] in degrees: ").split()
     a = toRadians(float(tempInput_2[0]))
     b = toRadians(float(tempInput_2[1]))
@@ -133,21 +122,17 @@ while True:
 
     print()
     if diagnostics:
-        print("x:", posX, " y:", posY, " z:", posZ, " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
-    q = getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
-
-    if diagnostics:
-        print(" Read: alpha:", toDegrees(q[0] + math.atan((d5*math.sin(q[4])*math.cos(q[3])) / (d5*math.cos(q[4]))) ), end='')
-        print(" beta:", toDegrees(math.asin((d5*math.sin(q[4])*math.cos(q[3])) / d5) + q[1]+q[2]))
+        print("x:", PP[0], " y:", PP[1], " z:", PP[2], " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
+    q = getAngles(PP,a,b,Y,'-')
         
 
-    servoExceeded = False
     # "under" = given < 0
     # "over" = given < 180
+    servoExceeded = False
     whichServoExceeded = 6*[False]
     typeOfExceeded = 6*["null"]
 
-    sendToServo()
+    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
 
 pca.deinit()
 

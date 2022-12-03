@@ -13,19 +13,19 @@ import numpy as np
 import imutils
 import time
 import math
-import adafruit_adxl34x
+import adafruit_adxl34x # type: ignore
 import sys
 # import matplotlib.pyplot as plt
 from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles
 
 correctionSetup()
 
-from board import SCL, SDA
-import busio
+from board import SCL, SDA # type: ignore
+import busio # type: ignore
 
-from adafruit_motor import servo
-from adafruit_servokit import ServoKit
-from adafruit_pca9685 import PCA9685
+from adafruit_motor import servo # type: ignore
+from adafruit_servokit import ServoKit # type: ignore
+from adafruit_pca9685 import PCA9685 # type: ignore
 
 i2c = busio.I2C(SCL, SDA)
 pca = PCA9685(i2c)
@@ -94,7 +94,7 @@ while True:
     res = cv2.bitwise_and(frame, frame, mask=mask)
     mask_3 = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
     stacked = np.hstack((mask_3,frame,res))    
-    cv2.imshow('Webcam - XY',cv2.resize(stacked,None,fx=0.4,fy=0.4))    
+    cv2.imshow('Webcam - XY',cv2.resize(stacked,None,fx=0.4,fy=0.4)) # type: ignore
     key = cv2.waitKey(1)
     if key == 27:
         sys.exit()    
@@ -136,18 +136,10 @@ if showImage:
 X_out, Y_out, Z_out = accelerometer.acceleration #acceleration values for each axis
 Roll, Pitch = 0.1, 0.1
 
-d1 = 140; #axial "roll"
-d2 = 135; #axial "pitch"
-d3 = 70; #axial "pitch"
-d4 = 80; #axial "roll"
-d5 = 45; #axial "pitch
-d6 = 30; #axial "roll" (?)
 
 q = [0]*6 #NOTE: q1 = q[0] = servo[0]
-default_q = [90, 0, 135, 90, 90, 90]
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
 
-posX2, posY2, posZ2 = 0.01, 0.01, 0.01
 a1, b1 = 0.1, 0.1
 
 
@@ -164,7 +156,7 @@ def readAccelerometer():
 
 zMax = 300
 a, b, Y = 90, 0.1, 90
-posX, posY, posZ = 0.1, 0.1, 0.1
+PP = [0]*3
 coord = ""
 
 while True:
@@ -176,8 +168,8 @@ while True:
     img = cv2.flip(img, 1)
     into_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     #L, U color values: [[62, 108, 0], [85, 238, 249]]
-    L_limit = np.array(L_values)
-    U_limit = np.array(U_values)
+    L_limit = np.array(L_values) # type: ignore
+    U_limit = np.array(U_values) # type: ignore
     threshold = cv2.inRange(into_hsv, L_limit, U_limit)
     filtered = cv2.bitwise_and(img, img, mask = threshold)
     #filtered = increase_brightness(filtered, brightVal)
@@ -198,13 +190,13 @@ while True:
         cv2.circle(img, (cX, cY), 5, (255, 255, 255), -1)
         cv2.putText(img, "centroid" + str(cv2.contourArea(contours[0])), (cX - 25, cY - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
         coord = "x:" + str(int(xScaling*(cX - 320))) + " y:" + str(int(yScaling*(480 - cY))) + " z:" +  str(int(zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax))) #str(cv2.contourArea(contours))
-        posX = int(axisFilter * xScaling*(cX - 320) + (float(1)-axisFilter) * posX)
-        posY = int(axisFilter * yScaling*(480 - cY) + (float(1)-axisFilter) * posY)
-        posZ = int(axisFilter * zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax) + (float(1)-axisFilter) * posZ)
+        PP[0] = int(axisFilter * xScaling*(cX - 320) + (float(1)-axisFilter) * PP[0])
+        PP[1] = int(axisFilter * yScaling*(480 - cY) + (float(1)-axisFilter) * PP[1])
+        PP[2] = int(axisFilter * zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax) + (float(1)-axisFilter) * PP[2])
     if globalPrint or printCoord: print(coord)
     if showImage:
         stacked = np.hstack((img, filtered))
-        cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7))
+        cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7)) # type: ignore
     
     # Calculate the servo rotations
     bPos = False
@@ -215,15 +207,15 @@ while True:
     if Roll <= 90 and Roll >= -90:
         if not bPos: a = toRadians(0 - (Roll * 0.9 + toDegrees(a) * 0.1))
         elif bPos: a = toRadians(Roll * 0.9 + toDegrees(a) * 0.1)
-    q = getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
+    q = getAngles(PP,a,b,Y,'-')
 
-    servoExceeded = False
     # "under" = given < 0
     # "over" = given < 180
+    servoExceeded = False
     whichServoExceeded = 6*[False]
     typeOfExceeded = 6*["null"]
 
-    sendToServo()
+    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
     # Press Esc key to exit
     if cv2.waitKey(1) == 27:
         break

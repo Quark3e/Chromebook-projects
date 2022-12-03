@@ -14,18 +14,18 @@ import numpy as np
 import imutils
 import time
 import math
-import adafruit_adxl34x
+import adafruit_adxl34x # type: ignore
 import sys
 from IK_module import correctionSetup, sendToServo, toRadians, toDegrees, getAngles
 
 correctionSetup()
 
-from board import SCL, SDA
-import busio
+from board import SCL, SDA # type: ignore
+import busio # type: ignore
 
-from adafruit_motor import servo
-from adafruit_servokit import ServoKit
-from adafruit_pca9685 import PCA9685
+from adafruit_motor import servo # type: ignore
+from adafruit_servokit import ServoKit # type: ignore
+from adafruit_pca9685 import PCA9685 # type: ignore
 
 i2c = busio.I2C(SCL, SDA)
 pca = PCA9685(i2c)
@@ -76,20 +76,9 @@ if showImage:
 X_out, Y_out, Z_out = accelerometer.acceleration #acceleration values for each axis
 Roll, Pitch = 0.1, 0.1
 
-d1 = 140; #axial "roll"
-d2 = 135; #axial "pitch"
-d3 = 70; #axial "pitch"
-d4 = 80; #axial "roll"
-d5 = 45; #axial "pitch
-d6 = 45; #axial "roll" (?)
-
 
 q = [0]*6 #NOTE: q = q[0] = servo[0]
-default_q = [90, 0, 135, 90, 90, 90]
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
-posX2, posY2, posZ2 = 0.01, 0.01, 0.01
-a1, b1 = 0.1, 0.1
-
 
 def readAccelerometer():
     global X_out, Y_out, Z_out, Roll, Pitch, roll, pitch
@@ -137,7 +126,7 @@ if not object_cascade.load(cv2.samples.findFile(object_cascade_name)):
 
 zMax = 300
 a, b, Y = 90, 0.1, 90
-posX, posY, posZ = 0.1, 0.1, 0.1
+PP = [float(0)]*3
 coord = ""
 
 while True:
@@ -151,13 +140,13 @@ while True:
     detectAndDisplay(img)
 
     coord = "x:" + str(int(xScaling*(cX - newSize[0]*0.5))) + " y:" + str(int(yScaling*(newSize[1] - cY))) + " z:" +  str(int(zScaling*(zMax - ((cW*cH) / zDefaultVal)*zMax))) #str(cv2.contourArea(contours))
-    posX = int(axisFilter * xScaling*(cX - newSize[0]*0.5) + (1-axisFilter) * posX)
-    posY = int(axisFilter * yScaling*(newSize[1] - cY) + (1-axisFilter) * posY)
-    posZ = int(axisFilter * zScaling*(zMax - ((cW*cH) / zDefaultVal)*zMax) + (1-axisFilter) * posZ)
+    PP[0] = int(axisFilter * xScaling*(cX - newSize[0]*0.5) + (1-axisFilter) * PP[0])
+    PP[1] = int(axisFilter * yScaling*(newSize[1] - cY) + (1-axisFilter) * PP[1])
+    PP[2] = int(axisFilter * zScaling*(zMax - ((cW*cH) / zDefaultVal)*zMax) + (1-axisFilter) * PP[2])
     if globalPrint or printCoord: print(coord)
     if showImage:
         stacked = np.hstack((img, frame_gray))
-        cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7))
+        cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7)) # type: ignore
     
     # Calculate the servo rotations
     bPos = False
@@ -168,7 +157,7 @@ while True:
     if Roll <= 90 and Roll >= -90:
         if not bPos: a = toRadians(0 - (Roll * 0.9 + toDegrees(a) * 0.1))
         elif bPos: a = toRadians(Roll * 0.9 + toDegrees(a) * 0.1)
-    q = getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
+    q = getAngles(PP,a,b,Y,'-')
 
     servoExceeded = False
     # "under" = given < 0
@@ -176,7 +165,7 @@ while True:
     whichServoExceeded = 6*[False]
     typeOfExceeded = 6*["null"]
 
-    sendToServo()
+    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
 
     # Press Esc key to exit
     if cv2.waitKey(1) == 27:
