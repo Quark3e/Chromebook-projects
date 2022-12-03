@@ -25,7 +25,6 @@ from adafruit_pca9685 import PCA9685 # type: ignore
 
 i2c = busio.I2C(SCL, SDA)
 pca = PCA9685(i2c)
-accelerometer = adafruit_adxl34x.ADXL345(i2c)
 
 pca.frequency = 50
 
@@ -79,8 +78,6 @@ endAnglePrint = False
 firstAnglePrint = False
 posOption = '-'
 
-X_out, Y_out, Z_out = accelerometer.acceleration #acceleration values for each axis
-Roll, Pitch = 0.1, 0.1
 
 q = [0]*6 #NOTE: q = q[0] = servo[0]
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
@@ -89,18 +86,6 @@ def toDegrees(radians):
     return (radians * 180) / math.pi
 def toRadians(degrees):
     return (degrees * math.pi) / 180
-
-
-def readAccelerometer():
-    global X_out, Y_out, Z_out, Roll, Pitch, roll, pitch
-    X_out, Y_out, Z_out = accelerometer.acceleration
-    #x is roll and y is pitch (it's switched so the servo can be fit to the servo robot arm)
-    pitch = math.atan(Y_out / math.sqrt(pow(X_out, 2) + pow(Z_out, 2))) * 180 / math.pi
-    roll = math.atan(-1 * X_out / math.sqrt(pow(Y_out, 2) + pow(Z_out, 2))) * 180 / math.pi
-    #filter
-    Roll = 0.8 * Roll + 0.2 * roll
-    Pitch = 0.8 * Pitch + 0.2 * pitch
-
 
 
 zMax = 300
