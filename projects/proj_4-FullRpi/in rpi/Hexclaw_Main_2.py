@@ -3,6 +3,7 @@
 #/*
 # Terminal User input
 # Manual Mode where the coordinate and orientation variables are input
+# Doesn't use accelerometer
 #*/
 
 # Import essential libraries
