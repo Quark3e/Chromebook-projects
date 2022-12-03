@@ -13,16 +13,16 @@ import time
 import math
 import sys
 #from threading import Thread
-from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles
+from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles, default_q
 
 correctionSetup()
 
-from board import SCL, SDA
-import busio
+from board import SCL, SDA # type: ignore
+import busio # type: ignore
 
-from adafruit_motor import servo
-from adafruit_servokit import ServoKit
-from adafruit_pca9685 import PCA9685
+from adafruit_motor import servo # type: ignore
+from adafruit_servokit import ServoKit # type: ignore
+from adafruit_pca9685 import PCA9685 # type: ignore
 
 i2c = busio.I2C(SCL, SDA)
 pca = PCA9685(i2c)
@@ -56,12 +56,6 @@ servo[3].angle = 90
 servo[4].angle = 90-(90/130)*90
 servo[5].angle = 90
 
-d1 = 140; #axial "roll"
-d2 = 135; #axial "pitch"
-d3 = 70; #axial "pitch"
-d4 = 80; #axial "roll"
-d5 = 45; #axial "pitch
-d6 = 45; #axial "roll" (?)
 
 time.sleep(1)
 
@@ -126,7 +120,7 @@ while True:
     cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(150*(1/xScaling)), (255, 255, 255), 1)
     cv2.circle(img, (int(newSize[0]*0.5), int(newSize[1])), int(200*(1/xScaling)), (255, 255, 255), 1)
 
-    cv2.imshow('Windows', cv2.resize(img, None, fx=winScaleX, fy=winScaleY))
+    cv2.imshow('Windows', cv2.resize(img, None, fx=winScaleX, fy=winScaleY)) # type: ignore
     # cv2.setMouseCallback('Windows', click_event)
     if cv2.waitKey(1) == 32:
         break
@@ -136,12 +130,10 @@ while True:
 time.sleep(1)
 
 q = [0]*6 #NOTE: q = q[0] = servo[0]
-default_q = [90, 0, 135, 90, 90, 90]
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
-posX2, posY2, posZ2 = 0.01, 0.01, 0.01
-a1, b1 = 0.1, 0.1
+PP = [float(0)]*3
 zMax = 300
-posX, posY, posZ = 0.1, 0.1, 0.1
+PP[0], PP[1], PP[2] = 0.1, 0.1, 0.1
 
 
 fileExtension = ".dat"
@@ -154,33 +146,33 @@ resultFile = open("testResult/" + fileName + "_" + str(hardSetAngle[0]) + "." + 
 coord = ""
 
 def check_qMinMax():
-    global q1, q2, q3, q4, q5, q6
-    if default_q[0] - int(round(toDegrees(q1))) < 0: q1 = toRadians(0 + default_q[0])
-    if default_q[1] + int(round(toDegrees(q2))) < 0: q2 = toRadians(0 - default_q[1])
-    if default_q[2] + int(round(toDegrees(q3))) < 0: q3 = toRadians(0 - default_q[2])
-    if default_q[3] + int(round(toDegrees(q4))) < 0: q4 = toRadians(0 - default_q[3])
-    if default_q[4] + int(round(toDegrees(q5))) < 0: q5 = toRadians(0 - default_q[4])
-    if default_q[5] + int(round(toDegrees(q6))) < 0: q6 = toRadians(0 - default_q[5])
-    if default_q[0] - int(round(toDegrees(q1))) > 180: q1 = toRadians(0 - default_q[0])
-    if default_q[1] + int(round(toDegrees(q2))) > 180: q2 = toRadians(180 - default_q[1])
-    if default_q[2] + int(round(toDegrees(q3))) > 180: q3 = toRadians(180 - default_q[2])
-    if default_q[3] + int(round(toDegrees(q4))) > 180: q4 = toRadians(180 - default_q[3])
-    if default_q[4] + int(round(toDegrees(q5))) > 180: q5 = toRadians(180 - default_q[4])
-    if default_q[5] + int(round(toDegrees(q6))) > 180: q6 = toRadians(180 - default_q[5])
+    global q
+    if default_q[0] - int(round(toDegrees(q[0]))) < 0: q[0] = toRadians(0 + default_q[0]) # type: ignore
+    if default_q[1] + int(round(toDegrees(q[1]))) < 0: q[1] = toRadians(0 - default_q[1]) # type: ignore
+    if default_q[2] + int(round(toDegrees(q[2]))) < 0: q[2] = toRadians(0 - default_q[2]) # type: ignore
+    if default_q[3] + int(round(toDegrees(q[3]))) < 0: q[3] = toRadians(0 - default_q[3]) # type: ignore
+    if default_q[4] + int(round(toDegrees(q[4]))) < 0: q[4] = toRadians(0 - default_q[4]) # type: ignore
+    if default_q[5] + int(round(toDegrees(q[5]))) < 0: q[5] = toRadians(0 - default_q[5]) # type: ignore
+    if default_q[0] - int(round(toDegrees(q[0]))) > 180: q[0] = toRadians(0 - default_q[0]) # type: ignore
+    if default_q[1] + int(round(toDegrees(q[1]))) > 180: q[1] = toRadians(180 - default_q[1]) # type: ignore
+    if default_q[2] + int(round(toDegrees(q[2]))) > 180: q[2] = toRadians(180 - default_q[2]) # type: ignore
+    if default_q[3] + int(round(toDegrees(q[3]))) > 180: q[3] = toRadians(180 - default_q[3]) # type: ignore
+    if default_q[4] + int(round(toDegrees(q[4]))) > 180: q[4] = toRadians(180 - default_q[4]) # type: ignore
+    if default_q[5] + int(round(toDegrees(q[5]))) > 180: q[5] = toRadians(180 - default_q[5]) # type: ignore
 
-def findAlphaBeta(posX, posY, posZ, posOption):
+def findAlphaBeta(PP, posOption):
     global a, b
     #Find the a, b combination that is valid
     breakVal = False
     for beta in range(-90, 0):
         for alpha in range(-90, 90):
-            q = getAngles(posX, posY, posZ, toRadians(alpha), toRadians(beta), Y, posOption, 1, 1, False)
-            if not (math.isnan(q1) or
-                math.isnan(q2) or
-                math.isnan(q3) or
-                math.isnan(q4) or
-                math.isnan(q5) or
-                math.isnan(q6)):
+            q = getAngles(PP, toRadians(alpha), toRadians(beta), Y, posOption, 1, 1, False)
+            if not (math.isnan(q[0]) or
+                math.isnan(q[1]) or
+                math.isnan(q[2]) or
+                math.isnan(q[3]) or
+                math.isnan(q[4]) or
+                math.isnan(q[5])):
                 a = toRadians(alpha)
                 b = toRadians(beta)
                 breakVal = True
@@ -190,13 +182,13 @@ def findAlphaBeta(posX, posY, posZ, posOption):
     if not breakVal:
         for beta in range(0, 90):
             for alpha in range(-90, 90):
-                q = getAngles(posX, posY, posZ, toRadians(alpha), toRadians(beta), Y, posOption, 1, 1, False)
-                if not (math.isnan(q1) or
-                    math.isnan(q2) or
-                    math.isnan(q3) or
-                    math.isnan(q4) or
-                    math.isnan(q5) or
-                    math.isnan(q6)):
+                q = getAngles(PP, toRadians(alpha), toRadians(beta), Y, posOption, 1, 1, False)
+                if not (math.isnan(q[0]) or
+                    math.isnan(q[1]) or
+                    math.isnan(q[2]) or
+                    math.isnan(q[3]) or
+                    math.isnan(q[4]) or
+                    math.isnan(q[5])):
                     a = toRadians(alpha)
                     b = toRadians(beta)
                     breakVal = True
@@ -227,7 +219,7 @@ def getPos():
             img = drawCircles(cv2.flip(cv2.resize(imgTemp, newSize), 1), (int(newSize[0]*0.5), int(newSize[1])),
             [50*(1/xScaling), 100*(1/xScaling), 150*(1/xScaling), 200*(1/xScaling)])
 
-            cv2.imshow('Windows', cv2.resize(img, None, fx=winScaleX, fy=winScaleY))
+            cv2.imshow('Windows', cv2.resize(img, None, fx=winScaleX, fy=winScaleY)) # type: ignore
 
             if cv2.waitKey(1) == 27:
                 print("Exiting.", end='')
@@ -269,9 +261,9 @@ def getPos():
             readZ = int(axisFilter2 * zScaling*(zMax - (M["m00"] / zDefaultVal)*zMax) + (1-axisFilter2) * readZ)
     if globalPrint: print(coord, end="")
     if showImage and not manualInput:
-        stacked = np.hstack((img, filtered))
-        cv2.imshow('Windows', cv2.resize(stacked, None, fx=winScaleX, fy=winScaleY))
-    if manualInput and showImage: cv2.imshow('Windows', cv2.resize(img, None, fx=winScaleX, fy=winScaleY))
+        stacked = np.hstack((img, filtered)) # type: ignore
+        cv2.imshow('Windows', cv2.resize(stacked, None, fx=winScaleX, fy=winScaleY)) # type: ignore
+    if manualInput and showImage: cv2.imshow('Windows', cv2.resize(img, None, fx=winScaleX, fy=winScaleY)) # type: ignore
 
 def getAngle():
     # Marks two dots which are visible on the img/frame displayed on the window
@@ -290,14 +282,14 @@ for n in range(rowLength):
     #Read line and get the xyz value
     fileLine = toReadFile.readline()
     print("fileLine:", fileLine, end='', sep='')
-    posX = float(fileLine[0:fileLine.find(" ")+1])
-    print("posX:", fileLine[0:fileLine.find(" ")+1], end='', sep='')
+    PP[0] = float(fileLine[0:fileLine.find(" ")+1])
+    print("PP[0]:", fileLine[0:fileLine.find(" ")+1], end='', sep='')
     fileLine = fileLine.replace(fileLine[0:fileLine.find(" ")+1], '', 1)
-    posY = float(fileLine[0:fileLine.find(" ")+1])
-    print(" posY:", fileLine[0:fileLine.find(" ")+1], end='', sep='')
+    PP[1] = float(fileLine[0:fileLine.find(" ")+1])
+    print(" PP[1]:", fileLine[0:fileLine.find(" ")+1], end='', sep='')
     fileLine = fileLine.replace(fileLine[0:fileLine.find(" ")+1], '', 1)
-    posZ = float(fileLine[0:fileLine.find(" ")+1])
-    print(" posZ:", fileLine[0:fileLine.find(" ")+1], end='\n', sep='')
+    PP[2] = float(fileLine[0:fileLine.find(" ")+1])
+    print(" PP[2]:", fileLine[0:fileLine.find(" ")+1], end='\n', sep='')
     fileLine = fileLine.replace(fileLine[0:fileLine.find(" ")+1], '', 1)
     a = toRadians(float(fileLine[0:fileLine.find(" ")+1]))
     # print(" a:", fileLine[0:fileLine.find(" ")+1], end='', sep='')
@@ -309,9 +301,14 @@ for n in range(rowLength):
         a = toRadians(hardSetAngle[0])
         b = toRadians(hardSetAngle[1])
 
+    # "under" = given < 0
+    # "over" = given < 180
+    servoExceeded = False
+    whichServoExceeded = 6*[False]
+    typeOfExceeded = 6*["null"]
     #Check if values are NaN
-    q = getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
-    sendToServo()
+    q = getAngles(PP, a, b, Y, posOption, 1, 1, globalPrint)
+    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
     
     if not manualInput:
         time.sleep(2)
@@ -326,15 +323,15 @@ for n in range(rowLength):
         # str(math.atan(toRadians((abs(actualValues[1] - newSize[1]*0.5) * webcamFOV[1])/(newSize[1]*0.5))) * distanceFromCam) + " " +
         str(readZ) + "\n"
         )
-    accWriteFile.write(str(abs(readX-posX)) + " " + str(abs(readY-posY)) + " " + str(1) + "\n")
+    accWriteFile.write(str(abs(readX-PP[0])) + " " + str(abs(readY-PP[1])) + " " + str(1) + "\n")
     resultFile.write(
-        str(posX) + " " + 
-        str(posY) + " " + 
-        str(posZ) + " " + 
+        str(PP[0]) + " " + 
+        str(PP[1]) + " " + 
+        str(PP[2]) + " " + 
         str(math.tan((abs(newSize[0]*0.5-actualValues[0])*(webcamFOV[0]*0.5))/newSize[0])*distanceFromCam) + " " +
         str(readY) + " " +
-        str(posZ) + "\n" 
-        # Even though posZ is not measured it's still added in the "_Result"
+        str(PP[2]) + "\n" 
+        # Even though PP[2] is not measured it's still added in the "_Result"
         #-file in case a seconds webcam for z-axis measuring is added later on.
     )
 

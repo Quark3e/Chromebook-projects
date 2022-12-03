@@ -49,7 +49,7 @@ label_ab = " a:".int(a)." b:".int(b)
 
 posX = 0-posX
 # set view 99, 295, 1.1, 1 #for -150, 150, 150, 0:-90:0
-set view 45, 250, 1.1, 1
+set view 90, 270, 1.1, 1
 
 
 l = (d5+d6)*cos(b)
