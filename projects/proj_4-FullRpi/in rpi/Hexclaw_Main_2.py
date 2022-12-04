@@ -76,7 +76,7 @@ s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
 
 zMax = 300
 a, b, Y = toRadians(0), toRadians(-45), toRadians(90)
-PP = [0]*3
+PP = [0, 200, 200]
 coord = ""
 
 
@@ -86,7 +86,7 @@ x1,y1,x2,y2 = -1,-1,-1,-1
 windowRes = (600,300)
 # mouse callback function
 def mouseTrack(event,x,y,flags,param):
-    global x1,y1,x2,y2,drawing,buttonPressed,img
+    global x1,y1,x2,y2,drawing,buttonPressed,img,temp
     x2,y2 = x,y
     if drawing:
       img = np.zeros((windowRes[1],windowRes[0],3), np.uint8)
@@ -96,20 +96,29 @@ def mouseTrack(event,x,y,flags,param):
     elif event == cv2.EVENT_MOUSEMOVE:
         buttonPressed = True
         if drawing == True:
-            cv2.line(img,(0,y2),(windowRes[0],y2),(255,255,255), 1)
+            cv2.line(img,(0,y2),(windowRes[0],y2),(255,255,255),1)
             cv2.line(img,(x2,0),(x2,windowRes[1]),(255,255,255),1)
             cv2.circle(img,(x2,y2),10,(0,0,255),1)
+            cv2.putText(img,"("+str(int(x2-windowRes[0]*0.5))+","+str(int(windowRes[1]-y2))+")",(x2+10,y2),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255))
+            cv2.circle(img,(int(windowRes[0]*0.5),int(windowRes[1])),50,(255,255,255),1)
+            cv2.circle(img,(int(windowRes[0]*0.5),int(windowRes[1])),100,(255,255,255),1)
+            cv2.circle(img,(int(windowRes[0]*0.5),int(windowRes[1])),150,(255,255,255),1)
+            cv2.circle(img,(int(windowRes[0]*0.5),int(windowRes[1])),200,(255,255,255),1)
+            cv2.putText(img,str(PP),(10,20),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255))
+            temp = img
     elif event == cv2.EVENT_LBUTTONUP:
         buttonPressed = False
         drawing = False
-        cv2.line(img,(0,y2),(windowRes[0],y2),(255,255,255), 1)
-        cv2.line(img,(x2,0),(x2,windowRes[1]),(255,255,255),1)
-        cv2.circle(img,(x2,y2),10,(0,0,255),1)
+        img = temp
+        # cv2.line(img,(0,y2),(windowRes[0],y2),(255,255,255),1)
+        # cv2.line(img,(x2,0),(x2,windowRes[1]),(255,255,255),1)
+        # cv2.circle(img,(x2,y2),10,(0,0,255),1)
+        # cv2.putText(img,"("+str(int(x2-windowRes[0]*0.5))+","+str(int(windowRes[1]-y2))+")",(x2+10,y2),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255))
         
 img = np.zeros((windowRes[1],windowRes[0],3), np.uint8)
 cv2.namedWindow('tracking_window')
 cv2.setMouseCallback('tracking_window',mouseTrack)
-
+temp = img
 
 mode = 0
 
@@ -125,6 +134,10 @@ else: mode = int(option)
 servoExceeded = False
 whichServoExceeded = 6*[False]
 typeOfExceeded = 6*["null"]
+
+start_time = time.time()
+x = 1 # displays the frame rate every 1 second
+counter = 0
 
 while True:
     os.system("clear")
@@ -154,14 +167,22 @@ while True:
         q = getAngles(PP,a,b,Y,'-')
         sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
     elif mode==2:
+        print("\n 'Esc' - change z-value and orientation\n")
         while True:
-            print("\n 'Esc' - change z-value and orientation\n '")
-            cv2.imshow('tracking win', img) #use this if the previous drawings are not to be used
+            cv2.imshow('tracking_window', img) #use this if the previous drawings are not to be used
             k = cv2.waitKey(1) & 0xFF
             if k == 27: break
-            PP[0], PP[1] = x2,y2
-            q = getAngles(PP,a,b,Y,'-')
-            sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+            elif k == 119: PP[2]+=10
+            elif k == 115: PP[2]-=10
+            if drawing:
+                PP[0], PP[1] = x2-windowRes[0]*0.5,windowRes[1]-y2 # type: ignore
+                q = getAngles(PP,a,b,Y,'-')
+                sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+            counter+=1
+            if (time.time() - start_time) > x :
+                print("FPS: ", counter / (time.time() - start_time))
+                counter = 0
+                start_time = time.time()
 
 cv2.destroyAllWindows()
 pca.deinit()
