@@ -28,7 +28,7 @@ d2 = 135 #axial "pitch"
 d3 = 70 #axial "pitch"
 d4 = 80 #axial "roll"
 d5 = 45 #axial "pitch
-d6 = 45 #axial "roll" (?)
+d6 = 30 #axial "roll" (?)
 
 q1 = 0
 q2 = 0
@@ -39,17 +39,17 @@ q6 = 0
 
 
 posX = -150
-posY = 160
-posZ = 150
+posY = 150
+posZ = 50
 a = 0
-b = 0 #29 and 30 is the error...
+b = -90 #29 and 30 is the error...
 Y = 0
 
 label_ab = " a:".int(a)." b:".int(b)
 
 posX = 0-posX
 # set view 99, 295, 1.1, 1 #for -150, 150, 150, 0:-90:0
-set view 90, 270, 1.1, 1
+set view 45, 205, 1.5, 1
 
 
 l = (d5+d6)*cos(b)
@@ -80,6 +80,9 @@ q2 = lambdaVar+muVar
 q3 = 0-q3
 
 a1 = a-q1
+a1 = 0 
+#NOTE: check with prototype on whether the orientation AND position checks out 
+#      (and if the simulation is wrong)
 b1 = b-(q2+q3)
 
 if (b1>90 || b1<-90) {
@@ -89,6 +92,7 @@ if (b1>90 || b1<-90) {
 # q3 = 0-q3
 
 d5x = (d5+d6)*cos(b1)*sin(a1)
+# d5x = 0
 d5z = (d5+d6)*sin(b1)
 
 print " d5x:", d5x, \
@@ -99,7 +103,10 @@ if (b1==0) {
     if (d5x<0) {q4 = -90}
     if (d5x==0) {q4 = 0}
 }
-if (b1<0 || b1>0) { q4=atan(d5x/d5z) }
+if (b1<0 || b1>0) {
+    q4=atan(d5x/d5z)
+    # q4=atan()
+}
 
 test = sqrt(d5x**2+d5z**2)/(d5+d6)
 if (test < 1 || test > -1) {
@@ -194,15 +201,12 @@ P2 u (P2[1]):(P2[2]):(P2[3]):(P3[1]-P2[1]):(P3[2]-P2[2]):(P3[3]-P2[3]) with vect
 P3 u (P3[1]):(P3[2]):(P3[3]):(P4[1]-P3[1]):(P4[2]-P3[2]):(P4[3]-P3[3]) with vectors nohead ls 3 title "d3", \
 P4 u (P4[1]):(P4[2]):(P4[3]):(P5[1]-P4[1]):(P5[2]-P4[2]):(P5[3]-P4[3]) with vectors nohead ls 4 title "d4", \
 P5 u (P5[1]):(P5[2]):(P5[3]):(PP[1]-P5[1]):(PP[2]-P5[2]):(PP[3]-P5[3]) with vectors nohead ls 5 title "d5", \
-'+' u (P1[1]):(P1[2]):(P1[3]) lt rgb "blue" title "P1", \
-'+' u (P2[1]):(P2[2]):(P2[3]) lt rgb "red" title "P2", \
-'+' u (P3[1]):(P3[2]):(P3[3]) lt rgb "green" title "P3", \
-'+' u (P4[1]):(P4[2]):(P4[3]) lt rgb "orange" title "P4", \
-'+' u (P5[1]):(P5[2]):(P5[3]) lt rgb "grey" title "P5", \
-'+' u (P6[1]):(P6[2]):(P6[3]) lt rgb "purple" title "P6", \
+'+' u (P1[1]):(P1[2]):(P1[3]) lt rgb "blue" title "P1: ".int(q1), \
+'+' u (P2[1]):(P2[2]):(P2[3]) lt rgb "red" title "P2: ".int(q2), \
+'+' u (P3[1]):(P3[2]):(P3[3]) lt rgb "green" title "P3: ".int(q3), \
+'+' u (P4[1]):(P4[2]):(P4[3]) lt rgb "orange" title "P4: ".int(q4), \
+'+' u (P5[1]):(P5[2]):(P5[3]) lt rgb "grey" title "P5: ".int(q5), \
+'+' u (P6[1]):(P6[2]):(P6[3]) lt rgb "purple" title "P6: ".int(q6), \
 '+' u (-posX2):(posY2):(posZ2) lt rgb "brown" title "pos2", \
 '+' u (PP[1]):(PP[2]):(PP[3]) lt rgb "black" title "PP", \
 '+' u (-posX):(posY):(posZ) lt rgb "red" title "given pos"
-
-
-
