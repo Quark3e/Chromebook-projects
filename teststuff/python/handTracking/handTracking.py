@@ -36,7 +36,7 @@ def getAngle(x,y,x2,y2):
     hypot = math.hypot(a1[0]-a3[0],a1[1]-a3[1]) #distance between the frame center and hand center
     ydistance = math.hypot(a1[0]-a2[0],a1[1]-a2[1]) #distance between the hand center and the right angle 
     ref_angle = math.degrees(math.asin(ydistance/hypot)) #angle from the hand center to the frame center
-    
+    plane_angle = 0
     #Top half of plane
     if y2 < y/2:
         if x2 > x/2: #Quadrant 1
