@@ -136,8 +136,8 @@ whichServoExceeded = 6*[False]
 typeOfExceeded = 6*["null"]
 
 start_time = time.time()
-x = 1 # displays the frame rate every 1 second
-counter = 0
+fps_second = 1 # displays the frame rate every 1 fps_second
+fps_counter = 0
 
 while True:
     os.system("clear")
@@ -178,10 +178,10 @@ while True:
                 PP[0], PP[1] = x2-windowRes[0]*0.5,windowRes[1]-y2 # type: ignore
                 q = getAngles(PP,a,b,Y,'-')
                 sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
-            counter+=1
-            if (time.time() - start_time) > x :
-                print("FPS: ", counter / (time.time() - start_time))
-                counter = 0
+            fps_counter+=1
+            if (time.time() - start_time) > fps_second:
+                print("FPS: ", fps_counter / (time.time() - start_time))
+                fps_counter = 0
                 start_time = time.time()
 
 cv2.destroyAllWindows()

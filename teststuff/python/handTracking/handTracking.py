@@ -12,11 +12,11 @@ def detect_hands(img):
     global cascade_scaling
     if file == 0: hand = cv2.CascadeClassifier('palm.xml') #Cascade Classifier for front-facing hands
     elif file == 1: hand = cv2.CascadeClassifier('/home/pi/Opencv/haarcascade/aGest.xml')
-    elif file == 2: hand = cv2.CascadeClassifier('/home/pi/OpenCV/haarcascades/Hand.Cascade.1.xml') #best one with higher scalingFactor/cascade_scaling
-    elif file == 3: hand = cv2.CascadeClassifier('/home/pi/OpenCV/haarcascades/hand.xml')
+    elif file == 2: hand = cv2.CascadeClassifier('/home/pi/OpenCV/haarcascades/Hand.Cascade.1.xml')
+    elif file == 3: hand = cv2.CascadeClassifier('/home/pi/OpenCV/haarcascades/hand.xml') #best one with higher scalingFactor/cascade_scaling
     elif file == 4: hand = cv2.CascadeClassifier('/home/pi/OpenCV/haarcascades/palm.xml')
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) #Converts image to grayscale
-    hands = hand.detectMultiScale(gray, cascade_scaling, minNeighbors=6) #All detected hands get put into an array
+    hands = hand.detectMultiScale(gray, cascade_scaling, minNeighbors=6) #type: ignore #All detected hands get put into an array 
     if len(hands) != 0:        
         return hands
     else:
@@ -82,8 +82,8 @@ while camera.isOpened():
         cv2.putText(img,"s - decrease scalingfactor by .05",(10,70),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255))
         cv2.imshow('frame',img) #Show grid and frame
 
-        if hands.any():
-            for (a,b,w,h) in hands:
+        if hands.any(): # type: ignore
+            for (a,b,w,h) in hands: # type: ignore
                 x2, y2 = (int(a+(w/2)),int(b+(h/2))) #Center coords of the hand
                 angle, _ = getAngle(x,y,x2,y2) #Returns angle from center of frame to center of hand
 

@@ -19,7 +19,7 @@ def getDistance(p1, p2):
 
 def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False):
     '''
-    The Bank object contains info about all the accounts
+    Solves and returns all the rotation values
 
     Args:
         PP (float/int) [mm]: The end-effector position in list for
