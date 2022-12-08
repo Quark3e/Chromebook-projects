@@ -16,7 +16,7 @@ import adafruit_adxl34x # type: ignore
 import sys
 import cv2
 import os
-from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles
+from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles, sCustom_func
 
 from board import SCL, SDA # type: ignore
 import busio # type: ignore
@@ -40,20 +40,17 @@ for i in range(6):
 
 servo[0].angle = 90
 servo[1].angle = 45
-servo[2].angle = 180 - 45
+servo[2].angle = 180 - 0
 servo[3].angle = 90
-servo[4].angle = 180 - 180
+servo[4].angle = 180 - 0
 servo[5].angle = 90
-time.sleep(0.5)
+time.sleep(1)
 
 diagnostics = True
 
 correctionSetup()
 
-servo[0].angle = 90
-servo[4].angle = 135
-servo[2].angle = 180 - 0
-servo[1].angle = 90
+sCustom_func(servo,[90,135,110,90,170,90],1000,5)
 
 
 axisFilter = 0.7 #On the new value end
@@ -136,8 +133,8 @@ whichServoExceeded = 6*[False]
 typeOfExceeded = 6*["null"]
 
 start_time = time.time()
-fps_second = 1 # displays the frame rate every 1 fps_second
-fps_counter = 0
+x = 1 # displays the frame rate every 1 second
+counter = 0
 
 while True:
     os.system("clear")
@@ -145,7 +142,7 @@ while True:
     print(" ---Enter mode_(n) to change mode to (n)--- \n")
     if mode==1:
         tempInput_1 = input("Enter coordinates [x y z] in mm: ").split()
-        if tempInput_1[0] == "exit": sys.exit()
+        if tempInput_1[0] == "exit": break
         elif tempInput_1[0] == "mode_1": mode=1
         elif tempInput_1[0] == "mode_2": mode=2
         else:
@@ -178,11 +175,15 @@ while True:
                 PP[0], PP[1] = x2-windowRes[0]*0.5,windowRes[1]-y2 # type: ignore
                 q = getAngles(PP,a,b,Y,'-')
                 sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
-            fps_counter+=1
-            if (time.time() - start_time) > fps_second:
-                print("FPS: ", fps_counter / (time.time() - start_time))
-                fps_counter = 0
+            counter+=1
+            if (time.time() - start_time) > x :
+                print("FPS: ", counter / (time.time() - start_time))
+                counter = 0
                 start_time = time.time()
+
+
+sCustom_func(servo,[90,45,180,90,180,90],1000,2)
+
 
 cv2.destroyAllWindows()
 pca.deinit()

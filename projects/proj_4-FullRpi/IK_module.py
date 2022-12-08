@@ -1,4 +1,5 @@
 import sys
+import time
 from math import isnan, pi, sin, cos, tan, asin, acos, atan, sqrt
 
 d1 = 140; #axial "roll"
@@ -16,6 +17,25 @@ def toRadians(degrees): return (degrees * pi) / 180
 
 def getDistance(p1, p2):
     return sqrt(pow(p2[0]-p1[0], 2)+pow(p2[1]-p1[1], 2)+pow(p2[2]-p1[2], 2))
+
+def sCustom_func(s, new_rotation, total_iteration, total_time):
+    '''
+    Args:
+        s (float/int): dictionary/list variable that sends to pca board / holds old/current rotation commands
+        new_rotation (float/int): dictionary/list variable of new rotation commands
+        total_iteration (int): number of loop iterations to complete the movement
+        total_time (float/int): Total time spent moving the servo from start to finish in seconds
+    '''
+    s_diff = {}
+    counter = 0
+    for i in range(6): s_diff[i] = new_rotation[i]-s[i].angle
+    while True:
+        for i in range(6): s[i].angle += s_diff[i]/total_iteration
+        print(s)
+        counter+=+total_time/total_iteration
+        time.sleep(total_time/total_iteration)
+        if counter>total_time: break
+
 
 def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False):
     '''
