@@ -51,14 +51,11 @@ diagnostics = True
 correctionSetup()
 
 sCustom_func(servo,[90,135,110,90,170,90],1000,5)
-
+time.sleep(1)
 
 axisFilter = 0.7 #On the new value end
 xScaling, yScaling, zScaling = 0.8, 0.8, 1.2
 brightVal = 75
-zDefaultVal = 3000000
-L_values, U_values = [36, 72, 8], [86, 240, 204]
-#L_values, U_values = input("Enter L- and U-values without comma: "), input()
 diffCheck = 100
 showImage = False
 globalPrint = True
