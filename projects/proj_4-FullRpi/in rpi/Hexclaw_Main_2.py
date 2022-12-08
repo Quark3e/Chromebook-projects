@@ -39,19 +39,24 @@ for i in range(6):
     servo[i].set_pulse_width_range(500, 2500)
 
 servo[0].angle = 90
-servo[1].angle = 45
-servo[2].angle = 180 - 0
-servo[3].angle = 90
+time.sleep(1)
+servo[0].angle = 135
+servo[1].angle = 15
+servo[2].angle = 180 - 25
+servo[3].angle = 45
 servo[4].angle = 180 - 0
 servo[5].angle = 90
+time.sleep(1)
+
+
+sCustom_func(servo,[90,115,145,90,125,90],180,5)
+print("------")
 time.sleep(1)
 
 diagnostics = True
 
 correctionSetup()
 
-sCustom_func(servo,[90,135,110,90,170,90],1000,5)
-time.sleep(1)
 
 axisFilter = 0.7 #On the new value end
 xScaling, yScaling, zScaling = 0.8, 0.8, 1.2

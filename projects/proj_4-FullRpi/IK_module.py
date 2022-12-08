@@ -27,14 +27,35 @@ def sCustom_func(s, new_rotation, total_iteration, total_time):
         total_time (float/int): Total time spent moving the servo from start to finish in seconds
     '''
     s_diff = {}
-    counter = 0
     for i in range(6): s_diff[i] = new_rotation[i]-s[i].angle
+    print("q1:", int(round(s[0].angle)), sep='', end='')
+    print(" q2:", int(round(s[1].angle)), sep='', end='')
+    print(" q3:", int(round(s[2].angle)), sep='', end='')
+    print(" q4:", int(round(s[3].angle)), sep='', end='')
+    print(" q5:", int(round(s[4].angle)), sep='', end='')
+    print(" q6:", int(round(s[5].angle)), sep='')
+    print(s_diff)
+    print(new_rotation)
+    s_temp = []
+    for i in range(6): s_temp.append(s[i].angle)
+    for i in range(6):
+        print(s_diff[i]/total_iteration)
+    counter = 0
     while True:
-        for i in range(6): s[i].angle += s_diff[i]/total_iteration
-        print(s)
-        counter+=+total_time/total_iteration
+        for i in range(6):
+            # s[i].angle += s_diff[i]/total_iteration#; time.sleep(0.001)
+            s_temp[i] += s_diff[i]/total_iteration
+            s[i].angle = s_temp[i]
+        print("counter:"+str(counter), sep='', end='')
+        print(" q1:", int(round(s_temp[0])), sep='', end='')
+        print(" q2:", int(round(s_temp[1])), sep='', end='')
+        print(" q3:", int(round(s_temp[2])), sep='', end='')
+        print(" q4:", int(round(s_temp[3])), sep='', end='')
+        print(" q5:", int(round(s_temp[4])), sep='', end='')
+        print(" q6:", int(round(s_temp[5])), sep='')
+        counter+=1
         time.sleep(total_time/total_iteration)
-        if counter>total_time: break
+        if counter>=total_iteration: break
 
 
 def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False):
