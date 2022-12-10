@@ -125,7 +125,7 @@ print(" Different modes for tracking:")
 print(" 1. Enter position and orientation in terminal")
 print(" 2. Mouse position tracking on window")
 option = input(" input: ")
-if option == "exit": custom_sendToServo(servo,[135,15,25,45,0,90],2); sys.exit()
+if option == "exit": custom_sendToServo(servo,[135,15,155,45,180,90],2); sys.exit()
 else: mode = int(option)
 
 # "under" = given < 0
@@ -184,7 +184,7 @@ while True:
                 start_time = time.time()
 
 
-custom_sendToServo(servo,[135,15,25,45,0,90],2)
+custom_sendToServo(servo,[135,15,155,45,180,90],2)
 
 
 cv2.destroyAllWindows()
