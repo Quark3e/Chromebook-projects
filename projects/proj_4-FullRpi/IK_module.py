@@ -37,11 +37,11 @@ def custom_sendToServo(servo, new_rotation, total_time, useDefault = False):
             if notAccurate[x]:
                 if centerAccurate[x]:
                     if not u_isAccurate: #90-180 not accurate
-                        if new_rotation[x]>90: new_rotation[x] = new_rotation[x] * u_correction
+                        if new_rotation[x]>90: new_rotation[x] = new_rotation[x] * u_correction[x]
                     if not l_isAccurate: #0-90 not accurate
-                        if new_rotation[x]<90: new_rotation[x] = new_rotation[x] * l_correction
+                        if new_rotation[x]<90: new_rotation[x] = new_rotation[x] * l_correction[x]
                 elif not centerAccurate[x]:
-                    new_rotation[x] = new_rotation[x] * u_correction
+                    new_rotation[x] = new_rotation[x] * u_correction[x]
 
     total_iteration = 180
     s_diff = {}
@@ -234,13 +234,15 @@ def sendToServo(q, s, servo, servoExceeded, whichServoExceeded, typeOfExceeded):
             if notAccurate[x]:
                 if centerAccurate[x]:
                     if not u_isAccurate: #90-180 not accurate
-                        if s[x]>90: servo[x].angle = s[x] * u_correction
+                        if s[x]>90: servo[x].angle = s[x] * u_correction[x]
                         else: servo[x].angle = s[x]
                     if not l_isAccurate: #0-90 not accurate
-                        if s[x]<90: servo[x].angle = s[x] * l_correction
+                        if s[x]<90: servo[x].angle = s[x] * l_correction[x]
                         else: servo[x].angle = s[x]
                 elif not centerAccurate[x]:
-                    servo[x].angle = s[x] * u_correction
+                    if s[x] * u_correction[x] > 180: servo[x].angle = 180
+                    elif s[x] * u_correction[x] < 0: servo[x].angle = 0
+                    else: servo[x].angle = s[x] * u_correction[x]
             elif not notAccurate[x]:
                     # if x == 4:
                     #     if s[4]<90: servo[4].angle = getServo4Offset(180 - default_q[4] - s[4])
