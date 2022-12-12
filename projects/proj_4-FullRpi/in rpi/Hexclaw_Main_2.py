@@ -153,7 +153,7 @@ while True:
             PP[2] = (float(tempInput_1[2])) # type: ignore
     elif mode==2:
         tempInput_1 = input("Enter z-value in mm: ")
-        if tempInput_1 == "exit": sys.exit()
+        if tempInput_1 == "exit": break
         elif tempInput_1 == "mode_1": mode=1
         elif tempInput_1 == "mode_2": mode=2
         else: PP[2] = float(tempInput_1) # type: ignore
@@ -183,7 +183,7 @@ while True:
                 print("FPS: ", counter / (time.time() - start_time))
                 counter = 0
                 start_time = time.time()
-    input("paused. Press enter to continue...")
+    # input("\npaused. Press enter to continue...")
 
 
 custom_sendToServo(servo,[135,15,155,45,180,90],2)

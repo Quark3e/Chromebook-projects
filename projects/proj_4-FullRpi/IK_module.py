@@ -11,6 +11,11 @@ d6 = 30; #axial "roll" (?)
 link = [d1,d2,d3,d4,d5,d6]
 default_q = [90, 0, 135, 90, 90, 90]
 
+allCorrect = True
+centerAccurate = [True, True, True, True, True, True] #True if 90 degrees is correct
+notAccurate = [False, False, False, False, False, False] #True if it's not accurate and needs to be fixed
+u_isAccurate, l_isAccurate = notAccurate, notAccurate
+u_correction, l_correction = [1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1] #1 if it doesnt need correction
 
 def toDegrees(radians): return (radians * 180) / pi
 def toRadians(degrees): return (degrees * pi) / 180
@@ -172,11 +177,6 @@ def correctionSetup():
     global allCorrect, centerAccurate, notAccurate
     global u_isAccurate, l_isAccurate, u_correction, l_correction
 
-    allCorrect = True
-    centerAccurate = [True, True, True, True, True, True] #True if 90 degrees is correct
-    notAccurate = [False, False, False, False, False, False] #True if it's not accurate and needs to be fixed
-    u_isAccurate, l_isAccurate = notAccurate, notAccurate
-    u_correction, l_correction = [1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1] #1 if it doesnt need correction
 
     opt = input(" Does any servo need to be corrected?\n input [y/n]: ")
     if opt == "exit":
@@ -186,21 +186,27 @@ def correctionSetup():
     elif opt == "y":
         allCorrect = False
         print("\n Servo correction: centerAccurate u_isAccurate l_isAccurate u_correction l_correction [y/n y/n y/n float float (1 if y)]: ")
+        print(notAccurate)
         for i in range(6):
+            opt = 5*[] #opt has 5 elements
             print("\n servo q", i+1, ": ", sep='', end='')
             opt = input("").split()
             if opt[0] == "y": centerAccurate[i] = True
-            elif opt[0] == "n": centerAccurate[i] = False; notAccurate[i] = True
+            elif opt[0] == "n": centerAccurate[i] = False
 
             if opt[1] == "y": u_isAccurate[i] = True
-            elif opt[1] == "n": u_isAccurate[i] = False; notAccurate[i] = True
+            elif opt[1] == "n": u_isAccurate[i] = False
             
             if opt[2] == "y": l_isAccurate[i] = True
-            elif opt[2] == "n": l_isAccurate[i] = False; notAccurate[i] = True
+            elif opt[2] == "n": l_isAccurate[i] = False
+
+            if centerAccurate[i] and u_isAccurate[i] and l_isAccurate[i]: notAccurate[i] = False
+            else: notAccurate[i] = True
 
             u_correction[i] = float(opt[3]) # type: ignore
             l_correction[i] = float(opt[4]) # type: ignore
-
+            # print(notAccurate[i])
+        print(notAccurate)
 
 def sendToServo(q, s, servo, servoExceeded, whichServoExceeded, typeOfExceeded):
     '''
@@ -230,10 +236,15 @@ def sendToServo(q, s, servo, servoExceeded, whichServoExceeded, typeOfExceeded):
         s[1] = default_q[1] + int(round(toDegrees(q[1])))
         s[0] = default_q[0] - int(round(toDegrees(q[0])))
 
+        # print(notAccurate)
+        # print(u_correction, l_correction)
         for x in range(6):
+            # print("q",x+1,": u_corr:",u_correction[x]," l_corr:",l_correction[x],sep='',end='')
+            # print(" angle:", s[x],sep='',end='')
+            # print(" notAccurate[x]:",notAccurate[x], " centerAccurate[x]:", centerAccurate[x],sep='',end='')
             if notAccurate[x]:
-                print("u_corr:",u_correction[x], "l_corr:", l_correction[x], end='')
-                print(s[x])
+                #print("u_corr:",u_correction[x], "l_corr:", l_correction[x], end='')
+                #print(" angle:", s[x])
                 if centerAccurate[x]:
                     if not u_isAccurate: #90-180 not accurate
                         if s[x]>90: servo[x].angle = s[x] * u_correction[x]
@@ -251,5 +262,4 @@ def sendToServo(q, s, servo, servoExceeded, whichServoExceeded, typeOfExceeded):
                     #     else: servo[4].angle = s[4]
                     # else: servo[x].angle = s[x]
                     servo[x].angle = s[x]
-
-
+            # print(" sent:",servo[x].angle, sep='')
