@@ -68,6 +68,8 @@ posOption = '-'
 
 
 q = [0]*6 #NOTE: q = q[0] = servo[0]
+# q = {}
+# for i in range(6): q.update({i:0})
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
 
 
@@ -174,12 +176,14 @@ while True:
             if drawing:
                 PP[0], PP[1] = x2-windowRes[0]*0.5,windowRes[1]-y2 # type: ignore
                 q = getAngles(PP,a,b,Y,'-')
+                # print(q)
                 sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
             counter+=1
             if (time.time() - start_time) > x :
                 print("FPS: ", counter / (time.time() - start_time))
                 counter = 0
                 start_time = time.time()
+    input("paused. Press enter to continue...")
 
 
 custom_sendToServo(servo,[135,15,155,45,180,90],2)

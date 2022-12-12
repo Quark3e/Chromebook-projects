@@ -232,6 +232,8 @@ def sendToServo(q, s, servo, servoExceeded, whichServoExceeded, typeOfExceeded):
 
         for x in range(6):
             if notAccurate[x]:
+                print("u_corr:",u_correction[x], "l_corr:", l_correction[x], end='')
+                print(s[x])
                 if centerAccurate[x]:
                     if not u_isAccurate: #90-180 not accurate
                         if s[x]>90: servo[x].angle = s[x] * u_correction[x]
