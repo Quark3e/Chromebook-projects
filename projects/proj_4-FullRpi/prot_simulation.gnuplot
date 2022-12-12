@@ -124,6 +124,8 @@ print " a1:", a1, \
 print ""
 print int(q1), int(q2), int(q3), int(q4), int(q5), int(q6)
 
+# Forward kinematics start here
+
 #Note: Indexing in gnuplot starts at 1, not 0
 array P1[3] = [0, 0, 0]
 array P2[3] = [0, 0, d1]
@@ -132,7 +134,7 @@ array P4[3] = [P3[1]+d3*cos(q2+q3)*sin(q1), P3[2]+d3*cos(q2+q3)*cos(q1), P3[3]+d
 array P5[3] = [P3[1]+(d3+d4)*cos(q2+q3)*sin(q1), P3[2]+(d3+d4)*cos(q2+q3)*cos(q1), P3[3]+(d3+d4)*sin(q2+q3)]
 
 b = asin(((d5+d6)*sin(q5)*cos(q4))/(d5+d6))+q2+q3
-if (toDegrees(q5) == 90 || toDegrees(q5) == -90) {
+if q5 == 90 || q5 == -90) {
     if (((d5+d6)*sin(q5)*cos(q4)) == 0) { a=0 }
     if (((d5+d6)*sin(q5)*cos(q4)) > 0) { a = 90 }
     if (((d5+d6)*sin(q5)*cos(q4)) < 0) { a = -90 }

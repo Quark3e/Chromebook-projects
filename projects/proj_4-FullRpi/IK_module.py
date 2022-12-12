@@ -21,6 +21,7 @@ def toDegrees(radians): return (radians * 180) / pi
 def toRadians(degrees): return (degrees * pi) / 180
 
 def getDistance(p1, p2):
+    '''[x y z]'''
     return sqrt(pow(p2[0]-p1[0], 2)+pow(p2[1]-p1[1], 2)+pow(p2[2]-p1[2], 2))
 
 def custom_sendToServo(servo, new_rotation, total_time, useDefault = False):
