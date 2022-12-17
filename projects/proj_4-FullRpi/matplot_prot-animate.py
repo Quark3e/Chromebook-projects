@@ -1,13 +1,12 @@
-#!/usr/bin/env python3
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 import math
 import sys
 import os
 
-from IK_module import toDegrees,toRadians,getAngles,getDistance,getSubframe
-from IK_module import link
+from IK_module import toDegrees, toRadians, getAngles, getDistance, link
 
 
 PP = 3*[0.0]
@@ -18,36 +17,22 @@ P = 6*[PP]
 read_PP = PP
 
 
-def configure_plots():
-    '''
-    Plot frame X0Y0Z0 and sub-frame X1Y1Z1
-    '''
+def configure_plot():
     global ax, fig
-    
-    fig = plt.figure(figsize=plt.figaspect(0.5)) #type: ignore
-    ax = [0,0]
-    ax[0] = fig.add_subplot(1,2,1,projection='3d') #type: ignore
-    ax[1] = fig.add_subplot(1,2,2,projection='3d') #type: ignore
-    
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
     # Make legend, set axes limits and labels
-    fig.legend()
-    ax[0].set_xlim(-250, 250)
-    ax[0].set_ylim(-100, 400)
-    ax[0].set_zlim(0, 400) #type: ignore
-    ax[0].set_xlabel('X0')
-    ax[0].set_ylabel('Y0')
-    ax[0].set_zlabel('Z0') #type: ignore
+    ax.legend()
+    ax.set_xlim(-250, 250)
+    ax.set_ylim(-100, 400)
+    ax.set_zlim(0, 400) #type: ignore
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z') #type: ignore
     # Customize the view angle so it's easier to see that the scatter points lie
     # on the plane y=0
-    ax[0].view_init(elev=20., azim=145, roll=0) #type: ignore
-
-    ax[1].set_xlim(-50, 50)
-    ax[1].set_ylim(0,100)
-    ax[1].set_zlim(-50, 50) #type: ignore
-    ax[1].set_xlabel('X1')
-    ax[1].set_ylabel('Y1')
-    ax[1].set_zlabel('Z1') #type: ignore
-    ax[1].view_init(elev=20., azim=145, roll=0) #type: ignore
+    ax.view_init(elev=20., azim=145, roll=0) #type: ignore
 
 
 def FK_solver():
@@ -87,18 +72,15 @@ def FK_solver():
 def main():
     global PP, orient, q
     while True:
-        configure_plots() #NOTE: must call this first before any use of the variable 'ax'
+        configure_plot() #NOTE: must call this first before any use of the variable 'ax'
         os.system('clear')
         opt = input(" enter end-effector position [x y z]: ").split()
         if opt[0] == "exit": break
         PP = [float(opt[0]),float(opt[1]),float(opt[2])]
         opt = input(" enter orientation of end-effector [a b Y]: ").split()
         orient = [toRadians(float(opt[0])),toRadians(float(opt[1])),toRadians(float(opt[2]))]
-        q = getAngles(PP,orient[0],orient[1],orient[2],'-',printText=True)
-        subFrame = getSubframe(PP,orient[0],orient[1],'-')
-        subFrame[0] = 0-subFrame[0]
-        if subFrame[2]>=0: ax[1].set_zlim(0,100) #type: ignore
-        elif subFrame[2]<0: ax[1].set_zlim(-100,0) #type: ignore
+        q = getAngles(PP,orient[0],orient[1],orient[2],'-')
+        print([round(toDegrees(q)) for q in q])
         FK_solver()
 
         x_values, y_values, z_values = [], [], []
@@ -109,13 +91,10 @@ def main():
         x_values.append(read_PP[0])
         y_values.append(read_PP[1])
         z_values.append(read_PP[2])
-        print(" x:",x_values,"\n y:",y_values,"\n z:",z_values)
-        
-        ax[0].plot(x_values, y_values, 'bo', linestyle='solid', zs=z_values, zdir='z', label='Base frame')
-        ax[0].plot([P[4][0],PP[0]],[P[4][1],PP[1]],[P[4][2],PP[2]], 'bo', linestyle='dashed',color='red')
-        print(subFrame[0],subFrame[1],subFrame[2])
-        ax[1].plot([0,subFrame[0]],[0,subFrame[1]], 'bo',zs=[0,subFrame[2]], linestyle='solid', zdir='z', label='sub-frame')
-        # ax[1].plot()
+        print(x_values,y_values,z_values,sep="\n")
+        ax.plot(x_values, y_values, 'bo', linestyle='solid', zs=z_values, zdir='z', label='curve in (x, y)')
+        ax.plot([P[4][0],-PP[0]],[P[4][1],PP[1]],[P[4][2],PP[2]], 'bo', linestyle='dashed',color='red')
+
         plt.show()
 
 
