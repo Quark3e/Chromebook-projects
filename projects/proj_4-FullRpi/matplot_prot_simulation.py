@@ -111,10 +111,11 @@ def main():
         z_values.append(read_PP[2])
         print(" x:",x_values,"\n y:",y_values,"\n z:",z_values)
         
-        ax[0].plot(x_values, y_values, 'bo', linestyle='solid', zs=z_values, zdir='z', label='Base frame')
-        ax[0].plot([P[4][0],PP[0]],[P[4][1],PP[1]],[P[4][2],PP[2]], 'bo', linestyle='dashed',color='red')
+        
+        ax[0].plot(x_values, y_values, 'bo', linestyle='solid', zs=z_values, zdir='z', label='Base frame') #type: ignore
+        ax[0].plot([P[4][0],PP[0]],[P[4][1],PP[1]],[P[4][2],PP[2]], 'bo', linestyle='dashed',color='red') #type: ignore
         print(subFrame[0],subFrame[1],subFrame[2])
-        ax[1].plot([0,subFrame[0]],[0,subFrame[1]], 'bo',zs=[0,subFrame[2]], linestyle='solid', zdir='z', label='sub-frame')
+        ax[1].plot([0,subFrame[0]],[0,subFrame[1]], 'bo',zs=[0,subFrame[2]], linestyle='solid', zdir='z', label='sub-frame') #type: ignore
         # ax[1].plot()
         plt.show()
 
