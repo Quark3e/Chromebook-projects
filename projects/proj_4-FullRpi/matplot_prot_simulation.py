@@ -34,6 +34,7 @@ def configure_plots():
     ax[0].set_xlim(-250, 250)
     ax[0].set_ylim(-100, 400)
     ax[0].set_zlim(0, 400) #type: ignore
+    ax[0].set_aspect('equal',adjustable='box')
     ax[0].set_xlabel('X0')
     ax[0].set_ylabel('Y0')
     ax[0].set_zlabel('Z0') #type: ignore
@@ -44,10 +45,12 @@ def configure_plots():
     ax[1].set_xlim(-50, 50)
     ax[1].set_ylim(0,100)
     ax[1].set_zlim(-50, 50) #type: ignore
+    ax[1].set_aspect('equal',adjustable='box')
     ax[1].set_xlabel('X1')
     ax[1].set_ylabel('Y1')
     ax[1].set_zlabel('Z1') #type: ignore
     ax[1].view_init(elev=20., azim=145, roll=0) #type: ignore
+
 
 
 def FK_solver():
@@ -70,7 +73,7 @@ def FK_solver():
         if ((link[4]+link[5])*math.sin(q[4])*math.cos(q[3])) < 0: orient[0] = toRadians(-90)
     else:
         read_orient[0] = q[0]+math.atan(((link[4]+link[5])*math.sin(q[4])*math.sin(q[3])) / ((link[4]+link[5])*math.cos(q[4]))) #type: ignore
-    print(toDegrees(read_orient[0]),toDegrees(read_orient[1]))
+    print(" a_read:",toDegrees(read_orient[0])," b_read:",toDegrees(read_orient[1]),sep='')
 
     P[5] = [
         P[4][0]+(link[4])*math.sin(read_orient[0])*math.sin(read_orient[1]),
