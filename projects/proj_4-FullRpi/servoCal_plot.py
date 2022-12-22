@@ -10,6 +10,7 @@ import numpy as np
 import time
 import os
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles, custom_sendToServo
 
@@ -32,6 +33,8 @@ servo = [servo.Servo(pca.channels[0]),
          servo.Servo(pca.channels[5])]
 for i in range(6): servo[i].set_pulse_width_range(500, 2500)
 
+correctionFile = open("servoCorrections.dat", "a")
+
 sDefault = [90,45,180-135,90,180-0,90]
 
 servo[0].angle = sDefault[0]
@@ -42,8 +45,8 @@ servo[4].angle = sDefault[4]
 servo[5].angle = sDefault[5]
 time.sleep(1)
 
-x_q = 6*[18*[0]]
-y_q = 6*[18*[0]]
+x_q = 6*[19*[0]]
+y_q = 6*[19*[0]]
 #_q = 6*[18*[0]], 6 lists each with 18 elements
 
 def configure_plots():
@@ -68,11 +71,11 @@ def main():
         os.system('clear')
         print("Testing servo:",q)
         servo[q].angle = 180
-        time.sleep(1.5)
+        time.sleep(0.5)
         servo[q].angle = 0
         input(" calibrate degreeDisk (fixate disk 0 with current servo position)\n press enter to continue...")
         print()
-        for x in range(0,18,1):
+        for x in range(0,19,1):
             servo[q].angle = x*10
             print(" sent angle:",x*10, end='')
             y_q[q][x] = round(float(input(" read angle: "))) - x*10
@@ -80,12 +83,15 @@ def main():
         servo[q].angle = sDefault[q]
         ax.plot(x_q[q],y_q[q],linestyle='solid',label=str(q))
         time.sleep(0.2)
-
     ax.legend()
-
     plt.show()
+    currentDate = str(datetime.now())
+    toFile = currentDate
+    for q in range(6):
+        toFile += "; q" + str(q+1) + ":" + str(y_q[q])
 
 
 if __name__ == "__main__":
     main()
+    correctionFile.close()
     
