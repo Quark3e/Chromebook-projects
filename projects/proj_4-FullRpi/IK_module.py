@@ -88,10 +88,27 @@ def exceedCheck(q, servoExceeded, whichServoExceeded, typeOfExceeded):
     return [servoExceeded,whichServoExceeded,typeOfExceeded]
 
 
+def check_isNaN(q, printText = False):
+    '''
+    Returns True if any rotation is not a number (isNaN)
+        else it returns False
+    '''
+    if not (isnan(q[0]) or
+            isnan(q[1]) or
+            isnan(q[2]) or
+            isnan(q[3]) or
+            isnan(q[4]) or
+            isnan(q[5])):
+            return False
+    else:
+        if printText: print("a joint value is NaN")
+        return True
+
+
 def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False):
     '''
     Solves and returns all the rotation values
-
+    also returns if the point is reachable (i.e. no joints is NaN)
     Args:
         PP (float/int) [mm]: The end-effector position in list for
         a (float) [radians]: alpha orientation variable
@@ -101,6 +118,8 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False)
             '-' is q3(/q[2]) above line between P2 and P4/P5;
             '+' is q3(/q[2]) under line between P2 and P4/P5
     '''
+    positionIsReachable = True
+
     a1_exceed, b1_exceed = 0, 0
     q=[0]*6
     P5 = [0]*3
@@ -133,7 +152,9 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False)
     try:
         if posOption == '+': q[2] = acos((pow(P5[0], 2) + pow(P5[1], 2) + pow(P5[2] - link[0], 2) - pow(link[1], 2) - pow(link[2] + link[3], 2)) /(2 * link[1] * (link[2] + link[3]))) # type: ignore
         elif posOption == '-': q[2] = acos((pow(P5[0], 2) + pow(P5[1], 2) + pow(P5[2] - link[0], 2) - pow(link[1], 2) - pow(link[2] + link[3], 2)) /(2 * link[1] * (link[2] + link[3]))) # type: ignore
-    except ValueError: print("domain error triggered")
+    except ValueError: 
+        print("domain error triggered")
+        positionIsReachable = False
     
     lambdaVar = atan((P5[2] - link[0]) / sqrt(pow(P5[0], 2) + pow(P5[1], 2)))
     muVar = atan(((link[2] + link[3]) * sin(q[2])) /(link[1] + (link[2] + link[3]) * cos(q[2])))
@@ -142,7 +163,9 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False)
     elif posOption == '-':
         #if (s[1] < diffCheck and lambdaVar + muVar < 0) or (lambdaVar + muVar > 0):
         if lambdaVar + muVar > 0: q[1] = lambdaVar + muVar # type: ignore #NOTE: the negative muVar value hasnt been solved. so this is a temp. fix 
-        else: print("q[1] error occured")
+        else: 
+            print("q[1] error occured")
+            positionIsReachable = False
         q[2] = 0 - q[2] # type: ignore
     
     a1 = a - q[0]
@@ -173,12 +196,17 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False)
         elif frame1X == 0: q[3] = toRadians(0) # type: ignore
         if printText: print(" b1 was 0 so q4 was adjusted")
     elif b1 < 0 or b1 > 0: q[3] = atan(frame1X / frame1Z) # type: ignore
-    checkVar = asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5]))
-    if isnan(checkVar):
-        if printText: print("asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / link[4])  is NaN")
-    else:
-        q[4] = asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5])) # type: ignore
-        # q[4] = atan(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (cos(b1)*cos(a1))) # type: ignore
+    try:
+        checkVar = asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5]))
+        if isnan(checkVar):
+            if printText:
+                print("asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / link[4])  is NaN")
+            positionIsReachable = False
+        else:
+            q[4] = asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5])) # type: ignore
+            # q[4] = atan(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (cos(b1)*cos(a1))) # type: ignore
+    except ValueError:
+        positionIsReachable = False
 
     if frame1Z < 0:
         q[4] = 0-q[4] # type: ignore
@@ -196,19 +224,21 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False)
         #     sep=''
         # )
         print(" ",[round(toDegrees(n)) for n in q])
+    if check_isNaN(q):
+        positionIsReachable = False
+        print("one joint is NaN")
 
-    return q
+    return q, positionIsReachable
 
 
 def getSubframe(PP,a,b,posOption,printText=False):
     '''
-    Solves and returns all the rotation values
+    Returns xyz distances in sub-frame 1 and a1, b1
 
     Args:
         PP (float/int) [mm]: The end-effector position in list for
         a (float) [radians]: alpha orientation variable
         b (float) [radians]: beta orientation variable
-        Y (float) [radians]: gamma orienation variable
         posOption (str/char): different mode to use
             '-' is q3(/q[2]) above line between P2 and P4/P5;
             '+' is q3(/q[2]) under line between P2 and P4/P5
@@ -268,8 +298,7 @@ def getSubframe(PP,a,b,posOption,printText=False):
     #nvm, the frame X0Y0Z0: x axis flipped and then it's flipped in the function
     frame1Z = (link[4]+link[5]) * sin(b1)
     frame1Y = (link[4]+link[5]) * cos(b1) * cos(a1)
-    return [frame1X,frame1Y,frame1Z]
-
+    return [frame1X,frame1Y,frame1Z,a1,b1]
 
 
 def correctionSetup():
@@ -320,13 +349,8 @@ def sendToServo(q, s, servo, servoExceeded, whichServoExceeded, typeOfExceeded):
         whichServoExceeded (boolean): dictionary/list
         typeOfExceeded (string): dictionary/list
     '''
-    if not (isnan(q[0]) or
-            isnan(q[1]) or
-            isnan(q[2]) or
-            isnan(q[3]) or
-            isnan(q[4]) or
-            isnan(q[5])):
-
+    
+    if not check_isNaN(q):
         servoExceeded, whichServoExceeded, typeOfExceeded = exceedCheck(q,servoExceeded,whichServoExceeded,typeOfExceeded)
 
         s[5] = default_q[5] + int(round(toDegrees(q[5])))
