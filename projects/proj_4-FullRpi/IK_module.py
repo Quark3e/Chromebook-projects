@@ -105,7 +105,7 @@ def check_isNaN(q, printText = False):
         return True
 
 
-def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False):
+def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,printErrors=True):
     '''
     Solves and returns all the rotation values
     also returns if the point is reachable (i.e. no joints is NaN)
@@ -123,11 +123,11 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False)
     a1_exceed, b1_exceed = 0, 0
     q=[0]*6
     P5 = [0]*3
-    PP[0] = 0 - PP[0]
-
-    PP[0] = PP[0] * coord_scalar
-    PP[1] = PP[1] * coord_scalar
-    PP[2] = PP[2] * coord_scalar
+    # PP[0] = 0 - PP[0]
+    posX = 0 - PP[0]
+    # PP[0] = PP[0] * coord_scalar
+    # PP[1] = PP[1] * coord_scalar
+    # PP[2] = PP[2] * coord_scalar
     link[0] = link[0] * length_scalar
     link[1] = link[1] * length_scalar
     link[2] = link[2] * length_scalar
@@ -135,7 +135,7 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False)
     link[4] = link[4] * length_scalar
     link[5] = link[5] * length_scalar
     l = (link[4]+link[5]) * cos(b)
-    P5[0] = PP[0] - l * sin(a)
+    P5[0] = posX - l * sin(a)
     P5[1] = PP[1] - l * cos(a)
     P5[2] = PP[2] - (link[4]+link[5]) * sin(b)
 
@@ -153,10 +153,16 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False)
         if posOption == '+': q[2] = acos((pow(P5[0], 2) + pow(P5[1], 2) + pow(P5[2] - link[0], 2) - pow(link[1], 2) - pow(link[2] + link[3], 2)) /(2 * link[1] * (link[2] + link[3]))) # type: ignore
         elif posOption == '-': q[2] = acos((pow(P5[0], 2) + pow(P5[1], 2) + pow(P5[2] - link[0], 2) - pow(link[1], 2) - pow(link[2] + link[3], 2)) /(2 * link[1] * (link[2] + link[3]))) # type: ignore
     except ValueError: 
-        print("domain error triggered")
+        if printErrors: print("domain error triggered")
         positionIsReachable = False
+    # print(P5)
     
-    lambdaVar = atan((P5[2] - link[0]) / sqrt(pow(P5[0], 2) + pow(P5[1], 2)))
+    lambdaVar, muVar = 0, 0
+
+    try:
+        lambdaVar = atan((P5[2] - link[0]) / sqrt(pow(P5[0], 2) + pow(P5[1], 2)))
+    except ZeroDivisionError:
+        positionIsReachable = False
     muVar = atan(((link[2] + link[3]) * sin(q[2])) /(link[1] + (link[2] + link[3]) * cos(q[2])))
     if printText: print(" lambda:",round(toDegrees(lambdaVar))," mu:",round(toDegrees(muVar)),sep='')
     if posOption == '+': q[1] = lambdaVar - muVar # type: ignore
@@ -164,12 +170,14 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False)
         #if (s[1] < diffCheck and lambdaVar + muVar < 0) or (lambdaVar + muVar > 0):
         if lambdaVar + muVar > 0: q[1] = lambdaVar + muVar # type: ignore #NOTE: the negative muVar value hasnt been solved. so this is a temp. fix 
         else: 
-            print("q[1] error occured")
+            if printErrors: print("q[1] error occured")
             positionIsReachable = False
         q[2] = 0 - q[2] # type: ignore
     
     a1 = a - q[0]
     b1 = b - (q[1] + q[2])
+    if toDegrees(b) == 90 or toDegrees(b) == -90:
+        a1 = 0
     if printText: print(" a1:",round(toDegrees(a1))," b1:",round(toDegrees(b1)),sep='')
     
     if toDegrees(a1)>90: a1_exceed = 1
@@ -178,10 +186,11 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False)
     elif toDegrees(b1)<-90: b1_exceed = -1
     
     if b1_exceed!=0 or a1_exceed!=0:
-        if a1_exceed!=0: print(" a1 exceeded by", a1_exceed*90, end='')
-        if b1_exceed!=0: print(" b1 exceeded by", b1_exceed*90, end='')
-        print()
-
+        if printErrors:
+            if a1_exceed!=0: print(" a1 exceeded by", a1_exceed*90, end='')
+            if b1_exceed!=0: print(" b1 exceeded by", b1_exceed*90, end='')
+            print()
+        # positionIsReachable = False
     frame1X = (link[4]+link[5]) * cos(b1) * sin(a1)
     #NOTE: The x and y axis of the X1Y1Z1 frame in the paper was reverse (compared to this. The names need to be changed!)
     #nvm, the frame X0Y0Z0: x axis flipped and then it's flipped in the function
@@ -199,7 +208,7 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False)
     try:
         checkVar = asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5]))
         if isnan(checkVar):
-            if printText:
+            if printErrors:
                 print("asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / link[4])  is NaN")
             positionIsReachable = False
         else:
@@ -213,17 +222,7 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False)
         if printText: print(" frame1_z was below 0 so q5 is subtracted from 0")
     if b <= pi / 2 and b >= 0 - pi / 2: q[5] = Y - q[3]
     elif b >= pi / 2 or b <= 0 - pi / 2: q[5] = pi - (Y - q[5])
-    if printText:
-        # print(
-        #     " q[0]:", round(toDegrees(q[0])),
-        #     " q[1]:", round(toDegrees(q[1])),
-        #     " q[2]:", round(toDegrees(q[2])),
-        #     " q[3]:", round(toDegrees(q[3])),
-        #     " q[4]:", round(toDegrees(q[4])),
-        #     " q[5]:", round(toDegrees(q[5])),
-        #     sep=''
-        # )
-        print(" ",[round(toDegrees(n)) for n in q])
+    if printText: print(" ",[round(toDegrees(n)) for n in q])
     if check_isNaN(q):
         positionIsReachable = False
         print("one joint is NaN")
@@ -247,10 +246,10 @@ def getSubframe(PP,a,b,posOption,printText=False):
     a1_exceed, b1_exceed = 0, 0
     q=[0]*6
     P5 = [0]*3
-    PP[0] = 0 - PP[0]
-
+    # PP[0] = 0 - PP[0]
+    posX = 0 - PP[0]
     l = (link[4]+link[5]) * cos(b)
-    P5[0] = PP[0] - l * sin(a)
+    P5[0] = posX - l * sin(a)
     P5[1] = PP[1] - l * cos(a)
     P5[2] = PP[2] - (link[4]+link[5]) * sin(b)
 
@@ -281,6 +280,10 @@ def getSubframe(PP,a,b,posOption,printText=False):
     
     a1 = a - q[0]
     b1 = b - (q[1] + q[2])
+
+    if toDegrees(b) == 90 or toDegrees(b) == -90:
+        a1 = 0
+
     if printText: print(" a1:",round(toDegrees(a1))," b1:",round(toDegrees(b1)),sep='')
     
     if toDegrees(a1)>90: a1_exceed = 1
