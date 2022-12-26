@@ -58,14 +58,14 @@ def plotAxis_sim(PP):
     zAxis_values = [[],[],[]]
     xRange = [0-(link[1]+link[2]+link[3]+link[4]+link[5]), (link[1]+link[2]+link[3]+link[4]+link[5])] #[lower/negative_range, upper/positive_range]
     yRange = [0, (link[1]+link[2]+link[3]+link[4]+link[5])]
-    zRange = [0, sum(link)]
+    zRange = [0, sum(link)] #type: ignore
     xRange = [-250, 250]
     yRange = [0, 400]
     zRange = [0, 400]
 
     posRanges = [xRange,yRange,zRange]
-    axis_Values = [xAxis_values.copy(),yAxis_values.copy(),zAxis_values.copy()]
-
+    read_axis_Values = [xAxis_values.copy(),yAxis_values.copy(),zAxis_values.copy()]
+    given_axis_Values = [[[],[],[]],[[],[],[]],[[],[],[]]]
     temp_PP = PP.copy()
 
     for axis in range(3):
@@ -79,26 +79,23 @@ def plotAxis_sim(PP):
             print("{:8}".format(round(axisPos)), "orient:{:18}".format(str([toDegrees(angle) for angle in orient])), end=' ')
             q, isReachable = getAngles(temp_PP,orient[0],orient[1],orient[2],'-', printText=False,printErrors=False,forShow=True)
             if isReachable:
-                _, read_PP, _ = FK_solver(q, printText = False)            
+                _, read_PP, _ = FK_solver(q, printText = False)           
                 print(' given:{:18} angles:{:30} read:{:18} orient:{:10}'.format(str([round(temp_PP) for temp_PP in temp_PP]),
                 str([round(toDegrees(q)) for q in q]),
                 str([round(read_PP) for read_PP in read_PP]),
                 str([round(toDegrees(orientation)) for orientation in orient])), end='')
-                axis_Values[axis][0].append(read_PP[0])
-                axis_Values[axis][1].append(read_PP[1])
-                axis_Values[axis][2].append(read_PP[2])
+                read_axis_Values[axis][0].append(read_PP[0])
+                read_axis_Values[axis][1].append(read_PP[1])
+                read_axis_Values[axis][2].append(read_PP[2])
+                given_axis_Values[axis][0].append(temp_PP[0])
+                given_axis_Values[axis][1].append(temp_PP[1])
+                given_axis_Values[axis][2].append(temp_PP[2])
             print()
-        if axis == 0: plotColor='red'
-        elif axis == 1: plotColor='green'
-        else: plotColor='blue'
-        ax[0].plot(axis_Values[axis][0],axis_Values[axis][1],linestyle='solid',zs=axis_Values[axis][2],zdir='z',color=plotColor) #type: ignore
-    # for axis in range(3):
-    #     if axis == 0: plotColor='red'
-    #     elif axis == 1: plotColor='green'
-    #     else: plotColor='blue'
-    #     ax[0].plot(axis_Values[axis][0],axis_Values[axis][1],linestyle='solid',zs=axis_Values[axis][2],zdir='z',color=plotColor) #type: ignore
-    #             # ax[0].plot([P[4][0],PP[0]],[P[4][1],PP[1]],[P[4][2],PP[2]], 'bo', linestyle='dashed',color='red') #type: ignore
-
+        if axis == 0: plotColor_1='red'
+        elif axis == 1: plotColor_1='green'
+        else: plotColor_1='blue'
+        ax[0].plot(read_axis_Values[axis][0],read_axis_Values[axis][1],linestyle='solid',zs=read_axis_Values[axis][2],zdir='z',color=plotColor_1) #type: ignore
+        ax[0].plot(given_axis_Values[axis][0],given_axis_Values[axis][1],linestyle='dotted',zs=given_axis_Values[axis][2],zdir='z',color='grey') #type: ignore
 
 
 def FK_solver(q, printText = True):
