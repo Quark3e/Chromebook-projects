@@ -69,29 +69,29 @@ def plotAxis_sim(PP):
     temp_PP = PP.copy()
 
     for axis in range(3):
-        print(temp_PP, PP,"\n")
+        print(axis, PP, temp_PP, "-> ", end='')
         temp_PP = PP.copy()
+        print(temp_PP)
+
         for axisPos in range(posRanges[axis][0], posRanges[axis][1], 10):
-            # print(axisPos)
             temp_PP[axis] = axisPos
             isReachable = True
-            q, isReachable = getAngles(temp_PP,orient[0],orient[1],orient[2],'-', printText=False,printErrors=False)
-            # print(axis, isReachable)
-            # isReachable = True
+            print("{:8}".format(round(axisPos)), "orient:{:18}".format(str([toDegrees(angle) for angle in orient])), end=' ')
+            q, isReachable = getAngles(temp_PP,orient[0],orient[1],orient[2],'-', printText=False,printErrors=False,forShow=True)
             if isReachable:
-                _, read_PP, _ = FK_solver(q, printText = False)
-                # print(axis, [round(toDegrees(q)) for q in q], temp_PP, read_PP)
-                if axis == 1: print([round(read_PP) for read_PP in read_PP], [round(toDegrees(q)) for q in q])
+                _, read_PP, _ = FK_solver(q, printText = False)            
+                print(' given:{:18} angles:{:30} read:{:18} orient:{:10}'.format(str([round(temp_PP) for temp_PP in temp_PP]),
+                str([round(toDegrees(q)) for q in q]),
+                str([round(read_PP) for read_PP in read_PP]),
+                str([round(toDegrees(orientation)) for orientation in orient])), end='')
                 axis_Values[axis][0].append(read_PP[0])
                 axis_Values[axis][1].append(read_PP[1])
                 axis_Values[axis][2].append(read_PP[2])
-                # print([axis_Values[0][len(axis_Values[axis])-1],axis_Values[1][len(axis_Values[axis])-1],axis_Values[2][len(axis_Values[axis])-1]])
+            print()
         if axis == 0: plotColor='red'
         elif axis == 1: plotColor='green'
         else: plotColor='blue'
         ax[0].plot(axis_Values[axis][0],axis_Values[axis][1],linestyle='solid',zs=axis_Values[axis][2],zdir='z',color=plotColor) #type: ignore
-                # ax[0].plot([P[4][0],PP[0]],[P[4][1],PP[1]],[P[4][2],PP[2]], 'bo', linestyle='dashed',color='red') #type: ignore
-
     # for axis in range(3):
     #     if axis == 0: plotColor='red'
     #     elif axis == 1: plotColor='green'
@@ -118,9 +118,9 @@ def FK_solver(q, printText = True):
     read_orient[1] = math.asin( ((link[4]+link[5])*math.sin(q[4])*math.cos(q[3])) / (link[4]+link[5]) )+q[1]+q[2] #type: ignore #isn't it asin?
     # print("read b1", toDegrees(math.asin( ((link[4]+link[5])*math.sin(q[4])*math.cos(q[3])) / (link[4]+link[5]) ))) #I'm a goddamn moron
     if toDegrees(q[4]) == 90 or toDegrees(q[4]) == -90:
-        if ((link[4]+link[5])*math.sin(q[4])*math.cos(q[3])) == 0: orient[0] = toRadians(0)
-        if ((link[4]+link[5])*math.sin(q[4])*math.cos(q[3])) > 0: orient[0] = toRadians(90)
-        if ((link[4]+link[5])*math.sin(q[4])*math.cos(q[3])) < 0: orient[0] = toRadians(-90)
+        if ((link[4]+link[5])*math.sin(q[4])*math.cos(q[3])) == 0: read_orient[0] = toRadians(0) #type: ignore
+        if ((link[4]+link[5])*math.sin(q[4])*math.cos(q[3])) > 0: read_orient[0] = toRadians(90) #type: ignore
+        if ((link[4]+link[5])*math.sin(q[4])*math.cos(q[3])) < 0: read_orient[0] = toRadians(-90) #type: ignore
     else:
         read_orient[0] = q[0]+math.atan(((link[4]+link[5])*math.sin(q[4])*math.sin(q[3])) / ((link[4]+link[5])*math.cos(q[4]))) #type: ignore
     if printText: print(" a_read:",toDegrees(read_orient[0])," b_read:",toDegrees(read_orient[1]),sep='')
@@ -149,7 +149,7 @@ def main():
         PP = [float(opt[0]),float(opt[1]),float(opt[2])]
         opt = input(" enter orientation of end-effector [a b Y]: ").split()
         orient = [toRadians(float(opt[0])),toRadians(float(opt[1])),toRadians(float(opt[2]))]
-        q, _ = getAngles(PP,orient[0],orient[1],orient[2],'-',printText=True)
+        q, _ = getAngles(PP,orient[0],orient[1],orient[2],'-',printText=True,forShow=True)
         
         subFrame = getSubframe(PP,orient[0],orient[1],'-')
         subFrame[0] = 0-subFrame[0]

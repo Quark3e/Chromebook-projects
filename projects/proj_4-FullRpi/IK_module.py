@@ -105,7 +105,7 @@ def check_isNaN(q, printText = False):
         return True
 
 
-def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,printErrors=True):
+def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,printErrors=True, debug=False, forShow=False):
     '''
     Solves and returns all the rotation values
     also returns if the point is reachable (i.e. no joints is NaN)
@@ -176,7 +176,7 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,
     
     a1 = a - q[0]
     b1 = b - (q[1] + q[2])
-    if toDegrees(b) == 90 or toDegrees(b) == -90:
+    if not forShow and (toDegrees(b) == 90 or toDegrees(b) == -90):
         a1 = 0
     if printText: print(" a1:",round(toDegrees(a1))," b1:",round(toDegrees(b1)),sep='')
     
@@ -190,7 +190,6 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,
             if a1_exceed!=0: print(" a1 exceeded by", a1_exceed*90, end='')
             if b1_exceed!=0: print(" b1 exceeded by", b1_exceed*90, end='')
             print()
-        # positionIsReachable = False
     frame1X = (link[4]+link[5]) * cos(b1) * sin(a1)
     #NOTE: The x and y axis of the X1Y1Z1 frame in the paper was reverse (compared to this. The names need to be changed!)
     #nvm, the frame X0Y0Z0: x axis flipped and then it's flipped in the function
