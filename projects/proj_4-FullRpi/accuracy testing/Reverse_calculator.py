@@ -13,6 +13,11 @@ import math
 import sys
 import readline
 
+sys.path.append('/home/berkhme/Chromebook-projects/projects/proj_4-FullRpi')
+
+from IK_module import toDegrees,toRadians,getAngles,getDistance,getSubframe
+from IK_module import link, default_q
+
 fileName = "basicTest_2"
 hardSetAngle = [0, 0]
 useHardSetAngle = True
@@ -57,166 +62,77 @@ posOption = '-'
 
 Roll, Pitch = 0.1, 0.1
 
-d1 = 140; #axial "roll"
-d2 = 135; #axial "pitch"
-d3 = 70; #axial "pitch"
-d4 = 80; #axial "roll"
-d5 = 45; #axial "pitch
-d6 = 45; #axial "roll" (?)
-
-q1, q2, q3, q4, q5, q6, q7 = 0, 0, 0, 0, 0, 0, 0 #NOTE: q1 = servo[0]
+q = 6*[0.0]
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
 
 posX2, posY2, posZ2 = 0.01, 0.01, 0.01
 a1, b1 = 0.1, 0.1
 
-def toDegrees(radians):
-    return (radians * 180) / math.pi
-def toRadians(degrees):
-    return (degrees * math.pi) / 180
-
 
 def getP1():
     return [0, 0, 0]
 def getP2():
-    return (0, 0, d1)
-def getP3(q1, q2): #in radians
+    return (0, 0, link[0])
+def getP3(q): #in radians
     return [
-        d2*math.cos(q2)*math.sin(q1),
-        d2*math.cos(q2)*math.cos(q1),
-        d1+d2*math.sin(q2)
+        link[1]*math.cos(q[1])*math.sin(q[0]),
+        link[1]*math.cos(q[1])*math.cos(q[0]),
+        link[0]+link[1]*math.sin(q[1])
         ]
-def getP4(P3, q1, q2, q3): #in radians
+def getP4(P3, q): #in radians
     return [
-        P3[0]+d3*math.cos(q2+q3)*math.sin(q1),
-        P3[1]+d3*math.cos(q2+q3)*math.cos(q1),
-        P3[2]+d3*math.sin(q2+q3)
+        P3[0]+link[2]*math.cos(q[1]+q[2])*math.sin(q[0]),
+        P3[1]+link[2]*math.cos(q[1]+q[2])*math.cos(q[0]),
+        P3[2]+link[2]*math.sin(q[1]+q[2])
         ]
-def getP5(P3, q1, q2, q3): #in radians
+def getP5(P3, q): #in radians
     return [
-        P3[0]+(d3+d4)*math.cos(q2+q3)*math.sin(q1),
-        P3[1]+(d3+d4)*math.cos(q2+q3)*math.cos(q1),
-        P3[2]+(d3+d4)*math.sin(q2+q3)
+        P3[0]+(link[2]+link[3])*math.cos(q[1]+q[2])*math.sin(q[0]),
+        P3[1]+(link[2]+link[3])*math.cos(q[1]+q[2])*math.cos(q[0]),
+        P3[2]+(link[2]+link[3])*math.sin(q[1]+q[2])
         ]
 
-def getPP(P5, q1, q2, q3, q4, q5): #in radians
+def getPP(P5, q, purpose="no purpose"+":"): #in radians
     global a, b
     # return [
-    #     P5[0]+(d5+d6)*math.cos(b)*math.sin(a),
-    #     P5[1]+(d5+d6)*math.cos(b)*math.cos(a),
-    #     P5[2]+(d5+d6)*math.sin(b)
+    #     P5[0]+(link[4]+link[5])*math.cos(b)*math.sin(a),
+    #     P5[1]+(link[4]+link[5])*math.cos(b)*math.cos(a),
+    #     P5[2]+(link[4]+link[5])*math.sin(b)
     # ]
-    b = math.asin(((d5+d6)*math.sin(q5)*math.cos(q4))/(d5+d6))+q2+q3
-    if int(toDegrees(q5)) == 90 or int(toDegrees(q5)) == -90:
-        if ((d5+d6)*math.sin(q5)*math.cos(q4)) == 0:
+    b = math.asin(((link[4]+link[5])*math.sin(q[4])*math.cos(q[3]))/(link[4]+link[5]))+q[1]+q[2]
+    if int(toDegrees(q[4])) == 90 or int(toDegrees(q[4])) == -90:
+        if ((link[4]+link[5])*math.sin(q[4])*math.cos(q[3])) == 0:
             a = 0
-        elif ((d5+d6)*math.sin(q5)*math.cos(q4)) > 0:
+        elif ((link[4]+link[5])*math.sin(q[4])*math.cos(q[3])) > 0:
             a = toRadians(90)
-        elif ((d5+d6)*math.sin(q5)*math.cos(q4)) < 0:
+        elif ((link[4]+link[5])*math.sin(q[4])*math.cos(q[3])) < 0:
             a = toRadians(-90)
     else:
-        a = q1-math.atan(
-            ((d5+d6)*math.sin(q5)*math.sin(q4)) / ((d5+d6)*math.cos(q5))
+        a = q[0]-math.atan(
+            ((link[4]+link[5])*math.sin(q[4])*math.sin(q[3])) / ((link[4]+link[5])*math.cos(q[4]))
             )
-    print("calculated: alpha: ", int(round(toDegrees(a))), " beta:", int(round(toDegrees(b))), 
-    "   \tsolved y:", int(round((d5+d6)*math.cos(b)*math.cos(a))), 
-    " \tgiven: q4:", int(round(toDegrees(q4))), " \tgiven: q5:", int(round(toDegrees(q5))), sep='')
+    print("{:16} ".format(purpose)," calculated: alpha:{:5} beta:{:5}".format(str(round(toDegrees(a))), str(round(toDegrees(b)))), 
+    "  solved y:{:3}".format(round((link[4]+link[5])*math.cos(b)*math.cos(a))), 
+    "  given(read): q4:{:3}".format(round(toDegrees(q[3]))),
+    "  given(read): q5:{:3}".format(round(toDegrees(q[4]))), sep='')
+
     return [
-        P5[0]+(d5+d6)*math.cos(b)*math.sin(a),
-        P5[1]+(d5+d6)*math.cos(b)*math.cos(a),
-        P5[2]+(d5+d6)*math.sin(b)
+        P5[0]+(link[4]+link[5])*math.cos(b)*math.sin(a),
+        P5[1]+(link[4]+link[5])*math.cos(b)*math.cos(a),
+        P5[2]+(link[4]+link[5])*math.sin(b)
         ]
 
-def getQ4fromQ5(a, b, q1, q2, q3, q5): #returns two answers: [0] from alpha equation, [1] from beta equation
+def getQ4fromQ5(a, b, q): #returns two answers: [0] from alpha equation, [1] from beta equation
+    print(q[4])
     return [
-        math.acos(math.tan(a-q1)/math.tan(q5)),
-        math.acos(math.sin(b-q2-q3)/math.sin(q5))
+        math.acos(math.tan(a-q[0])/math.tan(q[4])),
+        math.acos(math.sin(b-q[1]-q[2])/math.sin(q[4]))
         ]
-def getQ5fromQ4(a, b, q1, q2, q3, q4):
+def getQ5fromQ4(a, b, q):
     return [
-        math.atan(math.tan(a-q1)/math.cos(q4)),
-        math.asin(math.sin(b-q2-q3)/math.cos(q4))
+        math.atan(math.tan(a-q[0])/math.cos(q[3])),
+        math.asin(math.sin(b-q[1]-q[2])/math.cos(q[3]))
         ]
-
-def getAngles(posX, posY, posZ, a, b, Y, posOption, length_scalar = 1, coord_scalar = 1, printText = False):
-    global d1, d2, d3, d4, d5, d6, q1, q2, q3, q4, q5, q6, q7, posX2, posY2, posZ2, b1, a1
-
-    posX = posX * coord_scalar
-    posY = posY * coord_scalar
-    posZ = posZ * coord_scalar
-    d1 = d1 * length_scalar
-    d2 = d2 * length_scalar
-    d3 = d3 * length_scalar
-    d4 = d4 * length_scalar
-    d5 = d5 * length_scalar
-    d6 = d6 * length_scalar
-    l = (d5+d6) * math.cos(b)
-    posX2 = posX - l * math.sin(a)
-    posY2 = posY - l * math.cos(a)
-    posZ2 = posZ - (d5+d6) * math.sin(b)
-    if posY2 == 0 or posY2 < 0:
-        posY2 = 0.00001
-        print("posY2 reached Y0 value!")
-    
-    q1 = math.atan(posX2 / posY2)
-    try:
-        if posOption == '+':
-            q3 = math.acos((pow(posX2, 2) + pow(posY2, 2) + pow(posZ2 - d1, 2) - pow(d2, 2) - pow(d3 + d4, 2)) /(2 * d2 * (d3 + d4)))
-        elif posOption == '-':
-            q3 = math.acos((pow(posX2, 2) + pow(posY2, 2) + pow(posZ2 - d1, 2) - pow(d2, 2) - pow(d3 + d4, 2)) /(2 * d2 * (d3 + d4)))
-    except ValueError:
-        print("domain error triggered")
-    
-    lambdaVar = math.atan((posZ2 - d1) / math.sqrt(pow(posX2, 2) + pow(posY2, 2)))
-    muVar = math.atan(((d3 + d4) * math.sin(q3)) /(d2 + (d3 + d4) * math.cos(q3)))
-    
-    if posOption == '+':
-        q2 = lambdaVar - muVar
-    elif posOption == '-':
-        if lambdaVar + muVar > 0:
-            q2 = lambdaVar + muVar #NOTE: the negative muVar value hasnt been solved. so this is a temp. fix 
-        else:
-            print("q2 error occured")
-        q3 = 0 - q3
-
-    a1 = a - q1
-    b1 = b - (q2 + q3)
-    d5x = (d5+d6) * math.cos(b1) * math.sin(a1)
-    #NOTE: The x and y axis of the X1Y1Z1 frame in the paper was reverse (compared to this. The names need to be changed!)
-    d5z = (d5+d6) * math.sin(b1)
-    if d5z == 0:
-        q4 = 0
-    elif b1 < 0 or b1 > 0:
-        q4 = math.atan((0-d5x) / d5z)
-    checkVar = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
-    if math.isnan(checkVar):
-        if printText:
-            print("asin(sqrt(pow(d5x, 2) + pow(d5z, 2)) / d5)  is NaN")
-    else:
-        q5 = math.asin(math.sqrt(pow(d5x, 2) + pow(d5z, 2)) / (d5+d6))
-    if d5z < 0:
-        q5 = 0-q5
-    if b <= math.pi / 2 and b >= 0 - math.pi / 2:
-        q6 = Y - q4
-    elif b >= math.pi / 2 or b <= 0 - math.pi / 2:
-        q6 = math.pi - (Y - q6)
-    if printText:
-        print(
-            " q1:", round(toDegrees(q1), 1),
-            " q2:", round(toDegrees(q2), 1),
-            " q3:", round(toDegrees(q3), 1),
-            " q4:", round(toDegrees(q4), 1),
-            " q5:", round(toDegrees(q5), 1),
-            " q6:", round(toDegrees(q6), 1),
-            sep=''
-        )
-
-q1_default = 90
-q2_default = 0
-q3_default = 135
-q4_default = 90
-q5_default = 90
-q6_default = 90
 
 zMax = 300
 a, b, Y = toRadians(0), toRadians(-45), toRadians(90)
@@ -249,9 +165,9 @@ if checkList:
     while True:
         if useHardSetAngle and checkList:
             ans = input(" Enter alpha and beta values to test (with space): ").split()
-        if ans[0] == "exit":
+        if ans[0] == "exit": #type: ignore
             sys.exit()
-        hardSetAngle = [int(ans[0]), int(ans[1])]
+        hardSetAngle = [int(ans[0]), int(ans[1])] #type: ignore
 
         rowLength = 68
         fileExtension = ".dat"
@@ -289,7 +205,7 @@ if checkList:
             print()
 
             print(" x:", posX, " y:", posY, " z:", posZ, " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
-            getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
+            q, _ = getAngles([posX, posY, posZ], a, b, Y, posOption, globalPrint)
             print(" a1:", int(toDegrees(a1)), " b1:", int(toDegrees(b1)), sep='')
 
             servoExceeded = False
@@ -298,48 +214,48 @@ if checkList:
             whichServoExceeded = 6*[False]
             typeOfExceeded = 6*["null"]
 
-            if toDegrees(q2) - s[1] < diffCheck:
-                if not (math.isnan(q1) or
-                    math.isnan(q2) or
-                    math.isnan(q3) or
-                    math.isnan(q4) or
-                    math.isnan(q5) or
-                    math.isnan(q6)):
-                    if q1_default - int(round(toDegrees(q1))) < 0: q1 = toRadians(0 + q1_default); servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "under"
-                    if q2_default + int(round(toDegrees(q2))) < 0: q2 = toRadians(0 - q2_default); servoExceeded = True; whichServoExceeded[1] = True; typeOfExceeded[1] = "under"
-                    if q3_default + int(round(toDegrees(q3))) < 0: q3 = toRadians(0 - q3_default); servoExceeded = True; whichServoExceeded[2] = True; typeOfExceeded[2] = "under"
-                    if q4_default + int(round(toDegrees(q4))) < 0: q4 = toRadians(0 - q4_default); servoExceeded = True; whichServoExceeded[3] = True; typeOfExceeded[3] = "under"
-                    if q5_default + int(round(toDegrees(q5))) < 0: q5 = toRadians(0 - q5_default); servoExceeded = True; whichServoExceeded[4] = True; typeOfExceeded[4] = "under"
-                    if q6_default + int(round(toDegrees(q6))) < 0: q6 = toRadians(0 - q6_default); servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "under"
-                    if q1_default - int(round(toDegrees(q1))) > 180: q1 = toRadians(0 - q1_default); servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "over"
-                    if q2_default + int(round(toDegrees(q2))) > 180: q2 = toRadians(180 - q2_default); servoExceeded = True; whichServoExceeded[1] = True; typeOfExceeded[1] = "over"
-                    if q3_default + int(round(toDegrees(q3))) > 180: q3 = toRadians(180 - q3_default); servoExceeded = True; whichServoExceeded[2] = True; typeOfExceeded[2] = "over"
-                    if q4_default + int(round(toDegrees(q4))) > 180: q4 = toRadians(180 - q4_default); servoExceeded = True; whichServoExceeded[3] = True; typeOfExceeded[3] = "over"
-                    if q5_default + int(round(toDegrees(q5))) > 180: q5 = toRadians(180 - q5_default); servoExceeded = True; whichServoExceeded[4] = True; typeOfExceeded[4] = "over"
-                    if q6_default + int(round(toDegrees(q6))) > 180: q6 = toRadians(180 - q6_default); servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "over"
+            if toDegrees(q[1]) - s[1] < diffCheck:
+                if not (math.isnan(q[0]) or
+                    math.isnan(q[1]) or
+                    math.isnan(q[2]) or
+                    math.isnan(q[3]) or
+                    math.isnan(q[4]) or
+                    math.isnan(q[5])):
+                    if default_q[0] - int(round(toDegrees(q[0]))) < 0: q[0] = toRadians(0 + default_q[0]); servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "under"
+                    if default_q[1] + int(round(toDegrees(q[1]))) < 0: q[1] = toRadians(0 - default_q[1]); servoExceeded = True; whichServoExceeded[1] = True; typeOfExceeded[1] = "under"
+                    if default_q[2] + int(round(toDegrees(q[2]))) < 0: q[2] = toRadians(0 - default_q[2]); servoExceeded = True; whichServoExceeded[2] = True; typeOfExceeded[2] = "under"
+                    if default_q[3] + int(round(toDegrees(q[3]))) < 0: q[3] = toRadians(0 - default_q[3]); servoExceeded = True; whichServoExceeded[3] = True; typeOfExceeded[3] = "under"
+                    if default_q[4] + int(round(toDegrees(q[4]))) < 0: q[4] = toRadians(0 - default_q[4]); servoExceeded = True; whichServoExceeded[4] = True; typeOfExceeded[4] = "under"
+                    if default_q[5] + int(round(toDegrees(q[5]))) < 0: q[5] = toRadians(0 - default_q[5]); servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "under"
+                    if default_q[0] - int(round(toDegrees(q[0]))) > 180: q[0] = toRadians(0 - default_q[0]); servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "over"
+                    if default_q[1] + int(round(toDegrees(q[1]))) > 180: q[1] = toRadians(180 - default_q[1]); servoExceeded = True; whichServoExceeded[1] = True; typeOfExceeded[1] = "over"
+                    if default_q[2] + int(round(toDegrees(q[2]))) > 180: q[2] = toRadians(180 - default_q[2]); servoExceeded = True; whichServoExceeded[2] = True; typeOfExceeded[2] = "over"
+                    if default_q[3] + int(round(toDegrees(q[3]))) > 180: q[3] = toRadians(180 - default_q[3]); servoExceeded = True; whichServoExceeded[3] = True; typeOfExceeded[3] = "over"
+                    if default_q[4] + int(round(toDegrees(q[4]))) > 180: q[4] = toRadians(180 - default_q[4]); servoExceeded = True; whichServoExceeded[4] = True; typeOfExceeded[4] = "over"
+                    if default_q[5] + int(round(toDegrees(q[5]))) > 180: q[5] = toRadians(180 - default_q[5]); servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "over"
                     if servoExceeded:
                         for i in range(6):
                             if whichServoExceeded[i]:
                                 print("\tServo motor: q", i+1, " exceeded \"", typeOfExceeded[i], "\"", sep='')
                     P1 = getP1()
                     P2 = getP2()
-                    P3 = getP3(q1, q2)
-                    P4 = getP4(P3, q1, q2, q3)
-                    P5 = getP5(P3, q1, q2, q3)
-                    PP = getPP(P5, q1, q2, q3, q4, q5)
+                    P3 = getP3(q)
+                    P4 = getP4(P3, q)
+                    P5 = getP5(P3, q)
+                    PP = getPP(P5, q)
                     
 
                     readX, readY, readZ = str(PP[0]), str(PP[1]), str(PP[2])
 
-                    # q4_from_q5 = getQ4fromQ5(a, b, q1, q2, q3, q5) #[0]=a, [1]=b
-                    # q5_from_q4 = getQ5fromQ4(a, b, q1, q2, q3, q4) #[0]=a, [1]=b
-                    # PP_fromAlpha_fromQ5 = getPP(P5, q1, q2, q3, q4_from_q5[0], q5)
-                    # PP_fromAlpha_fromQ4 = getPP(P5, q1, q2, q3, q4, q5_from_q4[0])
-                    # PP_fromAlpha_fromBoth = getPP(P5, q1, q2, q3, q4_from_q5[0], q5_from_q4[0])
+                    # q4_from_q5 = getQ4fromQ5(a, b, q[0], q[1], q[2], q[4]) #[0]=a, [1]=b
+                    # q5_from_q4 = getQ5fromQ4(a, b, q[0], q[1], q[2], q[3]) #[0]=a, [1]=b
+                    # PP_fromAlpha_fromQ5 = getPP(P5, q[0], q[1], q[2], q4_from_q5[0], q[4])
+                    # PP_fromAlpha_fromQ4 = getPP(P5, q[0], q[1], q[2], q[3], q5_from_q4[0])
+                    # PP_fromAlpha_fromBoth = getPP(P5, q[0], q[1], q[2], q4_from_q5[0], q5_from_q4[0])
 
-                    # PP_fromBeta_fromQ5 = getPP(P5, q1, q2, q3, q4_from_q5[1], q5)
-                    # PP_fromBeta_fromQ4 = getPP(P5, q1, q2, q3, q4, q5_from_q4[1])
-                    # PP_fromBeta_fromBoth = getPP(P5, q1, q2, q3, q4_from_q5[1], q5_from_q4[1])
+                    # PP_fromBeta_fromQ5 = getPP(P5, q[0], q[1], q[2], q4_from_q5[1], q[4])
+                    # PP_fromBeta_fromQ4 = getPP(P5, q[0], q[1], q[2], q[3], q5_from_q4[1])
+                    # PP_fromBeta_fromBoth = getPP(P5, q[0], q[1], q[2], q4_from_q5[1], q5_from_q4[1])
 
                     # print("----------------------")
                     # print(" P1: x:", P1[0], " y:", P1[1], " z:", P1[2], sep='')
@@ -351,12 +267,12 @@ if checkList:
                     # print("\n\tError value: x:", float(PP[0])-posX, " y:", float(PP[1])-posY, " z:", float(PP[2])-posZ, sep='')
 
                     # print()
-                    # print(" _fromAlpha: from (default)q5: \tx:", int(round(PP_fromAlpha_fromQ5[0])), " y:", int(round(PP_fromAlpha_fromQ5[1])), " z:", int(round(PP_fromAlpha_fromQ5[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromQ5), "%", sep='') 
-                    # print(" _fromAlpha: from (default)q4: \tx:", int(round(PP_fromAlpha_fromQ4[0])), " y:", int(round(PP_fromAlpha_fromQ4[1])), " z:", int(round(PP_fromAlpha_fromQ4[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromQ4), "%", sep='') 
+                    # print(" _fromAlpha: from (default)q[4]: \tx:", int(round(PP_fromAlpha_fromQ5[0])), " y:", int(round(PP_fromAlpha_fromQ5[1])), " z:", int(round(PP_fromAlpha_fromQ5[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromQ5), "%", sep='') 
+                    # print(" _fromAlpha: from (default)q[3]: \tx:", int(round(PP_fromAlpha_fromQ4[0])), " y:", int(round(PP_fromAlpha_fromQ4[1])), " z:", int(round(PP_fromAlpha_fromQ4[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromQ4), "%", sep='') 
                     # print(" _fromAlpha: from both: \tx:", int(round(PP_fromAlpha_fromBoth[0])), " y:", int(round(PP_fromAlpha_fromBoth[1])), " z:", int(round(PP_fromAlpha_fromBoth[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromBoth), "%", sep='') 
 
-                    # print(" _fromBeta:  from (default)q5: \tx:", int(round(PP_fromBeta_fromQ5[0])), " y:", int(round(PP_fromBeta_fromQ5[1])), " z:", int(round(PP_fromBeta_fromQ5[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromQ5), "%", sep='')
-                    # print(" _fromBeta:  from (default)q4: \tx:", int(round(PP_fromBeta_fromQ4[0])), " y:", int(round(PP_fromBeta_fromQ4[1])), " z:", int(round(PP_fromBeta_fromQ4[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromQ4), "%", sep='')
+                    # print(" _fromBeta:  from (default)q[4]: \tx:", int(round(PP_fromBeta_fromQ5[0])), " y:", int(round(PP_fromBeta_fromQ5[1])), " z:", int(round(PP_fromBeta_fromQ5[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromQ5), "%", sep='')
+                    # print(" _fromBeta:  from (default)q[3]: \tx:", int(round(PP_fromBeta_fromQ4[0])), " y:", int(round(PP_fromBeta_fromQ4[1])), " z:", int(round(PP_fromBeta_fromQ4[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromQ4), "%", sep='')
                     # print(" _fromBeta:  from both: \tx:", int(round(PP_fromBeta_fromBoth[0])), " y:", int(round(PP_fromBeta_fromBoth[1])), " z:", int(round(PP_fromBeta_fromBoth[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromBoth), "%", sep='')
 
                     print("----------------------")
@@ -366,40 +282,40 @@ if checkList:
                     resultFile.write(str(posX) + " " + str(posY) + " " + str(posZ) + " " + readX + " " + readY + " " + readZ + "\n")
 
 
-                    s[5] = q6_default - int(round(toDegrees(q6)))
-                    s[4] = 180 - q5_default - int(round(toDegrees(q5)))
-                    s[3] = q4_default + int(round(toDegrees(q4)))
-                    s[2] = 180 - q3_default - int(toDegrees(q3))
-                    s[1] = q2_default + int(round(toDegrees(q2)))
-                    s[0] = q1_default - int(round(toDegrees(q1)))
+                    s[5] = default_q[5] - int(round(toDegrees(q[5])))
+                    s[4] = 180 - default_q[4] - int(round(toDegrees(q[4])))
+                    s[3] = default_q[3] + int(round(toDegrees(q[3])))
+                    s[2] = 180 - default_q[2] - int(toDegrees(q[2]))
+                    s[1] = default_q[1] + int(round(toDegrees(q[1])))
+                    s[0] = default_q[0] - int(round(toDegrees(q[0])))
                     for x in range(6):
                         if x == 4:
                             if s[4]<90:
-                                servo[4] = getServo4Offset(180 - q5_default - s[4])
+                                servo[4] = getServo4Offset(180 - default_q[4] - s[4]) #type: ignore
                             else:
                                 servo[4] = s[4]
                         else:
                             servo[x] = s[x]
                 if firstAnglePrint:
                     print(
-                        " q1:", toDegrees(q1), 
-                        " q2:", toDegrees(q2),
-                        " q3:", toDegrees(q3),
-                        " q4:", toDegrees(q4),
-                        " q5:", toDegrees(q5), 
-                        " q6:", toDegrees(q6),
+                        " q[0]:", toDegrees(q[0]), 
+                        " q[1]:", toDegrees(q[1]),
+                        " q[2]:", toDegrees(q[2]),
+                        " q[3]:", toDegrees(q[3]),
+                        " q[4]:", toDegrees(q[4]), 
+                        " q[5]:", toDegrees(q[5]),
                         " Roll:", Roll,
                         " Pitch:", Pitch
                     )
 
                 if globalPrint and endAnglePrint:
                     print(
-                        " q1:", servo[0], 
-                        " q2:", servo[1],
-                        " q3:", servo[2],
-                        " q4:", servo[3],
-                        " q5:", servo[4], 
-                        " q6:", servo[5],
+                        " q[0]:", servo[0], 
+                        " q[1]:", servo[1],
+                        " q[2]:", servo[2],
+                        " q[3]:", servo[3],
+                        " q[4]:", servo[4], 
+                        " q[5]:", servo[5],
                         " Roll:", Roll,
                         " Pitch:", Pitch
                     )
@@ -429,7 +345,7 @@ elif not checkList:
         print()
 
         print(" x:", posX, " y:", posY, " z:", posZ, " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
-        getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
+        q, _ = getAngles([posX, posY, posZ], a, b, Y, posOption, 1, 1, globalPrint)
         print(" a1:", toDegrees(a1), " b1:", toDegrees(b1), sep='')
 
 
@@ -439,45 +355,46 @@ elif not checkList:
         whichServoExceeded = 6*[False]
         typeOfExceeded = 6*["null"]
 
-        if toDegrees(q2) - s[1] < diffCheck:
-            if not (math.isnan(q1) or
-                math.isnan(q2) or
-                math.isnan(q3) or
-                math.isnan(q4) or
-                math.isnan(q5) or
-                math.isnan(q6)):
-                if q1_default - int(round(toDegrees(q1))) < 0: q1 = toRadians(0 + q1_default); servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "under"
-                if q2_default + int(round(toDegrees(q2))) < 0: q2 = toRadians(0 - q2_default); servoExceeded = True; whichServoExceeded[1] = True; typeOfExceeded[1] = "under"
-                if q3_default + int(round(toDegrees(q3))) < 0: q3 = toRadians(0 - q3_default); servoExceeded = True; whichServoExceeded[2] = True; typeOfExceeded[2] = "under"
-                if q4_default + int(round(toDegrees(q4))) < 0: q4 = toRadians(0 - q4_default); servoExceeded = True; whichServoExceeded[3] = True; typeOfExceeded[3] = "under"
-                if q5_default + int(round(toDegrees(q5))) < 0: q5 = toRadians(0 - q5_default); servoExceeded = True; whichServoExceeded[4] = True; typeOfExceeded[4] = "under"
-                if q6_default + int(round(toDegrees(q6))) < 0: q6 = toRadians(0 - q6_default); servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "under"
-                if q1_default - int(round(toDegrees(q1))) > 180: q1 = toRadians(0 - q1_default); servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "over"
-                if q2_default + int(round(toDegrees(q2))) > 180: q2 = toRadians(180 - q2_default); servoExceeded = True; whichServoExceeded[1] = True; typeOfExceeded[1] = "over"
-                if q3_default + int(round(toDegrees(q3))) > 180: q3 = toRadians(180 - q3_default); servoExceeded = True; whichServoExceeded[2] = True; typeOfExceeded[2] = "over"
-                if q4_default + int(round(toDegrees(q4))) > 180: q4 = toRadians(180 - q4_default); servoExceeded = True; whichServoExceeded[3] = True; typeOfExceeded[3] = "over"
-                if q5_default + int(round(toDegrees(q5))) > 180: q5 = toRadians(180 - q5_default); servoExceeded = True; whichServoExceeded[4] = True; typeOfExceeded[4] = "over"
-                if q6_default + int(round(toDegrees(q6))) > 180: q6 = toRadians(180 - q6_default); servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "over"
+        if toDegrees(q[1]) - s[1] < diffCheck:
+            if not (math.isnan(q[0]) or
+                math.isnan(q[1]) or
+                math.isnan(q[2]) or
+                math.isnan(q[3]) or
+                math.isnan(q[4]) or
+                math.isnan(q[5])):
+                if default_q[0] - int(round(toDegrees(q[0]))) < 0: q[0] = toRadians(0 + default_q[0]); servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "under"
+                if default_q[1] + int(round(toDegrees(q[1]))) < 0: q[1] = toRadians(0 - default_q[1]); servoExceeded = True; whichServoExceeded[1] = True; typeOfExceeded[1] = "under"
+                if default_q[2] + int(round(toDegrees(q[2]))) < 0: q[2] = toRadians(0 - default_q[2]); servoExceeded = True; whichServoExceeded[2] = True; typeOfExceeded[2] = "under"
+                if default_q[3] + int(round(toDegrees(q[3]))) < 0: q[3] = toRadians(0 - default_q[3]); servoExceeded = True; whichServoExceeded[3] = True; typeOfExceeded[3] = "under"
+                if default_q[4] + int(round(toDegrees(q[4]))) < 0: q[4] = toRadians(0 - default_q[4]); servoExceeded = True; whichServoExceeded[4] = True; typeOfExceeded[4] = "under"
+                if default_q[5] + int(round(toDegrees(q[5]))) < 0: q[5] = toRadians(0 - default_q[5]); servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "under"
+                if default_q[0] - int(round(toDegrees(q[0]))) > 180: q[0] = toRadians(0 - default_q[0]); servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "over"
+                if default_q[1] + int(round(toDegrees(q[1]))) > 180: q[1] = toRadians(180 - default_q[1]); servoExceeded = True; whichServoExceeded[1] = True; typeOfExceeded[1] = "over"
+                if default_q[2] + int(round(toDegrees(q[2]))) > 180: q[2] = toRadians(180 - default_q[2]); servoExceeded = True; whichServoExceeded[2] = True; typeOfExceeded[2] = "over"
+                if default_q[3] + int(round(toDegrees(q[3]))) > 180: q[3] = toRadians(180 - default_q[3]); servoExceeded = True; whichServoExceeded[3] = True; typeOfExceeded[3] = "over"
+                if default_q[4] + int(round(toDegrees(q[4]))) > 180: q[4] = toRadians(180 - default_q[4]); servoExceeded = True; whichServoExceeded[4] = True; typeOfExceeded[4] = "over"
+                if default_q[5] + int(round(toDegrees(q[5]))) > 180: q[5] = toRadians(180 - default_q[5]); servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "over"
                 if servoExceeded:
                     for i in range(6):
                         if whichServoExceeded[i]:
                             print("\tServo motor: q", i+1, " exceeded \"", typeOfExceeded[i], "\"", sep='')
+
                 P1 = getP1()
                 P2 = getP2()
-                P3 = getP3(q1, q2)
-                P4 = getP4(P3, q1, q2, q3)
-                P5 = getP5(P3, q1, q2, q3)
-                PP = getPP(P5, q1, q2, q3, q4, q5)
+                P3 = getP3(q)
+                P4 = getP4(P3, q)
+                P5 = getP5(P3, q)
+                PP = getPP(P5, q)
 
-                q4_from_q5 = getQ4fromQ5(a, b, q1, q2, q3, q5) #[0]=a, [1]=b
-                q5_from_q4 = getQ5fromQ4(a, b, q1, q2, q3, q4) #[0]=a, [1]=b
-                PP_fromAlpha_fromQ5 = getPP(P5, q1, q2, q3, q4_from_q5[0], q5)
-                PP_fromAlpha_fromQ4 = getPP(P5, q1, q2, q3, q4, q5_from_q4[0])
-                PP_fromAlpha_fromBoth = getPP(P5, q1, q2, q3, q4_from_q5[0], q5_from_q4[0])
+                q4_from_q5 = getQ4fromQ5(a, b, q) #[0]=a, [1]=b
+                q5_from_q4 = getQ5fromQ4(a, b, q) #[0]=a, [1]=b
+                PP_fromAlpha_fromQ5 = getPP(P5, [q[0], q[1], q[2], q4_from_q5[0], q[4]], purpose="Alpha from q[4]")
+                PP_fromAlpha_fromQ4 = getPP(P5, [q[0], q[1], q[2], q[3], q5_from_q4[0]], purpose="Alpha from q[3]")
+                PP_fromAlpha_fromBoth = getPP(P5, [q[0], q[1], q[2], q4_from_q5[0], q5_from_q4[0]], purpose="Alpha from both")
 
-                PP_fromBeta_fromQ5 = getPP(P5, q1, q2, q3, q4_from_q5[1], q5)
-                PP_fromBeta_fromQ4 = getPP(P5, q1, q2, q3, q4, q5_from_q4[1])
-                PP_fromBeta_fromBoth = getPP(P5, q1, q2, q3, q4_from_q5[1], q5_from_q4[1])
+                PP_fromBeta_fromQ5 = getPP(P5, [q[0], q[1], q[2], q4_from_q5[1], q[4]], purpose="Beta from q[4]")
+                PP_fromBeta_fromQ4 = getPP(P5, [q[0], q[1], q[2], q[3], q5_from_q4[1]], purpose="Beta from q[3]")
+                PP_fromBeta_fromBoth = getPP(P5, [q[0], q[1], q[2], q4_from_q5[1], q5_from_q4[1]], purpose="Beta from both")
 
                 print("----------------------")
                 print(" P1: x:", P1[0], " y:", P1[1], " z:", P1[2], sep='')
@@ -490,50 +407,50 @@ elif not checkList:
                 print("\n\tError value: x:", float(PP[0])-posX, " y:", float(PP[1])-posY, " z:", float(PP[2])-posZ, sep='')
 
                 print()
-                print(" _fromAlpha: from (default)q5: \tx:", int(round(PP_fromAlpha_fromQ5[0])), " y:", int(round(PP_fromAlpha_fromQ5[1])), " z:", int(round(PP_fromAlpha_fromQ5[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromQ5), "%", sep='') 
-                print(" _fromAlpha: from (default)q4: \tx:", int(round(PP_fromAlpha_fromQ4[0])), " y:", int(round(PP_fromAlpha_fromQ4[1])), " z:", int(round(PP_fromAlpha_fromQ4[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromQ4), "%", sep='') 
-                print(" _fromAlpha: from both: \tx:", int(round(PP_fromAlpha_fromBoth[0])), " y:", int(round(PP_fromAlpha_fromBoth[1])), " z:", int(round(PP_fromAlpha_fromBoth[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromBoth), "%", sep='') 
+                print("{:32}".format("_fromAlpha: from (default)q[4]:"), " x:", int(round(PP_fromAlpha_fromQ5[0])), " y:", int(round(PP_fromAlpha_fromQ5[1])), " z:", int(round(PP_fromAlpha_fromQ5[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromQ5), "%", sep='') 
+                print("{:32}".format("_fromAlpha: from (default)q[3]:"), " x:", int(round(PP_fromAlpha_fromQ4[0])), " y:", int(round(PP_fromAlpha_fromQ4[1])), " z:", int(round(PP_fromAlpha_fromQ4[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromQ4), "%", sep='') 
+                print("{:32}".format("_fromAlpha: from both:"), " x:", int(round(PP_fromAlpha_fromBoth[0])), " y:", int(round(PP_fromAlpha_fromBoth[1])), " z:", int(round(PP_fromAlpha_fromBoth[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromAlpha_fromBoth), "%", sep='') 
 
-                print(" _fromBeta:  from (default)q5: \tx:", int(round(PP_fromBeta_fromQ5[0])), " y:", int(round(PP_fromBeta_fromQ5[1])), " z:", int(round(PP_fromBeta_fromQ5[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromQ5), "%", sep='')
-                print(" _fromBeta:  from (default)q4: \tx:", int(round(PP_fromBeta_fromQ4[0])), " y:", int(round(PP_fromBeta_fromQ4[1])), " z:", int(round(PP_fromBeta_fromQ4[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromQ4), "%", sep='')
-                print(" _fromBeta:  from both: \tx:", int(round(PP_fromBeta_fromBoth[0])), " y:", int(round(PP_fromBeta_fromBoth[1])), " z:", int(round(PP_fromBeta_fromBoth[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromBoth), "%", sep='')
+                print("{:32}".format("_fromBeta:  from (default)q[4]:"), " x:", int(round(PP_fromBeta_fromQ5[0])), " y:", int(round(PP_fromBeta_fromQ5[1])), " z:", int(round(PP_fromBeta_fromQ5[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromQ5), "%", sep='')
+                print("{:32}".format("_fromBeta:  from (default)q[3]:"), " x:", int(round(PP_fromBeta_fromQ4[0])), " y:", int(round(PP_fromBeta_fromQ4[1])), " z:", int(round(PP_fromBeta_fromQ4[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromQ4), "%", sep='')
+                print("{:32}".format("_fromBeta:  from both:"), " x:", int(round(PP_fromBeta_fromBoth[0])), " y:", int(round(PP_fromBeta_fromBoth[1])), " z:", int(round(PP_fromBeta_fromBoth[2])), " \taccuracy:", getErrorRate([posX, posY, posZ], PP_fromBeta_fromBoth), "%", sep='')
 
                 print("----------------------")
 
-                s[5] = q6_default - int(round(toDegrees(q6)))
-                s[4] = 180 - q5_default - int(round(toDegrees(q5)))
-                s[3] = q4_default + int(round(toDegrees(q4)))
-                s[2] = 180 - q3_default - int(toDegrees(q3))
-                s[1] = q2_default + int(round(toDegrees(q2)))
-                s[0] = q1_default - int(round(toDegrees(q1)))
+                s[5] = default_q[5] - int(round(toDegrees(q[5])))
+                s[4] = 180 - default_q[4] - int(round(toDegrees(q[4])))
+                s[3] = default_q[3] + int(round(toDegrees(q[3])))
+                s[2] = 180 - default_q[2] - int(toDegrees(q[2]))
+                s[1] = default_q[1] + int(round(toDegrees(q[1])))
+                s[0] = default_q[0] - int(round(toDegrees(q[0])))
                 for x in range(6):
                     if x == 4:
                         if s[4]<90:
-                            servo[4] = getServo4Offset(180 - q5_default - s[4])
+                            servo[4] = getServo4Offset(180 - default_q[4] - s[4]) #type: ignore
                         else:
                             servo[4] = s[4]
                     else:
                         servo[x] = s[x]
             if firstAnglePrint:
                 print(
-                    " q1:", toDegrees(q1), 
-                    " q2:", toDegrees(q2),
-                    " q3:", toDegrees(q3),
-                    " q4:", toDegrees(q4),
-                    " q5:", toDegrees(q5), 
-                    " q6:", toDegrees(q6),
+                    " q[0]:", toDegrees(q[0]), 
+                    " q[1]:", toDegrees(q[1]),
+                    " q[2]:", toDegrees(q[2]),
+                    " q[3]:", toDegrees(q[3]),
+                    " q[4]:", toDegrees(q[4]), 
+                    " q[5]:", toDegrees(q[5]),
                     " Roll:", Roll,
                     " Pitch:", Pitch
                 )
 
             if globalPrint and endAnglePrint:
                 print(
-                    " q1:", servo[0], 
-                    " q2:", servo[1],
-                    " q3:", servo[2],
-                    " q4:", servo[3],
-                    " q5:", servo[4], 
-                    " q6:", servo[5],
+                    " q[0]:", servo[0], 
+                    " q[1]:", servo[1],
+                    " q[2]:", servo[2],
+                    " q[3]:", servo[3],
+                    " q[4]:", servo[4], 
+                    " q[5]:", servo[5],
                     " Roll:", Roll,
                     " Pitch:", Pitch
                 )

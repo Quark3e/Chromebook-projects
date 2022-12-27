@@ -95,7 +95,7 @@ def plotAxis_sim(PP):
         elif axis == 1: plotColor_1='green'
         else: plotColor_1='blue'
         ax[0].plot(read_axis_Values[axis][0],read_axis_Values[axis][1],linestyle='solid',zs=read_axis_Values[axis][2],zdir='z',color=plotColor_1) #type: ignore
-        ax[0].plot(given_axis_Values[axis][0],given_axis_Values[axis][1],linestyle='dashed',zs=given_axis_Values[axis][2],zdir='z',color='grey') #type: ignore
+        ax[0].plot(given_axis_Values[axis][0],given_axis_Values[axis][1],linestyle='dashedm jmj uncz<ghfughbnf. f',zs=given_axis_Values[axis][2],zdir='z',color='grey') #type: ignore
 
 
 def FK_solver(q, printText = True):
