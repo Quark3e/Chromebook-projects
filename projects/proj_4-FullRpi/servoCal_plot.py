@@ -66,6 +66,7 @@ def configure_plots():
 
 
 def main():
+    global correctionFile
     configure_plots()
     for q in range(6):
         os.system('clear')
@@ -73,22 +74,25 @@ def main():
         servo[q].angle = 180
         time.sleep(0.5)
         servo[q].angle = 0
-        input(" calibrate degreeDisk (fixate disk 0 with current servo position)\n press enter to continue...")
+        if input(" calibrate degreeDisk (fixate disk 0 with current servo position)\n press enter to continue (or 'exit' to exit)...") == "exit":
+            return
         print()
         for x in range(0,19,1):
             servo[q].angle = x*10
             print(" sent angle:",x*10, end='')
-            y_q[q][x] = round(float(input(" read angle: "))) - x*10
+            y_q[q][x] = round(float(input(" read angle: ")) - x*10)
             x_q[q][x] = x*10
         servo[q].angle = sDefault[q]
         ax.plot(x_q[q],y_q[q],linestyle='solid',label=str(q))
         time.sleep(0.2)
     ax.legend()
     plt.show()
+
     currentDate = str(datetime.now())
     toFile = currentDate
     for q in range(6):
         toFile += "; q" + str(q+1) + ":" + str(y_q[q])
+    correctionFile.write(toFile)
 
 
 if __name__ == "__main__":
