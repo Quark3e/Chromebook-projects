@@ -92,6 +92,7 @@ def main():
     toFile = currentDate
     for q in range(6):
         toFile += "; q" + str(q+1) + ":" + str(y_q[q])
+    print("toFile <<",toFile)
     correctionFile.write(toFile)
 
 
