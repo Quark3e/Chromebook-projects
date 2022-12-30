@@ -136,7 +136,7 @@ def FK_solver(q, printText = True):
 
 
 def main():
-    global PP, orient, q
+    global PP, orient, q, ax, fig
     while True:
         configure_plots() #NOTE: must call this first before any use of the variable 'ax'
         os.system('clear')

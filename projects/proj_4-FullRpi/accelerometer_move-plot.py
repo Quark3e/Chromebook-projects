@@ -24,8 +24,52 @@ accel = accelerometer.acceleration #value in acceleration (NOTE: not certain wha
 old_accel = accel.copy()
 
 Roll, Pitch = 0.1, 0.1
-X_offset, Y_offset, Z_offset = 0,0,0
+offset = [0,0,0]
+posOffset_scalar = [1, 1, 1]
+posOffset_value = [1, 1, 1]
 
+def calibrateOffsets():
+    global offset
+    ans = input(" Place the tracker on a stationary place to calibrate\n press 'enter' when ready..")
+    if ans == "exit": sys.exit()
+    allVal = [[],[],[]]
+    print("\nCalibrating: reading", end='')
+    for i in range(300):
+        readAccelerometer()
+        allVal[0].append(accel[0])
+        allVal[1].append(accel[1])
+        allVal[2].append(accel[2])
+        if i%100 == 0: print(".", end='')
+        time.sleep(0.01)
+    for n in range(3):
+        offset[n] = (sum(allVal[n]) / 300) #type: ignore
+
+    print("\nOffsets:")
+    print(" X_offset:",offset[0])
+    print(" Y_offset:",offset[1])
+    print(" Z_offset:",offset[1])
+
+def configure_plots():
+    global ax, fig
+    plt.ion()
+    fig = plt.figure(figsize=(10,8))
+    ax = fig.add_subplot(projection='3d')
+    plt.title("Accelerometer position 3d plot")
+    ax.set_xlim(-250, 250)
+    ax.set_ylim(-250, 250)
+    ax.set_zlim(0, 500) #type: ignore
+    ax.set_aspect('equal',adjustable='box')
+    ax.set_xlabel('X - axis')
+    ax.set_ylabel('Y - axis')
+    ax.set_zlabel('Z - axis') #type: ignore
+    ax.view_init(elev=20., azim=145, roll=0) #type: ignore
+
+def getPos(iteration_time):
+    global position
+    for axis in range(3):
+        position[axis] += (((accel[axis]-offset[axis])*pow(iteration_time, 2)) / 2) * posOffset_scalar[axis] + posOffset_value[axis]
+    print(position)
+    
 def readAccelerometer(axisAccel=[0,0,0],tilt=[0,0]):
     '''
     Reads ADXL345 accelerometer values (and modifies global variables if not module)
@@ -47,37 +91,26 @@ def readAccelerometer(axisAccel=[0,0,0],tilt=[0,0]):
     axisAccel = [accel[0], accel[1], accel[2]]
     tilt = [Pitch, Roll, pitch, roll]
 
-def calibrateOffsets():
-    global X_offset, Y_offset, Z_offset
-    ans = input(" Place the tracker on a stationary place to calibrate\n press 'enter' when ready..")
-    if ans == "exit": sys.exit()
-    allVal = [[],[],[]]
-    print("\nCalibrating: reading", end='')
-    for i in range(300):
-        readAccelerometer()
-        allVal[0].append(accel[0])
-        allVal[1].append(accel[1])
-        allVal[2].append(accel[2])
-        if i%100 == 0: print(".", end='')
-        time.sleep(0.01)
-    X_offset = (sum(allVal[0]) / 300)
-    Y_offset = (sum(allVal[1]) / 300)
-    Z_offset = (sum(allVal[2]) / 300)
-    print("\nOffsets:")
-    print(" X_offset:",X_offset)
-    print(" Y_offset:",Y_offset)
-    print(" Z_offset:",Z_offset)
-
-def getVelocity(iteration_time):
-    global velocity
-    pos_temp = position.copy()
-    for axis in range(3):
-        if (accel[axis]-old_accel[axis]) > axisAccel_minimum[axis]:
-            velocity+=accel[axis] * iteration_time
-
 
 def main():
-    return
+    global ax, fig, plottedPoint
+    calibrateOffsets()
+    configure_plots()
+    plottedPoint, = ax.plot(position[0],position[1],position[2],label='Position')
+    t1 = time.perf_counter()
+    while True:
+        t2 = time.perf_counter()
+        readAccelerometer()
+        getPos(t2-t1)
+        t1 = time.perf_counter()
+        plottedPoint.set_xdata(position[0])
+        plottedPoint.set_ydata(position[1])
+        # plottedPoint.set_zdata(position[2]) #type: ignore
+        plottedPoint.set_3d_properties(position[2]) #type: ignore
+
+        fig.canvas.draw()
+        fig.canvas.flush_events()
+        time.sleep(0.01)
 
 
 if __name__ == "__main__":
