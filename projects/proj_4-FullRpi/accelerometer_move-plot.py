@@ -86,7 +86,7 @@ def readAccelerometer(axisAccel=[0,0,0],tilt=[0,0]):
     #filter
     Roll = (1-accelFilter) * Roll + accelFilter * roll
     Pitch = (1-accelFilter) * Pitch + accelFilter * pitch
-    
+    for _ in range(3): accel[_] = accel[_] - offset[_]
     axisAccel = [accel[0], accel[1], accel[2]]
     tilt = [Pitch, Roll, pitch, roll]
 
