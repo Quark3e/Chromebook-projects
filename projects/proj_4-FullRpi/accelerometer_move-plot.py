@@ -20,7 +20,8 @@ velocity = [0, 0, 0]
 
 accelFilter = 0.1
 
-accel = accelerometer.acceleration #value in acceleration (NOTE: not certain what unit)
+accel = [0,0,0]
+accel[0], accel[1], accel[2] = accelerometer.acceleration #value in acceleration (NOTE: not certain what unit)
 old_accel = accel.copy()
 
 Roll, Pitch = 0.1, 0.1
@@ -69,7 +70,7 @@ def getPos(iteration_time):
     for axis in range(3):
         position[axis] += (((accel[axis]-offset[axis])*pow(iteration_time, 2)) / 2) * posOffset_scalar[axis] + posOffset_value[axis]
     print(position)
-    
+
 def readAccelerometer(axisAccel=[0,0,0],tilt=[0,0]):
     '''
     Reads ADXL345 accelerometer values (and modifies global variables if not module)
