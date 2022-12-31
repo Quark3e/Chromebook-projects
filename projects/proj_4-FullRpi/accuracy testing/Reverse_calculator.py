@@ -205,7 +205,7 @@ if checkList:
             print()
 
             print(" x:", posX, " y:", posY, " z:", posZ, " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
-            q, _ = getAngles([posX, posY, posZ], a, b, Y, posOption, globalPrint)
+            q = getAngles([posX, posY, posZ], a, b, Y, posOption, globalPrint)
             print(" a1:", int(toDegrees(a1)), " b1:", int(toDegrees(b1)), sep='')
 
             servoExceeded = False
@@ -345,7 +345,7 @@ elif not checkList:
         print()
 
         print(" x:", posX, " y:", posY, " z:", posZ, " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
-        q, _ = getAngles([posX, posY, posZ], a, b, Y, posOption, 1, 1, globalPrint)
+        q = getAngles([posX, posY, posZ], a, b, Y, posOption, 1, 1, globalPrint)
         print(" a1:", toDegrees(a1), " b1:", toDegrees(b1), sep='')
 
 

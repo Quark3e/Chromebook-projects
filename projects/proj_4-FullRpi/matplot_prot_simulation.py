@@ -75,10 +75,10 @@ def plotAxis_sim(PP):
 
         for axisPos in range(posRanges[axis][0], posRanges[axis][1], 10):
             temp_PP[axis] = axisPos
-            isReachable = True
+            isReachable = [True]
             print("{:8}".format(round(axisPos)), "orient:{:18}".format(str([toDegrees(angle) for angle in orient])), end=' ')
-            q, isReachable = getAngles(temp_PP,orient[0],orient[1],orient[2],'-', printText=False,printErrors=False,forShow=True)
-            if isReachable:
+            q = getAngles(temp_PP,orient[0],orient[1],orient[2],'-', printText=False,printErrors=False,forShow=True, positionIsReachable=isReachable)
+            if isReachable[0]:
                 _, read_PP, _ = FK_solver(q, printText = False)           
                 print(' given:{:18} angles:{:30} read:{:18} orient:{:10}'.format(str([round(temp_PP) for temp_PP in temp_PP]),
                 str([round(toDegrees(q)) for q in q]),
@@ -146,8 +146,8 @@ def main():
         PP = [float(opt[0]),float(opt[1]),float(opt[2])]
         opt = input(" enter orientation of end-effector [a b Y]: ").split()
         orient = [toRadians(float(opt[0])),toRadians(float(opt[1])),toRadians(float(opt[2]))]
-        q, _ = getAngles(PP,orient[0],orient[1],orient[2],'-',printText=True,forShow=True)
-        
+        q = getAngles(PP,orient[0],orient[1],orient[2],'-',printText=True,forShow=True)
+
         subFrame = getSubframe(PP,orient[0],orient[1],'-')
         subFrame[0] = 0-subFrame[0]
         if subFrame[2]>=0: ax[1].set_zlim(0,100) #type: ignore

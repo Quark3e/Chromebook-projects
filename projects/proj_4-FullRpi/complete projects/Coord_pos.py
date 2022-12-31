@@ -85,6 +85,7 @@ d5 = 45; #axial "pitch
 d6 = 30; #axial "roll" (?)
 
 q1, q2, q3, q4, q5, q6, q7 = 0, 0, 0, 0, 0, 0, 0 #NOTE: q1 = servo[0]
+q = [0,0,0,0,0,0]
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
 
 posX2, posY2, posZ2 = 0.01, 0.01, 0.01
@@ -244,7 +245,7 @@ def findAlphaBeta(posX, posY, posZ, posOption):
     breakVal = False
     for beta in range(-90, 0):
         for alpha in range(-90, 90):
-            getAngles(posX, posY, posZ, toRadians(alpha), toRadians(beta), Y, posOption, 1, 1, False)
+            q = getAngles(posX, posY, posZ, toRadians(alpha), toRadians(beta), Y, posOption, 1, 1, False)
             if not (math.isnan(q1) or
                 math.isnan(q2) or
                 math.isnan(q3) or
@@ -260,7 +261,7 @@ def findAlphaBeta(posX, posY, posZ, posOption):
     if not breakVal:
         for beta in range(0, 90):
             for alpha in range(-90, 90):
-                getAngles(posX, posY, posZ, toRadians(alpha), toRadians(beta), Y, posOption, 1, 1, False)
+                q = getAngles(posX, posY, posZ, toRadians(alpha), toRadians(beta), Y, posOption, 1, 1, False)
                 if not (math.isnan(q1) or
                     math.isnan(q2) or
                     math.isnan(q3) or
@@ -281,7 +282,7 @@ while True:
     posX, posY, posZ = float(xTemp), float(yTemp), float(zTemp)
 
 
-    getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
+    q = getAngles(posX, posY, posZ, a, b, Y, posOption, 1, 1, globalPrint)
     #q3 = toRadians(toDegrees(q3) - 20)
     #q5 -= toRadians(30)
     if not (math.isnan(q1) or
