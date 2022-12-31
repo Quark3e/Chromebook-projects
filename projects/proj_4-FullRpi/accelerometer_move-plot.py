@@ -86,7 +86,6 @@ def readAccelerometer(axisAccel=[0,0,0],tilt=[0,0]):
     #filter
     Roll = (1-accelFilter) * Roll + accelFilter * roll
     Pitch = (1-accelFilter) * Pitch + accelFilter * pitch
-    for _ in range(3): accel[_] = accel[_] - offset[_]
     axisAccel = [accel[0], accel[1], accel[2]]
     tilt = [Pitch, Roll, pitch, roll]
 
@@ -101,7 +100,9 @@ def main():
         t2 = time.perf_counter()
         readAccelerometer()
         getPos(t2-t1)
-        print(accel, position, (t2-t1), end='')
+        for _ in range(3):
+            print(accel[_] - offset[_], end='')
+        print(position, (t2-t1), end='')
         t1 = time.perf_counter()
         plottedPoint.set_xdata(position[0])
         plottedPoint.set_ydata(position[1])
