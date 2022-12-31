@@ -166,7 +166,7 @@ while True:
 
     if mode==1:
         if diagnostics: print("x:", PP[0], " y:", PP[1], " z:", PP[2], " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
-        q, _ = getAngles(PP,a,b,Y,'-', debug=True)
+        q = getAngles(PP,a,b,Y,'-', debug=True)
         print(q)
         print([toDegrees(q) for q in q])
         sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
@@ -180,7 +180,7 @@ while True:
             elif k == 115: PP[2]-=10
             if drawing:
                 PP[0], PP[1] = x2-windowRes[0]*0.5,windowRes[1]-y2 # type: ignore
-                q, _ = getAngles(PP,a,b,Y,'-')
+                q = getAngles(PP,a,b,Y,'-')
                 # print(q)
                 sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
             counter+=1

@@ -105,7 +105,7 @@ def check_isNaN(q, printText = False):
         return True
 
 
-def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,printErrors=True, debug=False, forShow=False):
+def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,printErrors=True, debug=False, forShow=False, positionIsReachable=[True]):
     '''
     Solves and returns all the rotation values
     also returns if the point is reachable (i.e. no joints is NaN)
@@ -118,7 +118,7 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,
             '-' is q3(/q[2]) above line between P2 and P4/P5;
             '+' is q3(/q[2]) under line between P2 and P4/P5
     '''
-    positionIsReachable = True
+    positionIsReachable[0] = True
 
     a1_exceed, b1_exceed = 0, 0
     q=[0]*6
@@ -154,7 +154,7 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,
         elif posOption == '-': q[2] = acos((pow(P5[0], 2) + pow(P5[1], 2) + pow(P5[2] - link[0], 2) - pow(link[1], 2) - pow(link[2] + link[3], 2)) /(2 * link[1] * (link[2] + link[3]))) # type: ignore
     except ValueError: 
         if printErrors: print("domain error triggered")
-        positionIsReachable = False
+        positionIsReachable[0] = False
     # print(P5)
     
     lambdaVar, muVar = 0, 0
@@ -162,7 +162,7 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,
     try:
         lambdaVar = atan((P5[2] - link[0]) / sqrt(pow(P5[0], 2) + pow(P5[1], 2)))
     except ZeroDivisionError:
-        positionIsReachable = False
+        positionIsReachable[0] = False
     muVar = atan(((link[2] + link[3]) * sin(q[2])) /(link[1] + (link[2] + link[3]) * cos(q[2])))
     if printText: print(" lambda:",round(toDegrees(lambdaVar))," mu:",round(toDegrees(muVar)),sep='')
     if posOption == '+': q[1] = lambdaVar - muVar # type: ignore
@@ -171,7 +171,7 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,
         if lambdaVar + muVar > 0: q[1] = lambdaVar + muVar # type: ignore #NOTE: the negative muVar value hasnt been solved. so this is a temp. fix 
         else: 
             if printErrors: print("q[1] error occured")
-            positionIsReachable = False
+            positionIsReachable[0] = False
         q[2] = 0 - q[2] # type: ignore
     
     a1 = a - q[0]
@@ -211,12 +211,12 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,
         if isnan(checkVar):
             if printErrors:
                 print("asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / link[4])  is NaN")
-            positionIsReachable = False
+            positionIsReachable[0] = False
         else:
             q[4] = asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5])) # type: ignore
             # q[4] = atan(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (cos(b1)*cos(a1))) # type: ignore
     except ValueError:
-        positionIsReachable = False
+        positionIsReachable[0] = False
 
     if frame1Z < 0:
         q[4] = 0-q[4] # type: ignore
@@ -225,10 +225,10 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,
     elif b >= pi / 2 or b <= 0 - pi / 2: q[5] = pi - (Y - q[5])
     if printText: print(" ",[round(toDegrees(n)) for n in q])
     if check_isNaN(q):
-        positionIsReachable = False
+        positionIsReachable[0] = False
         print("one joint is NaN")
 
-    return q, positionIsReachable
+    return q
 
 
 def getSubframe(PP,a,b,posOption,printText=False):
