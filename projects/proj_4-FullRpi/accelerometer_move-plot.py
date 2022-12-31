@@ -101,7 +101,7 @@ def main():
         t2 = time.perf_counter()
         readAccelerometer()
         getPos(t2-t1)
-        print(accel, position, end='')
+        print(accel, position, (t2-t1), end='')
         t1 = time.perf_counter()
         plottedPoint.set_xdata(position[0])
         plottedPoint.set_ydata(position[1])
@@ -110,7 +110,6 @@ def main():
 
         fig.canvas.draw()
         fig.canvas.flush_events()
-        time.sleep(0.01)
         print()
 
 
