@@ -69,7 +69,6 @@ def getPos(iteration_time):
     global position
     for axis in range(3):
         position[axis][0] += round((((accel[axis]-offset[axis])*pow(iteration_time, 2)) / 2) * posOffset_scalar[axis] + posOffset_value[axis])
-    print(position)
 
 def readAccelerometer(axisAccel=[0,0,0],tilt=[0,0]):
     '''
@@ -102,6 +101,7 @@ def main():
         t2 = time.perf_counter()
         readAccelerometer()
         getPos(t2-t1)
+        print(accel, position, end='')
         t1 = time.perf_counter()
         plottedPoint.set_xdata(position[0])
         plottedPoint.set_ydata(position[1])
@@ -111,6 +111,7 @@ def main():
         fig.canvas.draw()
         fig.canvas.flush_events()
         time.sleep(0.01)
+        print()
 
 
 if __name__ == "__main__":
