@@ -68,7 +68,7 @@ def configure_plots():
 def getPos(iteration_time):
     global position
     for axis in range(3):
-        position[axis] += (((accel[axis]-offset[axis])*pow(iteration_time, 2)) / 2) * posOffset_scalar[axis] + posOffset_value[axis]
+        position[axis] += round((((accel[axis]-offset[axis])*pow(iteration_time, 2)) / 2) * posOffset_scalar[axis] + posOffset_value[axis])
     print(position)
 
 def readAccelerometer(axisAccel=[0,0,0],tilt=[0,0]):
