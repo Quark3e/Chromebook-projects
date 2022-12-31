@@ -15,7 +15,8 @@ i2c = busio.I2C(SCL, SDA)
 accelerometer = adafruit_adxl34x.ADXL345(i2c)
 
 position = [[0], [0], [0]]
-axisAccel_minimum = [0.1, 0.1, 0.1] #abs(acceleration) reading must be larger than this value to be used
+pos_Direction = ['+', '+', '+']
+axisAccel_minimum = [1, 1, 1] #abs(acceleration) reading must be larger than this value to be used
 velocity = [0, 0, 0]
 
 accelFilter = 0.1
@@ -26,8 +27,8 @@ accel[0], accel[1], accel[2] = accelerometer.acceleration #value in acceleration
 
 Roll, Pitch = 0.1, 0.1
 offset = [0,0,0]
-posOffset_scalar = [1, 1, 1]
-posOffset_value = [1, 1, 1]
+posOffset_scalar = [1000, 1000, 1000]
+posOffset_value = [0, 0, 0]
 
 def calibrateOffsets():
     global offset
@@ -66,10 +67,13 @@ def configure_plots():
     ax.view_init(elev=20., azim=145, roll=0) #type: ignore
 
 def getPos(iteration_time):
-    global position
+    global position, pos_Direction
     for axis in range(3):
-        if abs(accel[axis]-offset[axis]) > axisAccel_minimum[axis]:
-            position[axis][0] += round((((accel[axis]-offset[axis])*pow(iteration_time, 2)) / 2) * posOffset_scalar[axis] + posOffset_value[axis])
+        # if abs(accel[axis]-offset[axis]) > axisAccel_minimum[axis]:
+        position[axis][0] += ((((accel[axis]-offset[axis])*pow(iteration_time, 2)) / 2) + posOffset_value[axis])*posOffset_scalar[axis] #type: ignore
+        if accel[axis] > 0: pos_Direction[axis] = '+'
+        elif accel[axis] < 0: pos_Direction[axis] = '-'
+            # pos_Direction[axis] += str((((accel[axis]-offset[axis])*pow(iteration_time, 2)) / 2) + posOffset_value[axis])
 
 def readAccelerometer(axisAccel=[0,0,0],tilt=[0,0]):
     '''
@@ -95,7 +99,7 @@ def main():
     global ax, fig, plottedPoint
     calibrateOffsets()
     configure_plots()
-    plottedPoint, = ax.plot(position[0],position[1],position[2],label='Position')
+    plottedPoint, = ax.plot(position[0],position[1],position[2],'bo', linestyle='solid', label='Position')
     t1 = time.perf_counter()
     while True:
         t2 = time.perf_counter()
@@ -104,8 +108,9 @@ def main():
         print("[",end='')
         for _ in range(3):
             print("{:4.1f}".format(accel[_] - offset[_]), end='')
-        print("]",end='')
-        print(position, (t2-t1), end='')
+        print("] ",end='')
+        print(" {:20}".format(str(position)), "{:4.1f}".format(t2-t1), end='')
+        print(" direction:", pos_Direction, end='')
         t1 = time.perf_counter()
         plottedPoint.set_xdata(position[0])
         plottedPoint.set_ydata(position[1])
