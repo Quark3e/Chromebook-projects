@@ -16,6 +16,9 @@ import adafruit_adxl34x # type: ignore
 import sys
 import cv2
 import os
+
+sys.path.append('../proj_4-FullRpi')
+
 from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles, custom_sendToServo
 
 from board import SCL, SDA # type: ignore
