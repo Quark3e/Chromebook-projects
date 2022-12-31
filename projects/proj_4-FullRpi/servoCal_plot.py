@@ -45,6 +45,15 @@ servo[4].angle = sDefault[4]
 servo[5].angle = sDefault[5]
 time.sleep(1)
 
+sTemp = [ #is sent AFTER that angle is finished, so loop[q] and then sTemp[q], so sTemp[q] before loop[q]
+    [90,55,45,90,100,90], #before q2, after q1
+    [90,90,0,90,90,90],
+    [180,90,135,0,90,90],
+    [90,90,135,90,0,90],
+    [90,90,135,90,90,0],
+    [90,55,180,90,90,100,90]
+]
+
 x_q = 6*[19*[0]]
 y_q = 6*[19*[0]]
 #_q = 6*[18*[0]], 6 lists each with 18 elements
@@ -82,7 +91,8 @@ def main():
             print(" sent angle:",x*10, end='')
             y_q[q][x] = 0 + round(float(input(" read angle: ")) - x*10)
             x_q[q][x] = x*10
-        servo[q].angle = sDefault[q]
+        for l in range(6):
+            servo[l].angle = sTemp[q]
         ax.plot(x_q[q],y_q[q],linestyle='solid',label=str(q))
         print(y_q)
         toFile += "; q" + str(q+1) + ":" + str(y_q[q]) #type: ignore
