@@ -203,7 +203,9 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,
         elif frame1X == 0: q[3] = toRadians(0) # type: ignore
         if printText: print(" b1 was 0 so q4 was adjusted")
     elif b1 < 0 or b1 > 0: q[3] = atan(frame1X / frame1Z) # type: ignore
-    if debug: q[4] = a1
+    if debug:
+        q[3] = a1
+        print(toDegrees(q[3]))
     try:
         checkVar = asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5]))
         if isnan(checkVar):

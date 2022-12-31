@@ -166,7 +166,7 @@ while True:
 
     if mode==1:
         if diagnostics: print("x:", PP[0], " y:", PP[1], " z:", PP[2], " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
-        q = getAngles(PP,a,b,Y,'-', debug=True)
+        q, _ = getAngles(PP,a,b,Y,'-', debug=True)
         print(q)
         print([toDegrees(q) for q in q])
         sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
