@@ -40,7 +40,7 @@ def calibrateOffsets():
         allVal[0].append(accel[0])
         allVal[1].append(accel[1])
         allVal[2].append(accel[2])
-        if i%100 == 0: print(".", end='')
+        if i==0 or i==100 or i==200: print(".", end='')
         time.sleep(0.01)
     for n in range(3):
         offset[n] = (sum(allVal[n]) / 300) #type: ignore
