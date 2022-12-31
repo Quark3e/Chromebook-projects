@@ -15,7 +15,7 @@ i2c = busio.I2C(SCL, SDA)
 accelerometer = adafruit_adxl34x.ADXL345(i2c)
 
 position = [[0], [0], [0]]
-axisAccel_minimum = [0, 0, 0] #abs(acceleration) reading must be larger than this value to be used
+axisAccel_minimum = [0.1, 0.1, 0.1] #abs(acceleration) reading must be larger than this value to be used
 velocity = [0, 0, 0]
 
 accelFilter = 0.1
@@ -68,7 +68,8 @@ def configure_plots():
 def getPos(iteration_time):
     global position
     for axis in range(3):
-        position[axis][0] += round((((accel[axis]-offset[axis])*pow(iteration_time, 2)) / 2) * posOffset_scalar[axis] + posOffset_value[axis])
+        if (accel[axis]-offset[axis]) > axisAccel_minimum[axis]:
+            position[axis][0] += round((((accel[axis]-offset[axis])*pow(iteration_time, 2)) / 2) * posOffset_scalar[axis] + posOffset_value[axis])
 
 def readAccelerometer(axisAccel=[0,0,0],tilt=[0,0]):
     '''
@@ -100,8 +101,10 @@ def main():
         t2 = time.perf_counter()
         readAccelerometer()
         getPos(t2-t1)
+        print("[",end='')
         for _ in range(3):
-            print(accel[_] - offset[_], end='')
+            print("{:4.1f}".format(accel[_] - offset[_]), end='')
+        print("]",end='')
         print(position, (t2-t1), end='')
         t1 = time.perf_counter()
         plottedPoint.set_xdata(position[0])
