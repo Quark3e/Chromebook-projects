@@ -22,7 +22,7 @@ accelFilter = 0.1
 
 accel = [0,0,0]
 accel[0], accel[1], accel[2] = accelerometer.acceleration #value in acceleration (NOTE: not certain what unit)
-old_accel = accel.copy()
+# old_accel = accel.copy()
 
 Roll, Pitch = 0.1, 0.1
 offset = [0,0,0]
@@ -79,8 +79,7 @@ def readAccelerometer(axisAccel=[0,0,0],tilt=[0,0]):
 
         [Pitch, Roll, pitch(raw), roll(raw)] (mutable) list to get tilt values through parameter
     '''
-    global accel, old_accel, Roll, Pitch, roll, pitch
-    old_accel = accel.copy()
+    global accel, Roll, Pitch, roll, pitch
     accel = accelerometer.acceleration
     #x is roll and y is pitch (it's switched so the servo can be fit to the servo robot arm)
     pitch = math.atan(accel[1] / math.sqrt(pow(accel[0], 2) + pow(accel[2], 2))) * 180 / math.pi
