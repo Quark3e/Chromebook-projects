@@ -35,7 +35,7 @@ for i in range(6): servo[i].set_pulse_width_range(500, 2500)
 
 correctionFile = open("servoCorrections.dat", "a")
 
-sDefault = [90,45,180-135,90,180-0,90]
+sDefault = [90,55,180-0,90,180-80,90]
 
 servo[0].angle = sDefault[0]
 servo[1].angle = sDefault[1]
@@ -69,7 +69,7 @@ def main():
     global correctionFile
     configure_plots()
     for q in range(6):
-        os.system('clear')
+        # os.system('clear')
         print("Testing servo:",q)
         servo[q].angle = 180
         time.sleep(0.5)
@@ -80,18 +80,19 @@ def main():
         for x in range(0,19,1):
             servo[q].angle = x*10
             print(" sent angle:",x*10, end='')
-            y_q[q][x] = round(float(input(" read angle: ")) - x*10)
+            y_q[q][x] = 0 + round(float(input(" read angle: ")) - x*10)
             x_q[q][x] = x*10
         servo[q].angle = sDefault[q]
         ax.plot(x_q[q],y_q[q],linestyle='solid',label=str(q))
+        print(y_q)
+        toFile += "; q" + str(q+1) + ":" + str(y_q[q]) #type: ignore
         time.sleep(0.2)
+        print("-----------------")
     ax.legend()
     plt.show()
 
     currentDate = str(datetime.now())
     toFile = currentDate
-    for q in range(6):
-        toFile += "; q" + str(q+1) + ":" + str(y_q[q])
     print("toFile <<",toFile)
     correctionFile.write(toFile)
 
