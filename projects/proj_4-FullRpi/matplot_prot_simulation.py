@@ -77,7 +77,7 @@ def plotAxis_sim(PP):
             temp_PP[axis] = axisPos
             isReachable = [True]
             print("{:8}".format(round(axisPos)), "orient:{:18}".format(str([toDegrees(angle) for angle in orient])), end=' ')
-            q = getAngles(temp_PP,orient[0],orient[1],orient[2],'-', printText=False,printErrors=False,forShow=True, positionIsReachable=isReachable)
+            q = getAngles(temp_PP,orient[0],orient[1],orient[2],'-', printText=False,printErrors=False,forShow=True, positionIsReachable=isReachable, debug=True)
             if isReachable[0]:
                 _, read_PP, _ = FK_solver(q, printText = False)           
                 print(' given:{:18} angles:{:30} read:{:18} orient:{:10}'.format(str([round(temp_PP) for temp_PP in temp_PP]),
@@ -95,7 +95,7 @@ def plotAxis_sim(PP):
         elif axis == 1: plotColor_1='green'
         else: plotColor_1='blue'
         ax[0].plot(read_axis_Values[axis][0],read_axis_Values[axis][1],linestyle='solid',zs=read_axis_Values[axis][2],zdir='z',color=plotColor_1) #type: ignore
-        ax[0].plot(given_axis_Values[axis][0],given_axis_Values[axis][1],linestyle='dashedm jmj uncz<ghfughbnf. f',zs=given_axis_Values[axis][2],zdir='z',color='grey') #type: ignore
+        ax[0].plot(given_axis_Values[axis][0],given_axis_Values[axis][1],linestyle='dashed',zs=given_axis_Values[axis][2],zdir='z',color='grey') #type: ignore
 
 
 def FK_solver(q, printText = True):
@@ -146,7 +146,7 @@ def main():
         PP = [float(opt[0]),float(opt[1]),float(opt[2])]
         opt = input(" enter orientation of end-effector [a b Y]: ").split()
         orient = [toRadians(float(opt[0])),toRadians(float(opt[1])),toRadians(float(opt[2]))]
-        q = getAngles(PP,orient[0],orient[1],orient[2],'-',printText=True,forShow=True)
+        q = getAngles(PP,orient[0],orient[1],orient[2],'-',printText=True,forShow=True, debug=True)
 
         subFrame = getSubframe(PP,orient[0],orient[1],'-')
         subFrame[0] = 0-subFrame[0]
