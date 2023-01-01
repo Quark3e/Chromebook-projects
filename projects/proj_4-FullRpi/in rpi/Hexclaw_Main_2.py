@@ -17,11 +17,11 @@ import sys
 import cv2
 import os
 
+
 sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
 
 from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles, custom_sendToServo
-# from h2_module.py import mov_Patterns #type: ignore
-mov_Patterns = {"temp": "null"} #temporary dict until ive fixed h2_module
+from h2_module import mov_Patterns
 
 from board import SCL, SDA # type: ignore
 import busio # type: ignore
@@ -195,8 +195,8 @@ while True:
             cv2.imshow('tracking_window', img) #use this if the previous drawings are not to be used
             k = cv2.waitKey(1) & 0xFF
             if k == 27: break
-            elif k == 119: PP[2]+=10
-            elif k == 115: PP[2]-=10
+            elif k == 119: PP[2]+=10 #type: ignore
+            elif k == 115: PP[2]-=10 #type: ignore
             if drawing:
                 PP[0], PP[1] = x2-windowRes[0]*0.5,windowRes[1]-y2 # type: ignore
                 q = getAngles(PP,a,b,Y,'-',positionIsReachable=isReachable)

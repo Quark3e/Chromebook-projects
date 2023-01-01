@@ -95,7 +95,6 @@ def main():
             servo[l].angle = sTemp[q]
         ax.plot(x_q[q],y_q[q],linestyle='solid',label=str(q))
         print(y_q)
-        toFile += "; q" + str(q+1) + ":" + str(y_q[q]) #type: ignore
         time.sleep(0.2)
         print("-----------------")
     ax.legend()
@@ -103,6 +102,7 @@ def main():
 
     currentDate = str(datetime.now())
     toFile = currentDate
+    for q in range(6): toFile += "; q" + str(q+1) + ":" + str(y_q[q]) #type: ignore
     print("toFile <<",toFile)
     correctionFile.write(toFile)
 
