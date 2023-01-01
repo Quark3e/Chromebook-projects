@@ -100,10 +100,18 @@ def main():
     ax.legend()
     plt.show()
 
-    currentDate = str(datetime.now())
+    currentDate = str(datetime.now()) + ";"
     toFile = currentDate
-    for q in range(6): toFile += "; q" + str(q+1) + ":" + str(y_q[q]) #type: ignore
+    tempDict_read = {}
+    for q in range(6): tempDict_read.update({q:y_q[q]})
+    toFile += str(tempDict_read) + "\n" #type: ignore
     print("toFile <<",toFile)
+
+    toFile_readable = "{\n"
+    for q in range(6): toFile_readable += "\t" + str(y_q) + "\n"
+    toFile_readable += "}\n"
+    print(toFile_readable)
+    toFile += toFile_readable
     correctionFile.write(toFile)
 
 
