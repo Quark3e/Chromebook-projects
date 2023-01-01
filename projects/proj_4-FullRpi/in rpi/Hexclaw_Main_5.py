@@ -18,6 +18,9 @@ import time
 import math
 # import adafruit_adxl34x
 import sys
+
+sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
+
 from IK_module import correctionSetup, sendToServo, toRadians, toDegrees, getAngles
 
 
@@ -138,7 +141,7 @@ while True:
     print(" 0.Calibrate given servo motor")
     print(" 1.Sweep given joint/servo motor")
     print(" 2.Send direct rotation to servo motors")
-    print(" 3.Move the end-effector in a pattern")
+    # print(" 3.Move the end-effector in a pattern")
     option = input(" input: ")
     print()
     breakVal_0 = False

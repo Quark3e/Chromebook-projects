@@ -16,6 +16,9 @@ import time
 import math
 import adafruit_adxl34x # type: ignore
 import sys
+
+sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
+
 from IK_module import correctionSetup, sendToServo, toRadians, toDegrees, getAngles
 
 correctionSetup()

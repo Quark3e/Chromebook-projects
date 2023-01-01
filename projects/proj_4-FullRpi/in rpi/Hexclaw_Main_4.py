@@ -15,6 +15,9 @@ import sys
 import requests
 from time import perf_counter, sleep
 from threading import Thread
+
+sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
+
 from IK_module import correctionSetup, sendToServo, toRadians, toDegrees, getAngles
 
 correctionSetup()

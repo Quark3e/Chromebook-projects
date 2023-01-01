@@ -148,7 +148,7 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,
         elif P5[0] < 0: q[0] = toRadians(-90) # type: ignore
         elif P5[0] == 0: q[0] = toRadians(0) # type: ignore
     else: q[0] = atan(-P5[0] / P5[1]) # type: ignore
-    
+    a = 0-a
     try:
         if posOption == '+': q[2] = acos((pow(P5[0], 2) + pow(P5[1], 2) + pow(P5[2] - link[0], 2) - pow(link[1], 2) - pow(link[2] + link[3], 2)) /(2 * link[1] * (link[2] + link[3]))) # type: ignore
         elif posOption == '-': q[2] = acos((pow(P5[0], 2) + pow(P5[1], 2) + pow(P5[2] - link[0], 2) - pow(link[1], 2) - pow(link[2] + link[3], 2)) /(2 * link[1] * (link[2] + link[3]))) # type: ignore

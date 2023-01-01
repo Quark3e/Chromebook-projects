@@ -16,6 +16,9 @@ import math
 import adafruit_adxl34x # type: ignore
 import sys
 # import matplotlib.pyplot as plt
+
+sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
+
 from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles
 
 correctionSetup()

@@ -16,6 +16,9 @@ import math
 import adafruit_adxl34x # type: ignore
 import sys
 from threading import Thread
+
+sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
+
 from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles
 
 
