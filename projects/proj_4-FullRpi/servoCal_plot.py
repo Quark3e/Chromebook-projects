@@ -77,6 +77,7 @@ def configure_plots():
 def main():
     global correctionFile
     configure_plots()
+    breakVal = False
     for q in range(6):
         # os.system('clear')
         print("Testing servo:",q)
@@ -89,8 +90,13 @@ def main():
         for x in range(0,19,1):
             servo[q].angle = x*10
             print(" sent angle:",x*10, end='')
-            y_q[q][x] = 0 + round(float(input(" read angle: ")) - x*10)
+            inpOpt = input(" read angle: ")
+            if inpOpt == "exit":
+                breakVal = True
+                break
+            y_q[q][x] = 0 + round(float(inpOpt) - x*10)
             x_q[q][x] = x*10
+        if breakVal: break
         for l in range(6):
             servo[l].angle = sTemp[q]
         ax.plot(x_q[q],y_q[q],linestyle='solid',label=str(q))
