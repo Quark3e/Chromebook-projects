@@ -77,7 +77,7 @@ def plotAxis_sim(PP):
             temp_PP[axis] = axisPos
             isReachable = [True]
             print("{:8}".format(round(axisPos)), "orient:{:18}".format(str([toDegrees(angle) for angle in orient])), end=' ')
-            q = getAngles(temp_PP,orient[0],orient[1],orient[2],'-', printText=False,printErrors=False,forShow=True, positionIsReachable=isReachable, debug=True)
+            q = getAngles(temp_PP,orient[0],orient[1],orient[2],'-', printText=False,printErrors=False,forShow=False, positionIsReachable=isReachable, debug=True)
             if isReachable[0]:
                 _, read_PP, _ = FK_solver(q, printText = False)           
                 print(' given:{:18} angles:{:30} read:{:18} orient:{:10}'.format(str([round(temp_PP) for temp_PP in temp_PP]),
@@ -146,7 +146,7 @@ def main():
         PP = [float(opt[0]),float(opt[1]),float(opt[2])]
         opt = input(" enter orientation of end-effector [a b Y]: ").split()
         orient = [toRadians(float(opt[0])),toRadians(float(opt[1])),toRadians(float(opt[2]))]
-        q = getAngles(PP,orient[0],orient[1],orient[2],'-',printText=True,forShow=True, debug=True)
+        q = getAngles(PP,orient[0],orient[1],orient[2],'-',printText=True,forShow=False, debug=True)
 
         subFrame = getSubframe(PP,orient[0],orient[1],'-')
         subFrame[0] = 0-subFrame[0]
