@@ -152,17 +152,19 @@ while True:
         if tempInput_1[0] == "exit": break
         elif tempInput_1[0] == "mode_1": mode=1
         elif tempInput_1[0] == "mode_2": mode=2
+        elif tempInput_1[0] == "mode_3": mode=3
         else:
             PP[0] = (float(tempInput_1[0])) # type: ignore
             PP[1] = (float(tempInput_1[1])) # type: ignore
             PP[2] = (float(tempInput_1[2])) # type: ignore
-    elif mode==2:
+    if mode==2:
         tempInput_1 = input("Enter z-value in mm: ")
         if tempInput_1 == "exit": break
         elif tempInput_1 == "mode_1": mode=1
         elif tempInput_1 == "mode_2": mode=2
+        elif tempInput_1 == "mode_3": mode=3
         else: PP[2] = float(tempInput_1) # type: ignore
-    elif mode==3:
+    if mode==3:
         patternOpt = 1
         print("Options:")
         print(" 1.choose a pre-defined pattern from a dictionary")
@@ -172,6 +174,7 @@ while True:
         if tempInput_1 == "exit": break
         elif tempInput_1 == "mode_1": mode=1
         elif tempInput_1 == "mode_2": mode=2
+        elif tempInput_1 == "mode_3": mode=3
         else: patternOpt = int(tempInput_1)
 
 
@@ -181,7 +184,7 @@ while True:
 
     if mode==1:
         if diagnostics: print("x:", PP[0], " y:", PP[1], " z:", PP[2], " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
-        q = getAngles(PP,a,b,Y,'-', debug=True, positionIsReachable=isReachable)
+        q = getAngles(PP,a,b,Y,'-', debug=[True,"both"], positionIsReachable=isReachable)
         # print(q)
         print([toDegrees(q) for q in q], "posIsReachable:", isReachable[0])
         sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
@@ -199,7 +202,7 @@ while True:
             elif k == 115: PP[2]-=10 #type: ignore
             if drawing:
                 PP[0], PP[1] = x2-windowRes[0]*0.5,windowRes[1]-y2 # type: ignore
-                q = getAngles(PP,a,b,Y,'-',positionIsReachable=isReachable)
+                q = getAngles(PP,a,b,Y,'-',positionIsReachable=isReachable, debug=[True,"both"])
                 # print(q)
                 if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
             counter+=1
@@ -220,7 +223,9 @@ while True:
                     toRadians(mov_Patterns[key][i][4]),
                     toRadians(mov_Patterns[key][i][5]),
                     '-',
-                    positionIsReachable=isReachable)
+                    positionIsReachable=isReachable,
+                    debug=[True, "q4"]
+                    )
                 print(mov_Patterns[key][i])
                 if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                 time.sleep(1)
@@ -235,7 +240,12 @@ while True:
                     if axis == "x": fullPos[0] = direction*pos #400
                     if axis == "y": fullPos[1] = direction*pos*0.5+100 #type: ignore #200
                     if axis == "z": fullPos[2] = direction*pos*0.5+200 #type: ignore #200
-                    q = getAngles(fullPos,toRadians(int(orientToUse[0])),toRadians(int(orientToUse[1])),toRadians(int(orientToUse[2])),'-',positionIsReachable=isReachable)
+                    q = getAngles(
+                        fullPos,
+                        toRadians(int(orientToUse[0])),toRadians(int(orientToUse[1])),toRadians(int(orientToUse[2])),
+                        '-', positionIsReachable=isReachable,
+                        debug=[True, "q5"]
+                    )
                     if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                     if axis == "x": time.sleep(0.005)
                     else: time.sleep(0.01)

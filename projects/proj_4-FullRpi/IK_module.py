@@ -1,6 +1,7 @@
 import sys
 import time
-from math import isnan, pi, sin, cos, tan, asin, acos, atan, sqrt
+# from math import isnan, pi, sin, cos, tan, asin, acos, atan, sqrt
+from math import *
 
 d1 = 140; #axial "roll"
 d2 = 135; #axial "pitch"
@@ -105,7 +106,16 @@ def check_isNaN(q, printText = False):
         return True
 
 
-def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,printErrors=True, debug=False, forShow=False, positionIsReachable=[True]):
+def getAngles(
+    PP,a,b,Y,posOption,
+    length_scalar=1,coord_scalar=1,
+    printText=False,printErrors=True, forShow=False, 
+    debug=[
+        False,
+        "none"
+    ], 
+    positionIsReachable=[True]
+    ):
     '''
     Solves and returns all the rotation values
     also returns if the point is reachable (i.e. no joints is NaN)
@@ -117,6 +127,7 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,
         posOption (str/char): different mode to use
             '-' is q3(/q[2]) above line between P2 and P4/P5;
             '+' is q3(/q[2]) under line between P2 and P4/P5
+        debug [boolean(whether to use default or debug), string(what to use)]: [1]="q4" if only q4 mod is used, [1]="q5" if only q5 mod is used, [1]="both" if both is used 
     '''
     positionIsReachable[0] = True
 
@@ -203,9 +214,11 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,
         elif frame1X == 0: q[3] = toRadians(0) # type: ignore
         if printText: print(" b1 was 0 so q4 was adjusted")
     elif b1 < 0 or b1 > 0: q[3] = atan(frame1X / frame1Z) # type: ignore
-    if debug:
+    
+    if debug[0] and (debug[1]=="q4" or debug[1]=="both"):
         q[3] = a1
         print(toDegrees(q[3]))
+
     try:
         checkVar = asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5]))
         if isnan(checkVar):
@@ -217,6 +230,10 @@ def getAngles(PP,a,b,Y,posOption,length_scalar=1,coord_scalar=1,printText=False,
             # q[4] = atan(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (cos(b1)*cos(a1))) # type: ignore
     except ValueError:
         positionIsReachable[0] = False
+    
+    if debug[0] and (debug[1]=="q5" or debug[1]=="both"):
+        q[4] = atan(sqrt(pow(frame1X,2)+pow(frame1Z,2))/(cos(b1)*cos(a1))) #type: ignore
+        print(toDegrees(q[4]))
 
     if frame1Z < 0:
         q[4] = 0-q[4] # type: ignore

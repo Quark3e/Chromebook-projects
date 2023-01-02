@@ -76,14 +76,14 @@ def plotAxis_sim(PP):
         for axisPos in range(posRanges[axis][0], posRanges[axis][1], 10):
             temp_PP[axis] = axisPos
             isReachable = [True]
-            print("{:8}".format(round(axisPos)), "orient:{:18}".format(str([toDegrees(angle) for angle in orient])), end=' ')
-            q = getAngles(temp_PP,orient[0],orient[1],orient[2],'-', printText=False,printErrors=False,forShow=False, positionIsReachable=isReachable, debug=True)
+            # print("{:8}".format(round(axisPos)), "orient:{:18}".format(str([toDegrees(angle) for angle in orient])), end=' ')
+            q = getAngles(temp_PP,orient[0],orient[1],orient[2],'-', printText=False,printErrors=False,forShow=False, positionIsReachable=isReachable, debug=[True,"both"])
             if isReachable[0]:
                 _, read_PP, _ = FK_solver(q, printText = False)           
-                print(' given:{:18} angles:{:30} read:{:18} orient:{:10}'.format(str([round(temp_PP) for temp_PP in temp_PP]),
-                str([round(toDegrees(q)) for q in q]),
-                str([round(read_PP) for read_PP in read_PP]),
-                str([round(toDegrees(orientation)) for orientation in orient])), end='')
+                # print(' given:{:18} angles:{:30} read:{:18} orient:{:10}'.format(str([round(temp_PP) for temp_PP in temp_PP]),
+                # str([round(toDegrees(q)) for q in q]),
+                # str([round(read_PP) for read_PP in read_PP]),
+                # str([round(toDegrees(orientation)) for orientation in orient])), end='')
                 read_axis_Values[axis][0].append(read_PP[0])
                 read_axis_Values[axis][1].append(read_PP[1])
                 read_axis_Values[axis][2].append(read_PP[2])
