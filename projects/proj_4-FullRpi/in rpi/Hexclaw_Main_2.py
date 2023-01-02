@@ -17,7 +17,6 @@ import sys
 import cv2
 import os
 
-
 sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
 
 from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles, custom_sendToServo
@@ -51,6 +50,21 @@ servo[4].angle = 180 - 0
 servo[5].angle = 90
 time.sleep(1)
 
+
+#servo.Servo(pca.channels[8]) is connected to led
+test = [servo.Servo(pca.channels[8])].angle = 0 #type: ignore
+time.sleep(1)
+test = [servo.Servo(pca.channels[8])].angle = 180 #type: ignore
+time.sleep(1)
+
+for a in range(0, 180, 10):
+    servo.Servo(pca.channels[8]).angle = a #type: ignore
+    time.sleep(0.01)
+for a in range(180, 0, -10):
+    servo.Servo(pca.channels[8]).angle = a #type: ignore
+    time.sleep(0.1)
+
+input("paused..")
 
 custom_sendToServo(servo,[90,115,145,90,125,90],5)
 print("------")
