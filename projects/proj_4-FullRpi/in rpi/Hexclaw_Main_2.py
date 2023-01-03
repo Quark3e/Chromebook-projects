@@ -38,7 +38,8 @@ servo = [servo.Servo(pca.channels[0]),
          servo.Servo(pca.channels[2]),
          servo.Servo(pca.channels[3]),
          servo.Servo(pca.channels[4]),
-         servo.Servo(pca.channels[5])]
+         servo.Servo(pca.channels[5]),
+         ]
 for i in range(6):
     servo[i].set_pulse_width_range(500, 2500)
 
@@ -52,19 +53,21 @@ time.sleep(1)
 
 
 #servo.Servo(pca.channels[8]) is connected to led
-test = [servo.Servo(pca.channels[8])].angle = 0 #type: ignore
-time.sleep(1)
-test = [servo.Servo(pca.channels[8])].angle = 180 #type: ignore
-time.sleep(1)
+# while True:
+#     test = servo[6].angle #type: ignore
+#     test.angle = 0
+#     time.sleep(1)
+#     test.angle = 180
+#     time.sleep(1)
 
-for a in range(0, 180, 10):
-    servo.Servo(pca.channels[8]).angle = a #type: ignore
-    time.sleep(0.01)
-for a in range(180, 0, -10):
-    servo.Servo(pca.channels[8]).angle = a #type: ignore
-    time.sleep(0.1)
+#     for a in range(0, 180, 10):
+#         test.angle = a
+#         time.sleep(0.01)
+#     for a in range(180, 0, -10):
+#         test.angle = a
+#         time.sleep(0.1)
 
-input("paused..")
+# input("paused..")
 
 custom_sendToServo(servo,[90,115,145,90,125,90],5)
 print("------")
@@ -238,7 +241,7 @@ while True:
                     toRadians(mov_Patterns[key][i][5]),
                     '-',
                     positionIsReachable=isReachable,
-                    debug=[True, "q4"]
+                    debug=[False, "q4"]
                     )
                 print(mov_Patterns[key][i])
                 if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
@@ -258,7 +261,7 @@ while True:
                         fullPos,
                         toRadians(int(orientToUse[0])),toRadians(int(orientToUse[1])),toRadians(int(orientToUse[2])),
                         '-', positionIsReachable=isReachable,
-                        debug=[True, "q5"]
+                        debug=[False, "q4"]
                     )
                     if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                     if axis == "x": time.sleep(0.005)
@@ -277,7 +280,10 @@ while True:
                     if orientToUse == "a": fullOrient[0] = direction*angle
                     if orientToUse == "b": fullOrient[1] = direction*angle
                     if orientToUse == "Y": fullOrient[2] = direction*angle
-                    q = getAngles(posToUse,toRadians(fullOrient[0]),toRadians(int(fullOrient[1])),toRadians(int(fullOrient[2])),'-',positionIsReachable=isReachable)
+                    q = getAngles(posToUse,toRadians(fullOrient[0]),toRadians(int(fullOrient[1])),toRadians(int(fullOrient[2])),
+                    '-',positionIsReachable=isReachable,
+                    debug=[True, ""]
+                    )
                     if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                     time.sleep(0.01)
             time.sleep(1.5)

@@ -98,7 +98,7 @@ def main():
             x_q[q][x] = x*10
         if breakVal: break
         for l in range(6):
-            servo[l].angle = sTemp[q]
+            servo[l].angle = sTemp[q][l]
         ax.plot(x_q[q],y_q[q],linestyle='solid',label=str(q))
         print(y_q)
         time.sleep(0.2)
