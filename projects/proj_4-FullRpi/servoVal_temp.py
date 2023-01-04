@@ -11,7 +11,7 @@ import time
 import os
 import matplotlib.pyplot as plt
 from datetime import datetime
-from math import *
+from math import * #type: ignore
 
 from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles, custom_sendToServo
 
@@ -49,21 +49,21 @@ def solve_linearConst(allValues, indexToIgnore=None, rawConstList=[]):
     '''
     linear_constant = 1
 
-    temp_constants = len(allValues[0])*[0]
+    temp_constants = (len(allValues[0])-1)*[0]
     for n in range(1, len(allValues[0])): #starts at index 1 [1] because some parts use "previous" values
         tempList_n = []
         tempList_n_1 = []
         for e in range(len(allValues)-1):
             tempList_n.append(allValues[e][n])
             tempList_n_1.append(allValues[e][n-1])
-        temp_constants[n] = (
-            (allValues[len(allValues)][n] - allValues[len(allValues)][n-1]) / 
+        temp_constants[n-1] = (
+            (allValues[len(allValues)-1][n] - allValues[len(allValues)-1][n-1]) / 
             (sqrt(sum([pow(val,2) for val in tempList_n]))-sqrt(sum([pow(val,2) for val in tempList_n_1])))
             )
     rawConstList = temp_constants.copy()
+    print(rawConstList)
     linear_constant = sum(temp_constants) / len(temp_constants)
 
-    return linear_constant
 
 
 def configure_plots():
