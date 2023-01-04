@@ -77,7 +77,7 @@ def configure_plots():
     Plot read value [y] from real life degree disk on given value [x] in degrees.
     '''
     global ax, fig
-    fig = plt.figure(figsize=(12, 5))
+    fig = plt.figure(figsize=(13, 5))
     ax = [0,0]
     ax[0] = fig.add_subplot(1,2,1) #type: ignore
     ax[1] = fig.add_subplot(1,2,2) #type: ignore
@@ -161,15 +161,16 @@ def main():
         
         ax[1].plot(regression_graph[0],regression_graph[1],linestyle='dashed',color="r",label="q[{:1}] regression k:{:4.4f}".format(q,constants_q[q]["default"])) #type: ignore
         ax[1].plot(modified_graph[0],modified_graph[1],linestyle='dashed',color="g",label="q[{:1}] regression k:{:4.4f}".format(q, constants_q[q]["fixed"])) #type: ignore
-        ax[1].axvline(x=160,color="grey", linestyle="-")
+        ax[1].axvline(x=160,color="grey", linestyle="-") #type: ignore
 
         # print(y_q)
         time.sleep(0.2)
         print("-----------------")
 
     fig.legend()
-    plt.show()
+    plt.savefig("q1_errorGraph")
 
+    plt.show()
 
 
     # #Writing to .dat file
