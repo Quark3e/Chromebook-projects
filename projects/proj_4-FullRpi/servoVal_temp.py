@@ -42,28 +42,34 @@ constants_q = 6*[{
 }]
 
 
-def solve_linearConst(allValues, indexToIgnore=None, rawConstList=[]):
+def solve_linearConst(allValues, indexToIgnore, rawConstList=[]):
     '''
     Note: the elements of "allValues" must be same length
     Solves regression
     '''
     linear_constant = 1
 
-    temp_constants = (len(allValues[0])-1)*[0]
+    temp_constants = (len(allValues[0])-len(indexToIgnore)-1)*[0]
+    temp_constants = []
     for n in range(1, len(allValues[0])): #starts at index 1 [1] because some parts use "previous" values
-        tempList_n = []
-        tempList_n_1 = []
-        for e in range(len(allValues)-1):
-            tempList_n.append(allValues[e][n])
-            tempList_n_1.append(allValues[e][n-1])
-        temp_constants[n-1] = (
-            (allValues[len(allValues)-1][n] - allValues[len(allValues)-1][n-1]) / 
-            (sqrt(sum([pow(val,2) for val in tempList_n]))-sqrt(sum([pow(val,2) for val in tempList_n_1])))
-            )
+        dontIgnore = True
+        for index in indexToIgnore:
+            if index/10==n: dontIgnore=False
+        if dontIgnore:
+            tempList_n = []
+            tempList_n_1 = []
+            for e in range(len(allValues)-1):
+                tempList_n.append(allValues[e][n])
+                tempList_n_1.append(allValues[e][n-1])
+            temp_constants.append(
+                (allValues[len(allValues)-1][n] - allValues[len(allValues)-1][n-1]) / 
+                (sqrt(sum([pow(val,2) for val in tempList_n]))-sqrt(sum([pow(val,2) for val in tempList_n_1])))
+                )
     rawConstList = temp_constants.copy()
-    print(rawConstList)
+    # print(rawConstList)
     linear_constant = sum(temp_constants) / len(temp_constants)
 
+    return linear_constant
 
 
 def configure_plots():
@@ -71,7 +77,7 @@ def configure_plots():
     Plot read value [y] from real life degree disk on given value [x] in degrees.
     '''
     global ax, fig
-    fig = plt.figure(figsize=(8, 4.8))
+    fig = plt.figure(figsize=(12, 5))
     ax = [0,0]
     ax[0] = fig.add_subplot(1,2,1) #type: ignore
     ax[1] = fig.add_subplot(1,2,2) #type: ignore
@@ -80,8 +86,8 @@ def configure_plots():
     ax[0].set_ylim(-90,90)
     ax[0].set_aspect('equal',adjustable='box')
     ax[0].set_xlabel("given value [degrees]")
-    ax[0].set_ylabel("read error rate | read-given [degrees]")
-    ax[0].axhline(y=0.5, color='r', linestyle='-')
+    ax[0].set_ylabel("read error-rate [degrees]")
+    ax[0].axhline(y=0, color='black', linestyle='-')
 
     ax[0].grid()
 
@@ -89,7 +95,7 @@ def configure_plots():
     # ax[1].set_ylim(0,90)
     ax[1].set_aspect('equal',adjustable='box')
     ax[1].set_xlabel("given value [degrees]")
-    ax[1].set_ylabel("read error rate | read-given [degrees]")
+    ax[1].set_ylabel("read value [degrees]")
     ax[1].grid()
 
     plt.title("Error rate graph")
@@ -118,7 +124,7 @@ tempVal1 = [
 
 
 def main():
-    global correctionFile
+    global correctionFile, constants_q
     configure_plots()
     breakVal = False
     for q in range(1):
@@ -133,12 +139,29 @@ def main():
             x_q[q][x] = x*10
         if breakVal: break
         
+        constants_q[q]["default"] = solve_linearConst([x_q[q], y2_q[q]],indexToIgnore=[160,170, 180]) #type: ignore
+        constants_q[q]["fixed"] = 1 / constants_q[q]["default"] #type: ignore
+
+        regression_graph = [[],[]]
+        modified_graph = [[],[]]
+        for x in x_q[q]:
+            regression_graph[0].append(x)
+            regression_graph[1].append(constants_q[q]["default"]*x+8)
+            modified_graph[0].append(x)
+            modified_graph[1].append(constants_q[q]["fixed"]*regression_graph[1][int(x/10)]-8)
+
+        # for x in y2_q[q]:   
+
+
         plt.xticks(np.arange(min(x_q[0]),max(x_q[0])+1, 10), rotation=90)
-        ax[0].plot(x_q[q],y_q[q],linestyle='solid',label="q"+str(q)) #type: ignore
-        ax[1].plot(x_q[q],y2_q[q],linestyle='solid',label="q"+str(q)) #type: ignore
-        ax[1].plot(x_q[q],x_q[q],linestyle='solid',label="q"+str(q)) #type: ignore
-
-
+        
+        ax[0].plot(x_q[q],y_q[q],linestyle='solid',label="q[{:1}] error-value".format(q)) #type: ignore
+        ax[1].plot(x_q[q],y2_q[q],linestyle='solid',label="q[{:1}] non modified".format(q)) #type: ignore
+        ax[1].plot(x_q[q],x_q[q],linestyle='solid',label="q[{:1}] expected".format(q)) #type: ignore
+        
+        ax[1].plot(regression_graph[0],regression_graph[1],linestyle='dashed',color="r",label="q[{:1}] regression k:{:4.4f}".format(q,constants_q[q]["default"])) #type: ignore
+        ax[1].plot(modified_graph[0],modified_graph[1],linestyle='dashed',color="g",label="q[{:1}] regression k:{:4.4f}".format(q, constants_q[q]["fixed"])) #type: ignore
+        
 
         # print(y_q)
         time.sleep(0.2)
@@ -149,18 +172,18 @@ def main():
 
 
 
-    #Writing to .dat file
-    currentDate = str(datetime.now()) + ";"
-    toFile = currentDate
-    tempDict_read = {}
-    for q in range(6): tempDict_read.update({q:y_q[q]})
-    toFile += str(tempDict_read) + "\n" #type: ignore
-    toFile_readable = "{\n"
-    for q in range(6): toFile_readable += "\t" + str(y_q) + "\n"
-    toFile_readable += "}\n"
-    # print(toFile_readable)
-    toFile += toFile_readable
-    correctionFile.write(toFile)
+    # #Writing to .dat file
+    # currentDate = str(datetime.now()) + ";"
+    # toFile = currentDate
+    # tempDict_read = {}
+    # for q in range(6): tempDict_read.update({q:y_q[q]})
+    # toFile += str(tempDict_read) + "\n" #type: ignore
+    # toFile_readable = "{\n"
+    # for q in range(6): toFile_readable += "\t" + str(y_q) + "\n"
+    # toFile_readable += "}\n"
+    # # print(toFile_readable)
+    # toFile += toFile_readable
+    # correctionFile.write(toFile)
 
 
 if __name__ == "__main__":
