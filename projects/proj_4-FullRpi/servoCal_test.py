@@ -15,8 +15,9 @@ from math import * #type: ignore
 
 from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles, custom_sendToServo
 
+relativePath = "projects/proj_4-FullRpi/servoVal_temp-media/"
 
-correctionFile = open("servoCorrections_temp.dat", "a")
+correctionFile = open(relativePath+"servoCorrections_temp.dat", "a")
 
 sDefault = [90,55,180-0,90,180-80,90]
 
@@ -168,8 +169,8 @@ def main():
         print("-----------------")
 
     fig.legend()
-    plt.savefig("q1_errorGraph.png")
-    plt.savefig("q1_errorGraph.pdf")
+    plt.savefig(relativePath+"q1_errorGraph.png")
+    plt.savefig(relativePath+"q1_errorGraph.pdf")
 
     plt.show()
 
