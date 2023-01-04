@@ -168,7 +168,8 @@ def main():
         print("-----------------")
 
     fig.legend()
-    plt.savefig("q1_errorGraph")
+    plt.savefig("q1_errorGraph.png")
+    plt.savefig("q1_errorGraph.pdf")
 
     plt.show()
 
