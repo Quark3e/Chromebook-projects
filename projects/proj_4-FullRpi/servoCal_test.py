@@ -15,22 +15,10 @@ from math import * #type: ignore
 
 from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles, custom_sendToServo
 
-relativePath = "projects/proj_4-FullRpi/servoVal_temp-media/"
+relativePath = "projects/proj_4-FullRpi/servoCal_files/"
 
-correctionFile = open(relativePath+"servoCorrections_temp.dat", "a")
+correctionFile = open(relativePath+"data/"+"servoCorrections_temp.dat", "a")
 
-sDefault = [90,55,180-0,90,180-80,90]
-
-time.sleep(1)
-
-sTemp = [ #is sent AFTER that angle is finished, so loop[q] and then sTemp[q], so sTemp[q] before loop[q]
-    [90,55,45,90,100,90], #before q2, after q1
-    [90,90,0,90,90,90],
-    [180,90,135,0,90,90],
-    [90,90,135,90,0,90],
-    [90,90,135,90,90,0],
-    [90,55,180,90,90,100,90]
-]
 
 x_q = 6*[19*[0]]
 y_q = 6*[19*[0]]
@@ -78,7 +66,7 @@ def configure_plots():
     Plot read value [y] from real life degree disk on given value [x] in degrees.
     '''
     global ax, fig
-    fig = plt.figure(figsize=(13, 5))
+    fig = plt.figure(figsize=(11, 6))
     ax = [0,0]
     ax[0] = fig.add_subplot(1,2,1) #type: ignore
     ax[1] = fig.add_subplot(1,2,2) #type: ignore
@@ -125,7 +113,7 @@ tempVal1 = [
 
 
 def main():
-    global correctionFile, constants_q
+    global correctionFile, constants_q, fig
     configure_plots()
     breakVal = False
     for q in range(1):
@@ -168,9 +156,9 @@ def main():
         time.sleep(0.2)
         print("-----------------")
 
-    fig.legend()
-    plt.savefig(relativePath+"q1_errorGraph.png")
-    plt.savefig(relativePath+"q1_errorGraph.pdf")
+    fig.legend(loc=2)
+    plt.savefig(relativePath+"media/"+"q1_errorGraph.png")
+    plt.savefig(relativePath+"media/"+"q1_errorGraph.pdf")
 
     plt.show()
 
