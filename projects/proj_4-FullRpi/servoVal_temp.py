@@ -139,7 +139,7 @@ def main():
             x_q[q][x] = x*10
         if breakVal: break
         
-        constants_q[q]["default"] = solve_linearConst([x_q[q], y2_q[q]],indexToIgnore=[160,170, 180]) #type: ignore
+        constants_q[q]["default"] = solve_linearConst([x_q[q], y2_q[q]],indexToIgnore=[160,170,180]) #type: ignore
         constants_q[q]["fixed"] = 1 / constants_q[q]["default"] #type: ignore
 
         regression_graph = [[],[]]
@@ -161,7 +161,7 @@ def main():
         
         ax[1].plot(regression_graph[0],regression_graph[1],linestyle='dashed',color="r",label="q[{:1}] regression k:{:4.4f}".format(q,constants_q[q]["default"])) #type: ignore
         ax[1].plot(modified_graph[0],modified_graph[1],linestyle='dashed',color="g",label="q[{:1}] regression k:{:4.4f}".format(q, constants_q[q]["fixed"])) #type: ignore
-        
+        ax[1].axvline(x=160,color="grey", linestyle="-")
 
         # print(y_q)
         time.sleep(0.2)

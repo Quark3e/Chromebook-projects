@@ -106,6 +106,7 @@ def main():
     ax.legend()
     plt.show()
 
+
     currentDate = str(datetime.now()) + ";"
     toFile = currentDate
     tempDict_read = {}
