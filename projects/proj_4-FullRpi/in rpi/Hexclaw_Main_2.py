@@ -16,6 +16,7 @@ import adafruit_adxl34x # type: ignore
 import sys
 import cv2
 import os
+import RPi.GPIO as GPIO #type: ignore
 
 sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
 
@@ -51,25 +52,63 @@ servo[4].angle = 180 - 0
 servo[5].angle = 90
 time.sleep(1)
 
+ledRelay = 16
 
-#servo.Servo(pca.channels[8]) is connected to led
-# while True:
-#     test = servo[6].angle #type: ignore
-#     test.angle = 0
-#     time.sleep(1)
-#     test.angle = 180
-#     time.sleep(1)
+# GPIO.setmode(GPIO.BOARD)
+# GPIO.setup(ledRelay, GPIO.OUT)
 
-#     for a in range(0, 180, 10):
-#         test.angle = a
-#         time.sleep(0.01)
-#     for a in range(180, 0, -10):
-#         test.angle = a
-#         time.sleep(0.1)
+# GPIO.output(ledRelay, False)
 
-# input("paused..")
+
+GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
+ 
+ledRelay = 23
+GPIO.setup(ledRelay, GPIO.OUT) # GPIO Assign mode
+GPIO.output(ledRelay, GPIO.LOW) # out
+GPIO.output(ledRelay, GPIO.HIGH) # on
+
+try:
+    while True:
+      for x in range(5):
+            GPIO.output(ledRelay, True)
+            time.sleep(0.1)
+            GPIO.output(ledRelay, False)
+            time.sleep(0.1)
+
+      GPIO.output(ledRelay,True)
+
+      for x in range(4):
+            GPIO.output(ledRelay, True)
+            time.sleep(0.05)
+            GPIO.output(ledRelay, False)
+            time.sleep(0.05)
+      GPIO.output(ledRelay,True)
+except KeyboardInterrupt:
+    GPIO.cleanup()
+
 
 custom_sendToServo(servo,[90,115,145,90,125,90],5)
+
+
+time.sleep(1)
+GPIO.output(ledRelay, True)
+time.sleep(0.1)
+GPIO.output(ledRelay, False)
+time.sleep(2)
+for _ in range(4):
+    GPIO.output(ledRelay, True)
+    time.sleep(0.1)
+    GPIO.output(ledRelay, False)
+    time.sleep(0.1)
+time.sleep(1)
+GPIO.output(ledRelay, True)
+time.sleep(0.25)
+GPIO.output(ledRelay, False)
+time.sleep(0.5)
+GPIO.output(ledRelay, True)
+
+
+
 print("------")
 time.sleep(1)
 
