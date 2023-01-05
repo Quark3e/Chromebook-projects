@@ -86,7 +86,7 @@ def configure_plots():
     ax[0] = fig.add_subplot(1,2,1) #type: ignore
     ax[1] = fig.add_subplot(1,2,2) #type: ignore
 
-    ax[0].set_xlim(0,180)
+    ax[0].set_xlim(0,180) #type: ignore
     ax[0].set_ylim(-90,90)
     ax[0].set_aspect('equal',adjustable='box')
     ax[0].set_xlabel("given value [degrees]")

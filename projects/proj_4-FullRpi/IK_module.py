@@ -61,20 +61,22 @@ def custom_sendToServo(servo, new_rotation, total_time, useDefault = False):
     '''
     Args:
         s (float/int): dictionary/list variable that sends to pca board / holds old/current rotation commands
-        new_rotation (float/int): dictionary/list variable of new rotation commands
+        new_rotation (float/int): dictionary/list variable of new rotation commands in [degrees]
         total_iteration (int): number of loop iterations to complete the movement
         total_time (float/int): Total time spent moving the servo from start to finish in seconds
     '''
     if useDefault:
-        new_rotation[5] = default_q[5] + int(round(toDegrees(new_rotation[5])))
-        new_rotation[4] = 180 - default_q[4] - int(round(toDegrees(new_rotation[4])))
-        new_rotation[3] = default_q[3] + int(round(toDegrees(new_rotation[3])))
-        new_rotation[2] = 180 - default_q[2] - int(toDegrees(new_rotation[2]))
-        new_rotation[1] = default_q[1] + int(round(toDegrees(new_rotation[1])))
-        new_rotation[0] = default_q[0] - int(round(toDegrees(new_rotation[0])))
+        new_rotation[5] = default_q[5] + new_rotation[5]
+        new_rotation[4] = 180 - default_q[4] - new_rotation[4]
+        new_rotation[3] = default_q[3] + new_rotation[3]
+        new_rotation[2] = 180 - default_q[2] - new_rotation[2]
+        new_rotation[1] = default_q[1] + new_rotation[1]
+        new_rotation[0] = default_q[0] - new_rotation[0]
     
     for q in range(6):
-        new_rotation[q] = new_rotation[q] * constants_q[q]["fixed"]
+        print("q:{:1} original:{:3} modified:{:3}".format(q, new_rotation[q], new_rotation[q] * constants_q[q]["fixed"]))
+        if q==4: new_rotation[q] = q5Fix(new_rotation[4])
+        else: new_rotation[q] = new_rotation[q] * constants_q[q]["fixed"]
 
         # for x in range(6):
         #     if notAccurate[x]:

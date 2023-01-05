@@ -44,7 +44,7 @@ servo = [servo.Servo(pca.channels[0]),
 for i in range(6):
     servo[i].set_pulse_width_range(500, 2500)
 
-servo[0].angle = 135
+servo[0].angle = 108
 servo[1].angle = 15
 servo[2].angle = 180 - 25
 servo[3].angle = 45
@@ -67,48 +67,28 @@ GPIO.setup(ledRelay, GPIO.OUT) # GPIO Assign mode
 GPIO.output(ledRelay, GPIO.LOW) # out
 GPIO.output(ledRelay, GPIO.HIGH) # on
 
-# try:
-#     while True:
-#       for x in range(5):
-#             GPIO.output(ledRelay, True)
-#             time.sleep(0.1)
-#             GPIO.output(ledRelay, False)
-#             time.sleep(0.1)
-
-#       GPIO.output(ledRelay,True)
-
-#       for x in range(4):
-#             GPIO.output(ledRelay, True)
-#             time.sleep(0.05)
-#             GPIO.output(ledRelay, False)
-#             time.sleep(0.05)
-#       GPIO.output(ledRelay,True)
-# except KeyboardInterrupt:
-#     GPIO.cleanup()
-
-
 custom_sendToServo(servo,[90,115,145,90,125,90],5)
 
 
-time.sleep(1)
-GPIO.output(ledRelay, True)
-time.sleep(0.1)
-GPIO.output(ledRelay, False)
+# time.sleep(1)
+# GPIO.output(ledRelay, False)
+# time.sleep(0.1)
+# GPIO.output(ledRelay, True)
 time.sleep(2)
 for _ in range(4):
-    GPIO.output(ledRelay, True)
-    time.sleep(0.1)
     GPIO.output(ledRelay, False)
-    time.sleep(0.1)
-time.sleep(1)
-GPIO.output(ledRelay, True)
-time.sleep(0.25)
+    time.sleep(0.05)
+    GPIO.output(ledRelay, True)
+    time.sleep(0.05)
+time.sleep(1.5)
 GPIO.output(ledRelay, False)
-time.sleep(0.5)
+time.sleep(0.25)
 GPIO.output(ledRelay, True)
+time.sleep(0.5)
+GPIO.output(ledRelay, False)
 
 
-# sys.exit()
+GPIO.output(ledRelay, True)
 
 print("------")
 time.sleep(1)
@@ -169,169 +149,174 @@ def mouseTrack(event,x,y,flags,param):
     elif event == cv2.EVENT_LBUTTONUP:
         buttonPressed = False
         drawing = False
-        img = temp
+        img = temp #type: ignore
         # cv2.line(img,(0,y2),(windowRes[0],y2),(255,255,255),1)
         # cv2.line(img,(x2,0),(x2,windowRes[1]),(255,255,255),1)
         # cv2.circle(img,(x2,y2),10,(0,0,255),1)
         # cv2.putText(img,"("+str(int(x2-windowRes[0]*0.5))+","+str(int(windowRes[1]-y2))+")",(x2+10,y2),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255))
         
 
+def main():
+    global PP, a, b, Y
+    mode = 0
 
-mode = 0
+    print(" Different modes for tracking/moving:")
+    print(" 1. Enter position and orientation in terminal")
+    print(" 2. Mouse position tracking on window")
+    print(" 3. Move end-effector in a pattern")
+    option = input(" input: ")
+    if option == "exit": return
+    else: mode = int(option)
 
-print(" Different modes for tracking/moving:")
-print(" 1. Enter position and orientation in terminal")
-print(" 2. Mouse position tracking on window")
-print(" 3. Move end-effector in a pattern")
-option = input(" input: ")
-if option == "exit": custom_sendToServo(servo,[135,15,155,45,180,90],2); sys.exit()
-else: mode = int(option)
+    # "under" = given < 0
+    # "over" = given < 180
+    servoExceeded = False
+    whichServoExceeded = 6*[False]
+    typeOfExceeded = 6*["null"]
 
-# "under" = given < 0
-# "over" = given < 180
-servoExceeded = False
-whichServoExceeded = 6*[False]
-typeOfExceeded = 6*["null"]
+    start_time = time.time()
+    x = 1 # displays the frame rate every 1 second
+    counter = 0
 
-start_time = time.time()
-x = 1 # displays the frame rate every 1 second
-counter = 0
+    isReachable = [True]
 
-isReachable = [True]
-
-while True:
-    # os.system("clear")
-    #Get end-effector/PP position/coordinate
-    print("\n ---Enter mode_(n) to change mode to (n)--- \n")
-    if mode==1:
-        tempInput_1 = input("Enter coordinates [x y z] in mm: ").split()
-        if tempInput_1[0] == "exit": break
-        elif tempInput_1[0] == "mode_1": mode=1
-        elif tempInput_1[0] == "mode_2": mode=2
-        elif tempInput_1[0] == "mode_3": mode=3
-        else:
-            PP[0] = (float(tempInput_1[0])) # type: ignore
-            PP[1] = (float(tempInput_1[1])) # type: ignore
-            PP[2] = (float(tempInput_1[2])) # type: ignore
-    if mode==2:
-        tempInput_1 = input("Enter z-value in mm: ")
-        if tempInput_1 == "exit": break
-        elif tempInput_1 == "mode_1": mode=1
-        elif tempInput_1 == "mode_2": mode=2
-        elif tempInput_1 == "mode_3": mode=3
-        else: PP[2] = float(tempInput_1) # type: ignore
-    if mode==3:
-        patternOpt = 1
-        print("Options:")
-        print(" 1.choose a pre-defined pattern from a dictionary")
-        print(" 2.move end-effector along an axis")
-        print(" 3.move end-effector orientation with a fixed position")
-        tempInput_1 = input("input: ")
-        if tempInput_1 == "exit": break
-        elif tempInput_1 == "mode_1": mode=1
-        elif tempInput_1 == "mode_2": mode=2
-        elif tempInput_1 == "mode_3": mode=3
-        else: patternOpt = int(tempInput_1)
+    while True:
+        # os.system("clear")
+        #Get end-effector/PP position/coordinate
+        print("\n ---Enter mode_(n) to change mode to (n)--- \n")
+        if mode==1:
+            tempInput_1 = input("Enter coordinates [x y z] in mm: ").split()
+            if tempInput_1[0] == "exit": break
+            elif tempInput_1[0] == "mode_1": mode=1
+            elif tempInput_1[0] == "mode_2": mode=2
+            elif tempInput_1[0] == "mode_3": mode=3
+            else:
+                PP[0] = (float(tempInput_1[0])) # type: ignore
+                PP[1] = (float(tempInput_1[1])) # type: ignore
+                PP[2] = (float(tempInput_1[2])) # type: ignore
+        if mode==2:
+            tempInput_1 = input("Enter z-value in mm: ")
+            if tempInput_1 == "exit": break
+            elif tempInput_1 == "mode_1": mode=1
+            elif tempInput_1 == "mode_2": mode=2
+            elif tempInput_1 == "mode_3": mode=3
+            else: PP[2] = float(tempInput_1) # type: ignore
+        if mode==3:
+            patternOpt = 1
+            print("Options:")
+            print(" 1.choose a pre-defined pattern from a dictionary")
+            print(" 2.move end-effector along an axis")
+            print(" 3.move end-effector orientation with a fixed position")
+            tempInput_1 = input("input: ")
+            if tempInput_1 == "exit": break
+            elif tempInput_1 == "mode_1": mode=1
+            elif tempInput_1 == "mode_2": mode=2
+            elif tempInput_1 == "mode_3": mode=3
+            else: patternOpt = int(tempInput_1)
 
 
-    if mode==1 or mode==2:
-        tempInput_2 = input("Enter orientation values [a b Y] in degrees: ").split()
-        a,b,Y = toRadians(float(tempInput_2[0])), toRadians(float(tempInput_2[1])), toRadians(float(tempInput_2[2]))
+        if mode==1 or mode==2:
+            tempInput_2 = input("Enter orientation values [a b Y] in degrees: ").split()
+            a,b,Y = toRadians(float(tempInput_2[0])), toRadians(float(tempInput_2[1])), toRadians(float(tempInput_2[2]))
 
-    if mode==1:
-        if diagnostics: print("x:", PP[0], " y:", PP[1], " z:", PP[2], " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
-        q = getAngles(PP,a,b,Y,'-', debug=[True,"both"], positionIsReachable=isReachable)
-        # print(q)
-        print([toDegrees(q) for q in q], "posIsReachable:", isReachable[0])
-        sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
-    elif mode==2:
-        img = np.zeros((windowRes[1],windowRes[0],3), np.uint8)
-        cv2.namedWindow('tracking_window')
-        cv2.setMouseCallback('tracking_window',mouseTrack)
-        temp = img
-        print("\n 'Esc' - change z-value and orientation\n")
-        while True:
-            cv2.imshow('tracking_window', img) #use this if the previous drawings are not to be used
-            k = cv2.waitKey(1) & 0xFF
-            if k == 27: break
-            elif k == 119: PP[2]+=10 #type: ignore
-            elif k == 115: PP[2]-=10 #type: ignore
-            if drawing:
-                PP[0], PP[1] = x2-windowRes[0]*0.5,windowRes[1]-y2 # type: ignore
-                q = getAngles(PP,a,b,Y,'-',positionIsReachable=isReachable, debug=[True,"both"])
-                # print(q)
-                if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
-            counter+=1
-            if (time.time() - start_time) > x :
-                print("FPS: ", counter / (time.time() - start_time))
-                counter = 0
-                start_time = time.time()
-        cv2.destroyAllWindows()
-    elif mode==3:
-        if patternOpt==1: #type: ignore
-            print("Pick any of these patterns")
-            for key,_ in mov_Patterns.items(): print(" - \"",key,"\"", sep='')
-            key = input("input a key:")
-            for i in range(len(mov_Patterns[key])):
-                q = getAngles(
-                    [mov_Patterns[key][i][0],mov_Patterns[key][i][1],mov_Patterns[key][i][2]],
-                    toRadians(mov_Patterns[key][i][3]),
-                    toRadians(mov_Patterns[key][i][4]),
-                    toRadians(mov_Patterns[key][i][5]),
-                    '-',
-                    positionIsReachable=isReachable,
-                    debug=[False, "q4"]
-                    )
-                print(mov_Patterns[key][i])
-                if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
-                time.sleep(1)
-        elif patternOpt==2: #type: ignore
-            axis = input("\nEnter what axis to move [x, y or z] [unit: mm]:")
-            orientToUse = input("\nEnter orientation for axis test [a, b and Y]:").split()
-            fullPos = [0,200,150]
-            presetAngles = [0,0,0,0,0,0]
-            for joint in range(6): presetAngles[joint] = servo[joint].angle
-            for direction in range(1, -2, -2):
-                for pos in range(-200, 200):
-                    if axis == "x": fullPos[0] = direction*pos #400
-                    if axis == "y": fullPos[1] = direction*pos*0.5+100 #type: ignore #200
-                    if axis == "z": fullPos[2] = direction*pos*0.5+200 #type: ignore #200
+        if mode==1:
+            if diagnostics: print("x:", PP[0], " y:", PP[1], " z:", PP[2], " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
+            q = getAngles(PP,a,b,Y,'-', debug=[True,"both"], positionIsReachable=isReachable)
+            # print(q)
+            print([toDegrees(q) for q in q], "posIsReachable:", isReachable[0])
+            sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+        elif mode==2:
+            img = np.zeros((windowRes[1],windowRes[0],3), np.uint8)
+            cv2.namedWindow('tracking_window')
+            cv2.setMouseCallback('tracking_window',mouseTrack)
+            temp = img
+            print("\n 'Esc' - change z-value and orientation\n")
+            while True:
+                cv2.imshow('tracking_window', img) #use this if the previous drawings are not to be used
+                k = cv2.waitKey(1) & 0xFF
+                if k == 27: break
+                elif k == 119: PP[2]+=10 #type: ignore
+                elif k == 115: PP[2]-=10 #type: ignore
+                if drawing:
+                    PP[0], PP[1] = x2-windowRes[0]*0.5,windowRes[1]-y2 # type: ignore
+                    q = getAngles(PP,a,b,Y,'-',positionIsReachable=isReachable, debug=[True,"both"])
+                    # print(q)
+                    if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+                counter+=1
+                if (time.time() - start_time) > x :
+                    print("FPS: ", counter / (time.time() - start_time))
+                    counter = 0
+                    start_time = time.time()
+            cv2.destroyAllWindows()
+        elif mode==3:
+            if patternOpt==1: #type: ignore
+                print("Pick any of these patterns")
+                for key,_ in mov_Patterns.items(): print(" - \"",key,"\"", sep='')
+                key = input("input a key:")
+                for i in range(len(mov_Patterns[key])):
                     q = getAngles(
-                        fullPos,
-                        toRadians(int(orientToUse[0])),toRadians(int(orientToUse[1])),toRadians(int(orientToUse[2])),
-                        '-', positionIsReachable=isReachable,
+                        [mov_Patterns[key][i][0],mov_Patterns[key][i][1],mov_Patterns[key][i][2]],
+                        toRadians(mov_Patterns[key][i][3]),
+                        toRadians(mov_Patterns[key][i][4]),
+                        toRadians(mov_Patterns[key][i][5]),
+                        '-',
+                        positionIsReachable=isReachable,
                         debug=[False, "q4"]
-                    )
+                        )
+                    print(mov_Patterns[key][i])
                     if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
-                    if axis == "x": time.sleep(0.005)
-                    else: time.sleep(0.01)
-            time.sleep(1.5)
-            for joint in range(6): servo[joint].angle = presetAngles[joint]
-        elif patternOpt==3: #type: ignore
-            orientToUse = input("\nEnter what orientation to test [a, b or Y] [unit: degrees]:")
-            posToUse = input("\nEnter coordinate for position test [x, y and z]:").split()
-            for _ in range(3): posToUse[_] = int(posToUse[_]) #type: ignore
-            fullOrient = [0,0,0]
-            presetAngles = [0,0,0,0,0,0]
-            for joint in range(6): presetAngles[joint] = servo[joint].angle
-            for direction in range(1, -2, -2):
-                for angle in range(-90, 90):
-                    if orientToUse == "a": fullOrient[0] = direction*angle
-                    if orientToUse == "b": fullOrient[1] = direction*angle
-                    if orientToUse == "Y": fullOrient[2] = direction*angle
-                    q = getAngles(posToUse,toRadians(fullOrient[0]),toRadians(int(fullOrient[1])),toRadians(int(fullOrient[2])),
-                    '-',positionIsReachable=isReachable,
-                    debug=[True, ""]
-                    )
-                    if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
-                    time.sleep(0.01)
-            time.sleep(1.5)
-            for joint in range(6): servo[joint].angle = presetAngles[joint]
+                    time.sleep(1)
+            elif patternOpt==2: #type: ignore
+                axis = input("\nEnter what axis to move [x, y or z] [unit: mm]:")
+                orientToUse = input("\nEnter orientation for axis test [a, b and Y]:").split()
+                fullPos = [0,200,150]
+                presetAngles = [0,0,0,0,0,0]
+                for joint in range(6): presetAngles[joint] = servo[joint].angle
+                for direction in range(1, -2, -2):
+                    for pos in range(-200, 200):
+                        if axis == "x": fullPos[0] = direction*pos #400
+                        if axis == "y": fullPos[1] = direction*pos*0.5+100 #type: ignore #200
+                        if axis == "z": fullPos[2] = direction*pos*0.5+200 #type: ignore #200
+                        q = getAngles(
+                            fullPos,
+                            toRadians(int(orientToUse[0])),toRadians(int(orientToUse[1])),toRadians(int(orientToUse[2])),
+                            '-', positionIsReachable=isReachable,
+                            debug=[False, "q4"]
+                        )
+                        if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+                        if axis == "x": time.sleep(0.005)
+                        elif axis == "z": time.sleep(0.001)
+                        else: time.sleep(0.01)
+                time.sleep(1.5)
+                for joint in range(6): servo[joint].angle = presetAngles[joint]
+            elif patternOpt==3: #type: ignore
+                orientToUse = input("\nEnter what orientation to test [a, b or Y] [unit: degrees]:")
+                posToUse = input("\nEnter coordinate for position test [x, y and z]:").split()
+                for _ in range(3): posToUse[_] = int(posToUse[_]) #type: ignore
+                fullOrient = [0,0,0]
+                presetAngles = [0,0,0,0,0,0]
+                for joint in range(6): presetAngles[joint] = servo[joint].angle
+                for direction in range(1, -2, -2):
+                    for angle in range(-90, 90):
+                        if orientToUse == "a": fullOrient[0] = direction*angle
+                        if orientToUse == "b": fullOrient[1] = direction*angle
+                        if orientToUse == "Y": fullOrient[2] = direction*angle
+                        q = getAngles(posToUse,toRadians(fullOrient[0]),toRadians(int(fullOrient[1])),toRadians(int(fullOrient[2])),
+                        '-',positionIsReachable=isReachable,
+                        debug=[True, ""]
+                        )
+                        if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+                        time.sleep(0.01)
+                time.sleep(1.5)
+                for joint in range(6): servo[joint].angle = presetAngles[joint]
 
-    # input("\npaused. Press enter to continue...")
+        # input("\npaused. Press enter to continue...")
 
 
-custom_sendToServo(servo,[135,15,155,45,180,90],2)
+    pca.deinit()
 
-pca.deinit()
-
+if __name__ == "__main__":
+    main()
+    custom_sendToServo(servo,[135,15,155,45,180,90],2)
+    GPIO.output(ledRelay, False)
+    
