@@ -67,24 +67,24 @@ GPIO.setup(ledRelay, GPIO.OUT) # GPIO Assign mode
 GPIO.output(ledRelay, GPIO.LOW) # out
 GPIO.output(ledRelay, GPIO.HIGH) # on
 
-try:
-    while True:
-      for x in range(5):
-            GPIO.output(ledRelay, True)
-            time.sleep(0.1)
-            GPIO.output(ledRelay, False)
-            time.sleep(0.1)
+# try:
+#     while True:
+#       for x in range(5):
+#             GPIO.output(ledRelay, True)
+#             time.sleep(0.1)
+#             GPIO.output(ledRelay, False)
+#             time.sleep(0.1)
 
-      GPIO.output(ledRelay,True)
+#       GPIO.output(ledRelay,True)
 
-      for x in range(4):
-            GPIO.output(ledRelay, True)
-            time.sleep(0.05)
-            GPIO.output(ledRelay, False)
-            time.sleep(0.05)
-      GPIO.output(ledRelay,True)
-except KeyboardInterrupt:
-    GPIO.cleanup()
+#       for x in range(4):
+#             GPIO.output(ledRelay, True)
+#             time.sleep(0.05)
+#             GPIO.output(ledRelay, False)
+#             time.sleep(0.05)
+#       GPIO.output(ledRelay,True)
+# except KeyboardInterrupt:
+#     GPIO.cleanup()
 
 
 custom_sendToServo(servo,[90,115,145,90,125,90],5)
