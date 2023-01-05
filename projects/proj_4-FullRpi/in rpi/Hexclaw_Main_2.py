@@ -20,7 +20,7 @@ import RPi.GPIO as GPIO #type: ignore
 
 sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
 
-from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles, custom_sendToServo
+from IK_module import sendToServo, toDegrees, toRadians, getAngles, custom_sendToServo
 from h2_module import mov_Patterns
 
 from board import SCL, SDA # type: ignore
@@ -108,13 +108,13 @@ time.sleep(0.5)
 GPIO.output(ledRelay, True)
 
 
+# sys.exit()
 
 print("------")
 time.sleep(1)
 
 diagnostics = True
 
-correctionSetup()
 
 
 axisFilter = 0.7 #On the new value end

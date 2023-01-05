@@ -19,9 +19,8 @@ import sys
 
 sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
 
-from IK_module import correctionSetup, sendToServo, toRadians, toDegrees, getAngles
+from IK_module import custom_sendToServo, sendToServo, toRadians, toDegrees, getAngles
 
-correctionSetup()
 
 from board import SCL, SDA # type: ignore
 import busio # type: ignore

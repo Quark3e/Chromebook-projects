@@ -19,7 +19,7 @@ from threading import Thread
 
 sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
 
-from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles
+from IK_module import sendToServo, toDegrees, toRadians, getAngles
 
 
 class WebcamVideoStream:
@@ -51,7 +51,6 @@ class WebcamVideoStream:
 		# indicate that the thread should be stopped
         self.stopped = True
 
-correctionSetup()
 
 from board import SCL, SDA # type: ignore
 import busio # type: ignore

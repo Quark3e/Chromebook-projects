@@ -13,9 +13,8 @@ import time
 import math
 import sys
 #from threading import Thread
-from IK_module import sendToServo, correctionSetup, toDegrees, toRadians, getAngles, default_q
+from IK_module import sendToServo, toDegrees, toRadians, getAngles, default_q
 
-correctionSetup()
 
 from board import SCL, SDA # type: ignore
 import busio # type: ignore

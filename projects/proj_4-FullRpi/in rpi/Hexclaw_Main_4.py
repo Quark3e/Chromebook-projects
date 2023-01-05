@@ -18,9 +18,8 @@ from threading import Thread
 
 sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
 
-from IK_module import correctionSetup, sendToServo, toRadians, toDegrees, getAngles
+from IK_module import custom_sendToServo, sendToServo, toRadians, toDegrees, getAngles
 
-correctionSetup()
 
 class WebcamVideoStream:
     def __init__(self, src=0):
