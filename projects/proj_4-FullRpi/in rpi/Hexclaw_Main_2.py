@@ -221,7 +221,7 @@ def main():
 
         if mode==1:
             if diagnostics: print("x:", PP[0], " y:", PP[1], " z:", PP[2], " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
-            q = getAngles(PP,a,b,Y,'-', debug=[True,"both"], positionIsReachable=isReachable)
+            q = getAngles(PP,a,b,Y,'-', debug=[True,"q4"], positionIsReachable=isReachable)
             # print(q)
             print([toDegrees(q) for q in q], "posIsReachable:", isReachable[0])
             sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
@@ -313,10 +313,9 @@ def main():
         # input("\npaused. Press enter to continue...")
 
 
-    pca.deinit()
-
 if __name__ == "__main__":
     main()
     custom_sendToServo(servo,[135,15,155,45,180,90],2)
     GPIO.output(ledRelay, False)
-    
+    pca.deinit()
+
