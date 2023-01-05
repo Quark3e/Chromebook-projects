@@ -14,8 +14,8 @@ default_q = [90, 0, 135, 90, 90, 90]
 
 
 constants_q = [{
-    "default":1,
-    "fixed":1
+    "default":1.2466666666666668,
+    "fixed":0.802139037433155
 },
 {
     "default":1,

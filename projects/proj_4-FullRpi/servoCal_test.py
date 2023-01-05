@@ -25,7 +25,22 @@ y_q = 6*[19*[0]]
 y2_q = 6*[19*[0]]
 #_q = 6*[18*[0]], 6 lists each with 18 elements
 
-constants_q = 6*[{
+constants_q = [{
+    "default":1,
+    "fixed":1
+},{
+    "default":1,
+    "fixed":1
+},{
+    "default":1,
+    "fixed":1
+},{
+    "default":1,
+    "fixed":1
+},{
+    "default":1,
+    "fixed":1
+},{
     "default":1,
     "fixed":1
 }]
@@ -163,18 +178,18 @@ def main():
     plt.show()
 
 
-    # #Writing to .dat file
-    # currentDate = str(datetime.now()) + ";"
-    # toFile = currentDate
-    # tempDict_read = {}
-    # for q in range(6): tempDict_read.update({q:y_q[q]})
-    # toFile += str(tempDict_read) + "\n" #type: ignore
-    # toFile_readable = "{\n"
-    # for q in range(6): toFile_readable += "\t" + str(y_q) + "\n"
-    # toFile_readable += "}\n"
-    # # print(toFile_readable)
-    # toFile += toFile_readable
-    # correctionFile.write(toFile)
+    #Writing to .dat file
+    currentDate = str(datetime.now()) + ";"
+    toFile = currentDate
+    tempDict_read = {}
+    for q in range(6): tempDict_read.update({q:y_q[q]})
+    toFile += str(tempDict_read) + "\n" #type: ignore
+    toFile_readable = str(constants_q)+"{\n"
+    for q in range(6): toFile_readable += "\t" + str(y_q) + "\n"
+    toFile_readable += "}\n"
+    # print(toFile_readable)
+    toFile += toFile_readable
+    correctionFile.write(toFile)
 
 
 if __name__ == "__main__":
