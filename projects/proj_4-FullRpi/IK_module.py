@@ -225,7 +225,10 @@ def getAngles(
     
     a1 = a - q[0]
     b1 = b - (q[1] + q[2])
-    if not forShow and (round(toDegrees(b)) == 90 or round(toDegrees(b) == -90)): a1 = 0
+    if debug[1]=="a1;mod1": a1 = a1 * cos(b)
+
+    # if not forShow and (round(toDegrees(b)) == 90 or round(toDegrees(b) == -90)): a1 = 0
+    
     if printText: print(" a1:",round(toDegrees(a1))," b1:",round(toDegrees(b1)),sep='')
     
     if toDegrees(a1)>90: a1_exceed = 1
