@@ -159,6 +159,7 @@ def mouseTrack(event,x,y,flags,param):
 def main():
     global PP, a, b, Y
     mode = 0
+    mod_code = "q4"
 
     print(" Different modes for tracking/moving:")
     print(" 1. Enter position and orientation in terminal")
@@ -183,13 +184,16 @@ def main():
     while True:
         # os.system("clear")
         #Get end-effector/PP position/coordinate
-        print("\n ---Enter mode_(n) to change mode to (n)--- \n")
+        print("\n ---Enter mode_(n) to change mode to (n)--- ")
+        print("---or mode_(n):mod:\"code\" to change mode to (n) and mod to \"code\"--- \n")
+        PP = [0, 200, 200]
         if mode==1:
             tempInput_1 = input("Enter coordinates [x y z] in mm: ").split()
             if tempInput_1[0] == "exit": break
-            elif tempInput_1[0] == "mode_1": mode=1
-            elif tempInput_1[0] == "mode_2": mode=2
-            elif tempInput_1[0] == "mode_3": mode=3
+            elif tempInput_1[0][:4] == "mode":
+                mode=int(tempInput_1[0][5:])
+                if tempInput_1[0][6:][:1] == ":":
+                    mod_code = tempInput_1[0][7:]
             else:
                 PP[0] = (float(tempInput_1[0])) # type: ignore
                 PP[1] = (float(tempInput_1[1])) # type: ignore
@@ -197,9 +201,10 @@ def main():
         if mode==2:
             tempInput_1 = input("Enter z-value in mm: ")
             if tempInput_1 == "exit": break
-            elif tempInput_1 == "mode_1": mode=1
-            elif tempInput_1 == "mode_2": mode=2
-            elif tempInput_1 == "mode_3": mode=3
+            elif tempInput_1[0][:4] == "mode":
+                mode=int(tempInput_1[0][5:])
+                if tempInput_1[0][6:][:1] == ":":
+                    mod_code = tempInput_1[0][7:]
             else: PP[2] = float(tempInput_1) # type: ignore
         if mode==3:
             patternOpt = 1
@@ -209,23 +214,23 @@ def main():
             print(" 3.move end-effector orientation with a fixed position")
             tempInput_1 = input("input: ")
             if tempInput_1 == "exit": break
-            elif tempInput_1 == "mode_1": mode=1
-            elif tempInput_1 == "mode_2": mode=2
-            elif tempInput_1 == "mode_3": mode=3
+            elif tempInput_1[0][:4] == "mode":
+                mode=int(tempInput_1[0][5:])
+                if tempInput_1[0][6:][:1] == ":":
+                    mod_code = tempInput_1[0][7:]
             else: patternOpt = int(tempInput_1)
 
-
-        if mode==1 or mode==2:
+        if mode==1:
             tempInput_2 = input("Enter orientation values [a b Y] in degrees: ").split()
             a,b,Y = toRadians(float(tempInput_2[0])), toRadians(float(tempInput_2[1])), toRadians(float(tempInput_2[2]))
-
-        if mode==1:
             if diagnostics: print("x:", PP[0], " y:", PP[1], " z:", PP[2], " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
-            q = getAngles(PP,a,b,Y,'-', debug=[True,"q4"], positionIsReachable=isReachable)
+            q = getAngles(PP,a,b,Y,'-', debug=[True,mod_code], positionIsReachable=isReachable)
             # print(q)
             print([toDegrees(q) for q in q], "posIsReachable:", isReachable)
             if isReachable[0]: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
         elif mode==2:
+            tempInput_2 = input("Enter orientation values [a b Y] in degrees: ").split()
+            a,b,Y = toRadians(float(tempInput_2[0])), toRadians(float(tempInput_2[1])), toRadians(float(tempInput_2[2]))
             img = np.zeros((windowRes[1],windowRes[0],3), np.uint8)
             cv2.namedWindow('tracking_window')
             cv2.setMouseCallback('tracking_window',mouseTrack)
@@ -239,7 +244,7 @@ def main():
                 elif k == 115: PP[2]-=10 #type: ignore
                 if drawing:
                     PP[0], PP[1] = x2-windowRes[0]*0.5,windowRes[1]-y2 # type: ignore
-                    q = getAngles(PP,a,b,Y,'-',positionIsReachable=isReachable, debug=[True,"both"])
+                    q = getAngles(PP,a,b,Y,'-',positionIsReachable=isReachable, debug=[True,mod_code])
                     # print(q)
                     if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                 counter+=1
@@ -261,7 +266,7 @@ def main():
                         toRadians(mov_Patterns[key][i][5]),
                         '-',
                         positionIsReachable=isReachable,
-                        debug=[False, "q4"]
+                        debug=[False, mod_code]
                         )
                     print(mov_Patterns[key][i])
                     if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
@@ -281,7 +286,7 @@ def main():
                             fullPos,
                             toRadians(int(orientToUse[0])),toRadians(int(orientToUse[1])),toRadians(int(orientToUse[2])),
                             '-', positionIsReachable=isReachable,
-                            debug=[False, "q4"]
+                            debug=[False, mod_code]
                         )
                         if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                         if axis == "x": time.sleep(0.005)
@@ -303,7 +308,7 @@ def main():
                         if orientToUse == "Y": fullOrient[2] = direction*angle
                         q = getAngles(posToUse,toRadians(fullOrient[0]),toRadians(int(fullOrient[1])),toRadians(int(fullOrient[2])),
                         '-',positionIsReachable=isReachable,
-                        debug=[True, ""]
+                        debug=[True, mod_code]
                         )
                         if isReachable: sendToServo(q,6*[0],servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                         time.sleep(0.01)

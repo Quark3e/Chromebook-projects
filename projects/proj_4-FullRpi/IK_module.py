@@ -225,7 +225,7 @@ def getAngles(
     
     a1 = a - q[0]
     b1 = b - (q[1] + q[2])
-    if debug[1]=="a1;mod1": a1 = a1 * cos(b)
+    # if debug[1]=="a1:mod:All": a1 = a1 * cos(b)
 
     # if not forShow and (round(toDegrees(b)) == 90 or round(toDegrees(b) == -90)): a1 = 0
     
@@ -242,6 +242,8 @@ def getAngles(
             if b1_exceed!=0: print(" b1 exceeded by", b1_exceed*90, end='')
             print()
     frame1X = (link[4]+link[5]) * cos(b1) * sin(a1)
+    if debug[1]=="a1:mod:frame1X": frame1X = frame1X*cos(b)
+
     #NOTE: The x and y axis of the X1Y1Z1 frame in the paper was reverse (compared to this. The names need to be changed!)
     #nvm, the frame X0Y0Z0: x axis flipped and then it's flipped in the function
     frame1Z = (link[4]+link[5]) * sin(b1)
