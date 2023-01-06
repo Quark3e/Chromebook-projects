@@ -39,17 +39,25 @@ constants_q = [{
 }]
 
 
-# allCorrect = True
-# centerAccurate = [True, True, True, True, True, True] #True if 90 degrees is correct
-# notAccurate = [False, False, False, False, False, False] #True if it's not accurate and needs to be fixed
-# u_isAccurate, l_isAccurate = notAccurate, notAccurate
-# u_correction, l_correction = [1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1] #1 if it doesnt need correction
 
-def q5Fix(q5):
-    '''
-    q5 (float/int): q[4] or s[4] [degrees]
-    '''
-    return (default_q[4]-((default_q[4]-q5)*default_q[4])/135)
+def q_corrections(q):
+    """Corrects all angle values for their servo
+    
+    ## Parameters:
+        - q (float/int): [unit: degrees]
+            - A list of 6 elements where the parameter variable is modified
+    ## Returns:
+        - q modified
+    """
+    q[0] = q[0] * constants_q[0]["fixed"]
+    q[1] = q[1] * constants_q[1]["fixed"]
+    q[2] = q[2] * constants_q[2]["fixed"]
+    q[3] = q[3] * constants_q[3]["fixed"]
+    if q[4]<90: q[4] = (default_q[4] - ((default_q[4]-q[4])*default_q[4]) /135)
+    else: q[4] = q[4] * constants_q[4]["fixed"]
+    q[5] = q[5] * constants_q[5]["fixed"]
+    return q
+
 
 def toDegrees(radians): return (radians * 180) / pi
 def toRadians(degrees): return (degrees * pi) / 180
@@ -58,13 +66,18 @@ def getDistance(p1, p2):
     return sqrt(pow(p2[0]-p1[0], 2)+pow(p2[1]-p1[1], 2)+pow(p2[2]-p1[2], 2))
 
 def custom_sendToServo(servo, new_rotation, total_time, useDefault = False):
-    '''
-    Args:
-        s (float/int): dictionary/list variable that sends to pca board / holds old/current rotation commands
-        new_rotation (float/int): dictionary/list variable of new rotation commands in [degrees]
-        total_iteration (int): number of loop iterations to complete the movement
-        total_time (float/int): Total time spent moving the servo from start to finish in seconds
-    '''
+    """Sends angles in list \"new_rotation\" to servo motors evenly spaced out
+
+    ## Parameters:
+        - s (float/int): [no unit specification needed]
+            - dictionary/list variable that sends to pca board / holds old/current rotation commands
+        - new_rotation (float/int): [unit: degrees]
+            - dictionary/list variable of new rotation commands in [degrees]
+        - total_iteration (int): [unit: integer]
+            - number of loop iterations to complete the movement
+        - total_time (float/int): [unit: seconds]
+            - Total time spent moving the servo from start to finish in seconds
+    """
     if useDefault:
         new_rotation[5] = default_q[5] + new_rotation[5]
         new_rotation[4] = 180 - default_q[4] - new_rotation[4]
@@ -73,21 +86,8 @@ def custom_sendToServo(servo, new_rotation, total_time, useDefault = False):
         new_rotation[1] = default_q[1] + new_rotation[1]
         new_rotation[0] = default_q[0] - new_rotation[0]
     
-    for q in range(6):
-        print("q:{:1} original:{:3} modified:{:3}".format(q, new_rotation[q], new_rotation[q] * constants_q[q]["fixed"]))
-        if q==4: new_rotation[q] = q5Fix(new_rotation[4])
-        else: new_rotation[q] = new_rotation[q] * constants_q[q]["fixed"]
+    q_corrections(new_rotation)
 
-        # for x in range(6):
-        #     if notAccurate[x]:
-        #         if centerAccurate[x]:
-        #             if not u_isAccurate: #90-180 not accurate
-        #                 if new_rotation[x]>90: new_rotation[x] = new_rotation[x] * u_correction[x]
-        #             if not l_isAccurate: #0-90 not accurate
-        #                 if new_rotation[x]<90: new_rotation[x] = new_rotation[x] * l_correction[x]
-        #         elif not centerAccurate[x]:
-        #             new_rotation[x] = new_rotation[x] * u_correction[x]
-            
     total_iteration = 180
     s_diff = {}
     for i in range(6): s_diff[i] = new_rotation[i]-servo[i].angle
@@ -126,13 +126,8 @@ def check_isNaN(q, printText = False):
     Returns True if any rotation is not a number (isNaN)
         else it returns False
     '''
-    if not (isnan(q[0]) or
-            isnan(q[1]) or
-            isnan(q[2]) or
-            isnan(q[3]) or
-            isnan(q[4]) or
-            isnan(q[5])):
-            return False
+    for i in q:
+        if isnan(i): return False
     else:
         if printText: print("a joint value is NaN")
         return True
@@ -148,19 +143,30 @@ def getAngles(
     ], 
     positionIsReachable=[True]
     ):
-    '''
-    Solves and returns all the rotation values
-    also returns if the point is reachable (i.e. no joints is NaN)
-    Args:
-        PP (float/int) [mm]: The end-effector position in list for
-        a (float) [radians]: alpha orientation variable
-        b (float) [radians]: beta orientation variable
-        Y (float) [radians]: gamma orienation variable
-        posOption (str/char): different mode to use
-            '-' is q3(/q[2]) above line between P2 and P4/P5;
-            '+' is q3(/q[2]) under line between P2 and P4/P5
-        debug [boolean(whether to use default or debug), string(what to use)]: [1]="q4" if only q4 mod is used, [1]="q5" if only q5 mod is used, [1]="both" if both is used 
-    '''
+    """ Solves and returns all the rotation values
+
+    ## Parameters:
+        - PP (float/int): [unit: mm]
+            - The end-effector position in list for
+        - a (float): [unit: radians]
+            - alpha orientation variable
+        - b (float): [unit: radians]
+            - beta orientation variable
+        - Y (float): [unit: radians]
+            - gamma orienation variable
+        - posOption (str/char):  
+            -different mode to use
+                - '-' is q3(/q[2]) above line between P2 and P4/P5
+                - '+' is q3(/q[2]) under line between P2 and P4/P5
+        - debug [boolean, string(code)]:
+            - [1]="q4" if only q4 mod is used, [1]="q5" if only q5 mod is used, [1]="both" if both is used 
+        - positionIsReachable (boolean): a mutable list for if position is reachable.
+            - positionIsReachable[0]=True if reachable, False if otherwise 
+
+    ## Returns:
+        - List of solved rotations for each joint in [radians].
+            - Note: \"if positionIsReachable[0]==False\" then some elements are NaN
+    """
     positionIsReachable[0] = True
 
     a1_exceed, b1_exceed = 0, 0
@@ -354,54 +360,20 @@ def getSubframe(PP,a,b,posOption,printText=False):
     return [frame1X,frame1Y,frame1Z,a1,b1]
 
 
-# def correctionSetup():
-#     global allCorrect, centerAccurate, notAccurate
-#     global u_isAccurate, l_isAccurate, u_correction, l_correction
-
-
-#     opt = input(" Does any servo need to be corrected?\n input [y/n]: ")
-#     if opt == "exit":
-#         sys.exit()
-#     elif opt == "n" or opt == "":
-#         allCorrect = True
-#     elif opt == "y":
-#         allCorrect = False
-#         print("\n Servo correction: centerAccurate u_isAccurate l_isAccurate u_correction l_correction [y/n y/n y/n float float (1 if y)]: ")
-#         print(notAccurate)
-#         for i in range(6):
-#             opt = 5*[] #opt has 5 elements
-#             print("\n servo q", i+1, ": ", sep='', end='')
-#             opt = input("").split()
-#             if opt[0] == "y": centerAccurate[i] = True
-#             elif opt[0] == "n": centerAccurate[i] = False
-
-#             if opt[1] == "y": u_isAccurate[i] = True
-#             elif opt[1] == "n": u_isAccurate[i] = False
-            
-#             if opt[2] == "y": l_isAccurate[i] = True
-#             elif opt[2] == "n": l_isAccurate[i] = False
-
-#             if centerAccurate[i] and u_isAccurate[i] and l_isAccurate[i]: notAccurate[i] = False
-#             else: notAccurate[i] = True
-
-#             u_correction[i] = float(opt[3]) # type: ignore
-#             l_correction[i] = float(opt[4]) # type: ignore
-#             # print(notAccurate[i])
-#         print(notAccurate)
-
-
 def sendToServo(q, s, servo, servoExceeded, whichServoExceeded, typeOfExceeded):
-    '''
-    Purpose: sends given rotation commands directly, one motor at a time, to the servomotors with default_q values set in functions
+    """ Purpose: sends given rotation commands directly, one motor at a time, to the servomotors with default_q values set in functions
 
-    Args:
-        q (float/int): dictionary/list variable of new rotation commands
-        s (float/int): empty/0 dictionary/list that are only used in this function (too lazy to edit every file that uses this function)
-        servo (float/int): dictionary/list variable that sends to pca board / holds old/current rotation commands
-        servoExceeded (boolean): dictionary/list
-        whichServoExceeded (boolean): dictionary/list
-        typeOfExceeded (string): dictionary/list
-    '''
+    ## Parameters:
+        - q (float/int): [unit: degrees]
+            - dictionary/list variable of new rotation commands
+        - s (float/int):
+            - empty/0 dictionary/list that are only used in this function (too lazy to edit every file that uses this function)
+        - servo (float/int):
+            - dictionary/list variable that sends to pca board / holds old/current rotation commands
+        - servoExceeded (boolean): dictionary/list
+        - whichServoExceeded (boolean): dictionary/list
+        - typeOfExceeded (string): dictionary/list
+    """
     
     if not check_isNaN(q):
         servoExceeded, whichServoExceeded, typeOfExceeded = exceedCheck(q,servoExceeded,whichServoExceeded,typeOfExceeded)
@@ -415,12 +387,12 @@ def sendToServo(q, s, servo, servoExceeded, whichServoExceeded, typeOfExceeded):
 
         # print(notAccurate)
         # print(u_correction, l_correction)
+        q_corrections(s)
         for x in range(6):
             # print("q",x+1,": u_corr:",u_correction[x]," l_corr:",l_correction[x],sep='',end='')
             # print(" angle:", s[x],sep='',end='')
             # print(" notAccurate[x]:",notAccurate[x], " centerAccurate[x]:", centerAccurate[x],sep='',end='')
-            if x==4: servo[4].angle = q5Fix(s[4])
-            else: servo[x].angle = s[x] * constants_q[x]["fixed"]
+            servo[x].angle = s[x]
 
 
 def getP1():

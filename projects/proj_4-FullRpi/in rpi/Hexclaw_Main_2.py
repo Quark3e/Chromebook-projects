@@ -223,8 +223,8 @@ def main():
             if diagnostics: print("x:", PP[0], " y:", PP[1], " z:", PP[2], " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
             q = getAngles(PP,a,b,Y,'-', debug=[True,"q4"], positionIsReachable=isReachable)
             # print(q)
-            print([toDegrees(q) for q in q], "posIsReachable:", isReachable[0])
-            sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+            print([toDegrees(q) for q in q], "posIsReachable:", isReachable)
+            if isReachable[0]: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
         elif mode==2:
             img = np.zeros((windowRes[1],windowRes[0],3), np.uint8)
             cv2.namedWindow('tracking_window')
@@ -305,7 +305,7 @@ def main():
                         '-',positionIsReachable=isReachable,
                         debug=[True, ""]
                         )
-                        if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+                        if isReachable: sendToServo(q,6*[0],servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                         time.sleep(0.01)
                 time.sleep(1.5)
                 for joint in range(6): servo[joint].angle = presetAngles[joint]
