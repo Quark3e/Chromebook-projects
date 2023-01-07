@@ -45,13 +45,13 @@ servo = [servo.Servo(pca.channels[0]),
 for i in range(6):
     servo[i].set_pulse_width_range(500, 2500)
 
-servo[0].angle = 108
-servo[1].angle = 15
-servo[2].angle = 180 - 25
-servo[3].angle = 45
-servo[4].angle = 180 - 0
-servo[5].angle = 90
-time.sleep(1)
+# servo[0].angle = 108
+# servo[1].angle = 15
+# servo[2].angle = 180 - 25
+# servo[3].angle = 45
+# servo[4].angle = 180 - 0
+# servo[5].angle = 90
+# time.sleep(1)
 
 ledRelay = 16
 
@@ -68,7 +68,7 @@ GPIO.setup(ledRelay, GPIO.OUT) # GPIO Assign mode
 GPIO.output(ledRelay, GPIO.LOW) # out
 GPIO.output(ledRelay, GPIO.HIGH) # on
 
-custom_sendToServo(servo,[90,115,145,90,125,90],5)
+custom_sendToServo(servo,[90,115,145,90,125,90],2)
 
 
 # time.sleep(1)
@@ -78,21 +78,26 @@ custom_sendToServo(servo,[90,115,145,90,125,90],5)
 time.sleep(2)
 for _ in range(4):
     GPIO.output(ledRelay, False)
-    time.sleep(0.05)
+    time.sleep(0.03)
     GPIO.output(ledRelay, True)
-    time.sleep(0.05)
+    time.sleep(0.03)
 time.sleep(1.5)
 GPIO.output(ledRelay, False)
 time.sleep(0.25)
 GPIO.output(ledRelay, True)
 time.sleep(0.5)
 GPIO.output(ledRelay, False)
-
-
+time.sleep(0.1)
 GPIO.output(ledRelay, True)
+time.sleep(2)
+GPIO.output(ledRelay, False)
+
+
 
 print("------")
 time.sleep(1)
+
+GPIO.output(ledRelay, True)
 
 diagnostics = True
 
@@ -199,7 +204,6 @@ def main():
     x = 1 # displays the frame rate every 1 second
     counter = 0
 
-    isReachable = [True]
 
     while True:
         # os.system("clear")
@@ -208,6 +212,7 @@ def main():
         print(" - \"mode_(n)\" to change mode to n")
         PP = [0, 200, 200]
         while True:
+            isReachable = [True]
             if mode==1:
                 tempInput_1 = input("Enter coordinates [x y z] in mm: ").split()
                 if tempInput_1[0] == "exit": return
@@ -221,8 +226,8 @@ def main():
             if mode==2:
                 tempInput_1 = input("Enter z-value in mm: ")
                 if tempInput_1 == "exit": return
-                elif tempInput_1[0][:4] == "mode": mode=int(tempInput_1[0][5:])
-                elif tempInput_1[0] == "debug": debug_mod_menu(mod_dict)
+                elif tempInput_1[:4] == "mode": mode=int(tempInput_1[5:])
+                elif tempInput_1 == "debug": debug_mod_menu(mod_dict)
                 else:
                     PP[2] = float(tempInput_1) # type: ignore
                     break
@@ -234,8 +239,8 @@ def main():
                 print(" 3.move end-effector orientation with a fixed position")
                 tempInput_1 = input("input: ")
                 if tempInput_1 == "exit": return
-                elif tempInput_1[0][:4] == "mode": mode=int(tempInput_1[0][5:])
-                elif tempInput_1[0] == "debug": debug_mod_menu(mod_dict)
+                elif tempInput_1[:4] == "mode": mode=int(tempInput_1[5:])
+                elif tempInput_1 == "debug": debug_mod_menu(mod_dict)
                 else:
                     patternOpt = int(tempInput_1)
                     break
@@ -266,7 +271,7 @@ def main():
                     PP[0], PP[1] = x2-windowRes[0]*0.5,windowRes[1]-y2 # type: ignore
                     q = getAngles(PP,a,b,Y,'-',positionIsReachable=isReachable, debug=mod_dict)
                     # print(q)
-                    if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+                    if isReachable[0]: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                 counter+=1
                 if (time.time() - start_time) > x :
                     print("FPS: ", counter / (time.time() - start_time))
@@ -289,7 +294,7 @@ def main():
                         debug=mod_dict
                         )
                     print(mov_Patterns[key][i])
-                    if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+                    if isReachable[0]: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                     time.sleep(1)
             elif patternOpt==2: #type: ignore
                 axis = input("\nEnter what axis to move [x, y or z] [unit: mm]:")
@@ -308,10 +313,9 @@ def main():
                             '-', positionIsReachable=isReachable,
                             debug=mod_dict
                         )
-                        if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+                        if isReachable[0]: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                         if axis == "x": time.sleep(0.005)
-                        elif axis == "z": time.sleep(0.001)
-                        else: time.sleep(0.01)
+                        else: time.sleep(0.001)
                 time.sleep(1.5)
                 for joint in range(6): servo[joint].angle = presetAngles[joint]
             elif patternOpt==3: #type: ignore
@@ -330,7 +334,7 @@ def main():
                         '-',positionIsReachable=isReachable,
                         debug=mod_dict
                         )
-                        if isReachable: sendToServo(q,6*[0],servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+                        if isReachable[0]: sendToServo(q,6*[0],servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                         time.sleep(0.01)
                 time.sleep(1.5)
                 for joint in range(6): servo[joint].angle = presetAngles[joint]

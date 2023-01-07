@@ -42,7 +42,8 @@ mod_dict = {
     "a1:frame1X": [True, "frame1X = frame1X * cos(b)"],
     "a1:a1": [False, "a1 = a1 * cos(b)"],
     "q4:a1": [False, "q4 = a1"],
-    "q5:inPaper": [False, "q5 = [...] / ( cos(b1) * cos(a1) ))"]
+    "q5:inPaper": [False, "q5 = [...] / ( cos(b1) * cos(a1) ))"],
+    "exceedState": [True, "if [...]_exceeded: positionIsReachable[0] = False"],
 }
 """Dictionary of all the modificaitons used, mostly for debugging the IK equations
 
@@ -133,15 +134,19 @@ def exceedCheck(q, servoExceeded, whichServoExceeded, typeOfExceeded):
 
 
 def check_isNaN(q, printText = False):
-    '''
+    """
     Returns True if any rotation is not a number (isNaN)
         else it returns False
-    '''
+    ## Returns:
+        - True if isnan(q[i])==True
+        - else: False
+    """
     for i in q:
-        if isnan(i): return False
+        if isnan(i):
+            if printText: print(f"joint q{i} is NaN")
+            return True
     else:
-        if printText: print("a joint value is NaN")
-        return True
+        return False
 
 
 def getAngles(
@@ -175,6 +180,7 @@ def getAngles(
         - List of solved rotations for each joint in [radians].
             - Note: \"if positionIsReachable[0]==False\" then some elements are NaN
     """
+
     positionIsReachable[0] = True
 
     a1_exceed, b1_exceed = 0, 0
@@ -245,6 +251,7 @@ def getAngles(
             if a1_exceed!=0: print(" a1 exceeded by", a1_exceed*90, end='')
             if b1_exceed!=0: print(" b1 exceeded by", b1_exceed*90, end='')
             print()
+        if debug["exceedState"][0]: positionIsReachable[0] = False
     frame1X = (link[4]+link[5]) * cos(b1) * sin(a1)
 
     if debug["a1:frame1X"][0]: frame1X = frame1X*cos(b)
@@ -265,7 +272,6 @@ def getAngles(
     
     if debug["q4:a1"][0]:
         q[3] = a1
-        print(toDegrees(q[3]))
 
     try:
         checkVar = asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5]))
@@ -281,7 +287,6 @@ def getAngles(
     
     if debug["q5:inPaper"][0]:
         q[4] = atan(sqrt(pow(frame1X,2)+pow(frame1Z,2))/(cos(b1)*cos(a1))) #type: ignore
-        print(toDegrees(q[4]))
 
     if frame1Z < 0:
         q[4] = 0-q[4] # type: ignore
