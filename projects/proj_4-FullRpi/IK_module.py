@@ -375,7 +375,10 @@ def getSubframe(PP,a,b,posOption,printText=False):
     return [frame1X,frame1Y,frame1Z,a1,b1]
 
 
-def sendToServo(q, s, servo, servoExceeded, whichServoExceeded, typeOfExceeded):
+def sendToServo(
+    q, s, servo, servoExceeded=False,
+    whichServoExceeded=[False,False,False,False,False,False],
+    typeOfExceeded=["null","null","null","null","null","null"]):
     """ Purpose: sends given rotation commands directly, one motor at a time, to the servomotors with default_q values set in functions
 
     ## Parameters:

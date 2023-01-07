@@ -22,7 +22,7 @@ sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
 
 from IK_module import sendToServo, toDegrees, toRadians, getAngles, custom_sendToServo
 from IK_module import mod_dict
-from h2_module import mov_Patterns
+from h2_module import *
 
 from board import SCL, SDA # type: ignore
 import busio # type: ignore
@@ -35,6 +35,7 @@ i2c = busio.I2C(SCL, SDA)
 pca = PCA9685(i2c)
 pca.frequency = 50
 
+
 servo = [servo.Servo(pca.channels[0]),
          servo.Servo(pca.channels[1]),
          servo.Servo(pca.channels[2]),
@@ -42,6 +43,7 @@ servo = [servo.Servo(pca.channels[0]),
          servo.Servo(pca.channels[4]),
          servo.Servo(pca.channels[5]),
          ]
+
 for i in range(6):
     servo[i].set_pulse_width_range(500, 2500)
 
@@ -52,6 +54,8 @@ for i in range(6):
 # servo[4].angle = 180 - 0
 # servo[5].angle = 90
 # time.sleep(1)
+
+time.sleep(1)
 
 ledRelay = 16
 
@@ -234,6 +238,7 @@ def main():
             if mode==3:
                 patternOpt = 1
                 print("Options:")
+                print(" 0.run a custom program/course of motions")
                 print(" 1.choose a pre-defined pattern from a dictionary")
                 print(" 2.move end-effector along an axis")
                 print(" 3.move end-effector orientation with a fixed position")
@@ -279,10 +284,20 @@ def main():
                     start_time = time.time()
             cv2.destroyAllWindows()
         elif mode==3:
+            if patternOpt==0: #type: ignore
+                print("Pick any of these programs")
+                for key,_ in mov_Programs.items(): print(" - \"",key,"\"", sep='')
+                key = input("input the program name: ")
+                if key=="exit": break
+                presetAngles = 6*[0]
+                for joint in range(6): presetAngles[joint] = servo[joint].angle
+                mov_Programs[key](servo)
+                for joint in range(6): servo[joint].angle = presetAngles[joint]
             if patternOpt==1: #type: ignore
                 print("Pick any of these patterns")
                 for key,_ in mov_Patterns.items(): print(" - \"",key,"\"", sep='')
                 key = input("input a key:")
+                if key=="exit": break
                 for i in range(len(mov_Patterns[key])):
                     q = getAngles(
                         [mov_Patterns[key][i][0],mov_Patterns[key][i][1],mov_Patterns[key][i][2]],
