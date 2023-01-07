@@ -1,6 +1,5 @@
 import sys
 import time
-# from math import isnan, pi, sin, cos, tan, asin, acos, atan, sqrt
 from math import * #type: ignore
 
 d1 = 140; #axial "roll"
