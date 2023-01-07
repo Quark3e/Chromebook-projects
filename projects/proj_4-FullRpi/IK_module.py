@@ -11,7 +11,7 @@ d5 = 45; #axial "pitch
 d6 = 45; #axial "roll" (?)
 link = [d1,d2,d3,d4,d5,d6]
 default_q = [90, 0, 135, 90, 90, 90]
-
+debug_mods = []
 
 constants_q = [{
     "default":1.2466666666666668,
@@ -39,6 +39,17 @@ constants_q = [{
 }]
 
 
+mod_dict = {
+    "a1:frame1X": [False, "frame1X = frame1X * cos(b)"],
+    "q4:a1": [False, "q4 = a1"],
+    "q5:inPaper": [False, "q5 = [...] / ( cos(b1) * cos(a1) ))"]
+}
+"""Dictionary of all the modificaitons used, mostly for debugging the IK equations
+
+## Syntax
+    - mod_dict = { str(mod name) : [bool(whether to use), str(description)]}\n
+
+"""
 
 def q_corrections(q):
     """Corrects all angle values for their servo
@@ -137,10 +148,7 @@ def getAngles(
     PP,a,b,Y,posOption,
     length_scalar=1,coord_scalar=1,
     printText=False,printErrors=True, forShow=False, 
-    debug=[
-        False,
-        "none"
-    ], 
+    debug={}, 
     positionIsReachable=[True]
     ):
     """ Solves and returns all the rotation values
@@ -242,7 +250,8 @@ def getAngles(
             if b1_exceed!=0: print(" b1 exceeded by", b1_exceed*90, end='')
             print()
     frame1X = (link[4]+link[5]) * cos(b1) * sin(a1)
-    if debug[1]=="a1:mod:frame1X": frame1X = frame1X*cos(b)
+
+    if debug["a1:frame1X"][0]: frame1X = frame1X*cos(b)
 
     #NOTE: The x and y axis of the X1Y1Z1 frame in the paper was reverse (compared to this. The names need to be changed!)
     #nvm, the frame X0Y0Z0: x axis flipped and then it's flipped in the function
@@ -258,7 +267,7 @@ def getAngles(
         if printText: print(" b1 was 0 so q4 was adjusted")
     elif b1 < 0 or b1 > 0: q[3] = atan(frame1X / frame1Z) # type: ignore
     
-    if debug[0] and (debug[1]=="q4" or debug[1]=="both"):
+    if debug["q4:a1"][0]:
         q[3] = a1
         print(toDegrees(q[3]))
 
@@ -274,7 +283,7 @@ def getAngles(
     except ValueError:
         positionIsReachable[0] = False
     
-    if debug[0] and (debug[1]=="q5" or debug[1]=="both"):
+    if debug["q5:inPaper"][0]:
         q[4] = atan(sqrt(pow(frame1X,2)+pow(frame1Z,2))/(cos(b1)*cos(a1))) #type: ignore
         print(toDegrees(q[4]))
 

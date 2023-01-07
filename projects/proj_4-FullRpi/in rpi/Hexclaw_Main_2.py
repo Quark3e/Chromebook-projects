@@ -21,6 +21,7 @@ import RPi.GPIO as GPIO #type: ignore
 sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
 
 from IK_module import sendToServo, toDegrees, toRadians, getAngles, custom_sendToServo
+from IK_module import mod_dict
 from h2_module import mov_Patterns
 
 from board import SCL, SDA # type: ignore
@@ -156,6 +157,25 @@ def mouseTrack(event,x,y,flags,param):
         # cv2.putText(img,"("+str(int(x2-windowRes[0]*0.5))+","+str(int(windowRes[1]-y2))+")",(x2+10,y2),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255))
         
 
+def debug_mod_menu(mod_dict):
+    """Edit the statuses for different modifications for angle-solving
+    ## Parameter
+        - mod_dict (dictionary): each mod is separated, only a boolean state for each key/mod
+            - keys: mod name
+            - value: status for if that key(/mod) is used, True if it is used
+    """
+    while True:
+        os.system("clear")
+        print("--- Debug: mod keys ---")
+        print(" to change the \"state\" of a mod, enter key and \"True\" to activate, \"False\" to turn off")
+        for key, status in mod_dict.items():
+            print(" -{:11}: status:{:5} description:\"{:}\"".format(key,status[0],status[1]))
+        opt = input("\n input:").split()
+        if opt[0] == "exit": return
+        mod_dict[opt[0]][0] = eval(opt[1])
+
+
+
 def main():
     global PP, a, b, Y
     mode = 0
@@ -183,48 +203,48 @@ def main():
 
     while True:
         # os.system("clear")
-        #Get end-effector/PP position/coordinate
         print("\n ---Enter mode_(n) to change mode to (n)--- ")
-        print("---or mode_(n):mod:\"code\" to change mode to (n) and mod to \"code\"--- \n")
+        print(" - \"debug\" to enter debug-mod menu")
+        print(" - \"mode_(n)\" to change mode to n")
         PP = [0, 200, 200]
-        if mode==1:
-            tempInput_1 = input("Enter coordinates [x y z] in mm: ").split()
-            if tempInput_1[0] == "exit": break
-            elif tempInput_1[0][:4] == "mode":
-                mode=int(tempInput_1[0][5:])
-                if tempInput_1[0][6:][:1] == ":":
-                    mod_code = tempInput_1[0][7:]
-            else:
-                PP[0] = (float(tempInput_1[0])) # type: ignore
-                PP[1] = (float(tempInput_1[1])) # type: ignore
-                PP[2] = (float(tempInput_1[2])) # type: ignore
-        if mode==2:
-            tempInput_1 = input("Enter z-value in mm: ")
-            if tempInput_1 == "exit": break
-            elif tempInput_1[0][:4] == "mode":
-                mode=int(tempInput_1[0][5:])
-                if tempInput_1[0][6:][:1] == ":":
-                    mod_code = tempInput_1[0][7:]
-            else: PP[2] = float(tempInput_1) # type: ignore
-        if mode==3:
-            patternOpt = 1
-            print("Options:")
-            print(" 1.choose a pre-defined pattern from a dictionary")
-            print(" 2.move end-effector along an axis")
-            print(" 3.move end-effector orientation with a fixed position")
-            tempInput_1 = input("input: ")
-            if tempInput_1 == "exit": break
-            elif tempInput_1[0][:4] == "mode":
-                mode=int(tempInput_1[0][5:])
-                if tempInput_1[0][6:][:1] == ":":
-                    mod_code = tempInput_1[0][7:]
-            else: patternOpt = int(tempInput_1)
+        while True:
+            if mode==1:
+                tempInput_1 = input("Enter coordinates [x y z] in mm: ").split()
+                if tempInput_1[0] == "exit": return
+                elif tempInput_1[0][:4] == "mode": mode=int(tempInput_1[0][5:])
+                elif tempInput_1[0] == "debug": debug_mod_menu(mod_dict)
+                else:
+                    PP[0] = (float(tempInput_1[0])) # type: ignore
+                    PP[1] = (float(tempInput_1[1])) # type: ignore
+                    PP[2] = (float(tempInput_1[2])) # type: ignore
+                    break
+            if mode==2:
+                tempInput_1 = input("Enter z-value in mm: ")
+                if tempInput_1 == "exit": return
+                elif tempInput_1[0][:4] == "mode": mode=int(tempInput_1[0][5:])
+                elif tempInput_1[0] == "debug": debug_mod_menu(mod_dict)
+                else:
+                    PP[2] = float(tempInput_1) # type: ignore
+                    break
+            if mode==3:
+                patternOpt = 1
+                print("Options:")
+                print(" 1.choose a pre-defined pattern from a dictionary")
+                print(" 2.move end-effector along an axis")
+                print(" 3.move end-effector orientation with a fixed position")
+                tempInput_1 = input("input: ")
+                if tempInput_1 == "exit": return
+                elif tempInput_1[0][:4] == "mode": mode=int(tempInput_1[0][5:])
+                elif tempInput_1[0] == "debug": debug_mod_menu(mod_dict)
+                else:
+                    patternOpt = int(tempInput_1)
+                    break
 
         if mode==1:
             tempInput_2 = input("Enter orientation values [a b Y] in degrees: ").split()
             a,b,Y = toRadians(float(tempInput_2[0])), toRadians(float(tempInput_2[1])), toRadians(float(tempInput_2[2]))
             if diagnostics: print("x:", PP[0], " y:", PP[1], " z:", PP[2], " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
-            q = getAngles(PP,a,b,Y,'-', debug=[True,mod_code], positionIsReachable=isReachable)
+            q = getAngles(PP,a,b,Y,'-', debug=mod_dict, positionIsReachable=isReachable)
             # print(q)
             print([toDegrees(q) for q in q], "posIsReachable:", isReachable)
             if isReachable[0]: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
@@ -244,7 +264,7 @@ def main():
                 elif k == 115: PP[2]-=10 #type: ignore
                 if drawing:
                     PP[0], PP[1] = x2-windowRes[0]*0.5,windowRes[1]-y2 # type: ignore
-                    q = getAngles(PP,a,b,Y,'-',positionIsReachable=isReachable, debug=[True,mod_code])
+                    q = getAngles(PP,a,b,Y,'-',positionIsReachable=isReachable, debug=mod_dict)
                     # print(q)
                     if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                 counter+=1
@@ -266,7 +286,7 @@ def main():
                         toRadians(mov_Patterns[key][i][5]),
                         '-',
                         positionIsReachable=isReachable,
-                        debug=[False, mod_code]
+                        debug=mod_dict
                         )
                     print(mov_Patterns[key][i])
                     if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
@@ -286,7 +306,7 @@ def main():
                             fullPos,
                             toRadians(int(orientToUse[0])),toRadians(int(orientToUse[1])),toRadians(int(orientToUse[2])),
                             '-', positionIsReachable=isReachable,
-                            debug=[False, mod_code]
+                            debug=mod_dict
                         )
                         if isReachable: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                         if axis == "x": time.sleep(0.005)
@@ -308,7 +328,7 @@ def main():
                         if orientToUse == "Y": fullOrient[2] = direction*angle
                         q = getAngles(posToUse,toRadians(fullOrient[0]),toRadians(int(fullOrient[1])),toRadians(int(fullOrient[2])),
                         '-',positionIsReachable=isReachable,
-                        debug=[True, mod_code]
+                        debug=mod_dict
                         )
                         if isReachable: sendToServo(q,6*[0],servo,servoExceeded,whichServoExceeded,typeOfExceeded)
                         time.sleep(0.01)
