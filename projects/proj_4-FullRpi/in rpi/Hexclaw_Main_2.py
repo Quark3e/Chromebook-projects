@@ -41,7 +41,7 @@ servo = [servo.Servo(pca.channels[0]),
          servo.Servo(pca.channels[2]),
          servo.Servo(pca.channels[3]),
          servo.Servo(pca.channels[4]),
-         servo.Servo(pca.channels[]),
+         servo.Servo(pca.channels[5]),
          ]
 
 for i in range(6):
@@ -72,7 +72,9 @@ GPIO.setup(ledRelay, GPIO.OUT) # GPIO Assign mode
 GPIO.output(ledRelay, GPIO.LOW) # out
 GPIO.output(ledRelay, GPIO.HIGH) # on
 
-custom_sendToServo(servo,[90,115,145,90,125,90],2)
+time.sleep(0.75)
+
+custom_sendToServo(servo,[90,115,145,90,125,90],1)
 
 
 # time.sleep(1)
@@ -178,7 +180,7 @@ def debug_mod_menu(mod_dict):
         print("--- Debug: mod keys ---")
         print(" to change the \"state\" of a mod, enter key and \"True\" to activate, \"False\" to turn off\n")
         for key, status in mod_dict.items():
-            print(" - {:11}: status:{:5} description:\"{:}\"".format(key,status[0],status[1]))
+            print(" - {:15}: status:{:5} description:\"{:}\"".format(key,status[0],status[1]))
         opt = input("\n input:").split()
         if opt[0] == "exit": return
         mod_dict[opt[0]][0] = eval(opt[1])
@@ -359,7 +361,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-    custom_sendToServo(servo,[135,15,155,45,180,90],2)
+    custom_sendToServo(servo,[135,15,155,45,180,90],1)
     GPIO.output(ledRelay, False)
     pca.deinit()
 

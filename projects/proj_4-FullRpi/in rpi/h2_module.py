@@ -32,9 +32,9 @@ def fullAxisTest(servo):
     currentPos = [0,0,0]
     orient = [0,0,0]
     wsRange = [
-        [-250, 250],
-        [50, 300],
-        [50, 300]
+        [-300, 300],
+        [10, 400],
+        [10, 400]
     ]
     print(" ---Full axis test---")
     opt = input(" enter start coordinate [x y z]:").split()

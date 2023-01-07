@@ -42,6 +42,8 @@ mod_dict = {
     "a1:frame1X": [True, "frame1X = frame1X * cos(b)"],
     "a1:a1": [False, "a1 = a1 * cos(b)"],
     "q4:a1": [False, "q4 = a1"],
+    "q4:a1:b:minus": [False, "if b<0: q4=0-a1; else: q4=a1"],
+    "q4:a1:b1:minus": [False, "if b1<0: q4=0-a1; else: q4=a1"],
     "q5:inPaper": [False, "q5 = [...] / ( cos(b1) * cos(a1) ))"],
     "exceedState": [True, "if [...]_exceeded: positionIsReachable[0] = False"],
 }
@@ -130,7 +132,7 @@ def exceedCheck(q, servoExceeded, whichServoExceeded, typeOfExceeded):
         for i in range(6):
             if whichServoExceeded[i]: print("\tServo motor: q", i+1, " exceeded \"", typeOfExceeded[i], "\"", sep='')
     
-    return [servoExceeded,whichServoExceeded,typeOfExceeded]
+    return servoExceeded
 
 
 def check_isNaN(q, printText = False):
@@ -272,6 +274,13 @@ def getAngles(
     
     if debug["q4:a1"][0]:
         q[3] = a1
+    if debug["q4:a1:b:minus"][0]:
+        if b<0: q[3] = 0 - a1
+        else: q[3] = a1
+    if debug["q4:a1:b1:minus"][0]:
+        if b1<0: q[3] = 0-a1
+        else: q[3] = a1
+    
 
     try:
         checkVar = asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5]))
@@ -393,8 +402,9 @@ def sendToServo(
         - typeOfExceeded (string): dictionary/list
     """
     
-    if not check_isNaN(q):
-        servoExceeded, whichServoExceeded, typeOfExceeded = exceedCheck(q,servoExceeded,whichServoExceeded,typeOfExceeded)
+    servoExceeded = exceedCheck(q,servoExceeded,whichServoExceeded,typeOfExceeded)
+    
+    if not check_isNaN(q) and not servoExceeded:
 
         s[5] = default_q[5] + int(round(toDegrees(q[5])))
         s[4] = 180 - default_q[4] - int(round(toDegrees(q[4])))
