@@ -167,9 +167,9 @@ def debug_mod_menu(mod_dict):
     while True:
         os.system("clear")
         print("--- Debug: mod keys ---")
-        print(" to change the \"state\" of a mod, enter key and \"True\" to activate, \"False\" to turn off")
+        print(" to change the \"state\" of a mod, enter key and \"True\" to activate, \"False\" to turn off\n")
         for key, status in mod_dict.items():
-            print(" -{:11}: status:{:5} description:\"{:}\"".format(key,status[0],status[1]))
+            print(" - {:11}: status:{:5} description:\"{:}\"".format(key,status[0],status[1]))
         opt = input("\n input:").split()
         if opt[0] == "exit": return
         mod_dict[opt[0]][0] = eval(opt[1])

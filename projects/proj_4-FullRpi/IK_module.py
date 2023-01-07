@@ -41,6 +41,7 @@ constants_q = [{
 
 mod_dict = {
     "a1:frame1X": [True, "frame1X = frame1X * cos(b)"],
+    "a1:a1": [False, "a1 = a1 * cos(b)"]
     "q4:a1": [False, "q4 = a1"],
     "q5:inPaper": [False, "q5 = [...] / ( cos(b1) * cos(a1) ))"]
 }
@@ -180,11 +181,10 @@ def getAngles(
     a1_exceed, b1_exceed = 0, 0
     q=[0]*6
     P5 = [0]*3
-    # PP[0] = 0 - PP[0]
     posX = 0 - PP[0]
-    # PP[0] = PP[0] * coord_scalar
-    # PP[1] = PP[1] * coord_scalar
-    # PP[2] = PP[2] * coord_scalar
+    PP[0] = PP[0] * coord_scalar
+    PP[1] = PP[1] * coord_scalar
+    PP[2] = PP[2] * coord_scalar
     link[0] = link[0] * length_scalar
     link[1] = link[1] * length_scalar
     link[2] = link[2] * length_scalar
@@ -198,8 +198,7 @@ def getAngles(
 
     if printText: print(" P5 coords:",[round(pos) for pos in P5], sep='')
 
-    if P5[1] < 0:
-        P5[1] = 0
+    if P5[1] < 0: P5[1] = 0
     if P5[1] == 0:
         if P5[0] > 0: q[0] = toRadians(90) # type: ignore
         elif P5[0] < 0: q[0] = toRadians(-90) # type: ignore
@@ -212,14 +211,12 @@ def getAngles(
     except ValueError: 
         if printErrors: print("domain error triggered")
         positionIsReachable[0] = False
-    # print(P5)
     
     lambdaVar, muVar = 0, 0
 
-    try:
-        lambdaVar = atan((P5[2] - link[0]) / sqrt(pow(P5[0], 2) + pow(P5[1], 2)))
-    except ZeroDivisionError:
-        positionIsReachable[0] = False
+    try: lambdaVar = atan((P5[2] - link[0]) / sqrt(pow(P5[0], 2) + pow(P5[1], 2)))
+    except ZeroDivisionError: positionIsReachable[0] = False
+
     muVar = atan(((link[2] + link[3]) * sin(q[2])) /(link[1] + (link[2] + link[3]) * cos(q[2])))
     if printText: print(" lambda:",round(toDegrees(lambdaVar))," mu:",round(toDegrees(muVar)),sep='')
     if posOption == '+': q[1] = lambdaVar - muVar # type: ignore
@@ -233,7 +230,7 @@ def getAngles(
     
     a1 = a - q[0]
     b1 = b - (q[1] + q[2])
-    # if debug[1]=="a1:mod:All": a1 = a1 * cos(b)
+    if debug["a1:a1"][0]: a1 = a1 * cos(b)
 
     # if not forShow and (round(toDegrees(b)) == 90 or round(toDegrees(b) == -90)): a1 = 0
     
