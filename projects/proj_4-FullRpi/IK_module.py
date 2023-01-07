@@ -41,7 +41,7 @@ constants_q = [{
 
 mod_dict = {
     "a1:frame1X": [True, "frame1X = frame1X * cos(b)"],
-    "a1:a1": [False, "a1 = a1 * cos(b)"]
+    "a1:a1": [False, "a1 = a1 * cos(b)"],
     "q4:a1": [False, "q4 = a1"],
     "q5:inPaper": [False, "q5 = [...] / ( cos(b1) * cos(a1) ))"]
 }
