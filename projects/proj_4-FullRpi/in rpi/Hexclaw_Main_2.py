@@ -41,7 +41,7 @@ servo = [servo.Servo(pca.channels[0]),
          servo.Servo(pca.channels[2]),
          servo.Servo(pca.channels[3]),
          servo.Servo(pca.channels[4]),
-         servo.Servo(pca.channels[5]),
+         servo.Servo(pca.channels[]),
          ]
 
 for i in range(6):
