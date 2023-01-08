@@ -47,24 +47,15 @@ servo = [servo.Servo(pca.channels[0]),
 for i in range(6):
     servo[i].set_pulse_width_range(500, 2500)
 
-# servo[0].angle = 108
-# servo[1].angle = 15
-# servo[2].angle = 180 - 25
-# servo[3].angle = 45
-# servo[4].angle = 180 - 0
-# servo[5].angle = 90
-# time.sleep(1)
-
-time.sleep(1)
+servo[0].angle = 108
+servo[1].angle = 15
+servo[2].angle = 180 - 25
+servo[3].angle = 45
+servo[4].angle = 180 - 0
+servo[5].angle = 90
+time.sleep(2)
 
 ledRelay = 16
-
-# GPIO.setmode(GPIO.BOARD)
-# GPIO.setup(ledRelay, GPIO.OUT)
-
-# GPIO.output(ledRelay, False)
-
-
 GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
  
 ledRelay = 23
@@ -77,10 +68,6 @@ time.sleep(0.75)
 custom_sendToServo(servo,[90,115,145,90,125,90],1)
 
 
-# time.sleep(1)
-# GPIO.output(ledRelay, False)
-# time.sleep(0.1)
-# GPIO.output(ledRelay, True)
 time.sleep(2)
 for _ in range(4):
     GPIO.output(ledRelay, False)
@@ -108,7 +95,6 @@ GPIO.output(ledRelay, True)
 diagnostics = True
 
 
-
 axisFilter = 0.7 #On the new value end
 xScaling, yScaling, zScaling = 0.8, 0.8, 1.2
 brightVal = 75
@@ -119,12 +105,8 @@ endAnglePrint = False
 firstAnglePrint = False
 posOption = '-'
 
-
 q = [0]*6 #NOTE: q = q[0] = servo[0]
-# q = {}
-# for i in range(6): q.update({i:0})
 s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
-
 
 zMax = 300
 a, b, Y = toRadians(0), toRadians(-45), toRadians(90)
