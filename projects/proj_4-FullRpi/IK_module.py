@@ -155,7 +155,7 @@ def getAngles(
     PP,a,b,Y,posOption,
     length_scalar=1,coord_scalar=1,
     printText=False,printErrors=True, forShow=False, 
-    debug={}, 
+    debug=mod_dict,
     positionIsReachable=[True]
     ):
     """ Solves and returns all the rotation values
