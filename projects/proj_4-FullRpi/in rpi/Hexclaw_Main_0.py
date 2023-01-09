@@ -255,7 +255,7 @@ while True:
     whichServoExceeded = 6*[False]
     typeOfExceeded = 6*["null"]
 
-    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+    sendToServo(q,s,servo)
 
     # Press Esc key to exit
     if cv2.waitKey(1) == 27:
