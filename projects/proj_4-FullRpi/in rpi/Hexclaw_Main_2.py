@@ -20,8 +20,7 @@ import RPi.GPIO as GPIO #type: ignore
 
 sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
 
-from IK_module import sendToServo, toDegrees, toRadians, getAngles, custom_sendToServo
-from IK_module import mod_dict
+from IK_module import *
 from h2_module import *
 
 from board import SCL, SDA # type: ignore
@@ -53,7 +52,7 @@ servo[2].angle = 180 - 25
 servo[3].angle = 45
 servo[4].angle = 180 - 0
 servo[5].angle = 90
-time.sleep(2)
+time.sleep(1)
 
 ledRelay = 16
 GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
@@ -241,7 +240,9 @@ def main():
             q = getAngles(PP,a,b,Y,'-', debug=mod_dict, positionIsReachable=isReachable)
             # print(q)
             print([toDegrees(q) for q in q], "posIsReachable:", isReachable)
-            if isReachable[0]: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+            if isReachable[0]:
+                # custom_sendToServo(servo,[toDegrees(angle) for angle in q],0,True)
+                sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
         elif mode==2:
             tempInput_2 = input("Enter orientation values [a b Y] in degrees: ").split()
             a,b,Y = toRadians(float(tempInput_2[0])), toRadians(float(tempInput_2[1])), toRadians(float(tempInput_2[2]))

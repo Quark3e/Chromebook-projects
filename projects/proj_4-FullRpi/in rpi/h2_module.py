@@ -71,8 +71,62 @@ def fullAxisTest(servo):
 
     return
 
+def fullOrientTest(servo):
+    os.system("clear")
+    isReachable = [True]
+    testPos = [0,200,150]
+    startOrient = [0,0,0]
+    print(" ---Full axis test---")
+    opt = input(" enter test coordinate [x y z]:").split()
+    if opt[0]=="exit": return
+    testPos = [int(coord) for coord in opt]
+
+    opt = input("\n enter start orientation [a b Y]:").split()
+    if opt[0]=="exit": return
+    startOrient = [int(angle) for angle in opt]
+    currentOrient = startOrient.copy()
+    s = 6*[0]
+    for axis in range(3):    
+        for angle in range(startOrient[axis],90):
+            currentOrient[axis] = angle
+            q = getAngles(testPos,
+            toRadians(currentOrient[0]),
+            toRadians(currentOrient[1]),
+            toRadians(currentOrient[2]),
+                '-', positionIsReachable=isReachable,
+                debug=mod_dict)
+            if isReachable[0]: sendToServo(q,s,servo)
+            time.sleep(0.01)  
+
+        for angle in range(90,-90,-1):
+            currentOrient[axis] = angle
+            q = getAngles(testPos,
+            toRadians(currentOrient[0]),
+            toRadians(currentOrient[1]),
+            toRadians(currentOrient[2]),
+                '-', positionIsReachable=isReachable,
+                debug=mod_dict)
+            if isReachable[0]: sendToServo(q,s,servo)
+            time.sleep(0.01)   
+
+        for angle in range(-90,startOrient[axis]):
+            currentOrient[axis] = angle
+            q = getAngles(testPos,
+            toRadians(currentOrient[0]),
+            toRadians(currentOrient[1]),
+            toRadians(currentOrient[2]),
+                '-', positionIsReachable=isReachable,
+                debug=mod_dict)
+            if isReachable[0]: sendToServo(q,s,servo)
+            time.sleep(0.01)
+    time.sleep(1)
+
+    return
+
+
 mov_Programs = {
-    "axisTest": fullAxisTest
+    "axisTest": fullAxisTest,
+    "orientTest": fullOrientTest
 }
 """Dictionary of program names and the function
 

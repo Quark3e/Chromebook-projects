@@ -39,11 +39,11 @@ constants_q = [{
 
 
 mod_dict = {
-    "a1:frame1X": [True, "frame1X = frame1X * cos(b)"],
-    "a1:a1": [False, "a1 = a1 * cos(b)"],
+    "a1:frame1X": [False, "frame1X = frame1X * cos(b)"],
+    "a1:a1": [True, "a1 = a1 * cos(b)"],
     "q4:a1": [False, "q4 = a1"],
     "q4:a1:b:minus": [False, "if b<0: q4=0-a1; else: q4=a1"],
-    "q4:a1:b1:minus": [False, "if b1<0: q4=0-a1; else: q4=a1"],
+    "q4:a1:b1:minus": [True, "if b1<0: q4=0-a1; else: q4=a1"],
     "q5:inPaper": [False, "q5 = [...] / ( cos(b1) * cos(a1) ))"],
     "exceedState": [True, "if [...]_exceeded: positionIsReachable[0] = False"],
 }
@@ -77,7 +77,33 @@ def toDegrees(radians): return (radians * 180) / pi
 def toRadians(degrees): return (degrees * pi) / 180
 
 def getDistance(p1, p2):
+    """Solves delta distance between two points in 3D
+    """
     return sqrt(pow(p2[0]-p1[0], 2)+pow(p2[1]-p1[1], 2)+pow(p2[2]-p1[2], 2))
+
+def solveListDifference(listOfLists, mode=1, deltaList=[0]):
+    """Solves difference of each of the elements between all lists
+
+    ## Parameters
+        - listOfLists: [list1, list2]    
+        - mode:
+            - mode=1: solves total difference: abs(-diff)
+            - mode=2: solves average difference
+
+    ## Returns:
+        - returns sum of differences of each element
+    """
+    deltaVal = 0
+    sumList = len(listOfLists[0])*[0]
+    
+    for i in range(listOfLists[0]):
+        diff = listOfLists[1][i]-listOfLists[0][i]
+        if diff<0 and mode==1: sumList[i] = abs(diff)
+        else: sumList[i] = diff
+    deltaVal = sum(sumList)
+    deltaList[0] = deltaVal
+    return deltaVal
+
 
 def custom_sendToServo(servo, new_rotation, total_time, useDefault = False):
     """Sends angles in list \"new_rotation\" to servo motors evenly spaced out
@@ -111,6 +137,7 @@ def custom_sendToServo(servo, new_rotation, total_time, useDefault = False):
         for i in range(6):
             s_temp[i] += s_diff[i]/total_iteration
             servo[i].angle = s_temp[i]
+        
         time.sleep(total_time/total_iteration)
 
 
