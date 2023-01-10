@@ -54,7 +54,25 @@ mod_dict = {
 
 """
 
+def getNumFromString(string, sepChar):
+    """Get all numbers in a string separated by a character returned in a string
 
+    ## Note: 
+    Only spaces are allowed in the string beside the numbers, no other characters than sepChar.
+    ## Parameters:
+        - string (str): string of text to extract numbers from
+        - sepChar (str): string/char of character that separates the numbers
+    ## Returns:
+        - list of extracted numbers
+    
+    """
+    numList = []
+    for i in range(string.count(sepChar)):
+        numList.append(string[:string.find(sepChar)])
+        string = string[string.find(sepChar)+1:]
+    numList.append(string)
+
+    return numList
 
 
 def q_corrections(q):
@@ -116,10 +134,10 @@ def custom_sendToServo(servo, new_rotation, total_time, useDefault = False):
             - dictionary/list variable that sends to pca board / holds old/current rotation commands
         - new_rotation (float/int): [unit: degrees]
             - dictionary/list variable of new rotation commands in [degrees]
-        - total_iteration (int): [unit: integer]
-            - number of loop iterations to complete the movement
         - total_time (float/int): [unit: seconds]
             - Total time spent moving the servo from start to finish in seconds
+        - useDefault (bool):
+            - if True, value defaults are used
     """
     if useDefault:
         new_rotation[5] = default_q[5] + new_rotation[5]

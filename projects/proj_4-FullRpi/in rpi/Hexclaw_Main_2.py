@@ -157,7 +157,7 @@ def runFromFile(filePath, servo):
     ## Syntax:
     - Type of commands (angles or coordinates (and orientation)) declared first in file
     - "type:angle":
-        - given angles: "q1:q2:q3:q4:q5:q6"
+        - given angles: "q1:q2:q3:q4:q5:q6" [unit: degrees]
         - ":useDefault":
             - 
     - "type:coord":
@@ -169,9 +169,9 @@ def runFromFile(filePath, servo):
     
     cmdFile = open(filePath, 'r')
     line1 = cmdFile.readline()
-    useDefault = False
+    toUseDefault = False
     readType = line1[5:][:5]
-    if readType == "angle" and line1[11:] == "useDefault": useDefault = True
+    if readType == "angle" and line1[11:] == "useDefault": toUseDefault = True
     for line in cmdFile:
         if line[:6]=="sleep:": time.sleep(float(line[6:]))
         elif readType=="coord":
@@ -190,8 +190,10 @@ def runFromFile(filePath, servo):
             orientation = [toRadians(angle) for angle in orientation]
             isReachable = [True]
             q = getAngles(coordinate,orientation[0],orientation[1],orientation[2],'-',positionIsReachable=isReachable)
-            if isReachable[0]: sendToServo(q, servo)
-
+            if isReachable[0]: custom_sendToServo(servo, [toDegrees(angle) for angle in q],0)
+        elif readType=="angle":
+            angles = getNumFromString(line, ':')
+            custom_sendToServo(servo, angles, 0, useDefault=toUseDefault)
 
     return
 
