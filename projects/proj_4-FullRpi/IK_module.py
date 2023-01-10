@@ -63,13 +63,13 @@ def getNumFromString(string, sepChar):
         - string (str): string of text to extract numbers from
         - sepChar (str): string/char of character that separates the numbers
     ## Returns:
-        - list of extracted numbers
+        - list of extracted numbers as floats
     """
     numList = []
     for i in range(string.count(sepChar)):
-        numList.append(string[:string.find(sepChar)])
+        numList.append(float(string[:string.find(sepChar)]))
         string = string[string.find(sepChar)+1:]
-    numList.append(string)
+    numList.append(float(string))
     return numList
 
 

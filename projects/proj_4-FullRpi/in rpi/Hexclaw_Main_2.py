@@ -171,7 +171,7 @@ def runFromFile(filePath, servo):
     line1 = cmdFile.readline()
     toUseDefault = False
     readType = line1[5:][:5]
-    if readType == "angle" and line1[11:] == "useDefault": toUseDefault = True
+    if readType == "angle" and line1[11:][:4] == "True": toUseDefault = True
     for line in cmdFile:
         if line[:6]=="sleep:": time.sleep(float(line[6:]))
         elif readType=="coord":
