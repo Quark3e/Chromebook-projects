@@ -307,7 +307,7 @@ for n in range(rowLength):
     typeOfExceeded = 6*["null"]
     #Check if values are NaN
     q = getAngles(PP, a, b, Y, posOption, 1, 1, globalPrint)
-    sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+    sendToServo(q,servo)
     
     if not manualInput:
         time.sleep(2)

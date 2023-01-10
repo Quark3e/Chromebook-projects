@@ -44,28 +44,27 @@ def fullAxisTest(servo):
     opt = input("\n enter orientation [a b Y]:").split()
     if opt[0]=="exit": return
     orient = [toRadians(float(angle)) for angle in opt]
-    s = 6*[0]
     for axis in range(3):    
         for pos in range(startPos[axis],wsRange[axis][1]):
             currentPos[axis] = pos
             q = getAngles(currentPos,orient[0], orient[1], orient[2],
                 '-', positionIsReachable=isReachable,
                 debug=mod_dict)
-            if isReachable[0]: sendToServo(q,s,servo)
+            if isReachable[0]: sendToServo(q,servo)
             time.sleep(0.001)    
         for pos in range(wsRange[axis][1],wsRange[axis][0],-1):
             currentPos[axis] = pos
             q = getAngles(currentPos,orient[0], orient[1], orient[2],
                 '-', positionIsReachable=isReachable,
                 debug=mod_dict)
-            if isReachable[0]: sendToServo(q,s,servo)
+            if isReachable[0]: sendToServo(q,servo)
             time.sleep(0.001)   
         for pos in range(wsRange[axis][0],startPos[axis]):
             currentPos[axis] = pos
             q = getAngles(currentPos,orient[0], orient[1], orient[2],
                 '-', positionIsReachable=isReachable,
                 debug=mod_dict)
-            if isReachable[0]: sendToServo(q,s,servo)
+            if isReachable[0]: sendToServo(q,servo)
             time.sleep(0.001)
     time.sleep(1)
 
@@ -95,7 +94,7 @@ def fullOrientTest(servo):
             toRadians(currentOrient[2]),
                 '-', positionIsReachable=isReachable,
                 debug=mod_dict)
-            if isReachable[0]: sendToServo(q,s,servo)
+            if isReachable[0]: sendToServo(q,servo)
             time.sleep(0.01)  
 
         for angle in range(90,-90,-1):
@@ -106,7 +105,7 @@ def fullOrientTest(servo):
             toRadians(currentOrient[2]),
                 '-', positionIsReachable=isReachable,
                 debug=mod_dict)
-            if isReachable[0]: sendToServo(q,s,servo)
+            if isReachable[0]: sendToServo(q,servo)
             time.sleep(0.01)   
 
         for angle in range(-90,startOrient[axis]):
@@ -117,7 +116,7 @@ def fullOrientTest(servo):
             toRadians(currentOrient[2]),
                 '-', positionIsReachable=isReachable,
                 debug=mod_dict)
-            if isReachable[0]: sendToServo(q,s,servo)
+            if isReachable[0]: sendToServo(q,servo)
             time.sleep(0.01)
     time.sleep(1)
 
@@ -134,5 +133,3 @@ mov_Programs = {
     - assigned servo[n].angle list
 
 """
-
-

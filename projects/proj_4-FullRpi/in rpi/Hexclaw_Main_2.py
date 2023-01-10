@@ -149,6 +149,53 @@ def mouseTrack(event,x,y,flags,param):
         # cv2.putText(img,"("+str(int(x2-windowRes[0]*0.5))+","+str(int(windowRes[1]-y2))+")",(x2+10,y2),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255))
         
 
+def runFromFile(filePath, servo):
+    """Reads movement commands from file and runs them
+
+    ## Parameter:
+    - filePath (str): string of path to the file
+    ## Syntax:
+    - Type of commands (angles or coordinates (and orientation)) declared first in file
+    - "type:angle":
+        - given angles: "q1:q2:q3:q4:q5:q6"
+        - ":useDefault":
+            - 
+    - "type:coord":
+        - given coordinates: "x:y:z;a:b:Y"
+    - "sleep:(n)":
+        - sleep for n seconds
+    """
+    os.system("clear")
+    
+    cmdFile = open(filePath, 'r')
+    line1 = cmdFile.readline()
+    useDefault = False
+    readType = line1[5:][:5]
+    if readType == "angle" and line1[11:] == "useDefault": useDefault = True
+    for line in cmdFile:
+        if line[:6]=="sleep:": time.sleep(float(line[6:]))
+        elif readType=="coord":
+            coords = line[:line.find(';')]
+            orients = line[line.find(';')+1:]
+            coordinate = [
+                float(coords[:coords.find(':')]),
+                float(coords[coords.find(':')+1:][:coords[coords.find(':')+1:].find(':')]),
+                float(coords[coords.find(':')+1:][coords[coords.find(':')+1:].find(':')+1:])
+            ]
+            orientation = [
+                float(orients[:orients.find(':')]),
+                float(orients[orients.find(':')+1:][:orients[orients.find(':')+1:].find(':')]),
+                float(orients[orients.find(':')+1:][orients[orients.find(':')+1:].find(':')+1:])
+            ]
+            orientation = [toRadians(angle) for angle in orientation]
+            isReachable = [True]
+            q = getAngles(coordinate,orientation[0],orientation[1],orientation[2],'-',positionIsReachable=isReachable)
+            if isReachable[0]: sendToServo(q, servo)
+
+
+    return
+
+
 def debug_mod_menu(mod_dict):
     """Edit the statuses for different modifications for angle-solving
     ## Parameter
@@ -167,13 +214,13 @@ def debug_mod_menu(mod_dict):
         mod_dict[opt[0]][0] = eval(opt[1])
 
 
-
 def main():
     global PP, a, b, Y
     mode = 0
     mod_code = "q4"
 
     print(" Different modes for tracking/moving:")
+    print(" 0. Run movement commands from .dat file")
     print(" 1. Enter position and orientation in terminal")
     print(" 2. Mouse position tracking on window")
     print(" 3. Move end-effector in a pattern")
@@ -200,6 +247,12 @@ def main():
         PP = [0, 200, 200]
         while True:
             isReachable = [True]
+            if mode==0:
+                tempInput_1 = input("Enter file path:")
+                if tempInput_1 == "exit": return
+                else: movCommPath = tempInput_1
+                runFromFile(movCommPath, servo)
+                break
             if mode==1:
                 tempInput_1 = input("Enter coordinates [x y z] in mm: ").split()
                 if tempInput_1[0] == "exit": return
@@ -242,7 +295,7 @@ def main():
             print([toDegrees(q) for q in q], "posIsReachable:", isReachable)
             if isReachable[0]:
                 # custom_sendToServo(servo,[toDegrees(angle) for angle in q],0,True)
-                sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+                sendToServo(q,servo)
         elif mode==2:
             tempInput_2 = input("Enter orientation values [a b Y] in degrees: ").split()
             a,b,Y = toRadians(float(tempInput_2[0])), toRadians(float(tempInput_2[1])), toRadians(float(tempInput_2[2]))
@@ -261,7 +314,7 @@ def main():
                     PP[0], PP[1] = x2-windowRes[0]*0.5,windowRes[1]-y2 # type: ignore
                     q = getAngles(PP,a,b,Y,'-',positionIsReachable=isReachable, debug=mod_dict)
                     # print(q)
-                    if isReachable[0]: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+                    if isReachable[0]: sendToServo(q,servo)
                 counter+=1
                 if (time.time() - start_time) > x :
                     print("FPS: ", counter / (time.time() - start_time))
@@ -294,7 +347,7 @@ def main():
                         debug=mod_dict
                         )
                     print(mov_Patterns[key][i])
-                    if isReachable[0]: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+                    if isReachable[0]: sendToServo(q,servo)
                     time.sleep(1)
             elif patternOpt==2: #type: ignore
                 axis = input("\nEnter what axis to move [x, y or z] [unit: mm]:")
@@ -313,7 +366,7 @@ def main():
                             '-', positionIsReachable=isReachable,
                             debug=mod_dict
                         )
-                        if isReachable[0]: sendToServo(q,s,servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+                        if isReachable[0]: sendToServo(q,servo)
                         if axis == "x": time.sleep(0.005)
                         else: time.sleep(0.001)
                 time.sleep(1.5)
@@ -334,7 +387,7 @@ def main():
                         '-',positionIsReachable=isReachable,
                         debug=mod_dict
                         )
-                        if isReachable[0]: sendToServo(q,6*[0],servo,servoExceeded,whichServoExceeded,typeOfExceeded)
+                        if isReachable[0]: sendToServo(q,servo)
                         time.sleep(0.01)
                 time.sleep(1.5)
                 for joint in range(6): servo[joint].angle = presetAngles[joint]

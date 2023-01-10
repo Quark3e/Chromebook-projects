@@ -54,6 +54,9 @@ mod_dict = {
 
 """
 
+
+
+
 def q_corrections(q):
     """Corrects all angle values for their servo
     
@@ -412,7 +415,7 @@ def getSubframe(PP,a,b,posOption,printText=False):
 
 
 def sendToServo(
-    q, s, servo, servoExceeded=False,
+    q, servo, s=[0,0,0,0,0,0], servoExceeded=False,
     whichServoExceeded=[False,False,False,False,False,False],
     typeOfExceeded=["null","null","null","null","null","null"]):
     """ Purpose: sends given rotation commands directly, one motor at a time, to the servomotors with default_q values set in functions
