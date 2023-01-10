@@ -64,14 +64,12 @@ def getNumFromString(string, sepChar):
         - sepChar (str): string/char of character that separates the numbers
     ## Returns:
         - list of extracted numbers
-    
     """
     numList = []
     for i in range(string.count(sepChar)):
         numList.append(string[:string.find(sepChar)])
         string = string[string.find(sepChar)+1:]
     numList.append(string)
-
     return numList
 
 
