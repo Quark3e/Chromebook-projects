@@ -189,8 +189,13 @@ def runFromFile(filePath, servo):
             ]
             orientation = [toRadians(angle) for angle in orientation]
             isReachable = [True]
+            print(coordinate)
+            print(orientation)
             q = getAngles(coordinate,orientation[0],orientation[1],orientation[2],'-',positionIsReachable=isReachable)
-            if isReachable[0]: custom_sendToServo(servo, [toDegrees(angle) for angle in q],0)
+            print(q)
+            f = [toDegrees(angle) for angle in q]
+            print(f)
+            if isReachable[0]: custom_sendToServo(servo,q,0)
         elif readType=="angle":
             angles = getNumFromString(line, ':')
             custom_sendToServo(servo, angles, 0, useDefault=toUseDefault)
@@ -252,8 +257,10 @@ def main():
             if mode==0:
                 tempInput_1 = input("Enter file path:")
                 if tempInput_1 == "exit": return
-                else: movCommPath = tempInput_1
-                runFromFile(movCommPath, servo)
+                elif tempInput_1[:4] == "mode": mode=int(tempInput_1[5:])
+                else:
+                    movCommPath = tempInput_1
+                    runFromFile(movCommPath, servo)
                 break
             if mode==1:
                 tempInput_1 = input("Enter coordinates [x y z] in mm: ").split()
