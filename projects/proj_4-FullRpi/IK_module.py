@@ -178,7 +178,11 @@ def sendToServo(
         new_rotation[0] = default_q[0] - new_rotation[0]
     
     q_corrections(new_rotation)
-    servoExceeded = exceedCheck(new_rotation,servoExceeded,whichServoExceeded,typeOfExceeded)
+    
+    servoExceeded = exceedCheck(
+        new_rotation,
+        servoExceeded,whichServoExceeded,typeOfExceeded
+        )
     if servoExceeded: return
 
     total_iteration = 135
@@ -212,12 +216,12 @@ def exceedCheck(q, servoExceeded, whichServoExceeded, typeOfExceeded):
         - q: joints 1-6 in unit: NOTE:degrees
     """
     # print(q)
-    for i in range(6):
+    for i in range(5):
         if q[i] < 0: q[i] = 0; servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "under"
         elif q[i] > 180: q[i] = 180; servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "over"
 
     if servoExceeded:
-        for i in range(6):
+        for i in range(5):
             if whichServoExceeded[i]: print("\tServo motor: q", i+1, " exceeded \"", typeOfExceeded[i], "\"", sep='')
     
     return servoExceeded

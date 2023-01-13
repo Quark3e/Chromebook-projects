@@ -3,7 +3,7 @@ import os
 
 mov_Patterns = { #NOTE: There cannot be any space in the keys
     "square1": [
-    [-150, 250, 250, 0, 0, 0],
+    [-250, 250, 250, 45, 0, 0],
     [-50, 250, 250, 0, 0, 0],
     [-50, 50, 250, 0, -90, 0],
     [-150, 50, 250, 0, -90, 0],
