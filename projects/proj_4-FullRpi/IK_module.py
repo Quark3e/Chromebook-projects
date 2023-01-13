@@ -183,17 +183,29 @@ def sendToServo(
 
     if mode==0:
         for x in range(6): servo[x].angle = new_rotation[x]
-    total_iteration = 180
-    s_diff = {}
-    for i in range(6): s_diff[i] = new_rotation[i]-servo[i].angle
-    s_temp = []
-    for i in range(6): s_temp.append(servo[i].angle)
-    for counter in range(total_iteration-1):
-        for i in range(6):
-            s_temp[i] += s_diff[i]/total_iteration
-            servo[i].angle = s_temp[i]
-        
-        if total_time>0.1: time.sleep(total_time/total_iteration)
+    elif mode==1:
+        total_iteration = 180
+        s_diff = []
+        s_temp = []
+        for i in range(6): s_diff.append(new_rotation[i]-servo[i].angle)
+        for i in range(6): s_temp.append(servo[i].angle)
+        for count in range(total_iteration-1):
+            for i in range(6):
+                s_temp[i] += s_diff[i]/total_iteration
+                servo[i].angle = s_temp[i]
+            
+            if total_time > 0.1: time.sleep(total_time/total_iteration)
+    elif mode==2:
+        total_iteration = 180
+        s_diff = []
+        s_temp = []
+        for i in range(6): s_diff.append(new_rotation[i]-servo[i].angle)
+        for i in range(6): s_temp.append(servo[i].angle)
+        for count in range(total_iteration-1):
+            for i in range(6):
+                s_temp[i] = servo[i].angle + s_diff[i]*mp1(count/total_iteration)
+                servo[i].angle = s_temp[i]
+            if total_time > 0.1: time.sleep(total_time/total_iteration)
 
 
 def exceedCheck(q, servoExceeded, whichServoExceeded, typeOfExceeded):
