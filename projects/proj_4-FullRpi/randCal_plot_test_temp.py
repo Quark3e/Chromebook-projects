@@ -12,7 +12,7 @@ import os
 import matplotlib.pyplot as plt
 from random import randrange
 
-from IK_module import sendToServo, toDegrees, toRadians, getAngles, custom_sendToServo
+from IK_module import sendToServo, toDegrees, toRadians, getAngles
 
 
 

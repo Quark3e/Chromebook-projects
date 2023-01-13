@@ -64,7 +64,7 @@ GPIO.output(ledRelay, GPIO.HIGH) # on
 
 time.sleep(0.75)
 
-custom_sendToServo(servo,[90,115,145,90,125,90],1)
+sendToServo(servo,[90,115,145,90,125,90],1,mode=1)
 
 
 time.sleep(2)
@@ -195,10 +195,10 @@ def runFromFile(filePath, servo):
             print(q)
             f = [toDegrees(angle) for angle in q]
             print(f)
-            if isReachable[0]: custom_sendToServo(servo,q,0)
+            if isReachable[0]: sendToServo(servo,q,0,mode=1)
         elif readType=="angle":
             angles = getNumFromString(line, ':')
-            custom_sendToServo(servo, angles, 0, useDefault=toUseDefault)
+            sendToServo(servo,angles,0,useDefault=toUseDefault,mode=1)
 
     return
 
@@ -304,7 +304,7 @@ def main():
             print([toDegrees(q) for q in q], "posIsReachable:", isReachable)
             if isReachable[0]:
                 # custom_sendToServo(servo,[toDegrees(angle) for angle in q],0,True)
-                sendToServo(q,servo)
+                sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=2)
         elif mode==2:
             tempInput_2 = input("Enter orientation values [a b Y] in degrees: ").split()
             a,b,Y = toRadians(float(tempInput_2[0])), toRadians(float(tempInput_2[1])), toRadians(float(tempInput_2[2]))
@@ -323,7 +323,7 @@ def main():
                     PP[0], PP[1] = x2-windowRes[0]*0.5,windowRes[1]-y2 # type: ignore
                     q = getAngles(PP,a,b,Y,'-',positionIsReachable=isReachable, debug=mod_dict)
                     # print(q)
-                    if isReachable[0]: sendToServo(q,servo)
+                    if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                 counter+=1
                 if (time.time() - start_time) > x :
                     print("FPS: ", counter / (time.time() - start_time))
@@ -356,7 +356,7 @@ def main():
                         debug=mod_dict
                         )
                     print(mov_Patterns[key][i])
-                    if isReachable[0]: sendToServo(q,servo)
+                    if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=2)
                     time.sleep(1)
             elif patternOpt==2: #type: ignore
                 axis = input("\nEnter what axis to move [x, y or z] [unit: mm]:")
@@ -375,7 +375,7 @@ def main():
                             '-', positionIsReachable=isReachable,
                             debug=mod_dict
                         )
-                        if isReachable[0]: sendToServo(q,servo)
+                        if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                         if axis == "x": time.sleep(0.005)
                         else: time.sleep(0.001)
                 time.sleep(1.5)
@@ -396,7 +396,7 @@ def main():
                         '-',positionIsReachable=isReachable,
                         debug=mod_dict
                         )
-                        if isReachable[0]: sendToServo(q,servo)
+                        if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                         time.sleep(0.01)
                 time.sleep(1.5)
                 for joint in range(6): servo[joint].angle = presetAngles[joint]
@@ -406,7 +406,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-    custom_sendToServo(servo,[135,15,155,45,180,90],1)
+    sendToServo(servo,[135,15,155,45,180,90],1,mode=2)
     GPIO.output(ledRelay, False)
     pca.deinit()
 

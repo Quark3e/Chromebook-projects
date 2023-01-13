@@ -255,7 +255,7 @@ while True:
     whichServoExceeded = 6*[False]
     typeOfExceeded = 6*["null"]
 
-    sendToServo(q,servo)
+    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
 
     # Press Esc key to exit
     if cv2.waitKey(1) == 27:

@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 from math import * #type: ignore
 
-from IK_module import sendToServo, toDegrees, toRadians, getAngles, custom_sendToServo
+from IK_module import sendToServo, toDegrees, toRadians, getAngles
 
 relativePath = "projects/proj_4-FullRpi/servoCal_files/"
 

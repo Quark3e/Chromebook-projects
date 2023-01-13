@@ -18,7 +18,7 @@ from threading import Thread
 
 sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
 
-from IK_module import custom_sendToServo, sendToServo, toRadians, toDegrees, getAngles
+from IK_module import sendToServo, toRadians, toDegrees, getAngles
 
 
 class WebcamVideoStream:
@@ -376,7 +376,7 @@ while True:
     if getTime:
         start_time = perf_counter()
 
-    sendToServo(q,servo)
+    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
 
     # Press Esc key to exit
     if cv2.waitKey(1) == 27:

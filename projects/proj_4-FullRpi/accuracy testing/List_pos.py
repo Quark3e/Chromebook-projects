@@ -307,7 +307,7 @@ for n in range(rowLength):
     typeOfExceeded = 6*["null"]
     #Check if values are NaN
     q = getAngles(PP, a, b, Y, posOption, 1, 1, globalPrint)
-    sendToServo(q,servo)
+    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=2)
     
     if not manualInput:
         time.sleep(2)

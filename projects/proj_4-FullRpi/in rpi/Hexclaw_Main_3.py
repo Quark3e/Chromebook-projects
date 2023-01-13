@@ -19,7 +19,7 @@ import sys
 
 sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
 
-from IK_module import custom_sendToServo, sendToServo, toRadians, toDegrees, getAngles
+from IK_module import sendToServo, toRadians, toDegrees, getAngles
 
 
 from board import SCL, SDA # type: ignore
@@ -167,7 +167,7 @@ while True:
     whichServoExceeded = 6*[False]
     typeOfExceeded = 6*["null"]
 
-    sendToServo(q,servo)
+    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
 
     # Press Esc key to exit
     if cv2.waitKey(1) == 27:

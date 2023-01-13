@@ -21,7 +21,7 @@ import sys
 
 sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
 
-from IK_module import custom_sendToServo, sendToServo, toRadians, toDegrees, getAngles
+from IK_module import sendToServo, toRadians, toDegrees, getAngles
 
 
 from board import SCL, SDA # type: ignore
@@ -262,53 +262,53 @@ while True:
             if option == "1":
                 for i in range(len(square)):
                     q = getAngles(square[i], 0, toRadians(-90), 0, '-')
-                    sendToServo(q,servo)
+                    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                     time.sleep(1)
                 break
             if option == "2":
                 for i in range(-150, 150):
                     q = getAngles([i, 150, 150], 0, -90, 0, '-')
-                    sendToServo(q,servo)
+                    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                     time.sleep(0.004)
                 time.sleep(1)
                 for i in range(150, 50, -1):
                     q = getAngles([150, i, 150], 0, -90, 0, '-')
-                    sendToServo(q,servo)
+                    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                     time.sleep(0.01)
                 time.sleep(1)
                 for i in range(150, -150, -1):
                     q = getAngles([i, 50, 150], 0, -90, 0, '-')
-                    sendToServo(q,servo)
+                    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                     time.sleep(0.004)
                 time.sleep(1)
                 for i in range(50, 150):
                     q = getAngles([-150, i, 150], 0, -90, 0, '-')
-                    sendToServo(q,servo)
+                    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                     time.sleep(0.01)
                 time.sleep(1)
                 for i in range(150, 50, -1):
                     q = getAngles([-150, 150, i], 0, -90, 0, '-')
-                    sendToServo(q,servo)
+                    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                     time.sleep(0.01)
                 time.sleep(1)
                 for i in range(-150, 150):
                     q = getAngles([i, 150, 50], 0, -90, 0, '-')
-                    sendToServo(q,servo)
+                    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                     time.sleep(0.004)
                 time.sleep(1)
                 for i in range(150, 50, -1):
                     q = getAngles([150, i, 50], 0, -90, 0, '-')
-                    sendToServo(q,servo)
+                    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                     time.sleep(0.01)
                 time.sleep(1)
                 for i in range(150, -150, -1):
                     q = getAngles([i, 50, 50], 0, -90, 0, '-')
-                    sendToServo(q,servo)
+                    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                     time.sleep(0.004)
                 time.sleep(1)
                 for i in range(50, 150):
                     q = getAngles([-150, i, 50], 0, -90, 0, '-')
-                    sendToServo(q,servo)
+                    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                     time.sleep(0.01)
                 time.sleep(1)
                 break
@@ -320,11 +320,11 @@ while True:
                 print()
                 for i in range(-200, 200):
                     q = getAngles([i, int(coord[0]), int(coord[1])], toRadians(int(angles[0])), toRadians(int(angles[1])), 0, '-')
-                    sendToServo(q,servo)
+                    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                     time.sleep(0.005)
                 for i in range(200, -200, -1):
                     q = getAngles([i, int(coord[0]), int(coord[1])], toRadians(int(angles[0])), toRadians(int(angles[1])), 0, '-')
-                    sendToServo(q,servo)
+                    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                     time.sleep(0.005)
             if option == "4":
                 coord = input(" enter xy coord to run z-axis test on [x y]: ").split()
@@ -334,12 +334,12 @@ while True:
                 print()
                 for i in range(50, 300):
                     q = getAngles([int(coord[0]), int(coord[1]), i], toRadians(int(angles[0])), toRadians(int(angles[1])), 0, '-')
-                    sendToServo(q,servo)
+                    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                     time.sleep(0.02)
                     print("z:", i, sep='')
                 for i in range(300, 50, -1):
                     q = getAngles([int(coord[0]), int(coord[1]), i], toRadians(int(angles[0])), toRadians(int(angles[1])), 0, '-')
-                    sendToServo(q,servo)
+                    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                     time.sleep(0.02)
                     print("z:", i, sep='')
             if option == "5":
@@ -356,7 +356,7 @@ while True:
                         elif option == "Y":
                             q = getAngles([int(coord[0]), int(coord[1]), int(coord[2])], 0, 0, toRadians(i), '-', 1, 1, True)
                         
-                        sendToServo(q,servo)
+                        sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                         time.sleep(0.05)
 
 pca.deinit()

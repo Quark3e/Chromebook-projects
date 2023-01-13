@@ -124,7 +124,35 @@ def solveListDifference(listOfLists, mode=1, deltaList=[0]):
     return deltaVal
 
 
-def custom_sendToServo(servo, new_rotation, total_time, useDefault = False):
+def mp1(x):
+    y=0
+    V_max=2
+    t3=1
+    Pt1=0.5
+    Pt2=Pt1
+    t2=t3*Pt2
+    t1=t3*Pt1
+
+    a3=(0-V_max)/(t3-t2)
+    # a2=(V_max-V_max)/(t2-t1)
+    a1=(V_max-0)/(t1-0)
+
+    if 0<x and x<=t1: y=(a1*pow(x,2))/2
+    elif t1<x and x<t2: y=a1*t1*x-(a1*pow(t1,2))/2
+    elif t2<=x and x<=t3: y=(a3*pow(x-t2,2))/2+V_max*x+a1*(t1*t2-pow(t1,2)/2)-V_max*t2
+
+    return y
+
+def sendToServo(
+    servo,
+    new_rotation,
+    total_time,
+    useDefault = False,
+    mode = 0,
+    servoExceeded=False,
+    whichServoExceeded=[False,False,False,False,False,False],
+    typeOfExceeded=["null","null","null","null","null","null"]
+    ):
     """Sends angles in list \"new_rotation\" to servo motors evenly spaced out
 
     ## Parameters:
@@ -136,6 +164,10 @@ def custom_sendToServo(servo, new_rotation, total_time, useDefault = False):
             - Total time spent moving the servo from start to finish in seconds
         - useDefault (bool):
             - if True, value defaults are used
+        - mode: what type of functions to use for servo movement
+            - 0: Immediate: no split of movement. The new_rotations are sent directly to servo motors
+            - 1: new_rotation diff is sent linearly, evenly
+            - 2: mp1: motion profile 1: second polynomial
     """
     if useDefault:
         new_rotation[5] = default_q[5] + new_rotation[5]
@@ -146,7 +178,11 @@ def custom_sendToServo(servo, new_rotation, total_time, useDefault = False):
         new_rotation[0] = default_q[0] - new_rotation[0]
     
     q_corrections(new_rotation)
+    servoExceeded = exceedCheck(new_rotation,servoExceeded,whichServoExceeded,typeOfExceeded)
+    if servoExceeded: return
 
+    if mode==0:
+        for x in range(6): servo[x].angle = new_rotation[x]
     total_iteration = 180
     s_diff = {}
     for i in range(6): s_diff[i] = new_rotation[i]-servo[i].angle
@@ -157,7 +193,7 @@ def custom_sendToServo(servo, new_rotation, total_time, useDefault = False):
             s_temp[i] += s_diff[i]/total_iteration
             servo[i].angle = s_temp[i]
         
-        time.sleep(total_time/total_iteration)
+        if total_time>0.1: time.sleep(total_time/total_iteration)
 
 
 def exceedCheck(q, servoExceeded, whichServoExceeded, typeOfExceeded):
@@ -429,44 +465,6 @@ def getSubframe(PP,a,b,posOption,printText=False):
     frame1Y = (link[4]+link[5]) * cos(b1) * cos(a1)
     return [frame1X,frame1Y,frame1Z,a1,b1]
 
-
-def sendToServo(
-    q, servo, s=[0,0,0,0,0,0], servoExceeded=False,
-    whichServoExceeded=[False,False,False,False,False,False],
-    typeOfExceeded=["null","null","null","null","null","null"]):
-    """ Purpose: sends given rotation commands directly, one motor at a time, to the servomotors with default_q values set in functions
-
-    ## Parameters:
-        - q (float/int): [unit: degrees]
-            - dictionary/list variable of new rotation commands
-        - s (float/int):
-            - empty/0 dictionary/list that are only used in this function (too lazy to edit every file that uses this function)
-        - servo (float/int):
-            - dictionary/list variable that sends to pca board / holds old/current rotation commands
-        - servoExceeded (boolean): dictionary/list
-        - whichServoExceeded (boolean): dictionary/list
-        - typeOfExceeded (string): dictionary/list
-    """
-    
-    servoExceeded = exceedCheck(q,servoExceeded,whichServoExceeded,typeOfExceeded)
-    
-    if not check_isNaN(q) and not servoExceeded:
-
-        s[5] = default_q[5] + int(round(toDegrees(q[5])))
-        s[4] = 180 - default_q[4] - int(round(toDegrees(q[4])))
-        s[3] = default_q[3] + int(round(toDegrees(q[3])))
-        s[2] = 180 - default_q[2] - int(toDegrees(q[2]))
-        s[1] = default_q[1] + int(round(toDegrees(q[1])))
-        s[0] = default_q[0] - int(round(toDegrees(q[0])))
-
-        # print(notAccurate)
-        # print(u_correction, l_correction)
-        q_corrections(s)
-        for x in range(6):
-            # print("q",x+1,": u_corr:",u_correction[x]," l_corr:",l_correction[x],sep='',end='')
-            # print(" angle:", s[x],sep='',end='')
-            # print(" notAccurate[x]:",notAccurate[x], " centerAccurate[x]:", centerAccurate[x],sep='',end='')
-            servo[x].angle = s[x]
 
 
 def getP1():
