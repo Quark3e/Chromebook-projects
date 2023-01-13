@@ -181,10 +181,10 @@ def sendToServo(
     servoExceeded = exceedCheck(new_rotation,servoExceeded,whichServoExceeded,typeOfExceeded)
     if servoExceeded: return
 
+    total_iteration = 135
     if mode==0:
         for x in range(6): servo[x].angle = new_rotation[x]
     elif mode==1:
-        total_iteration = 180
         s_diff = []
         s_temp = []
         for i in range(6): s_diff.append(new_rotation[i]-servo[i].angle)
@@ -196,31 +196,25 @@ def sendToServo(
             
             if total_time > 0.1: time.sleep(total_time/total_iteration)
     elif mode==2:
-        total_iteration = 180
         s_diff = []
         s_temp = []
         for i in range(6): s_diff.append(new_rotation[i]-servo[i].angle)
         for i in range(6): s_temp.append(servo[i].angle)
         for count in range(total_iteration-1):
             for i in range(6):
-                s_temp[i] = servo[i].angle + s_diff[i]*mp1(count/total_iteration)
-                servo[i].angle = s_temp[i]
+                servo[i].angle = s_temp[i] + s_diff[i]*mp1(count/total_iteration)
             if total_time > 0.1: time.sleep(total_time/total_iteration)
 
 
 def exceedCheck(q, servoExceeded, whichServoExceeded, typeOfExceeded):
-    if default_q[0] - int(round(toDegrees(q[0]))) < 0: q[0] = toRadians(0 + default_q[0]); servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "under"
-    if default_q[1] + int(round(toDegrees(q[1]))) < 0: q[1] = toRadians(0 - default_q[1]); servoExceeded = True; whichServoExceeded[1] = True; typeOfExceeded[1] = "under"
-    if default_q[2] + int(round(toDegrees(q[2]))) < 0: q[2] = toRadians(0 - default_q[2]); servoExceeded = True; whichServoExceeded[2] = True; typeOfExceeded[2] = "under"
-    if default_q[3] + int(round(toDegrees(q[3]))) < 0: q[3] = toRadians(0 - default_q[3]); servoExceeded = True; whichServoExceeded[3] = True; typeOfExceeded[3] = "under"
-    if default_q[4] + int(round(toDegrees(q[4]))) < 0: q[4] = toRadians(0 - default_q[4]); servoExceeded = True; whichServoExceeded[4] = True; typeOfExceeded[4] = "under"
-    if default_q[5] + int(round(toDegrees(q[5]))) < 0: q[5] = toRadians(0 - default_q[5]); servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "under"
-    if default_q[0] - int(round(toDegrees(q[0]))) > 180: q[0] = toRadians(0 - default_q[0]); servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "over"
-    if default_q[1] + int(round(toDegrees(q[1]))) > 180: q[1] = toRadians(180 - default_q[1]); servoExceeded = True; whichServoExceeded[1] = True; typeOfExceeded[1] = "over"
-    if default_q[2] + int(round(toDegrees(q[2]))) > 180: q[2] = toRadians(180 - default_q[2]); servoExceeded = True; whichServoExceeded[2] = True; typeOfExceeded[2] = "over"
-    if default_q[3] + int(round(toDegrees(q[3]))) > 180: q[3] = toRadians(180 - default_q[3]); servoExceeded = True; whichServoExceeded[3] = True; typeOfExceeded[3] = "over"
-    if default_q[4] + int(round(toDegrees(q[4]))) > 180: q[4] = toRadians(180 - default_q[4]); servoExceeded = True; whichServoExceeded[4] = True; typeOfExceeded[4] = "over"
-    if default_q[5] + int(round(toDegrees(q[5]))) > 180: q[5] = toRadians(180 - default_q[5]); servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "over"
+    """
+    ### Parameters:
+        - q: joints 1-6 in unit: NOTE:degrees
+    """
+    # print(q)
+    for i in range(6):
+        if q[i] < 0: q[i] = 0; servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "under"
+        elif q[i] > 180: q[i] = 180; servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "over"
 
     if servoExceeded:
         for i in range(6):
