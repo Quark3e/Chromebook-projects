@@ -134,11 +134,11 @@ def fullTest(servo):
         [10, 400]
     ]
     print(" ---Axis, orientation test test---")
-    opt = input(" enter start coordinate [x y z]:").split()
+    opt = input(" enter test coordinate [x y z]:").split()
     if opt[0]=="exit": return
     startPos = [int(coord) for coord in opt]
     currentPos = startPos.copy()
-    opt = input("\n enter orientation [a b Y]:").split()
+    opt = input("\n enter test orientation [a b Y]:").split()
     if opt[0]=="exit": return
     orient = [toRadians(float(angle)) for angle in opt]
     
@@ -166,17 +166,9 @@ def fullTest(servo):
             time.sleep(0.001)
     time.sleep(1)
     isReachable = [True]
-    testPos = [0,200,150]
-    startOrient = [0,0,0]
-    opt = input(" enter test coordinate [x y z]:").split()
-    if opt[0]=="exit": return
-    testPos = [int(coord) for coord in opt]
-
-    opt = input("\n enter start orientation [a b Y]:").split()
-    if opt[0]=="exit": return
-    startOrient = [int(angle) for angle in opt]
+    testPos = startPos
+    startOrient = orient
     currentOrient = startOrient.copy()
-    s = 6*[0]
     for axis in range(3):    
         for angle in range(startOrient[axis],90):
             currentOrient[axis] = angle
@@ -211,6 +203,7 @@ def fullTest(servo):
             if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
             time.sleep(0.01)
     return
+
 
 mov_Programs = {
     "axisTest": fullAxisTest,
