@@ -122,10 +122,100 @@ def fullOrientTest(servo):
 
     return
 
+def fullTest(servo):
+    os.system("clear")
+    isReachable = [True]
+    startPos = [0,0,0]
+    currentPos = [0,0,0]
+    orient = [0,0,0]
+    wsRange = [
+        [-300, 300],
+        [10, 400],
+        [10, 400]
+    ]
+    print(" ---Axis, orientation test test---")
+    opt = input(" enter start coordinate [x y z]:").split()
+    if opt[0]=="exit": return
+    startPos = [int(coord) for coord in opt]
+    currentPos = startPos.copy()
+    opt = input("\n enter orientation [a b Y]:").split()
+    if opt[0]=="exit": return
+    orient = [toRadians(float(angle)) for angle in opt]
+    
+    for axis in range(3):    
+        for pos in range(startPos[axis],wsRange[axis][1]):
+            currentPos[axis] = pos
+            q = getAngles(currentPos,orient[0], orient[1], orient[2],
+                '-', positionIsReachable=isReachable,
+                debug=mod_dict)
+            if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
+            time.sleep(0.001)    
+        for pos in range(wsRange[axis][1],wsRange[axis][0],-1):
+            currentPos[axis] = pos
+            q = getAngles(currentPos,orient[0], orient[1], orient[2],
+                '-', positionIsReachable=isReachable,
+                debug=mod_dict)
+            if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
+            time.sleep(0.001)   
+        for pos in range(wsRange[axis][0],startPos[axis]):
+            currentPos[axis] = pos
+            q = getAngles(currentPos,orient[0], orient[1], orient[2],
+                '-', positionIsReachable=isReachable,
+                debug=mod_dict)
+            if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
+            time.sleep(0.001)
+    time.sleep(1)
+    isReachable = [True]
+    testPos = [0,200,150]
+    startOrient = [0,0,0]
+    opt = input(" enter test coordinate [x y z]:").split()
+    if opt[0]=="exit": return
+    testPos = [int(coord) for coord in opt]
+
+    opt = input("\n enter start orientation [a b Y]:").split()
+    if opt[0]=="exit": return
+    startOrient = [int(angle) for angle in opt]
+    currentOrient = startOrient.copy()
+    s = 6*[0]
+    for axis in range(3):    
+        for angle in range(startOrient[axis],90):
+            currentOrient[axis] = angle
+            q = getAngles(testPos,
+            toRadians(currentOrient[0]),
+            toRadians(currentOrient[1]),
+            toRadians(currentOrient[2]),
+                '-', positionIsReachable=isReachable,
+                debug=mod_dict)
+            if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
+            time.sleep(0.01)  
+
+        for angle in range(90,-90,-1):
+            currentOrient[axis] = angle
+            q = getAngles(testPos,
+            toRadians(currentOrient[0]),
+            toRadians(currentOrient[1]),
+            toRadians(currentOrient[2]),
+                '-', positionIsReachable=isReachable,
+                debug=mod_dict)
+            if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
+            time.sleep(0.01)   
+
+        for angle in range(-90,startOrient[axis]):
+            currentOrient[axis] = angle
+            q = getAngles(testPos,
+            toRadians(currentOrient[0]),
+            toRadians(currentOrient[1]),
+            toRadians(currentOrient[2]),
+                '-', positionIsReachable=isReachable,
+                debug=mod_dict)
+            if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
+            time.sleep(0.01)
+    return
 
 mov_Programs = {
     "axisTest": fullAxisTest,
-    "orientTest": fullOrientTest
+    "orientTest": fullOrientTest,
+    "fullTest": fullTest
 }
 """Dictionary of program names and the function
 
