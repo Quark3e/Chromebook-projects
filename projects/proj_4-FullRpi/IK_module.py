@@ -187,7 +187,8 @@ def sendToServo(
 
     total_iteration = 135
     if mode==0:
-        for x in range(6): servo[x].angle = new_rotation[x]
+        for x in range(6): 
+            servo[x].angle = new_rotation[x]
     elif mode==1:
         s_diff = []
         s_temp = []
@@ -197,7 +198,6 @@ def sendToServo(
             for i in range(6):
                 s_temp[i] += s_diff[i]/total_iteration
                 servo[i].angle = s_temp[i]
-            
             if total_time > 0.1: time.sleep(total_time/total_iteration)
     elif mode==2:
         s_diff = []

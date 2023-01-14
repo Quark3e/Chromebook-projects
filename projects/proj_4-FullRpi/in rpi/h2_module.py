@@ -167,7 +167,7 @@ def fullTest(servo):
     time.sleep(1)
     isReachable = [True]
     testPos = startPos
-    startOrient = orient
+    startOrient = [round(angle) for angle in orient]
     currentOrient = startOrient.copy()
     for axis in range(3):    
         for angle in range(startOrient[axis],90):
