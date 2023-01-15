@@ -149,57 +149,6 @@ def mouseTrack(event,x,y,flags,param):
         # cv2.putText(img,"("+str(int(x2-windowRes[0]*0.5))+","+str(int(windowRes[1]-y2))+")",(x2+10,y2),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255))
         
 
-def runFromFile(filePath, servo):
-    """Reads movement commands from file and runs them
-
-    ## Parameter:
-    - filePath (str): string of path to the file
-    ## Syntax:
-    - Type of commands (angles or coordinates (and orientation)) declared first in file
-    - "type:angle":
-        - given angles: "q1:q2:q3:q4:q5:q6" [unit: degrees]
-        - ":useDefault":
-            - 
-    - "type:coord":
-        - given coordinates: "x:y:z;a:b:Y"
-    - "sleep:(n)":
-        - sleep for n seconds
-    """
-    os.system("clear")
-    
-    cmdFile = open(filePath, 'r')
-    line1 = cmdFile.readline()
-    toUseDefault = False
-    readType = line1[5:][:5]
-    if readType == "angle" and line1[11:][:4] == "True": toUseDefault = True
-    for line in cmdFile:
-        if line[:6]=="sleep:": time.sleep(float(line[6:]))
-        elif readType=="coord":
-            coords = line[:line.find(';')]
-            orients = line[line.find(';')+1:]
-            coordinate = [
-                float(coords[:coords.find(':')]),
-                float(coords[coords.find(':')+1:][:coords[coords.find(':')+1:].find(':')]),
-                float(coords[coords.find(':')+1:][coords[coords.find(':')+1:].find(':')+1:])
-            ]
-            orientation = [
-                float(orients[:orients.find(':')]),
-                float(orients[orients.find(':')+1:][:orients[orients.find(':')+1:].find(':')]),
-                float(orients[orients.find(':')+1:][orients[orients.find(':')+1:].find(':')+1:])
-            ]
-            orientation = [toRadians(angle) for angle in orientation]
-            isReachable = [True]
-            q = getAngles(coordinate,orientation[0],orientation[1],orientation[2],'-',positionIsReachable=isReachable)
-            q = [toDegrees(angle) for angle in q]
-            print(q)
-            if isReachable[0]: sendToServo(servo,q,0,mode=2,useDefault=True)
-        elif readType=="angle":
-            angles = getNumFromString(line, ':')
-            sendToServo(servo,angles,0,useDefault=toUseDefault,mode=1)
-
-    return
-
-
 def debug_mod_menu(mod_dict):
     """Edit the statuses for different modifications for angle-solving
     ## Parameter
