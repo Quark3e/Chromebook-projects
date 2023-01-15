@@ -268,3 +268,10 @@ def runFromFile(filePath, servo):
 
     return
 
+
+def createMovPathFile():
+    os.system("clear")
+
+    
+
+    return
