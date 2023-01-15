@@ -189,13 +189,10 @@ def runFromFile(filePath, servo):
             ]
             orientation = [toRadians(angle) for angle in orientation]
             isReachable = [True]
-            print(coordinate)
-            print(orientation)
             q = getAngles(coordinate,orientation[0],orientation[1],orientation[2],'-',positionIsReachable=isReachable)
+            q = [toDegrees(angle) for angle in q]
             print(q)
-            f = [toDegrees(angle) for angle in q]
-            print(f)
-            if isReachable[0]: sendToServo(servo,q,0,mode=1)
+            if isReachable[0]: sendToServo(servo,q,0,mode=2,useDefault=True)
         elif readType=="angle":
             angles = getNumFromString(line, ':')
             sendToServo(servo,angles,0,useDefault=toUseDefault,mode=1)
