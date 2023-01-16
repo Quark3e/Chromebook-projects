@@ -167,9 +167,9 @@ def fullTest(servo):
     time.sleep(1)
     isReachable = [True]
     testPos = startPos
-    startOrient = [round(angle) for angle in orient]
+    startOrient = [round(toDegrees(angle)) for angle in orient]
     currentOrient = startOrient.copy()
-    for axis in range(3):    
+    for axis in range(2):    
         for angle in range(startOrient[axis],90):
             currentOrient[axis] = angle
             q = getAngles(testPos,
@@ -208,7 +208,7 @@ def test_circle(servo):
     os.system("clear")
     circleRadius = 50
     drawPlane = 0 #0 - XY  1 - XZ  2 - YZ
-    circleCenter = [0,200,link[0]]
+    circleCenter = [0,200,150]
     tempCenter = circleCenter.copy()
     circleOrient = [0,0,0] #in radians
     
@@ -216,11 +216,13 @@ def test_circle(servo):
     for plane in range(3):
         if plane==0: circleOrient = [0,0,0]
         elif plane==1: circleOrient = [0,toRadians(-90),0]
-        elif plane==2: circleOrient = [0,toRadians(-45),0]
+        elif plane==2:
+            circleOrient = [0,toRadians(-45),0]
+            # circleCenter = [0,150,150]
         q = getAngles(circleCenter,circleOrient[0],circleOrient[1],circleOrient[2],'-',positionIsReachable=isReachable)
-        if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,mode=2)
+        if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,mode=2,useDefault=True)
         time.sleep(0.5)
-        for angle in range(360):
+        for angle in range(361):
             if plane==0:
                 tempCenter = [
                     circleCenter[0]+circleRadius*sin(toRadians(angle)),
@@ -239,8 +241,9 @@ def test_circle(servo):
                     circleCenter[1]+circleRadius*sin(toRadians(angle)),
                     circleCenter[2]+circleRadius+circleRadius*cos(toRadians(angle-180))
                 ]
+            print(tempCenter,[toDegrees(angle) for angle in circleOrient])
             q = getAngles(tempCenter,circleOrient[0],circleOrient[1],circleOrient[2],'-',positionIsReachable=isReachable)
-            if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,mode=0)
+            if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,mode=0,useDefault=True)
         time.sleep(0.5)
     return
 
@@ -279,11 +282,12 @@ def runFromFile(filePath, servo):
     servoMode = 1
     cmdFile = open(filePath, 'r')
     line1 = cmdFile.readline()
+    line2 = cmdFile.readline()
     toUseDefault = False
     readType = line1[5:][:5]
     if readType == "angle" and line1[11:][:4] == "True": toUseDefault = True
+    if line2[:5]== "mode:": servoMode = int(line2[5:])
     for line in cmdFile:
-        if line[:5]=="mode:": servoMode = int(line[5:])
         if line[:6]=="sleep:": time.sleep(float(line[6:]))
         elif readType=="coord":
             coords = line[:line.find(';')]
