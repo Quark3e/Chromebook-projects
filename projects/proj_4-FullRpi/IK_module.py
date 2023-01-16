@@ -123,6 +123,32 @@ def solveListDifference(listOfLists, mode=1, deltaList=[0]):
     deltaList[0] = deltaVal
     return deltaVal
 
+def findVal(listToCheck, mode=0, returnValue=True):
+    """Goes through list gives the desired value
+
+    ## Parameters:
+        - listToCheck [unit: int/float]: the list to go through.
+        - mode [unit: int]: declares what to find in the list.
+            - 0. biggest value
+            - 1. smallest value
+        - returnValue [unit: boolean]: whether to return value or element index (true if value)
+    ## Returns:
+        - returns either value or index of desired element
+    """
+    ans = 0
+    if returnValue: ans = listToCheck[0]
+    else: ans = 0
+    for i in range(1,len(listToCheck)):
+        if mode==0:
+            if listToCheck[i]>ans:
+                if returnValue: ans=listToCheck[i]
+                else: ans = i
+        elif mode==1:
+            if listToCheck[i]<ans:
+                if returnValue: ans=listToCheck[i]
+                else: ans = i
+
+    return ans
 
 def mp1(x):
     y=0
@@ -209,11 +235,35 @@ def sendToServo(
                 servo[i].angle = s_temp[i] + s_diff[i]*mp1(count/total_iteration)
             if total_time > 0.1: time.sleep(total_time/total_iteration)
 
+def findAngle(pos, startOrient=[0,0], preferedOrient='b'):
+    """To find an alpha:beta combination that gives a reachable answer: NOTE: It includes exceedCheck of the servo motors.
+    
+    ## Parameters:
+        - pos [unit: mm]: XYZ coordinate to find a valid orientation for.
+        - startOrient [unit: degrees]: Orientation to find a valid orientation from. This orientation is used at the start.
+        - preferedOrient: The orientation to change the most:
+            -ex: if preferedOrient='b' then beta-search is nested \"inside\" alpha-search
+    ## Returns:
+        - gives valid orientation
+    """
+    validOrient = startOrient.copy()
+    a_u,a_l,b_u,b_l = [startOrient[0],startOrient[0],startOrient[1],startOrient[1]]
+
+    maxReached = 4*[False] #[or1.min, or1.max, or2.min, or2.max]
+    swtchAx = [False, False]
+    for or1 in range(180):
+        for or2 in range(180):
+            
+
+    return
 
 def exceedCheck(q, servoExceeded, whichServoExceeded, typeOfExceeded):
     """
     ### Parameters:
         - q: joints 1-6 in unit: NOTE:degrees
+    ### Returns:
+        - True if any joint command exceeded servo limits
+        - else returns False (or similar to servoExceeded parameter)
     """
     # print(q)
     for i in range(5):
@@ -474,7 +524,6 @@ def getSubframe(PP,a,b,posOption,printText=False):
     frame1Z = (link[4]+link[5]) * sin(b1)
     frame1Y = (link[4]+link[5]) * cos(b1) * cos(a1)
     return [frame1X,frame1Y,frame1Z,a1,b1]
-
 
 
 def getP1():
