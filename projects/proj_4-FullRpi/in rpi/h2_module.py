@@ -204,15 +204,55 @@ def fullTest(servo):
             time.sleep(0.01)
     return
 
+def test_circle(servo):
+    os.system("clear")
+    circleRadius = 50
+    drawPlane = 0 #0 - XY  1 - XZ  2 - YZ
+    circleCenter = [0,200,link[0]]
+    tempCenter = circleCenter.copy()
+    circleOrient = [0,0,0] #in radians
+    
+    isReachable = [True]
+    for plane in range(3):
+        if plane==0: circleOrient = [0,0,0]
+        elif plane==1: circleOrient = [0,toRadians(-90),0]
+        elif plane==2: circleOrient = [0,toRadians(-45),0]
+        q = getAngles(circleCenter,circleOrient[0],circleOrient[1],circleOrient[2],'-',positionIsReachable=isReachable)
+        if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,mode=2)
+        time.sleep(0.5)
+        for angle in range(360):
+            if plane==0:
+                tempCenter = [
+                    circleCenter[0]+circleRadius*sin(toRadians(angle)),
+                    circleCenter[1],
+                    circleCenter[2]+circleRadius+circleRadius*cos(toRadians(angle-180))
+                ]
+            if plane==1:
+                tempCenter = [
+                    circleCenter[0]+circleRadius*sin(toRadians(angle)),
+                    circleCenter[1]-circleRadius+circleRadius*cos(toRadians(angle)),
+                    circleCenter[2]
+                ]
+            if plane==2:
+                tempCenter = [
+                    circleCenter[0],
+                    circleCenter[1]+circleRadius*sin(toRadians(angle)),
+                    circleCenter[2]+circleRadius+circleRadius*cos(toRadians(angle-180))
+                ]
+            q = getAngles(tempCenter,circleOrient[0],circleOrient[1],circleOrient[2],'-',positionIsReachable=isReachable)
+            if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,mode=0)
+        time.sleep(0.5)
+    return
 
 mov_Programs = {
     "axisTest": fullAxisTest,
     "orientTest": fullOrientTest,
-    "fullTest": fullTest
+    "fullTest": fullTest,
+    "testCircle": test_circle
 }
 """Dictionary of program names and the function
 
-##Parameters:
+## Parameters:
     - assigned servo[n].angle list
 
 """
@@ -236,12 +276,14 @@ def runFromFile(filePath, servo):
     """
     os.system("clear")
     
+    servoMode = 1
     cmdFile = open(filePath, 'r')
     line1 = cmdFile.readline()
     toUseDefault = False
     readType = line1[5:][:5]
     if readType == "angle" and line1[11:][:4] == "True": toUseDefault = True
     for line in cmdFile:
+        if line[:5]=="mode:": servoMode = int(line[5:])
         if line[:6]=="sleep:": time.sleep(float(line[6:]))
         elif readType=="coord":
             coords = line[:line.find(';')]
@@ -261,13 +303,14 @@ def runFromFile(filePath, servo):
             q = getAngles(coordinate,orientation[0],orientation[1],orientation[2],'-',positionIsReachable=isReachable)
             q = [toDegrees(angle) for angle in q]
             print(q)
-            if isReachable[0]: sendToServo(servo,q,0,mode=2,useDefault=True)
+            if isReachable[0]: sendToServo(servo,q,0,mode=servoMode,useDefault=True)
         elif readType=="angle":
             angles = getNumFromString(line, ':')
-            sendToServo(servo,angles,0,useDefault=toUseDefault,mode=1)
+            sendToServo(servo,angles,0,useDefault=toUseDefault,mode=servoMode)
 
     return
 
+# Permanent modifiers
 
 def createMovPathFile():
     os.system("clear")

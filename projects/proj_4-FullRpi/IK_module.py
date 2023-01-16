@@ -150,6 +150,19 @@ def findVal(listToCheck, mode=0, returnValue=True):
 
     return ans
 
+def PON(var):
+    """find out if a number is Positive Or Negative
+    ## Parameters:
+        - var [float/int]: value to check
+    ## Returns:
+        - 1 if var positive
+        - -1 if var negative
+        - 0 if it's 0
+    """
+    if var>0: return 1
+    elif var<0: return -1
+    else: return 0
+
 def mp1(x):
     y=0
     V_max=2
@@ -182,7 +195,7 @@ def sendToServo(
     """Sends angles in list \"new_rotation\" to servo motors evenly spaced out
 
     ## Parameters:
-        - s (float/int): [no unit specification needed]
+        - sservo (float/int): [no unit specification needed]
             - dictionary/list variable that sends to pca board / holds old/current rotation commands
         - new_rotation (float/int): [unit: degrees]
             - dictionary/list variable of new rotation commands in [degrees]
@@ -235,25 +248,21 @@ def sendToServo(
                 servo[i].angle = s_temp[i] + s_diff[i]*mp1(count/total_iteration)
             if total_time > 0.1: time.sleep(total_time/total_iteration)
 
-def findAngle(pos, startOrient=[0,0], preferedOrient='b'):
+def findAngle(pos, startOrient=[0,0], prefOrient='b'):
     """To find an alpha:beta combination that gives a reachable answer: NOTE: It includes exceedCheck of the servo motors.
+    
+    # NOT READY
     
     ## Parameters:
         - pos [unit: mm]: XYZ coordinate to find a valid orientation for.
         - startOrient [unit: degrees]: Orientation to find a valid orientation from. This orientation is used at the start.
-        - preferedOrient: The orientation to change the most:
-            -ex: if preferedOrient='b' then beta-search is nested \"inside\" alpha-search
+        - prefOrient: The orientation to change the most: either 'a' or 'b'
+            -ex: if prefOrient='b' then beta-search is nested \"inside\" alpha-search and "is iterated the most"
     ## Returns:
         - gives valid orientation
     """
-    validOrient = startOrient.copy()
-    a_u,a_l,b_u,b_l = [startOrient[0],startOrient[0],startOrient[1],startOrient[1]]
-
-    maxReached = 4*[False] #[or1.min, or1.max, or2.min, or2.max]
-    swtchAx = [False, False]
-    for or1 in range(180):
-        for or2 in range(180):
-            
+    # Nevermind. I need to specify the likely reachable range of orientation combinations by
+    # using pre-defined rules
 
     return
 
