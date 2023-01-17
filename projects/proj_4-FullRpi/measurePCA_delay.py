@@ -58,8 +58,8 @@ def configure_plots():
     ax[1] = fig.add_subplot(1,2,2) #type: ignore
 
     ax[0].set_xlim(0,180) #type: ignore
-    ax[0].set_ylim(0,1000)
-    ax[0].set_aspect('equal',adjustable='box')
+    ax[0].set_ylim(0,2)
+    # ax[0].set_aspect('equal',adjustable='box')
     ax[0].set_title("Without power to motors")
     ax[0].set_xlabel("given value [degrees]")
     ax[0].set_ylabel("read delay [milliseconds]")
@@ -68,8 +68,8 @@ def configure_plots():
     ax[0].grid()
 
     ax[1].set_xlim(0,180)
-    ax[1].set_ylim(0,1000)
-    ax[1].set_aspect('equal',adjustable='box')
+    ax[1].set_ylim(0,2)
+    # ax[1].set_aspect('equal',adjustable='box')
     ax[1].set_title("With power to motors")
     ax[1].set_xlabel("given value [degrees]")
     ax[1].set_ylabel("read delay [milliseconds]")
@@ -94,11 +94,11 @@ def main():
 
     xValues = [x for x in range(180)]
     #Without power to servo motors
-    avgList=6*[[]] #avgList[6][10][180] 
-    avg=6*[[]]
     for joint in range(6):
-        os.system("clear")
-        print(joint,":",sep='')
+        # os.system("clear")
+        avgList=6*[[]] #avgList[6][10][180] 
+        avg=6*[[]]
+        print(joint,":",sep='',end=' ')
         for i in range(10):
             avgList[joint].append(
                 getData(joint)
@@ -108,8 +108,10 @@ def main():
                 [lst[i] for lst in avgList[joint]]
             ) /
             len(avgList[joint])) #type:ignore
+        print(len(xValues),len(avg[joint]),end=' ')
         ax[0].plot(xValues,avg[joint],linestyle='solid',label=f"q[{joint:1}]") #type: ignore
-
+        print()
+        
     #With power to servo motors
 
 
