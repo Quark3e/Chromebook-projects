@@ -172,24 +172,24 @@ def main():
         print("-----------------")
 
     fig.legend(loc=2)
-    plt.savefig(relativePath+"media/"+"q1_errorGraph.png")
-    plt.savefig(relativePath+"media/"+"q1_errorGraph.pdf")
+    # plt.savefig(relativePath+"media/"+"q1_errorGraph.png")
+    # plt.savefig(relativePath+"media/"+"q1_errorGraph.pdf")
 
     plt.show()
 
 
-    #Writing to .dat file
-    currentDate = str(datetime.now()) + ";"
-    toFile = currentDate
-    tempDict_read = {}
-    for q in range(6): tempDict_read.update({q:y_q[q]})
-    toFile += str(tempDict_read) + "\n" #type: ignore
-    toFile_readable = str(constants_q)+"{\n"
-    for q in range(6): toFile_readable += "\t" + str(y_q) + "\n"
-    toFile_readable += "}\n"
-    # print(toFile_readable)
-    toFile += toFile_readable
-    correctionFile.write(toFile)
+    # #Writing to .dat file
+    # currentDate = str(datetime.now()) + ";"
+    # toFile = currentDate
+    # tempDict_read = {}
+    # for q in range(6): tempDict_read.update({q:y_q[q]})
+    # toFile += str(tempDict_read) + "\n" #type: ignore
+    # toFile_readable = str(constants_q)+"{\n"
+    # for q in range(6): toFile_readable += "\t" + str(y_q) + "\n"
+    # toFile_readable += "}\n"
+    # # print(toFile_readable)
+    # toFile += toFile_readable
+    # correctionFile.write(toFile)
 
 
 if __name__ == "__main__":
