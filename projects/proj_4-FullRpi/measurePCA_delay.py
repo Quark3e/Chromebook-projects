@@ -79,7 +79,7 @@ def configure_plots():
 
 def getData(sToTest):
     yValues = []
-
+    servo[sToTest].angle = 90
     for angle in range(180):
         t1 = time.perf_counter()
         servo[sToTest].angle=angle
@@ -116,7 +116,9 @@ def main():
 
 
     fig.legend(loc=2)
-    
+    relativePath = "projects/proj_4-FullRpi/servoCal_files/"
+    # plt.savefig(relativePath+"media/"+"q1_errorGraph.png")
+    # plt.savefig(relativePath+"media/"+"q1_errorGraph.pdf")
     plt.show()
 
     return
