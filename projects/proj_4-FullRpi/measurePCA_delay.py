@@ -111,7 +111,8 @@ def main():
         print(len(xValues),len(avg[joint]),end=' ')
         ax[0].plot(xValues,avg[joint],linestyle='solid',label=f"q[{joint:1}]") #type: ignore
         print()
-        
+    
+    time.sleep(2)
     #With power to servo motors
 
 
