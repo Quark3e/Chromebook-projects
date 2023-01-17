@@ -116,9 +116,8 @@ def main():
 
 
     fig.legend(loc=2)
-    relativePath = "projects/proj_4-FullRpi/servoCal_files/"
-    # plt.savefig(relativePath+"media/"+"q1_errorGraph.png")
-    # plt.savefig(relativePath+"media/"+"q1_errorGraph.pdf")
+    relativePath = "/home/pi/Chromebook-projects/projects/proj_4-FullRpi/"
+    plt.savefig(relativePath+"PCA9685_sendDelay.png")
     plt.show()
 
     return
