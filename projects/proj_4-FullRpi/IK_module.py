@@ -115,7 +115,7 @@ def solveListDifference(listOfLists, mode=1, deltaList=[0]):
     deltaVal = 0
     sumList = len(listOfLists[0])*[0]
     
-    for i in range(listOfLists[0]):
+    for i in range(len(listOfLists[0])):
         diff = listOfLists[1][i]-listOfLists[0][i]
         if diff<0 and mode==1: sumList[i] = abs(diff)
         else: sumList[i] = diff

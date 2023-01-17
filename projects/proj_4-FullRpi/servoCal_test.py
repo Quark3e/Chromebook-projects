@@ -13,7 +13,8 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 from math import * #type: ignore
 
-from IK_module import sendToServo, toDegrees, toRadians, getAngles
+# from IK_module import sendToServo, toDegrees, toRadians, getAngles
+from IK_module import *
 
 relativePath = "projects/proj_4-FullRpi/servoCal_files/"
 
@@ -47,13 +48,16 @@ constants_q = [{
 
 
 def solve_linearConst(allValues, indexToIgnore, rawConstList=[]):
-    '''
-    Note: the elements of "allValues" must be same length
-    Solves regression
-    '''
+    """Solves linear regression: solves constant between points in linear set
+    
+    ## Parameters:
+    - allValues: list of lists with the values: [list1(axis 1), list2(axis 2), list3(axis 3)]
+        - Note: the elements of "allValues" must be same length
+    - indexToIgnore: list of first axis elements to ignore and not include in the calculation
+    - rawConstList: empty list to get raw data from
+    """
     linear_constant = 1
 
-    temp_constants = (len(allValues[0])-len(indexToIgnore)-1)*[0]
     temp_constants = []
     for n in range(1, len(allValues[0])): #starts at index 1 [1] because some parts use "previous" values
         dontIgnore = True
@@ -69,8 +73,8 @@ def solve_linearConst(allValues, indexToIgnore, rawConstList=[]):
                 (allValues[len(allValues)-1][n] - allValues[len(allValues)-1][n-1]) / 
                 (sqrt(sum([pow(val,2) for val in tempList_n]))-sqrt(sum([pow(val,2) for val in tempList_n_1])))
                 )
-    rawConstList = temp_constants.copy()
-    # print(rawConstList)
+    for n in range(len(temp_constants)):
+        rawConstList.append(temp_constants[n])
     linear_constant = sum(temp_constants) / len(temp_constants)
 
     return linear_constant
