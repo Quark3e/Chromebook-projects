@@ -114,7 +114,7 @@ def main():
     
     time.sleep(2)
     #With power to servo motors
-                                
+
 
     fig.legend(loc=2)
     relativePath = "/home/pi/Chromebook-projects/projects/proj_4-FullRpi/"
