@@ -236,7 +236,7 @@ def sendToServo(
                 if mode==1:
                     s_temp[i] += s_diff[i]/total_iteration
                     servo[i].angle = s_temp[i]
-                elif mode==0:
+                elif mode==2:
                     servo[i].angle = s_temp[i] + s_diff[i]*mp1(count/total_iteration)
             if total_time > 0.1: time.sleep(total_time/total_iteration)
 
