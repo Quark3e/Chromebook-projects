@@ -123,7 +123,7 @@ def solveListDifference(listOfLists, mode=1, deltaList=[0]):
     deltaList[0] = deltaVal
     return deltaVal
 
-def findVal(listToCheck, mode=0, returnValue=True):
+def findVal(listToCheck, mode=0):
     """Goes through list gives the desired value
 
     ## Parameters:
@@ -135,20 +135,17 @@ def findVal(listToCheck, mode=0, returnValue=True):
     ## Returns:
         - returns either value or index of desired element
     """
-    ans = 0
-    if returnValue: ans = listToCheck[0]
-    else: ans = 0
+    index, val = 0, listToCheck[0]
     for i in range(1,len(listToCheck)):
         if mode==0:
-            if listToCheck[i]>ans:
-                if returnValue: ans=listToCheck[i]
-                else: ans = i
+            if listToCheck[i]>val:
+                val=listToCheck[i]
+                index=i
         elif mode==1:
-            if listToCheck[i]<ans:
-                if returnValue: ans=listToCheck[i]
-                else: ans = i
-
-    return ans
+            if listToCheck[i]<val:
+                val=listToCheck[i]
+                index=i
+    return [val, index]
 
 def PON(var):
     """find out if a number is Positive Or Negative
@@ -233,20 +230,16 @@ def sendToServo(
         s_temp = []
         for i in range(6): s_diff.append(new_rotation[i]-servo[i].angle)
         for i in range(6): s_temp.append(servo[i].angle)
+        total_iteration = findVal(s_diff)[0]
         for count in range(total_iteration-1):
             for i in range(6):
-                s_temp[i] += s_diff[i]/total_iteration
-                servo[i].angle = s_temp[i]
+                if mode==1:
+                    s_temp[i] += s_diff[i]/total_iteration
+                    servo[i].angle = s_temp[i]
+                elif mode==0:
+                    servo[i].angle = s_temp[i] + s_diff[i]*mp1(count/total_iteration)
             if total_time > 0.1: time.sleep(total_time/total_iteration)
-    elif mode==2:
-        s_diff = []
-        s_temp = []
-        for i in range(6): s_diff.append(new_rotation[i]-servo[i].angle)
-        for i in range(6): s_temp.append(servo[i].angle)
-        for count in range(total_iteration-1):
-            for i in range(6):
-                servo[i].angle = s_temp[i] + s_diff[i]*mp1(count/total_iteration)
-            if total_time > 0.1: time.sleep(total_time/total_iteration)
+
 
 def findAngle(pos, startOrient=[0,0], prefOrient='b'):
     """To find an alpha:beta combination that gives a reachable answer: NOTE: It includes exceedCheck of the servo motors.
