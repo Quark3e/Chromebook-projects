@@ -45,9 +45,6 @@ for i in range(6):
     servo[i].set_pulse_width_range(500, 2500)
 
 
-def getServo4Offset(degrees):
-    return 90-(90/130)*degrees
-
 servo[0].angle = 90
 servo[1].angle = 90
 servo[2].angle = 180 - 90
@@ -125,11 +122,9 @@ if useDefaultLimit:
         L_values, U_values = [68, 207, 92], [112, 255, 238] #trust exis webcam
 
 
-diffCheck = 100
 showImage = False
 globalPrint = False
 printCoord = True
-endAnglePrint = False
 firstAnglePrint = False
 posOption = '-'
 if showImage:
@@ -140,9 +135,6 @@ Roll, Pitch = 0.1, 0.1
 
 
 q = [0]*6 #NOTE: q1 = q[0] = servo[0]
-s = [0, 0, 0, 0, 0, 0, 0] #The variables that are sent to the servos
-
-a1, b1 = 0.1, 0.1
 
 
 def readAccelerometer():
