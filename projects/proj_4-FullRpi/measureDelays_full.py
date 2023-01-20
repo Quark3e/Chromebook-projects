@@ -94,14 +94,15 @@ Roll, Pitch = 0.1, 0.1
 roll, pitch = Roll, Pitch
 tiltVals = [0.1,0.1,0.1,0.1]
 q = 6*[0]
-a,b,Y = 0,0,0 #unit: radians
+a,b,Y = 0, 0, 0 #unit: radians
 PP = [0,200,150]
 coord=""
 
 #functions
 def nothing(x):
     pass
-def getValues(cap, varLists):
+
+def getValues(cap, varLists=[False,1]):
     """Read and configure hsv values for colour tracking
 
     ## Parameters:
@@ -162,12 +163,13 @@ def getValues(cap, varLists):
 
     return L_values, U_values #type: ignore
 
-def readAccelerometer(axisVals, tiltVals, accelFilter=0.1):
+def readAccelerometer():
     """
     ## Parameters:
     - axisVals = [X_out, Y_out, Z_out]
     - tiltVals = [roll, pitch, Roll, Pitch] [unit:radians]
     """
+    global axisVals, tiltVals
     axisVals[0], axisVals[1], axisVals[2] = accelerometer.acceleration
     tiltVals[1] = math.atan(axisVals[1]/math.sqrt(pow(axisVals[0],2)+pow(axisVals[2],2)))*180/math.pi
     tiltVals[0] = math.atan(-1*axisVals[0]/math.sqrt(pow(axisVals[1],2)+pow(axisVals[2],2)))*180/math.pi
@@ -176,8 +178,9 @@ def readAccelerometer(axisVals, tiltVals, accelFilter=0.1):
     tiltVals[3] = (1-accelFilter)*tiltVals[3] + accelFilter*tiltVals[1]
     return axisVals, tiltVals
 
-def processImage(cap,cValues,axisFilter,axisScal,ZDefault,zMax,newSize=(640,480)):
-    readAccelerometer(axisVals,tiltVals,accelFilter=accelFilter)
+def processImage(cap,cValues,axisFilter,axisScal,zDefaultVal,zMax,newSize=(640,480)):
+
+    readAccelerometer()
     cX,cY = 0,0
     PP = [0,0,0]
     imgTemp = cap.read()
@@ -211,6 +214,7 @@ def processImage(cap,cValues,axisFilter,axisScal,ZDefault,zMax,newSize=(640,480)
     if showImage:
         stacked = np.hstack((img,filtered))
         cv2.imshow('Windows',cv2.resize(stacked,None,fx=0.7,fy=0.7)) #type: ignore
+    return PP
 
 def solveAngles(PP,Roll,Pitch,a,b):
     bPos = False
@@ -230,10 +234,24 @@ useThread = False
 
 #delay tracking
 def main():
+    L_values, U_values = getValues(cap)
+    
+    #loop starts here
+    while True:
+        PP = processImage(
+            cap,[L_values,U_values],axisFilter,[xScaling,yScaling,zScaling],
+            zDefaultVal,zMax
+            )
+        q = solveAngles(PP,tiltVals[2],tiltVals[3],a,b)
 
- 
-    if showImage:
-        cv2.destroyAllWindows()
+        sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)    
+
+        if showImage:
+            cv2.destroyAllWindows()
+        if cv2.waitKey(1) == 27:
+            break
+    #loop ends here
+            
     return
 
 
