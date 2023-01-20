@@ -225,12 +225,12 @@ def sendToServo(
     if mode==0:
         for x in range(6): 
             servo[x].angle = new_rotation[x]
-    elif mode==1:
+    elif mode==1 or mode==2:
         s_diff = []
         s_temp = []
         for i in range(6): s_diff.append(new_rotation[i]-servo[i].angle)
         for i in range(6): s_temp.append(servo[i].angle)
-        total_iteration = findVal(s_diff)[0]
+        total_iteration = round(findVal(s_diff)[0])+45
         for count in range(total_iteration-1):
             for i in range(6):
                 if mode==1:
