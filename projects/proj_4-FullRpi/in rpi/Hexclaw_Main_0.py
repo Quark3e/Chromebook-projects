@@ -244,7 +244,8 @@ while True:
     if Roll <= 90 and Roll >= -90:
         if not bPos: a = toRadians(0 - (Roll * 0.9 + toDegrees(a) * 0.1))
         elif bPos: a = toRadians(Roll * 0.9 + toDegrees(a) * 0.1)
-    q = getAngles(PP,a,b,Y,'-')
+    isReachable=[True]
+    q = getAngles(PP,a,b,Y,'-',positionIsReachable=isReachable)
 
     servoExceeded = False
     # "under" = given < 0
@@ -252,7 +253,7 @@ while True:
     whichServoExceeded = 6*[False]
     typeOfExceeded = 6*["null"]
 
-    sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
+    if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
 
     # Press Esc key to exit
     if cv2.waitKey(1) == 27:

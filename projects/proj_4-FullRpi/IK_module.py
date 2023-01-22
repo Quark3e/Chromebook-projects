@@ -241,23 +241,40 @@ def sendToServo(
             if total_time > 0.1: time.sleep(total_time/total_iteration)
 
 
-def findAngle(pos, startOrient=[0,0], prefOrient='b'):
+def findAngle(pos, startOrient=[0,0],Y=0):
     """To find an alpha:beta combination that gives a reachable answer: NOTE: It includes exceedCheck of the servo motors.
-    
-    # NOT READY
-    
+        
     ## Parameters:
-        - pos [unit: mm]: XYZ coordinate to find a valid orientation for.
-        - startOrient [unit: degrees]: Orientation to find a valid orientation from. This orientation is used at the start.
-        - prefOrient: The orientation to change the most: either 'a' or 'b'
-            -ex: if prefOrient='b' then beta-search is nested \"inside\" alpha-search and "is iterated the most"
+    - pos [unit: mm]: XYZ coordinate to find a valid orientation for.
+    - startOrient [unit: degrees]: Orientation to find a valid orientation from. This orientation is used at the start.
     ## Returns:
-        - gives valid orientation
+    - [unit: degrees] "closest" valid orientation from startOrient in terms of difference *IF* an orient is found
+    - else returns False
+    # 
     """
-    # Nevermind. I need to specify the likely reachable range of orientation combinations by
+    # I need to specify the likely reachable range of orientation combinations by
     # using pre-defined rules
+    isReachable = [False, False]
+    tempOrient = [val+90 for val in startOrient.copy()]
+    def checkOrient(orient):
+        if orient[0]<=180-1 and orient[0]>=0 and orient[1]<=180-1 and orient[1]>=0:
+            q = getAngles(pos,
+            toRadians(orient[0]),toRadians(orient[1]),toRadians(Y),
+            '-',positionIsReachable=isReachable)
+            if isReachable[0]: isReachable[1]=True
+    for radius in range(1,180):
+        for x in range(tempOrient[0]-radius,tempOrient[0]+radius+1):
+            checkOrient([x,tempOrient[1]-radius])
+            if isReachable[1]: return [x-90, tempOrient[1]-radius-90]
+            checkOrient([x,tempOrient[1]+radius])
+            if isReachable[1]: return [x-90, tempOrient[1]+radius-90]
+        for y in range(tempOrient[1]-radius,tempOrient[1]+radius+1):
+            checkOrient([tempOrient[0]-radius,y])
+            if isReachable[1]: return [tempOrient[0]-radius-90, y-90]
+            checkOrient([tempOrient[0]+radius,y])
+            if isReachable[1]: return [tempOrient[0]+radius-90, y-90]
 
-    return
+    return False
 
 def exceedCheck(q, servoExceeded, whichServoExceeded, typeOfExceeded):
     """
