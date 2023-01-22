@@ -308,6 +308,15 @@ def runFromFile(filePath, servo):
             q = [toDegrees(angle) for angle in q]
             print(q)
             if isReachable[0]: sendToServo(servo,q,0,mode=servoMode,useDefault=True)
+            else:
+                orients = findOrients(coordinate,[orientation[0],orientation[1]])
+                if orients==None:
+                    print(f"no orientation found for {coordinate}")
+                else:
+                    q = getAngles(coordinate,orients[0],orients[1],orients[2],'-',positionIsReachable=isReachable)
+                    q = [toDegrees(angle) for angle in q]
+                    if isReachable[0]: sendToServo(servo,q,0,mode=servoMode,useDefault=True)
+                    
         elif readType=="angle":
             angles = getNumFromString(line, ':')
             sendToServo(servo,angles,0,useDefault=toUseDefault,mode=servoMode)
