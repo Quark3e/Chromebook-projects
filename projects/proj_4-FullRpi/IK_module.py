@@ -262,7 +262,7 @@ def findAngle(pos, startOrient=[0,0],Y=0):
             toRadians(orient[0]),toRadians(orient[1]),toRadians(Y),
             '-',positionIsReachable=isReachable)
             if isReachable[0]: isReachable[1]=True
-    for radius in range(1,180):
+    for radius in range(0,180):
         for x in range(tempOrient[0]-radius,tempOrient[0]+radius+1):
             checkOrient([x,tempOrient[1]-radius])
             if isReachable[1]: return [x-90, tempOrient[1]-radius-90]
