@@ -16,6 +16,7 @@ import math
 import adafruit_adxl34x # type: ignore
 import sys
 from threading import Thread
+import RPi.GPIO as GPIO #type: ignore
 
 sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
 
@@ -82,6 +83,10 @@ servo[3].angle = 45
 servo[4].angle = 180 - 0
 servo[5].angle = 90
 
+GPIO.setmode(GPIO.BCM)
+ledRelay=23
+GPIO.setup(ledRelay,GPIO.OUT)
+GPIO.output(ledRelay, True)
 sendToServo(servo,[90,115,145,90,125,90],0,mode=2)
 
 # plt.xlabel("x - axis")
@@ -264,6 +269,7 @@ while True:
 if showImage:
     cv2.destroyAllWindows()
 sendToServo(servo,[135,15,155,45,180,90],1,mode=2)
+GPIO.output(ledRelay, False)
 cap.stop()
 pca.deinit()
 

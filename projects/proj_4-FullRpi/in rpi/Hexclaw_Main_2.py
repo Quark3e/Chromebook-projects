@@ -54,7 +54,6 @@ servo[4].angle = 180 - 0
 servo[5].angle = 90
 time.sleep(1)
 
-ledRelay = 16
 GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
  
 ledRelay = 23
