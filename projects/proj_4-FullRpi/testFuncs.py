@@ -3,8 +3,8 @@
 import os
 import time
 
-fullRange = [180, 180]
-centerPos = [90, 45]
+fullRange = [10, 10]
+centerPos = [5, 4]
 # toDraw = fullRange[0]*[fullRange[1]*[' ']]
 # toDraw = [
 #     [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
@@ -30,11 +30,11 @@ def check(val):
 
     if val[0]<=fullRange[0]-1 and val[0]>=0 and val[1]<=fullRange[1]-1 and val[1]>=0:
         toDraw[val[0]][val[1]]='o'
-        # os.system("clear")
-        # for lst in toDraw:
-        #     print(lst)
-        # print(val)
-        # time.sleep(0.05)
+        os.system("clear")
+        for lst in toDraw:
+            print(lst)
+        print(val)
+        time.sleep(0.05)
     return
 
 def pathFind(axisRange, startPos):

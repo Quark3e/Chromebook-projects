@@ -271,9 +271,14 @@ def runFromFile(filePath, servo):
     - "type:angle":
         - given angles: "q1:q2:q3:q4:q5:q6" [unit: degrees]
         - ":useDefault":
-            - 
+            - ex. "type:angle:True
     - "type:coord":
         - given coordinates: "x:y:z;a:b:Y"
+        - ":orientsGiven"
+            - ex. "type:coord:True"  -> "x:y:z;a:b:Y"
+            - ex. "type:coord:False" -> "x:y:z"
+    - "mode:(n)":
+        - the mode to be sent for sendToServo()
     - "sleep:(n)":
         - sleep for n seconds
     """
@@ -284,12 +289,14 @@ def runFromFile(filePath, servo):
     line1 = cmdFile.readline()
     line2 = cmdFile.readline()
     toUseDefault = False
+    orientGiven = False
     readType = line1[5:][:5]
     if readType == "angle" and line1[11:][:4] == "True": toUseDefault = True
+    if readType == "coord" and line1[11:][:1] == "True": orientGiven = True
     if line2[:5]== "mode:": servoMode = int(line2[5:])
     for line in cmdFile:
         if line[:6]=="sleep:": time.sleep(float(line[6:]))
-        elif readType=="coord":
+        elif readType=="coord" and not orientGiven:
             coords = line[:line.find(';')]
             orients = line[line.find(';')+1:]
             coordinate = [
@@ -316,8 +323,22 @@ def runFromFile(filePath, servo):
                     orients = [toRadians(var) for var in orients]
                     q = getAngles(coordinate,orients[0],orients[1],orients[2],'-',positionIsReachable=isReachable)
                     q = [toDegrees(angle) for angle in q]
-                    if isReachable[0]: sendToServo(servo,q,0,mode=servoMode,useDefault=True)
-                    
+                    if isReachable[0]: sendToServo(servo,q,0,mode=servoMode,useDefault=True)  
+        elif readType=="coord" and orientGiven:
+            coords = line
+            coordinate = [
+                float(coords[:coords.find(':')]),
+                float(coords[coords.find(':')+1:][:coords[coords.find(':')+1:].find(':')]),
+                float(coords[coords.find(':')+1:][coords[coords.find(':')+1:].find(':')+1:])
+            ]
+            orients = findOrients(coordinate,[0,0])
+            if orients==None: print(f"no orientation found for {coordinate}")
+            else:
+                orients = [toRadians(var) for var in orients]
+                q = getAngles(coordinate,orients[0],orients[1],orients[2],'-')
+                q = [toDegrees(angle) for angle in q]
+                # print(q)
+                sendToServo(servo,q,0,mode=servoMode,useDefault=True)
         elif readType=="angle":
             angles = getNumFromString(line, ':')
             sendToServo(servo,angles,0,useDefault=toUseDefault,mode=servoMode)

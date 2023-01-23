@@ -1,4 +1,4 @@
-type:coord
+type:coord:True
 mode:2
 sleep:0.75
 0:150:10;0:-90:0
