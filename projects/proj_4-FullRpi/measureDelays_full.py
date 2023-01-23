@@ -1,4 +1,4 @@
-#!/urs/bin/env python3
+#!/usr/bin/env python3
 
 #/*
 # Measure the delays for the fullprocess of Hexclaw_Main_0 and 1
@@ -68,6 +68,8 @@ servo[5].angle = 90
 sendToServo(servo,[90,115,145,90,125,90],0,mode=2)
 
 
+#delay tracking configurations
+useThread = True
 
 #variables
 axisFilter = 0.3
@@ -78,7 +80,8 @@ brightVal = 75
 zDefaultVal = 3_000_000
 zMax = 300
 
-cap = WebcamVideoStream(src=0).start()
+if useThread: cap = WebcamVideoStream(src=0).start()
+else: cap = cv2.VideoCapture(0)
 
 showImage = False
 globalPrint = False
@@ -102,7 +105,7 @@ coord=""
 def nothing(x):
     pass
 
-def getValues(cap, varLists=[False,1]):
+def getValues(varLists=[False,1]):
     """Read and configure hsv values for colour tracking
 
     ## Parameters:
@@ -113,6 +116,7 @@ def getValues(cap, varLists=[False,1]):
     ## Returns:
     - [L_values, U_values]
     """
+    global cap
     cv2.namedWindow("Webcam - XY")
     cv2.createTrackbar("L - H", "Webcam - XY", 0, 179, nothing)
     cv2.createTrackbar("L - S", "Webcam - XY", 0, 255, nothing)
@@ -158,7 +162,7 @@ def getValues(cap, varLists=[False,1]):
     cv2.destroyAllWindows()
 
     if varLists[0]:
-        if varLists[1] == 0: L_values, U_values = [64, 73, 88], [103, 213, 255] #plexgear
+        if varLists[1] == 0: L_values, U_values = [53, 66, 73], [93, 231, 197] #plexgear
         elif varLists[1] == 1: L_values, U_values = [68, 207, 92], [112, 255, 238] #trust exis webcam
 
     return L_values, U_values #type: ignore
@@ -178,7 +182,7 @@ def readAccelerometer():
     tiltVals[3] = (1-accelFilter)*tiltVals[3] + accelFilter*tiltVals[1]
     return axisVals, tiltVals
 
-def processImage(cap,cValues,axisFilter,axisScal,zDefaultVal,zMax,newSize=(640,480)):
+def processImage(cValues,axisFilter,axisScal,zDefaultVal,zMax,newSize=(640,480)):
 
     readAccelerometer()
     cX,cY = 0,0
@@ -229,17 +233,14 @@ def solveAngles(PP,Roll,Pitch,a,b):
     return q
 
 
-#delay tracking configurations
-useThread = False
-
 #delay tracking
 def main():
-    L_values, U_values = getValues(cap)
+    L_values, U_values = getValues()
     
     #loop starts here
     while True:
         PP = processImage(
-            cap,[L_values,U_values],axisFilter,[xScaling,yScaling,zScaling],
+            [L_values,U_values],axisFilter,[xScaling,yScaling,zScaling],
             zDefaultVal,zMax
             )
         q = solveAngles(PP,tiltVals[2],tiltVals[3],a,b)
@@ -258,5 +259,5 @@ def main():
 
 if __name__=="__main__":
     main()
-    cap.stop() #type: ignore
+    if useThread: cap.stop() #type: ignore
     pca.deinit()

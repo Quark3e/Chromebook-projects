@@ -155,7 +155,7 @@ cv2.destroyAllWindows()
 
 if useDefaultLimit:
     if defaultLimitIndex == 0:
-        L_values, U_values = [64, 73, 88], [103, 213, 255] #plexgear
+        L_values, U_values = [53, 66, 73], [93, 231, 197] #plexgear
     elif defaultLimitIndex == 1:
         L_values, U_values = [68, 207, 92], [112, 255, 238] #trust exis webcam
 
@@ -192,7 +192,7 @@ def readAccelerometer():
 
 
 zMax = 300
-a, b, Y = 90, 0.1, 90
+a, b, Y = 0, 0, 0
 PP = [0.1]*3
 coord = ""
 
@@ -246,7 +246,6 @@ while True:
         elif bPos: a = toRadians(Roll * 0.9 + toDegrees(a) * 0.1)
     isReachable=[True]
     q = getAngles(PP,a,b,Y,'-',positionIsReachable=isReachable)
-
     servoExceeded = False
     # "under" = given < 0
     # "over" = given < 180

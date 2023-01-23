@@ -220,7 +220,6 @@ def sendToServo(
         servoExceeded,whichServoExceeded,typeOfExceeded
         )
     if servoExceeded: return
-
     total_iteration = 135
     if mode==0:
         for x in range(6): 
