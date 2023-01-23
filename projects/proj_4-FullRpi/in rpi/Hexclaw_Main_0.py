@@ -19,7 +19,7 @@ from threading import Thread
 
 sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
 
-from IK_module import sendToServo, toDegrees, toRadians, getAngles
+from IK_module import *
 
 
 class WebcamVideoStream:
@@ -75,12 +75,14 @@ for i in range(6):
     servo[i].set_pulse_width_range(500, 2500)
 
 
-servo[0].angle = 90
-servo[1].angle = 90
-servo[2].angle = 180 - 90
-servo[3].angle = 90
-servo[4].angle = 180 - 90
+servo[0].angle = 108
+servo[1].angle = 15
+servo[2].angle = 180 - 25
+servo[3].angle = 45
+servo[4].angle = 180 - 0
 servo[5].angle = 90
+
+sendToServo(servo,[90,115,145,90,125,90],0,mode=2)
 
 # plt.xlabel("x - axis")
 # plt.ylabel("y - axis")
@@ -261,6 +263,7 @@ while True:
         
 if showImage:
     cv2.destroyAllWindows()
+sendToServo(servo,[135,15,155,45,180,90],1,mode=2)
 cap.stop()
 pca.deinit()
 

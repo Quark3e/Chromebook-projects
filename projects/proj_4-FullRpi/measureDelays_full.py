@@ -26,13 +26,14 @@ class WebcamVideoStream:
         self.stopped = False
     def start(self):
         Thread(target=self.update, args=()).start()
+        return self
     def update(self):
         while True:
             if self.stopped:
                 return
             (self.grabbed, self.frame) = self.stream.read()
     def read(self):
-        return self.frame
+        return self.grabbed, self.frame
     def stop(self):
         self.stopped = True
 
@@ -84,6 +85,7 @@ zMax = 300
 if useThread: cap = WebcamVideoStream(src=0).start()
 elif not useThread: cap = cv2.VideoCapture(0)
 
+
 showImage = False
 globalPrint = False
 printCoord = False
@@ -126,7 +128,7 @@ def getValues(varLists=[False,1]):
     cv2.createTrackbar("U - S", "Webcam - XY", 255, 255, nothing)
     cv2.createTrackbar("U - V", "Webcam - XY", 255, 255, nothing)
     while True:
-        frame = cap.read()
+        ret, frame = cap.read()
         frame = cv2.flip(frame, 1 ) 
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         l_h = cv2.getTrackbarPos("L - H", "Webcam - XY")
@@ -188,7 +190,7 @@ def processImage(cValues,axisFilter,axisScal,zDefaultVal,zMax,newSize=(640,480))
     readAccelerometer()
     cX,cY = 0,0
     PP = [0,0,0]
-    imgTemp = cap.read()
+    ret, imgTemp = cap.read()
     img = cv2.resize(imgTemp,newSize)
     img = cv2.flip(img,1)
     into_hsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
@@ -260,5 +262,6 @@ def main():
 
 if __name__=="__main__":
     main()
+    sendToServo(servo,[135,15,155,45,180,90],1,mode=2)
     if useThread: cap.stop() #type: ignore
     pca.deinit()
