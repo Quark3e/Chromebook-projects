@@ -14,6 +14,7 @@ import math
 import adafruit_adxl34x #type: ignore
 import sys
 from threading import Thread
+from datetime import datetime
 import RPi.GPIO as GPIO #type: ignore
 
 sys.path.append('home/py/Chromebook-projects/projects/proj_4-FullRpi')
@@ -124,7 +125,7 @@ for key,_ in timeResults.items():
 
 def configure_plots():
     global ax, fig
-    fig = plt.figure(figsize=(14, 6))
+    fig = plt.figure(figsize=(19, 6))
     ax = [0,0,0,0]
     
     for i in range(len(ax)):
@@ -136,7 +137,7 @@ def configure_plots():
         ax[i].set_ylabel("read delay [milliseconds]")
         ax[i].grid()
 
-    plt.title("Delay measurements")
+    # plt.title("Delay measurements")
 
 
 #functions
@@ -201,7 +202,7 @@ def getValues(varLists=[False,1]):
     cv2.destroyAllWindows()
 
     if varLists[0]:
-        if varLists[1] == 0: L_values, U_values = [64, 133, 45], [96, 255, 174] #plexgear
+        if varLists[1] == 0: L_values, U_values = [71, 129, 44], [102, 221, 142] #plexgear
         elif varLists[1] == 1: L_values, U_values = [68, 207, 92], [112, 255, 238] #trust exis webcam
 
     return L_values, U_values #type: ignore
@@ -297,7 +298,7 @@ def main():
     #loop starts here
     for i in range(100):
         print(i,end='')
-        if toTest>=0:
+        if i>=0:
             toTest=True
             print(" testing...",end='')
         PP = processImage(
@@ -321,11 +322,17 @@ def main():
 
     n=0
     for key,val in timeResults.items():
-        ax[n].plot(xValues,val,linestyle='solid') #type: ignore
+        ax[n].plot(xValues,val,linestyle='solid',label="raw") #type: ignore
+        ax[n].axhline(y=(sum(val)/len(val)),color="red",linestyle='-',label=f"avg:{round(sum(val)/len(val))}ms")
         n+=1
-    fig.legend(loc=2)
-    relativePath = "/home/pi/Chromebook-projects/projects/proj_4-FullRpi/"
-    plt.savefig(relativePath+"Hexclaw_Main_0_sendDelay.png")
+    fig.tight_layout(pad=5.0)
+    fig.legend()
+
+    currentDate = str(datetime.now()).replace(" ",";")
+    relativePath = "/home/pi/Chromebook-projects/projects/proj_4-FullRpi/measureDelays_files/media/"
+    if useThread: fileTitle = "HM0_delays_"
+    elif not useThread: fileTitle = "HM1_delays_"
+    plt.savefig(relativePath+fileTitle+currentDate+".png")
     plt.show()
             
     return
