@@ -317,6 +317,7 @@ def main():
         if cv2.waitKey(1) == 27:
             break
         print()
+    #loop ends here
 
     n=0
     for key,val in timeResults.items():
@@ -326,8 +327,6 @@ def main():
     relativePath = "/home/pi/Chromebook-projects/projects/proj_4-FullRpi/"
     plt.savefig(relativePath+"Hexclaw_Main_0_sendDelay.png")
     plt.show()
-
-    #loop ends here
             
     return
 
