@@ -76,7 +76,7 @@ sendToServo(servo,[90,115,145,90,125,90],0,mode=2)
 
 
 #delay tracking configurations
-useThread = False
+useThread = True
 
 #variables
 axisFilter = 0.3
@@ -171,7 +171,7 @@ def getValues(varLists=[False,1]):
     cv2.destroyAllWindows()
 
     if varLists[0]:
-        if varLists[1] == 0: L_values, U_values = [53, 66, 73], [93, 231, 197] #plexgear
+        if varLists[1] == 0: L_values, U_values = [64, 133, 45], [96, 255, 174] #plexgear
         elif varLists[1] == 1: L_values, U_values = [68, 207, 92], [112, 255, 238] #trust exis webcam
 
     return L_values, U_values #type: ignore
@@ -252,6 +252,7 @@ def main():
             [L_values,U_values],axisFilter,[xScaling,yScaling,zScaling],
             zDefaultVal,zMax
             )
+        print(PP)
         q = solveAngles(PP,tiltVals[2],tiltVals[3],a,b)
 
         sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)    
