@@ -110,9 +110,39 @@ a,b,Y = 0, 0, 0 #unit: radians
 PP = [0,200,150]
 coord=""
 
+#time measuring definitions
+timeResults = {
+    "readAccel": [],
+    "processImg": [],
+    "solveAngles": [],
+    "sendAngles": []
+}
+testKeyNames = []
+
+for key,_ in timeResults.items():
+    testKeyNames.append(key)
+
+def configure_plots():
+    global ax, fig
+    fig = plt.figure(figsize=(14, 6))
+    ax = [0,0,0,0]
+    
+    for i in range(len(ax)):
+        ax[i] = fig.add_subplot(1,4,i+1) #type: ignore
+        ax[i].set_xlim(0,100) #type: ignore
+        # ax[i].set_ylim(0,2) #type: ignore
+        ax[i].set_title(testKeyNames[i])
+        ax[i].set_xlabel("iterations")
+        ax[i].set_ylabel("read delay [milliseconds]")
+        ax[i].grid()
+
+    plt.title("Delay measurements")
+
+
 #functions
 def nothing(x):
     pass
+
 
 def getValues(varLists=[False,1]):
     """Read and configure hsv values for colour tracking
@@ -191,9 +221,14 @@ def readAccelerometer():
     tiltVals[3] = (1-accelFilter)*tiltVals[3] + accelFilter*tiltVals[1]
     return axisVals, tiltVals
 
-def processImage(cValues,axisFilter,axisScal,zDefaultVal,zMax,newSize=(640,480)):
-
-    readAccelerometer()
+def processImage(cValues,axisFilter,axisScal,zDefaultVal,zMax,newSize=(640,480),testT=False):
+    if testT:
+        global timeResults
+        t1 = time.perf_counter()
+        readAccelerometer()
+        t2 = time.perf_counter()
+        timeResults["readAccel"].append(round((t2-t1)*1000))
+        t1 = time.perf_counter()
     cX,cY = 0,0
     PP = [0,0,0]
     ret, imgTemp = cap.read()
@@ -227,9 +262,15 @@ def processImage(cValues,axisFilter,axisScal,zDefaultVal,zMax,newSize=(640,480))
     if showImage:
         stacked = np.hstack((img,filtered))
         cv2.imshow('Windows',cv2.resize(stacked,None,fx=0.7,fy=0.7)) #type: ignore
+    if testT:
+        t2 = time.perf_counter()
+        timeResults["processImg"].append(round((t2-t1)*1000))
     return PP
 
-def solveAngles(PP,Roll,Pitch,a,b):
+def solveAngles(PP,Roll,Pitch,a,b,testT=False):
+    if testT:
+        global timeResults
+        t1 = time.perf_counter()
     bPos = False
     if Pitch <= 90 and Pitch >= -90:
         b = toRadians(Pitch * 0.9 + toDegrees(b) * 0.1)
@@ -239,28 +280,53 @@ def solveAngles(PP,Roll,Pitch,a,b):
         if not bPos: a = toRadians(0 - (Roll * 0.9 + toDegrees(a) * 0.1))
         elif bPos: a = toRadians(Roll * 0.9 + toDegrees(a) * 0.1)
     q = getAngles(PP,a,b,Y,'-')
+    if testT:
+        t2 = time.perf_counter()
+        timeResults["solveAngles"].append(round((t2-t1)*1000))
     return q
 
 
 #delay tracking
 def main():
+    global timeResults, fig
+    configure_plots()
+    xValues = [x for x in range(100)]
+
     L_values, U_values = getValues()
-    
+    toTest = False
     #loop starts here
-    while True:
+    for i in range(-50,100):
+        print(i,end='')
+        if toTest>=0:
+            toTest=True
+            print(" testing...",end='')
         PP = processImage(
             [L_values,U_values],axisFilter,[xScaling,yScaling,zScaling],
-            zDefaultVal,zMax
+            zDefaultVal,zMax,testT=toTest
             )
-        print(PP)
-        q = solveAngles(PP,tiltVals[2],tiltVals[3],a,b)
-
+        # print(PP)
+        q = solveAngles(PP,tiltVals[2],tiltVals[3],a,b,testT=toTest)
+        if toTest:
+            t1 = time.perf_counter()
         sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)    
-
+        if toTest:
+            t2 = time.perf_counter()
+            timeResults["sendAngles"].append(round((t2-t1)*1000))
         if showImage:
             cv2.destroyAllWindows()
         if cv2.waitKey(1) == 27:
             break
+        print()
+
+    n=0
+    for key,val in timeResults.items():
+        ax[n].plot(xValues,val,linestyle='solid')
+        n+=1
+    fig.legend(loc=2)
+    relativePath = "/home/pi/Chromebook-projects/projects/proj_4-FullRpi/"
+    plt.savefig(relativePath+"Hexclaw_Main_0_sendDelay.png")
+    plt.show()
+
     #loop ends here
             
     return
