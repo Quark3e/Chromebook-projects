@@ -313,6 +313,7 @@ def runFromFile(filePath, servo):
                 if orients==None:
                     print(f"no orientation found for {coordinate}")
                 else:
+                    orients = [toRadians(var) for var in orients]
                     q = getAngles(coordinate,orients[0],orients[1],orients[2],'-',positionIsReachable=isReachable)
                     q = [toDegrees(angle) for angle in q]
                     if isReachable[0]: sendToServo(servo,q,0,mode=servoMode,useDefault=True)
