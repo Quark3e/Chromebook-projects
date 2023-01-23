@@ -295,7 +295,7 @@ def main():
     L_values, U_values = getValues()
     toTest = False
     #loop starts here
-    for i in range(-50,100):
+    for i in range(100):
         print(i,end='')
         if toTest>=0:
             toTest=True
