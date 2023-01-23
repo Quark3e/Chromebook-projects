@@ -1,4 +1,4 @@
-#!/urs/bin/env python3
+#!/usr/bin/env python3
 
 #/*
 # Measure the delays for the fullprocess of Hexclaw_Main_0 and 1
@@ -68,6 +68,8 @@ servo[5].angle = 90
 sendToServo(servo,[90,115,145,90,125,90],0,mode=2)
 
 
+#delay tracking configurations
+useThread = False
 
 #variables
 axisFilter = 0.3
@@ -78,7 +80,8 @@ brightVal = 75
 zDefaultVal = 3_000_000
 zMax = 300
 
-cap = WebcamVideoStream(src=0).start()
+if useThread: cap = WebcamVideoStream(src=0).start()
+elif not useThread: cap = VideoCapture(0)
 
 showImage = False
 globalPrint = False
@@ -230,9 +233,6 @@ def solveAngles(PP,Roll,Pitch,a,b):
     return q
 
 
-#delay tracking configurations
-useThread = False
-
 #delay tracking
 def main():
     L_values, U_values = getValues()
@@ -259,5 +259,5 @@ def main():
 
 if __name__=="__main__":
     main()
-    cap.stop() #type: ignore
+    if useThread: cap.stop() #type: ignore
     pca.deinit()
