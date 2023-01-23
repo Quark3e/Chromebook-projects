@@ -304,7 +304,7 @@ def main():
             [L_values,U_values],axisFilter,[xScaling,yScaling,zScaling],
             zDefaultVal,zMax,testT=toTest
             )
-        # print(PP)
+        print(" ",PP,end='')
         q = solveAngles(PP,tiltVals[2],tiltVals[3],a,b,testT=toTest)
         if toTest:
             t1 = time.perf_counter()
