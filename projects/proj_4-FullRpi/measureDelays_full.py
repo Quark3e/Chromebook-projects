@@ -80,8 +80,9 @@ brightVal = 75
 zDefaultVal = 3_000_000
 zMax = 300
 
+
 if useThread: cap = WebcamVideoStream(src=0).start()
-elif not useThread: cap = VideoCapture(0)
+elif not useThread: cap = cv2.VideoCapture(0)
 
 showImage = False
 globalPrint = False
