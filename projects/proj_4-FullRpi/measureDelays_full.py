@@ -264,7 +264,7 @@ def processImage(cValues,axisFilter,axisScal,zDefaultVal,zMax,newSize=(640,480),
         cv2.imshow('Windows',cv2.resize(stacked,None,fx=0.7,fy=0.7)) #type: ignore
     if testT:
         t2 = time.perf_counter()
-        timeResults["processImg"].append(round((t2-t1)*1000))
+        timeResults["processImg"].append(round((t2-t1)*1000)) #type: ignore
     return PP
 
 def solveAngles(PP,Roll,Pitch,a,b,testT=False):
@@ -282,7 +282,7 @@ def solveAngles(PP,Roll,Pitch,a,b,testT=False):
     q = getAngles(PP,a,b,Y,'-')
     if testT:
         t2 = time.perf_counter()
-        timeResults["solveAngles"].append(round((t2-t1)*1000))
+        timeResults["solveAngles"].append(round((t2-t1)*1000)) #type: ignore
     return q
 
 
@@ -311,7 +311,7 @@ def main():
         sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)    
         if toTest:
             t2 = time.perf_counter()
-            timeResults["sendAngles"].append(round((t2-t1)*1000))
+            timeResults["sendAngles"].append(round((t2-t1)*1000)) #type: ignore
         if showImage:
             cv2.destroyAllWindows()
         if cv2.waitKey(1) == 27:
@@ -321,7 +321,7 @@ def main():
 
     n=0
     for key,val in timeResults.items():
-        ax[n].plot(xValues,val,linestyle='solid')
+        ax[n].plot(xValues,val,linestyle='solid') #type: ignore
         n+=1
     fig.legend(loc=2)
     relativePath = "/home/pi/Chromebook-projects/projects/proj_4-FullRpi/"
