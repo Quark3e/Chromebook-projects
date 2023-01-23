@@ -132,10 +132,10 @@ def configure_plots():
         ax[i] = fig.add_subplot(1,4,i+1) #type: ignore
         ax[i].set_xlim(0,100) #type: ignore
         # ax[i].set_ylim(0,2) #type: ignore
-        ax[i].set_title(testKeyNames[i])
-        ax[i].set_xlabel("iterations")
-        ax[i].set_ylabel("read delay [milliseconds]")
-        ax[i].grid()
+        ax[i].set_title(testKeyNames[i]) #type: ignore
+        ax[i].set_xlabel("iterations") #type: ignore
+        ax[i].set_ylabel("read delay [milliseconds]") #type: ignore
+        ax[i].grid() #type: ignore
 
     # plt.title("Delay measurements")
 
@@ -323,7 +323,7 @@ def main():
     n=0
     for key,val in timeResults.items():
         ax[n].plot(xValues,val,linestyle='solid',label="raw") #type: ignore
-        ax[n].axhline(y=(sum(val)/len(val)),color="red",linestyle='-',label=f"avg:{round(sum(val)/len(val))}ms")
+        ax[n].axhline(y=(sum(val)/len(val)),color="red",linestyle='-',label=f"avg:{round(sum(val)/len(val))}ms") #type: ignore
         n+=1
     fig.tight_layout(pad=5.0)
     fig.legend()
@@ -332,7 +332,7 @@ def main():
     relativePath = "/home/pi/Chromebook-projects/projects/proj_4-FullRpi/measureDelays_files/media/"
     if useThread: fileTitle = "HM0_delays_"
     elif not useThread: fileTitle = "HM1_delays_"
-    plt.savefig(relativePath+fileTitle+currentDate+".png")
+    plt.savefig(relativePath+fileTitle+currentDate+".png") #type: ignore
     plt.show()
             
     return
