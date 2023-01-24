@@ -114,7 +114,16 @@ coord=""
 #time measuring definitions
 timeResults = {
     "readAccel": [],
-    "processImg": [],
+    "processImg": {
+        "pullImg": [],
+        "resizeImg": [],
+        "useHSV_limits": [],
+        "makeFiltered": [],
+        "morphOperations": [],
+        "getThresh": [],
+        "findContours": [],
+        "contourLoop": []
+    },
     "solveAngles": [],
     "sendAngles": []
 }
@@ -123,6 +132,8 @@ testKeyNames = []
 for key,_ in timeResults.items():
     testKeyNames.append(key)
 
+xRange = 100
+
 def configure_plots():
     global ax, fig
     fig = plt.figure(figsize=(19, 6))
@@ -130,7 +141,7 @@ def configure_plots():
     
     for i in range(len(ax)):
         ax[i] = fig.add_subplot(1,4,i+1) #type: ignore
-        ax[i].set_xlim(0,100) #type: ignore
+        ax[i].set_xlim(0,xRange) #type: ignore
         # ax[i].set_ylim(0,2) #type: ignore
         ax[i].set_title(testKeyNames[i]) #type: ignore
         ax[i].set_xlabel("iterations") #type: ignore
@@ -233,19 +244,54 @@ def processImage(cValues,axisFilter,axisScal,zDefaultVal,zMax,newSize=(640,480),
     cX,cY = 0,0
     PP = [0,0,0]
     ret, imgTemp = cap.read()
+    if testT:
+        t2 = time.perf_counter()
+        timeResults["processImg"]["pullImg"].append(round((t2-t1)*1000)) #type: ignore
+        t1 = time.perf_counter()
+
     img = cv2.resize(imgTemp,newSize)
     img = cv2.flip(img,1)
     into_hsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+    if testT:
+        t2 = time.perf_counter()
+        timeResults["processImg"]["resizeImg"].append(round((t2-t1)*1000)) #type: ignore
+        t1 = time.perf_counter()
+
     L_limit = np.array(cValues[0])
     U_limit = np.array(cValues[1])
     threshold = cv2.inRange(into_hsv,L_limit,U_limit)
+    if testT:
+        t2 = time.perf_counter()
+        timeResults["processImg"]["useHSV_limits"].append(round((t2-t1)*1000)) #type: ignore
+        t1 = time.perf_counter()
+
     filtered = cv2.bitwise_and(img,img,mask=threshold)
     filtered[filtered!=0] = 255
+    if testT:
+        t2 = time.perf_counter()
+        timeResults["processImg"]["makeFiltered"].append(round((t2-t1)*1000)) #type: ignore
+        t1 = time.perf_counter()
+
     filtered = cv2.erode(filtered,np.ones((5,5),np.uint8),iterations=1)
     filtered = cv2.dilate(filtered,np.ones((5,5),np.uint8),iterations=1)
+    if testT:
+        t2 = time.perf_counter()
+        timeResults["processImg"]["morphOperations"].append(round((t2-t1)*1000)) #type: ignore
+        t1 = time.perf_counter()
+
     gray_image = cv2.cvtColor(filtered,cv2.COLOR_BGR2GRAY)
     ret,thresh = cv2.threshold(gray_image,127,255,0)
+    if testT:
+        t2 = time.perf_counter()
+        timeResults["processImg"]["getThresh"].append(round((t2-t1)*1000)) #type: ignore
+        t1 = time.perf_counter()
+
     contours,hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
+    if testT:
+        t2 = time.perf_counter()
+        timeResults["processImg"]["findContours"].append(round((t2-t1)*1000)) #type: ignore
+        t1 = time.perf_counter()
+
     for c in contours:
         M = cv2.moments(c)
         # M = cv2.moments(thresh)
@@ -260,12 +306,14 @@ def processImage(cValues,axisFilter,axisScal,zDefaultVal,zMax,newSize=(640,480),
         PP[0] = axisFilter*axisScal[0]*(cX-newSize[0]*0.5)+(1-axisFilter)*PP[0]
         PP[1] = axisFilter*axisScal[1]*(newSize[1]-cY)+(1-axisFilter)*PP[1]
         PP[2] = axisFilter*axisScal[2]*(zMax-(M["m00"]/zDefaultVal)*zMax)+(1-axisFilter)*PP[2]
+    if testT:
+        t2 = time.perf_counter()
+        timeResults["processImg"]["contourLoop"].append(round((t2-t1)*1000)) #type: ignore
+
     if showImage:
         stacked = np.hstack((img,filtered))
         cv2.imshow('Windows',cv2.resize(stacked,None,fx=0.7,fy=0.7)) #type: ignore
-    if testT:
-        t2 = time.perf_counter()
-        timeResults["processImg"].append(round((t2-t1)*1000)) #type: ignore
+
     return PP
 
 def solveAngles(PP,Roll,Pitch,a,b,testT=False):
@@ -291,12 +339,12 @@ def solveAngles(PP,Roll,Pitch,a,b,testT=False):
 def main():
     global timeResults, fig
     configure_plots()
-    xValues = [x for x in range(100)]
+    xValues = [x for x in range(xRange)]
 
-    L_values, U_values = getValues()
+    L_values, U_values = [71, 88, 23], [103, 255, 215] #getValues()
     toTest = False
     #loop starts here
-    for i in range(100):
+    for i in range(xRange):
         print(i,end='')
         if i>=0:
             toTest=True
@@ -322,11 +370,25 @@ def main():
 
     n=0
     for key,val in timeResults.items():
-        ax[n].plot(xValues,val,linestyle='solid',label="raw") #type: ignore
-        ax[n].axhline(y=(sum(val)/len(val)),color="red",linestyle='-',label=f"avg:{round(sum(val)/len(val))}ms") #type: ignore
+        if key=="processImg":
+            for key2,val2 in timeResults["processImg"].items():
+                sumTime = 0
+                ax[n].plot(xValues,val2,linestyle='solid',label=key2) #type: ignore
+                # ax[n].axhline(
+                #     y=(sum(val2)/len(val2)),color="red",linestyle='-',
+                #     label=f"avg:{round(sum(val2)/len(val2))}ms"
+                #     ) #type: ignore
+                sumTime+=sum(val2)/len(val2)
+            ax[n].text(
+                0.05, 0.95, str(sumTime)+"ms",
+                transform=ax[n].transAxes, fontsize=14, verticalalignment='top')
+        else:
+            ax[n].plot(xValues,val,linestyle='solid',label="raw") #type: ignore
+            ax[n].axhline(y=(sum(val)/len(val)),color="red",linestyle='-',label=f"avg:{round(sum(val)/len(val))}ms") #type: ignore
+        ax[n].legend(loc='best',framealpha=0.3)
         n+=1
     fig.tight_layout(pad=5.0)
-    fig.legend()
+    # fig.legend()
 
     currentDate = str(datetime.now()).replace(" ",";")
     relativePath = "/home/pi/Chromebook-projects/projects/proj_4-FullRpi/hexclaw_files/measureDelays_files/media/"
