@@ -61,6 +61,7 @@ def getNumFromString(string, sepChar):
     Only spaces are allowed in the string beside the numbers, no other characters than sepChar.
     ## Parameters:
         - string (str): string of text to extract numbers from
+            ex: "1:2:3:4"
         - sepChar (str): string/char of character that separates the numbers
     ## Returns:
         - list of extracted numbers as floats
@@ -124,7 +125,7 @@ def solveListDifference(listOfLists, mode=1, deltaList=[0]):
     return deltaVal
 
 def findVal(listToCheck, mode=0):
-    """Goes through list gives the desired value
+    """Goes through list and return the desired element
 
     ## Parameters:
         - listToCheck [unit: int/float]: the list to go through.
