@@ -329,7 +329,7 @@ def main():
     fig.legend()
 
     currentDate = str(datetime.now()).replace(" ",";")
-    relativePath = "/home/pi/Chromebook-projects/projects/proj_4-FullRpi/measureDelays_files/media/"
+    relativePath = "/home/pi/Chromebook-projects/projects/proj_4-FullRpi/hexclaw_files/measureDelays_files/media/"
     if useThread: fileTitle = "HM0_delays_"
     elif not useThread: fileTitle = "HM1_delays_"
     plt.savefig(relativePath+fileTitle+currentDate+".png") #type: ignore

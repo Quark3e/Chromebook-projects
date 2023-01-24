@@ -5,22 +5,9 @@ import time
 import math
 from IK_module import toDegrees, toRadians
 
-fullRange = [31, 31]
-centerPos = [15, 15]
-# toDraw = fullRange[0]*[fullRange[1]*[' ']]
-# toDraw = [
-#     [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-#     [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-#     [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-#     [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-#     [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-#     [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-#     [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-#     [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-#     [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-#     [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '],
-#     [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ']
-# ]
+fullRange = [180, 180]
+centerPos = [90, 90]
+
 toDraw = []
 for _ in range(fullRange[0]):
     # toDraw.append(fullRange[1]*[' '])
@@ -38,21 +25,21 @@ def removeCopies(oldList, occurance={}):
     ## Parameters:
     - oldList: list of items to remove copies from
     - occurance (optional): mutable dictionary stating how many times iterations of copies occur
-        - NOTE: the first iteration is counted, so [1, 1] would returns 1: 2
+        - `Note`: the first iteration is counted, so [1, 1] would returns 1: 2
     ## Returns:
-    - cleaned list without copies.
+    - cleaned list without copies
     """
     temp = []
     for a in range(len(oldList)):
+        print(a)
         base = oldList[a]
         for b in range(len(temp)):
             if temp[b]==base:
-                if base in occurance.keys(): occurance[base]+=1
-                else: occurance[base]=2
+                # if base in occurance.keys(): occurance[base]+=1
+                # else: occurance[base]=2
                 break
         else:
             temp.append(base)
-
     return temp
 
 
@@ -63,14 +50,15 @@ def check(val):
     if val[0]<=fullRange[0]-1 and val[0]>=0 and val[1]<=fullRange[1]-1 and val[1]>=0:
         # toDraw[val[0]][val[1]]='o'
         toDraw[val[1]]=toDraw[val[1]][:val[0]]+" "+toDraw[val[1]][val[0]+1:]
-        os.system("clear")
+        # os.system("clear")
         # for lst in toDraw:
         #     print(addSpace(lst))
         print(val)
-        time.sleep(0.01)
+        # time.sleep(0.01)
+        if val == [4,1]: input("point reached. paused...")
     return
 
-def pathFind(axisRange, startPos, method=2):
+def pathFind(axisRange, startPos, method=3):
     """Iterate through 2d array/list in a pattern
     ## Parameters:
     - axisRange [unit: integers]: length of biggest axis
@@ -101,18 +89,44 @@ def pathFind(axisRange, startPos, method=2):
                     startPos[0]+round(math.sin(toRadians(angle))*radius),
                     startPos[1]+round(math.cos(toRadians(angle))*radius)
                 ])
+                # lst1.append([
+                #     startPos[0]+round(math.sin(toRadians(angle))*radius),
+                #     startPos[1]+round(math.cos(toRadians(angle))*radius)
+                # ])
+    if method==4:
+        print(len(lst1))
+        for _ in lst1:
+            check(_)
     t2 = time.perf_counter()
     print(f"Total time: {round((t2-t1)*1000)}ms")
     return
 
+def readOrientPath(listFile):
+    global lst1
+
+    lst1 = eval(listFile.readline())
+
+def writeOrientPath(listFile):
+    global lst1
+    print(len(lst1))
+    listFile.write(str(removeCopies(lst1)))
+    print(len(removeCopies(lst1)))
+    print("finished writing")
+    return
 
 def main():
     # toDraw[centerPos[0]][centerPos[1]] = 's'
     toDraw[centerPos[1]]=toDraw[centerPos[1]][:centerPos[0]]+"o"+toDraw[centerPos[1]][centerPos[0]+1:]
 
+    global lst1
+    lst1=[]
     # for lst in toDraw:
     #     print(lst)
+    # pathListFile = open("findOrientPath.dat", "r")
+    # readOrientPath(pathListFile)
     pathFind(fullRange[0],centerPos)
+    # writeOrientPath(pathListFile)
+
 
     return
 

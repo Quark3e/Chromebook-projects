@@ -117,7 +117,7 @@ def main():
 
 
     fig.legend(loc=2)
-    relativePath = "/home/pi/Chromebook-projects/projects/proj_4-FullRpi/"
+    relativePath = "/home/pi/Chromebook-projects/projects/proj_4-FullRpi/hexclaw_files/"
     # plt.savefig(relativePath+"PCA9685_sendDelay.png")
     plt.show()
 
