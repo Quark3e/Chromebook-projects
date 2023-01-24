@@ -379,13 +379,13 @@ def main():
                 #     label=f"avg:{round(sum(val2)/len(val2))}ms"
                 #     ) #type: ignore
                 sumTime+=sum(val2)/len(val2)
-            ax[n].text(
-                0.05, 0.95, str(sumTime)+"ms",
-                transform=ax[n].transAxes, fontsize=14, verticalalignment='top')
+            ax[n].text( #type: ignore
+                0.05, 0.95, str(sumTime)+"ms", #type: ignore
+                transform=ax[n].transAxes, fontsize=14, verticalalignment='top') #type: ignore
         else:
             ax[n].plot(xValues,val,linestyle='solid',label="raw") #type: ignore
             ax[n].axhline(y=(sum(val)/len(val)),color="red",linestyle='-',label=f"avg:{round(sum(val)/len(val))}ms") #type: ignore
-        ax[n].legend(loc='best',framealpha=0.3)
+        ax[n].legend(loc='best',framealpha=0.3) #type: ignore
         n+=1
     fig.tight_layout(pad=5.0)
     # fig.legend()
