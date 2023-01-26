@@ -136,17 +136,21 @@ def findVal(listToCheck, mode=0):
     ## Returns:
         - returns either value or index of desired element
     """
-    index, val = 0, listToCheck[0]
-    for i in range(1,len(listToCheck)):
-        if mode==0:
-            if listToCheck[i]>val:
-                val=listToCheck[i]
-                index=i
-        elif mode==1:
-            if listToCheck[i]<val:
-                val=listToCheck[i]
-                index=i
-    return [val, index]
+    try:
+        index, val = 0, listToCheck[0]
+        for i in range(1,len(listToCheck)):
+            if mode==0:
+                if listToCheck[i]>val:
+                    val=listToCheck[i]
+                    index=i
+            elif mode==1:
+                if listToCheck[i]<val:
+                    val=listToCheck[i]
+                    index=i
+        return [val, index]
+    except IndexError:
+        print("List is empty")
+        return [-1, 0]
 
 def PON(var):
     """find out if a number is Positive Or Negative

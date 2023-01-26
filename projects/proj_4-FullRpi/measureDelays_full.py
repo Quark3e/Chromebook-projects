@@ -87,15 +87,15 @@ accelFilter = 0.1
 xScaling, yScaling, zScaling = 0.8, 0.8, 1.2
 
 brightVal = 75
-zDefaultVal = 3_000_000
-zMax = 300
+maxArea = 35_000
+zMax = 400
+zOffset = 100
 
 
 if useThread: cap = WebcamVideoStream(src=0).start()
 elif not useThread: cap = cv2.VideoCapture(0)
 
-
-showImage = True    
+showImage = False
 globalPrint = False
 printCoord = False
 
@@ -237,7 +237,7 @@ def readAccelerometer():
     tiltVals[3] = (1-accelFilter)*tiltVals[3] + accelFilter*tiltVals[1]
     return axisVals, tiltVals
 
-def processImage(cValues,axisFilter,axisScal,zDefaultVal,zMax,newSize=(640,480),testT=False):
+def processImage(cValues,axisFilter,axisScal,maxArea,zMax,newSize=(640,480),testT=False,offsets=[0,0,0]):
     if testT:
         global timeResults
         t1 = time.perf_counter()
@@ -276,13 +276,13 @@ def processImage(cValues,axisFilter,axisScal,zDefaultVal,zMax,newSize=(640,480),
         timeResults["processImg"]["makeFiltered"].append(round((t2-t1)*1000)) #type: ignore
         t1 = time.perf_counter()
 
-    filtered = cv2.erode(filtered,np.ones((5,5),np.uint8),iterations=1)
+    # filtered = cv2.erode(filtered,np.ones((5,5),np.uint8),iterations=1)
     if testT:
         t2 = time.perf_counter()
         timeResults["processImg"]["morphErode"].append(round((t2-t1)*1000)) #type: ignore
         t1 = time.perf_counter()
 
-    filtered = cv2.dilate(filtered,np.ones((5,5),np.uint8),iterations=1)
+    # filtered = cv2.dilate(filtered,np.ones((5,5),np.uint8),iterations=1)
     if testT:
         t2 = time.perf_counter()
         timeResults["processImg"]["morphDilate"].append(round((t2-t1)*1000)) #type: ignore
@@ -320,9 +320,10 @@ def processImage(cValues,axisFilter,axisScal,zDefaultVal,zMax,newSize=(640,480),
     cv2.circle(img,(cX,cY),5,(255,255,255),-1)
     cv2.putText(img,"center"+str(cv2.contourArea(c)),(cX-25,cY-25),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255),2)
     print("area:",cv2.contourArea(c))
-    PP[0] = axisFilter*axisScal[0]*(cX-newSize[0]*0.5)+(1-axisFilter)*PP[0]
-    PP[1] = axisFilter*axisScal[1]*(newSize[1]-cY)+(1-axisFilter)*PP[1]
-    PP[2] = axisFilter*axisScal[2]*(zMax-(M["m00"]/zDefaultVal)*zMax) + (1-axisFilter)*PP[2]
+    PP[0] = axisFilter*axisScal[0]*(cX-newSize[0]*0.5+offsets[0])+(1-axisFilter)*PP[0]
+    PP[1] = axisFilter*axisScal[1]*(newSize[1]-cY+offsets[1])+(1-axisFilter)*PP[1]
+    PP[2] = axisFilter*axisScal[2]*(zMax-(cv2.contourArea(c)/maxArea)*zMax+offsets[2]) + (1-axisFilter)*PP[2]
+    print(PP[2])
     #contours loop-end
 
     if testT:
@@ -361,19 +362,19 @@ def main():
 
     xValues = [x for x in range(xRange)]
     # L_values, U_values = getValues()
-    L_values, U_values = [63, 138, 45], [82, 255, 189] #getValues()
+    L_values, U_values = [45, 133, 68], [95, 255, 248] #getValues()
     toTest = False
     #loop starts here
-    for i in range(xRange):
-    # while True:
-        print(i,end='')
+    # for i in range(xRange):
+    while True:
+        # print(i,end='')
         if i>=0: toTest=True
         #     print(" testing...",end='')
         PP = processImage(
             [L_values,U_values],axisFilter,[xScaling,yScaling,zScaling],
-            zDefaultVal,zMax,testT=toTest
+            maxArea,zMax,testT=toTest,offsets=[0,0,zOffset]
             )
-        # print(" ",[round(axis) for axis in PP],end='')
+        print(" ",[round(axis) for axis in PP],end='')
         q = solveAngles(PP,tiltVals[2],tiltVals[3],a,b,testT=toTest)
         if toTest:
             t1 = time.perf_counter()
@@ -382,7 +383,7 @@ def main():
             t2 = time.perf_counter()
             timeResults["sendAngles"].append(round((t2-t1)*1000)) #type: ignore
         if cv2.waitKey(1) == 27:
-            break
+            return
         print()
     if showImage:
         cv2.destroyAllWindows()
@@ -410,7 +411,7 @@ def main():
             ax[n].legend(loc='upper right',framealpha=0.3) #type: ignore
             n+=1
         fig.tight_layout(pad=5.0)
-        fig.suptitle("with findVal(), no morphology; total delay: {:1.2f}ms".format(totalTime))
+        fig.suptitle("with findVal(), with morphology; total delay: {:1.2f}ms".format(totalTime))
 
         currentDate = str(datetime.now()).replace(" ",";")
         relativePath = "/home/pi/Chromebook-projects/projects/proj_4-FullRpi/hexclaw_files/measureDelays_files/media/"
