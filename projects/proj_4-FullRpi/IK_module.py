@@ -188,7 +188,8 @@ def sendToServo(
     mode = 0,
     servoExceeded=False,
     whichServoExceeded=[False,False,False,False,False,False],
-    typeOfExceeded=["null","null","null","null","null","null"]
+    typeOfExceeded=["null","null","null","null","null","null"],
+    printErrors=True
     ):
     """Sends angles in list \"new_rotation\" to servo motors evenly spaced out
 
@@ -218,7 +219,8 @@ def sendToServo(
     
     servoExceeded = exceedCheck(
         new_rotation,
-        servoExceeded,whichServoExceeded,typeOfExceeded
+        servoExceeded,whichServoExceeded,typeOfExceeded,
+        printErrors=printErrors
         )
     if servoExceeded: return
     total_iteration = 135
@@ -276,7 +278,7 @@ def findOrients(pos, startOrient=[0,0],Y=0):
 
     return None
 
-def exceedCheck(q, servoExceeded, whichServoExceeded, typeOfExceeded):
+def exceedCheck(q, servoExceeded, whichServoExceeded, typeOfExceeded, printErrors=True):
     """
     ### Parameters:
         - q: joints 1-6 in unit: NOTE:degrees
@@ -291,7 +293,7 @@ def exceedCheck(q, servoExceeded, whichServoExceeded, typeOfExceeded):
 
     if servoExceeded:
         for i in range(5):
-            if whichServoExceeded[i]: print("\tServo motor: q", i+1, " exceeded \"", typeOfExceeded[i], "\"", sep='')
+            if whichServoExceeded[i] and printErrors: print("\tServo motor: q", i+1, " exceeded \"", typeOfExceeded[i], "\"", sep='')
     
     return servoExceeded
 

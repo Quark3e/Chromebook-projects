@@ -162,7 +162,7 @@ cv2.destroyAllWindows()
 
 if useDefaultLimit:
     if defaultLimitIndex == 0:
-        L_values, U_values = [53, 66, 73], [93, 231, 197] #plexgear
+        L_values, U_values = [60, 147, 88], [100, 255, 169] #plexgear
     elif defaultLimitIndex == 1:
         L_values, U_values = [68, 207, 92], [112, 255, 238] #trust exis webcam
 

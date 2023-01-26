@@ -95,7 +95,7 @@ if useThread: cap = WebcamVideoStream(src=0).start()
 elif not useThread: cap = cv2.VideoCapture(0)
 
 
-showImage = False
+showImage = True    
 globalPrint = False
 printCoord = False
 
@@ -121,9 +121,11 @@ timeResults = {
         "resizeImg": [],
         "useHSV_limits": [],
         "makeFiltered": [],
-        "morphOperations": [],
+        "morphErode": [],
+        "morphDilate": [],
         "getThresh": [],
         "findContours": [],
+        "findBiggestContour": [],
         "contourLoop": []
     },
     "solveAngles": [],
@@ -193,7 +195,7 @@ def getValues(varLists=[False,1]):
         res = cv2.bitwise_and(frame, frame, mask=mask)
         mask_3 = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
         stacked = np.hstack((mask_3,frame,res))    
-        cv2.imshow('Webcam - XY',cv2.resize(stacked,None,fx=0.8,fy=0.8)) # type: ignore
+        cv2.imshow('Webcam - XY',cv2.resize(stacked,None,fx=0.4,fy=0.4)) # type: ignore
         key = cv2.waitKey(1)
         if key == 27:
             sys.exit()    
@@ -215,7 +217,7 @@ def getValues(varLists=[False,1]):
     cv2.destroyAllWindows()
 
     if varLists[0]:
-        if varLists[1] == 0: L_values, U_values = [71, 129, 44], [102, 221, 142] #plexgear
+        if varLists[1] == 0: L_values, U_values = [60, 147, 88], [100, 255, 169] #plexgear
         elif varLists[1] == 1: L_values, U_values = [68, 207, 92], [112, 255, 238] #trust exis webcam
 
     return L_values, U_values #type: ignore
@@ -275,10 +277,15 @@ def processImage(cValues,axisFilter,axisScal,zDefaultVal,zMax,newSize=(640,480),
         t1 = time.perf_counter()
 
     filtered = cv2.erode(filtered,np.ones((5,5),np.uint8),iterations=1)
+    if testT:
+        t2 = time.perf_counter()
+        timeResults["processImg"]["morphErode"].append(round((t2-t1)*1000)) #type: ignore
+        t1 = time.perf_counter()
+
     filtered = cv2.dilate(filtered,np.ones((5,5),np.uint8),iterations=1)
     if testT:
         t2 = time.perf_counter()
-        timeResults["processImg"]["morphOperations"].append(round((t2-t1)*1000)) #type: ignore
+        timeResults["processImg"]["morphDilate"].append(round((t2-t1)*1000)) #type: ignore
         t1 = time.perf_counter()
 
     gray_image = cv2.cvtColor(filtered,cv2.COLOR_BGR2GRAY)
@@ -294,20 +301,30 @@ def processImage(cValues,axisFilter,axisScal,zDefaultVal,zMax,newSize=(640,480),
         timeResults["processImg"]["findContours"].append(round((t2-t1)*1000)) #type: ignore
         t1 = time.perf_counter()
 
-    for c in contours:
-        M = cv2.moments(c)
-        # M = cv2.moments(thresh)
-        if M["m00"]!=0:
-            cX = int(M["m10"]/M["m00"])
-            cY = int(M["m01"]/M["m00"])
-        else:
-            # cX, cY
-            pass
-        cv2.circle(img,(cX,cY),5,(255,255,255),-1)
-        cv2.putText(img,"center"+str(cv2.contourArea(contours[0])),(cX-25,cY-25),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255),2)
-        PP[0] = axisFilter*axisScal[0]*(cX-newSize[0]*0.5)+(1-axisFilter)*PP[0]
-        PP[1] = axisFilter*axisScal[1]*(newSize[1]-cY)+(1-axisFilter)*PP[1]
-        PP[2] = axisFilter*axisScal[2]*(zMax-(M["m00"]/zDefaultVal)*zMax)+(1-axisFilter)*PP[2]
+    #contours loop-start
+    # for c in contours:
+    c = contours[findVal([cv2.contourArea(contour) for contour in contours])[1]] #return index of element with biggest contourArea() in contours
+    if testT:
+        t2 = time.perf_counter()
+        timeResults["processImg"]["findBiggestContour"].append(round((t2-t1)*1000)) #type: ignore
+        t1 = time.perf_counter()
+
+    M = cv2.moments(c)
+    # M = cv2.moments(thresh)
+    if M["m00"]!=0:
+        cX = int(M["m10"]/M["m00"])
+        cY = int(M["m01"]/M["m00"])
+    else:
+        # cX, cY
+        pass
+    cv2.circle(img,(cX,cY),5,(255,255,255),-1)
+    cv2.putText(img,"center"+str(cv2.contourArea(c)),(cX-25,cY-25),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255),2)
+    print("area:",cv2.contourArea(c))
+    PP[0] = axisFilter*axisScal[0]*(cX-newSize[0]*0.5)+(1-axisFilter)*PP[0]
+    PP[1] = axisFilter*axisScal[1]*(newSize[1]-cY)+(1-axisFilter)*PP[1]
+    PP[2] = axisFilter*axisScal[2]*(zMax-(M["m00"]/zDefaultVal)*zMax) + (1-axisFilter)*PP[2]
+    #contours loop-end
+
     if testT:
         t2 = time.perf_counter()
         timeResults["processImg"]["contourLoop"].append(round((t2-t1)*1000)) #type: ignore
@@ -330,7 +347,7 @@ def solveAngles(PP,Roll,Pitch,a,b,testT=False):
     if Roll <= 90 and Roll >= -90:
         if not bPos: a = toRadians(0 - (Roll * 0.9 + toDegrees(a) * 0.1))
         elif bPos: a = toRadians(Roll * 0.9 + toDegrees(a) * 0.1)
-    q = getAngles(PP,a,b,Y,'-')
+    q = getAngles(PP,a,b,Y,'-',printErrors=False)
     if testT:
         t2 = time.perf_counter()
         timeResults["solveAngles"].append(round((t2-t1)*1000)) #type: ignore
@@ -341,63 +358,66 @@ def solveAngles(PP,Roll,Pitch,a,b,testT=False):
 def main():
     global timeResults, fig
     configure_plots()
-    xValues = [x for x in range(xRange)]
 
-    L_values, U_values = [71, 88, 23], [103, 255, 215] #getValues()
+    xValues = [x for x in range(xRange)]
+    # L_values, U_values = getValues()
+    L_values, U_values = [63, 138, 45], [82, 255, 189] #getValues()
     toTest = False
     #loop starts here
     for i in range(xRange):
+    # while True:
         print(i,end='')
-        if i>=0:
-            toTest=True
-            print(" testing...",end='')
+        if i>=0: toTest=True
+        #     print(" testing...",end='')
         PP = processImage(
             [L_values,U_values],axisFilter,[xScaling,yScaling,zScaling],
             zDefaultVal,zMax,testT=toTest
             )
-        print(" ",PP,end='')
+        # print(" ",[round(axis) for axis in PP],end='')
         q = solveAngles(PP,tiltVals[2],tiltVals[3],a,b,testT=toTest)
         if toTest:
             t1 = time.perf_counter()
-        sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)    
+        sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0,printErrors=False)    
         if toTest:
             t2 = time.perf_counter()
             timeResults["sendAngles"].append(round((t2-t1)*1000)) #type: ignore
-        if showImage:
-            cv2.destroyAllWindows()
         if cv2.waitKey(1) == 27:
             break
         print()
+    if showImage:
+        cv2.destroyAllWindows()
     #loop ends here
+    totalTime, sumTime = 0, 0
+    if toTest:
+        n=0
+        for key,val in timeResults.items():
+            if key=="processImg":
+                for key2,val2 in timeResults["processImg"].items():
+                    ax[n].plot(xValues,val2,linestyle='solid',label=key2) #type: ignore
+                    # ax[n].axhline(
+                    #     y=(sum(val2)/len(val2)),color="red",linestyle='-',
+                    #     label=f"avg:{round(sum(val2)/len(val2))}ms"
+                    #     ) #type: ignore
+                    sumTime+=sum(val2)/len(val2)
+                ax[n].text( #type: ignore
+                    0.05, 0.95, str(round(sumTime))+"ms", #type: ignore
+                    transform=ax[n].transAxes, fontsize=14, verticalalignment='top') #type: ignore
+                totalTime+=sumTime
+            else:
+                ax[n].plot(xValues,val,linestyle='solid',label="raw") #type: ignore
+                ax[n].axhline(y=(sum(val)/len(val)),color="red",linestyle='-',label=f"avg:{round(sum(val)/len(val))}ms") #type: ignore
+                totalTime+=sum(val)/len(val)
+            ax[n].legend(loc='upper right',framealpha=0.3) #type: ignore
+            n+=1
+        fig.tight_layout(pad=5.0)
+        fig.suptitle("with findVal(), no morphology; total delay: {:1.2f}ms".format(totalTime))
 
-    n=0
-    for key,val in timeResults.items():
-        if key=="processImg":
-            for key2,val2 in timeResults["processImg"].items():
-                sumTime = 0
-                ax[n].plot(xValues,val2,linestyle='solid',label=key2) #type: ignore
-                # ax[n].axhline(
-                #     y=(sum(val2)/len(val2)),color="red",linestyle='-',
-                #     label=f"avg:{round(sum(val2)/len(val2))}ms"
-                #     ) #type: ignore
-                sumTime+=sum(val2)/len(val2)
-            ax[n].text( #type: ignore
-                0.05, 0.95, str(sumTime)+"ms", #type: ignore
-                transform=ax[n].transAxes, fontsize=14, verticalalignment='top') #type: ignore
-        else:
-            ax[n].plot(xValues,val,linestyle='solid',label="raw") #type: ignore
-            ax[n].axhline(y=(sum(val)/len(val)),color="red",linestyle='-',label=f"avg:{round(sum(val)/len(val))}ms") #type: ignore
-        ax[n].legend(loc='best',framealpha=0.3) #type: ignore
-        n+=1
-    fig.tight_layout(pad=5.0)
-    # fig.legend()
-
-    currentDate = str(datetime.now()).replace(" ",";")
-    relativePath = "/home/pi/Chromebook-projects/projects/proj_4-FullRpi/hexclaw_files/measureDelays_files/media/"
-    if useThread: fileTitle = "HM0_delays_"
-    elif not useThread: fileTitle = "HM1_delays_"
-    plt.savefig(relativePath+fileTitle+currentDate+".png") #type: ignore
-    plt.show()
+        currentDate = str(datetime.now()).replace(" ",";")
+        relativePath = "/home/pi/Chromebook-projects/projects/proj_4-FullRpi/hexclaw_files/measureDelays_files/media/"
+        if useThread: fileTitle = "HM0_delays_"
+        elif not useThread: fileTitle = "HM1_delays_"
+        plt.savefig(relativePath+fileTitle+currentDate+".png") #type: ignore
+        plt.show()
             
     return
 
