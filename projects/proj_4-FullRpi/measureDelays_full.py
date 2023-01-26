@@ -22,6 +22,8 @@ sys.path.append('home/py/Chromebook-projects/projects/proj_4-FullRpi')
 from IK_module import *
 
 class WebcamVideoStream:
+    """Pepega    
+    """
     def __init__(self, src=0):
         self.stream = cv2.VideoCapture(src)
         (self.grabbed, self.frame) = self.stream.read()
