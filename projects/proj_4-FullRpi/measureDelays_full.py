@@ -95,7 +95,7 @@ zOffset = 100
 if useThread: cap = WebcamVideoStream(src=0).start()
 elif not useThread: cap = cv2.VideoCapture(0)
 
-showImage = False
+showImage = True
 globalPrint = False
 printCoord = False
 
@@ -282,7 +282,7 @@ def processImage(cValues,axisFilter,axisScal,maxArea,zMax,newSize=(640,480),test
         timeResults["processImg"]["morphErode"].append(round((t2-t1)*1000)) #type: ignore
         t1 = time.perf_counter()
 
-    # filtered = cv2.dilate(filtered,np.ones((5,5),np.uint8),iterations=1)
+    filtered = cv2.dilate(filtered,np.ones((5,5),np.uint8),iterations=1)
     if testT:
         t2 = time.perf_counter()
         timeResults["processImg"]["morphDilate"].append(round((t2-t1)*1000)) #type: ignore
@@ -365,6 +365,7 @@ def main():
     L_values, U_values = [45, 133, 68], [95, 255, 248] #getValues()
     toTest = False
     #loop starts here
+    i=0
     # for i in range(xRange):
     while True:
         # print(i,end='')
@@ -411,7 +412,7 @@ def main():
             ax[n].legend(loc='upper right',framealpha=0.3) #type: ignore
             n+=1
         fig.tight_layout(pad=5.0)
-        fig.suptitle("with findVal(), with morphology; total delay: {:1.2f}ms".format(totalTime))
+        fig.suptitle("with findVal(), with only dilate(); total delay: {:1.2f}ms".format(totalTime))
 
         currentDate = str(datetime.now()).replace(" ",";")
         relativePath = "/home/pi/Chromebook-projects/projects/proj_4-FullRpi/hexclaw_files/measureDelays_files/media/"
