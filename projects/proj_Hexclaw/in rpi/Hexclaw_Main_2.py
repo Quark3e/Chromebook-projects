@@ -18,7 +18,7 @@ import cv2
 import os
 import RPi.GPIO as GPIO #type: ignore
 
-sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
+sys.path.append('/home/pi/Chromebook-projects/projects/proj_Hexclaw')
 
 from IK_module import *
 from h2_module import *

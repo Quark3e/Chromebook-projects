@@ -17,7 +17,7 @@ import adafruit_adxl34x # type: ignore
 import sys
 # import matplotlib.pyplot as plt
 
-sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
+sys.path.append('/home/pi/Chromebook-projects/projects/proj_Hexclaw')
 
 from IK_module import sendToServo, toDegrees, toRadians, getAngles
 

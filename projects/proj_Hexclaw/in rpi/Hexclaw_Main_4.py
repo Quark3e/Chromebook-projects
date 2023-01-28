@@ -16,7 +16,7 @@ import requests
 from time import perf_counter, sleep
 from threading import Thread
 
-sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
+sys.path.append('/home/pi/Chromebook-projects/projects/proj_Hexclaw')
 
 from IK_module import sendToServo, toRadians, toDegrees, getAngles
 

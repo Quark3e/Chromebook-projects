@@ -19,7 +19,7 @@ import math
 # import adafruit_adxl34x
 import sys
 
-sys.path.append('/home/pi/Chromebook-projects/projects/proj_4-FullRpi')
+sys.path.append('/home/pi/Chromebook-projects/projects/proj_Hexclaw')
 
 from IK_module import sendToServo, toRadians, toDegrees, getAngles
 

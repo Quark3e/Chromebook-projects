@@ -16,7 +16,7 @@ from math import * #type: ignore
 # from IK_module import sendToServo, toDegrees, toRadians, getAngles
 from IK_module import *
 
-relativePath = "projects/proj_4-FullRpi/hexclaw_files/servoCal_files/"
+relativePath = "projects/proj_Hexclaw/hexclaw_files/servoCal_files/"
 
 correctionFile = open(relativePath+"data/"+"servoCorrections_temp.dat", "a")
 

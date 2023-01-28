@@ -17,7 +17,7 @@ from threading import Thread
 from datetime import datetime
 import RPi.GPIO as GPIO #type: ignore
 
-sys.path.append('home/py/Chromebook-projects/projects/proj_4-FullRpi')
+sys.path.append('home/py/Chromebook-projects/projects/proj_Hexclaw')
 
 from IK_module import *
 
