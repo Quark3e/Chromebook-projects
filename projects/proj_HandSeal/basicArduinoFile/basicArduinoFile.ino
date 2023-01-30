@@ -8,8 +8,8 @@
 //****************************************************************
 
 //define where your pins are
-int latchPin = 10;
 int dataPin = 11;
+int latchPin = 10;
 int clockPin = 8;
 
 //Define variables to hold the data
@@ -17,6 +17,7 @@ int clockPin = 8;
 //starting with a non-zero numbers can help
 //troubleshoot
 byte switchVar1 = 72;  //01001000
+byte switchVar2 = 69;
 
 void setup() {
   //start serial
@@ -29,15 +30,16 @@ void setup() {
 void loop() {
   //Pulse the latch pin:
   //set it to 1 to collect parallel data
-  digitalWrite(latchPin,1);
+  digitalWrite(latchPin, 1);
   //set it to 1 to collect parallel data, wait
   delayMicroseconds(20);
   //set it to 0 to transmit data serially
-  digitalWrite(latchPin,0);
+  digitalWrite(latchPin, 0);
   //while the shift register is in serial mode
   //collect each shift register into a byte
   //the register attached to the chip comes in first
   switchVar1 = shiftIn(dataPin, clockPin);
+  switchVar2 = shiftIn(dataPin, clockPin);
   //Print out the results.
   //leading 0's at the top of the byte
   //(7, 6, 5, etc) will be dropped before
@@ -45,11 +47,14 @@ void loop() {
   //reading
   Serial.print(switchVar1);
   Serial.print(" ");
+  Serial.print(switchVar2);
+  Serial.print(" ");
   Serial.print(switchVar1, BIN);
-  //white space
-  Serial.println("-------------------");
+  Serial.print(" ");
+  Serial.print(switchVar2, BIN);
+  Serial.println("");
   //delay so all these print statements can keep up.
-  delay(500);
+  delay(100);
 }
 
 //------------------------------------------------end main loop
@@ -66,16 +71,16 @@ byte shiftIn(int myDataPin, int myClockPin) {
   byte myDataIn = 0;
   pinMode(myClockPin, OUTPUT);
   pinMode(myDataPin, INPUT);
-//we will be holding the clock pin high 8 times (0,..,7) at the
-//end of each time through the for loop
+  //we will be holding the clock pin high 8 times (0,..,7) at the
+  //end of each time through the for loop
 
-//at the beginning of each loop when we set the clock low, it will
-//be doing the necessary low to high drop to cause the shift
-//register's DataPin to change state based on the value
-//of the next bit in its serial information flow.
-//The register transmits the information about the pins from pin 7 to pin 0
-//so that is why our function counts down
-  for (i=7; i>=0; i--) {
+  //at the beginning of each loop when we set the clock low, it will
+  //be doing the necessary low to high drop to cause the shift
+  //register's DataPin to change state based on the value
+  //of the next bit in its serial information flow.
+  //The register transmits the information about the pins from pin 7 to pin 0
+  //so that is why our function counts down
+  for (i = 7; i >= 0; i--) {
     digitalWrite(myClockPin, 0);
     delayMicroseconds(0.2);
     temp = digitalRead(myDataPin);
@@ -86,7 +91,7 @@ byte shiftIn(int myDataPin, int myClockPin) {
     }
     else {
       //turn it off -- only necessary for debugging
-     //print statement since myDataIn starts as 0
+      //print statement since myDataIn starts as 0
       pinState = 0;
     }
     //Debugging print statements
