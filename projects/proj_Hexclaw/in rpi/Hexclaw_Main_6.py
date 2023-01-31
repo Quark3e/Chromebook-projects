@@ -118,44 +118,25 @@ windowRes = (600,300)
 
 def main():
     global PP, a, b, Y
-    mode = 1
-    mod_code = "q4"
 
-    # "under" = given < 0
-    # "over" = given < 180
-    servoExceeded = False
-    whichServoExceeded = 6*[False]
-    typeOfExceeded = 6*["null"]
-
-    start_time = time.time()
-    x = 1 # displays the frame rate every 1 second
-    counter = 0
-
-
+    # os.system("clear")
+    PP = [0, 200, 200]
+    posSequence =[]
+    isReachable = [True]
+    print(" Enter coordinates [x y z] in mm:")
     while True:
-        # os.system("clear")
-        PP = [0, 200, 200]
-        while True:
-            isReachable = [True]
-            if mode==1:
-                tempInput_1 = input("Enter coordinates [x y z] in mm: ").split()
-                if tempInput_1[0] == "exit": return
-                else:
-                    PP[0] = (float(tempInput_1[0])) # type: ignore
-                    PP[1] = (float(tempInput_1[1])) # type: ignore
-                    PP[2] = (float(tempInput_1[2])) # type: ignore
-                    break
+        tempInput_1 = input(">> ")
+        if tempInput_1 == "exit": return
+        elif tempInput_1 == "end": break
+        else: posSequence.append(getNumFromString(tempInput_1, " "))
 
-        if mode==1:
-            tempInput_2 = input("Enter orientation values [a b Y] in degrees: ").split()
-            a,b,Y = toRadians(float(tempInput_2[0])), toRadians(float(tempInput_2[1])), toRadians(float(tempInput_2[2]))
-            if diagnostics: print("x:", PP[0], " y:", PP[1], " z:", PP[2], " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
-            q = getAngles(PP,a,b,Y,'-', debug=mod_dict, positionIsReachable=isReachable)
-            # print(q)
-            print([toDegrees(q) for q in q], "posIsReachable:", isReachable)
-            if isReachable[0]:
-                # custom_sendToServo(servo,[toDegrees(angle) for angle in q],0,True)
-                sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=2)
+
+    for pos in posSequence:
+        orient = findOrients(pos)
+        if orient != None:
+            print("pos: {:18}")
+            q = getAngles(pos,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),'-')
+            sendToServo(servo, [toDegrees(joint) for joint in q], 0, useDefault=True, mode=2)
         # input("\npaused. Press enter to continue...")
 
 

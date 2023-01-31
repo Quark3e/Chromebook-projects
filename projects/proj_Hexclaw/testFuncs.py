@@ -3,7 +3,7 @@
 import os
 import time
 import math
-from IK_module import toDegrees, toRadians
+import IK_module as IK
 
 fullRange = [180, 180]
 centerPos = [90, 90]
@@ -86,12 +86,12 @@ def pathFind(axisRange, startPos, method=3):
         for radius in range(1,axisRange):
             for angle in range(0,360,1): #not viable
                 check([
-                    startPos[0]+round(math.sin(toRadians(angle))*radius),
-                    startPos[1]+round(math.cos(toRadians(angle))*radius)
+                    startPos[0]+round(math.sin(IK.toRadians(angle))*radius),
+                    startPos[1]+round(math.cos(IK.toRadians(angle))*radius)
                 ])
                 # lst1.append([
-                #     startPos[0]+round(math.sin(toRadians(angle))*radius),
-                #     startPos[1]+round(math.cos(toRadians(angle))*radius)
+                #     startPos[0]+round(math.sin(IK.toRadians(angle))*radius),
+                #     startPos[1]+round(math.cos(IK.toRadians(angle))*radius)
                 # ])
     if method==4:
         print(len(lst1))
@@ -115,18 +115,18 @@ def writeOrientPath(listFile):
     return
 
 def main():
-    # toDraw[centerPos[0]][centerPos[1]] = 's'
-    toDraw[centerPos[1]]=toDraw[centerPos[1]][:centerPos[0]]+"o"+toDraw[centerPos[1]][centerPos[0]+1:]
+    # # toDraw[centerPos[0]][centerPos[1]] = 's'
+    # toDraw[centerPos[1]]=toDraw[centerPos[1]][:centerPos[0]]+"o"+toDraw[centerPos[1]][centerPos[0]+1:]
 
-    global lst1
-    lst1=[]
-    # for lst in toDraw:
-    #     print(lst)
-    # pathListFile = open("findOrientPath.dat", "r")
-    # readOrientPath(pathListFile)
-    pathFind(fullRange[0],centerPos)
-    # writeOrientPath(pathListFile)
-
+    # global lst1
+    # lst1=[]
+    # # for lst in toDraw:
+    # #     print(lst)
+    # # pathListFile = open("findOrientPath.dat", "r")
+    # # readOrientPath(pathListFile)
+    # pathFind(fullRange[0],centerPos)
+    # # writeOrientPath(pathListFile)
+    print(IK.getNumFromString("150.233123123 6.23 420.21\n"," "))
 
     return
 
