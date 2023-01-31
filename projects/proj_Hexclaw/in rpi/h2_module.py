@@ -1,4 +1,5 @@
 from IK_module import *
+import math
 import os
 
 mov_Patterns = { #NOTE: There cannot be any space in the keys
@@ -129,7 +130,7 @@ def fullTest(servo):
     currentPos = [0,0,0]
     orient = [0,0,0]
     wsRange = [
-        [-300, 300],
+        [-250, 250],
         [10, 400],
         [10, 400]
     ]
@@ -142,6 +143,8 @@ def fullTest(servo):
     if opt[0]=="exit": return
     orient = [toRadians(float(angle)) for angle in opt]
     
+    sendToServo(servo, [toDegrees(joint) for joint in getAngles(startPos,0,0,0,'-')], 1, mode=2, useDefault=True)
+    time.sleep(1)
     for axis in range(3):    
         for pos in range(startPos[axis],wsRange[axis][1]):
             currentPos[axis] = pos
@@ -157,7 +160,7 @@ def fullTest(servo):
                 debug=mod_dict)
             if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
             time.sleep(0.001)   
-        for pos in range(wsRange[axis][0],startPos[axis]):
+        for pos in range(wsRange[axis][0],startPos[axis]+1):
             currentPos[axis] = pos
             q = getAngles(currentPos,orient[0], orient[1], orient[2],
                 '-', positionIsReachable=isReachable,
@@ -165,12 +168,22 @@ def fullTest(servo):
             if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
             time.sleep(0.001)
     time.sleep(1)
+    sendToServo(servo, [toDegrees(joint) for joint in getAngles(startPos, 0, toRadians(-45),0,'-')], 1, mode=2, useDefault=True)
+    time.sleep(1)
+    for angle in range(361):
+        q = getAngles(startPos,math.sin(toRadians(angle))*45,math.cos(toRadians(angle))*-45,0,'-',positionIsReachable=isReachable)
+        if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True)
+        time.sleep(0.01)
+
+    time.sleep(1)
+    sendToServo(servo, [toDegrees(joint) for joint in getAngles(startPos,0,0,0,'-')], 1, mode=2, useDefault=True)
+    time.sleep(1)
     isReachable = [True]
     testPos = startPos
     startOrient = [round(toDegrees(angle)) for angle in orient]
     currentOrient = startOrient.copy()
     for axis in range(2):    
-        for angle in range(startOrient[axis],90):
+        for angle in range(startOrient[axis],91):
             currentOrient[axis] = angle
             q = getAngles(testPos,
             toRadians(currentOrient[0]),
@@ -181,7 +194,7 @@ def fullTest(servo):
             if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
             time.sleep(0.01)  
 
-        for angle in range(90,-90,-1):
+        for angle in range(90,-91,-1):
             currentOrient[axis] = angle
             q = getAngles(testPos,
             toRadians(currentOrient[0]),
@@ -192,7 +205,7 @@ def fullTest(servo):
             if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
             time.sleep(0.01)   
 
-        for angle in range(-90,startOrient[axis]):
+        for angle in range(-90,startOrient[axis]+1):
             currentOrient[axis] = angle
             q = getAngles(testPos,
             toRadians(currentOrient[0]),
@@ -202,6 +215,9 @@ def fullTest(servo):
                 debug=mod_dict)
             if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
             time.sleep(0.01)
+    time.sleep(1)
+    sendToServo(servo, [toDegrees(joint) for joint in getAngles(startPos,0,0,0,'-')], 1, mode=2, useDefault=True)
+    time.sleep(1)
     return
 
 def test_circle(servo):
