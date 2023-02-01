@@ -226,6 +226,7 @@ def sendToServo(
         servoExceeded,whichServoExceeded,typeOfExceeded,
         printErrors=printErrors
         )
+
     if servoExceeded: return
     total_iteration = 135
     if mode==0:
@@ -240,10 +241,14 @@ def sendToServo(
         for count in range(total_iteration-1):
             for i in range(6):
                 if mode==1:
-                    s_temp[i] += s_diff[i]/total_iteration
+                    val = s_diff[i]/total_iteration
+                    if val<180 and val>0: s_temp[i] += val
+                    else: print("exceeded:",val)
                     servo[i].angle = s_temp[i]
                 elif mode==2:
-                    servo[i].angle = s_temp[i] + s_diff[i]*mp1(count/total_iteration)
+                    val = s_temp[i] + s_diff[i]*mp1(count/total_iteration)
+                    if val<180 and val>0: servo[i].angle = val
+                    else: print("exceeded:",val)
             if total_time > 0.1: time.sleep(total_time/total_iteration)
 
 
@@ -266,7 +271,7 @@ def findOrients(pos, startOrient=[0,0],Y=0):
         if orient[0]<=180-1 and orient[0]>=0 and orient[1]<=180-1 and orient[1]>=0:
             q = getAngles(pos,
             toRadians(orient[0]),toRadians(orient[1]),toRadians(Y),
-            '-',positionIsReachable=isReachable)
+            '-',positionIsReachable=isReachable,printErrors=False)
             if isReachable[0]: isReachable[1]=True
     for radius in range(0,180):
         for x in range(tempOrient[0]-radius,tempOrient[0]+radius+1):

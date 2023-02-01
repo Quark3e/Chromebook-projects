@@ -64,22 +64,22 @@ time.sleep(0.75)
 sendToServo(servo,[90,115,145,90,125,90],0,mode=2)
 
 
-time.sleep(2)
-for _ in range(4):
-    GPIO.output(ledRelay, False)
-    time.sleep(0.03)
-    GPIO.output(ledRelay, True)
-    time.sleep(0.03)
-time.sleep(1.5)
-GPIO.output(ledRelay, False)
-time.sleep(0.25)
-GPIO.output(ledRelay, True)
-time.sleep(0.5)
-GPIO.output(ledRelay, False)
-time.sleep(0.1)
-GPIO.output(ledRelay, True)
-time.sleep(2)
-GPIO.output(ledRelay, False)
+# time.sleep(2)
+# for _ in range(4):
+#     GPIO.output(ledRelay, False)
+#     time.sleep(0.03)
+#     GPIO.output(ledRelay, True)
+#     time.sleep(0.03)
+# time.sleep(1.5)
+# GPIO.output(ledRelay, False)
+# time.sleep(0.25)
+# GPIO.output(ledRelay, True)
+# time.sleep(0.5)
+# GPIO.output(ledRelay, False)
+# time.sleep(0.1)
+# GPIO.output(ledRelay, True)
+# time.sleep(2)
+# GPIO.output(ledRelay, False)
 
 
 
@@ -118,34 +118,40 @@ windowRes = (600,300)
 
 def main():
     global PP, a, b, Y
-
-    # os.system("clear")
-    PP = [0, 200, 200]
-    posSequence = []
-    orientSequence = []
-    # isReachable = [True]
-    print(" enter coordinates [x y z] in mm. End with \"end\" to finish and run sequence:")
     while True:
-        tempInput_1 = input(">> ")
-        if tempInput_1 == "exit": return
-        elif tempInput_1 == "end": break
-        else: posSequence.append(getNumFromString(tempInput_1, " "))
+        # os.system("clear")
+        PP = [0, 200, 200]
+        posSequence = []
+        orientSequence = []
+        # isReachable = [True]
+        print(" enter coordinates [x y z] in mm. End with \"end\" to finish and run sequence:")
+        while True:
+            tempInput_1 = input(">> ")
+            if tempInput_1 == "exit": return
+            elif tempInput_1 == "end": break
+            elif tempInput_1[:5] == "file:":
+                tempFile = open(tempInput_1[5:], "r")
+                for coord in tempFile:
+                    posSequence.append(getNumFromString(coord, " "))
+                break
+            else: posSequence.append(getNumFromString(tempInput_1, " "))
 
-    for pos in posSequence:
-        orientSequence.append(findOrients(pos))
-        
-    for i in range(len(posSequence)):
-        if orientSequence[i] != None:
-            print("pos: {:18} orient: {:}".format(posSequence[i],orientSequence[i]))
-            q = getAngles(posSequence[i],
-            toRadians(orientSequence[i][0]),
-            toRadians(orientSequence[i][1]),
-            toRadians(orientSequence[i][2]),
-            '-')
-            sendToServo(servo, [toDegrees(joint) for joint in q], 0, useDefault=True, mode=2)
-        else: print("pos:",posSequence[i],"is not reachable")
-        # input("\npaused. Press enter to continue...")
-
+        for pos in posSequence:
+            print("searching:",pos)
+            orientSequence.append(findOrients(pos))
+            
+        for i in range(len(posSequence)):
+            if orientSequence[i] != None:
+                print("pos: {:24} orient: {:}".format(str(posSequence[i]),str(orientSequence[i])))
+                q = getAngles(posSequence[i],
+                toRadians(orientSequence[i][0]),
+                toRadians(orientSequence[i][1]),
+                toRadians(orientSequence[i][2]),
+                '-')
+                sendToServo(servo, [toDegrees(joint) for joint in q], 0, useDefault=True, mode=2)
+            else: print("pos:",posSequence[i],"is not reachable")
+            time.sleep(0.3)
+            # input("\npaused. Press enter to continue...")
 
 if __name__ == "__main__":
     main()
