@@ -121,22 +121,29 @@ def main():
 
     # os.system("clear")
     PP = [0, 200, 200]
-    posSequence =[]
-    isReachable = [True]
-    print(" Enter coordinates [x y z] in mm:")
+    posSequence = []
+    orientSequence = []
+    # isReachable = [True]
+    print(" enter coordinates [x y z] in mm. End with \"end\" to finish and run sequence:")
     while True:
         tempInput_1 = input(">> ")
         if tempInput_1 == "exit": return
         elif tempInput_1 == "end": break
         else: posSequence.append(getNumFromString(tempInput_1, " "))
 
-
     for pos in posSequence:
-        orient = findOrients(pos)
-        if orient != None:
-            print("pos: {:18}")
-            q = getAngles(pos,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),'-')
+        orientSequence.append(findOrients(pos))
+        
+    for i in range(len(posSequence)):
+        if orientSequence[i] != None:
+            print("pos: {:18} orient: {:}".format(posSequence[i],orientSequence[i]))
+            q = getAngles(posSequence[i],
+            toRadians(orientSequence[i][0]),
+            toRadians(orientSequence[i][1]),
+            toRadians(orientSequence[i][2]),
+            '-')
             sendToServo(servo, [toDegrees(joint) for joint in q], 0, useDefault=True, mode=2)
+        else: print("pos:",posSequence[i],"is not reachable")
         # input("\npaused. Press enter to continue...")
 
 
