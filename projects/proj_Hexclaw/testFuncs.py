@@ -53,12 +53,12 @@ def check(val):
         # os.system("clear")
         # for lst in toDraw:
         #     print(addSpace(lst))
-        print(val)
+        # print(val)
         # time.sleep(0.01)
-        if val == [4,1]: input("point reached. paused...")
+        # if val == [4,1]: input("point reached. paused...")
     return
 
-def pathFind(axisRange, startPos, method=3):
+def pathFind(axisRange, startPos, method=5):
     """Iterate through 2d array/list in a pattern
     ## Parameters:
     - axisRange [unit: integers]: length of biggest axis
@@ -97,6 +97,13 @@ def pathFind(axisRange, startPos, method=3):
         print(len(lst1))
         for _ in lst1:
             check(_)
+    if method==5:
+        for x in range(axisRange+1):
+            for y in range(axisRange+1):
+                check([startPos[0]+x, startPos[1]+y])
+                check([startPos[0]+x, startPos[1]-y])
+                check([startPos[0]-x, startPos[1]+y])
+                check([startPos[0]-x, startPos[1]-y])
     t2 = time.perf_counter()
     print(f"Total time: {round((t2-t1)*1000)}ms")
     return
@@ -124,9 +131,9 @@ def main():
     # #     print(lst)
     # # pathListFile = open("findOrientPath.dat", "r")
     # # readOrientPath(pathListFile)
-    # pathFind(fullRange[0],centerPos)
+    pathFind(fullRange[0],centerPos)
     # # writeOrientPath(pathListFile)
-    print(IK.getNumFromString("150.233123123 6.23 420.21\n"," "))
+    # print(IK.getNumFromString("150.233123123 6.23 420.21\n"," "))
 
     return
 

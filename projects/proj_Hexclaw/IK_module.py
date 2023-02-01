@@ -273,17 +273,27 @@ def findOrients(pos, startOrient=[0,0],Y=0):
             toRadians(orient[0]),toRadians(orient[1]),toRadians(Y),
             '-',positionIsReachable=isReachable,printErrors=False)
             if isReachable[0]: isReachable[1]=True
-    for radius in range(0,180):
-        for x in range(tempOrient[0]-radius,tempOrient[0]+radius+1):
-            checkOrient([x,tempOrient[1]-radius])
-            if isReachable[1]: return [x-90, tempOrient[1]-radius-90, toDegrees(Y)]
-            checkOrient([x,tempOrient[1]+radius])
-            if isReachable[1]: return [x-90, tempOrient[1]+radius-90, toDegrees(Y)]
-        for y in range(tempOrient[1]-radius,tempOrient[1]+radius+1):
-            checkOrient([tempOrient[0]-radius,y])
-            if isReachable[1]: return [tempOrient[0]-radius-90, y-90, toDegrees(Y)]
-            checkOrient([tempOrient[0]+radius,y])
-            if isReachable[1]: return [tempOrient[0]+radius-90, y-90, toDegrees(Y)]
+    for x in range(181):
+        for y in range(181):
+            checkOrient([tempOrient[0]+x, tempOrient[1]+y])
+            if isReachable[1]: return [tempOrient[0]+x-90, tempOrient[1]+y-90]
+            checkOrient([tempOrient[0]+x, tempOrient[1]-y])
+            if isReachable[1]: return [tempOrient[0]+x-90, tempOrient[1]-y-90]
+            checkOrient([tempOrient[0]-x, tempOrient[1]+y])
+            if isReachable[1]: return [tempOrient[0]-x-90, tempOrient[1]+y-90]
+            checkOrient([tempOrient[0]-x, tempOrient[1]-y])
+            if isReachable[1]: return [tempOrient[0]-x-90, tempOrient[1]-y-90]
+    # for radius in range(0,180):
+    #     for x in range(tempOrient[0]-radius,tempOrient[0]+radius+1):
+    #         checkOrient([x,tempOrient[1]-radius])
+    #         if isReachable[1]: return [x-90, tempOrient[1]-radius-90, toDegrees(Y)]
+    #         checkOrient([x,tempOrient[1]+radius])
+    #         if isReachable[1]: return [x-90, tempOrient[1]+radius-90, toDegrees(Y)]
+    #     for y in range(tempOrient[1]-radius,tempOrient[1]+radius+1):
+    #         checkOrient([tempOrient[0]-radius,y])
+    #         if isReachable[1]: return [tempOrient[0]-radius-90, y-90, toDegrees(Y)]
+    #         checkOrient([tempOrient[0]+radius,y])
+    #         if isReachable[1]: return [tempOrient[0]+radius-90, y-90, toDegrees(Y)]
 
     return None
 
