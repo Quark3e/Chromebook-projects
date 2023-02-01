@@ -276,13 +276,13 @@ def findOrients(pos, startOrient=[0,0],Y=0):
     for x in range(181):
         for y in range(181):
             checkOrient([tempOrient[0]+x, tempOrient[1]+y])
-            if isReachable[1]: return [tempOrient[0]+x-90, tempOrient[1]+y-90]
+            if isReachable[1]: return [tempOrient[0]+x-90, tempOrient[1]+y-90, toDegrees(Y)]
             checkOrient([tempOrient[0]+x, tempOrient[1]-y])
-            if isReachable[1]: return [tempOrient[0]+x-90, tempOrient[1]-y-90]
+            if isReachable[1]: return [tempOrient[0]+x-90, tempOrient[1]-y-90, toDegrees(Y)]
             checkOrient([tempOrient[0]-x, tempOrient[1]+y])
-            if isReachable[1]: return [tempOrient[0]-x-90, tempOrient[1]+y-90]
+            if isReachable[1]: return [tempOrient[0]-x-90, tempOrient[1]+y-90, toDegrees(Y)]
             checkOrient([tempOrient[0]-x, tempOrient[1]-y])
-            if isReachable[1]: return [tempOrient[0]-x-90, tempOrient[1]-y-90]
+            if isReachable[1]: return [tempOrient[0]-x-90, tempOrient[1]-y-90, toDegrees(Y)]
     # for radius in range(0,180):
     #     for x in range(tempOrient[0]-radius,tempOrient[0]+radius+1):
     #         checkOrient([x,tempOrient[1]-radius])

@@ -150,7 +150,7 @@ def main():
                 '-')
                 sendToServo(servo, [toDegrees(joint) for joint in q], 0, useDefault=True, mode=2)
             else: print("pos:",posSequence[i],"is not reachable")
-            time.sleep(0.3)
+            time.sleep(0.5)
             # input("\npaused. Press enter to continue...")
 
 if __name__ == "__main__":
