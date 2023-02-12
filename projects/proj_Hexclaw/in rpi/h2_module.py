@@ -150,28 +150,29 @@ def fullTest(servo):
             currentPos[axis] = pos
             q = getAngles(currentPos,orient[0], orient[1], orient[2],
                 '-', positionIsReachable=isReachable,
-                debug=mod_dict)
+                debug=mod_dict,printErrors=False)
             if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
             time.sleep(0.001)    
         for pos in range(wsRange[axis][1],wsRange[axis][0],-1):
             currentPos[axis] = pos
             q = getAngles(currentPos,orient[0], orient[1], orient[2],
                 '-', positionIsReachable=isReachable,
-                debug=mod_dict)
+                debug=mod_dict,printErrors=False)
             if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
             time.sleep(0.001)   
         for pos in range(wsRange[axis][0],startPos[axis]+1):
             currentPos[axis] = pos
             q = getAngles(currentPos,orient[0], orient[1], orient[2],
                 '-', positionIsReachable=isReachable,
-                debug=mod_dict)
+                debug=mod_dict,printErrors=False)
             if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
             time.sleep(0.001)
     time.sleep(1)
     sendToServo(servo, [toDegrees(joint) for joint in getAngles(startPos, 0, toRadians(-45),0,'-')], 1, mode=2, useDefault=True)
     time.sleep(1)
     for angle in range(361):
-        q = getAngles(startPos,math.sin(toRadians(angle))*45,math.cos(toRadians(angle))*-45,0,'-',positionIsReachable=isReachable)
+        # print(math.sin(toRadians(angle))*45,math.cos(toRadians(angle))*-45)
+        q = getAngles(startPos,toRadians(math.sin(toRadians(angle))*45),toRadians(math.cos(toRadians(angle))*-45),0,'-',positionIsReachable=isReachable,printErrors=False)
         if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True)
         time.sleep(0.01)
 
@@ -190,7 +191,7 @@ def fullTest(servo):
             toRadians(currentOrient[1]),
             toRadians(currentOrient[2]),
                 '-', positionIsReachable=isReachable,
-                debug=mod_dict)
+                debug=mod_dict,printErrors=False)
             if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
             time.sleep(0.01)  
 
@@ -201,7 +202,7 @@ def fullTest(servo):
             toRadians(currentOrient[1]),
             toRadians(currentOrient[2]),
                 '-', positionIsReachable=isReachable,
-                debug=mod_dict)
+                debug=mod_dict,printErrors=False)
             if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
             time.sleep(0.01)   
 
@@ -212,7 +213,7 @@ def fullTest(servo):
             toRadians(currentOrient[1]),
             toRadians(currentOrient[2]),
                 '-', positionIsReachable=isReachable,
-                debug=mod_dict)
+                debug=mod_dict,printErrors=False)
             if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
             time.sleep(0.01)
     time.sleep(1)

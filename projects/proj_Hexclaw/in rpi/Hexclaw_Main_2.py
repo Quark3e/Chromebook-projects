@@ -83,7 +83,11 @@ GPIO.output(ledRelay, True)
 time.sleep(2)
 GPIO.output(ledRelay, False)
 
-
+sendToServo(servo,[90,115,145,90,125,0],0,mode=0)
+time.sleep(1)
+sendToServo(servo,[90,115,145,90,125,180],0,mode=0)
+time.sleep(1)
+sendToServo(servo,[90,115,145,90,125,90],0,mode=0)
 
 print("------")
 time.sleep(2)
