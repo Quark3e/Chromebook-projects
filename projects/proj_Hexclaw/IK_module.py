@@ -40,11 +40,13 @@ constants_q = [{
 
 mod_dict = {
     "a1:frame1X": [False, "frame1X = frame1X * cos(b)"],
-    "a1:a1": [True, "a1 = a1 * cos(b)"],
+    "a1:a1": [False, "a1 = a1 * cos(b)"],
+    "q4:default": [True, "q4 = atan(frame1X / frame1Y)"],
     "q4:a1": [False, "q4 = a1"],
     "q4:a1:b:minus": [False, "if b<0: q4=0-a1; else: q4=a1"],
-    "q4:a1:b1:minus": [True, "if b1<0: q4=0-a1; else: q4=a1"],
-    "q5:inPaper": [False, "q5 = [...] / ( cos(b1) * cos(a1) ))"],
+    "q4:a1:b1:minus": [False, "if b1<0: q4=0-a1; else: q4=a1"],
+    "q5:inPaper": [True, "q5 = atan([...] / ( cos(b1) * cos(a1) )))"],
+    "q5:default": [False, "q5 = atan([...] / ( frame1X / tan(a1) ))"],
     "exceedState": [True, "if [...]_exceeded: positionIsReachable[0] = False"],
 }
 """Dictionary of all the modificaitons used, mostly for debugging the IK equations
@@ -105,7 +107,7 @@ def solveListDifference(listOfLists, mode=1, deltaList=[0]):
     """Solves difference of each of the elements between all lists
 
     ## Parameters
-        - listOfLists: [list1, list2]    
+        - listOfLists: [list1, list2], NOTE: len(list1) = len(list2)
         - mode:
             - mode=1: solves total difference: abs(-diff)
             - mode=2: solves average difference
@@ -454,6 +456,8 @@ def getAngles(
         if printText: print(" b1 was 0 so q4 was adjusted")
     elif b1 < 0 or b1 > 0: q[3] = atan(frame1X / frame1Z) # type: ignore
     
+    if debug["q4:default"][0]:
+        q[3] = atan(frame1X/frame1Z)
     if debug["q4:a1"][0]:
         q[3] = a1
     if debug["q4:a1:b:minus"][0]:
@@ -478,6 +482,8 @@ def getAngles(
     
     if debug["q5:inPaper"][0]:
         q[4] = atan(sqrt(pow(frame1X,2)+pow(frame1Z,2))/(cos(b1)*cos(a1))) #type: ignore
+    if debug["q5:default"][0]:
+        q[4] = atan(sqrt(pow(frame1X,2)+pow(frame1Z,2))/(frame1X/tan(a1))) #type: ignore
 
     if frame1Z < 0:
         q[4] = 0-q[4] # type: ignore

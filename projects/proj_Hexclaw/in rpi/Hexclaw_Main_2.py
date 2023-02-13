@@ -44,7 +44,7 @@ servo = [servo.Servo(pca.channels[0]),
          ]
 
 for i in range(6):
-    servo[i].set_pulse_width_range  (500, 2500)
+    servo[i].set_pulse_width_range(500, 2500)
 
 # servo[0].angle = 108
 # servo[1].angle = 15
