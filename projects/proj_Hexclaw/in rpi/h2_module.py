@@ -167,18 +167,18 @@ def fullTest(servo):
                 debug=mod_dict,printErrors=False)
             if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
             time.sleep(0.001)
-    time.sleep(1)
+    time.sleep(0.5)
     sendToServo(servo, [toDegrees(joint) for joint in getAngles(startPos, 0, toRadians(-45),0,'-')], 1, mode=2, useDefault=True)
-    time.sleep(1)
+    time.sleep(0.5)
     for angle in range(361):
         # print(math.sin(toRadians(angle))*45,math.cos(toRadians(angle))*-45)
         q = getAngles(startPos,toRadians(math.sin(toRadians(angle))*45),toRadians(math.cos(toRadians(angle))*-45),0,'-',positionIsReachable=isReachable,printErrors=False)
         if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True)
         time.sleep(0.01)
 
-    time.sleep(1)
+    time.sleep(0.5)
     sendToServo(servo, [toDegrees(joint) for joint in getAngles(startPos,0,0,0,'-')], 1, mode=2, useDefault=True)
-    time.sleep(1)
+    time.sleep(0.5)
     isReachable = [True]
     testPos = startPos
     startOrient = [round(toDegrees(angle)) for angle in orient]
@@ -193,7 +193,7 @@ def fullTest(servo):
                 '-', positionIsReachable=isReachable,
                 debug=mod_dict,printErrors=False)
             if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
-            time.sleep(0.01)  
+            time.sleep(0.005)  
 
         for angle in range(90,-91,-1):
             currentOrient[axis] = angle
@@ -204,7 +204,7 @@ def fullTest(servo):
                 '-', positionIsReachable=isReachable,
                 debug=mod_dict,printErrors=False)
             if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
-            time.sleep(0.01)   
+            time.sleep(0.005)   
 
         for angle in range(-90,startOrient[axis]+1):
             currentOrient[axis] = angle
@@ -215,10 +215,10 @@ def fullTest(servo):
                 '-', positionIsReachable=isReachable,
                 debug=mod_dict,printErrors=False)
             if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
-            time.sleep(0.01)
-    time.sleep(1)
+            time.sleep(0.005)
+    time.sleep(0.5)
     sendToServo(servo, [toDegrees(joint) for joint in getAngles(startPos,0,0,0,'-')], 1, mode=2, useDefault=True)
-    time.sleep(1)
+    time.sleep(0.5)
     return
 
 def test_circle(servo):
