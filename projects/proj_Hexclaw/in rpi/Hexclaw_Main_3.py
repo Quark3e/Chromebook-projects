@@ -49,10 +49,10 @@ def getServo4Offset(degrees):
     return 90-(90/130)*degrees
 
 servo[0].angle = 90
-servo[1].angle = 90
-servo[2].angle = 180 - 90
+servo[1].angle = 15
+servo[2].angle = 150
 servo[3].angle = 90
-servo[4].angle = 180 - 90
+servo[4].angle = 180
 servo[5].angle = 90
 
 time.sleep(1)

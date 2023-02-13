@@ -44,15 +44,22 @@ servo = [servo.Servo(pca.channels[0]),
          ]
 
 for i in range(6):
-    servo[i].set_pulse_width_range(500, 2500)
+    servo[i].set_pulse_width_range  (500, 2500)
 
-servo[0].angle = 108
+# servo[0].angle = 108
+# servo[1].angle = 15
+# servo[2].angle = 180 - 25
+# servo[3].angle = 45
+# servo[4].angle = 180 - 0
+# servo[5].angle = 90
+servo[0].angle = 90
 servo[1].angle = 15
-servo[2].angle = 180 - 25
-servo[3].angle = 45
-servo[4].angle = 180 - 0
+servo[2].angle = 150
+servo[3].angle = 90
+servo[4].angle = 180
 servo[5].angle = 90
 time.sleep(1)
+
 
 GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
  
@@ -83,11 +90,11 @@ GPIO.output(ledRelay, True)
 time.sleep(2)
 GPIO.output(ledRelay, False)
 
-sendToServo(servo,[90,115,145,90,125,0],0,mode=0)
-time.sleep(1)
-sendToServo(servo,[90,115,145,90,125,180],0,mode=0)
-time.sleep(1)
-sendToServo(servo,[90,115,145,90,125,90],0,mode=0)
+# sendToServo(servo,[90,115,145,90,125,0],0,mode=0)
+# time.sleep(1)
+# sendToServo(servo,[90,115,145,90,125,180],0,mode=0)
+# time.sleep(1)
+# sendToServo(servo,[90,115,145,90,125,90],0,mode=0)
 
 print("------")
 time.sleep(2)
@@ -355,7 +362,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-    sendToServo(servo,[135,15,155,45,180,90],1,mode=2)
+    sendToServo(servo,[90,15,150,90,180,90],1,mode=2)
     GPIO.output(ledRelay, False)
     pca.deinit()
 
