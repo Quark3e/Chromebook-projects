@@ -70,7 +70,7 @@ GPIO.output(ledRelay, GPIO.HIGH) # on
 
 time.sleep(0.75)
 
-sendToServo(servo,[90,115,145,90,125,90],0,mode=2)
+sendToServo(servo,[90,115,115+45,90,135,90],0,mode=2)
 
 
 time.sleep(2)
