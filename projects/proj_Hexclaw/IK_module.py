@@ -8,6 +8,13 @@ d3 = 75; #axial "pitch"
 d4 = 50; #axial "roll"
 d5 = 35; #axial "pitch
 d6 = 30; #axial "roll" (?)
+# d1 = 140; #axial "roll"
+# d2 = 135; #axial "pitch"
+# d3 = 70; #axial "pitch"
+# d4 = 80; #axial "roll"
+# d5 = 35; #axial "pitch
+# d6 = 30; #axial "roll" (?)
+
 link = [d1,d2,d3,d4,d5,d6]
 default_q = [90, 0, 135, 90, 90, 90]
 debug_mods = []
@@ -232,7 +239,6 @@ def sendToServo(
         printErrors=printErrors
         )
     if printResult: print("sent:",new_rotation)
-    
     if servoExceeded: return
     total_iteration = 135
     if mode==0:
