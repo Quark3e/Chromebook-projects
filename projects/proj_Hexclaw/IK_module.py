@@ -2,10 +2,10 @@ import sys
 import time
 from math import * #type: ignore
 
-d1 = 140; #axial "roll"
-d2 = 135; #axial "pitch"
-d3 = 70; #axial "pitch"
-d4 = 80; #axial "roll"
+d1 = 145; #axial "roll"
+d2 = 130; #axial "pitch"
+d3 = 75; #axial "pitch"
+d4 = 50; #axial "roll"
 d5 = 35; #axial "pitch
 d6 = 30; #axial "roll" (?)
 link = [d1,d2,d3,d4,d5,d6]
@@ -41,12 +41,13 @@ constants_q = [{
 mod_dict = {
     "a1:frame1X": [False, "frame1X = frame1X * cos(b)"],
     "a1:a1": [False, "a1 = a1 * cos(b)"],
-    "q4:default": [True, "q4 = atan(frame1X / frame1Y)"],
+    "q4:default": [False, "q4 = atan(frame1X / frame1Y)"],
     "q4:a1": [False, "q4 = a1"],
     "q4:a1:b:minus": [False, "if b<0: q4=0-a1; else: q4=a1"],
-    "q4:a1:b1:minus": [False, "if b1<0: q4=0-a1; else: q4=a1"],
-    "q5:inPaper": [True, "q5 = atan([...] / ( cos(b1) * cos(a1) )))"],
+    "q4:a1:b1:minus": [True, "if b1<0: q4=0-a1; else: q4=a1"],
+    "q5:inPaper": [False, "q5 = atan([...] / ( cos(b1) * cos(a1) )))"],
     "q5:default": [False, "q5 = atan([...] / ( frame1X / tan(a1) ))"],
+    "q5:d5": [True, "q5 = atan([...] / ( d5 ))"],
     "exceedState": [True, "if [...]_exceeded: positionIsReachable[0] = False"],
 }
 """Dictionary of all the modificaitons used, mostly for debugging the IK equations
@@ -89,8 +90,9 @@ def q_corrections(q):
     q[1] = q[1] * constants_q[1]["fixed"]
     q[2] = q[2] * constants_q[2]["fixed"]
     q[3] = q[3] * constants_q[3]["fixed"]
-    if q[4]<90: q[4] = (default_q[4] - ((default_q[4]-q[4])*default_q[4]) /135)
-    else: q[4] = q[4] * constants_q[4]["fixed"]
+    # if q[4]<90: q[4] = (default_q[4] - ((default_q[4]-q[4])*default_q[4]) /135)
+    # else: 
+    q[4] = q[4] * constants_q[4]["fixed"]
     q[5] = q[5] * constants_q[5]["fixed"]
     return q
 
@@ -195,7 +197,8 @@ def sendToServo(
     servoExceeded=False,
     whichServoExceeded=[False,False,False,False,False,False],
     typeOfExceeded=["null","null","null","null","null","null"],
-    printErrors=True
+    printErrors=True,
+    printResult=False
     ):
     """Sends angles in list \"new_rotation\" to servo motors evenly spaced out
 
@@ -228,7 +231,8 @@ def sendToServo(
         servoExceeded,whichServoExceeded,typeOfExceeded,
         printErrors=printErrors
         )
-
+    if printResult: print("sent:",new_rotation)
+    
     if servoExceeded: return
     total_iteration = 135
     if mode==0:
@@ -484,6 +488,8 @@ def getAngles(
         q[4] = atan(sqrt(pow(frame1X,2)+pow(frame1Z,2))/(cos(b1)*cos(a1))) #type: ignore
     if debug["q5:default"][0]:
         q[4] = atan(sqrt(pow(frame1X,2)+pow(frame1Z,2))/(frame1X/tan(a1))) #type: ignore
+    if debug["q5:d5"][0]:
+        q[4] = asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5])) # type: ignore
 
     if frame1Z < 0:
         q[4] = 0-q[4] # type: ignore

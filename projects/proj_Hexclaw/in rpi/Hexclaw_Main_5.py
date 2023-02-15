@@ -46,12 +46,12 @@ servo = [servo.Servo(pca.channels[0]),
 for i in range(6):
     servo[i].set_pulse_width_range(500, 2500)
 
-servo[0].angle = 90
-servo[1].angle = 15
-servo[2].angle = 150
-servo[3].angle = 90
-servo[4].angle = 180
-servo[5].angle = 90
+# servo[0].angle = 90
+# servo[1].angle = 15
+# servo[2].angle = 150
+# servo[3].angle = 90
+# servo[4].angle = 180
+# servo[5].angle = 90
 
 def getServo4Offset(degrees): #s4 = q5
     return 90-(90/130)*degrees
@@ -134,7 +134,7 @@ while True:
     servo[1].angle = 45
     servo[2].angle = 180 - 0
     servo[3].angle = 90
-    servo[4].angle = getServo4Offset(90)
+    servo[4].angle = 90
     servo[5].angle = 90
 
     print(" Options:")
@@ -219,19 +219,13 @@ while True:
             servo[int(toSweep)-1].angle = 0
             time.sleep(1)
             
-            for i in range(0,181):
+            for i in range(181):
                 servo[int(toSweep)-1].angle = i
-                if i == 45 or i == 90 or i == 135:
-                    time.sleep(0.5)
-                else:
-                    time.sleep(0.01)
+                time.sleep(0.01)
             time.sleep(1)
-            for i in range(180,1, -1):
+            for i in range(180,-1, -1):
                 servo[int(toSweep)-1].angle = i
-                if i == 45 or i == 90 or i == 135:
-                    time.sleep(0.5)
-                else:
-                    time.sleep(0.01)
+                time.sleep(0.01)
             time.sleep(1.5)
             break
     elif option == "2":

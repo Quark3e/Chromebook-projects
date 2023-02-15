@@ -52,12 +52,13 @@ for i in range(6):
 # servo[3].angle = 45
 # servo[4].angle = 180 - 0
 # servo[5].angle = 90
-servo[0].angle = 90
-servo[1].angle = 15
-servo[2].angle = 150
-servo[3].angle = 90
-servo[4].angle = 180
-servo[5].angle = 90
+# servo[0].angle = 90
+# servo[1].angle = 15
+# servo[2].angle = 150
+# servo[3].angle = 90
+# servo[4].angle = 180
+# servo[5].angle = 90
+sendToServo(servo,[135,45,180,45,180,90],0,mode=0)
 time.sleep(1)
 
 
@@ -70,10 +71,9 @@ GPIO.output(ledRelay, GPIO.HIGH) # on
 
 time.sleep(0.75)
 
-sendToServo(servo,[90,115,115+45,90,135,90],0,mode=2)
+sendToServo(servo,[90,115,135,90,115,90],2,mode=2)
 
 
-time.sleep(2)
 for _ in range(4):
     GPIO.output(ledRelay, False)
     time.sleep(0.03)
@@ -257,10 +257,10 @@ def main():
             if diagnostics: print("x:", PP[0], " y:", PP[1], " z:", PP[2], " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
             q = getAngles(PP,a,b,Y,'-', debug=mod_dict, positionIsReachable=isReachable)
             # print(q)
-            print([toDegrees(q) for q in q], "posIsReachable:", isReachable)
+            print("read:",[toDegrees(q) for q in q], "posIsReachable:", isReachable)
             if isReachable[0]:
                 # custom_sendToServo(servo,[toDegrees(angle) for angle in q],0,True)
-                sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=2)
+                sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=2,printResult=True)
         elif mode==2:
             tempInput_2 = input("Enter orientation values [a b Y] in degrees: ").split()
             a,b,Y = toRadians(float(tempInput_2[0])), toRadians(float(tempInput_2[1])), toRadians(float(tempInput_2[2]))
@@ -293,9 +293,9 @@ def main():
                 key = input("input the program name: ")
                 if key=="exit": break
                 presetAngles = 6*[0]
-                for joint in range(6): presetAngles[joint] = servo[joint].angle
+                for joint in range(6): presetAngles[joint] = servo[joint].angle / constants_q[joint]["fixed"]
                 mov_Programs[key](servo)
-                for joint in range(6): servo[joint].angle = presetAngles[joint]
+                sendToServo(servo,presetAngles,0,mode=2)
             if patternOpt==1: #type: ignore
                 print("Pick any of these patterns")
                 for key,_ in mov_Patterns.items(): print(" - \"",key,"\"", sep='')
@@ -319,7 +319,7 @@ def main():
                 orientToUse = input("\nEnter orientation for axis test [a, b and Y]:").split()
                 fullPos = [0,200,150]
                 presetAngles = [0,0,0,0,0,0]
-                for joint in range(6): presetAngles[joint] = servo[joint].angle
+                for joint in range(6): presetAngles[joint] = servo[joint].angle / constants_q[joint]["fixed"]
                 for direction in range(1, -2, -2):
                     for pos in range(-200, 200):
                         if axis == "x": fullPos[0] = direction*pos #400
@@ -335,14 +335,14 @@ def main():
                         if axis == "x": time.sleep(0.005)
                         else: time.sleep(0.001)
                 time.sleep(1.5)
-                for joint in range(6): servo[joint].angle = presetAngles[joint]
+                sendToServo(servo,presetAngles,0,mode=2)
             elif patternOpt==3: #type: ignore
                 orientToUse = input("\nEnter what orientation to test [a, b or Y] [unit: degrees]:")
                 posToUse = input("\nEnter coordinate for position test [x, y and z]:").split()
                 for _ in range(3): posToUse[_] = int(posToUse[_]) #type: ignore
                 fullOrient = [0,0,0]
                 presetAngles = [0,0,0,0,0,0]
-                for joint in range(6): presetAngles[joint] = servo[joint].angle
+                for joint in range(6): presetAngles[joint] = servo[joint].angle / constants_q[joint]["fixed"]
                 for direction in range(1, -2, -2):
                     for angle in range(-90, 90):
                         if orientToUse == "a": fullOrient[0] = direction*angle
@@ -355,14 +355,14 @@ def main():
                         if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
                         time.sleep(0.01)
                 time.sleep(1.5)
-                for joint in range(6): servo[joint].angle = presetAngles[joint]
+                sendToServo(servo,presetAngles,0,mode=2)
 
         # input("\npaused. Press enter to continue...")
 
 
 if __name__ == "__main__":
     main()
-    sendToServo(servo,[90,15,150,90,180,90],1,mode=2)
+    sendToServo(servo,[135,45,180,45,180,90],2,mode=2)
     GPIO.output(ledRelay, False)
     pca.deinit()
 
