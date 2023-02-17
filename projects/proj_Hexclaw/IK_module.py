@@ -482,7 +482,7 @@ def getAngles(
     elif b1 < 0 or b1 > 0: q[3] = atan(frame1X / frame1Z) # type: ignore
     
     if debug["q4:default"][0]:
-        q[3] = atan(frame1X/frame1Z)
+        q[3] = atan(frame1X/frame1Z) #type: ignore
     if debug["q4:a1"][0]:
         q[3] = a1
     if debug["q4:a1:b:minus"][0]:
