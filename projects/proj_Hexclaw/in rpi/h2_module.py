@@ -95,8 +95,8 @@ def fullOrientTest(servo):
             toRadians(currentOrient[2]),
                 '-', positionIsReachable=isReachable,
                 debug=mod_dict)
-            if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=2)
-            time.sleep(0.01)  
+            if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
+            time.sleep(0.001)  
 
         for angle in range(91,-90,-1):
             currentOrient[axis] = angle
@@ -106,8 +106,8 @@ def fullOrientTest(servo):
             toRadians(currentOrient[2]),
                 '-', positionIsReachable=isReachable,
                 debug=mod_dict)
-            if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=2)
-            time.sleep(0.01)   
+            if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
+            time.sleep(0.001)   
 
         for angle in range(-91,startOrient[axis]):
             currentOrient[axis] = angle
@@ -117,8 +117,8 @@ def fullOrientTest(servo):
             toRadians(currentOrient[2]),
                 '-', positionIsReachable=isReachable,
                 debug=mod_dict)
-            if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=2)
-            time.sleep(0.01)
+            if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
+            time.sleep(0.001)
     time.sleep(1)
 
     return

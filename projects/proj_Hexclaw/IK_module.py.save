@@ -12,7 +12,7 @@ d6 = 30; #axial "roll" (?)
 # d2 = 135; #axial "pitch"
 # d3 = 70; #axial "pitch"
 # d4 = 80; #axial "roll"
-# d5 = 35; #axial "pitch
+-# d5 = 35; #axial "pitch
 # d6 = 30; #axial "roll" (?)
 
 link = [d1,d2,d3,d4,d5,d6]
@@ -83,19 +83,6 @@ def getNumFromString(string, sepChar):
     numList.append(float(string))
     return numList
 
-def servoTest(servo, n, totalTime=4):
-    """ Run a quick 0-180 degrees servo motor test
-    ## Parameters:
-    - servo: servo list
-    - n: n:th servo to test. Starts at 0
-    - totalTime: the time it takes to run the entire test (with slight extra delay)
-    """
-    for i in range(181):
-        servo[n].angle = i
-        time.sleep(totalTime/360)
-    for i in range(180,-1,-1):
-        servo[n].angle = i
-        time.sleep(totalTime/360)
 
 def q_corrections(q):
     """Corrects all angle values for their servo
@@ -251,14 +238,13 @@ def sendToServo(
         servoExceeded,whichServoExceeded,typeOfExceeded,
         printErrors=printErrors
         )
-    # print(new_rotation[2])
+    print(new_rotation[2])
     if printResult: print("sent:",new_rotation)
     if servoExceeded: return
     total_iteration = 135
     if mode==0:
         for x in range(6): 
             servo[x].angle = new_rotation[x]
-            time.sleep(0.0012) #for 6 servo commands it should equal ~10 ms delay
     elif mode==1 or mode==2:
         s_diff = []
         s_temp = []

@@ -73,26 +73,22 @@ time.sleep(0.75)
 
 sendToServo(servo,[90,115,135,90,115,90],2,mode=0)
 
-if False:
-    for _ in range(4):
-        GPIO.output(ledRelay, False)
-        time.sleep(0.03)
-        GPIO.output(ledRelay, True)
-        time.sleep(0.03)
-    
-    time.sleep(1.5)
-    GPIO.output(ledRelay, False)
-    time.sleep(0.25)
-    GPIO.output(ledRelay, True)
-    time.sleep(0.5)
-    GPIO.output(ledRelay, False)
-    time.sleep(0.1)
-    GPIO.output(ledRelay, True)
-    time.sleep(2)
-    GPIO.output(ledRelay, False)
 
-servoTest(servo,2)
-sendToServo(servo,[90,115,135,90,115,90],2,mode=0)
+for _ in range(4):
+    GPIO.output(ledRelay, False)
+    time.sleep(0.03)
+    GPIO.output(ledRelay, True)
+    time.sleep(0.03)
+time.sleep(1.5)
+GPIO.output(ledRelay, False)
+time.sleep(0.25)
+GPIO.output(ledRelay, True)
+time.sleep(0.5)
+GPIO.output(ledRelay, False)
+time.sleep(0.1)
+GPIO.output(ledRelay, True)
+time.sleep(2)
+GPIO.output(ledRelay, False)
 
 # sendToServo(servo,[90,115,145,90,125,0],0,mode=0)
 # time.sleep(1)
@@ -335,7 +331,7 @@ def main():
                             '-', positionIsReachable=isReachable,
                             debug=mod_dict
                         )
-                        if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
+                        if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],2,useDefault=True,mode=0)
                         if axis == "x": time.sleep(0.005)
                         else: time.sleep(0.001)
                 time.sleep(1.5)
