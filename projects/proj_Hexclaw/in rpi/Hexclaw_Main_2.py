@@ -71,24 +71,25 @@ GPIO.output(ledRelay, GPIO.HIGH) # on
 
 time.sleep(0.75)
 
-sendToServo(servo,[90,115,135,90,115,90],2,mode=2)
+sendToServo(servo,[90,115,135,90,115,90],2,mode=0)
 
-
-for _ in range(4):
+if False:
+    for _ in range(4):
+        GPIO.output(ledRelay, False)
+        time.sleep(0.03)
+        GPIO.output(ledRelay, True)
+        time.sleep(0.03)
+    
+    time.sleep(1.5)
     GPIO.output(ledRelay, False)
-    time.sleep(0.03)
+    time.sleep(0.25)
     GPIO.output(ledRelay, True)
-    time.sleep(0.03)
-time.sleep(1.5)
-GPIO.output(ledRelay, False)
-time.sleep(0.25)
-GPIO.output(ledRelay, True)
-time.sleep(0.5)
-GPIO.output(ledRelay, False)
-time.sleep(0.1)
-GPIO.output(ledRelay, True)
-time.sleep(2)
-GPIO.output(ledRelay, False)
+    time.sleep(0.5)
+    GPIO.output(ledRelay, False)
+    time.sleep(0.1)
+    GPIO.output(ledRelay, True)
+    time.sleep(2)
+    GPIO.output(ledRelay, False)
 
 # sendToServo(servo,[90,115,145,90,125,0],0,mode=0)
 # time.sleep(1)

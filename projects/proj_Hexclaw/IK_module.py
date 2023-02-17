@@ -238,6 +238,7 @@ def sendToServo(
         servoExceeded,whichServoExceeded,typeOfExceeded,
         printErrors=printErrors
         )
+    print(new_rotation[2])
     if printResult: print("sent:",new_rotation)
     if servoExceeded: return
     total_iteration = 135
