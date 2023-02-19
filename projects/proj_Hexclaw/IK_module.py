@@ -258,7 +258,7 @@ def sendToServo(
     if mode==0:
         for x in range(6): 
             servo[x].angle = new_rotation[x]
-            time.sleep(0.001) #for 6 servo commands it should equal ~10 ms delay
+            # time.sleep(0.001) #for 6 servo commands it should equal ~10 ms delay
     elif mode==1 or mode==2:
         s_diff = []
         s_temp = []

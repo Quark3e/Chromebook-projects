@@ -86,7 +86,7 @@ def fullOrientTest(servo):
     startOrient = [int(angle) for angle in opt]
     currentOrient = startOrient.copy()
     s = 6*[0]
-    for axis in range(3):    
+    for axis in range(2):    
         for angle in range(startOrient[axis],90):
             currentOrient[axis] = angle
             q = getAngles(testPos,
@@ -98,7 +98,7 @@ def fullOrientTest(servo):
             if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
             time.sleep(0.001)  
 
-        for angle in range(91,-90,-1):
+        for angle in range(90,-90,-1):
             currentOrient[axis] = angle
             q = getAngles(testPos,
             toRadians(currentOrient[0]),
@@ -109,7 +109,7 @@ def fullOrientTest(servo):
             if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
             time.sleep(0.001)   
 
-        for angle in range(-91,startOrient[axis]):
+        for angle in range(-90,startOrient[axis]):
             currentOrient[axis] = angle
             q = getAngles(testPos,
             toRadians(currentOrient[0]),
