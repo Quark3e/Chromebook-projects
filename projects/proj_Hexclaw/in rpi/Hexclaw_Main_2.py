@@ -71,7 +71,7 @@ GPIO.output(ledRelay, GPIO.HIGH) # on
 
 time.sleep(0.75)
 
-sendToServo(servo,[90,115,135,90,115,90],2,mode=0)
+sendToServo(servo,[90,115,135,90,115,90],1,mode=2)
 
 if False:
     for _ in range(4):
@@ -91,8 +91,8 @@ if False:
     time.sleep(2)
     GPIO.output(ledRelay, False)
 
-servoTest(servo,2)
-sendToServo(servo,[90,115,135,90,115,90],2,mode=0)
+# servoTest(servo,2)
+# sendToServo(servo,[90,115,135,90,115,90],2,mode=0)
 
 # sendToServo(servo,[90,115,145,90,125,0],0,mode=0)
 # time.sleep(1)
