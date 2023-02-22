@@ -17,6 +17,8 @@ import sys
 import cv2
 import os
 import RPi.GPIO as GPIO #type: ignore
+import serial #type: ignore
+import matplotlib.pyplot as plt
 
 sys.path.append('/home/pi/Chromebook-projects/projects/proj_Hexclaw')
 
@@ -34,7 +36,6 @@ i2c = busio.I2C(SCL, SDA)
 pca = PCA9685(i2c)
 pca.frequency = 50
 
-
 servo = [servo.Servo(pca.channels[0]),
          servo.Servo(pca.channels[1]),
          servo.Servo(pca.channels[2]),
@@ -43,21 +44,11 @@ servo = [servo.Servo(pca.channels[0]),
          servo.Servo(pca.channels[5]),
          ]
 
+
+
 for i in range(6):
     servo[i].set_pulse_width_range(500, 2500)
 
-# servo[0].angle = 108
-# servo[1].angle = 15
-# servo[2].angle = 180 - 25
-# servo[3].angle = 45
-# servo[4].angle = 180 - 0
-# servo[5].angle = 90
-# servo[0].angle = 90
-# servo[1].angle = 15
-# servo[2].angle = 150
-# servo[3].angle = 90
-# servo[4].angle = 180
-# servo[5].angle = 90
 sendToServo(servo,[135,45,180,45,180,90],0,mode=0)
 time.sleep(1)
 
@@ -91,15 +82,6 @@ if False:
     time.sleep(2)
     GPIO.output(ledRelay, False)
 
-# servoTest(servo,2)
-# sendToServo(servo,[90,115,135,90,115,90],2,mode=0)
-
-# sendToServo(servo,[90,115,145,90,125,0],0,mode=0)
-# time.sleep(1)
-# sendToServo(servo,[90,115,145,90,125,180],0,mode=0)
-# time.sleep(1)
-# sendToServo(servo,[90,115,145,90,125,90],0,mode=0)
-
 print("------")
 time.sleep(2)
 
@@ -107,6 +89,13 @@ GPIO.output(ledRelay, True)
 
 diagnostics = True
 
+if diagnostics:
+    ard_port = '/dev/ttyUSB0'
+    ser_arduino = serial.Serial(ard_port, 9600, timeout=0.1)
+    ser_arduino.reset_input_buffer()
+    x_Values = []
+    y0_Values = []
+    y1_Values = []
 
 axisFilter = 0.7 #On the new value end
 xScaling, yScaling, zScaling = 0.8, 0.8, 1.2

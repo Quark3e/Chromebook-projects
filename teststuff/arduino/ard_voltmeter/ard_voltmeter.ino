@@ -2,7 +2,7 @@
 float V_src = 5;
 float V_read = 0;
 
-float R1 = 120, R2 = 33;
+float R1 = 113, R2 = 33.12;
 
 void setup() {
   Serial.begin(9600);
