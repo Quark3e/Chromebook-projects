@@ -26,8 +26,10 @@ mov_Patterns = { #NOTE: There cannot be any space in the keys
 ]
 }
 
-def fullAxisTest(servo):
+def fullAxisTest(servo, diagnostics=[False,[],[[],[]],None]):
     os.system("clear")
+    if diagnostics[0]:
+        t_start = time.perf_counter()
     isReachable = [True]
     startPos = [0,0,0]
     currentPos = [0,0,0]
@@ -45,28 +47,27 @@ def fullAxisTest(servo):
     opt = input("\n enter orientation [a b Y]:").split()
     if opt[0]=="exit": return
     orient = [toRadians(float(angle)) for angle in opt]
+    def getAndSend(position):
+        nonlocal diagnostics
+        currentPos[axis] = position
+        q = getAngles(currentPos,orient[0], orient[1], orient[2],
+            '-', positionIsReachable=isReachable,
+            debug=mod_dict)
+        if isReachable[0]:
+            sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
+            if diagnostics[0]:
+                diagnostics[3].write(bytes("get", 'utf-8'))
+                diagnostics[1].append(time.perf_counter()-t_start)
+                diagnostics[2][1].append()
+        time.sleep(0.001)
+
     for axis in range(3):    
         for pos in range(startPos[axis],wsRange[axis][1]):
-            currentPos[axis] = pos
-            q = getAngles(currentPos,orient[0], orient[1], orient[2],
-                '-', positionIsReachable=isReachable,
-                debug=mod_dict)
-            if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
-            time.sleep(0.001)    
+            getAndSend(pos)
         for pos in range(wsRange[axis][1],wsRange[axis][0],-1):
-            currentPos[axis] = pos
-            q = getAngles(currentPos,orient[0], orient[1], orient[2],
-                '-', positionIsReachable=isReachable,
-                debug=mod_dict)
-            if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
-            time.sleep(0.001)   
+            getAndSend(pos) 
         for pos in range(wsRange[axis][0],startPos[axis]):
-            currentPos[axis] = pos
-            q = getAngles(currentPos,orient[0], orient[1], orient[2],
-                '-', positionIsReachable=isReachable,
-                debug=mod_dict)
-            if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=0)
-            time.sleep(0.001)
+            getAndSend(pos)
     time.sleep(1)
 
     return

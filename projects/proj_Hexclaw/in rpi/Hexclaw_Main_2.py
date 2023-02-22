@@ -93,9 +93,9 @@ if diagnostics:
     ard_port = '/dev/ttyUSB0'
     ser_arduino = serial.Serial(ard_port, 9600, timeout=0.1)
     ser_arduino.reset_input_buffer()
-    x_Values = []
-    y0_Values = []
-    y1_Values = []
+    x_Values = [] #time/seconds passed since start of program
+    y0_Values = [] #voltage
+    y1_Values = [] #total absolute rotation difference (i.e. the "jump" in movement for that iteration)
 
 axisFilter = 0.7 #On the new value end
 xScaling, yScaling, zScaling = 0.8, 0.8, 1.2
