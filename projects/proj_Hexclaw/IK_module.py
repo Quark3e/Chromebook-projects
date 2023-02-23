@@ -6,8 +6,8 @@ d1 = 145; #axial "roll"
 d2 = 130; #axial "pitch"
 d3 = 75; #axial "pitch"
 d4 = 50; #axial "roll"
-d5 = 35; #axial "pitch
-d6 = 30; #axial "roll" (?)
+d5 = 25; #axial "pitch
+d6 = 25; #axial "roll" (?)
 # d1 = 140; #axial "roll"
 # d2 = 135; #axial "pitch"
 # d3 = 70; #axial "pitch"
@@ -253,7 +253,7 @@ def sendToServo(
         servoExceeded,whichServoExceeded,typeOfExceeded,
         printErrors=printErrors
         )
-    # print(new_rotation[2])
+    # print(new_rotation)
     if printResult: print("sent:",new_rotation)
     if servoExceeded: return
     total_iteration = 135
