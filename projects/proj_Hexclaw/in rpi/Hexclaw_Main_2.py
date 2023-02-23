@@ -355,14 +355,17 @@ def main():
                 axis = input("\nEnter what axis to move [x, y or z] [unit: mm]:")
                 if axis=="exit": break
                 orientToUse = input("\nEnter orientation for axis test [a, b and Y]:").split()
-                fullPos = [0,200,150]
+                fullPos = [0,link[4]+link[5]+100,150]
                 presetAngles = [0,0,0,0,0,0]
                 for joint in range(6): presetAngles[joint] = servo[joint].angle / constants_q[joint]["fixed"]
-                q = getAngles(
-                            fullPos,toRadians(int(orientToUse[0])),toRadians(int(orientToUse[1])),toRadians(int(orientToUse[2])),
-                            '-', positionIsReachable=isReachable, debug=mod_dict)
+                if axis == "x": fullPos[0] = direction*-150 #400
+                if axis == "y": fullPos[1] = direction*-150*0.5+100 #type: ignore #200
+                if axis == "z": fullPos[2] = direction*-150*0.5+200 #type: ignore #200
+                q = getAngles(fullPos,toRadians(int(orientToUse[0])),toRadians(int(orientToUse[1])),toRadians(int(orientToUse[2])), '-', positionIsReachable=isReachable, debug=mod_dict)
+                if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],2,useDefault=True,mode=2)
+                time.sleep(0.5)
                 for direction in range(1, -2, -2):
-                    for pos in range(-200, 200):
+                    for pos in range(-150, 150):
                         if axis == "x": fullPos[0] = direction*pos #400
                         if axis == "y": fullPos[1] = direction*pos*0.5+100 #type: ignore #200
                         if axis == "z": fullPos[2] = direction*pos*0.5+200 #type: ignore #200
