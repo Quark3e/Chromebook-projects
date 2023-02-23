@@ -62,7 +62,6 @@ GPIO.output(ledRelay, GPIO.LOW) # out
 GPIO.output(ledRelay, GPIO.HIGH) # on
 
 time.sleep(0.75)
-
 sendToServo(servo,[90,115,135,90,115,90],1,mode=2)
 
 if False:
@@ -88,7 +87,7 @@ time.sleep(2)
 
 GPIO.output(ledRelay, True)
 
-diagnostics = True
+diagnostics = False
 
 if diagnostics:
     ard_port = '/dev/ttyUSB0'
@@ -315,7 +314,7 @@ def main():
                     
                         if axis==1 or axis==3:
                             for j in range(6):
-                                ax[axis].plot(x_Values,y_Values[axis][j],linestyle='solid',label='q'str(j+1)) #type: ignore
+                                ax[axis].plot(x_Values,y_Values[axis][j],linestyle='solid',label='q'+str(j+1)) #type: ignore
                         else:
                             ax[axis].plot(x_Values,y_Values[axis],linestyle='solid') #type: ignore
                             if axis==0:
@@ -354,10 +353,14 @@ def main():
                     time.sleep(1)
             elif patternOpt==2: #type: ignore
                 axis = input("\nEnter what axis to move [x, y or z] [unit: mm]:")
+                if axis=="exit": break
                 orientToUse = input("\nEnter orientation for axis test [a, b and Y]:").split()
                 fullPos = [0,200,150]
                 presetAngles = [0,0,0,0,0,0]
                 for joint in range(6): presetAngles[joint] = servo[joint].angle / constants_q[joint]["fixed"]
+                q = getAngles(
+                            fullPos,toRadians(int(orientToUse[0])),toRadians(int(orientToUse[1])),toRadians(int(orientToUse[2])),
+                            '-', positionIsReachable=isReachable, debug=mod_dict)
                 for direction in range(1, -2, -2):
                     for pos in range(-200, 200):
                         if axis == "x": fullPos[0] = direction*pos #400
@@ -400,7 +403,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-    sendToServo(servo,[135,45,180,45,180,90],2,mode=2)
+    sendToServo(servo,[135,45,180,45,180,90],1,mode=2)
     GPIO.output(ledRelay, False)
     pca.deinit()
 
