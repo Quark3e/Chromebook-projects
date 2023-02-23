@@ -26,10 +26,9 @@ mov_Patterns = { #NOTE: There cannot be any space in the keys
 ]
 }
 
-def fullAxisTest(servo, diagnostics=[False,[],[[],[]],None]):
+def fullAxisTest(servo, diagnostics=[False,[],[[],[],[],[]],None]):
     os.system("clear")
-    if diagnostics[0]:
-        t_start = time.perf_counter()
+    if diagnostics[0]: t_start = time.perf_counter()
     isReachable = [True]
     startPos = [0,0,0]
     currentPos = [0,0,0]
@@ -47,6 +46,9 @@ def fullAxisTest(servo, diagnostics=[False,[],[[],[]],None]):
     opt = input("\n enter orientation [a b Y]:").split()
     if opt[0]=="exit": return
     orient = [toRadians(float(angle)) for angle in opt]
+
+    prevRotation = 6*[0]
+
     def getAndSend(position):
         nonlocal diagnostics
         currentPos[axis] = position
@@ -58,7 +60,13 @@ def fullAxisTest(servo, diagnostics=[False,[],[[],[]],None]):
             if diagnostics[0]:
                 diagnostics[3].write(bytes("get", 'utf-8'))
                 diagnostics[1].append(time.perf_counter()-t_start)
-                diagnostics[2][1].append()
+                diagnostics[2][3][0].append(0)
+                diagnostics[2][3][1].append(sLoadWeight[1]*9.82*(link[1]*math.cos(q[1])+link[2]*math.cos(q[1]+q[2])))
+                diagnostics[2][3][2].append(sLoadWeight[2]*9.82*(link[2]+link[3]+link[4]+link[5])*math.cos(q[2]))
+                for i in range(3,6): diagnostics[2][3][i].append(0)
+                diagnostics[2][2].append(solveListDifference([prevRotation,[toDegrees(joint) for joint in q]]))
+                for m in range(6): diagnostics[2][1][m].append(toDegrees(q[m])-prevRotation[m])
+                diagnostics[2][0].append(int(diagnostics[3].readline()))
         time.sleep(0.001)
 
     for axis in range(3):    

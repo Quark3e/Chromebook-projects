@@ -12,6 +12,7 @@ import numpy as np
 import imutils
 import time
 import math
+from datetime import datetime
 import adafruit_adxl34x # type: ignore
 import sys
 import cv2
@@ -94,8 +95,13 @@ if diagnostics:
     ser_arduino = serial.Serial(ard_port, 9600, timeout=0.1)
     ser_arduino.reset_input_buffer()
     x_Values = [] #time/seconds passed since start of program
+
     y0_Values = [] #voltage
-    y1_Values = [] #total absolute rotation difference (i.e. the "jump" in movement for that iteration)
+    y1_Values = 6*[[]] #absolute rotation difference/jump for each *individual motor*
+    y2_Values = [] #total absolute rotation difference (i.e. the "jump" in movement for that iteration)
+    y3_Values = 6*[[]] #*estimated* stagnant load on each motor (Nm)
+    GraphTitles = ["Voltage","new rotation","total new rotation","torque per motor"]
+    Graph_yLabel = ["Voltage [V]","Angle [degrees]","Angle [degrees]","Torque [Nm]"]
 
 axisFilter = 0.7 #On the new value end
 xScaling, yScaling, zScaling = 0.8, 0.8, 1.2
@@ -287,8 +293,47 @@ def main():
                 if key=="exit": break
                 presetAngles = 6*[0]
                 for joint in range(6): presetAngles[joint] = servo[joint].angle / constants_q[joint]["fixed"]
-                mov_Programs[key](servo)
+                if key=="axisTest" and diagnostics:
+                    mov_Programs[key](
+                        servo,
+                        [diagnostics,x_Values,
+                        [y0_Values,y1_Values,y2_Values,y3_Values],ser_arduino]
+                        ) 
+                else: mov_Programs[key](servo)
                 sendToServo(servo,presetAngles,0,mode=2)
+                if diagnostics and key=="axisTest":
+                    fig = plt.figure(figsize=(19, 6))
+                    ax = [0,0,0,0]
+                    y_Values = [y0_Values,y1_Values,y2_Values,y3_Values]
+                    for axis in range(len(ax)):
+                        ax[axis] = fig.add_subplot(1,4,axis+1) #type: ignore
+                        ax[axis].set_xlim(0,round(x_Values[-1])) #type: ignore
+                        ax[axis].set_title(GraphTitles[axis]) #type: ignore
+                        ax[axis].set_xlabel("time [seconds]") #type: ignore
+                        ax[axis].set_ylabel(Graph_yLabel[axis]) #type: ignore
+                        ax[axis].grid() #type: ignore
+                    
+                        if axis==1 or axis==3:
+                            for j in range(6):
+                                ax[axis].plot(x_Values,y_Values[axis][j],linestyle='solid',label='q'str(j+1)) #type: ignore
+                        else:
+                            ax[axis].plot(x_Values,y_Values[axis],linestyle='solid') #type: ignore
+                            if axis==0:
+                                ax[axis].axhline( #type: ignore
+                                    y=(sum(y_Values[axis])/len(y_Values[axis])),
+                                    color='red',linestyle='-',
+                                    label=f"avg:{round(sum(y_Values[axis])/len(y_Values[axis]))}V"
+                                    )
+                        ax[axis].legend(loc='upper right',framealpha=0.3) #type: ignore
+                    fig.tight_layout(pad=5.0)
+                    fig.suptitle("")
+
+                    currentDate = str(datetime.now()).replace(" ", ";")
+                    relativePath = "/home/pi/Chromebook-projects/projects/proj_Hexclaw/hexclaw_files/voltage_readings/media/"
+                    fileTitle = "mov_Voltage_"
+                    plt.savefig(relativePath+fileTitle+currentDate+".png") #type: ignore
+                    plt.show()
+                    
             if patternOpt==1: #type: ignore
                 print("Pick any of these patterns")
                 for key,_ in mov_Patterns.items(): print(" - \"",key,"\"", sep='')

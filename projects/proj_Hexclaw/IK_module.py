@@ -16,6 +16,7 @@ d6 = 30; #axial "roll" (?)
 # d6 = 30; #axial "roll" (?)
 
 link = [d1,d2,d3,d4,d5,d6]
+sLoadWeight = [0, 0.130, 0.085, 0, 0, 0] #kg
 default_q = [90, 0, 135, 90, 90, 90]
 debug_mods = []
 
@@ -47,7 +48,7 @@ constants_q = [{
 
 mod_dict = {
     "a1:frame1X": [False, "frame1X = frame1X * cos(b)"],
-    "a1:a1": [False, "a1 = a1 * cos(b)"],
+    "a1:a1": [True, "a1 = a1 * cos(b)"],
     "q4:default": [False, "q4 = atan(frame1X / frame1Y)"],
     "q4:a1": [False, "q4 = a1"],
     "q4:a1:b:minus": [False, "if b<0: q4=0-a1; else: q4=a1"],
@@ -125,14 +126,15 @@ def getDistance(p1, p2):
     """
     return sqrt(pow(p2[0]-p1[0], 2)+pow(p2[1]-p1[1], 2)+pow(p2[2]-p1[2], 2))
 
-def solveListDifference(listOfLists, mode=1, deltaList=[0]):
+def solveListDifference(listOfLists, mode=1, sumList=[0]):
     """Solves difference of each of the elements between all lists
 
     ## Parameters
         - listOfLists: [list1, list2], NOTE: len(list1) = len(list2)
         - mode:
             - mode=1: solves total difference: abs(-diff)
-            - mode=2: solves average difference
+            - mode=2: solves normal difference
+        - sumList: mutable list where index 0 gives sum of diff values (same as return)
 
     ## Returns:
         - returns sum of differences of each element
@@ -145,7 +147,7 @@ def solveListDifference(listOfLists, mode=1, deltaList=[0]):
         if diff<0 and mode==1: sumList[i] = abs(diff)
         else: sumList[i] = diff
     deltaVal = sum(sumList)
-    deltaList[0] = deltaVal
+    sumList[0] = deltaVal
     return deltaVal
 
 def findVal(listToCheck, mode=0):

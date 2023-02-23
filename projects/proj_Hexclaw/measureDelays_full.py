@@ -363,11 +363,11 @@ def main():
     xValues = [x for x in range(xRange)]
     # L_values, U_values = getValues()
     L_values, U_values = [45, 133, 68], [95, 255, 248] #getValues()
-    toTest = False
+    toTest = True
     #loop starts here
     i=0
-    # for i in range(xRange):
-    while True:
+    for i in range(xRange):
+    # while True:
         # print(i,end='')
         if i>=0: toTest=True
         #     print(" testing...",end='')
@@ -415,7 +415,7 @@ def main():
         fig.suptitle("with findVal(), with only dilate(); total delay: {:1.2f}ms".format(totalTime))
 
         currentDate = str(datetime.now()).replace(" ",";")
-        relativePath = "/home/pi/Chromebook-projects/projects/proj_4-FullRpi/hexclaw_files/measureDelays_files/media/"
+        relativePath = "/home/pi/Chromebook-projects/projects/proj_Hexclaw/hexclaw_files/measureDelays_files/media/"
         if useThread: fileTitle = "HM0_delays_"
         elif not useThread: fileTitle = "HM1_delays_"
         plt.savefig(relativePath+fileTitle+currentDate+".png") #type: ignore
