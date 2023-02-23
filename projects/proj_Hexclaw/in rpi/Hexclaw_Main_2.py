@@ -363,7 +363,6 @@ def main():
                 if axis == "z": fullPos[2] = direction*-150*0.5+200 #type: ignore #200
                 q = getAngles(fullPos,toRadians(int(orientToUse[0])),toRadians(int(orientToUse[1])),toRadians(int(orientToUse[2])), '-', positionIsReachable=isReachable, debug=mod_dict)
                 if isReachable[0]: sendToServo(servo,[toDegrees(joint) for joint in q],2,useDefault=True,mode=2)
-                time.sleep(0.5)
                 for direction in range(1, -2, -2):
                     for pos in range(-150, 150):
                         if axis == "x": fullPos[0] = direction*pos #400
