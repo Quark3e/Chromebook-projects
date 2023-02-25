@@ -1,5 +1,6 @@
 import sys
 import time
+import os
 from math import * #type: ignore
 
 d1 = 145; #axial "roll"
@@ -64,6 +65,24 @@ mod_dict = {
     - mod_dict = { str(mod name) : [bool(whether to use), str(description)]}\n
 
 """
+
+def debug_mod_menu(mod_dict):
+    """Edit the statuses for different modifications for angle-solving
+    ## Parameter
+        - mod_dict (dictionary): each mod is separated, only a boolean state for each key/mod
+            - keys: mod name
+            - value: status for if that key(/mod) is used, True if it is used
+    """
+    while True:
+        os.system("clear")
+        print("--- Debug: mod keys ---")
+        print(" to change the \"state\" of a mod, enter key and \"True\" to activate, \"False\" to turn off\n")
+        for key, status in mod_dict.items():
+            print(" - {:15}: status:{:5} description:\"{:}\"".format(key,status[0],status[1]))
+        opt = input("\n input:").split()
+        if opt[0] == "exit": return
+        mod_dict[opt[0]][0] = eval(opt[1])
+
 
 def getNumFromString(string, sepChar):
     """Get all numbers in a string separated by a character returned in a string
@@ -367,7 +386,8 @@ def getAngles(
     length_scalar=1,coord_scalar=1,
     printText=False,printErrors=True, forShow=False, 
     debug=mod_dict,
-    positionIsReachable=[True]
+    positionIsReachable=[True],
+    getSubframe=False
     ):
     """ Solves and returns all the rotation values
 
@@ -473,6 +493,8 @@ def getAngles(
     #nvm, the frame X0Y0Z0: x axis flipped and then it's flipped in the function
     frame1Z = (link[4]+link[5]) * sin(b1)
     frame1Y = (link[4]+link[5]) * cos(b1) * cos(a1)
+    if getSubframe:
+        return [frame1X,frame1Y,frame1Z,a1,b1]
 
     if printText: print(" frame1_x:",round(frame1X)," frame1_y:",round(frame1Y)," frame1_z:",round(frame1Z), sep='')
 
@@ -506,99 +528,28 @@ def getAngles(
             # q[4] = atan(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (cos(b1)*cos(a1))) # type: ignore
     except ValueError:
         positionIsReachable[0] = False
-    
-    if debug["q5:inPaper"][0]:
-        q[4] = atan(sqrt(pow(frame1X,2)+pow(frame1Z,2))/(cos(b1)*cos(a1))) #type: ignore
-    if debug["q5:default"][0]:
-        q[4] = atan(sqrt(pow(frame1X,2)+pow(frame1Z,2))/(frame1X/tan(a1))) #type: ignore
-    if debug["q5:d5"][0]:
-        q[4] = asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5])) # type: ignore
 
-    if frame1Z < 0:
-        q[4] = 0-q[4] # type: ignore
-        if printText: print(" frame1_z was below 0 so q5 is subtracted from 0")
-    if b <= pi / 2 and b >= 0 - pi / 2: q[5] = Y - q[3]
-    elif b >= pi / 2 or b <= 0 - pi / 2: q[5] = pi - (Y - q[5])
-    if printText: print(" ",[round(toDegrees(n)) for n in q])
-    if check_isNaN(q):
+    try:    
+        if debug["q5:inPaper"][0]:
+            q[4] = atan(sqrt(pow(frame1X,2)+pow(frame1Z,2))/(cos(b1)*cos(a1))) #type: ignore
+        if debug["q5:default"][0]:
+            q[4] = atan(sqrt(pow(frame1X,2)+pow(frame1Z,2))/(frame1X/tan(a1))) #type: ignore
+        if debug["q5:d5"][0]:
+            q[4] = asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5])) # type: ignore
+
+        if frame1Z < 0:
+            q[4] = 0-q[4] # type: ignore
+            if printText: print(" frame1_z was below 0 so q5 is subtracted from 0")
+        if b <= pi / 2 and b >= 0 - pi / 2: q[5] = Y - q[3]
+        elif b >= pi / 2 or b <= 0 - pi / 2: q[5] = pi - (Y - q[5])
+        if printText: print(" ",[round(toDegrees(n)) for n in q])
+        if check_isNaN(q):
+            positionIsReachable[0] = False
+            print("one joint is NaN")
+    except ValueError:
         positionIsReachable[0] = False
-        print("one joint is NaN")
 
     return q
-
-
-def getSubframe(PP,a,b,posOption,printText=False):
-    '''
-    Returns xyz distances in sub-frame 1 and a1, b1
-
-    Args:
-        PP (float/int) [mm]: The end-effector position in list for
-        a (float) [radians]: alpha orientation variable
-        b (float) [radians]: beta orientation variable
-        posOption (str/char): different mode to use
-            '-' is q3(/q[2]) above line between P2 and P4/P5;
-            '+' is q3(/q[2]) under line between P2 and P4/P5
-    '''
-    global frame1X, frame1Y, frame1Z
-    a1_exceed, b1_exceed = 0, 0
-    q=[0]*6
-    P5 = [0]*3
-    # PP[0] = 0 - PP[0]
-    posX = 0 - PP[0]
-    l = (link[4]+link[5]) * cos(b)
-    P5[0] = posX - l * sin(a)
-    P5[1] = PP[1] - l * cos(a)
-    P5[2] = PP[2] - (link[4]+link[5]) * sin(b)
-
-    if printText: print(" P5 coords:",[round(pos) for pos in P5], sep='')
-
-    if P5[1] < 0:
-        P5[1] = 0
-    if P5[1] == 0:
-        if P5[0] > 0: q[0] = toRadians(90) # type: ignore
-        elif P5[0] < 0: q[0] = toRadians(-90) # type: ignore
-        elif P5[0] == 0: q[0] = toRadians(0) # type: ignore
-    else: q[0] = atan(-P5[0] / P5[1]) # type: ignore
-    
-    try:
-        if posOption == '+': q[2] = acos((pow(P5[0], 2) + pow(P5[1], 2) + pow(P5[2] - link[0], 2) - pow(link[1], 2) - pow(link[2] + link[3], 2)) /(2 * link[1] * (link[2] + link[3]))) # type: ignore
-        elif posOption == '-': q[2] = acos((pow(P5[0], 2) + pow(P5[1], 2) + pow(P5[2] - link[0], 2) - pow(link[1], 2) - pow(link[2] + link[3], 2)) /(2 * link[1] * (link[2] + link[3]))) # type: ignore
-    except ValueError: print("domain error triggered")
-    
-    lambdaVar = atan((P5[2] - link[0]) / sqrt(pow(P5[0], 2) + pow(P5[1], 2)))
-    muVar = atan(((link[2] + link[3]) * sin(q[2])) /(link[1] + (link[2] + link[3]) * cos(q[2])))
-    if printText: print(" lambda:",round(toDegrees(lambdaVar))," mu:",round(toDegrees(muVar)),sep='')
-    if posOption == '+': q[1] = lambdaVar - muVar # type: ignore
-    elif posOption == '-':
-        #if (s[1] < diffCheck and lambdaVar + muVar < 0) or (lambdaVar + muVar > 0):
-        if lambdaVar + muVar > 0: q[1] = lambdaVar + muVar # type: ignore #NOTE: the negative muVar value hasnt been solved. so this is a temp. fix 
-        else: print("q[1] error occured")
-        q[2] = 0 - q[2] # type: ignore
-    
-    a1 = a - q[0]
-    b1 = b - (q[1] + q[2])
-
-    if toDegrees(b) == 90 or toDegrees(b) == -90:
-        a1 = 0
-
-    if printText: print(" a1:",round(toDegrees(a1))," b1:",round(toDegrees(b1)),sep='')
-    
-    if toDegrees(a1)>90: a1_exceed = 1
-    elif toDegrees(a1)<-90: a1_exceed = -1
-    if toDegrees(b1)>90: b1_exceed = 1
-    elif toDegrees(b1)<-90: b1_exceed = -1
-    
-    if b1_exceed!=0 or a1_exceed!=0:
-        if a1_exceed!=0: print(" a1 exceeded by", a1_exceed*90, end='')
-        if b1_exceed!=0: print(" b1 exceeded by", b1_exceed*90, end='')
-        print()
-
-    frame1X = (link[4]+link[5]) * cos(b1) * sin(a1)
-    #NOTE: The x and y axis of the X1Y1Z1 frame in the paper was reverse (compared to this. The names need to be changed!)
-    #nvm, the frame X0Y0Z0: x axis flipped and then it's flipped in the function
-    frame1Z = (link[4]+link[5]) * sin(b1)
-    frame1Y = (link[4]+link[5]) * cos(b1) * cos(a1)
-    return [frame1X,frame1Y,frame1Z,a1,b1]
 
 
 def getP1():

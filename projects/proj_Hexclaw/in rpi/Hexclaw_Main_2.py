@@ -157,24 +157,6 @@ def mouseTrack(event,x,y,flags,param):
         # cv2.putText(img,"("+str(int(x2-windowRes[0]*0.5))+","+str(int(windowRes[1]-y2))+")",(x2+10,y2),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255))
         
 
-def debug_mod_menu(mod_dict):
-    """Edit the statuses for different modifications for angle-solving
-    ## Parameter
-        - mod_dict (dictionary): each mod is separated, only a boolean state for each key/mod
-            - keys: mod name
-            - value: status for if that key(/mod) is used, True if it is used
-    """
-    while True:
-        os.system("clear")
-        print("--- Debug: mod keys ---")
-        print(" to change the \"state\" of a mod, enter key and \"True\" to activate, \"False\" to turn off\n")
-        for key, status in mod_dict.items():
-            print(" - {:15}: status:{:5} description:\"{:}\"".format(key,status[0],status[1]))
-        opt = input("\n input:").split()
-        if opt[0] == "exit": return
-        mod_dict[opt[0]][0] = eval(opt[1])
-
-
 def main():
     global PP, a, b, Y
     mode = 0

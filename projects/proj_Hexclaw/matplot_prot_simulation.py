@@ -6,9 +6,7 @@ import math
 import sys
 import os
 
-from IK_module import toDegrees,toRadians,getAngles,getDistance,getSubframe
-from IK_module import link
-
+from IK_module import *
 
 PP = 3*[0.0]
 orient = 3*[0.0]
@@ -77,7 +75,10 @@ def plotAxis_sim(PP):
             temp_PP[axis] = axisPos
             isReachable = [True]
             # print("{:8}".format(round(axisPos)), "orient:{:18}".format(str([toDegrees(angle) for angle in orient])), end=' ')
-            q = getAngles(temp_PP,orient[0],orient[1],orient[2],'-', printText=False,printErrors=False,forShow=False, positionIsReachable=isReachable, debug=[True,"both"])
+            if axis==1: print(temp_PP,[round(toDegrees(angle)) for angle in orient])
+            q = getAngles(temp_PP,orient[0],orient[1],orient[2],'-',
+            printText=False,printErrors=False,forShow=False,
+            positionIsReachable=isReachable, debug=mod_dict)
             if isReachable[0]:
                 _, read_PP, _ = FK_solver(q, printText = False)           
                 # print(' given:{:18} angles:{:30} read:{:18} orient:{:10}'.format(str([round(temp_PP) for temp_PP in temp_PP]),
@@ -90,7 +91,7 @@ def plotAxis_sim(PP):
                 given_axis_Values[axis][0].append(temp_PP[0])
                 given_axis_Values[axis][1].append(temp_PP[1])
                 given_axis_Values[axis][2].append(temp_PP[2])
-            print()
+            print("----------")
         if axis == 0: plotColor_1='red'
         elif axis == 1: plotColor_1='green'
         else: plotColor_1='blue'
@@ -146,9 +147,9 @@ def main():
         PP = [float(opt[0]),float(opt[1]),float(opt[2])]
         opt = input(" enter orientation of end-effector [a b Y]: ").split()
         orient = [toRadians(float(opt[0])),toRadians(float(opt[1])),toRadians(float(opt[2]))]
-        q = getAngles(PP,orient[0],orient[1],orient[2],'-',printText=True,forShow=False, debug=True)
+        q = getAngles(PP,orient[0],orient[1],orient[2],'-',printText=True,forShow=False, debug=mod_dict)
 
-        subFrame = getSubframe(PP,orient[0],orient[1],'-')
+        subFrame = getAngles(PP,orient[0],orient[1],orient[2],'-',getSubframe=True) #getSubframe(PP,orient[0],orient[1],'-')
         subFrame[0] = 0-subFrame[0]
         if subFrame[2]>=0: ax[1].set_zlim(0,100) #type: ignore
         elif subFrame[2]<0: ax[1].set_zlim(-100,0) #type: ignore
