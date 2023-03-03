@@ -67,6 +67,7 @@ def plotAxis_sim(PP):
     temp_PP = PP.copy()
 
     for axis in range(3):
+
         print(axis, PP, temp_PP, "-> ", end='')
         temp_PP = PP.copy()
         print(temp_PP)
@@ -121,7 +122,11 @@ def FK_solver(q, printText = True):
         if ((link[4]+link[5])*math.sin(q[4])*math.cos(q[3])) < 0: read_orient[0] = toRadians(-90) #type: ignore
     else:
         read_orient[0] = q[0]+math.atan(((link[4]+link[5])*math.sin(q[4])*math.sin(q[3])) / ((link[4]+link[5])*math.cos(q[4]))) #type: ignore
+
+    read_orient[0] = read_orient[0] / math.cos(read_orient[1]) #type: ignore
     if printText: print(" a_read:",toDegrees(read_orient[0])," b_read:",toDegrees(read_orient[1]),sep='')
+
+    print("orient:",[toDegrees(a) for a in read_orient])
 
     P[5] = [ #type: ignore
         P[4][0]+(link[4])*math.sin(read_orient[0])*math.sin(read_orient[1]),
