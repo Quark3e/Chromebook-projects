@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-import numpy as np
-import matplotlib.pyplot as plt
+import numpy as np #type:ignore
+import matplotlib.pyplot as plt #type: ignore
+from matplotlib.animation import FuncAnimation #type: ignore
 import math
 import sys
 import os
@@ -14,6 +15,13 @@ q = 6*[0.0]
 
 read_PP = PP
 P = 6*PP
+
+useAnimation = False
+
+def animate(i):
+    configure_plots()
+
+    return
 
 def configure_plots():
     '''
@@ -48,8 +56,7 @@ def configure_plots():
     ax[1].set_zlabel('Z1') #type: ignore
     ax[1].view_init(elev=20., azim=145, roll=0) #type: ignore
 
-
-def plotAxis_sim(PP):
+def plotAxis_sim(PP, printText=False):
     global ax
     xAxis_values = [[],[],[]] #[[x],[y],[z]], the elements (lists) are what's given to ax[0].plot()
     yAxis_values = [[],[],[]]
@@ -68,15 +75,15 @@ def plotAxis_sim(PP):
 
     for axis in range(3):
 
-        print(axis, PP, temp_PP, "-> ", end='')
+        if printText: print(axis, PP, temp_PP, "-> ", end='')
         temp_PP = PP.copy()
-        print(temp_PP)
+        if printText: print(temp_PP)
 
         for axisPos in range(posRanges[axis][0], posRanges[axis][1], 10):
             temp_PP[axis] = axisPos
             isReachable = [True]
             # print("{:8}".format(round(axisPos)), "orient:{:18}".format(str([toDegrees(angle) for angle in orient])), end=' ')
-            if axis==1: print(temp_PP,[round(toDegrees(angle)) for angle in orient])
+            if axis==1 and printText: print(temp_PP,[round(toDegrees(angle)) for angle in orient])
             q = getAngles(temp_PP,orient[0],orient[1],orient[2],'-',
             printText=False,printErrors=False,forShow=False,
             positionIsReachable=isReachable, debug=mod_dict)
@@ -92,15 +99,14 @@ def plotAxis_sim(PP):
                 given_axis_Values[axis][0].append(temp_PP[0])
                 given_axis_Values[axis][1].append(temp_PP[1])
                 given_axis_Values[axis][2].append(temp_PP[2])
-            print("----------")
+            if printText: print("----------")
         if axis == 0: plotColor_1='red'
         elif axis == 1: plotColor_1='green'
         else: plotColor_1='blue'
         ax[0].plot(read_axis_Values[axis][0],read_axis_Values[axis][1],linestyle='solid',zs=read_axis_Values[axis][2],zdir='z',color=plotColor_1) #type: ignore
         ax[0].plot(given_axis_Values[axis][0],given_axis_Values[axis][1],linestyle='dashed',zs=given_axis_Values[axis][2],zdir='z',color='grey') #type: ignore
 
-
-def FK_solver(q, printText = True):
+def FK_solver(q, printText = False):
     '''
     F(orward)K(inematics)_solver
 
@@ -122,11 +128,11 @@ def FK_solver(q, printText = True):
         if ((link[4]+link[5])*math.sin(q[4])*math.cos(q[3])) < 0: read_orient[0] = toRadians(-90) #type: ignore
     else:
         read_orient[0] = q[0]+math.atan(((link[4]+link[5])*math.sin(q[4])*math.sin(q[3])) / ((link[4]+link[5])*math.cos(q[4]))) #type: ignore
-
-    read_orient[0] = read_orient[0] / math.cos(read_orient[1]) #type: ignore
+    # read_orient[0] = 0 - read_orient[0]
+    # read_orient[0] = read_orient[0] / math.cos(read_orient[1]) #type: ignore
     if printText: print(" a_read:",toDegrees(read_orient[0])," b_read:",toDegrees(read_orient[1]),sep='')
 
-    print("orient:",[toDegrees(a) for a in read_orient])
+    # print("orient:",[toDegrees(a) for a in read_orient])
 
     P[5] = [ #type: ignore
         P[4][0]+(link[4])*math.sin(read_orient[0])*math.sin(read_orient[1]),
@@ -143,15 +149,19 @@ def FK_solver(q, printText = True):
 
 def main():
     global PP, orient, q, ax, fig
+    printText = False
     while True:
-        configure_plots() #NOTE: must call this first before any use of the variable 'ax'
         os.system('clear')
         opt = input(" enter end-effector position [x y z]: ").split()
         if opt[0] == "exit": break
         
         PP = [float(opt[0]),float(opt[1]),float(opt[2])]
         opt = input(" enter orientation of end-effector [a b Y]: ").split()
+        if opt[0] == "exit": break
         orient = [toRadians(float(opt[0])),toRadians(float(opt[1])),toRadians(float(opt[2]))]
+        
+        
+        configure_plots()
         q = getAngles(PP,orient[0],orient[1],orient[2],'-',printText=True,forShow=False, debug=mod_dict)
 
         subFrame = getAngles(PP,orient[0],orient[1],orient[2],'-',getSubframe=True) #getSubframe(PP,orient[0],orient[1],'-')
@@ -160,6 +170,13 @@ def main():
         elif subFrame[2]<0: ax[1].set_zlim(-100,0) #type: ignore
         
         P, read_PP, read_orient = FK_solver(q)
+
+
+        print("\n{:20} {}".format("given orients:", [round(toDegrees(angle)) for angle in orient]))
+        print("{:20} {}".format("calculated orients:", [round(toDegrees(angle)) for angle in read_orient]))
+
+        print("\n{:20} {}".format("correct length:", link[4]+link[5]))
+        print("{:20} {}".format("calculated length:", round(getDistance(read_PP,P[4]))),end='\n\n')
 
         x_values, y_values, z_values = [], [], []
 
@@ -170,17 +187,18 @@ def main():
         x_values.append(read_PP[0])
         y_values.append(read_PP[1])
         z_values.append(read_PP[2])
-        print(" x:",x_values,"\n y:",y_values,"\n z:",z_values)
-        
+        if printText: print(" x:",x_values,"\n y:",y_values,"\n z:",z_values)
         
         ax[0].plot(x_values, y_values, 'bo', linestyle='solid', zs=z_values, zdir='z', label='Base frame', color='black') #type: ignore
         ax[0].plot([P[4][0],PP[0]],[P[4][1],PP[1]],[P[4][2],PP[2]], 'bo', linestyle='dashed',color='grey') #type: ignore
 
-        plotAxis_sim(PP)
+        # plotAxis_sim(PP)
 
-        print(subFrame[0],subFrame[1],subFrame[2])
+        if printText: print(subFrame[0],subFrame[1],subFrame[2])
         ax[1].plot([0,-subFrame[0]],[0,subFrame[1]], 'bo',zs=[0,subFrame[2]], linestyle='solid', zdir='z', label='sub-frame') #type: ignore
         ax[1].plot([0,-subFrame[0],-subFrame[0],-subFrame[0]],[0,subFrame[1],subFrame[1],subFrame[1]],'bo',zs=[0,0,0,subFrame[2]], linestyle='dashed',color='red') #type: ignore
+        
+        
         plt.show()
 
 
