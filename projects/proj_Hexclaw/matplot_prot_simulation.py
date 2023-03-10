@@ -9,6 +9,13 @@ import os
 
 from IK_module import *
 
+# xRange = [0-(link[1]+link[2]+link[3]+link[4]+link[5]), (link[1]+link[2]+link[3]+link[4]+link[5])] #[lower/negative_range, upper/positive_range]
+# yRange = [0, (link[1]+link[2]+link[3]+link[4]+link[5])]
+# zRange = [0, sum(link)] #type: ignore
+xRange = [-250, 250]
+yRange = [150, 250]
+zRange = [100, 300]
+
 PP = 3*[0.0]
 orient = 3*[0.0]
 q = 6*[0.0]
@@ -16,57 +23,97 @@ q = 6*[0.0]
 read_PP = PP
 P = 6*PP
 
-useAnimation = False
+animateStartBool = True
+useAnimation = True
+moveType = "axis_basic"
 
-def animate(i):
-    configure_plots()
+def animate(n):
+    global ax, fig, moveType, PP, orient, q, thePlot, animateStartBool
+    if moveType == "axis_basic":
+        PP_copy = PP.copy()
+        if n>30: PP_copy[0]=-10*(n-30)+150
+        else: PP_copy[0]=n*10-150
+        
+        q = getAngles(PP_copy,orient[0],orient[1],orient[2],'-',printText=False,forShow=False, debug=mod_dict)
 
-    return
+        subFrame = getAngles(PP_copy,orient[0],orient[1],orient[2],'-',getSubframe=True, printText=False) #getSubframe(PP,orient[0],orient[1],'-')
+        subFrame[0] = 0-subFrame[0]
+        if subFrame[2]>=0: ax[1].set_zlim(0,100) #type: ignore
+        elif subFrame[2]<0: ax[1].set_zlim(-100,0) #type: ignore
 
-def configure_plots():
+        P, read_PP, read_orient = FK_solver(q)
+        x_values, y_values, z_values = [], [], []
+        for i in range(6):
+            x_values.append(P[i][0]) #type: ignore
+            y_values.append(P[i][1]) #type: ignore
+            z_values.append(P[i][2]) #type: ignore
+        x_values.append(read_PP[0])
+        y_values.append(read_PP[1])
+        z_values.append(read_PP[2])
+        if n>0:
+            thePlot[0][0].set_data(x_values, y_values) #type: ignore
+            thePlot[0][0].set_3d_properties(z_values) #type: ignore
+            thePlot[0][1].set_data([P[4][0],PP_copy[0]], [P[4][1],PP_copy[1]]) #type: ignore
+            thePlot[0][1].set_3d_properties([P[4][2],PP_copy[2]]) #type: ignore
+
+            thePlot[1][0].set_data([0,-subFrame[0]],[0,subFrame[1]]) #type: ignore
+            thePlot[1][0].set_3d_properties([0, subFrame[2]]) #type: ignore
+            thePlot[1][1].set_data([0,-subFrame[0],-subFrame[0],-subFrame[0]], [0,subFrame[1],subFrame[1],subFrame[1]]) #type: ignore
+            thePlot[1][1].set_3d_properties([0,0,0,subFrame[2]]) #type: ignore
+        if animateStartBool:
+            thePlot[0][0], = ax[0].plot(x_values, y_values, 'bo', linestyle='solid', zs=z_values, zdir='z', label='Base frame', color='black') #type: ignore
+            thePlot[0][1], = ax[0].plot([P[4][0],PP_copy[0]],[P[4][1],PP_copy[1]],[P[4][2],PP_copy[2]], 'bo', linestyle='dashed',color='grey') #type: ignore
+            plotAxis_sim(PP_copy)
+            thePlot[1][0], = ax[1].plot([0,-subFrame[0]],[0,subFrame[1]], 'bo',zs=[0,subFrame[2]], linestyle='solid', zdir='z', label='sub-frame') #type: ignore
+            thePlot[1][1], = ax[1].plot([0,-subFrame[0],-subFrame[0],-subFrame[0]],[0,subFrame[1],subFrame[1],subFrame[1]],'bo',zs=[0,0,0,subFrame[2]], linestyle='dashed',color='red') #type: ignore
+            animateStartBool = False
+
+def configure_plots(initiate=False):
     '''
     Plot frame X0Y0Z0 and sub-frame X1Y1Z1
     '''
-    global ax, fig
+    global ax, fig, thePlot
     
-    fig = plt.figure(figsize=plt.figaspect(0.5)) #type: ignore
-    ax = [0,0]
-    ax[0] = fig.add_subplot(1,2,1,projection='3d') #type: ignore
-    ax[1] = fig.add_subplot(1,2,2,projection='3d') #type: ignore
-    
+    if initiate:
+        fig = plt.figure(figsize=plt.figaspect(0.5)) #type: ignore
+        ax = [0,0]
+        ax[0] = fig.add_subplot(1,2,1,projection='3d') #type: ignore
+        ax[1] = fig.add_subplot(1,2,2,projection='3d') #type: ignore
+        thePlot = [[0,0],[0,0]]
+        #thePlot[0], = ax[0].plot([], [])
+        #thePlot[1], = ax[1].plot([], [])
+        thePlot[0][0], = ax[0].plot([], []) #type: ignore
+        thePlot[0][1], = ax[0].plot([], []) #type: ignore
+        thePlot[1][0], = ax[1].plot([], []) #type: ignore
+        thePlot[1][1], = ax[1].plot([], []) #type: ignore
+
     # Make legend, set axes limits and labels
     fig.legend()
-    ax[0].set_xlim(-250, 250)
-    ax[0].set_ylim(-100, 400)
+    ax[0].set_xlim(-250, 250) #type: ignore
+    ax[0].set_ylim(-100, 400) #type: ignore
     ax[0].set_zlim(0, 400) #type: ignore
-    ax[0].set_aspect('equal',adjustable='box')
-    ax[0].set_xlabel('X0')
-    ax[0].set_ylabel('Y0')
+    ax[0].set_aspect('equal',adjustable='box') #type: ignore
+    ax[0].set_xlabel('X0') #type: ignore
+    ax[0].set_ylabel('Y0') #type: ignore
     ax[0].set_zlabel('Z0') #type: ignore
     # Customize the view angle so it's easier to see that the scatter points lie
     # on the plane y=0
-    ax[0].view_init(elev=20., azim=145, roll=0) #type: ignore
+    ax[0].view_init(elev=20., azim=135, roll=0) #type: ignore
 
-    ax[1].set_xlim(-50, 50)
-    ax[1].set_ylim(0,100)
+    ax[1].set_xlim(-50, 50) #type: ignore
+    ax[1].set_ylim(0,100) #type: ignore
     ax[1].set_zlim(-50, 50) #type: ignore
-    ax[1].set_aspect('equal',adjustable='box')
-    ax[1].set_xlabel('X1')
-    ax[1].set_ylabel('Y1')
+    ax[1].set_aspect('equal',adjustable='box') #type: ignore
+    ax[1].set_xlabel('X1') #type: ignore
+    ax[1].set_ylabel('Y1') #type: ignore
     ax[1].set_zlabel('Z1') #type: ignore
-    ax[1].view_init(elev=20., azim=145, roll=0) #type: ignore
+    ax[1].view_init(elev=20., azim=125, roll=0) #type: ignore
 
 def plotAxis_sim(PP, printText=False):
     global ax
     xAxis_values = [[],[],[]] #[[x],[y],[z]], the elements (lists) are what's given to ax[0].plot()
     yAxis_values = [[],[],[]]
     zAxis_values = [[],[],[]]
-    xRange = [0-(link[1]+link[2]+link[3]+link[4]+link[5]), (link[1]+link[2]+link[3]+link[4]+link[5])] #[lower/negative_range, upper/positive_range]
-    yRange = [0, (link[1]+link[2]+link[3]+link[4]+link[5])]
-    zRange = [0, sum(link)] #type: ignore
-    xRange = [-250, 250]
-    yRange = [0, 400]
-    zRange = [0, 400]
 
     posRanges = [xRange,yRange,zRange]
     read_axis_Values = [xAxis_values.copy(),yAxis_values.copy(),zAxis_values.copy()]
@@ -148,7 +195,7 @@ def FK_solver(q, printText = False):
 
 
 def main():
-    global PP, orient, q, ax, fig
+    global PP, orient, q, ax, fig, animateStartBool
     printText = False
     while True:
         os.system('clear')
@@ -159,46 +206,50 @@ def main():
         opt = input(" enter orientation of end-effector [a b Y]: ").split()
         if opt[0] == "exit": break
         orient = [toRadians(float(opt[0])),toRadians(float(opt[1])),toRadians(float(opt[2]))]
-        
-        
-        configure_plots()
-        q = getAngles(PP,orient[0],orient[1],orient[2],'-',printText=True,forShow=False, debug=mod_dict)
+        configure_plots(initiate=True)
+        if useAnimation:
+            animateStartBool = True
+            anim = FuncAnimation(fig, animate, interval=0, frames=60, repeat=False) #type: ignore
+            #fig.canvas.mpl_connect('button_press_event', onClick)
+        elif not useAnimation:
+            configure_plots()
+            q = getAngles(PP,orient[0],orient[1],orient[2],'-',printText=True,forShow=False, debug=mod_dict)
 
-        subFrame = getAngles(PP,orient[0],orient[1],orient[2],'-',getSubframe=True) #getSubframe(PP,orient[0],orient[1],'-')
-        subFrame[0] = 0-subFrame[0]
-        if subFrame[2]>=0: ax[1].set_zlim(0,100) #type: ignore
-        elif subFrame[2]<0: ax[1].set_zlim(-100,0) #type: ignore
-        
-        P, read_PP, read_orient = FK_solver(q)
+            subFrame = getAngles(PP,orient[0],orient[1],orient[2],'-',getSubframe=True) #getSubframe(PP,orient[0],orient[1],'-')
+            subFrame[0] = 0-subFrame[0]
+            if subFrame[2]>=0: ax[1].set_zlim(0,100) #type: ignore
+            elif subFrame[2]<0: ax[1].set_zlim(-100,0) #type: ignore
+            
+            P, read_PP, read_orient = FK_solver(q)
 
 
-        print("\n{:20} {}".format("given orients:", [round(toDegrees(angle)) for angle in orient]))
-        print("{:20} {}".format("calculated orients:", [round(toDegrees(angle)) for angle in read_orient]))
+            print("\n{:20} {}".format("given orients:", [round(toDegrees(angle)) for angle in orient]))
+            print("{:20} {}".format("calculated orients:", [round(toDegrees(angle)) for angle in read_orient]))
 
-        print("\n{:20} {}".format("correct length:", link[4]+link[5]))
-        print("{:20} {}".format("calculated length:", round(getDistance(read_PP,P[4]))),end='\n\n')
+            print("\n{:20} {}".format("correct length:", link[4]+link[5]))
+            print("{:20} {}".format("calculated length:", round(getDistance(read_PP,P[4]))),end='\n\n')
 
-        x_values, y_values, z_values = [], [], []
+            x_values, y_values, z_values = [], [], []
 
-        for i in range(6):
-            x_values.append(P[i][0]) #type: ignore
-            y_values.append(P[i][1]) #type: ignore
-            z_values.append(P[i][2]) #type: ignore
-        x_values.append(read_PP[0])
-        y_values.append(read_PP[1])
-        z_values.append(read_PP[2])
-        if printText: print(" x:",x_values,"\n y:",y_values,"\n z:",z_values)
-        
-        ax[0].plot(x_values, y_values, 'bo', linestyle='solid', zs=z_values, zdir='z', label='Base frame', color='black') #type: ignore
-        ax[0].plot([P[4][0],PP[0]],[P[4][1],PP[1]],[P[4][2],PP[2]], 'bo', linestyle='dashed',color='grey') #type: ignore
+            for i in range(6):
+                x_values.append(P[i][0]) #type: ignore
+                y_values.append(P[i][1]) #type: ignore
+                z_values.append(P[i][2]) #type: ignore
+            x_values.append(read_PP[0])
+            y_values.append(read_PP[1])
+            z_values.append(read_PP[2])
+            if printText: print(" x:",x_values,"\n y:",y_values,"\n z:",z_values)
+            
+            ax[0].plot(x_values, y_values, 'bo', linestyle='solid', zs=z_values, zdir='z', label='Base frame', color='black') #type: ignore
+            ax[0].plot([P[4][0],PP[0]],[P[4][1],PP[1]],[P[4][2],PP[2]], 'bo', linestyle='dashed',color='grey') #type: ignore
 
-        # plotAxis_sim(PP)
+            # plotAxis_sim(PP)
 
-        if printText: print(subFrame[0],subFrame[1],subFrame[2])
-        ax[1].plot([0,-subFrame[0]],[0,subFrame[1]], 'bo',zs=[0,subFrame[2]], linestyle='solid', zdir='z', label='sub-frame') #type: ignore
-        ax[1].plot([0,-subFrame[0],-subFrame[0],-subFrame[0]],[0,subFrame[1],subFrame[1],subFrame[1]],'bo',zs=[0,0,0,subFrame[2]], linestyle='dashed',color='red') #type: ignore
-        
-        
+            if printText: print(subFrame[0],subFrame[1],subFrame[2])
+            ax[1].plot([0,-subFrame[0]],[0,subFrame[1]], 'bo',zs=[0,subFrame[2]], linestyle='solid', zdir='z', label='sub-frame') #type: ignore
+            ax[1].plot([0,-subFrame[0],-subFrame[0],-subFrame[0]],[0,subFrame[1],subFrame[1],subFrame[1]],'bo',zs=[0,0,0,subFrame[2]], linestyle='dashed',color='red') #type: ignore
+            
+            
         plt.show()
 
 
