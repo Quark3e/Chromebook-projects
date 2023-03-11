@@ -13,9 +13,10 @@ from IK_module import *
 # yRange = [0, (link[1]+link[2]+link[3]+link[4]+link[5])]
 # zRange = [0, sum(link)] #type: ignore
 xRange = [-250, 250]
-yRange = [150, 250]
-zRange = [100, 300]
-
+yRange = [100, 250]
+zRange = [50, 300]
+axisRanges = [xRange[0],xRange[1],yRange[0],yRange[1],zRange[0],zRange[1]]
+axisRanges_sum = (sum([abs(val) for val in axisRanges]))
 PP = 3*[0.0]
 orient = 3*[0.0]
 q = 6*[0.0]
@@ -25,16 +26,74 @@ P = 6*PP
 
 animateStartBool = True
 useAnimation = True
-moveType = "axis_basic"
-
+totalFrames = 100
+totalFrames_delay = round(5000 / axisRanges_sum)
+moveType = "axis_All"
+rangeSplits = [
+    (abs(xRange[0])+abs(xRange[1]))/axisRanges_sum,
+    (abs(xRange[0])+abs(xRange[1]))/axisRanges_sum+(abs(yRange[0])+abs(yRange[1]))/axisRanges_sum,
+    (abs(xRange[0])+abs(xRange[1]))/axisRanges_sum+(abs(yRange[0])+abs(yRange[1]))/axisRanges_sum+(abs(zRange[0])+abs(zRange[1]))/axisRanges_sum,
+]
+axis_All_lims = [ceil(var*totalFrames) for var in rangeSplits]
+print(axis_All_lims, totalFrames_delay)
+animPos = [0,0]
+input()
 def animate(n):
-    global ax, fig, moveType, PP, orient, q, thePlot, animateStartBool
-    if moveType == "axis_basic":
+    global ax, fig, moveType, PP, orient, q, thePlot, animateStartBool, animPos
+    # if animateStartBool: animPos = [0,0]
+    if moveType == "axis_All":
         PP_copy = PP.copy()
-        if n>30: PP_copy[0]=-10*(n-30)+150
-        else: PP_copy[0]=n*10-150
         
-        q = getAngles(PP_copy,orient[0],orient[1],orient[2],'-',printText=False,forShow=False, debug=mod_dict)
+        if n<=axis_All_lims[0]:
+            if n==0: animPos = [0,0]
+            p_val = [xRange[0]-PP[0], xRange[1]-xRange[0], -xRange[1]-PP[0]]
+            totalVar = sum([abs(val) for val in p_val])
+            lim = [(var)/totalVar for var in p_val]
+            rangeLim = [
+                abs(lim[0]*axis_All_lims[0]),
+                abs(lim[0]*axis_All_lims[0])+abs(lim[1]*axis_All_lims[0]),
+                abs(lim[0]*axis_All_lims[0])+abs(lim[1]*axis_All_lims[0])+abs(lim[2]*axis_All_lims[0])
+                ]
+            rangeLim = [round(var) for var in rangeLim]
+            if n<=rangeLim[0]: PP_copy[0] = PP[0] + (n*p_val[0])/rangeLim[0]; animPos[0] = PP_copy[0]
+            elif n<=rangeLim[1]: PP_copy[0] = PP[0] + animPos[0] + ((n-rangeLim[0])*p_val[1])/(rangeLim[1]-rangeLim[0]); animPos[1] = PP_copy[0]
+            elif n<rangeLim[2]: PP_copy[0] = PP[0] + animPos[1] + ((n-rangeLim[1])*p_val[2])/(rangeLim[2]-rangeLim[1])
+            # print(n, PP_copy, animPos, p_val, rangeLim, totalVar, lim)
+        elif n<=axis_All_lims[1]:
+            if n==34: animPos=[0,0]
+            p_val = [yRange[0]-PP[1], yRange[1]-yRange[0], yRange[1]-PP[1]]
+            totalVar = sum([abs(val) for val in p_val])
+            lim = [(var)/totalVar for var in p_val]
+            rangeLim = [
+                abs(lim[0]*(axis_All_lims[1]-axis_All_lims[0])),
+                abs(lim[0]*(axis_All_lims[1]-axis_All_lims[0]))+abs(lim[1]*(axis_All_lims[1]-axis_All_lims[0])),
+                abs(lim[0]*(axis_All_lims[1]-axis_All_lims[0]))+abs(lim[1]*(axis_All_lims[1]-axis_All_lims[0]))+abs(lim[2]*(axis_All_lims[1]-axis_All_lims[0]))
+                ]
+            rangeLim = [round(var) for var in rangeLim]
+            if n-axis_All_lims[0]<=rangeLim[0]: PP_copy[1] = PP[1] + ((n-axis_All_lims[0])*p_val[0])/rangeLim[0]; animPos[0] = PP_copy[1]
+            elif n-axis_All_lims[0]<=rangeLim[1]: PP_copy[1] = animPos[0] + (((n-axis_All_lims[0])-rangeLim[0])*p_val[1])/(rangeLim[1]-rangeLim[0]); animPos[1] = PP_copy[1]
+            elif n-axis_All_lims[0]<rangeLim[2]: PP_copy[1] = animPos[1] - (((n-axis_All_lims[0])-rangeLim[1])*p_val[2])/(rangeLim[2]-rangeLim[1])
+            # print(n, PP_copy, animPos, p_val, rangeLim, totalVar, lim)
+        elif n<=axis_All_lims[2]:
+            if n==67: animPos=[0,0]
+            p_val = [zRange[0]-PP[2], zRange[1]-zRange[0], zRange[1]-PP[2]]
+            totalVar = sum([abs(val) for val in p_val])
+            lim = [(var)/totalVar for var in p_val]
+            rangeLim = [
+                abs(lim[0]*(axis_All_lims[2]-axis_All_lims[1])),
+                abs(lim[0]*(axis_All_lims[2]-axis_All_lims[1]))+abs(lim[1]*(axis_All_lims[2]-axis_All_lims[1])),
+                abs(lim[0]*(axis_All_lims[2]-axis_All_lims[1]))+abs(lim[1]*(axis_All_lims[2]-axis_All_lims[1]))+abs(lim[2]*(axis_All_lims[2]-axis_All_lims[1]))
+                ]
+            rangeLim = [round(var) for var in rangeLim]
+            if n-axis_All_lims[1]<=rangeLim[0]: PP_copy[2] = PP[2] + ((n-axis_All_lims[1])*p_val[0])/rangeLim[0]; animPos[0] = PP_copy[2]
+            elif n-axis_All_lims[1]<=rangeLim[1]: PP_copy[2] = animPos[0] + (((n-axis_All_lims[1])-rangeLim[0])*p_val[1])/(rangeLim[1]-rangeLim[0]); animPos[1] = PP_copy[2]
+            elif n-axis_All_lims[1]<rangeLim[2]: PP_copy[2] = animPos[1] - (((n-axis_All_lims[1])-rangeLim[1])*p_val[2])/(rangeLim[2]-rangeLim[1])
+            # print(n, PP_copy, animPos, p_val, rangeLim, totalVar, lim)
+
+
+        isReachable = [True]
+        q = getAngles(PP_copy,orient[0],orient[1],orient[2],'-',printText=False,forShow=False, debug=mod_dict, positionIsReachable=isReachable)
+        if not isReachable[0]: return #skip everything below if the position isn't reachable
 
         subFrame = getAngles(PP_copy,orient[0],orient[1],orient[2],'-',getSubframe=True, printText=False) #getSubframe(PP,orient[0],orient[1],'-')
         subFrame[0] = 0-subFrame[0]
@@ -67,6 +126,7 @@ def animate(n):
             thePlot[1][0], = ax[1].plot([0,-subFrame[0]],[0,subFrame[1]], 'bo',zs=[0,subFrame[2]], linestyle='solid', zdir='z', label='sub-frame') #type: ignore
             thePlot[1][1], = ax[1].plot([0,-subFrame[0],-subFrame[0],-subFrame[0]],[0,subFrame[1],subFrame[1],subFrame[1]],'bo',zs=[0,0,0,subFrame[2]], linestyle='dashed',color='red') #type: ignore
             animateStartBool = False
+        if n==99: print("finished")
 
 def configure_plots(initiate=False):
     '''
@@ -209,8 +269,7 @@ def main():
         configure_plots(initiate=True)
         if useAnimation:
             animateStartBool = True
-            anim = FuncAnimation(fig, animate, interval=0, frames=60, repeat=False) #type: ignore
-            #fig.canvas.mpl_connect('button_press_event', onClick)
+            anim = FuncAnimation(fig, animate, interval=totalFrames_delay, frames=totalFrames, repeat=False) #type: ignore
         elif not useAnimation:
             configure_plots()
             q = getAngles(PP,orient[0],orient[1],orient[2],'-',printText=True,forShow=False, debug=mod_dict)
