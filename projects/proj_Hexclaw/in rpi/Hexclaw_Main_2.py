@@ -7,19 +7,19 @@
 #*/
 
 # Import essential libraries
-import requests
-import numpy as np
-import imutils
+import requests #type: ignore
+import numpy as np #type: ignore
+import imutils #type: ignore
 import time
 import math
 from datetime import datetime
 import adafruit_adxl34x # type: ignore
 import sys
-import cv2
+import cv2 #type: ignore
 import os
 import RPi.GPIO as GPIO #type: ignore
 import serial #type: ignore
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt #type: ignore
 
 sys.path.append('/home/pi/Chromebook-projects/projects/proj_Hexclaw')
 
@@ -343,7 +343,7 @@ def main():
                 prevSent=False
                 for direction in range(1, -2, -2):
                     for pos in range(-200, 200):
-                        if axis == "x": fullPos[0] = direction*pos*0.75 #300
+                        if axis == "x": fullPos[0] = direction*pos*0.75  #type: ignore #300 
                         if axis == "y": fullPos[1] = direction*pos*0.5+100 #type: ignore #200
                         if axis == "z": fullPos[2] = direction*pos*0.5+200 #type: ignore #200
                         q = getAngles(
