@@ -35,9 +35,10 @@ rangeSplits = [
     (abs(xRange[0])+abs(xRange[1]))/axisRanges_sum+(abs(yRange[0])+abs(yRange[1]))/axisRanges_sum+(abs(zRange[0])+abs(zRange[1]))/axisRanges_sum,
 ]
 axis_All_lims = [ceil(var*totalFrames) for var in rangeSplits]
-print(axis_All_lims, totalFrames_delay)
+# print(axis_All_lims, totalFrames_delay)
 animPos = [0,0]
-input()
+motorExceeded=False
+
 def animate(n):
     global ax, fig, moveType, PP, orient, q, thePlot, animateStartBool, animPos
     # if animateStartBool: animPos = [0,0]
@@ -58,7 +59,6 @@ def animate(n):
             if n<=rangeLim[0]: PP_copy[0] = PP[0] + (n*p_val[0])/rangeLim[0]; animPos[0] = PP_copy[0]
             elif n<=rangeLim[1]: PP_copy[0] = PP[0] + animPos[0] + ((n-rangeLim[0])*p_val[1])/(rangeLim[1]-rangeLim[0]); animPos[1] = PP_copy[0]
             elif n<rangeLim[2]: PP_copy[0] = PP[0] + animPos[1] + ((n-rangeLim[1])*p_val[2])/(rangeLim[2]-rangeLim[1])
-            # print(n, PP_copy, animPos, p_val, rangeLim, totalVar, lim)
         elif n<=axis_All_lims[1]:
             if n==34: animPos=[0,0]
             p_val = [yRange[0]-PP[1], yRange[1]-yRange[0], yRange[1]-PP[1]]
@@ -73,7 +73,6 @@ def animate(n):
             if n-axis_All_lims[0]<=rangeLim[0]: PP_copy[1] = PP[1] + ((n-axis_All_lims[0])*p_val[0])/rangeLim[0]; animPos[0] = PP_copy[1]
             elif n-axis_All_lims[0]<=rangeLim[1]: PP_copy[1] = animPos[0] + (((n-axis_All_lims[0])-rangeLim[0])*p_val[1])/(rangeLim[1]-rangeLim[0]); animPos[1] = PP_copy[1]
             elif n-axis_All_lims[0]<rangeLim[2]: PP_copy[1] = animPos[1] - (((n-axis_All_lims[0])-rangeLim[1])*p_val[2])/(rangeLim[2]-rangeLim[1])
-            # print(n, PP_copy, animPos, p_val, rangeLim, totalVar, lim)
         elif n<=axis_All_lims[2]:
             if n==67: animPos=[0,0]
             p_val = [zRange[0]-PP[2], zRange[1]-zRange[0], zRange[1]-PP[2]]
@@ -88,12 +87,13 @@ def animate(n):
             if n-axis_All_lims[1]<=rangeLim[0]: PP_copy[2] = PP[2] + ((n-axis_All_lims[1])*p_val[0])/rangeLim[0]; animPos[0] = PP_copy[2]
             elif n-axis_All_lims[1]<=rangeLim[1]: PP_copy[2] = animPos[0] + (((n-axis_All_lims[1])-rangeLim[0])*p_val[1])/(rangeLim[1]-rangeLim[0]); animPos[1] = PP_copy[2]
             elif n-axis_All_lims[1]<rangeLim[2]: PP_copy[2] = animPos[1] - (((n-axis_All_lims[1])-rangeLim[1])*p_val[2])/(rangeLim[2]-rangeLim[1])
-            # print(n, PP_copy, animPos, p_val, rangeLim, totalVar, lim)
-
 
         isReachable = [True]
         q = getAngles(PP_copy,orient[0],orient[1],orient[2],'-',printText=False,forShow=False, debug=mod_dict, positionIsReachable=isReachable)
         if not isReachable[0]: return #skip everything below if the position isn't reachable
+        temp_q = add_defaults([toDegrees(val) for val in q])
+        motorExceeded = exceedCheck(temp_q)
+        # print(motorExceeded)
 
         subFrame = getAngles(PP_copy,orient[0],orient[1],orient[2],'-',getSubframe=True, printText=False) #getSubframe(PP,orient[0],orient[1],'-')
         subFrame[0] = 0-subFrame[0]
@@ -114,6 +114,8 @@ def animate(n):
             thePlot[0][0].set_3d_properties(z_values) #type: ignore
             thePlot[0][1].set_data([P[4][0],PP_copy[0]], [P[4][1],PP_copy[1]]) #type: ignore
             thePlot[0][1].set_3d_properties([P[4][2],PP_copy[2]]) #type: ignore
+            if motorExceeded: thePlot[0][0].set_color('red') #type: ignore
+            else: thePlot[0][0].set_color('black') #type: ignore
 
             thePlot[1][0].set_data([0,-subFrame[0]],[0,subFrame[1]]) #type: ignore
             thePlot[1][0].set_3d_properties([0, subFrame[2]]) #type: ignore

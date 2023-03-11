@@ -257,13 +257,7 @@ def sendToServo(
             - 1: new_rotation diff is sent linearly, evenly
             - 2: mp1: motion profile 1: second polynomial
     """
-    if useDefault:
-        new_rotation[5] = default_q[5] + new_rotation[5]
-        new_rotation[4] = 180 - default_q[4] - new_rotation[4]
-        new_rotation[3] = default_q[3] + new_rotation[3]
-        new_rotation[2] = 180 - default_q[2] - new_rotation[2]
-        new_rotation[1] = default_q[1] + new_rotation[1]
-        new_rotation[0] = default_q[0] - new_rotation[0]
+    if useDefault: add_defaults(new_rotation, True)
     
     q_corrections(new_rotation)
     
@@ -345,7 +339,7 @@ def findOrients(pos, startOrient=[0,0],Y=0):
 
     return None
 
-def exceedCheck(q, servoExceeded, whichServoExceeded, typeOfExceeded, printErrors=True):
+def exceedCheck(q, servoExceeded=False, whichServoExceeded=[False,False,False,False,False,False], typeOfExceeded=["null","null","null","null","null","null"], printErrors=True):
     """
     ### Parameters:
         - q: joints 1-6 in unit: NOTE:degrees
@@ -380,6 +374,24 @@ def check_isNaN(q, printText = False):
     else:
         return False
 
+def add_defaults(q, useMutable=False):
+    if useMutable:
+        q[5] = default_q[5] + q[5]
+        q[4] = 180 - default_q[4] - q[4]
+        q[3] = default_q[3] + q[3]
+        q[2] = 180 - default_q[2] - q[2]
+        q[1] = default_q[1] + q[1]
+        q[0] = default_q[0] - q[0]
+        return
+    elif not useMutable:
+        temp=len(q)*[0]
+        temp[5] = default_q[5] + q[5]
+        temp[4] = 180 - default_q[4] - q[4]
+        temp[3] = default_q[3] + q[3]
+        temp[2] = 180 - default_q[2] - q[2]
+        temp[1] = default_q[1] + q[1]
+        temp[0] = default_q[0] - q[0]
+        return temp 
 
 def getAngles(
     PP,a,b,Y,posOption,
