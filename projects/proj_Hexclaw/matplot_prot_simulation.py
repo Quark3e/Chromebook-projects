@@ -3,6 +3,7 @@
 import numpy as np #type:ignore
 import matplotlib.pyplot as plt #type: ignore
 from matplotlib.animation import FuncAnimation #type: ignore
+from matplotlib.animation import PillowWriter, FFMpegWriter #type: ignore
 import math
 import sys
 import os
@@ -24,10 +25,11 @@ q = 6*[0.0]
 read_PP = PP
 P = 6*PP
 
+toSaveImage = False
 animateStartBool = True
 useAnimation = True
 totalFrames = 100
-totalFrames_delay = round(5000 / axisRanges_sum)
+totalFrames_delay = round(10000 / axisRanges_sum)
 moveType = "axis_All"
 rangeSplits = [
     (abs(xRange[0])+abs(xRange[1]))/axisRanges_sum,
@@ -160,7 +162,7 @@ def configure_plots(initiate=False):
     ax[0].set_zlabel('Z0') #type: ignore
     # Customize the view angle so it's easier to see that the scatter points lie
     # on the plane y=0
-    ax[0].view_init(elev=20., azim=135, roll=0) #type: ignore
+    ax[0].view_init(elev=45., azim=135, roll=0) #type: ignore
 
     ax[1].set_xlim(-50, 50) #type: ignore
     ax[1].set_ylim(0,100) #type: ignore
@@ -169,7 +171,7 @@ def configure_plots(initiate=False):
     ax[1].set_xlabel('X1') #type: ignore
     ax[1].set_ylabel('Y1') #type: ignore
     ax[1].set_zlabel('Z1') #type: ignore
-    ax[1].view_init(elev=20., azim=125, roll=0) #type: ignore
+    ax[1].view_init(elev=45., azim=135, roll=0) #type: ignore
 
 def plotAxis_sim(PP, printText=False):
     global ax
@@ -259,6 +261,7 @@ def FK_solver(q, printText = False):
 def main():
     global PP, orient, q, ax, fig, animateStartBool
     printText = False
+    anim = 0
     while True:
         os.system('clear')
         opt = input(" enter end-effector position [x y z]: ").split()
@@ -271,7 +274,7 @@ def main():
         configure_plots(initiate=True)
         if useAnimation:
             animateStartBool = True
-            anim = FuncAnimation(fig, animate, interval=totalFrames_delay, frames=totalFrames, repeat=False) #type: ignore
+            anim = FuncAnimation(fig, animate, interval=totalFrames_delay, frames=totalFrames, repeat=False)
         elif not useAnimation:
             configure_plots()
             q = getAngles(PP,orient[0],orient[1],orient[2],'-',printText=True,forShow=False, debug=mod_dict)
@@ -309,7 +312,11 @@ def main():
             if printText: print(subFrame[0],subFrame[1],subFrame[2])
             ax[1].plot([0,-subFrame[0]],[0,subFrame[1]], 'bo',zs=[0,subFrame[2]], linestyle='solid', zdir='z', label='sub-frame') #type: ignore
             ax[1].plot([0,-subFrame[0],-subFrame[0],-subFrame[0]],[0,subFrame[1],subFrame[1],subFrame[1]],'bo',zs=[0,0,0,subFrame[2]], linestyle='dashed',color='red') #type: ignore
-            
+        
+        if toSaveImage:
+            gif_writer = PillowWriter(fps=10, metadata=dict(artist='me'),bitrate=18000)
+            mp4_writer = FFMpegWriter(fps=60)
+            anim.save("simulation_45_45_vid.mp4", writer=gif_writer) #type: ignore
             
         plt.show()
 
