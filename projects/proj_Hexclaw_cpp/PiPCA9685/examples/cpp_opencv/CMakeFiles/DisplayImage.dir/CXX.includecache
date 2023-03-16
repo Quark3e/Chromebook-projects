@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/pi/PiPCA9685/examples/cpp_opencv/DisplayImage.cpp
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/PiPCA9685/examples/cpp_opencv/DisplayImage.cpp
 stdio.h
 -
 opencv2/opencv.hpp

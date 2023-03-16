@@ -1,4 +1,4 @@
-# Install script for directory: /home/pi/PiPCA9685/examples/cpp_opencv
+# Install script for directory: /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/PiPCA9685/examples/cpp_opencv
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/pi/PiPCA9685/examples/cpp_opencv/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/PiPCA9685/examples/cpp_opencv/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

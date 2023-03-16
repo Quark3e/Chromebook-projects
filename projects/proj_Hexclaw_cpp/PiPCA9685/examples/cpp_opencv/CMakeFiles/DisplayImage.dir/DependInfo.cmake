@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/pi/PiPCA9685/examples/cpp_opencv/DisplayImage.cpp" "/home/pi/PiPCA9685/examples/cpp_opencv/CMakeFiles/DisplayImage.dir/DisplayImage.cpp.o"
+  "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/PiPCA9685/examples/cpp_opencv/DisplayImage.cpp" "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/PiPCA9685/examples/cpp_opencv/CMakeFiles/DisplayImage.dir/DisplayImage.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

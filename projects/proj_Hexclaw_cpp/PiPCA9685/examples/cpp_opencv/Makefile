@@ -67,10 +67,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/pi/PiPCA9685/examples/cpp_opencv
+CMAKE_SOURCE_DIR = /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/PiPCA9685/examples/cpp_opencv
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/pi/PiPCA9685/examples/cpp_opencv
+CMAKE_BINARY_DIR = /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/PiPCA9685/examples/cpp_opencv
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -99,9 +99,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/pi/PiPCA9685/examples/cpp_opencv/CMakeFiles /home/pi/PiPCA9685/examples/cpp_opencv//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/PiPCA9685/examples/cpp_opencv/CMakeFiles /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/PiPCA9685/examples/cpp_opencv//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/pi/PiPCA9685/examples/cpp_opencv/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/PiPCA9685/examples/cpp_opencv/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
