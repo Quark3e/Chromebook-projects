@@ -4,23 +4,23 @@
 #include <math.h>
 
 using namespace std;
-using namespace PiPCA9685;
+// using namespace PiPCA9685;
 
-PCA9685 pca{};
+// PCA9685 pca{};
 
 void sendToServo(
-  // PCA9685* pcaBoard,
+  PCA9685* pcaBoard,
   // float new_rotation[6],
   int servoToMove,
   int angle
 ) {
-  pca.set_pwm(servoToMove, 0, round(400*(float(angle)/180))+100)
+  pcaBoard.set_pwm(servoToMove, 0, round(400*(float(angle)/180))+100);
 }
 
 
 int main() {
   //Max 530
-  // PCA9685 pca{};
+  PiPCA9685::PCA9685 pca{};
 
   int sm_pin = 2;
   pca.set_pwm_freq(50.0);
