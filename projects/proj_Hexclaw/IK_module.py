@@ -349,12 +349,12 @@ def exceedCheck(q, servoExceeded=False, whichServoExceeded=[False,False,False,Fa
     """
     # print(q)
     for i in range(5):
-        if q[i] < 0: q[i] = 0; servoExceeded = True; whichServoExceeded[0] = True; typeOfExceeded[0] = "under"
-        elif q[i] > 180: q[i] = 180; servoExceeded = True; whichServoExceeded[5] = True; typeOfExceeded[5] = "over"
+        if q[i] < 0: q[i] = 0; servoExceeded = True; whichServoExceeded[i] = True; typeOfExceeded[i] = "under"
+        elif q[i] > 180: q[i] = 180; servoExceeded = True; whichServoExceeded[i] = True; typeOfExceeded[i] = "over"
 
-    if servoExceeded:
+    if servoExceeded and printErrors:
         for i in range(5):
-            if whichServoExceeded[i] and printErrors: print("\tServo motor: q", i+1, " exceeded \"", typeOfExceeded[i], "\"", sep='')
+            if whichServoExceeded[i]: print("\tServo motor: q", i+1, " exceeded \"", typeOfExceeded[i], "\"", sep='')
     
     return servoExceeded
 
@@ -381,7 +381,7 @@ def add_defaults(q, useMutable=False):
         q[3] = default_q[3] + q[3]
         q[2] = 180 - default_q[2] - q[2]
         q[1] = default_q[1] + q[1]
-        q[0] = default_q[0] - q[0]
+        q[0] = default_q[0] + q[0]
         return
     elif not useMutable:
         temp=len(q)*[0]
@@ -390,7 +390,7 @@ def add_defaults(q, useMutable=False):
         temp[3] = default_q[3] + q[3]
         temp[2] = 180 - default_q[2] - q[2]
         temp[1] = default_q[1] + q[1]
-        temp[0] = default_q[0] - q[0]
+        temp[0] = default_q[0] + q[0]
         return temp 
 
 def getAngles(
@@ -431,7 +431,7 @@ def getAngles(
     a1_exceed, b1_exceed = 0, 0
     q=[0]*6
     P5 = [0]*3
-    posX = 0 - PP[0]
+    # posX = 0 - PP[0] #if it doesn't work: reset default_q[0] + to minux
     PP[0] = PP[0] * coord_scalar
     PP[1] = PP[1] * coord_scalar
     PP[2] = PP[2] * coord_scalar
@@ -442,7 +442,7 @@ def getAngles(
     link[4] = link[4] * length_scalar
     link[5] = link[5] * length_scalar
     l = (link[4]+link[5]) * cos(b)
-    P5[0] = posX - l * sin(a)
+    P5[0] = PP[0] - l * sin(a)
     P5[1] = PP[1] - l * cos(a)
     P5[2] = PP[2] - (link[4]+link[5]) * sin(b)
 
