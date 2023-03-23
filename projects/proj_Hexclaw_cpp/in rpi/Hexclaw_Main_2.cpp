@@ -6,22 +6,27 @@
 #include "IK_header.h"
 
 using namespace std;
-using namespace PiPCA9685;
+// using namespace PiPCA9685;
 
 int main() {
-	PCA9685 pca();
+	PiPCA9685::PCA9685 pca{};
+	pca.set_pwm_freq(50.0);
 
-	float current_q[6] = {0,0,0,0,0,0};
-	float new_q[6];
+	float current_q[6] = {0,0,0,0,0,0}; //old_rotation
+	float new_q[6] = {0,0,0,0,0,0};
 	float PP[3] = {0, 150, 150};
-	
-	if(!getAngles(new_q,PP,0,0,0,1)) {	
+
+	sendToServo(&pca, new_q, current_q,true);
+
+	if(getAngles(new_q,PP,0,0,0,1)) {	
 		printf("angles: ");
 		for(int i=0; i<6; i++) {
 			printf(" %f",new_q[i]);
 		}
 		printf("\n");
+		sendToServo(&pca,new_q,current_q,false,2,1);
 	}
 	else printf("position not reachable\n");
+	cout << endl;
 	return 0;
 }

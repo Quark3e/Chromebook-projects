@@ -65,7 +65,7 @@ bool exceedCheck(float angles[6], bool printErrors=false) {
         if(angles[i]>180) {exceeded=true; whichExceeded[i]=true;typeOfExceeded[i]="over";}
     }
     if(exceeded && printErrors) {
-        for(int i=0; i<6; i++) { if(whichExceeded[i]) printf(" servo %d exceeded by: %s",i, typeOfExceeded[i]); }
+        for(int i=0; i<6; i++) { if(whichExceeded[i]) printf(" servo %d exceeded by: %s\n",i, typeOfExceeded[i]); }
     }
     if(exceeded) return true;
     else return false;   
@@ -110,11 +110,11 @@ int sendToServo(
     float new_rotation[6],
     float old_rotation[6],
     bool servoInitialize,
-    float totalTime = 0,
-    bool useDefault = false,
     int mode = 0,
+    float totalTime = 0,
+    bool useDefault = true,
     bool printErrors = true,
-    bool printResult = true
+    bool printResult = false
     ){/*
         When the function is ran for the first time and servoInitialize is one, an empty array
         needs to be entered that will be used in *EVERY* call of sendToServo
@@ -124,28 +124,40 @@ int sendToServo(
         
         if(useDefault) add_defaults(new_rotation);
         q_corrections(new_rotation);
-        if(exceedCheck(new_rotation, true)) return -1;
+        if(exceedCheck(new_rotation, printErrors)) return -1;
         if(printResult) {
-            printf("sent: ");
-            for(int i=0; i<6; i++) { printf("%f", new_rotation[i]); }
+            printf("sent:     ");
+            for(int i=0; i<6; i++) { printf("%f ", new_rotation[i]); }
+            printf("\n");
         }
 
         int total_iteration = 135;
-
-        if(mode==1) {
-            for(int q=0; q<6; q++) {
-                (*pcaBoard).set_pwm(q, 0, round(400*(float(new_rotation[q])/180))+100);
+        if(servoInitialize) {
+            for(int i=0; i<6; i++) {
+                new_rotation[i] = startup_q[i];
             }
         }
-        if(mode==2 || mode==3) {
+        if(mode==0) {
+            for(int q=0; q<6; q++) {
+                pcaBoard->set_pwm(q, 0, round(400*(float(new_rotation[q])/180))+100);
+                old_rotation[q] = new_rotation[q];
+            }
+        }
+        if(mode==1 || mode==2) {
             float s_diff[6];
             float s_temp[6];
-            if(!servoInitialize) {
-                for(int i=0; i<6; i++) {
-                    s_diff[i] = new_rotation[i]-old_rotation[i];
+            for(int i=0; i<6; i++) {
+                if(!servoInitialize) {
+                    s_diff[i] = new_rotation[i] - old_rotation[i];
+                    s_temp[i] = old_rotation[i];
+                }
+                else if(servoInitialize) {
+                    old_rotation[i] = startup_q[i];
+                    s_diff[i] = 0;
                     s_temp[i] = old_rotation[i];
                 }
             }
+            
             total_iteration = int(findVal(s_diff,1));
             for(int count=0; count<total_iteration-1; count++) {
                 float val;
@@ -153,17 +165,23 @@ int sendToServo(
                     if(mode==1) {
                         val = s_diff[q]/total_iteration;
                         if(val<180 && val>0) s_temp[q]+=val;
-                        else if(printErrors) printf("servo %d exceeded:%f", q, val);
-                        (*pcaBoard).set_pwm(q, 0, round(400*(s_temp[q]/180))+100);
+                        else if(printErrors) printf("servo %d exceeded:%f\n", q, val);
+                        pcaBoard->set_pwm(q, 0, round(400*(s_temp[q]/180))+100);
                     }
                     else if(mode==2) { 
                         val = s_temp[q] + s_diff[q]*mp1(float(count)/total_iteration);
-                        if(val<180 && val>0) (*pcaBoard).set_pwm(q, 0, round(400*(val/180))+100);
-                        else if(printErrors) printf("servo %d exceeded:%f", q, val);
+                        if(val<180 && val>0) pcaBoard->set_pwm(q, 0, round(400*(val/180))+100);
+                        else if(printErrors) printf("servo %d exceeded:%f\n", q, val);
                     }
+                    old_rotation[q] = val;
                 }
                 if(totalTime>0.1) usleep(int(totalTime/total_iteration)*1'000'000);
             }
+        }
+        if(printResult) {
+            printf("received: ");
+            for(int i=0; i<6; i++) {printf("%f ",old_rotation[i]);}
+            printf("\n");
         }
         return 0;
     }
@@ -230,7 +248,7 @@ bool getAngles(
 	float a1 = a - q[0];
 	float b1 = b - (q[1] + q[2]);
 	
-	if(true) {a1 = a1*cos(b)};
+	if(true) {a1 = a1*cos(b);}
 
 	if(printText) printf("a1:%d b1:%d\n",int(toDegrees(a1)),int(toDegrees(b1)));
 	
