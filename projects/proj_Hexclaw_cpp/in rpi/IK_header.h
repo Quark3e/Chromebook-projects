@@ -15,6 +15,20 @@ float sLoadWeight[6] = {0, 0.130, 0.085, 0, 0, 0}; //kg
 float offset_q[6] = {90, 0, 135, 90, 90, 90};
 float startup_q[6] = {90, 115, 135, 90, 115, 90};
 
+float toDegrees(float radians) { return (radians*180)/M_PI; }
+float toRadians(float degrees) { return (degrees*M_PI)/180; }
+
+float get3dDistance(float p1[3], float p2[3]) { return sqrt(pow(p2[0]-p1[0],2) + pow(p2[1]-p1[1],2) + pow(p2[2]-p1[2],2)); }
+
+int PoN(float var) {
+	if(var>0) return 1;
+	else if(var<0) return -1;
+	else {
+		cout << "PoN(): \"" << var << "\" is not a number\n";
+		return 0;
+	}
+}
+
 void add_defaults(float angles[6]) {
     q[0] = offset_q[0] + angles[0];
     q[1] = offset_q[1] + angles[1];
@@ -101,11 +115,13 @@ int sendToServo(
     int mode = 0,
     bool printErrors = true,
     bool printResult = true
-    ){
-        /*
+    ){/*
         When the function is ran for the first time and servoInitialize is one, an empty array
         needs to be entered that will be used in *EVERY* call of sendToServo
         */
+	
+	   	int returnCode = 0;
+        
         if(useDefault) add_defaults(new_rotation);
         q_corrections(new_rotation);
         if(exceedCheck(new_rotation, true)) return;
@@ -140,7 +156,7 @@ int sendToServo(
                         else if(printErrors) printf("servo %d exceeded:%f", q, val);
                         (*pcaBoard).set_pwm(q, 0, round(400*(s_temp[q]/180))+100);
                     }
-                    else if(mode==2) {
+                    else if(mode==2) { 
                         val = s_temp[q] + s_diff[q]*mp1(float(count)/total_iteration);
                         if(val<180 && val>0) (*pcaBoard).set_pwm(q, 0, round(400*(val/180))+100);
                         else if(printErrors) printf("servo %d exceeded:%f", q, val);
@@ -155,3 +171,128 @@ int sendToServo(
 
 
 
+// Inverse Kinematics - specific functions:
+
+
+
+bool getAngles(
+	float q[6],
+	float PP[3],
+	float a, float b, float Y,
+	// bool* positionIsReachable,
+	int mode = 0,
+	char posOption = '-',
+	float length_scalar = 1, float coord_scalar = 1,
+	bool printText = false, bool printErrors = false,
+) {
+	bool isReachable = true, a1_exceed = 0, b1_exceed = 0;
+	float frame1X=0, frame1Y=0, frame1Z = 0;
+
+	float P5[3];
+	for(int i=0; i<6; i++) {
+		if(i<3) PP[i]=PP[i]*coord_scalar;
+		link[i]=link[i]*length_scalar;
+	}
+	float l = (link[4]+link[5]) * cos(b);
+	P5[0] = PP[0] - l * sin(a);
+	P5[1] = PP[1] - l * cos(a);
+	P5[2] = PP[2] - (link[4]+link[5]) * sin(b);
+
+	if(printText) printf(" P5 coords: %f %f %f\n", int(round(P5[0])), int(round(P5[1])), int(round(P5[2])));
+
+	if(P5[1]<0) P5[1] = 0;
+	else if(P5[1]==0) {
+		if(P5[0]>0) q[0] = toRadians(90);
+		else if(P5[0] < 0) q[0] = toRadians(-90);
+		else if(P5[0] == 0) q[0] = toRadians(0);
+	}
+	else q[0] = atan(-P5[0]/P5[1]);
+	a = 0-a;
+
+	if(posOption=='+') q[2] = acos((pow(P5[0], 2) + pow(P5[1], 2) + pow(P5[2] - link[0], 2) - pow(link[1], 2) - pow(link[2] + link[3], 2)) /(2 * link[1] * (link[2] + link[3])));
+	else if(posOption=='-') q[2] = acos((pow(P5[0], 2) + pow(P5[1], 2) + pow(P5[2] - link[0], 2) - pow(link[1], 2) - pow(link[2] + link[3], 2)) /(2 * link[1] * (link[2] + link[3])));
+    if(isnan(q[2])) positionIsReachable = false;
+
+
+	float lambdaVar=0, muVar=0;
+
+	if(!sqrt(pow(P5[0], 2) + pow(P5[1], 2))==0) lambdaVar = atan((P5[2]-link[0]) / sqrt(pow(P5[0], 2) + pow(P5[1], 2)));
+	else positionIsReachable = false;
+	muVar = atan(((link[2] + link[3]) * sin(q[2])) /(link[1] + (link[2] + link[3]) * cos(q[2])));
+
+	if(printText) printf("lambda:%d mu:%d\n", int(round(toDegrees(lambdaVar))), int(round(toDegrees(muVar))));
+	if(posOption=='+') q[1] = lambdaVar - muVar;
+	else if(posOption=='-') {
+		if(lambdaVar+muVar>0) q[1] = lambdaVar+muVar;
+		else {
+			if(printErrors) printf("q[1] error occured\n");
+			positionIsReachable = false;
+		}
+		q[2] = 0 - q[2]
+	}
+
+	a1 = a - q[0];
+	b1 = b - (q[1] + q[2]);
+	
+	if(true) {a1 = a1*cos(b)};
+
+	if(printText) printf("a1:%d b1:%d\n",int(toDegrees(a1)),int(toDegrees(b1)));
+	
+	if (toDegrees(a1)>90) a1_exceed = 1;
+    else if(toDegrees(a1)<-90) a1_exceed = -1;
+    if(toDegrees(b1)>90) b1_exceed = 1;
+    else if(toDegrees(b1)<-90) b1_exceed = -1;
+	if(b1_exceed!=0 || a1_exceed!=0) {
+		if(printErrors) {
+			if(a1_exceed!=0) printf(" a1 exceeded beyond %d", a1_exceed*90);
+			if(b1_exceed!=0) printf(" b1 exceeded beyond %d", b1_exceed*90);
+			printf("\n");
+		}
+		positionIsReachable = false;
+	}
+
+	frame1X = (link[4]+link[5])*cos(b1)*sin(a1);
+	//frame1X = frame1X*cos(b);
+	frame1Y = (link[4]+link[5])*cos(b1)*cos(a1);
+	frame1Z = (link[4]+link[5])*sin(b1);
+	if(printText) printf(" frame1_x:%d frame1_y:%d frame1_z:%d\n",int(frame1X),int(frame1Y),int(frame1Z));
+
+	if(b1==0) {
+		if(frame1X>0) q[3]=toRadians(90);
+		else if(frame1X<0) q[3]=toRadians(-90);
+		else if(frame1X==0) q[3]=toRadians(0);
+		if(printText) printf("b1=0  =>  q4 was adjusted\n")
+	}
+	else if(b1<0 || b1>0) q[3]=atan(frame1X/frame1Z);
+
+	if(true) {
+		if(b1<0) q[3]=0-a1;
+		else q[3]=a1;
+	}
+	
+
+	if(isnan(asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5])))) {
+		if(printErrors) printf("q5 error: can't solve it\n");
+		positionIsReachable = false;
+	}
+	else q[4]=asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5]));
+
+	if(true) {
+		q[4]=asin(sqrt(pow(frame1X,2) + pow(frame1Z,2)) / (link[4]+link[5]));
+		if(frame1Z<0) {
+			q[4]=0-q[4];
+			if(printText) printf("frame1_z<0  =>  q5=0-q5\n");
+		}
+		if(b<=M_PI/2 && b>=0-M_PI/2) q[5]=Y-q[3];
+		else if(b>=M_PI/2 || b<=0-M_PI/2) q[5]=M_PI-(Y-q[3]);
+	}
+	for(int i=0; i<6; i++) {
+		if(printText) printf(" %d",int(round(toDegrees(q[i]))));
+		if(isnan(q[i])) {
+			positionIsReachable = false;
+			if(printErrors) printf(" q%d is Not a Number\n",i+1);;
+		}	
+	}
+	
+	return positionIsReachable;
+}

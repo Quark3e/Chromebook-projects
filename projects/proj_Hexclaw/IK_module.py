@@ -396,7 +396,7 @@ def add_defaults(q, useMutable=False):
 def getAngles(
     PP,a,b,Y,posOption,
     length_scalar=1,coord_scalar=1,
-    printText=False,printErrors=True, forShow=False, 
+    printText=False,printErrors=True, 
     debug=mod_dict,
     positionIsReachable=[True],
     getSubframe=False
@@ -517,14 +517,14 @@ def getAngles(
         if printText: print(" b1 was 0 so q4 was adjusted")
     elif b1 < 0 or b1 > 0: q[3] = atan(frame1X / frame1Z) # type: ignore
     
-    if debug["q4:default"][0]:
+    if debug["q4:default"][0]: #false
         q[3] = atan(frame1X/frame1Z) #type: ignore
-    if debug["q4:a1"][0]:
+    if debug["q4:a1"][0]: #false
         q[3] = a1
-    if debug["q4:a1:b:minus"][0]:
+    if debug["q4:a1:b:minus"][0]: #false
         if b<0: q[3] = 0 - a1
         else: q[3] = a1
-    if debug["q4:a1:b1:minus"][0]:
+    if debug["q4:a1:b1:minus"][0]: #true
         if b1<0: q[3] = 0-a1
         else: q[3] = a1
     
@@ -542,18 +542,18 @@ def getAngles(
         positionIsReachable[0] = False
 
     try:    
-        if debug["q5:inPaper"][0]:
+        if debug["q5:inPaper"][0]: #false
             q[4] = atan(sqrt(pow(frame1X,2)+pow(frame1Z,2))/(cos(b1)*cos(a1))) #type: ignore
-        if debug["q5:default"][0]:
+        if debug["q5:default"][0]: #false
             q[4] = atan(sqrt(pow(frame1X,2)+pow(frame1Z,2))/(frame1X/tan(a1))) #type: ignore
-        if debug["q5:d5"][0]:
+        if debug["q5:d5"][0]: #true
             q[4] = asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5])) # type: ignore
 
         if frame1Z < 0:
             q[4] = 0-q[4] # type: ignore
             if printText: print(" frame1_z was below 0 so q5 is subtracted from 0")
         if b <= pi / 2 and b >= 0 - pi / 2: q[5] = Y - q[3]
-        elif b >= pi / 2 or b <= 0 - pi / 2: q[5] = pi - (Y - q[5])
+        elif b >= pi / 2 or b <= 0 - pi / 2: q[5] = pi - (Y - q[3])
         if printText: print(" ",[round(toDegrees(n)) for n in q])
         if check_isNaN(q):
             positionIsReachable[0] = False
