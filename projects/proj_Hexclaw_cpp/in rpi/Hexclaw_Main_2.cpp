@@ -8,7 +8,6 @@
 using namespace std;
 using namespace PiPCA9685;
 
-
 int main() {
 	PiPCA9685 pca();
 	float current_q[6] = {0,0,0,0,0,0};
