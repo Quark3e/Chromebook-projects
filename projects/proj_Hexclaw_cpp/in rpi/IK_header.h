@@ -165,16 +165,11 @@ int sendToServo(
                 if(total_time>0.1) usleep(int(total_time/total_iteration)*1'000'000);
             }
         }
-   
         return 0;
     }
 
 
-
 // Inverse Kinematics - specific functions:
-
-
-
 bool getAngles(
 	float q[6],
 	float PP[3],
@@ -293,6 +288,13 @@ bool getAngles(
 			if(printErrors) printf(" q%d is Not a Number\n",i+1);;
 		}	
 	}
+
+	if(mode==0) {}
+	else if(mode==1) {
+		for(int i=0; i<6; i++) {
+			q[i] = toDegrees(q[i]);
+		}
+	}	
 	
 	return positionIsReachable;
 }

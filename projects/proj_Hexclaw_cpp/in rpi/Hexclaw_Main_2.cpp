@@ -3,39 +3,23 @@
 #include <iostream>
 #include <math.h>
 
+#include "IK_header.h"
+
 using namespace std;
 using namespace PiPCA9685;
 
+
 int main() {
-  //Max 530
-  PCA9685 pca{};
+	PiPCA9685 pca();
+	float current_q[6] = {0,0,0,0,0,0};
+	float new_q[6];
+	float PP[3] = {0, 150, 150};
+	getAngles(new_q,PP,0,0,0,1);
+	
+	printf("angles: ");
+	for(int i=0; i<6; i++) {
+		printf(" %f",new_q[i]);
+	}
 
-  int sm_pin = 2;
-  pca.set_pwm_freq(50.0);
-
-  pca.set_pwm(1, 0, 280);
-
-  usleep(1'000'000);
-
-  for(int i=0;i<=180;i+=45) {
-    cout << i << endl;
-    pca.set_pwm(sm_pin, 0, round(400*(float(i)/180))+100);
-    usleep(1'000'000);
-  }
-  for(int i=180;i>=0;i-=45) {
-    cout << i << endl;
-    pca.set_pwm(sm_pin, 0, round(400*(float(i)/180))+100);
-    usleep(1'000'000);
-  }
-  for(int i=0;i<=180;i+=1) {
-    cout << i << endl;
-    pca.set_pwm(sm_pin, 0, round(400*(float(i)/180))+100);
-    usleep(10'000);
-  }
-  for(int i=180;i>=0;i-=1) {
-    cout << i << endl;
-    pca.set_pwm(sm_pin, 0, round(400*(float(i)/180))+100);
-    usleep(10'000);
-  }
-  
+	return 0;
 }
