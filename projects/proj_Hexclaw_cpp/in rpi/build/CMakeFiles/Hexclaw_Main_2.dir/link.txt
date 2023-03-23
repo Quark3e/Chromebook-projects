@@ -1,0 +1,1 @@
+/usr/bin/c++ -rdynamic CMakeFiles/Hexclaw_Main_2.dir/Hexclaw_Main_2.cpp.o -o Hexclaw_Main_2  /usr/local/lib/static/libPiPCA9685.a -li2c 
