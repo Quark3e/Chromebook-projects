@@ -1,7 +1,10 @@
-""" ESP8266 TO PY: READER """
+#!/usr/bin/env python3
+
+#""" ESP8266 TO PY: READER """
 # Written by Junicchi - https://github.com/Kebablord
 
 import urllib.request
+import time
 url = "http://192.168.1.117"  # ESP's IP, ex: http://192.168.102 (Esp prints it to serial console when connected to wifi)
 
 def get_data():
@@ -18,4 +21,5 @@ def get_data():
 while True:
 	get_data()
 	print("Your data(s) which we received from arduino: "+data)
-	input("To test it again press enter.")
+	# input("To test it again press enter.")
+	time.sleep(0.01)
