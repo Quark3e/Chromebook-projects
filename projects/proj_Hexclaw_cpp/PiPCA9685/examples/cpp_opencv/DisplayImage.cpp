@@ -8,7 +8,7 @@ int main(int argc, char** argv ) {
         return -1;
     }
     Mat image;
-    image = imread( argv[1], IMREAD_COLOR );
+    image = imread(     [1], IMREAD_COLOR );
     if (!image.data) {
         printf("No image data \n");
         return -1;

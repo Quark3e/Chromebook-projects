@@ -16,6 +16,8 @@ using namespace cv;
 
 int webcamIndex = 0;
 
+bool displayImg = true;
+
 int lower_HSV[3] = {64, 73, 88};
 int upper_HSV[3] = {103, 213, 255};
 
@@ -24,10 +26,15 @@ const char* controlWin = "Control";
 void createTrackbars() {
 	cvCreateTrackbar("LowH", controlWin, &lower_HSV[0], 179);
 	cvCreateTrackbar("HighH", controlWin, &upper_HSV[0], 179);
-	cvCreateTrackbar("LowS", )
+	cvCreateTrackbar("LowS", controlWin, &lower_HSV[1], 255);
+	cvCreateTrackbar("HighS", controlWin, &upper_HSV[1], 255);
+	cvCreateTrackbar("LowV", controlWin, &lower_HSV[2], 255);
+	cvCreateTrackbar("HighV", controlWin, &upper_HSV[2], 255);
 }
 
-int main() {
+int main(int argc, char** argv) {
+	if(argc>=2 && argv[1]=="false") displayImg = false;
+
 	PiPCA9685::PCA9685 pca{};
 	pca.set_pwm_freq(50.0);
 
@@ -40,6 +47,8 @@ int main() {
 	createTrackbars();
 
 
+
+	Mat imgOriginal;
 
 	float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 	float new_q[6] = {0,0,0,0,0,0};
