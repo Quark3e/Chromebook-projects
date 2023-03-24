@@ -6,7 +6,6 @@
 #include "IK_header.h"
 
 using namespace std;
-// using namespace PiPCA9685;
 
 int main() {
 	PiPCA9685::PCA9685 pca{};
@@ -27,6 +26,6 @@ int main() {
 	}
 	else printf("position not reachable\n");
 	cout << endl;
-	
+
 	return 0;
 }
