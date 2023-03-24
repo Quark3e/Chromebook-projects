@@ -27,5 +27,6 @@ int main() {
 	}
 	else printf("position not reachable\n");
 	cout << endl;
+	
 	return 0;
 }
