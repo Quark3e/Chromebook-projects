@@ -8,7 +8,6 @@
 using namespace std;
 // using namespace PiPCA9685;
 
-
 int main() {
 	PiPCA9685::PCA9685 pca{};
 	pca.set_pwm_freq(50.0);
