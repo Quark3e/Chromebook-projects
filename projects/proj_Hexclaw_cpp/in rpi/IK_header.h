@@ -13,7 +13,7 @@ using namespace PiPCA9685;
 float arm_link[6] = {145, 130, 75, 50, 25, 25};
 float sLoadWeight[6] = {0, 0.130, 0.085, 0, 0, 0}; //kg
 float offset_q[6] = {90, 0, 135, 90, 90, 90};
-float startup_q[6] = {90, 115, 135, 90, 115, 90};
+float startup_q[6] = {0, 115, -90, 0, -25, 00};
 
 float toDegrees(float radians) { return (radians*180)/M_PI; }
 float toRadians(float degrees) { return (degrees*M_PI)/180; }
@@ -32,9 +32,9 @@ int PoN(float var) {
 void add_defaults(float angles[6]) {
     angles[0] = offset_q[0] + angles[0];
     angles[1] = offset_q[1] + angles[1];
-    angles[2] = offset_q[2] + angles[2];
+    angles[2] = 180 - (offset_q[2] + angles[2]);
     angles[3] = offset_q[3] + angles[3];
-    angles[4] = offset_q[4] + angles[4];
+    angles[4] = 180 - (offset_q[4] + angles[4]);
     angles[5] = offset_q[5] + angles[5];
 }
 
@@ -48,7 +48,7 @@ void q_corrections(float angles[6]) {
         1
     };
     angles[0] = angles[0] * error_Consts[0];
-    angles[1] = angles[1] * error_Consts[1];
+    angles[1] = angles[1] * error_Consts[1] - 5;
     angles[2] = angles[2] * error_Consts[2];
     angles[3] = angles[3] * error_Consts[3];
     angles[4] = angles[4] * error_Consts[4];
@@ -61,8 +61,8 @@ bool exceedCheck(float angles[6], bool printErrors=false) {
     string typeOfExceeded[6] = {"null", "null", "null", "null", "null", "null"};
 
     for(int i=0; i<6; i++) {
-        if(angles[i]<0) {exceeded=true; whichExceeded[i]=true;typeOfExceeded[i]="under";}
-        if(angles[i]>180) {exceeded=true; whichExceeded[i]=true;typeOfExceeded[i]="over";}
+        if(angles[i]<0) { exceeded=true; whichExceeded[i]=true; typeOfExceeded[i]="under"; angles[i]=0; }
+        if(angles[i]>180) { exceeded=true; whichExceeded[i]=true; typeOfExceeded[i]="over"; angles[i]=180;}
     }
     if(exceeded && printErrors) {
         for(int i=0; i<6; i++) { if(whichExceeded[i]) printf(" servo %d exceeded by: %s\n",i, typeOfExceeded[i]); }
@@ -121,10 +121,15 @@ int sendToServo(
         */
 	
 	   	int returnCode = 0;
-        
+
+        if(servoInitialize) {
+            for(int i=0; i<6; i++) {new_rotation[i] = startup_q[i];}
+        }
+
         if(useDefault) add_defaults(new_rotation);
+
         q_corrections(new_rotation);
-        if(exceedCheck(new_rotation, printErrors)) return -1;
+        if(exceedCheck(new_rotation, printErrors)) {}//return -1;
         if(printResult) {
             printf("sent:     ");
             for(int i=0; i<6; i++) { printf("%f ", new_rotation[i]); }
@@ -132,11 +137,6 @@ int sendToServo(
         }
 
         int total_iteration = 135;
-        if(servoInitialize) {
-            for(int i=0; i<6; i++) {
-                new_rotation[i] = startup_q[i];
-            }
-        }
         if(mode==0) {
             for(int q=0; q<6; q++) {
                 pcaBoard->set_pwm(q, 0, round(400*(float(new_rotation[q])/180))+100);

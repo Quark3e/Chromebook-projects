@@ -16,15 +16,14 @@ int main() {
 	float new_q[6] = {0,0,0,0,0,0};
 	float PP[3] = {0, 150, 150};
 
-	sendToServo(&pca, new_q, current_q,true);
+	sendToServo(&pca, new_q, current_q, true);
 
+	sleep(2);
 	if(getAngles(new_q,PP,0,0,0,1)) {	
 		printf("angles: ");
-		for(int i=0; i<6; i++) {
-			printf(" %f",new_q[i]);
-		}
+		for(int i=0; i<6; i++) { printf(" %f",new_q[i]); }
 		printf("\n");
-		sendToServo(&pca,new_q,current_q,false,2,1);
+		sendToServo(&pca, new_q, current_q, false, 0, 1, true, true, true);
 	}
 	else printf("position not reachable\n");
 	cout << endl;
