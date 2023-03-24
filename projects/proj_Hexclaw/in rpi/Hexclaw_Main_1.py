@@ -35,12 +35,12 @@ accelerometer = adafruit_adxl34x.ADXL345(i2c)
 
 pca.frequency = 50
 
-servo = [servo.Servo(pca.channels[0]),
-         servo.Servo(pca.channels[1]),
-         servo.Servo(pca.channels[2]),
-         servo.Servo(pca.channels[3]),
-         servo.Servo(pca.channels[4]),
-         servo.Servo(pca.channels[5])]
+servo = [servo.Servo(pca.channels[0]), #type: ignore
+         servo.Servo(pca.channels[1]), #type: ignore
+         servo.Servo(pca.channels[2]), #type: ignore
+         servo.Servo(pca.channels[3]), #type: ignore
+         servo.Servo(pca.channels[4]), #type: ignore
+         servo.Servo(pca.channels[5])] #type: ignore
 for i in range(6):
     servo[i].set_pulse_width_range(500, 2500)
 

@@ -5,7 +5,7 @@ project(OpenCV_DisplayImage)
 
 set(CMAKE_CXX_STANDARD 14)
 
-set(OpenCV "/usr/local/include/opencv4")
+set(OpenCV "/usr/local/include")
 
 find_package(OpenCV REQUIRED)
 

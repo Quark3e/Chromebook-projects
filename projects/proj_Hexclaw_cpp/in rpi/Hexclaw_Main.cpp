@@ -1,15 +1,45 @@
+
 #include <unistd.h>
-#include <PiPCA9685/PCA9685.h>
 #include <iostream>
 #include <math.h>
+#include <stdio.h>
+#include <opencv4/opencv2/opencv.hpp>
+#include <opencv4/opencv2/highgui/highgui.hpp>
+#include <opencv4/opencv2/imgproc/imgproc.hpp>
+#include <PiPCA9685/PCA9685.h>
+#include <string>
 
 #include "IK_header.h"
 
 using namespace std;
+using namespace cv;
+
+int webcamIndex = 0;
+
+int lower_HSV[3] = {64, 73, 88};
+int upper_HSV[3] = {103, 213, 255};
+
+const char* controlWin = "Control";
+
+void createTrackbars() {
+	cvCreateTrackbar("LowH", controlWin, &lower_HSV[0], 179);
+	cvCreateTrackbar("HighH", controlWin, &upper_HSV[0], 179);
+	cvCreateTrackbar("LowS", )
+}
 
 int main() {
 	PiPCA9685::PCA9685 pca{};
 	pca.set_pwm_freq(50.0);
+
+	VideoCapture cap(webcamIndex);
+	if(!cap.isOpened()) {
+		cout << "Cannot open web cam" << endl;
+		return -1;
+	}
+	namedWindow(controlWin, CV_WINDOW_AUTOSIZE);
+	createTrackbars();
+
+
 
 	float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 	float new_q[6] = {0,0,0,0,0,0};
