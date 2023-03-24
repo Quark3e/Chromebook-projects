@@ -75,17 +75,6 @@ CMAKE_BINARY_DIR = "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rp
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
-
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -96,6 +85,17 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -130,44 +130,44 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named Hexclaw_Main_2
+# Target rules for targets named Hexclaw_Main
 
 # Build rule for target.
-Hexclaw_Main_2: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 Hexclaw_Main_2
-.PHONY : Hexclaw_Main_2
+Hexclaw_Main: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 Hexclaw_Main
+.PHONY : Hexclaw_Main
 
 # fast build rule for target.
-Hexclaw_Main_2/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Hexclaw_Main_2.dir/build.make CMakeFiles/Hexclaw_Main_2.dir/build
-.PHONY : Hexclaw_Main_2/fast
+Hexclaw_Main/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Hexclaw_Main.dir/build.make CMakeFiles/Hexclaw_Main.dir/build
+.PHONY : Hexclaw_Main/fast
 
-Hexclaw_Main_2.o: Hexclaw_Main_2.cpp.o
+Hexclaw_Main.o: Hexclaw_Main.cpp.o
 
-.PHONY : Hexclaw_Main_2.o
+.PHONY : Hexclaw_Main.o
 
 # target to build an object file
-Hexclaw_Main_2.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Hexclaw_Main_2.dir/build.make CMakeFiles/Hexclaw_Main_2.dir/Hexclaw_Main_2.cpp.o
-.PHONY : Hexclaw_Main_2.cpp.o
+Hexclaw_Main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Hexclaw_Main.dir/build.make CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.o
+.PHONY : Hexclaw_Main.cpp.o
 
-Hexclaw_Main_2.i: Hexclaw_Main_2.cpp.i
+Hexclaw_Main.i: Hexclaw_Main.cpp.i
 
-.PHONY : Hexclaw_Main_2.i
+.PHONY : Hexclaw_Main.i
 
 # target to preprocess a source file
-Hexclaw_Main_2.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Hexclaw_Main_2.dir/build.make CMakeFiles/Hexclaw_Main_2.dir/Hexclaw_Main_2.cpp.i
-.PHONY : Hexclaw_Main_2.cpp.i
+Hexclaw_Main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Hexclaw_Main.dir/build.make CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.i
+.PHONY : Hexclaw_Main.cpp.i
 
-Hexclaw_Main_2.s: Hexclaw_Main_2.cpp.s
+Hexclaw_Main.s: Hexclaw_Main.cpp.s
 
-.PHONY : Hexclaw_Main_2.s
+.PHONY : Hexclaw_Main.s
 
 # target to generate assembly for a file
-Hexclaw_Main_2.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Hexclaw_Main_2.dir/build.make CMakeFiles/Hexclaw_Main_2.dir/Hexclaw_Main_2.cpp.s
-.PHONY : Hexclaw_Main_2.cpp.s
+Hexclaw_Main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Hexclaw_Main.dir/build.make CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.s
+.PHONY : Hexclaw_Main.cpp.s
 
 # Help Target
 help:
@@ -177,10 +177,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... Hexclaw_Main_2"
-	@echo "... Hexclaw_Main_2.o"
-	@echo "... Hexclaw_Main_2.i"
-	@echo "... Hexclaw_Main_2.s"
+	@echo "... Hexclaw_Main"
+	@echo "... Hexclaw_Main.o"
+	@echo "... Hexclaw_Main.i"
+	@echo "... Hexclaw_Main.s"
 .PHONY : help
 
 

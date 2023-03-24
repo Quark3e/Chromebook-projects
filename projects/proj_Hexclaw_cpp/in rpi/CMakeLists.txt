@@ -7,5 +7,5 @@ find_package(PiPCA9685 REQUIRED)
 
 # include_directories()
 
-add_executable(Hexclaw_Main_2 Hexclaw_Main_2.cpp)
-target_link_libraries(Hexclaw_Main_2 ${PiPCA9685_LIBRARY})
+add_executable(Hexclaw_Main Hexclaw_Main.cpp)
+target_link_libraries(Hexclaw_Main ${PiPCA9685_LIBRARY})
