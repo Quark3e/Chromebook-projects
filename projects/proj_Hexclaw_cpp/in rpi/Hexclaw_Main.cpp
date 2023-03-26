@@ -74,7 +74,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 	}
 	cv::Mat imgOriginal, imgFlipped, imgHSV, imgThreshold;
 	
-	int fps=0, frames=0;
+	int fps=0, frames=0, totalDelay=0;
 	clock_t t1 = clock();
 
 	while(true) {
@@ -105,32 +105,44 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 
 			if(dArea>=areaLim) {
 				int posX = dM10/dArea, posY = dM01/dArea;
-				cv::circle(imgFlipped,cv::Point(posX,posY),50,cv::Scalar(0,0,0),2);
-				cv::putText(imgFlipped,to_string(int(dArea)),cv::Point(posX,posY),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false);
+				if(mode!=3) {
+					cv::circle(imgFlipped,cv::Point(posX,posY),50,cv::Scalar(0,0,0),2);
+					cv::putText(imgFlipped,to_string(int(dArea)),cv::Point(posX,posY),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false);
+				}
 				if(mode!=2) {
 					cv::Size camSize = imgFlipped.size();
 					PP[0] = posX - camSize.width/2;
 					PP[1] = camSize.height - posY;
-					printf(" x:%d y:%d \n",int(PP[0]),int(PP[1]));
+					printf(" x:%d y:%d ",int(PP[0]),int(PP[1]));
 					if(getAngles(new_q,PP,0,0,0,1)) {
 						sendToServo(pcaSrc,new_q,current_q,false);
 					}
 				}
 			}
 		}
-		cv::cvtColor(imgThreshold,imgThreshold,cv::COLOR_GRAY2BGR);
-		cv::hconcat(imgFlipped,imgThreshold,imgFlipped);
+		if(mode!=3) {
+			cv::cvtColor(imgThreshold,imgThreshold,cv::COLOR_GRAY2BGR);
+			cv::hconcat(imgFlipped,imgThreshold,imgFlipped);
+		}
 
-		if((clock()-t1)/CLOCKS_PER_SEC>=1) {
-			fps=(frames/((clock()-t1)/CLOCKS_PER_SEC));
+		float temp = 1000*(clock()-t1)/CLOCKS_PER_SEC;
+		if(temp>=1000) {
+			totalDelay=temp/frames;
+			fps=int(frames/(temp/1000));
+			printf(" frames:%d ",frames);
 			frames=0;
 			t1=clock();
-			printf("fps:%d	frames:%d",int(fps),frames);	
 		}
 		else frames++;
-                usleep(0.06*1'000'000); //test to see if read fps changes from 24
-		cv::putText(imgFlipped,to_string(fps),cv::Point(50,50),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false);
-		if(mode!=3) {	
+		
+		printf("fps:%d totalDelay:%dms\n",fps,totalDelay);
+
+        // usleep(0.5*1'000'000); //test to see if read fps changes from 24
+		if(mode!=3) {
+			cv::putText(
+				imgFlipped,"fps:"+to_string(fps)+" totalDelay:"+to_string(totalDelay)
+				,cv::Point(50,50),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false
+				);
 			cv::imshow(win_name,imgFlipped);
 			if(cv::waitKey(10)==27) break;
 		}	
