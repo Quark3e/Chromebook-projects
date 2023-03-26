@@ -78,25 +78,32 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 	clock_t t1 = clock();
 
 	while(true) {
+		//delay: 4-5ms
 		if(!(cap->read(imgOriginal))) {
 			printf("error: Cannot read frame");
 			cv::destroyAllWindows();
 			return -1;
 		}
+
+		//delay: 4-7ms
 		cv::flip(imgOriginal, imgFlipped, 1);
+		//delay: 3-5ms
 		cv::cvtColor(imgFlipped, imgHSV, cv::COLOR_BGR2HSV);
 
+		//delay: 1-4ms
 		cv::inRange(imgHSV,
 		cv::Scalar(l_HSV[0], l_HSV[1], l_HSV[2]),
 		cv::Scalar(u_HSV[0], u_HSV[1], u_HSV[2]),
 		imgThreshold);
 		
+		//delay: 2-3ms
 		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) );
 		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) ); 
 
 		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) ); 
 		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) );
 
+		//delay: 1-2ms
 		if(mode>=1) {
 			cv::Moments imgMoments = cv::moments(imgThreshold);
 			double dM01 = imgMoments.m01;
@@ -120,11 +127,13 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 				}
 			}
 		}
+		//delay: 9-13ms
 		if(mode!=3) {
 			cv::cvtColor(imgThreshold,imgThreshold,cv::COLOR_GRAY2BGR);
 			cv::hconcat(imgFlipped,imgThreshold,imgFlipped);
 		}
 
+		//delay: 0ms
 		float temp = 1000*(clock()-t1)/CLOCKS_PER_SEC;
 		if(temp>=1000) {
 			totalDelay=temp/frames;
@@ -134,18 +143,26 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 			t1=clock();
 		}
 		else frames++;
-		
+
 		printf("fps:%d totalDelay:%dms\n",fps,totalDelay);
 
-        // usleep(0.5*1'000'000); //test to see if read fps changes from 24
+		//delay: 6-11ms
 		if(mode!=3) {
 			cv::putText(
 				imgFlipped,"fps:"+to_string(fps)+" totalDelay:"+to_string(totalDelay)
 				,cv::Point(50,50),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false
 				);
 			cv::imshow(win_name,imgFlipped);
-			if(cv::waitKey(10)==27) break;
-		}	
+			int keyInp = cv::waitKey(10);
+			if(keyInp==27) return -1;
+			else if(keyInp==32) break;
+			else if(keyInp==115) {
+				if(mode==0) {
+					//save HSV values
+				}
+			}
+		}
+
 	}
 	if(mode!=3) cv::destroyWindow(win_name);
 	return 0;
