@@ -74,7 +74,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 	}
 	cv::Mat imgOriginal, imgFlipped, imgHSV, imgThreshold;
 	
-	int fps, frames;
+	int fps=0, frames=0;
 	clock_t t1 = clock();
 
 	while(true) {
@@ -125,9 +125,10 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 			fps=(frames/((clock()-t1)/CLOCKS_PER_SEC));
 			frames=0;
 			t1=clock();
-			printf("fps:%d	",int(fps));	
+			printf("fps:%d	frames:%d",int(fps),frames);	
 		}
 		else frames++;
+usleep(0.06*1'000'000); //test to see if read fps changes from 24
 		cv::putText(imgFlipped,to_string(fps),cv::Point(50,50),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false);
 		if(mode!=3) {	
 			cv::imshow(win_name,imgFlipped);
