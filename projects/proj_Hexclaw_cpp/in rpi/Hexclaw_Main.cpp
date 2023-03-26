@@ -8,6 +8,7 @@
 #include <opencv4/opencv2/imgproc/imgproc.hpp>
 #include <PiPCA9685/PCA9685.h>
 #include <string>
+#include <fstream>
 
 #include "IK_header.h"
 
@@ -31,6 +32,9 @@ int l_HSV[3] = {64, 73, 88};
 int u_HSV[3] = {103, 213, 255};
 
 int areaLim = 10'000;
+
+
+
 
 void createTrackbars(const char* win_name) {
 	/*
