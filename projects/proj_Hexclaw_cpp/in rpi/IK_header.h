@@ -119,7 +119,7 @@ int sendToServo(
         When the function is ran for the first time and servoInitialize is one, an empty array
         needs to be entered that will be used in *EVERY* call of sendToServo
         */
-	
+        printResult = false;
 	   	int returnCode = 0;
 
         if(servoInitialize) {
@@ -184,7 +184,7 @@ int sendToServo(
             for(int i=0; i<6; i++) {printf("%f ",old_rotation[i]);}
             printf("\n");
         }
-        return 0;
+        return returnCode;
     }
 
 
