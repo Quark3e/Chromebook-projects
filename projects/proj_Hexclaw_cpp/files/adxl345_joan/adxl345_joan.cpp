@@ -1,3 +1,9 @@
+/*
+gcc -Wall -pthread -o adxl345_joan adxl345_joan.cpp -lpigpio -lrt
+sudo ./adxl345_joan
+
+source: https://forums.raspberrypi.com/viewtopic.php?t=208292#p1287952
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
