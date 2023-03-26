@@ -12,7 +12,7 @@
 #include "IK_header.h"
 
 using namespace std;
-using namespace cv;
+// using namespace cv;
 
 
 float current_q[6] = {0,0,0,0,0,0}; //old_rotation
@@ -31,12 +31,12 @@ int areaLim = 1000;
 
 
 void createTrackbars(const char* win_name) {
-	cv::cvCreateTrackbar("LowH", win_name, &l_HSV[0], 179);
-	cv::cvCreateTrackbar("HighH", win_name, &u_HSV[0], 179);
-	cv::cvCreateTrackbar("LowS", win_name, &l_HSV[1], 255);
-	cv::cvCreateTrackbar("HighS", win_name, &u_HSV[1], 255);
-	cv::cvCreateTrackbar("LowV", win_name, &l_HSV[2], 255);
-	cv::cvCreateTrackbar("HighV", win_name, &u_HSV[2], 255);
+	cv::createTrackbar("LowH", win_name, &l_HSV[0], 179);
+	cv::createTrackbar("HighH", win_name, &u_HSV[0], 179);
+	cv::createTrackbar("LowS", win_name, &l_HSV[1], 255);
+	cv::createTrackbar("HighS", win_name, &u_HSV[1], 255);
+	cv::createTrackbar("LowV", win_name, &l_HSV[2], 255);
+	cv::createTrackbar("HighV", win_name, &u_HSV[2], 255);
 }
 
 int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
@@ -52,24 +52,24 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 	cv::Mat imgOriginal, imgFlipped, imgHSV, imgThreshold;
 
 	while(true) {
-		if(!(*cap)->read(imgOriginal)) {
+		if(!(cap->read(imgOriginal))) {
 			printf("error: Cannot read frame");
 			cv::destroyAllWindows();
 			return -1;
 		}
 		cv::flip(imgOriginal, imgFlipped, 1);
-		cv::cvtColor(imgFlipped, imgHSV, COLOR_BGR2HSV);
+		cv::cvtColor(imgFlipped, imgHSV, cv::COLOR_BGR2HSV);
 
 		cv::inRange(imgHSV,
 		cv::Scalar(l_HSV[0], l_HSV[1], l_HSV[2]),
 		cv::Scalar(u_HSV[0], u_HSV[1], u_HSV[2]),
 		imgThreshold);
 		
-		cv::erode(imgThresholded, imgThresholded, cv::getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
-		cv::dilate(imgThresholded, imgThresholded, cv::getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
+		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) );
+		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) ); 
 
-		cv::dilate(imgThresholded, imgThresholded, cv::getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
-		cv::erode(imgThresholded, imgThresholded, cv::getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) ); 
+		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) );
 
 		if(mode==1 || mode==2) {
 			cv::Moments imgMoments = cv::moments(imgThreshold);
@@ -82,7 +82,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 				cv::circle(imgFlipped,cv::Point(posX,posY),50,cv::Scalar(0,0,0),2);
 				if(mode==2) {
 					if(getAngles(new_q,PP,0,0,0,1)) {
-						sendToServo(pcaSrc,new_q,old_rotation,false);
+						sendToServo(pcaSrc,new_q,current_q,false);
 					}
 				}
 			}

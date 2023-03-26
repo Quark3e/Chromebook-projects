@@ -215,6 +215,9 @@ Hexclaw_BINARY_DIR:STATIC=/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp
 //Value Computed by CMake
 Hexclaw_SOURCE_DIR:STATIC=/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi
 
+//The directory containing a CMake configuration file for OpenCV.
+OpenCV_DIR:PATH=/usr/local/lib/arm-linux-gnueabihf/cmake/opencv4
+
 //The directory containing a CMake configuration file for PiPCA9685.
 PiPCA9685_DIR:PATH=/usr/local/lib/PiPCA9685/cmake
 
@@ -366,4 +369,6 @@ CMAKE_STRIP-ADVANCED:INTERNAL=1
 CMAKE_UNAME:INTERNAL=/usr/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//Details about finding OpenCV
+FIND_PACKAGE_MESSAGE_DETAILS_OpenCV:INTERNAL=[/usr/local][v4.5.5()]
 
