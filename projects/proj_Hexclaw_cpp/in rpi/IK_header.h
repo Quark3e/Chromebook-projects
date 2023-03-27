@@ -60,7 +60,7 @@ bool exceedCheck(float angles[6], bool printErrors=false) {
     bool whichExceeded[6] = {false, false, false, false, false, false};
     string typeOfExceeded[6] = {"null", "null", "null", "null", "null", "null"};
 
-    for(int i=0; i<6; i++) {
+    for(int i=0; i<5; i++) {
         if(angles[i]<0) { exceeded=true; whichExceeded[i]=true; typeOfExceeded[i]="under"; angles[i]=0; }
         if(angles[i]>180) { exceeded=true; whichExceeded[i]=true; typeOfExceeded[i]="over"; angles[i]=180;}
     }

@@ -1,0 +1,5 @@
+values:HSV
+{
+//index:[Lower:Upper] values
+0;[64,73,88:103,213,255]
+}

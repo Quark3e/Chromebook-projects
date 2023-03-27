@@ -9,6 +9,7 @@
 #include <PiPCA9685/PCA9685.h>
 #include <string>
 #include <fstream>
+#include <algorithm>
 
 #include "IK_header.h"
 
@@ -18,7 +19,7 @@ using namespace std;
 
 float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
-float orient[3] = {0,0,0}; //degrees
+float orient[3] = {0,-90,0}; //degrees
 float PP[3] = {0,150,150};
 
 float cam_PP_offset[3] = {0,0,0};
@@ -34,24 +35,66 @@ int u_HSV[3] = {103, 213, 255};
 int areaLim = 10'000;
 
 
+void hsv_settingsRead(int index, string filePath="hsv_settings.dat") {
+	//read HSV values from file with given index and change global l_HSV/u_HSV variables
+	ifstream hsvFile(filePath);
+	if(!hsvFile.is_open()) {
+		printf("can't open file \"%s\"",filePath);
+		return;
+	}
+	string line;
+	int tempVal[6];
+	while(getline(hsvFile,line)) {
+		if(line.substr(0,1)==to_string(index)) {
+			line.erase(0,3);
+			//lower HSV
+			tempVal[0]=stoi(line.substr(0,line.find(',')));
+			line.erase(0,line.find(',')+1);
+			tempVal[1]=stoi(line.substr(0,line.find(',')));
+			line.erase(0,line.find(',')+1);
+			tempVal[2]=stoi(line.substr(0,line.find(':')));
+			line.erase(0,line.find(':')+1);
+			//upper HSV
+			tempVal[3]=stoi(line.substr(0,line.find(',')));
+			line.erase(0,line.find(',')+1);
+			tempVal[4]=stoi(line.substr(0,line.find(',')));
+			line.erase(0,line.find(',')+1);
+			tempVal[5]=stoi(line.substr(0,line.find(']')));
+
+			for(int i=0; i<6; i++) { printf(" %d", tempVal[i]); }
+			l_HSV[0] = tempVal[0];
+			l_HSV[1] = tempVal[1];
+			l_HSV[2] = tempVal[2];
+			u_HSV[0] = tempVal[3];
+			u_HSV[1] = tempVal[4];
+			u_HSV[2] = tempVal[5];
+			hsvFile.close();
+			return;
+		}
+	}
+	printf("index not found\n");
+}
+
+void hsv_settingsWrite(bool overWrite, int index, string filePath="hsv_settings.dat") {
+	//write global HSV values from l_HSV and u_HSV into the file
+	//overwrite: if index already exists the new one will be written over the old one
+	ifstream rFile(filePath);
+	string fileContents, line;
+	int rowLen = count(
+		istreambuf_iterator<char>(rFile),
+		istreambuf_iterator<char>(), '\n'
+	) +1;
+	printf("rowLen: %d\n", rowLen);
+	while(getline(rFile, line)) {
+		fileContents+=line;
+		fileContents+="\n";
+	}
+	
+
+}
 
 
 void createTrackbars(const char* win_name) {
-	/*
-	l_HSV[0] = cv::createTrackbar("LowH", win_name, nullptr, 179);
-	cv::setTrackbarPos("LowH", win_name, l_HSV[0]);
-	u_HSV[0] =cv::createTrackbar("HighH", win_name, nullptr, 179);
-	cv::setTrackbarPos("HighH", win_name, u_HSV[0]);
-	l_HSV[1] = cv::createTrackbar("LowS", win_name, nullptr, 255);
-	cv::setTrackbarPos("LowS", win_name, l_HSV[1]);
-	u_HSV[1] = cv::createTrackbar("HighS", win_name, nullptr, 255);
-	cv::setTrackbarPos("HighS", win_name, u_HSV[1]);
-	l_HSV[2] = cv::createTrackbar("LowV", win_name, nullptr, 255);
-	cv::setTrackbarPos("LowV", win_name, l_HSV[2]);
-	u_HSV[2] = cv::createTrackbar("HighV", win_name, nullptr, 255);
-	cv::setTrackbarPos("HighV", win_name, u_HSV[2]);
-	*/
-
 	cv::createTrackbar("LowH", win_name, &l_HSV[0], 179);
 	cv::createTrackbar("HighH", win_name, &u_HSV[0], 179);
 	cv::createTrackbar("LowS", win_name, &l_HSV[1], 255);
@@ -125,7 +168,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 					PP[0] = posX - camSize.width/2;
 					PP[1] = camSize.height - posY;
 					printf(" x:%d y:%d ",int(PP[0]),int(PP[1]));
-					if(getAngles(new_q,PP,0,0,0,1)) {
+					if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
 						sendToServo(pcaSrc,new_q,current_q,false);
 					}
 				}
@@ -158,9 +201,9 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 				);
 			cv::imshow(win_name,imgFlipped);
 			int keyInp = cv::waitKey(10);
-			if(keyInp==27) return -1;
-			else if(keyInp==32) break;
-			else if(keyInp==115) {
+			if(keyInp==27) return -1; //esc
+			else if(keyInp==32) break; //space
+			else if(keyInp==115) { //s
 				if(mode==0) {
 					//save HSV values
 				}
