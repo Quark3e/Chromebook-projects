@@ -109,6 +109,8 @@ void hsv_settingsWrite(int indeks=0, bool overWrite=false, string filePath="hsv_
 		fileContents+=line;
 		fileContents+="\n";
 	} //ex: "row1\nrow2\nrow3"
+	rFile.close();
+	ofstream wFile(filePath);
 	// int rowLen_2 = count(fileContents.begin(),fileContents.end(),'\n');
 	printf("total rows:%d\t",rowLen_2);
 	if(!overWrite) {rowLen_2++;}
@@ -132,7 +134,9 @@ void hsv_settingsWrite(int indeks=0, bool overWrite=false, string filePath="hsv_
 				fileContents.erase(0,fileContents.find('\n')+1);
 			}
 		}
+		wFile << fileRows[i];
 	}
+
 
 }
 
