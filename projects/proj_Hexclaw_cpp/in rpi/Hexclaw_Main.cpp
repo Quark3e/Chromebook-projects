@@ -99,11 +99,11 @@ void hsv_settingsWrite(int indeks=0, bool overWrite=false, string filePath="hsv_
 	//overwrite:	if indeks already exists the new one will be written over the old one if overWrite is true,
 	//				otherwise it'll add the values at the end of the files
 	ifstream rFile(filePath);
-	string fileContents, line;
-	int rowLen_2 = count(
-		istreambuf_iterator<char>(rFile),
-		istreambuf_iterator<char>(), '\n'
-	) +1;
+	if(!rFile.is_open()) {
+		printf("error: Cannot open file\"");
+		cout << filePath << "\"\n";
+	}
+	string fileContents="", line;
 	// printf("rowLen_1: %d\n", rowLen);
 	while(getline(rFile, line)) {
 		fileContents+=line;
@@ -111,15 +111,16 @@ void hsv_settingsWrite(int indeks=0, bool overWrite=false, string filePath="hsv_
 	} //ex: "row1\nrow2\nrow3"
 	rFile.close();
 	ofstream wFile(filePath);
-	// int rowLen_2 = count(fileContents.begin(),fileContents.end(),'\n');
-	printf("total rows:%d\t",rowLen_2);
+	int rowLen_2 = count(fileContents.begin(),fileContents.end(),'\n');
+	// printf("total rows:%d\n",rowLen_2);
 	if(!overWrite) {rowLen_2++;}
 	else {}
 	string fileRows[rowLen_2];
 	for(int i=0; i<rowLen_2; i++) {
-		printf("row %d out of %d rows\n",i,rowLen_2);
+		// printf("row %d out of %d rows: ",i,rowLen_2);
+		// cout << fileContents.substr(0,fileContents.find('\n')+1) << endl;
 		if(i==rowLen_2-1 && !overWrite) {
-			fileRows[i] = to_string(i)+";["+
+			fileRows[i] = to_string(i-2)+";["+
 			to_string(l_HSV[0])+","+to_string(l_HSV[1])+","+to_string(l_HSV[2])+":"+
 			to_string(u_HSV[0])+","+to_string(u_HSV[1])+","+to_string(l_HSV[2])+"]\n";
 		}
@@ -134,10 +135,16 @@ void hsv_settingsWrite(int indeks=0, bool overWrite=false, string filePath="hsv_
 				fileContents.erase(0,fileContents.find('\n')+1);
 			}
 		}
-		wFile << fileRows[i];
 	}
-
-
+	string totText = "";
+	for(int i=0; i<rowLen_2; i++) {
+		// printf("fileRows[%d]: \"", i);
+		// cout << fileRows[i] << "\"" << endl;
+		totText+=fileRows[i];
+		}
+	wFile << totText;
+	printf("File written\n");
+	wFile.close();
 }
 
 int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
@@ -250,7 +257,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 			else if(keyInp==114) { //r
 				hsv_settingsRead(win_name, 2);
 			}
-			else if(keyInp==116 && mode==0) {
+			else if(keyInp==116 && mode==0) { //t
 				hsv_settingsRead(win_name, 0);
 			} 
 		}
