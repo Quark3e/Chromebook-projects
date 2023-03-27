@@ -35,8 +35,26 @@ int u_HSV[3] = {103, 213, 255};
 int areaLim = 10'000;
 
 
-void hsv_settingsRead(int index, string filePath="hsv_settings.dat") {
-	//read HSV values from file with given index and change global l_HSV/u_HSV variables
+void createTrackbars(const char* win_name) {
+	cv::createTrackbar("LowH", win_name, &l_HSV[0], 179);
+	cv::createTrackbar("HighH", win_name, &u_HSV[0], 179);
+	cv::createTrackbar("LowS", win_name, &l_HSV[1], 255);
+	cv::createTrackbar("HighS", win_name, &u_HSV[1], 255);
+	cv::createTrackbar("LowV", win_name, &l_HSV[2], 255);
+	cv::createTrackbar("HighV", win_name, &u_HSV[2], 255);
+}
+
+void updateTrackbarPos(const char* win_name) {
+	cv::setTrackbarPos("LowH", win_name, l_HSV[0]);
+	cv::setTrackbarPos("LowS", win_name, l_HSV[1]);
+	cv::setTrackbarPos("LowV", win_name, l_HSV[2]);
+	cv::setTrackbarPos("HighH", win_name, u_HSV[0]);
+	cv::setTrackbarPos("HighS", win_name, u_HSV[1]);
+	cv::setTrackbarPos("HighV", win_name, u_HSV[2]);
+}
+
+void hsv_settingsRead(const char* win_name, int indeks=1, string filePath="hsv_settings.dat") {
+	//read HSV values from file with given indeks and change global l_HSV/u_HSV variables
 	ifstream hsvFile(filePath);
 	if(!hsvFile.is_open()) {
 		printf("can't open file \"%s\"",filePath);
@@ -45,7 +63,7 @@ void hsv_settingsRead(int index, string filePath="hsv_settings.dat") {
 	string line;
 	int tempVal[6];
 	while(getline(hsvFile,line)) {
-		if(line.substr(0,1)==to_string(index)) {
+		if(line.substr(0,1)==to_string(indeks)) {
 			line.erase(0,3);
 			//lower HSV
 			tempVal[0]=stoi(line.substr(0,line.find(',')));
@@ -68,6 +86,7 @@ void hsv_settingsRead(int index, string filePath="hsv_settings.dat") {
 			u_HSV[0] = tempVal[3];
 			u_HSV[1] = tempVal[4];
 			u_HSV[2] = tempVal[5];
+			updateTrackbarPos(win_name);
 			hsvFile.close();
 			return;
 		}
@@ -75,32 +94,46 @@ void hsv_settingsRead(int index, string filePath="hsv_settings.dat") {
 	printf("index not found\n");
 }
 
-void hsv_settingsWrite(bool overWrite, int index, string filePath="hsv_settings.dat") {
+void hsv_settingsWrite(int indeks=0, bool overWrite=false, string filePath="hsv_settings.dat") {
 	//write global HSV values from l_HSV and u_HSV into the file
-	//overwrite: if index already exists the new one will be written over the old one
+	//overwrite:	if indeks already exists the new one will be written over the old one if overWrite is true,
+	//				otherwise it'll add the values at the end of the files
 	ifstream rFile(filePath);
 	string fileContents, line;
-	int rowLen = count(
+	int rowLen_2 = count(
 		istreambuf_iterator<char>(rFile),
 		istreambuf_iterator<char>(), '\n'
 	) +1;
-	printf("rowLen: %d\n", rowLen);
+	// printf("rowLen_1: %d\n", rowLen);
 	while(getline(rFile, line)) {
 		fileContents+=line;
 		fileContents+="\n";
+	} //ex: "row1\nrow2\nrow3"
+	// int rowLen_2 = count(fileContents.begin(),fileContents.end(),'\n');
+	printf("total rows:%d\t",rowLen_2);
+	if(!overWrite) {rowLen_2++;}
+	else {}
+	string fileRows[rowLen_2];
+	for(int i=0; i<rowLen_2; i++) {
+		printf("row %d out of %d rows\n",i,rowLen_2);
+		if(i==rowLen_2-1 && !overWrite) {
+			fileRows[i] = to_string(i)+";["+
+			to_string(l_HSV[0])+","+to_string(l_HSV[1])+","+to_string(l_HSV[2])+":"+
+			to_string(u_HSV[0])+","+to_string(u_HSV[1])+","+to_string(l_HSV[2])+"]\n";
+		}
+		else {
+			fileRows[i] = fileContents.substr(0,fileContents.find('\n')+1);
+			fileContents.erase(0,fileContents.find('\n')+1);
+			if(fileRows[i].substr(0,1)==to_string(indeks-1) && overWrite) {
+				i++;
+				fileRows[i] = to_string(i)+";["+
+				to_string(l_HSV[0])+","+to_string(l_HSV[1])+","+to_string(l_HSV[2])+":"+
+				to_string(u_HSV[0])+","+to_string(u_HSV[1])+","+to_string(l_HSV[2])+"]\n";
+				fileContents.erase(0,fileContents.find('\n')+1);
+			}
+		}
 	}
-	
 
-}
-
-
-void createTrackbars(const char* win_name) {
-	cv::createTrackbar("LowH", win_name, &l_HSV[0], 179);
-	cv::createTrackbar("HighH", win_name, &u_HSV[0], 179);
-	cv::createTrackbar("LowS", win_name, &l_HSV[1], 255);
-	cv::createTrackbar("HighS", win_name, &u_HSV[1], 255);
-	cv::createTrackbar("LowV", win_name, &l_HSV[2], 255);
-	cv::createTrackbar("HighV", win_name, &u_HSV[2], 255);
 }
 
 int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
@@ -201,13 +234,21 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 				);
 			cv::imshow(win_name,imgFlipped);
 			int keyInp = cv::waitKey(10);
+			// printf(" %d ", keyInp);
 			if(keyInp==27) return -1; //esc
 			else if(keyInp==32) break; //space
 			else if(keyInp==115) { //s
 				if(mode==0) {
 					//save HSV values
+					hsv_settingsWrite(0);
 				}
 			}
+			else if(keyInp==114) { //r
+				hsv_settingsRead(win_name, 2);
+			}
+			else if(keyInp==116 && mode==0) {
+				hsv_settingsRead(win_name, 0);
+			} 
 		}
 
 	}
