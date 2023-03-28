@@ -1,0 +1,1 @@
+/usr/bin/c++ -rdynamic CMakeFiles/udpCOM.dir/udpCOM_2.cpp.o -o udpCOM 

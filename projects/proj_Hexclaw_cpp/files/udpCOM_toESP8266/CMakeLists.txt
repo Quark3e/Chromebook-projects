@@ -10,5 +10,5 @@ set(CMAKE_CXX_STANDARD 14)
 # find_package(OpenCV REQUIRED)
 
 # include_directories(${OpenCV_INCLUDE_DIRS})
-add_executable(udpCOM_toESP8266 udpCOM_toESP8266.cpp)
+add_executable(udpCOM udpCOM_2.cpp)
 # target_link_libraries(DisplayImage ${OpenCV_LIBS})

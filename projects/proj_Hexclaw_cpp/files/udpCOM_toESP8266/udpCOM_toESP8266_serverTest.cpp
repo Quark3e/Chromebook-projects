@@ -8,7 +8,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
-#define PORT 6969
+#define PORT 53
 #define MAXLINE 1024
 
 // Driver code
