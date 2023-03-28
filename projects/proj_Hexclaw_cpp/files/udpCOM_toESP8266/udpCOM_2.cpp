@@ -13,7 +13,7 @@
 #include <fcntl.h>
 #include <poll.h>
 
-#define MAXLINE 1024
+#define MAXLINE 2048
 
 //WORKS
 
@@ -66,7 +66,7 @@ int main()
     }
     
 
-    const char* msg = "test";
+    const char* msg = "1";
     while(true) {
         usleep(10'000);
         clock_t t1 = clock();
