@@ -78,6 +78,7 @@ int main()
 
         int n = recvfrom(sock, (char *)buffer, MAXLINE, MSG_WAITALL, (struct sockaddr *) &addrDest, &len);
         buffer[n] = '\0';
+        std::cout << buffer[n-1] << "\t";
         // std::cout<<"Server :"<<buffer<<std::endl;
         printf("Server: \"%s\"\n", buffer);
 

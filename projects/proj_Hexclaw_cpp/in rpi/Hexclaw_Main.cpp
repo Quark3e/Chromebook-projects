@@ -1,5 +1,20 @@
 
+#include <sys/types.h>
 #include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <memory.h>
+#include <ifaddrs.h>
+#include <net/if.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <poll.h>
+
+#define MAXLINE 2048
+
 #include <iostream>
 #include <math.h>
 #include <stdio.h>
@@ -17,6 +32,15 @@
 
 using namespace std;
 // using namespace cv;
+
+int bind_result;
+int sock;
+char buffer[MAXLINE];
+const char* PORT;
+char szIP[100];
+sockaddr_in addrListen;
+sockaddr_storage addrDest;
+const char* toESP_msg;
 
 
 float current_q[6] = {0,0,0,0,0,0}; //old_rotation
@@ -36,9 +60,51 @@ int u_HSV[3] = {103, 213, 255};
 
 int areaLim = 10'000;
 
-void signal_handler(int signal_num) {
-	cout << "\tRead interrupt signal: (" << signal_num << ")\n";
-	exit(signal_num);
+// void signal_handler(int signal_num) {
+// 	cout << "\tRead interrupt signal: (" << signal_num << ")\n";
+// 	exit(signal_num);
+// }
+
+void updateOrients(bool printResult) {
+	size_t msg_length = strlen(toESP_msg);
+	bind_result = sendto(
+		sock, toESP_msg, msg_length, 0,
+		(sockaddr*)&addrDest, sizeof(addrDest)
+		);
+	socklen_t len;
+	int n = recvfrom(
+		sock, (char*)buffer, MAXLINE, MSG_WAITALL,
+		(struct sockaddr*)&addrDest, &len);
+	buffer[n] = '\0';
+	if(printResult) {
+		printf("Sent %d bytes\t",result);
+		printf("Read from server: \"%s\"",buffer);
+	}
+	string temp = "";
+	if(buffer[0]=='[' && buffer[n-1]==']') {
+		for(int i=0; i<n-1; i++) temp+=buffer[i];
+		orient[0] = stoi(temp.substr(1, temp.find(':')));
+		orient[1] = stoi(temp.substr(temp.find(':')+1, temp.find(']')));
+		if(printResult) printf("read: a:%d b:%d", orient[0], orient[1]);
+	}
+}
+
+int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr)
+{
+    int result;
+    addrinfo* result_list = NULL;
+    addrinfo hints = {};
+    hints.ai_family = family;
+    hints.ai_socktype = SOCK_DGRAM; // without this flag, getaddrinfo will return 3x the number of addresses (one for each socket type).
+    result = getaddrinfo(hostname, service, &hints, &result_list);
+    if (result == 0)
+    {
+        //ASSERT(result_list->ai_addrlen <= sizeof(sockaddr_in));
+        memcpy(pAddr, result_list->ai_addr, result_list->ai_addrlen);
+        freeaddrinfo(result_list);
+    }
+
+    return result;
 }
 
 void createTrackbars(const char* win_name) {
@@ -218,6 +284,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 					PP[0] = posX - camSize.width/2;
 					PP[1] = camSize.height - posY;
 					printf(" x:%d y:%d ",int(PP[0]),int(PP[1]));
+					updateOrients(false);
 					if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
 						sendToServo(pcaSrc,new_q,current_q,false);
 					}
@@ -292,6 +359,28 @@ int main(int argc, char** argv) {
 	*/
 
 	// signal(SIGINT	,signal_handler);
+
+	bind_result = 0;
+	sock = socket(AF_INET, SOCK_DGRAM, 0);
+	fcntl(sock, F_SETFL, O_NONBLOCK);
+	PORT = "53";
+	addrListen = {};
+	addrListen.sin_family = AF_INET;
+	bind_result = bind(sock, (sockaddr*)&addrListen, sizeof(addrListen));
+	if(bind_result==-1) {
+		int lasterror = errno;
+		cout << "bind() error:" << lasterror;
+		exit(1);
+	}
+	addrDest = {};
+	bind_result = resolvehelper("192.168.1.117", AF_INET, PORT, &addrDest);
+	if(bind_result!=0) {
+		int lasterror = errno;
+		cout << "resolvehelper error:" << lasterror;
+		exit(1);
+	}
+	toESP_msg = "1";
+
 
 	if(argc<=1) {calibrateHSV=false; displayImg=false;}
 	else if(argc>=2) {

@@ -107,7 +107,7 @@ void loop() {
 
         sensors_event_t a, g, temp;
         mpu.getEvent(&a, &g, &temp);
-        String resultStr = String(int(g.gyro.x))+":"+String(int(g.gyro.y));
+        String resultStr = "{"+String(int(g.gyro.x))+":"+String(int(g.gyro.y))+"}";
 
         int newPackLen = resultStr.length()+1;
         char newReplyPack[newPackLen];
