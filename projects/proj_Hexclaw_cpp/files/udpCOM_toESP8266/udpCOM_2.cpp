@@ -10,6 +10,8 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <iostream>
+#include <fcntl.h>
+#include <poll.h>
 
 #define MAXLINE 1024
 
@@ -38,6 +40,7 @@ int main()
 {
     int result = 0;
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    fcntl(sock, F_SETFL, O_NONBLOCK);
     char buffer[MAXLINE];
     const char* PORT = "53";
 
@@ -61,27 +64,32 @@ int main()
        std::cout << "error: " << lasterror;
        exit(1);
     }
+    
 
     const char* msg = "test";
     while(true) {
-        std::string inpVar;
-        std::cout << "Enter message: ";
-        std::cin >> inpVar;
-        std::cout << "\n";
-        msg = inpVar.c_str();
-        size_t msg_length = strlen(msg);
-        std::cin.ignore();
-        std::cin.clear();
-        if(inpVar=="exit") break;
+        // std::string inpVar;
+        // std::cout << "Enter message: ";
+        // std::cin >> inpVar;
+        // std::cout << "\n";
+        // msg = inpVar.c_str();
+        // std::cin.ignore();
+        // std::cin.clear();
+        // if(inpVar=="exit") break;
+        usleep(20'000);
 
+        size_t msg_length = strlen(msg);
         result = sendto(sock, msg, msg_length, 0, (sockaddr*)&addrDest, sizeof(addrDest));
 
-        std::cout << result << " bytes sent" << std::endl;
+        // std::cout << result << " bytes sent" << std::endl;
+        printf("%d bytes sent\n", result);
         socklen_t len;
 
         int n = recvfrom(sock, (char *)buffer, MAXLINE, MSG_WAITALL, (struct sockaddr *) &addrDest, &len);
         buffer[n] = '\0';
-        std::cout<<"Server :"<<buffer<<std::endl;
+        // std::cout<<"Server :"<<buffer<<std::endl;
+        printf("Server: %s\n", buffer);
+
     }
     return 0;
 

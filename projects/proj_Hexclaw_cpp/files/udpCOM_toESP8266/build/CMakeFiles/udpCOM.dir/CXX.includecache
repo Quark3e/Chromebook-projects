@@ -31,4 +31,8 @@ stdlib.h
 -
 iostream
 -
+fcntl.h
+-
+poll.h
+-
 
