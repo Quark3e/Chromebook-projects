@@ -1,3 +1,6 @@
+
+//WORKS
+
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -14,8 +17,6 @@
 #include <poll.h>
 
 #define MAXLINE 2048
-
-//WORKS
 
 int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr)
 {
@@ -49,8 +50,7 @@ int main()
     sockaddr_in addrListen = {}; // zero-int, sin_port is 0, which picks a random port for bind.
     addrListen.sin_family = AF_INET;
     result = bind(sock, (sockaddr*)&addrListen, sizeof(addrListen));
-    if (result == -1)
-    {
+    if (result == -1) {
        int lasterror = errno;
        std::cout << "error: " << lasterror;
        exit(1);
@@ -58,8 +58,7 @@ int main()
 
     sockaddr_storage addrDest = {};
     result = resolvehelper("192.168.1.117", AF_INET, PORT, &addrDest);
-    if (result != 0)
-    {
+    if (result != 0) {
        int lasterror = errno;
        std::cout << "error: " << lasterror;
        exit(1);

@@ -1,3 +1,6 @@
+
+//WORKS
+
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 
@@ -8,9 +11,6 @@ WiFiUDP Udp;
 unsigned int localUdpPort = 53; // local port to listen on
 char incomingPacket[255]; // buffer for incoming packets
 char replyPacket[] = "Hi there! Got the message :-)"; // a reply string to send back
-
-
-
 
 void setup() {
     Serial.begin(115200);
