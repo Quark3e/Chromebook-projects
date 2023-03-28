@@ -68,27 +68,19 @@ int main()
 
     const char* msg = "test";
     while(true) {
-        // std::string inpVar;
-        // std::cout << "Enter message: ";
-        // std::cin >> inpVar;
-        // std::cout << "\n";
-        // msg = inpVar.c_str();
-        // std::cin.ignore();
-        // std::cin.clear();
-        // if(inpVar=="exit") break;
-        usleep(20'000);
-
+        usleep(10'000);
+        clock_t t1 = clock();
         size_t msg_length = strlen(msg);
         result = sendto(sock, msg, msg_length, 0, (sockaddr*)&addrDest, sizeof(addrDest));
 
         // std::cout << result << " bytes sent" << std::endl;
-        printf("%d bytes sent\n", result);
+        printf("%d bytes sent.\t", result);
         socklen_t len;
 
         int n = recvfrom(sock, (char *)buffer, MAXLINE, MSG_WAITALL, (struct sockaddr *) &addrDest, &len);
         buffer[n] = '\0';
         // std::cout<<"Server :"<<buffer<<std::endl;
-        printf("Server: %s\n", buffer);
+        printf("Server: \"%s\"\n", buffer);
 
     }
     return 0;
