@@ -15,6 +15,14 @@ math.h
 -
 stdio.h
 -
+string
+-
+fstream
+-
+algorithm
+-
+csignal
+-
 opencv4/opencv2/opencv.hpp
 -
 opencv4/opencv2/highgui/highgui.hpp
@@ -22,12 +30,6 @@ opencv4/opencv2/highgui/highgui.hpp
 opencv4/opencv2/imgproc/imgproc.hpp
 -
 PiPCA9685/PCA9685.h
--
-string
--
-fstream
--
-algorithm
 -
 IK_header.h
 /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.h

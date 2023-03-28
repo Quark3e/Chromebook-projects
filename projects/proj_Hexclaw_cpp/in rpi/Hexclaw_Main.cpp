@@ -3,13 +3,15 @@
 #include <iostream>
 #include <math.h>
 #include <stdio.h>
+#include <string>
+#include <fstream>
+#include <algorithm>
+#include <csignal>
+
 #include <opencv4/opencv2/opencv.hpp>
 #include <opencv4/opencv2/highgui/highgui.hpp>
 #include <opencv4/opencv2/imgproc/imgproc.hpp>
 #include <PiPCA9685/PCA9685.h>
-#include <string>
-#include <fstream>
-#include <algorithm>
 
 #include "IK_header.h"
 
@@ -34,6 +36,10 @@ int u_HSV[3] = {103, 213, 255};
 
 int areaLim = 10'000;
 
+void signal_handler(int signal_num) {
+	cout << "\tRead interrupt signal: (" << signal_num << ")\n";
+	exit(signal_num);
+}
 
 void createTrackbars(const char* win_name) {
 	cv::createTrackbar("LowH", win_name, &l_HSV[0], 179);
@@ -53,7 +59,7 @@ void updateTrackbarPos(const char* win_name) {
 	cv::setTrackbarPos("HighV", win_name, u_HSV[2]);
 }
 
-void hsv_settingsRead(const char* win_name, int indeks=1, string filePath="hsv_settings.dat") {
+void hsv_settingsRead(const char* win_name = "", int indeks=1, string filePath="hsv_settings.dat", bool displayWin=true) {
 	//read HSV values from file with given indeks and change global l_HSV/u_HSV variables
 	ifstream hsvFile(filePath);
 	if(!hsvFile.is_open()) {
@@ -86,7 +92,7 @@ void hsv_settingsRead(const char* win_name, int indeks=1, string filePath="hsv_s
 			u_HSV[0] = tempVal[3];
 			u_HSV[1] = tempVal[4];
 			u_HSV[2] = tempVal[5];
-			updateTrackbarPos(win_name);
+			if(displayWin) updateTrackbarPos(win_name);
 			hsvFile.close();
 			return;
 		}
@@ -122,7 +128,7 @@ void hsv_settingsWrite(int indeks=0, bool overWrite=false, string filePath="hsv_
 		if(i==rowLen_2-1 && !overWrite) {
 			fileRows[i] = to_string(i-2)+";["+
 			to_string(l_HSV[0])+","+to_string(l_HSV[1])+","+to_string(l_HSV[2])+":"+
-			to_string(u_HSV[0])+","+to_string(u_HSV[1])+","+to_string(l_HSV[2])+"]\n";
+			to_string(u_HSV[0])+","+to_string(u_HSV[1])+","+to_string(u_HSV[2])+"]\n";
 		}
 		else {
 			fileRows[i] = fileContents.substr(0,fileContents.find('\n')+1);
@@ -131,7 +137,7 @@ void hsv_settingsWrite(int indeks=0, bool overWrite=false, string filePath="hsv_
 				i++;
 				fileRows[i] = to_string(i)+";["+
 				to_string(l_HSV[0])+","+to_string(l_HSV[1])+","+to_string(l_HSV[2])+":"+
-				to_string(u_HSV[0])+","+to_string(u_HSV[1])+","+to_string(l_HSV[2])+"]\n";
+				to_string(u_HSV[0])+","+to_string(u_HSV[1])+","+to_string(u_HSV[2])+"]\n";
 				fileContents.erase(0,fileContents.find('\n')+1);
 			}
 		}
@@ -255,7 +261,15 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 				}
 			}
 			else if(keyInp==114) { //r
-				hsv_settingsRead(win_name, 2);
+				string inputVar = "";
+				int indVar = 0;
+				cout << "input: ";
+				cin >> inputVar;
+				if(inputVar=="exit") exit(1);
+				indVar = stoi(inputVar);
+				cin.clear();
+				cin.ignore();
+				hsv_settingsRead(win_name, indVar);
 			}
 			else if(keyInp==116 && mode==0) { //t
 				hsv_settingsRead(win_name, 0);
@@ -276,6 +290,9 @@ int main(int argc, char** argv) {
 	- argv[1] == "-1":	calibrateHSV = true;	displayImg = false;
 	- argv[1] == "-2":	calibrateHSV = true;	displayImg = true;
 	*/
+
+	// signal(SIGINT	,signal_handler);
+
 	if(argc<=1) {calibrateHSV=false; displayImg=false;}
 	else if(argc>=2) {
 		if(argv[1]=="-0") {calibrateHSV=false; displayImg=true;}
@@ -292,6 +309,7 @@ int main(int argc, char** argv) {
 		cout << "error: Cannot open web cam." << endl;
 		return -1;
 	}
+	hsv_settingsRead("",3,"hsv_settings.dat",false);
 
 	if(calibrateHSV) { if(displayFunc(&cap, 0, &pca)==-1) { return 0; } }
 	if(displayImg) { if(displayFunc(&cap, 1, &pca)==-1) { return 0; } }
