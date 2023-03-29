@@ -7,7 +7,31 @@
 #IncludeRegexTransform: 
 
 /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/Hexclaw_Main.cpp
+sys/types.h
+-
 unistd.h
+-
+sys/socket.h
+-
+netinet/in.h
+-
+arpa/inet.h
+-
+netdb.h
+-
+memory.h
+-
+ifaddrs.h
+-
+net/if.h
+-
+errno.h
+-
+stdlib.h
+-
+fcntl.h
+-
+poll.h
 -
 iostream
 -

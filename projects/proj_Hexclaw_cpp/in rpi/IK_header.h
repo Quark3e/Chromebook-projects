@@ -48,7 +48,7 @@ void q_corrections(float angles[6]) {
         1
     };
     angles[0] = angles[0] * error_Consts[0];
-    angles[1] = angles[1] * error_Consts[1] - 5;
+    angles[1] = angles[1] * error_Consts[1];
     angles[2] = angles[2] * error_Consts[2];
     angles[3] = angles[3] * error_Consts[3];
     angles[4] = angles[4] * error_Consts[4];

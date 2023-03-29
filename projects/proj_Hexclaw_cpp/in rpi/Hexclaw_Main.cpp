@@ -79,8 +79,8 @@ void updateOrients(bool printResult) {
 		(struct sockaddr*)&addrDest, &len);
 	buffer[n] = '\0';
 	if(printResult) {
-		printf("Sent %d bytes\t",result);
-		printf("Read from server: \"%s\"",buffer);
+		printf("\tSent %d bytes\t",bind_result);
+		printf("Read from server: \"%s\"\t",buffer);
 	}
 	string temp = "";
 	float x_accel, y_accel, z_accel, pitch, roll, Pitch, Roll;
@@ -101,8 +101,8 @@ void updateOrients(bool printResult) {
 		bool bPos = false;
     	if(Pitch <= 90 and Pitch >= -90) {
 			orient[1] = Pitch * 0.9 + orient[1] * 0.1;
-			if(b < 0) bPos = false;
-			if(b > 0) bPos = true;
+			if(orient[1] < 0) bPos = false;
+			if(orient[1] > 0) bPos = true;
 		}
     	if(Roll <= 90 and Roll >= -90) {
 			if(!bPos) orient[0] = 0 - (Roll * 0.9 + orient[0] * 0.1);
@@ -307,7 +307,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 					PP[0] = posX - camSize.width/2;
 					PP[1] = camSize.height - posY;
 					printf(" x:%d y:%d ",int(PP[0]),int(PP[1]));
-					updateOrients(false);
+					// updateOrients(true);
 					if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
 						sendToServo(pcaSrc,new_q,current_q,false);
 					}
@@ -416,12 +416,17 @@ int main(int argc, char** argv) {
 	pca.set_pwm_freq(50.0);
 	sendToServo(&pca, new_q, current_q, true, 0);
 
+	for(int i=0; i<180; i++) {
+		float temp[6] = {startup_q[0], startup_q[1],i, startup_q[3], startup_q[4], startup_q[5]};
+		sendToServo(&pca, temp, current_q, false, 0);
+	}
+
 	cv::VideoCapture cap(webcamIndex);
 	if(!cap.isOpened()) {
 		cout << "error: Cannot open web cam." << endl;
 		return -1;
 	}
-	hsv_settingsRead("",3,"hsv_settings.dat",false);
+	hsv_settingsRead("",4,"hsv_settings.dat",false);
 
 	if(calibrateHSV) { if(displayFunc(&cap, 0, &pca)==-1) { return 0; } }
 	if(displayImg) { if(displayFunc(&cap, 1, &pca)==-1) { return 0; } }
