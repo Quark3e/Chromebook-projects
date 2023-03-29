@@ -45,7 +45,7 @@ const char* toESP_msg;
 
 float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
-float orient[3] = {0,-90,0}; //degrees
+float orient[3] = {0,0,0}; //degrees
 float PP[3] = {0,150,150};
 
 float cam_PP_offset[3] = {0,0,0};
@@ -54,6 +54,7 @@ int webcamIndex = 0;
 
 bool displayImg = true;
 bool calibrateHSV = true;
+bool specialMode = true;
 
 int l_HSV[3] = {64, 73, 88};
 int u_HSV[3] = {103, 213, 255};
@@ -85,13 +86,16 @@ void updateOrients(bool printResult) {
 	string temp = "";
 	float x_accel, y_accel, z_accel, pitch, roll, Pitch, Roll;
 	if(buffer[0]=='{' && buffer[n-1]=='}') { //{x:y:z}
+		cout << buffer << "\t";
 		for(int i=0; i<n-1; i++) temp+=buffer[i];
 		x_accel = stof(temp.substr(1, temp.find(':')));
 		temp.erase(0, temp.find(':')+1);
 		y_accel = stof(temp.substr(0, temp.find(':')));
 		temp.erase(0, temp.find(':')+1);
 		z_accel = stof(temp.substr(0, temp.find('}')));
-		
+
+		printf("x_acc:%d\ty_acc:%d\tz_acc:%d\t",int(x_accel),int(y_accel),int(z_accel));
+
 		pitch = atan(y_accel / sqrt(pow(x_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
 		roll = atan(-1 * x_accel / sqrt(pow(y_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
 		if(isnan(pitch) || isnan(roll)) return;
@@ -108,8 +112,8 @@ void updateOrients(bool printResult) {
 			if(!bPos) orient[0] = 0 - (Roll * 0.9 + orient[0] * 0.1);
 			else if(bPos) orient[0] = Roll * 0.9 + orient[0] * 0.1;
 		}
-		if(printResult) printf("read[degrees]: a:%d b:%d Roll:%d Pitch:%d", 
-		orient[0], orient[1], float(Roll), float(Pitch));
+		if(true) printf("a:%d\tb:%d\tRoll:%d\tPitch:%d\n", 
+		int(orient[0]), int(orient[1]), int(Roll), int(Pitch));
 	}
 }
 
@@ -380,6 +384,8 @@ int main(int argc, char** argv) {
 	- argv[1] == "-0":	calibrateHSV = false;	displayImg = true;
 	- argv[1] == "-1":	calibrateHSV = true;	displayImg = false;
 	- argv[1] == "-2":	calibrateHSV = true;	displayImg = true;
+	- argv[1] == "-3":	special mode: no display and no tracking or reading of position.
+						where given pos is stationary and only reads orient var from esp
 	*/
 
 	// signal(SIGINT	,signal_handler);
@@ -410,31 +416,38 @@ int main(int argc, char** argv) {
 	else if(argc>=2) {
 		if(argv[1]=="-0") {calibrateHSV=false; displayImg=true;}
 		else if(argv[1]=="-1") {calibrateHSV=true; displayImg=false;}
-		else if(argv[1]=="-2") {calibrateHSV=true; displayImg=true;}
+		else if(argv[1]=="-2") {calibrateHSV=true; displayImg=true;printf("argv[1]==\"-2\"\n");}
+		else if(argv[1]=="-k") {calibrateHSV=false; displayImg=false; specialMode=true; printf("special mode is set to true\t");}
 	}
-
 	PiPCA9685::PCA9685 pca{};
 	pca.set_pwm_freq(50.0);
 	sendToServo(&pca, new_q, current_q, true, 0);
 
-	for(int i=0; i<180; i++) {
-		float temp[6] = {startup_q[0], startup_q[1],i, startup_q[3], startup_q[4], startup_q[5]};
-		sendToServo(&pca, temp, current_q, false, 0);
-	}
+	if(!specialMode) {
+		printf("special mode not on\n");
+		cv::VideoCapture cap(webcamIndex);
+		if(!cap.isOpened()) {
+			cout << "error: Cannot open web cam." << endl;
+			return -1;
+		}
+		hsv_settingsRead("",4,"hsv_settings.dat",false);
 
-	cv::VideoCapture cap(webcamIndex);
-	if(!cap.isOpened()) {
-		cout << "error: Cannot open web cam." << endl;
-		return -1;
+		if(calibrateHSV) { if(displayFunc(&cap, 0, &pca)==-1) { return 0; } }
+		if(displayImg) { if(displayFunc(&cap, 1, &pca)==-1) { return 0; } }
+		if(!calibrateHSV && !displayImg) {
+			if(displayFunc(&cap, 3, &pca)==-1) { return 0; }
+		}
 	}
-	hsv_settingsRead("",4,"hsv_settings.dat",false);
-
-	if(calibrateHSV) { if(displayFunc(&cap, 0, &pca)==-1) { return 0; } }
-	if(displayImg) { if(displayFunc(&cap, 1, &pca)==-1) { return 0; } }
-	if(!calibrateHSV && !displayImg) {
-		if(displayFunc(&cap, 3, &pca)==-1) { return 0; }
+	else if(specialMode){
+		while(true) {
+			usleep(100'000);
+			// printf("\tx:%d y:%d z:%d a:%d b:%d\n",int(PP[0]),int(PP[1]),int(PP[2]),int(orient[0]),int(orient[1]));
+			updateOrients(false);
+			if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
+				sendToServo(&pca,new_q,current_q,false);
+			}
+		}
 	}
-
 	sendToServo(&pca, new_q, current_q, true, 2, 2, true, true, true);
 
 	return 0;
