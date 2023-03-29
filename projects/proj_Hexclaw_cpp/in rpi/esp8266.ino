@@ -27,7 +27,7 @@ void setup() {
     }
     Serial.println("MPU6050 Found!");
 
-    mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
+    mpu.setAccelerometerRange(MPU6050_RANGE_2_G);
     Serial.print("Accelerometer range set to: ");
     switch (mpu.getAccelerometerRange()) {
     case MPU6050_RANGE_2_G:

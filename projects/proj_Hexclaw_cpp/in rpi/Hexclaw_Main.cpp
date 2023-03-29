@@ -60,6 +60,8 @@ int u_HSV[3] = {103, 213, 255};
 
 int areaLim = 10'000;
 
+
+float accelFilter = 0.1;
 // void signal_handler(int signal_num) {
 // 	cout << "\tRead interrupt signal: (" << signal_num << ")\n";
 // 	exit(signal_num);
@@ -81,11 +83,32 @@ void updateOrients(bool printResult) {
 		printf("Read from server: \"%s\"",buffer);
 	}
 	string temp = "";
-	if(buffer[0]=='[' && buffer[n-1]==']') {
+	float x_accel, y_accel, z_accel, pitch, roll, Pitch, Roll;
+	if(buffer[0]=='{' && buffer[n-1]=='}') { //{x:y:z}
 		for(int i=0; i<n-1; i++) temp+=buffer[i];
-		orient[0] = stoi(temp.substr(1, temp.find(':')));
-		orient[1] = stoi(temp.substr(temp.find(':')+1, temp.find(']')));
-		if(printResult) printf("read: a:%d b:%d", orient[0], orient[1]);
+		x_accel = stof(temp.substr(1, temp.find(':')));
+		temp.erase(0, temp.find(':')+1);
+		y_accel = stof(temp.substr(0, temp.find(':')));
+		temp.erase(0, temp.find(':')+1);
+		z_accel = stof(temp.substr(0, temp.find('}')));
+		
+		pitch = atan(y_accel / sqrt(pow(x_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
+		roll = atan(-1*x_accel/sqrt(pow(y_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
+		if(isnan(pitch) || isnan(roll)) return;
+
+		Pitch = (1-accelFilter) * Pitch + accelFilter * pitch;
+		Roll = (1-accelFilter) * Roll + accelFilter * roll;
+		bool bPos = false;
+    	if(Pitch <= 90 and Pitch >= -90) {
+			orient[1] = Pitch * 0.9 + orient[1] * 0.1;
+			if(b < 0) bPos = false;
+			if(b > 0) bPos = true;
+		}
+    	if(Roll <= 90 and Roll >= -90) {
+			if(!bPos) orient[0] = 0 - (Roll * 0.9 + orient[0] * 0.1);
+			else if(bPos) orient[0] = Roll * 0.9 + orient[0] * 0.1;
+		}
+		if(printResult) printf("read[degrees]: a:%d b:%d", orient[0], orient[1]);
 	}
 }
 
