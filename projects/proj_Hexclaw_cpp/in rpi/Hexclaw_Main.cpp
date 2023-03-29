@@ -93,7 +93,7 @@ void updateOrients(bool printResult) {
 		z_accel = stof(temp.substr(0, temp.find('}')));
 		
 		pitch = atan(y_accel / sqrt(pow(x_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
-		roll = atan(-1*x_accel/sqrt(pow(y_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
+		roll = atan(-1 * x_accel / sqrt(pow(y_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
 		if(isnan(pitch) || isnan(roll)) return;
 
 		Pitch = (1-accelFilter) * Pitch + accelFilter * pitch;
@@ -108,7 +108,8 @@ void updateOrients(bool printResult) {
 			if(!bPos) orient[0] = 0 - (Roll * 0.9 + orient[0] * 0.1);
 			else if(bPos) orient[0] = Roll * 0.9 + orient[0] * 0.1;
 		}
-		if(printResult) printf("read[degrees]: a:%d b:%d", orient[0], orient[1]);
+		if(printResult) printf("read[degrees]: a:%d b:%d Roll:%d Pitch:%d", 
+		orient[0], orient[1], float(Roll), float(Pitch));
 	}
 }
 
