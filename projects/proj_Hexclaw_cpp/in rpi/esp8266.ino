@@ -91,8 +91,6 @@ void loop() {
         int len = Udp.read(incomingPacket, 255);
         if (len > 0) { incomingPacket[len] = 0; }
 
-        sensors_event_t a, g, temp;
-        mpu.getEvent(&a, &g, &temp);
         String resultStr = "{"+
         String(X_out)+":"+
         String(Y_out)+":"+
