@@ -88,6 +88,7 @@ void updateOrients(bool printResult) {
 	if(buffer[0]=='{' && buffer[n-1]=='}') { //{x:y:z}
 		cout << buffer << "\t";
 		for(int i=0; i<n-1; i++) temp+=buffer[i];
+
 		x_accel = stof(temp.substr(1, temp.find(':')));
 		temp.erase(0, temp.find(':')+1);
 		y_accel = stof(temp.substr(0, temp.find(':')));
@@ -112,6 +113,7 @@ void updateOrients(bool printResult) {
 			if(!bPos) orient[0] = 0 - (Roll * 0.9 + orient[0] * 0.1);
 			else if(bPos) orient[0] = Roll * 0.9 + orient[0] * 0.1;
 		}
+		
 		if(true) printf("a:%d\tb:%d\tRoll:%d\tPitch:%d\n", 
 		int(orient[0]), int(orient[1]), int(Roll), int(Pitch));
 	}

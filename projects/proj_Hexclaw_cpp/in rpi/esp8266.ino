@@ -1,11 +1,14 @@
 
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
-#include <Adafruit_MPU6050.h>
-#include <Adafruit_Sensor.h>
-#include <Wire.h>
+// #include <Adafruit_ADXL345_U.h>
+// #include <Adafruit_Sensor.h>
 
-Adafruit_MPU6050 mpu;
+#include <Wire.h>
+int ADXL345 = 0x53;
+float X_out, Y_out, Z_out;
+float roll, pitch, Roll = 0, Pitch = 0;
+int resolutionOpt = 32;
 
 const char* ssid = "Telia-47118D";
 const char* password = "0C94C28B5D";
@@ -18,72 +21,55 @@ char replyPacket[] = "Hi there! Got the message :-)"; // a reply string to send 
 
 float toDegrees(float radians) { return (radians*180)/M_PI; }
 
+void readAccelerometer() {
+    Wire.beginTransmission(ADXL345);
+    Wire.write(0x32); // Start with register 0x32 (ACCEL_XOUT_H)
+    Wire.endTransmission(false);
+    Wire.requestFrom(ADXL345, 6, true); // Read 6 registers total, each axis value is stored in 2 registers
+    X_out = (Wire.read() | Wire.read() << 8); // X-axis value
+    X_out = X_out / resolutionOpt; //For a range of +-2g, we need to divide the raw values by 256, according to the datasheet
+    Y_out = (Wire.read() | Wire.read() << 8); // Y-axis value
+    Y_out = Y_out / resolutionOpt;
+    Z_out = (Wire.read() | Wire.read() << 8); // Z-axis value
+    Z_out = Z_out / resolutionOpt;
+
+    //x is roll and y is pitch (it's switched so the servo can be fit to the servo robot arm)
+    // pitch = atan(Y_out / sqrt(pow(X_out, 2) + pow(Z_out, 2))) * 180 / PI;
+    // roll = atan(-1 * X_out / sqrt(pow(Y_out, 2) + pow(Z_out, 2))) * 180 / PI;
+
+    // //filter
+    // Roll = 0.8 * Roll + 0.2 * roll;
+    // Pitch = 0.8 * Pitch + 0.2 * pitch;
+
+}
+
 void setup() {
     Serial.begin(115200);
-      // Try to initialize!
-    if (!mpu.begin()) {
-        Serial.println("Failed to find MPU6050 chip");
-        while(1) {delay(10);}
-    }
-    Serial.println("MPU6050 Found!");
+    
+    Wire.begin();
+    Wire.beginTransmission(ADXL345);
+    Wire.write(0x2D);
+    Wire.endTransmission();
+    delay(10);
+     //offset calibration
+    //X-axis
+    Wire.beginTransmission(ADXL345);
+    Wire.write(0x1E);
+    Wire.write(-6);
+    Wire.endTransmission();
+    delay(10);
+    //Y-axis
+    Wire.beginTransmission(ADXL345);
+    Wire.write(0x1F);
+    Wire.write(-4);
+    Wire.endTransmission();
+    delay(10);
+    //Z-axis
+    Wire.beginTransmission(ADXL345);
+    Wire.write(0x20);
+    Wire.write(-5);
+    Wire.endTransmission();
 
-    mpu.setAccelerometerRange(MPU6050_RANGE_2_G);
-    Serial.print("Accelerometer range set to: ");
-    switch (mpu.getAccelerometerRange()) {
-    case MPU6050_RANGE_2_G:
-        Serial.println("+-2G");
-        break;
-    case MPU6050_RANGE_4_G:
-        Serial.println("+-4G");
-        break;
-    case MPU6050_RANGE_8_G:
-        Serial.println("+-8G");
-        break;
-    case MPU6050_RANGE_16_G:
-        Serial.println("+-16G");
-        break;
-    }
-    mpu.setGyroRange(MPU6050_RANGE_500_DEG);
-    Serial.print("Gyro range set to: ");
-    switch (mpu.getGyroRange()) {
-    case MPU6050_RANGE_250_DEG:
-        Serial.println("+- 250 deg/s");
-        break;
-    case MPU6050_RANGE_500_DEG:
-        Serial.println("+- 500 deg/s");
-        break;
-    case MPU6050_RANGE_1000_DEG:
-        Serial.println("+- 1000 deg/s");
-        break;
-    case MPU6050_RANGE_2000_DEG:
-        Serial.println("+- 2000 deg/s");
-        break;
-    }
-    mpu.setFilterBandwidth(MPU6050_BAND_5_HZ);
-    Serial.print("Filter bandwidth set to: ");
-    switch (mpu.getFilterBandwidth()) {
-    case MPU6050_BAND_260_HZ:
-        Serial.println("260 Hz");
-        break;
-    case MPU6050_BAND_184_HZ:
-        Serial.println("184 Hz");
-        break;
-    case MPU6050_BAND_94_HZ:
-        Serial.println("94 Hz");
-        break;
-    case MPU6050_BAND_44_HZ:
-        Serial.println("44 Hz");
-        break;
-    case MPU6050_BAND_21_HZ:
-        Serial.println("21 Hz");
-        break;
-    case MPU6050_BAND_10_HZ:
-        Serial.println("10 Hz");
-        break;
-    case MPU6050_BAND_5_HZ:
-        Serial.println("5 Hz");
-        break;
-    }
 
     Serial.println();
     Serial.printf("Connecting to %s ", ssid);
@@ -108,9 +94,9 @@ void loop() {
         sensors_event_t a, g, temp;
         mpu.getEvent(&a, &g, &temp);
         String resultStr = "{"+
-        String(a.acceleration.x/10)+":"+
-        String(a.acceleration.y/10)+":"+
-        String(a.acceleration.z/10)+"}";
+        String(X_out)+":"+
+        String(Y_out)+":"+
+        String(Z_out)+"}";
 
         int newPackLen = resultStr.length()+1;
         char newReplyPack[newPackLen];
@@ -119,5 +105,6 @@ void loop() {
         Udp.beginPacket(Udp.remoteIP(),
         Udp.remotePort()); Udp.write(newReplyPack);
         Udp.endPacket();
+        readAccelerometer();
     }
 }
