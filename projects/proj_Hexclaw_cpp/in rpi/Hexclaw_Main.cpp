@@ -87,21 +87,27 @@ void updateOrients(bool printResult) {
 	float x_accel, y_accel, z_accel, pitch, roll, Pitch, Roll;
 	if(buffer[0]=='{' && buffer[n-1]=='}') { //{x:y:z}
 		cout << buffer << "\t";
-		for(int i=0; i<n-1; i++) temp+=buffer[i];x
+		for(int i=0; i<n-1; i++) temp+=buffer[i];
 		x_accel = stof(temp.substr(1, temp.find(':')));
 		temp.erase(0, temp.find(':')+1);
 		y_accel = stof(temp.substr(0, temp.find(':')));
 		temp.erase(0, temp.find(':')+1);
 		z_accel = stof(temp.substr(0, temp.find('}')));
 
+		// if(x_accel>1 || y_accel>1 || z_accel>1 || x_accel<-1 || y_accel<-1 || z_accel<-1) return;
+		if(x_accel>1) x_accel = 0.99;
+		if(y_accel>1) y_accel = 0.99;
+		if(z_accel>1) z_accel = 0.99;
 		printf("x_acc:%f\ty_acc:%f\tz_acc:%f\t",x_accel,y_accel,z_accel);
 
 		pitch = atan(y_accel / sqrt(pow(x_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
 		roll = atan(-1 * x_accel / sqrt(pow(y_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
-		if(isnan(pitch) || isnan(roll)) return;
+		
+		Roll = roll;
+		Pitch = pitch;		
 
-		Pitch = (1-accelFilter) * Pitch + accelFilter * pitch;
-		Roll = (1-accelFilter) * Roll + accelFilter * roll;
+		// Pitch = (1-accelFilter) * Pitch + accelFilter * pitch;
+		// Roll = (1-accelFilter) * Roll + accelFilter * roll;
 		bool bPos = false;
     	if(Pitch <= 90 and Pitch >= -90) {
 			orient[1] = Pitch * 0.9 + orient[1] * 0.1;
@@ -440,7 +446,7 @@ int main(int argc, char** argv) {
 	}
 	else if(specialMode){
 		while(true) {
-			usleep(100'000);
+			usleep(10'000);
 			// printf("\tx:%d y:%d z:%d a:%d b:%d\n",int(PP[0]),int(PP[1]),int(PP[2]),int(orient[0]),int(orient[1]));
 			updateOrients(false);
 			if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
