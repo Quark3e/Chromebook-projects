@@ -46,7 +46,7 @@ const char* toESP_msg;
 float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
 float orient[3] = {0,0,0}; //degrees
-float PP[3] = {0,150,150};
+float PP[3] = {0,150,250};
 
 float cam_PP_offset[3] = {0,0,0};
 
@@ -85,6 +85,7 @@ void updateOrients(bool printResult) {
 	}
 	string temp = "";
 	float x_accel, y_accel, z_accel, pitch, roll, Pitch, Roll;
+	// printf("if check buffer\n");
 	if(buffer[0]=='{' && buffer[n-1]=='}') { //{x:y:z}
 		cout << buffer << "\t";
 		for(int i=0; i<n-1; i++) temp+=buffer[i];
@@ -103,6 +104,12 @@ void updateOrients(bool printResult) {
 		pitch = atan(y_accel / sqrt(pow(x_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
 		roll = atan(-1 * x_accel / sqrt(pow(y_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
 		
+		//!!!?????????++
+		if(isnan(pitch) || isnan(roll)) {
+			cout << "isnan error reached";
+			return;
+		}
+
 		Roll = roll;
 		Pitch = pitch;		
 
@@ -428,7 +435,6 @@ int main(int argc, char** argv) {
 	PiPCA9685::PCA9685 pca{};
 	pca.set_pwm_freq(50.0);
 	sendToServo(&pca, new_q, current_q, true, 0);
-
 	if(!specialMode) {
 		printf("special mode not on\n");
 		cv::VideoCapture cap(webcamIndex);
