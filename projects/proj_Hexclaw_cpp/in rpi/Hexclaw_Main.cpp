@@ -445,7 +445,7 @@ int main(int argc, char** argv) {
 			updateOrients(false);
 			if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
 				printf("a:%d\tb:%d", int(Roll), int(Pitch));
-				printf("\tq[]:\t%d\t%d\t%d\t%d\t%d\t%d",
+				printf("\tangles:\t%d\t%d\t%d\t%d\t%d\t%d",
 				int(new_q[0]),int(new_q[1]),int(new_q[2]),int(new_q[3]),int(new_q[4]),int(new_q[5]));
 				sendToServo(&pca,new_q,current_q,false);
 			}
