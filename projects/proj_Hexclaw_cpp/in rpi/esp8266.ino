@@ -154,16 +154,21 @@ void setup() {
     Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), localUdpPort);
     pinMode(0, INPUT_PULLUP);
 }
+float X_out=0, Y_out=0, Z_out=0;
 
 void loop() {
     /* Get a new sensor event */ 
     sensors_event_t event; 
     accel.getEvent(&event);
 
+    X_out = event.acceleration.x;
+    Y_out = event.acceleration.y;
+    Z_out = event.acceleration.z;
     /* Display the results (acceleration is measured in m/s^2) */
-    Serial.print("X: "); Serial.print(event.acceleration.x); Serial.print(" ");
-    Serial.print("Y: "); Serial.print(event.acceleration.y); Serial.print(" ");
-    Serial.print("Z: "); Serial.print(event.acceleration.z); Serial.print(" ");Serial.println("m/s^2 ");
+    Serial.print("X: "); Serial.print(X_out); Serial.print(" ");
+    Serial.print("Y: "); Serial.print(Y_out); Serial.print(" ");
+    Serial.print("Z: "); Serial.print(Z_out); Serial.print(" ");Serial.println("m/s^2 ");
+    
     delay(500);
 
     int packetSize = Udp.parsePacket();
@@ -183,6 +188,5 @@ void loop() {
         Udp.beginPacket(Udp.remoteIP(),
         Udp.remotePort()); Udp.write(newReplyPack);
         Udp.endPacket();
-        readAccelerometer();
     }
 }
