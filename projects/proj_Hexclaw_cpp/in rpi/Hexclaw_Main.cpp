@@ -87,14 +87,14 @@ void updateOrients(bool printResult) {
 	float x_accel, y_accel, z_accel, pitch, roll, Pitch, Roll;
 	if(buffer[0]=='{' && buffer[n-1]=='}') { //{x:y:z}
 		cout << buffer << "\t";
-		for(int i=0; i<n-1; i++) temp+=buffer[i];
+		for(int i=0; i<n-1; i++) temp+=buffer[i];x
 		x_accel = stof(temp.substr(1, temp.find(':')));
 		temp.erase(0, temp.find(':')+1);
 		y_accel = stof(temp.substr(0, temp.find(':')));
 		temp.erase(0, temp.find(':')+1);
 		z_accel = stof(temp.substr(0, temp.find('}')));
 
-		printf("x_acc:%d\ty_acc:%d\tz_acc:%d\t",int(x_accel),int(y_accel),int(z_accel));
+		printf("x_acc:%f\ty_acc:%f\tz_acc:%f\t",x_accel,y_accel,z_accel);
 
 		pitch = atan(y_accel / sqrt(pow(x_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
 		roll = atan(-1 * x_accel / sqrt(pow(y_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees

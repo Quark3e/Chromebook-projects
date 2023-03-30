@@ -157,24 +157,17 @@ void setup() {
 float X_out=0, Y_out=0, Z_out=0;
 
 void loop() {
-    /* Get a new sensor event */ 
-    sensors_event_t event; 
-    accel.getEvent(&event);
-
-    X_out = event.acceleration.x;
-    Y_out = event.acceleration.y;
-    Z_out = event.acceleration.z;
-    /* Display the results (acceleration is measured in m/s^2) */
-    Serial.print("X: "); Serial.print(X_out); Serial.print(" ");
-    Serial.print("Y: "); Serial.print(Y_out); Serial.print(" ");
-    Serial.print("Z: "); Serial.print(Z_out); Serial.print(" ");Serial.println("m/s^2 ");
-    
-    delay(500);
-
     int packetSize = Udp.parsePacket();
     if (packetSize) { // receive incoming UDP packets
         int len = Udp.read(incomingPacket, 255);
         if (len > 0) { incomingPacket[len] = 0; }
+
+        sensors_event_t event; 
+        accel.getEvent(&event);
+
+        X_out = event.acceleration.x;
+        Y_out = event.acceleration.y;
+        Z_out = event.acceleration.z;
 
         String resultStr = "{"+
         String(X_out)+":"+
