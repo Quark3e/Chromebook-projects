@@ -61,12 +61,9 @@ int u_HSV[3] = {103, 213, 255};
 
 int areaLim = 10'000;
 
+float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
 
-float accelFilter = 0.1;
-// void signal_handler(int signal_num) {
-// 	cout << "\tRead interrupt signal: (" << signal_num << ")\n";
-// 	exit(signal_num);
-// }
+float accelFilter = 1;
 
 void updateOrients(bool printResult) {
 	size_t msg_length = strlen(toESP_msg);
@@ -84,10 +81,9 @@ void updateOrients(bool printResult) {
 		printf("Read from server: \"%s\"\t",buffer);
 	}
 	string temp = "";
-	float x_accel, y_accel, z_accel, pitch, roll, Pitch, Roll;
-	// printf("if check buffer\n");
+	
 	if(buffer[0]=='{' && buffer[n-1]=='}') { //{x:y:z}
-		cout << buffer << "\t";
+		if(printResult) cout << buffer << "\t";
 		for(int i=0; i<n-1; i++) temp+=buffer[i];
 		x_accel = stof(temp.substr(1, temp.find(':')));
 		temp.erase(0, temp.find(':')+1);
@@ -99,22 +95,14 @@ void updateOrients(bool printResult) {
 		if(x_accel>1) x_accel = 0.99;
 		if(y_accel>1) y_accel = 0.99;
 		if(z_accel>1) z_accel = 0.99;
-		printf("x_acc:%f\ty_acc:%f\tz_acc:%f\t",x_accel,y_accel,z_accel);
+		// printf("x_acc:%f\ty_acc:%f\tz_acc:%f\t",x_accel,y_accel,z_accel);
 
 		pitch = atan(y_accel / sqrt(pow(x_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
 		roll = atan(-1 * x_accel / sqrt(pow(y_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
-		
-		//!!!?????????++
-		if(isnan(pitch) || isnan(roll)) {
-			cout << "isnan error reached";
-			return;
-		}
 
-		Roll = roll;
-		Pitch = pitch;		
 
-		// Pitch = (1-accelFilter) * Pitch + accelFilter * pitch;
-		// Roll = (1-accelFilter) * Roll + accelFilter * roll;
+		Pitch = (1-accelFilter) * Pitch + accelFilter * pitch;
+		Roll = (1-accelFilter) * Roll + accelFilter * roll;
 		bool bPos = false;
     	if(Pitch <= 90 and Pitch >= -90) {
 			orient[1] = Pitch * 0.9 + orient[1] * 0.1;
@@ -125,7 +113,7 @@ void updateOrients(bool printResult) {
 			if(!bPos) orient[0] = 0 - (Roll * 0.9 + orient[0] * 0.1);
 			else if(bPos) orient[0] = Roll * 0.9 + orient[0] * 0.1;
 		}
-		if(true) printf("a:%d\tb:%d\tRoll:%d\tPitch:%d\n", 
+		if(printResult) printf("a:%d \tb:%d  \tRoll:%d  \tPitch:%d", 
 		int(orient[0]), int(orient[1]), int(Roll), int(Pitch));
 	}
 }
@@ -325,7 +313,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 					PP[0] = posX - camSize.width/2;
 					PP[1] = camSize.height - posY;
 					printf(" x:%d y:%d ",int(PP[0]),int(PP[1]));
-					// updateOrients(true);
+					updateOrients(true);
 					if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
 						sendToServo(pcaSrc,new_q,current_q,false);
 					}
@@ -456,8 +444,13 @@ int main(int argc, char** argv) {
 			// printf("\tx:%d y:%d z:%d a:%d b:%d\n",int(PP[0]),int(PP[1]),int(PP[2]),int(orient[0]),int(orient[1]));
 			updateOrients(false);
 			if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
+				printf("a:%d\tb:%d", int(Roll), int(Pitch));
+				printf("\tq[]:\t%d\t%d\t%d\t%d\t%d\t%d",
+				int(new_q[0]),int(new_q[1]),int(new_q[2]),int(new_q[3]),int(new_q[4]),int(new_q[5]));
 				sendToServo(&pca,new_q,current_q,false);
 			}
+			else {printf("\tPP-orient not reachable");}
+			printf("\n");
 		}
 	}
 	sendToServo(&pca, new_q, current_q, true, 2, 2, true, true, true);
