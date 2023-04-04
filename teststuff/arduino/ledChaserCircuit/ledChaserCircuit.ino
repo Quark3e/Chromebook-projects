@@ -2,7 +2,7 @@ int clockPin = 12; //IC Pin 11, Yellow Jumper
 int dataPin = 11; //IC Pin 14, Blue Jumper
 int latchPin = 8; //IC Pin 12, Green Jumper
 
-int mainDelay = 40;
+int mainDelay = 50;
 
 bool useIntermediary = true;
 int interDelay = 1;
@@ -61,7 +61,7 @@ B10000000, mainDelay
 };
 
 int index = 0;
-int count = sizeof(patterns_3) / 2;
+int count = sizeof(patterns_0) / 2;
 
 void setup() {
   pinMode(latchPin, OUTPUT);
@@ -78,9 +78,9 @@ void loop() {
   }
   
   digitalWrite(latchPin, LOW);
-  shiftOut(dataPin, clockPin, MSBFIRST, patterns_3[index * 2]);
+  shiftOut(dataPin, clockPin, MSBFIRST, patterns_0[index * 2]);
   digitalWrite(latchPin, HIGH);
-  delay(patterns_3[(index * 2) + 1]);
+  delay(patterns_0[(index * 2) + 1]);
   index++;
   if (index >= count){
     index = 0;

@@ -63,7 +63,7 @@ int areaLim = 10'000;
 
 float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
 
-bool useFilter = true;
+bool useFilter = false;
 float accelFilter = 0.2;
 
 void updateOrients(bool printResult) {
@@ -115,13 +115,13 @@ void updateOrients(bool printResult) {
 		}
 		int bPos = -1;
     	if(Pitch <= 90 and Pitch >= -90) {
-			if(false) orient[1] = Pitch * 0.9 + orient[1] * 0.1;
+			if(useFilter) orient[1] = Pitch * 0.9 + orient[1] * 0.1;
 			else orient[1] = Pitch;
 			if(orient[1] < 0) bPos = -1;
 			if(orient[1] > 0) bPos = 1;
 		}
     	if(Roll <= 90 and Roll >= -90) {
-			if(false) orient[0] = Roll * accelFilter + orient[0] * (1-accelFilter);
+			if(useFilter) orient[0] = Roll * accelFilter + orient[0] * (1-accelFilter);
 			else orient[0] = Roll;
 			orient[0] = orient[0] * bPos;
 		}
