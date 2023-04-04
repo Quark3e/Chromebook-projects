@@ -83,7 +83,7 @@ void updateOrients(bool printResult) {
 	}
 	string temp = "";
 	
-	if(buffer[0]=='{' && buffer[n-1]=='}') { //{x:y:z}
+	if(buffer[0]=='{' && buffer[n-1]==';') { //{x:y:z}
 		if(printResult) cout << buffer << "\t";
 		for(int i=0; i<n-1; i++) temp+=buffer[i];
 		x_accel = stof(temp.substr(1, temp.find(':')));
@@ -94,13 +94,13 @@ void updateOrients(bool printResult) {
 		temp.erase(0, temp.find(':')+1);
 		string filtBoolStr = temp.substr(0, temp.find(';'));
 		if(filtBoolStr == "off") useFilter = false;
-		else if(filtBoolStr == "on") useFilter = true;
+		else if(filtBoolStr == "on ") useFilter = true;
 
 		// if(x_accel>1 || y_accel>1 || z_accel>1 || x_accel<-1 || y_accel<-1 || z_accel<-1) return;
 		if(x_accel>1) x_accel = 0.99;
 		if(y_accel>1) y_accel = 0.99;
 		if(z_accel>1) z_accel = 0.99;
-		// printf("x_acc:%f\ty_acc:%f\tz_acc:%f\t",x_accel,y_accel,z_accel);
+		printf("x_acc:%f\ty_acc:%f\tz_acc:%f\t",x_accel,y_accel,z_accel);
 
 		pitch = atan(y_accel / sqrt(pow(x_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
 		roll = atan(-1 * x_accel / sqrt(pow(y_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
