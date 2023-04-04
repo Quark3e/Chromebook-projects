@@ -171,10 +171,14 @@ void setup() {
     pinMode(0, INPUT_PULLUP);
 }
 float X_out=0, Y_out=0, Z_out=0;
+String filterToggle = "on";
 
 void loop() {
     int packetSize = Udp.parsePacket();
     if (packetSize) { // receive incoming UDP packets
+        if(digitalRead(0)==LOW) filterToggle = "off;";
+        else if(digitalRead(0)==HIGH) filterToggle = "on;";
+        
         int len = Udp.read(incomingPacket, 255);
         if (len > 0) { incomingPacket[len] = 0; }
 
@@ -188,7 +192,7 @@ void loop() {
         String resultStr = "{"+
         String(X_out)+":"+
         String(Y_out)+":"+
-        String(Z_out)+"}";
+        String(Z_out)+"}"+filterToggle; //if "off": toggle tilt filter off
 
         int newPackLen = resultStr.length()+1;
         char newReplyPack[newPackLen];

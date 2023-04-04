@@ -63,7 +63,8 @@ int areaLim = 10'000;
 
 float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
 
-float accelFilter = 1;
+bool useFilter = true;
+float accelFilter = 0.2;
 
 void updateOrients(bool printResult) {
 	size_t msg_length = strlen(toESP_msg);
@@ -90,6 +91,10 @@ void updateOrients(bool printResult) {
 		y_accel = stof(temp.substr(0, temp.find(':')));
 		temp.erase(0, temp.find(':')+1);
 		z_accel = stof(temp.substr(0, temp.find('}')));
+		temp.erase(0, temp.find(':')+1);
+		string filtBoolStr = temp.substr(0, temp.find(';'));
+		if(filtBoolStr == "off") useFilter = false;
+		else if(filtBoolStr == "on") useFilter = true;
 
 		// if(x_accel>1 || y_accel>1 || z_accel>1 || x_accel<-1 || y_accel<-1 || z_accel<-1) return;
 		if(x_accel>1) x_accel = 0.99;
@@ -100,18 +105,25 @@ void updateOrients(bool printResult) {
 		pitch = atan(y_accel / sqrt(pow(x_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
 		roll = atan(-1 * x_accel / sqrt(pow(y_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
 
-
-		Pitch = (1-accelFilter) * Pitch + accelFilter * pitch;
-		Roll = (1-accelFilter) * Roll + accelFilter * roll;
-		bool bPos = false;
+		if(useFilter) {
+			Pitch = (1-accelFilter) * Pitch + accelFilter * pitch;
+			Roll = (1-accelFilter) * Roll + accelFilter * roll;
+		}
+		else {
+			Pitch = pitch;
+			Roll = roll;
+		}
+		int bPos = -1;
     	if(Pitch <= 90 and Pitch >= -90) {
-			orient[1] = Pitch * 0.9 + orient[1] * 0.1;
-			if(orient[1] < 0) bPos = false;
-			if(orient[1] > 0) bPos = true;
+			if(false) orient[1] = Pitch * 0.9 + orient[1] * 0.1;
+			else orient[1] = Pitch;
+			if(orient[1] < 0) bPos = -1;
+			if(orient[1] > 0) bPos = 1;
 		}
     	if(Roll <= 90 and Roll >= -90) {
-			if(!bPos) orient[0] = 0 - (Roll * 0.9 + orient[0] * 0.1);
-			else if(bPos) orient[0] = Roll * 0.9 + orient[0] * 0.1;
+			if(false) orient[0] = Roll * accelFilter + orient[0] * (1-accelFilter);
+			else orient[0] = Roll;
+			orient[0] = orient[0] * bPos;
 		}
 		if(printResult) printf("a:%d \tb:%d  \tRoll:%d  \tPitch:%d", 
 		int(orient[0]), int(orient[1]), int(Roll), int(Pitch));
