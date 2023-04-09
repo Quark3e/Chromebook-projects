@@ -16,7 +16,7 @@ void loop() {
   digitalWrite(latchPin, LOW);
   shiftOut(dataPin, clockPin, MSBFIRST, B10101010);
   digitalWrite(latchPin, HIGH);
-  delay(100);
+  delay(1000);
   index++;
   if (index >= count){
     index = 0;
