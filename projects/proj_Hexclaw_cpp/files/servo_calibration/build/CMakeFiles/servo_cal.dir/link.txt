@@ -1,0 +1,1 @@
+/usr/bin/c++ -rdynamic CMakeFiles/servo_cal.dir/main.cpp.o -o servo_cal  /usr/local/lib/static/libPiPCA9685.a -li2c 

@@ -1,6 +1,6 @@
 
+//nodemcu/esp8266 module udp communication
 #include <sys/types.h>
-#include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -15,17 +15,22 @@
 
 #define MAXLINE 2048
 
+//default headers/includes
 #include <iostream>
 #include <math.h>
 #include <stdio.h>
 #include <string>
-#include <fstream>
+#include <fstream> //read and write to file (hsv_settings.dat)
 #include <algorithm>
+#include <unistd.h>
 #include <csignal>
 
+//opencv/image tracking
 #include <opencv4/opencv2/opencv.hpp>
 #include <opencv4/opencv2/highgui/highgui.hpp>
 #include <opencv4/opencv2/imgproc/imgproc.hpp>
+
+//pca9685 communication
 #include <PiPCA9685/PCA9685.h>
 
 #include "IK_header.h"
@@ -403,6 +408,7 @@ int main(int argc, char** argv) {
 
 	// signal(SIGINT	,signal_handler);
 
+	//nodemcu udp communication setup/initialization
 	bind_result = 0;
 	sock = socket(AF_INET, SOCK_DGRAM, 0);
 	fcntl(sock, F_SETFL, O_NONBLOCK);
@@ -432,9 +438,13 @@ int main(int argc, char** argv) {
 		else if(argv[1]=="-2") {calibrateHSV=true; displayImg=true;printf("argv[1]==\"-2\"\n");}
 		else if(argv[1]=="-k") {calibrateHSV=false; displayImg=false; specialMode=true; printf("special mode is set to true\t");}
 	}
+
+	//pca9685 board setup
 	PiPCA9685::PCA9685 pca{};
 	pca.set_pwm_freq(50.0);
+	//initialization command send to pca-board
 	sendToServo(&pca, new_q, current_q, true, 0);
+
 	if(!specialMode) {
 		printf("special mode not on\n");
 		cv::VideoCapture cap(webcamIndex);
