@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <string>
+#include <string.h>
 #include <unistd.h>
 #include <fstream>
 #include <cstdlib>
@@ -43,7 +44,7 @@ int main(int argc, char** argv) {
         cout << "--- Servo motor calibration ---\n";
         cout << "enter servo to test [0-5]: ";
         cin >> input;
-        if(input=="exit") return;
+        if(input=="exit") break;
         servoToMove = stoi(input);
         cin.clear();
         cin.ignore();
@@ -82,8 +83,14 @@ int main(int argc, char** argv) {
 
     auto currentTime = chrono::system_clock::now();
     time_t currentDate = chrono::system_clock::to_time_t(currentTime);
+    // struct tm* p = localtime(&currentDate);
+    // char temp_s[1000];
+    // strftime(temp_s, 1000, "%A, %B %d %Y", p);
+    char* t = ctime(&currentDate);
+    if(t[strlen(t)-1] == '\n') t[strlen(t)-1] = '\0';
 
-    delayFile << "date:\"" << ctime(&currentDate) << "\";\n";
+    delayFile << "\n";
+    delayFile << "\ndate:\"" << t << "\";\n";
     for(int q=0; q<6; q++) {
         delayFile << to_string(q) + ":" + to_string(readAngles[q][0]);
         for(int i=1; i<18; i++) delayFile << "," + to_string(readAngles[q][i]);
