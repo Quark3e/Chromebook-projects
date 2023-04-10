@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
     auto currentTime = chrono::system_clock::now();
     time_t currentDate = chrono::system_clock::to_time_t(currentTime);
 
-    delayFile << "date:\"" + ctime(&currentDate) + "\";\n";
+    delayFile << "date:\"" << ctime(&currentDate) << "\";\n";
     for(int q=0; q<6; q++) {
         delayFile << to_string(q) + ":" + to_string(readAngles[q][0]);
         for(int i=1; i<18; i++) delayFile << "," + to_string(readAngles[q][i]);
