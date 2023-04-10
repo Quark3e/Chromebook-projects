@@ -1,0 +1,20 @@
+//Format:
+//read errors is an 18 element array
+//"
+//date:"{date}";
+//0:{read errors};
+//1:{read errors};
+//2:{read errors};
+//3:{read errors};
+//4:{read errors};
+//5:{read errors};
+//6:{read errors};
+//"
+date:"{test}";
+0:{test};
+1:{test};
+2:{test};
+3:{test};
+4:{test};
+5:{test};
+6:{test};

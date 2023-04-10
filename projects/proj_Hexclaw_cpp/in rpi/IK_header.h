@@ -281,7 +281,7 @@ bool getAngles(
 	else if(b1<0 || b1>0) q[3]=atan(frame1X/frame1Z);
 
 	if(true) {
-		if(b1<0) q[3]=0-a1;
+		if(b1>0) q[3]=0-a1;
 		else q[3]=a1;
 	}
 	
