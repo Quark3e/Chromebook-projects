@@ -186,9 +186,14 @@ int main(int argc, char** argv) {
             printf("sent: %d read: ", i*10);
             sendToServo(&pca, servoToMove, i*10);
             usleep(2'000'000);
+            updateOrients(true);
             // cin >> input;
             // if(input=="exit") return 0;
-            readValues[i] = stof(input);
+            if(servoToMove==0) {}
+            else if(servoToMove==1 || servoToMove==2 || servoToMove==4) { readValues[i] = 0-orient[1]; }
+            else if(servoToMove==3 || servoToMove==5) { readValues[i] = 90-orient[0]; }
+            printf("%d", int(round(readValues[i])));
+            // readValues[i] = stof(input);
             readAngles[servoToMove][i] = readValues[i];
             // cin.clear();
             // cin.ignore();
