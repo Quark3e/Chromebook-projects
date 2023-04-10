@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <csignal>
 
 #define MAXLINE 2048
 
@@ -21,9 +22,8 @@
 #include <stdio.h>
 #include <string>
 #include <fstream> //read and write to file (hsv_settings.dat)
-#include <algorithm>
+#include <algorithm> //ex. find() and erase()
 #include <unistd.h>
-#include <csignal>
 
 //opencv/image tracking
 #include <opencv4/opencv2/opencv.hpp>
@@ -50,7 +50,9 @@ const char* toESP_msg;
 
 float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
+
 float orient[3] = {0,0,0}; //degrees
+
 float PP[3] = {0,150,250};
 
 float cam_PP_offset[3] = {0,0,0};
@@ -70,6 +72,29 @@ float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
 
 bool useFilter = false;
 float accelFilter = 0.2;
+
+void nodemcu_udp_setup() {
+	bind_result = 0;
+	sock = socket(AF_INET, SOCK_DGRAM, 0);
+	fcntl(sock, F_SETFL, O_NONBLOCK);
+	PORT = "53";
+	addrListen = {};
+	addrListen.sin_family = AF_INET;
+	bind_result = bind(sock, (sockaddr*)&addrListen, sizeof(addrListen));
+	if(bind_result==-1) {
+		int lasterror = errno;
+		cout << "bind() error:" << lasterror;
+		exit(1);
+	}
+	addrDest = {};
+	bind_result = resolvehelper("192.168.1.117", AF_INET, PORT, &addrDest);
+	if(bind_result!=0) {
+		int lasterror = errno;
+		cout << "resolvehelper error:" << lasterror;
+		exit(1);
+	}
+	toESP_msg = "1";
+}
 
 void updateOrients(bool printResult) {
 	size_t msg_length = strlen(toESP_msg);
@@ -409,26 +434,7 @@ int main(int argc, char** argv) {
 	// signal(SIGINT	,signal_handler);
 
 	//nodemcu udp communication setup/initialization
-	bind_result = 0;
-	sock = socket(AF_INET, SOCK_DGRAM, 0);
-	fcntl(sock, F_SETFL, O_NONBLOCK);
-	PORT = "53";
-	addrListen = {};
-	addrListen.sin_family = AF_INET;
-	bind_result = bind(sock, (sockaddr*)&addrListen, sizeof(addrListen));
-	if(bind_result==-1) {
-		int lasterror = errno;
-		cout << "bind() error:" << lasterror;
-		exit(1);
-	}
-	addrDest = {};
-	bind_result = resolvehelper("192.168.1.117", AF_INET, PORT, &addrDest);
-	if(bind_result!=0) {
-		int lasterror = errno;
-		cout << "resolvehelper error:" << lasterror;
-		exit(1);
-	}
-	toESP_msg = "1";
+	nodemcu_udp_setup();
 
 
 	if(argc<=1) {calibrateHSV=false; displayImg=false;}
