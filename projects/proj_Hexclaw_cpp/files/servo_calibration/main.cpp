@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
         cout << "--- Servo motor calibration ---\n";
         cout << "enter servo to test [0-5]: ";
         cin >> input;
-        if(input=="exit") break;
+        if(input=="exit") return;
         servoToMove = stoi(input);
         cin.clear();
         cin.ignore();
