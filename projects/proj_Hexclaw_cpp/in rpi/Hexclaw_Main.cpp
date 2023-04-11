@@ -70,7 +70,7 @@ int areaLim = 10'000;
 
 float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
 
-bool useFilter = false;
+bool useFilter = true;
 float accelFilter = 0.2;
 
 int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr)
@@ -163,7 +163,7 @@ void updateOrients(bool printResult) {
 		}
 		int bPos = -1;
     	if(Pitch <= 90 and Pitch >= -90) {
-			if(useFilter) orient[1] = Pitch * 0.9 + orient[1] * 0.1;
+			if(useFilter) orient[1] = Pitch * accelFilter + orient[1] * (1-accelFilter);
 			else orient[1] = Pitch;
 			if(orient[1] < 0) bPos = -1;
 			if(orient[1] > 0) bPos = 1;
