@@ -37,6 +37,7 @@ using namespace PiPCA9685;
 int bind_result;
 int sock;
 char buffer[MAXLINE];
+const char* PORT;
 char szIP[100];
 sockaddr_in addrListen;
 sockaddr_storage addrDest;
@@ -45,6 +46,30 @@ float orient[3] = {0,0,0}; /*[degrees];
 pitch/orient[1] for rotational joints (s[1,2,4])
 roll/orient[0] for twisting joints (s[3,5])
 */
+float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
+
+bool useFilter = false;
+float accelFilter = 0.2;
+
+bool motorTested[6] = {false, false, false, false, false, false};
+
+int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr)
+{
+    int result;
+    addrinfo* result_list = NULL;
+    addrinfo hints = {};
+    hints.ai_family = family;
+    hints.ai_socktype = SOCK_DGRAM; // without this flag, getaddrinfo will return 3x the number of addresses (one for each socket type).
+    result = getaddrinfo(hostname, service, &hints, &result_list);
+    if (result == 0)
+    {
+        //ASSERT(result_list->ai_addrlen <= sizeof(sockaddr_in));
+        memcpy(pAddr, result_list->ai_addr, result_list->ai_addrlen);
+        freeaddrinfo(result_list);
+    }
+
+    return result;
+}
 
 void nodemcu_udp_setup() {
     cout << "\nsetting up nodemcu_udp COM settings... ";
@@ -105,7 +130,7 @@ void updateOrients(bool printResult) {
 		if(x_accel>1) x_accel = 0.99;
 		if(y_accel>1) y_accel = 0.99;
 		if(z_accel>1) z_accel = 0.99;
-		printf("x_acc:%f\ty_acc:%f\tz_acc:%f\t",x_accel,y_accel,z_accel);
+		if(printResult) printf("x_acc:%f\ty_acc:%f\tz_acc:%f\t",x_accel,y_accel,z_accel);
 
 		pitch = atan(y_accel / sqrt(pow(x_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
 		roll = atan(-1 * x_accel / sqrt(pow(y_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
@@ -157,8 +182,9 @@ int main(int argc, char** argv) {
     PCA9685 pca{};
     pca.set_pwm_freq(50.0);
 
-    int angleDefaults[6] = {90, 90, 45, 90, 90, 90};
-    float readValues[18];
+				//measured: //	90	90
+    int angleDefaults[6] = {90, 70, 40, 90, 90, 90};
+    float readValues[20];
     int servoToMove=0;
     string input;
     while(true) {
@@ -176,34 +202,48 @@ int main(int argc, char** argv) {
         for(int angle=0; angle<=180; angle+=10) {
             printf(" %d", angle);
             sendToServo(&pca, servoToMove, angle);
-            usleep(750'000);
+            usleep(300'000);
         }
-        usleep(1'000'000);
+        usleep(3'000'000);
 
         //tracking: actual sending and reading motor error readings
         printf("\ntrack. angles:\n");
         for(int i=0; i<=18; i+=1) {
+			updateOrients(false);
+			
+			sendToServo(&pca, servoToMove, i*10);
+			
+			if(i==0) usleep(2'000'000); 
+            usleep(4'000'000);
+            updateOrients(false);
             printf("sent: %d read: ", i*10);
-            sendToServo(&pca, servoToMove, i*10);
-            usleep(2'000'000);
-            updateOrients(true);
             // cin >> input;
             // if(input=="exit") return 0;
+			updateOrients(false);
             if(servoToMove==0) {}
             else if(servoToMove==1 || servoToMove==2 || servoToMove==4) { readValues[i] = 0-orient[1]; }
             else if(servoToMove==3 || servoToMove==5) { readValues[i] = 90-orient[0]; }
-            printf("%d", int(round(readValues[i])));
+            if(i>=9) {
+				readValues[i] = 180-readValues[i];
+			}
+			printf("%d\n", int(round(readValues[i])));
             // readValues[i] = stof(input);
-            readAngles[servoToMove][i] = readValues[i];
             // cin.clear();
             // cin.ignore();
+			if(i>=18) {
+				for(int n=1; n<=18; n++) {
+					readValues[n-1]=readValues[n];
+            		readAngles[servoToMove][n-1] = readValues[n-1];
+				}
+			}
+			motorTested[servoToMove] = true;
         }
 
         printf("\n\nresults:\nsent: ");
-        for(int i=0; i<18; i++) { printf(" %d", i*10); }
+        for(int i=0; i<=18; i++) { printf(" %d", i*10); }
 
         printf("\nread: ");
-        for(int i=0; i<18; i++) { printf(" %d", int(round(readValues[i]))); }
+        for(int i=0; i<=18; i++) { printf(" %d", int(round(readValues[i]))); }
         printf("\npaused: ");
         cin.get();
         cin.clear();
@@ -223,10 +263,13 @@ int main(int argc, char** argv) {
     delayFile << "\n";
     delayFile << "\ndate:\"" << t << "\";\n";
     for(int q=0; q<6; q++) {
-        delayFile << to_string(q) + ":" + to_string(readAngles[q][0]);
-        for(int i=1; i<18; i++) delayFile << "," + to_string(readAngles[q][i]);
-        delayFile << ";\n";
-    }
+		if(!motorTested[q]) {}
+		else {
+			delayFile << to_string(q) + ":" + to_string(readAngles[q][0]);
+			for(int i=1; i<18; i++) delayFile << "," + to_string(readAngles[q][i]);
+			delayFile << ";\n";
+		}
+	}
 
     delayFile.close();
 

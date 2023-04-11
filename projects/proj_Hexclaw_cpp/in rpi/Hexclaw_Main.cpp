@@ -73,6 +73,24 @@ float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
 bool useFilter = false;
 float accelFilter = 0.2;
 
+int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr)
+{
+    int result;
+    addrinfo* result_list = NULL;
+    addrinfo hints = {};
+    hints.ai_family = family;
+    hints.ai_socktype = SOCK_DGRAM; // without this flag, getaddrinfo will return 3x the number of addresses (one for each socket type).
+    result = getaddrinfo(hostname, service, &hints, &result_list);
+    if (result == 0)
+    {
+        //ASSERT(result_list->ai_addrlen <= sizeof(sockaddr_in));
+        memcpy(pAddr, result_list->ai_addr, result_list->ai_addrlen);
+        freeaddrinfo(result_list);
+    }
+
+    return result;
+}
+
 void nodemcu_udp_setup() {
 	bind_result = 0;
 	sock = socket(AF_INET, SOCK_DGRAM, 0);
@@ -160,23 +178,6 @@ void updateOrients(bool printResult) {
 	}
 }
 
-int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr)
-{
-    int result;
-    addrinfo* result_list = NULL;
-    addrinfo hints = {};
-    hints.ai_family = family;
-    hints.ai_socktype = SOCK_DGRAM; // without this flag, getaddrinfo will return 3x the number of addresses (one for each socket type).
-    result = getaddrinfo(hostname, service, &hints, &result_list);
-    if (result == 0)
-    {
-        //ASSERT(result_list->ai_addrlen <= sizeof(sockaddr_in));
-        memcpy(pAddr, result_list->ai_addr, result_list->ai_addrlen);
-        freeaddrinfo(result_list);
-    }
-
-    return result;
-}
 
 void createTrackbars(const char* win_name) {
 	cv::createTrackbar("LowH", win_name, &l_HSV[0], 179);

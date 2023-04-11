@@ -9,8 +9,6 @@
 /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/Hexclaw_Main.cpp
 sys/types.h
 -
-unistd.h
--
 sys/socket.h
 -
 netinet/in.h
@@ -33,6 +31,8 @@ fcntl.h
 -
 poll.h
 -
+csignal
+-
 iostream
 -
 math.h
@@ -45,7 +45,7 @@ fstream
 -
 algorithm
 -
-csignal
+unistd.h
 -
 opencv4/opencv2/opencv.hpp
 -
