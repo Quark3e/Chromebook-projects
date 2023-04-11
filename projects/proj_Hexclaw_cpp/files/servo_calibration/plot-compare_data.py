@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 from math import * #type: ignore
 
-outputPath = "projects/proj_Hexclaw_cpp/files/servo_calibration/media/"
+outputPath = "media/"
 
 
 x_q = 6*[19*[0]]
@@ -96,27 +96,10 @@ def configure_plots():
     plt.title("Error rate graph")
 
 tempVal1 = [
-    -31.277699,
-    -13.877091,
-    0.630971,
-    14.705935,
-    32.501289,
-    53.080189,
-    61.743519,
-    67.890549,
-    95.543419,
-    105.721176,
-    114.818184,
-    130.940659,
-    144.281769,
-    157.909683,
-    168.055817,
-    168.253998,
-    190.883560,
-    190.885529
+    -8.745642,13.881299,13.458829,27.591265,44.876583,55.647903,66.956207,73.900940,89.861046,104.376434,112.046425,120.578018,130.132492,139.500183,148.896164,161.687836,173.484879,186.015594,186.015594
 ]
 
-servoTested = "s[1]"
+servoTested = "s[2]"
 
 def main():
     global constants_q, fig
@@ -150,12 +133,12 @@ def main():
 
         plt.xticks(np.arange(min(x_q[0]),max(x_q[0])+1, 10), rotation=90)
         
-        ax[0].plot(x_q[q],y_q[q],linestyle='solid',label="q[{:1}] error-value".format(q)) #type: ignore
-        ax[1].plot(x_q[q],y2_q[q],linestyle='solid',label="q[{:1}] non modified".format(q)) #type: ignore
-        ax[1].plot(x_q[q],x_q[q],linestyle='solid',label="q[{:1}] expected".format(q)) #type: ignore
+        ax[0].plot(x_q[q],y_q[q],linestyle='solid',label=servoTested+" error-value") #type: ignore
+        ax[1].plot(x_q[q],y2_q[q],linestyle='solid',label=servoTested+" non modified") #type: ignore
+        ax[1].plot(x_q[q],x_q[q],linestyle='solid',label=servoTested+" expected") #type: ignore
         
-        ax[1].plot(regression_graph[0],regression_graph[1],linestyle='dashed',color="r",label="q[{:1}] regression k:{:4.4f}".format(q,constants_q[q]["default"])) #type: ignore
-        ax[1].plot(modified_graph[0],modified_graph[1],linestyle='dashed',color="g",label="q[{:1}] regression k:{:4.4f}".format(q, constants_q[q]["fixed"])) #type: ignore
+        ax[1].plot(regression_graph[0],regression_graph[1],linestyle='dashed',color="r",label=servoTested+" read regression k:{:4.4f}".format(constants_q[q]["default"])) #type: ignore
+        ax[1].plot(modified_graph[0],modified_graph[1],linestyle='dashed',color="g",label=servoTested+" solution regression k:{:4.4f}".format(constants_q[q]["fixed"])) #type: ignore
         ax[1].axvline(x=160,color="grey", linestyle="-") #type: ignore
 
         # print(y_q)
