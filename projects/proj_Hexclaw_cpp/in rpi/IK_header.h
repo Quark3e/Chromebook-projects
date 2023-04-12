@@ -41,9 +41,9 @@ void add_defaults(float angles[6]) {
 void q_corrections(float angles[6]) {
     float error_Consts[6] = {
         0.802139037433155,
-        1,
-        1,
-        1,
+        0.7538,
+        0.8772,
+        1.0345,
         1,
         1
     };

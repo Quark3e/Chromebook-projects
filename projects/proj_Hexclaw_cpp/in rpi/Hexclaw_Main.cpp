@@ -71,7 +71,7 @@ int areaLim = 10'000;
 float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
 
 bool useFilter = true;
-float accelFilter = 0.2;
+float accelFilter = 0.5;
 
 int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr)
 {
@@ -148,10 +148,12 @@ void updateOrients(bool printResult) {
 		if(x_accel>1) x_accel = 0.99;
 		if(y_accel>1) y_accel = 0.99;
 		if(z_accel>1) z_accel = 0.99;
-		printf("x_acc:%f\ty_acc:%f\tz_acc:%f\t",x_accel,y_accel,z_accel);
+		if(printResult) printf("x_acc:%f\ty_acc:%f\tz_acc:%f\t",x_accel,y_accel,z_accel);
 
 		pitch = atan(y_accel / sqrt(pow(x_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
 		roll = atan(-1 * x_accel / sqrt(pow(y_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
+		pitch = 0-pitch;
+		roll = 0-roll;
 
 		if(useFilter) {
 			Pitch = (1-accelFilter) * Pitch + accelFilter * pitch;
@@ -473,7 +475,7 @@ int main(int argc, char** argv) {
 			// printf("\tx:%d y:%d z:%d a:%d b:%d\n",int(PP[0]),int(PP[1]),int(PP[2]),int(orient[0]),int(orient[1]));
 			updateOrients(false);
 			if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
-				printf("a:%d\tb:%d", int(Roll), int(Pitch));
+				printf("a:%d\tb:%d", int(orient[0]), int(orient[1]));
 				printf("\tangles:\t%d\t%d\t%d\t%d\t%d\t%d",
 				int(new_q[0]),int(new_q[1]),int(new_q[2]),int(new_q[3]),int(new_q[4]),int(new_q[5]));
 				sendToServo(&pca,new_q,current_q,false);
