@@ -160,6 +160,19 @@ void updateOrients(bool printResult) {
 	}
 }
 
+float q_corrections(int q, float angle) {
+    float error_Consts[6] = {
+        0.802139037433155,
+        0.7538,
+        0.8772,
+        1.0345,
+        1,
+        1
+    };
+	if(q==1) angle+=15;
+	return angle * error_Consts[q];
+}
+
 
 void sendToServo(
     PCA9685* pcaBoard,
@@ -183,12 +196,12 @@ int main(int argc, char** argv) {
     pca.set_pwm_freq(50.0);
 
 				//measured: //	90	90
-    int angleDefaults[6] = {90, 70, 40, 90, 90, 90};
+    int angleDefaults[6] = {90, 90, 45, 90, 90, 90};
     float readValues[20];
     int servoToMove=0;
     string input;
     while(true) {
-        for(int i=0; i<6; i++) sendToServo(&pca, i, angleDefaults[i]);
+        for(int i=0; i<6; i++) sendToServo(&pca, i, q_corrections(i, angleDefaults[i]));
         cout << "--- Servo motor calibration ---\n";
         cout << "enter servo to test [0-5]: ";
         cin >> input;
@@ -201,7 +214,7 @@ int main(int argc, char** argv) {
         printf("\nprelim. angles sent:\t");
         for(int angle=0; angle<=180; angle+=10) {
             printf(" %d", angle);
-            sendToServo(&pca, servoToMove, angle);
+            sendToServo(&pca, servoToMove, q_corrections(servoToMove, angle));
             usleep(300'000);
         }
         usleep(3'000'000);
@@ -211,7 +224,7 @@ int main(int argc, char** argv) {
         for(int i=0; i<=18; i+=1) {
 			updateOrients(false);
 			
-			sendToServo(&pca, servoToMove, i*10);
+			sendToServo(&pca, servoToMove, q_corrections(servoToMove, i*10));
 			
 			if(i==0) usleep(2'000'000); 
             usleep(4'000'000);
@@ -249,7 +262,7 @@ int main(int argc, char** argv) {
         cin.clear();
         cin.ignore();
         system("clear");
-        sendToServo(&pca, servoToMove, angleDefaults[servoToMove]);
+        sendToServo(&pca, servoToMove, q_corrections(servoToMove, angleDefaults[servoToMove]));
     }
 
     auto currentTime = chrono::system_clock::now();
