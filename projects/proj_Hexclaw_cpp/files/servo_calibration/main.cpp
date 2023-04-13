@@ -243,7 +243,7 @@ int main(int argc, char** argv) {
             // cin.clear();
             // cin.ignore();
 			if(i>=18) {
-				for(int n=1; n<=18; n++) {
+				for(int n=1; n<=19; n++) {
 					readValues[n-1]=readValues[n];
             		readAngles[servoToMove][n-1] = readValues[n-1];
 				}
@@ -278,7 +278,7 @@ int main(int argc, char** argv) {
 		if(!motorTested[q]) {}
 		else {
 			delayFile << to_string(q) + ":" + to_string(readAngles[q][0]);
-			for(int i=1; i<18; i++) delayFile << "," + to_string(readAngles[q][i]);
+			for(int i=1; i<=18; i++) delayFile << "," + to_string(readAngles[q][i]);
 			delayFile << ";\n";
 		}
 	}
