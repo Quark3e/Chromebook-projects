@@ -51,6 +51,8 @@ float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
 bool useFilter = false;
 float accelFilter = 0.2;
 
+bool usebPosCorrection = false;
+
 bool motorTested[6] = {false, false, false, false, false, false};
 
 int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr)
@@ -153,7 +155,7 @@ void updateOrients(bool printResult) {
     	if(Roll <= 90 and Roll >= -90) {
 			if(useFilter) orient[0] = Roll * accelFilter + orient[0] * (1-accelFilter);
 			else orient[0] = Roll;
-			orient[0] = orient[0] * bPos;
+			if(usebPosCorrection) orient[0] = orient[0] * bPos;
 		}
 		if(printResult) printf("a:%d \tb:%d  \tRoll:%d  \tPitch:%d", 
 		int(orient[0]), int(orient[1]), int(Roll), int(Pitch));
@@ -169,7 +171,7 @@ float q_corrections(int q, float angle) {
         1,
         1
     };
-	if(q==1) angle+=15;
+	if(q==1) angle+=10;
 	return angle * error_Consts[q];
 }
 
@@ -196,7 +198,7 @@ int main(int argc, char** argv) {
     pca.set_pwm_freq(50.0);
 
 				//measured: //	90	90
-    int angleDefaults[6] = {90, 90, 45, 90, 90, 90};
+    int angleDefaults[6] = {90, 90, 135, 90, 90, 90};
     float readValues[20];
     int servoToMove=0;
     string input;
@@ -234,11 +236,8 @@ int main(int argc, char** argv) {
             // if(input=="exit") return 0;
 			updateOrients(false);
             if(servoToMove==0) {}
-            else if(servoToMove==1 || servoToMove==2 || servoToMove==4) { readValues[i] = 0-orient[1]; }
+            else if(servoToMove==1 || servoToMove==2 || servoToMove==4) { readValues[i] = 90+orient[0]; }
             else if(servoToMove==3 || servoToMove==5) { readValues[i] = 90-orient[0]; }
-            if(i>=9) {
-				readValues[i] = 180-readValues[i];
-			}
 			printf("%d\n", int(round(readValues[i])));
             // readValues[i] = stof(input);
             // cin.clear();
@@ -273,7 +272,7 @@ int main(int argc, char** argv) {
     char* t = ctime(&currentDate);
     if(t[strlen(t)-1] == '\n') t[strlen(t)-1] = '\0';
 
-    delayFile << "\n";
+    //delayFile << "\n";
     delayFile << "\ndate:\"" << t << "\";\n";
     for(int q=0; q<6; q++) {
 		if(!motorTested[q]) {}
