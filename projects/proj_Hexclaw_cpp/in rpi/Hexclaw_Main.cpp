@@ -70,11 +70,10 @@ int areaLim = 10'000;
 
 float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
 
-bool useFilter = true;
-float accelFilter = 0.5;
+bool useFilter = false;
+float accelFilter = 0.1;
 
-int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr)
-{
+int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr) {
     int result;
     addrinfo* result_list = NULL;
     addrinfo hints = {};
