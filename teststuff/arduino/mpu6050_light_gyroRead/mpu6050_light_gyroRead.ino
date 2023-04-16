@@ -29,7 +29,7 @@ void loop() {
     Serial.println(mpu.getAngleZ());
     timer = millis();
   }
-  if(mpu.getAngleX()>=170) {
+  if(abs(mpu.getAngleX())>=170) {
     delete(&mpu);
     MPU6050 mpu(Wire);
     mpu.calcOffsets();

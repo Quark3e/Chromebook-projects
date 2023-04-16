@@ -298,7 +298,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 	- 0: setup/calibrate hsv
 	- 1: main color tracking loop with sendToServo
 	- 2: main color tracking loop without sendToServo
-	- 3: main color tracking loop without display to a window
+	- 3: main color tracking loop with sendToServo without display to a window
 	*/
 
 	cout << "- In \"displayFunc()\"" << endl;
@@ -310,8 +310,8 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 	}
 	cv::Mat imgOriginal, imgFlipped, imgHSV, imgThreshold;
 	
-	int fps=0, frames=0, totalDelay=0;
-	clock_t t1 = clock();
+	// int fps=0, frames=0, totalDelay=0;
+	// clock_t t1 = clock();
 
 	while(true) {
 		//delay: 4-5ms
@@ -371,17 +371,17 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 		}
 
 		//delay: 0ms
-		float temp = 1000*(clock()-t1)/CLOCKS_PER_SEC;
-		if(temp>=1000) {
-			totalDelay=temp/frames;
-			fps=int(frames/(temp/1000));
-			printf(" frames:%d ",frames);
-			frames=0;
-			t1=clock();
-		}
-		else frames++;
+		// float temp = 1000*(clock()-t1)/CLOCKS_PER_SEC;
+		// if(temp>=1000) {
+		// 	totalDelay=temp/frames;
+		// 	fps=int(frames/(temp/1000));
+		// 	printf(" frames:%d ",frames);
+		// 	frames=0;
+		// 	t1=clock();
+		// }
+		// else frames++;
 
-		printf("fps:%d totalDelay:%dms\n",fps,totalDelay);
+		// printf("fps:%d totalDelay:%dms\n",fps,totalDelay);
 
 		//delay: 6-11ms
 		if(mode!=3) {
@@ -392,15 +392,15 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 			cv::imshow(win_name,imgFlipped);
 			int keyInp = cv::waitKey(10);
 			// printf(" %d ", keyInp);
-			if(keyInp==27) return -1; //esc
-			else if(keyInp==32) break; //space
-			else if(keyInp==115) { //s
+			if(keyInp==27) return -1; //'esc'
+			else if(keyInp==32) break; //'space'
+			else if(keyInp==115) { //'s'
 				if(mode==0) {
 					//save HSV values
 					hsv_settingsWrite(0);
 				}
 			}
-			else if(keyInp==114) { //r
+			else if(keyInp==114) { //'r'
 				string inputVar = "";
 				int indVar = 0;
 				cout << "input: ";
@@ -411,7 +411,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 				cin.ignore();
 				hsv_settingsRead(win_name, indVar);
 			}
-			else if(keyInp==116 && mode==0) { //t
+			else if(keyInp==116 && mode==0) { //'t'
 				hsv_settingsRead(win_name, 0);
 			} 
 		}
