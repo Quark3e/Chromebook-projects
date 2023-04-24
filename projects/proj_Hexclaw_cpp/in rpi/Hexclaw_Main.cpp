@@ -61,7 +61,9 @@ int webcamIndex = 0;
 
 bool displayImg = true;
 bool calibrateHSV = true;
-bool specialMode = true;
+
+bool mode_orients = true;
+bool mode_intro = false;
 
 int l_HSV[3] = {64, 73, 88};
 int u_HSV[3] = {103, 213, 255};
@@ -444,7 +446,8 @@ int main(int argc, char** argv) {
 		if(argv[1]=="-0") {calibrateHSV=false; displayImg=true;}
 		else if(argv[1]=="-1") {calibrateHSV=true; displayImg=false;}
 		else if(argv[1]=="-2") {calibrateHSV=true; displayImg=true;printf("argv[1]==\"-2\"\n");}
-		else if(argv[1]=="-k") {calibrateHSV=false; displayImg=false; specialMode=true; printf("special mode is set to true\t");}
+		else if(argv[1]=="-k") {calibrateHSV=false; displayImg=false; mode_orients=true; printf("orient mode is set to true. only reading orient commands from nodemcu unit\n");}
+		else if(argv[1]=="-c") {calibrateHSV=false; displayImg=false; mode_orients=false; mode_intro=true; printf("running intro sequence\n");}
 	}
 
 	//pca9685 board setup
@@ -453,7 +456,8 @@ int main(int argc, char** argv) {
 	//initialization command send to pca-board
 	sendToServo(&pca, new_q, current_q, true, 0);
 
-	if(!specialMode) {
+
+	if(!mode_orients) {
 		printf("special mode not on\n");
 		cv::VideoCapture cap(webcamIndex);
 		if(!cap.isOpened()) {
@@ -468,7 +472,7 @@ int main(int argc, char** argv) {
 			if(displayFunc(&cap, 3, &pca)==-1) { return 0; }
 		}
 	}
-	else if(specialMode){
+	else if(mode_orients){
 		while(true) {
 			usleep(10'000);
 			// printf("\tx:%d y:%d z:%d a:%d b:%d\n",int(PP[0]),int(PP[1]),int(PP[2]),int(orient[0]),int(orient[1]));
@@ -483,6 +487,16 @@ int main(int argc, char** argv) {
 			printf("\n");
 		}
 	}
+	else if(mode_intro) {
+		new_q = {0, 135, -115, 0, -20, 0};
+		printf("running intro...\t");
+		sendToServo(&pca, new_q, current_q, false, 2, 10);
+		printf("intro finished\n");
+		usleep(3'000'000);
+		sendToServo(&pca, )
+	}
+
+
 	sendToServo(&pca, new_q, current_q, true, 2, 2, true, true, true);
 
 	return 0;
