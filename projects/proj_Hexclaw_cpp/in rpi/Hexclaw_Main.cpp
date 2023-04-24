@@ -493,7 +493,8 @@ int main(int argc, char** argv) {
 		sendToServo(&pca, new_q, current_q, false, 2, 10);
 		printf("intro finished\n");
 		usleep(3'000'000);
-		sendToServo(&pca, )
+		new_q = {45, 0, -45, 90, 90, 0};
+		sendToServo(&pca,new_q,current_q,false);
 	}
 
 
