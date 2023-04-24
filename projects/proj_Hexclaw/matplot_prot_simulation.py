@@ -10,6 +10,7 @@ import os
 
 from IK_module import *
 
+
 # xRange = [0-(link[1]+link[2]+link[3]+link[4]+link[5]), (link[1]+link[2]+link[3]+link[4]+link[5])] #[lower/negative_range, upper/positive_range]
 # yRange = [0, (link[1]+link[2]+link[3]+link[4]+link[5])]
 # zRange = [0, sum(link)] #type: ignore
@@ -27,7 +28,11 @@ P = 6*PP
 
 toSaveImage = False
 animateStartBool = True
-useAnimation = True
+useAnimation = False #determines whether the movement is animated or not
+if len(sys.argv)>1:
+    if sys.argv[1]=="True": useAnimation = True
+    elif sys.argv[1]=="False": useAnimation = False
+
 totalFrames = 100
 totalFrames_delay = round(10000 / axisRanges_sum)
 moveType = "axis_All"
@@ -91,7 +96,7 @@ def animate(n):
             elif n-axis_All_lims[1]<rangeLim[2]: PP_copy[2] = animPos[1] - (((n-axis_All_lims[1])-rangeLim[1])*p_val[2])/(rangeLim[2]-rangeLim[1])
 
         isReachable = [True]
-        q = getAngles(PP_copy,orient[0],orient[1],orient[2],'-',printText=False,forShow=False, debug=mod_dict, positionIsReachable=isReachable)
+        q = getAngles(PP_copy,orient[0],orient[1],orient[2],'-',printText=False,printErrors=False, debug=mod_dict, positionIsReachable=isReachable)
         if not isReachable[0]: return #skip everything below if the position isn't reachable
         temp_q = add_defaults([toDegrees(val) for val in q])
         motorExceeded = exceedCheck(temp_q)
@@ -111,6 +116,7 @@ def animate(n):
         x_values.append(read_PP[0])
         y_values.append(read_PP[1])
         z_values.append(read_PP[2])
+        PP_copy[0] = 0 - PP_copy[0]
         if n>0:
             thePlot[0][0].set_data(x_values, y_values) #type: ignore
             thePlot[0][0].set_3d_properties(z_values) #type: ignore
@@ -196,7 +202,7 @@ def plotAxis_sim(PP, printText=False):
             # print("{:8}".format(round(axisPos)), "orient:{:18}".format(str([toDegrees(angle) for angle in orient])), end=' ')
             if axis==1 and printText: print(temp_PP,[round(toDegrees(angle)) for angle in orient])
             q = getAngles(temp_PP,orient[0],orient[1],orient[2],'-',
-            printText=False,printErrors=False,forShow=False,
+            printText=False,printErrors=False,
             positionIsReachable=isReachable, debug=mod_dict)
             if isReachable[0]:
                 _, read_PP, _ = FK_solver(q, printText = False)           
@@ -267,17 +273,17 @@ def main():
         opt = input(" enter end-effector position [x y z]: ").split()
         if opt[0] == "exit": break
         
-        PP = [float(opt[0]),float(opt[1]),float(opt[2])]
+        PP = [0-float(opt[0]),float(opt[1]),float(opt[2])]
         opt = input(" enter orientation of end-effector [a b Y]: ").split()
         if opt[0] == "exit": break
         orient = [toRadians(float(opt[0])),toRadians(float(opt[1])),toRadians(float(opt[2]))]
         configure_plots(initiate=True)
         if useAnimation:
             animateStartBool = True
-            anim = FuncAnimation(fig, animate, interval=totalFrames_delay, frames=totalFrames, repeat=False)
+            anim = FuncAnimation(fig, animate, interval=totalFrames_delay, frames=totalFrames, repeat=True)
         elif not useAnimation:
             configure_plots()
-            q = getAngles(PP,orient[0],orient[1],orient[2],'-',printText=True,forShow=False, debug=mod_dict)
+            q = getAngles(PP,orient[0],orient[1],orient[2],'-',printText=True,printErrors=False, debug=mod_dict)
 
             subFrame = getAngles(PP,orient[0],orient[1],orient[2],'-',getSubframe=True) #getSubframe(PP,orient[0],orient[1],'-')
             subFrame[0] = 0-subFrame[0]
@@ -285,7 +291,6 @@ def main():
             elif subFrame[2]<0: ax[1].set_zlim(-100,0) #type: ignore
             
             P, read_PP, read_orient = FK_solver(q)
-
 
             print("\n{:20} {}".format("given orients:", [round(toDegrees(angle)) for angle in orient]))
             print("{:20} {}".format("calculated orients:", [round(toDegrees(angle)) for angle in read_orient]))
@@ -304,6 +309,7 @@ def main():
             z_values.append(read_PP[2])
             if printText: print(" x:",x_values,"\n y:",y_values,"\n z:",z_values)
             
+            PP[0] = 0-PP[0]
             ax[0].plot(x_values, y_values, 'bo', linestyle='solid', zs=z_values, zdir='z', label='Base frame', color='black') #type: ignore
             ax[0].plot([P[4][0],PP[0]],[P[4][1],PP[1]],[P[4][2],PP[2]], 'bo', linestyle='dashed',color='grey') #type: ignore
 
