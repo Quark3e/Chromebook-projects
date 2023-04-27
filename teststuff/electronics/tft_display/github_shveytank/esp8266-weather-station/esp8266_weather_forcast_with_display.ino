@@ -93,15 +93,15 @@ String wind;
 void loop() {
 	if ((millis() - lastTime) > timerDelay) {
 		if(WiFi.status()== WL_CONNECTED){
-			String serverPath = "http://api.openweathermap.org/data/2.5/weather?q=" + city + "," + countryCode + "&APPID=" + openWeatherMapApiKey;
-			// String serverPath = "https://api.openweathermap.org/data/2.5/weather?lat=" + latitude + "&lon=" + longitude + "&appid=" + openWeatherMapApiKey;
+			//String serverPath = "http://api.openweathermap.org/data/2.5/weather?q=" + city + "," + countryCode + "&APPID=" + openWeatherMapApiKey;
+			String serverPath = "https://api.openweathermap.org/data/2.5/weather?lat=" + latitude + "&lon=" + longitude + "&appid=" + openWeatherMapApiKey;
 
 			jsonBuffer = httpGETRequest(serverPath.c_str());
 			Serial.println(jsonBuffer);
 			JSONVar myObject = JSON.parse(jsonBuffer);
 			if (JSON.typeof(myObject) == "undefined") {
-			Serial.println("Parsing input failed!");
-			return;
+				Serial.println("Parsing input failed!");
+				return;
 			}
 			String jsonString = JSON.stringify(myObject["main"]["temp"]);
 			temp=jsonString.toInt();
@@ -150,9 +150,10 @@ void loop() {
 }
 
 String httpGETRequest(const char* serverName) {
+	WiFiClient client;
 	HTTPClient http;
 		
-	http.begin(serverName);
+	http.begin(client, serverName);
 
 	int httpResponseCode = http.GET();
 
