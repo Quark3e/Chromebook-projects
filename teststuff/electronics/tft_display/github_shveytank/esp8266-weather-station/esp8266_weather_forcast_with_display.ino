@@ -14,8 +14,8 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 const char* ssid = "Telia-47118D";
 const char* password = "0C94C28B5D";
 String openWeatherMapApiKey = "7c28bdf205051aa2ce610d67d648c55c";
-String city = "your city";
-String countryCode = "country code";
+String city = "Södertälje";
+String countryCode = "SE";
 String latitude = "59.20";
 String longitude = "17.62";
 
@@ -93,8 +93,8 @@ String wind;
 void loop() {
 	if ((millis() - lastTime) > timerDelay) {
 		if(WiFi.status()== WL_CONNECTED){
-			//String serverPath = "http://api.openweathermap.org/data/2.5/weather?q=" + city + "," + countryCode + "&APPID=" + openWeatherMapApiKey;
-			String serverPath = "https://api.openweathermap.org/data/2.5/weather?lat=" + latitude + "&lon=" + longitude + "&appid=" + openWeatherMapApiKey;
+			String serverPath = "http://api.openweathermap.org/data/2.5/weather?q=" + city + "," + countryCode + "&APPID=" + openWeatherMapApiKey;
+			// String serverPath = "https://api.openweathermap.org/data/2.5/weather?lat=" + latitude + "&lon=" + longitude + "&appid=" + openWeatherMapApiKey;
 
 			jsonBuffer = httpGETRequest(serverPath.c_str());
 			Serial.println(jsonBuffer);
