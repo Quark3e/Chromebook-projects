@@ -39,7 +39,7 @@ void setup(void) {
 	Serial.println("Timer set to 10 seconds (timerDelay variable), it will take 10 seconds before publishing the first reading.");
 
 	tft.initR(INITR_BLACKTAB);   // initialize a ST7735S chip, black tab
-	tft.setRotation(1);
+	tft.setRotation(3);
 	uint16_t time = millis();
 	tft.fillScreen(ST7735_BLACK);
 	time = millis() - time;
