@@ -192,14 +192,31 @@ const unsigned char windS[] PROGMEM = {
 };
 
 void setup(void) {
+	pinMOde(D8, OUTPUT);
+	digitalWrite(D8, LOW);
 	Serial.begin(115200);
 
 	WiFi.begin(ssid, password);
 	Serial.println("Connecting");
+	int blinkCount=0;
 	while(WiFi.status() != WL_CONNECTED) {
+		if(blinkCount==4) digitalWRite(D8, HIGH);
 		delay(500);
 		Serial.print(".");
+		if(blinkCount==4) {
+			digitalWrite(D8, LOW);
+			blinkCount=0;
+		}
+		blinkCount++;
 	}
+    for(int i=0; i<3; i++) {
+        digitalWrite(D8, HIGH);
+        delay(10);
+        digitalWrite(D8, LOW);
+        delay(10);
+    }
+    digitalWrite(D8, HIGH);
+
 	Serial.println("");
 	Serial.print("Connected to WiFi network with IP Address: ");
 	Serial.println(WiFi.localIP());
