@@ -37,7 +37,7 @@ void setup(void) {
 		delay(500);
 		Serial.print(".");
 		if(blinkCount==4) {
-			digitalWRite(D8, LOW);
+			digitalWrite(D8, LOW);
 			blinkCount=0;
 		}
 		blinkCount++;
@@ -168,10 +168,9 @@ void loop() {
 }
 
 String httpGETRequest(const char* serverName) {
-	WiFiClient client;
 	HTTPClient http;
 		
-	http.begin(client, serverName);
+	http.begin(serverName);
 
 	int httpResponseCode = http.GET();
 
