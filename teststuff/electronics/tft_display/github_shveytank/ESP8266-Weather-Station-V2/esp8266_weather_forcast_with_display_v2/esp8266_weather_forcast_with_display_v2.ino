@@ -192,7 +192,7 @@ const unsigned char windS[] PROGMEM = {
 };
 
 void setup(void) {
-	pinMOde(D8, OUTPUT);
+	pinMode(D8, OUTPUT);
 	digitalWrite(D8, LOW);
 	Serial.begin(115200);
 
@@ -200,7 +200,7 @@ void setup(void) {
 	Serial.println("Connecting");
 	int blinkCount=0;
 	while(WiFi.status() != WL_CONNECTED) {
-		if(blinkCount==4) digitalWRite(D8, HIGH);
+		if(blinkCount==4) digitalWrite(D8, HIGH);
 		delay(500);
 		Serial.print(".");
 		if(blinkCount==4) {
