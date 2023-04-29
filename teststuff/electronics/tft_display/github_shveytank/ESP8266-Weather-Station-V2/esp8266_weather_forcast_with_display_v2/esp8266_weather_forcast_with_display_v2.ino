@@ -29,7 +29,7 @@ unsigned long lastTime = 0;
 unsigned long timerDelay = 10000;
 String jsonBuffer;
 
-const long utcOffsetInSeconds = 19800;
+const long utcOffsetInSeconds = 7200;
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
