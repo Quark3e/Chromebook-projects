@@ -337,9 +337,14 @@ void loop() {
 			//tft.setFont();
 			tft.setTextColor(ST7735_WHITE);
 			tft.setCursor(13,62);
+			int minutes = timeClient.getMinutes();
 			tft.print(timeClient.getHours());
 			tft.print(":");
-			tft.print(timeClient.getMinutes());
+			if(minutes<10) {
+				tft.print(0);
+				tft.print(minutes);
+			}
+			else tft.print(timeClient.getMinutes());
 			tft.setFont();
 			tft.setTextSize(1);
 			tft.setCursor(26,70);
