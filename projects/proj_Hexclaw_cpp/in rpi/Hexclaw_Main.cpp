@@ -9,7 +9,6 @@
 #include <ifaddrs.h>
 #include <net/if.h>
 #include <errno.h>
-#include <stdlib.h>
 #include <fcntl.h>
 #include <poll.h>
 #include <csignal>
@@ -20,6 +19,7 @@
 #include <iostream>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string>
 #include <fstream> //read and write to file (hsv_settings.dat)
 #include <algorithm> //ex. find() and erase()
@@ -38,6 +38,7 @@
 using namespace std;
 // using namespace cv;
 
+//udp com related: udp communication variable declarations
 int bind_result;
 int sock;
 char buffer[MAXLINE];
@@ -47,13 +48,12 @@ sockaddr_in addrListen;
 sockaddr_storage addrDest;
 const char* toESP_msg;
 
-
+//IK related: ik calc variable declaration
 float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
-
 float orient[3] = {0,0,0}; //degrees
-
 float PP[3] = {0,150,250};
+
 
 float cam_PP_offset[3] = {0,0,0};
 
