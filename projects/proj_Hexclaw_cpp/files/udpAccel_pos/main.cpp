@@ -157,7 +157,7 @@ void updateOrients(bool printResult) {
 
 void movePosition(int axis, auto elapsedTime) {
     //note: elapsedTime is in microseconds
-    v_0[axis] = v_0[axis] + int(round(accelFin[axis]))*accelScalar[axis]*(elapsedTime/1'000'000);
+    v_0[axis] = v_0[axis] + float(int(round(accelFin[axis]))*accelScalar[axis])*(elapsedTime/1'000'000);
     PP[axis] += v_0[axis]*(elapsedTime/1'000'000)/2
 }
 
