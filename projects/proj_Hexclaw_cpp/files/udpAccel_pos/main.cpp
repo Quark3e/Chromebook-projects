@@ -26,12 +26,10 @@
 #include <unistd.h>
 #include <chrono>
 
-#include "IK_header.h"
-
 //pca9685 communication
 #include <PiPCA9685/PCA9685.h>
 
-#include "IK_header.h"
+#include "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.h"
 
 using namespace std;
 
@@ -55,7 +53,7 @@ float PP[3] = {0,150,250};
 bool moveServos = false;
 
 //Acceleroemter related: storing raw and manipulated values from accelerometer (received via wifi/udp from nodemcu board)
-float accelRead[3] = {0, 0, 0}; //store raw values received from nodemcu_board/accelerometer
+float accelRaw[3] = {0, 0, 0}; //store raw values received from nodemcu_board/accelerometer
 float accelFin[3] = {0, 0, 0}; //"finished" and presented values that is used in the movement calculated e.t.c.
 float accelOffset[3] = {0, 0, 1}; //NOTE: it is under the assumption that the controller doesnt tilt in any way.
 // float accelThresh[3] = {0.5, 0.5, 0.5}; //threshold where if abs(readAccel[i])>accelThresh[i] then PP[i] is moved
@@ -65,7 +63,7 @@ float v_0[3] = {0, 0, 0};
 float elapsedTime = 0; //microseconds
 
 bool calibrateOffset = false;
-bool useFilter = true;
+bool useFilter = false;
 float accelFilter = 0.01;
 
 int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr) {
@@ -128,37 +126,37 @@ void updateOrients(bool printResult) {
 	if(buffer[0]=='{' && buffer[n-1]==';') { //{x:y:z}
 		if(printResult) cout << buffer << "\t";
 		for(int i=0; i<n-1; i++) temp+=buffer[i];
-		accelRead[0] = stof(temp.substr(1, temp.find(':')));
+		accelRaw[0] = stof(temp.substr(1, temp.find(':')));
 		temp.erase(0, temp.find(':')+1);
-		accelRead[1] = stof(temp.substr(0, temp.find(':')));
+		accelRaw[1] = stof(temp.substr(0, temp.find(':')));
 		temp.erase(0, temp.find(':')+1);
-		accelRead[2] = stof(temp.substr(0, temp.find('}')));
+		accelRaw[2] = stof(temp.substr(0, temp.find('}')));
 		temp.erase(0, temp.find(':')+1);
 		string filtBoolStr = temp.substr(0, temp.find(';'));
 		if(filtBoolStr == "off") calibrateOffset = false; //"off" is default
 		else if(filtBoolStr == "on ") calibrateOffset = true;
 
-		// if(accelRead[0]>1 || accelRead[1]>1 || accelRead[2]>1 || accelRead[0]<-1 || accelRead[1]<-1 || accelRead[2]<-1) return;
-		if(accelRead[0]>1) accelRead[0] = 0.99;
-		if(accelRead[1]>1) accelRead[1] = 0.99;
-		if(accelRead[2]>1) accelRead[2] = 0.99;
-		if(printResult) printf("x_acc:%f\ty_acc:%f\tz_acc:%f\t",accelRead[0],accelRead[1],accelRead[2]);
+		// if(accelRaw[0]>1 || accelRaw[1]>1 || accelRaw[2]>1 || accelRaw[0]<-1 || accelRaw[1]<-1 || accelRaw[2]<-1) return;
+		if(accelRaw[0]>1) accelRaw[0] = 0.99;
+		if(accelRaw[1]>1) accelRaw[1] = 0.99;
+		if(accelRaw[2]>1) accelRaw[2] = 0.99;
+		if(printResult) printf("x_acc:%f\ty_acc:%f\tz_acc:%f\t",accelRaw[0],accelRaw[1],accelRaw[2]);
         if(useFilter) {
-            accelFin[0] = (1-accelFilter)*accelFin[0] + accelFilter*accelRead[0];
-            accelFin[1] = (1-accelFilter)*accelFin[1] + accelFilter*accelRead[1];
-            accelFin[2] = (1-accelFilter)*accelFin[2] + accelFilter*accelRead[2];
+            accelFin[0] = (1-accelFilter)*accelFin[0] + accelFilter*accelRaw[0];
+            accelFin[1] = (1-accelFilter)*accelFin[1] + accelFilter*accelRaw[1];
+            accelFin[2] = (1-accelFilter)*accelFin[2] + accelFilter*accelRaw[2];
         }
         else {
-            for(int i=0; i<3; i++) accelFin[i] = accelRead[i];
+            for(int i=0; i<3; i++) accelFin[i] = accelRaw[i];
         }
-        for(int i=0; i<3; i++) accelFin[i]-=accelOffset[i];
+        for(int i=0; i<3; i++) accelFin[i]=accelFin[i]-accelOffset[i];
     }
 }
 
-void movePosition(int axis, auto elapsedTime) {
+void movePosition(int axis, float elapsedTime) {
     //note: elapsedTime is in microseconds
-    v_0[axis] = v_0[axis] + float(int(round(accelFin[axis]))*accelScalar[axis])*(elapsedTime/1'000'000);
-    PP[axis] += v_0[axis]*(elapsedTime/1'000'000)/2
+    v_0[axis] = v_0[axis] + float(((accelFin[axis]))*accelScalar[axis])*(elapsedTime/1'000'000);
+    PP[axis] += v_0[axis]*(elapsedTime/1'000'000)/2;
 }
 
 int main(int argc, char** argv) {
@@ -172,7 +170,7 @@ int main(int argc, char** argv) {
     auto t2 = chrono::high_resolution_clock::now();
 
     while(true) {
-        usleep(1'000);
+        usleep(100'000);
         updateOrients(false);
         if(calibrateOffset) {
             cout << "MODE: Calibrating accelerometer offset\n";
@@ -184,33 +182,39 @@ int main(int argc, char** argv) {
                 cout << " .";
                 updateOrients(false);
             }
-            accelOffset[0] = accelFin[0];
-            accelOffset[1] = accelFin[1];
-            accelOffset[2] = accelFin[2];
+            accelOffset[0] = accelRaw[0];
+            accelOffset[1] = accelRaw[1];
+            accelOffset[2] = accelRaw[2];
             cout << "\n\toffset set. Measurement taking finished\n\n";
             calibrateOffset = false;
         }
 
         t2 = chrono::high_resolution_clock::now();
-        auto timeDur = chrono::duration_cast<chrono::microseconds>(t2-t1);
+        float timeDur = (chrono::duration_cast<chrono::microseconds>(t2-t1)).count();
         for(int i=0; i<3; i++) {
             // if(accelFin[i]>=accelThresh[i]) {
-            movePosition(i, timeDur.count());
+            movePosition(i, timeDur);
             // }
         }
-        printf("%d %d %d", int(round(PP[0])), int(round(PP[1])), int(round(PP[2])));
+        printf("%d %d %d \t %f %f %f \t %f %f %f \t", 
+        int(round(PP[0])), int(round(PP[1])), int(round(PP[2])),
+        accelFin[0], accelFin[1], accelFin[2],
+        v_0[0], v_0[1], v_0[2]
+        );
+        cout << timeDur/1000000;
         t1 = chrono::high_resolution_clock::now();
 
         if(moveServos) {
             if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
 				// printf("a:%d\tb:%d", int(orient[0]), int(orient[1]));
 				// printf("\tangles:\t%d\t%d\t%d\t%d\t%d\t%d",
-				int(new_q[0]),int(new_q[1]),int(new_q[2]),int(new_q[3]),int(new_q[4]),int(new_q[5]));
+				// int(new_q[0]),int(new_q[1]),int(new_q[2]),int(new_q[3]),int(new_q[4]),int(new_q[5]));
 				sendToServo(&pca,new_q,current_q,false);
 			}
 			else {printf("\tPP-orient not reachable");}
 			printf("\n");
         }
+        printf("\n");
     }
 
     return 0;
