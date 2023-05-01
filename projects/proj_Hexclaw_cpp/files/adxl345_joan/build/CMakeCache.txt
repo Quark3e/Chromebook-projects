@@ -210,6 +210,12 @@ CMAKE_STRIP:FILEPATH=/usr/bin/strip
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
 //Value Computed by CMake
+Project_BINARY_DIR:STATIC=/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/adxl345_joan/build
+
+//Value Computed by CMake
+Project_SOURCE_DIR:STATIC=/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/adxl345_joan
+
+//Value Computed by CMake
 adxl345_joan_BINARY_DIR:STATIC=/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/adxl345_joan/build
 
 //Value Computed by CMake

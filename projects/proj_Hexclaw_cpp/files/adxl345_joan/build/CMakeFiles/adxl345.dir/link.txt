@@ -1,0 +1,1 @@
+/usr/bin/c++  -Wall -std=c++14 -O3 -DNDEBUG -rdynamic CMakeFiles/adxl345.dir/adxl345_joan.cpp.o -o adxl345  -lpigpio -lrt -lpthread -lbsd 

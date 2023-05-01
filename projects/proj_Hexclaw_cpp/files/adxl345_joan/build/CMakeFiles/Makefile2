@@ -72,7 +72,7 @@ CMAKE_BINARY_DIR = /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/adxl345_joan.dir/all
+all: CMakeFiles/adxl345.dir/all
 
 .PHONY : all
 
@@ -82,36 +82,36 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/adxl345_joan.dir/clean
+clean: CMakeFiles/adxl345.dir/clean
 
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/adxl345_joan.dir
+# Target rules for target CMakeFiles/adxl345.dir
 
 # All Build rule for target.
-CMakeFiles/adxl345_joan.dir/all:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345_joan.dir/build.make CMakeFiles/adxl345_joan.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345_joan.dir/build.make CMakeFiles/adxl345_joan.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/adxl345_joan/build/CMakeFiles --progress-num=1,2 "Built target adxl345_joan"
-.PHONY : CMakeFiles/adxl345_joan.dir/all
+CMakeFiles/adxl345.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345.dir/build.make CMakeFiles/adxl345.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345.dir/build.make CMakeFiles/adxl345.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/adxl345_joan/build/CMakeFiles --progress-num=1,2 "Built target adxl345"
+.PHONY : CMakeFiles/adxl345.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/adxl345_joan.dir/rule: cmake_check_build_system
+CMakeFiles/adxl345.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/adxl345_joan/build/CMakeFiles 2
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/adxl345_joan.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/adxl345.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/adxl345_joan/build/CMakeFiles 0
-.PHONY : CMakeFiles/adxl345_joan.dir/rule
+.PHONY : CMakeFiles/adxl345.dir/rule
 
 # Convenience name for target.
-adxl345_joan: CMakeFiles/adxl345_joan.dir/rule
+adxl345: CMakeFiles/adxl345.dir/rule
 
-.PHONY : adxl345_joan
+.PHONY : adxl345
 
 # clean rule for target.
-CMakeFiles/adxl345_joan.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345_joan.dir/build.make CMakeFiles/adxl345_joan.dir/clean
-.PHONY : CMakeFiles/adxl345_joan.dir/clean
+CMakeFiles/adxl345.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345.dir/build.make CMakeFiles/adxl345.dir/clean
+.PHONY : CMakeFiles/adxl345.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

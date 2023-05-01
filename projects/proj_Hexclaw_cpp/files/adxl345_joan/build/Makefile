@@ -75,16 +75,51 @@ CMAKE_BINARY_DIR = /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
-.PHONY : edit_cache
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
 
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
 
-.PHONY : edit_cache/fast
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+
+.PHONY : list_install_components/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
 
 # Special rule for the target rebuild_cache
 rebuild_cache:
@@ -96,6 +131,17 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -130,17 +176,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named adxl345_joan
+# Target rules for targets named adxl345
 
 # Build rule for target.
-adxl345_joan: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 adxl345_joan
-.PHONY : adxl345_joan
+adxl345: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 adxl345
+.PHONY : adxl345
 
 # fast build rule for target.
-adxl345_joan/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345_joan.dir/build.make CMakeFiles/adxl345_joan.dir/build
-.PHONY : adxl345_joan/fast
+adxl345/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345.dir/build.make CMakeFiles/adxl345.dir/build
+.PHONY : adxl345/fast
 
 adxl345_joan.o: adxl345_joan.cpp.o
 
@@ -148,7 +194,7 @@ adxl345_joan.o: adxl345_joan.cpp.o
 
 # target to build an object file
 adxl345_joan.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345_joan.dir/build.make CMakeFiles/adxl345_joan.dir/adxl345_joan.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345.dir/build.make CMakeFiles/adxl345.dir/adxl345_joan.cpp.o
 .PHONY : adxl345_joan.cpp.o
 
 adxl345_joan.i: adxl345_joan.cpp.i
@@ -157,7 +203,7 @@ adxl345_joan.i: adxl345_joan.cpp.i
 
 # target to preprocess a source file
 adxl345_joan.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345_joan.dir/build.make CMakeFiles/adxl345_joan.dir/adxl345_joan.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345.dir/build.make CMakeFiles/adxl345.dir/adxl345_joan.cpp.i
 .PHONY : adxl345_joan.cpp.i
 
 adxl345_joan.s: adxl345_joan.cpp.s
@@ -166,7 +212,7 @@ adxl345_joan.s: adxl345_joan.cpp.s
 
 # target to generate assembly for a file
 adxl345_joan.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345_joan.dir/build.make CMakeFiles/adxl345_joan.dir/adxl345_joan.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345.dir/build.make CMakeFiles/adxl345.dir/adxl345_joan.cpp.s
 .PHONY : adxl345_joan.cpp.s
 
 # Help Target
@@ -176,8 +222,12 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
+	@echo "... install"
+	@echo "... install/local"
+	@echo "... install/strip"
+	@echo "... list_install_components"
 	@echo "... rebuild_cache"
-	@echo "... adxl345_joan"
+	@echo "... adxl345"
 	@echo "... adxl345_joan.o"
 	@echo "... adxl345_joan.i"
 	@echo "... adxl345_joan.s"
