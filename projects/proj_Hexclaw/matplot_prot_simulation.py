@@ -168,7 +168,7 @@ def configure_plots(initiate=False):
     ax[0].set_zlabel('Z0') #type: ignore
     # Customize the view angle so it's easier to see that the scatter points lie
     # on the plane y=0
-    ax[0].view_init(elev=45., azim=135, roll=0) #type: ignore
+    ax[0].view_init(elev=25., azim=140, roll=0) #type: ignore
 
     ax[1].set_xlim(-50, 50) #type: ignore
     ax[1].set_ylim(0,100) #type: ignore
