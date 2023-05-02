@@ -34,13 +34,13 @@ byte numbers[10]= {
 
 void setup() {
     Serial.begin(9600);
-    pinMode(latchPin OUTPUT);
+    pinMode(latchPin, OUTPUT);
     pinMode(clockPin, OUTPUT);
-    pinMOde(dataPin, OUTPUT);
+    pinMode(dataPin, OUTPUT);
 }
 
 void loop() {
-    for(int i=0; i<10, i++) {
+    for(int i=0; i<10; i++) {
         if(mode==0) {
             digitalWrite(latchPin, LOW);
             shiftOut(dataPin, clockPin, MSBFIRST, numbers[i]);
@@ -49,9 +49,14 @@ void loop() {
         }
         else if(mode==1) {
             byte tempRow = B00000000;
-            // for(int n=8; n>0; n--) {
-            //     if((numbers >> n) >= )
-            // }
+            for(int n=7; n>0; n--) {
+                if(bitRead(numbers[i], n)) tempRow = 1 << n;
+                else tempRow = 0;
+                digitalWrite(latchPin, LOW);
+                shiftOut(dataPin, clockPin, MSBFIRST, tempRow);
+                digitalWrite(latchPin, HIGH);
+                delay(iterDelay);
+            }
         }
         delay(mainDelay);
     }
