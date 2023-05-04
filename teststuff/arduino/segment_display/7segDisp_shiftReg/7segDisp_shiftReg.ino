@@ -9,15 +9,18 @@ int clockPin = 7;
 int dataPin = 6;
 int latchPin = 5;
 
-int frameDelay = 0;
-int iterDelay = 0; //specifically for mode 1
-int mainDelay = 500;
+int frameDelay = 500;
+int iterDelay = 25; //specifically for mode 1
+int mainDelay = 0;
 
-int mode = 0; /*
+int mode = 1; /*
 mode = 0: writes to all 8 Parallel-Out (PO) pins at once
 mode = 1: writes only to a single PO pin at once, iteration through the bits of the given byte
 
 */
+
+int totIterTime = 0;
+
 byte numbers[10]= {
   B11111100,
   B01100000,
@@ -49,13 +52,21 @@ void loop() {
         }
         else if(mode==1) {
             byte tempRow = B00000000;
-            for(int n=7; n>0; n--) {
-                if(bitRead(numbers[i], n)) tempRow = 1 << n;
-                else tempRow = 0;
-                digitalWrite(latchPin, LOW);
-                shiftOut(dataPin, clockPin, MSBFIRST, tempRow);
-                digitalWrite(latchPin, HIGH);
-                delay(iterDelay);
+            
+            while(true) {
+                for(int n=7; n>0; n--) {
+                    if(bitRead(numbers[i], n)) tempRow = 1 << n;
+                    else tempRow = 0;
+                    digitalWrite(latchPin, LOW);
+                    shiftOut(dataPin, clockPin, MSBFIRST, tempRow);
+                    digitalWrite(latchPin, HIGH);
+                    delay(iterDelay);
+                    totIterTime+=iterDelay;
+                }
+                if(totIterTime>=frameDelay) {
+                    totIterTime=0;
+                    break;
+                }
             }
         }
         delay(mainDelay);
