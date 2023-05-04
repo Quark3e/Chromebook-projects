@@ -13,7 +13,7 @@ int frameDelay = 500;
 int iterDelay = 25; //specifically for mode 1
 int mainDelay = 0;
 
-int mode = 1; /*
+int mode = 0; /*
 mode = 0: writes to all 8 Parallel-Out (PO) pins at once
 mode = 1: writes only to a single PO pin at once, iteration through the bits of the given byte
 
@@ -70,5 +70,6 @@ void loop() {
             }
         }
         delay(mainDelay);
+        Serial.println(i);
     }
 }
