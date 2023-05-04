@@ -15,5 +15,6 @@
         "regex": "cpp",
         "string": "cpp"
     },
-    "python.analysis.typeCheckingMode": "off"
+    
+    "python.analysis.typeCheckingMode": "basic"
 }

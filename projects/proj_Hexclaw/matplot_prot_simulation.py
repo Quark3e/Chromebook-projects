@@ -28,7 +28,7 @@ P = 6*PP
 
 toSaveImage = False
 animateStartBool = True
-useAnimation = False #determines whether the movement is animated or not
+useAnimation = True #determines whether the movement is animated or not
 if len(sys.argv)>1:
     if sys.argv[1]=="True": useAnimation = True
     elif sys.argv[1]=="False": useAnimation = False
@@ -162,22 +162,22 @@ def configure_plots(initiate=False):
     ax[0].set_xlim(-250, 250) #type: ignore
     ax[0].set_ylim(-100, 400) #type: ignore
     ax[0].set_zlim(0, 400) #type: ignore
-    ax[0].set_aspect('equal',adjustable='box') #type: ignore
+    ax[0].set_aspect('auto',adjustable='box') #type: ignore
     ax[0].set_xlabel('X0') #type: ignore
     ax[0].set_ylabel('Y0') #type: ignore
     ax[0].set_zlabel('Z0') #type: ignore
     # Customize the view angle so it's easier to see that the scatter points lie
     # on the plane y=0
-    ax[0].view_init(elev=25., azim=140, roll=0) #type: ignore
+    ax[0].view_init(elev=25., azim=140) #type: ignore
 
     ax[1].set_xlim(-50, 50) #type: ignore
     ax[1].set_ylim(0,100) #type: ignore
     ax[1].set_zlim(-50, 50) #type: ignore
-    ax[1].set_aspect('equal',adjustable='box') #type: ignore
+    ax[1].set_aspect('auto',adjustable='box') #type: ignore
     ax[1].set_xlabel('X1') #type: ignore
     ax[1].set_ylabel('Y1') #type: ignore
     ax[1].set_zlabel('Z1') #type: ignore
-    ax[1].view_init(elev=45., azim=135, roll=0) #type: ignore
+    ax[1].view_init(elev=45., azim=135) #type: ignore
 
 def plotAxis_sim(PP, printText=False):
     global ax
