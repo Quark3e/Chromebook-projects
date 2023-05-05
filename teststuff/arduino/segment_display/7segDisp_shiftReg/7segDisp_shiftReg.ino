@@ -10,10 +10,10 @@ int dataPin = 6;
 int latchPin = 5;
 
 int frameDelay = 500;
-int iterDelay = 25; //specifically for mode 1
+int iterDelay = 20; //specifically for mode 1
 int mainDelay = 0;
 
-int mode = 0; /*
+int mode = 1; /*
 mode = 0: writes to all 8 Parallel-Out (PO) pins at once
 mode = 1: writes only to a single PO pin at once, iteration through the bits of the given byte
 

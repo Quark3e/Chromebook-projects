@@ -8,7 +8,7 @@ int clockPin = 7;
 int dataPin = 6;
 int latchPin = 5;
 
-int mainDelay = 0;
+int mainDelay = 50;
 
 bool useIntermediary = false;
 int interDelay = 1;
