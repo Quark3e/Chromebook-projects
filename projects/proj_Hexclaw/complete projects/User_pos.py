@@ -7,15 +7,15 @@ import numpy as np
 import imutils
 import time
 import math
-import adafruit_adxl34x
+import adafruit_adxl34x #type: ignore
 import sys
 
-from board import SCL, SDA
-import busio
+from board import SCL, SDA #type: ignore
+import busio #type: ignore
 
-from adafruit_motor import servo
-from adafruit_servokit import ServoKit
-from adafruit_pca9685 import PCA9685
+from adafruit_motor import servo #type: ignore
+from adafruit_servokit import ServoKit #type: ignore
+from adafruit_pca9685 import PCA9685 #type: ignore
 
 i2c = busio.I2C(SCL, SDA)
 pca = PCA9685(i2c)
