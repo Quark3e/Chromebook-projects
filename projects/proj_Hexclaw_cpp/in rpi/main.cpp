@@ -53,7 +53,7 @@ float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
 float orient[3] = {0,0,0}; //degrees
 float PP[3] = {0,150,150};
-
+float axisScal[3] = {0.7, 0.7, 1};
 
 float cam_PP_offset[3] = {0,0,0};
 
@@ -356,8 +356,8 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 				}
 				if(mode!=2) {
 					cv::Size camSize = imgFlipped.size();
-					PP[0] = posX - camSize.width/2;
-					PP[1] = camSize.height - posY;
+					PP[0] = int(ceil(float(posX - camSize.width/2)*axisScal[0]));
+					PP[1] = int(ceil(float(camSize.height - posY)*axisScal[1]));
 					printf(" x:%d y:%d ",int(PP[0]),int(PP[1]));
 					updateOrients(true);
 					if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
@@ -387,10 +387,10 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 
 		//delay: 6-11ms
 		if(mode!=3) {
-			cv::putText(
-				imgFlipped,"fps:"+to_string(fps)+" totalDelay:"+to_string(totalDelay)
-				,cv::Point(50,50),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false
-				);
+			// cv::putText(
+			// 	imgFlipped,"fps:"+to_string(fps)+" totalDelay:"+to_string(totalDelay)
+			// 	,cv::Point(50,50),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false
+			// 	);
 			cv::imshow(win_name,imgFlipped);
 			int keyInp = cv::waitKey(10);
 			// printf(" %d ", keyInp);
@@ -417,7 +417,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 				hsv_settingsRead(win_name, 0);
 			} 
 		}
-
+		printf("\n");
 	}
 	if(mode!=3) cv::destroyWindow(win_name);
 	return 0;
@@ -464,7 +464,7 @@ int main(int argc, char** argv) {
 			cout << "error: Cannot open web cam." << endl;
 			return -1;
 		}
-		hsv_settingsRead("",4,"hsv_settings.dat",false);
+		hsv_settingsRead("",5,"hsv_settings.dat",false);
 
 		if(calibrateHSV) { if(displayFunc(&cap, 0, &pca)==-1) { return 0; } }
 		if(displayImg) { if(displayFunc(&cap, 1, &pca)==-1) { return 0; } }
@@ -488,12 +488,22 @@ int main(int argc, char** argv) {
 		}
 	}
 	else if(mode_intro) {
-		new_q = {0, 135, -115, 0, -20, 0};
+		new_q[0] = 0;
+		new_q[1] = 135;
+		new_q[2] = 115;
+		new_q[3] = 0;
+		new_q[4] = -20;
+		new_q[5] = 0;
 		printf("running intro...\t");
 		sendToServo(&pca, new_q, current_q, false, 2, 10);
 		printf("intro finished\n");
 		usleep(3'000'000);
-		new_q = {45, 0, -45, 90, 90, 0};
+		new_q[0] = 45;
+		new_q[1] = 0;
+		new_q[2] = -45;
+		new_q[3] = 90;
+		new_q[4] = 90;
+		new_q[5] = 0;
 		sendToServo(&pca,new_q,current_q,false);
 	}
 

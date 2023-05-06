@@ -76,27 +76,27 @@ include CMakeFiles/Hexclaw_Main.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/Hexclaw_Main.dir/flags.make
 
-CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.o: CMakeFiles/Hexclaw_Main.dir/flags.make
-CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.o: ../Hexclaw_Main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.o -c "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/Hexclaw_Main.cpp"
+CMakeFiles/Hexclaw_Main.dir/main.cpp.o: CMakeFiles/Hexclaw_Main.dir/flags.make
+CMakeFiles/Hexclaw_Main.dir/main.cpp.o: ../main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Hexclaw_Main.dir/main.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Hexclaw_Main.dir/main.cpp.o -c "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/main.cpp"
 
-CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/Hexclaw_Main.cpp" > CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.i
+CMakeFiles/Hexclaw_Main.dir/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Hexclaw_Main.dir/main.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/main.cpp" > CMakeFiles/Hexclaw_Main.dir/main.cpp.i
 
-CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/Hexclaw_Main.cpp" -o CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.s
+CMakeFiles/Hexclaw_Main.dir/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Hexclaw_Main.dir/main.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/main.cpp" -o CMakeFiles/Hexclaw_Main.dir/main.cpp.s
 
 # Object files for target Hexclaw_Main
 Hexclaw_Main_OBJECTS = \
-"CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.o"
+"CMakeFiles/Hexclaw_Main.dir/main.cpp.o"
 
 # External object files for target Hexclaw_Main
 Hexclaw_Main_EXTERNAL_OBJECTS =
 
-Hexclaw_Main: CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.o
+Hexclaw_Main: CMakeFiles/Hexclaw_Main.dir/main.cpp.o
 Hexclaw_Main: CMakeFiles/Hexclaw_Main.dir/build.make
 Hexclaw_Main: /usr/local/lib/static/libPiPCA9685.a
 Hexclaw_Main: /usr/local/lib/arm-linux-gnueabihf/libopencv_gapi.so.4.5.5

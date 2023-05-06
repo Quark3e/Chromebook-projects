@@ -1,5 +1,5 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.o"
+  "CMakeFiles/Hexclaw_Main.dir/main.cpp.o"
   "Hexclaw_Main"
   "Hexclaw_Main.pdb"
 )

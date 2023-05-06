@@ -142,32 +142,32 @@ Hexclaw_Main/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Hexclaw_Main.dir/build.make CMakeFiles/Hexclaw_Main.dir/build
 .PHONY : Hexclaw_Main/fast
 
-Hexclaw_Main.o: Hexclaw_Main.cpp.o
+main.o: main.cpp.o
 
-.PHONY : Hexclaw_Main.o
+.PHONY : main.o
 
 # target to build an object file
-Hexclaw_Main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Hexclaw_Main.dir/build.make CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.o
-.PHONY : Hexclaw_Main.cpp.o
+main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Hexclaw_Main.dir/build.make CMakeFiles/Hexclaw_Main.dir/main.cpp.o
+.PHONY : main.cpp.o
 
-Hexclaw_Main.i: Hexclaw_Main.cpp.i
+main.i: main.cpp.i
 
-.PHONY : Hexclaw_Main.i
+.PHONY : main.i
 
 # target to preprocess a source file
-Hexclaw_Main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Hexclaw_Main.dir/build.make CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.i
-.PHONY : Hexclaw_Main.cpp.i
+main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Hexclaw_Main.dir/build.make CMakeFiles/Hexclaw_Main.dir/main.cpp.i
+.PHONY : main.cpp.i
 
-Hexclaw_Main.s: Hexclaw_Main.cpp.s
+main.s: main.cpp.s
 
-.PHONY : Hexclaw_Main.s
+.PHONY : main.s
 
 # target to generate assembly for a file
-Hexclaw_Main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Hexclaw_Main.dir/build.make CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.s
-.PHONY : Hexclaw_Main.cpp.s
+main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Hexclaw_Main.dir/build.make CMakeFiles/Hexclaw_Main.dir/main.cpp.s
+.PHONY : main.cpp.s
 
 # Help Target
 help:
@@ -178,9 +178,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... Hexclaw_Main"
-	@echo "... Hexclaw_Main.o"
-	@echo "... Hexclaw_Main.i"
-	@echo "... Hexclaw_Main.s"
+	@echo "... main.o"
+	@echo "... main.i"
+	@echo "... main.s"
 .PHONY : help
 
 

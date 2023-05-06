@@ -65,7 +65,7 @@ bool exceedCheck(float angles[6], bool printErrors=false) {
         if(angles[i]>180) { exceeded=true; whichExceeded[i]=true; typeOfExceeded[i]="over"; angles[i]=180;}
     }
     if(exceeded && printErrors) {
-        for(int i=0; i<6; i++) { if(whichExceeded[i]) printf(" servo %d exceeded by: %s\n",i, typeOfExceeded[i]); }
+        for(int i=0; i<6; i++) { if(whichExceeded[i]) printf(" servo %d exceeded by: %s",i, typeOfExceeded[i]); }
     }
     if(exceeded) return true;
     else return false;   

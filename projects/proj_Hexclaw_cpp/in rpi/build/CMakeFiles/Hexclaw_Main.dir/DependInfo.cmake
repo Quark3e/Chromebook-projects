@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/Hexclaw_Main.cpp" "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/build/CMakeFiles/Hexclaw_Main.dir/Hexclaw_Main.cpp.o"
+  "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/main.cpp" "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/build/CMakeFiles/Hexclaw_Main.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
