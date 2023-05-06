@@ -10,6 +10,6 @@ find_package(OpenCV REQUIRED)
 # include_directories()
 
 include_directories(${OpenCV_INCLUDE_DIRS})
-add_executable(Hexclaw_Main Hexclaw_Main.cpp)
+add_executable(Hexclaw_Main main.cpp)
 target_link_libraries(Hexclaw_Main ${PiPCA9685_LIBRARY})
 target_link_libraries(Hexclaw_Main ${OpenCV_LIBS})

@@ -52,7 +52,7 @@ const char* toESP_msg;
 float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
 float orient[3] = {0,0,0}; //degrees
-float PP[3] = {0,150,250};
+float PP[3] = {0,150,150};
 
 
 float cam_PP_offset[3] = {0,0,0};
@@ -60,13 +60,13 @@ float cam_PP_offset[3] = {0,0,0};
 int webcamIndex = 0;
 
 bool displayImg = true;
-bool calibrateHSV = true;
+bool calibrateHSV = false;
 
-bool mode_orients = true;
+bool mode_orients = false;
 bool mode_intro = false;
 
-int l_HSV[3] = {64, 73, 88};
-int u_HSV[3] = {103, 213, 255};
+int l_HSV[3] = {0, 0, 255};
+int u_HSV[3] = {0, 0, 255};
 
 int areaLim = 10'000;
 
