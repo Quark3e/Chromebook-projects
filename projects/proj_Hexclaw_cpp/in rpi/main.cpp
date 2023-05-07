@@ -391,8 +391,8 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 			// 	imgFlipped,"fps:"+to_string(fps)+" totalDelay:"+to_string(totalDelay)
 			// 	,cv::Point(50,50),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false
 			// 	);
-			cv::imshow(win_name,imgFlipped);
 			int keyInp = cv::waitKey(10);
+			cv::imshow(win_name,imgFlipped);
 			// printf(" %d ", keyInp);
 			if(keyInp==27) return -1; //'esc'
 			else if(keyInp==32) break; //'space'
