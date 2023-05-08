@@ -17,7 +17,7 @@ pTime = 0
 cTime = 0
 
 while True:
-    success, img = cap.read()
+    success, img = cap.read() 
     imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     results = hands.process(imgRGB)
     #print(results.multi_hand_landmarks)

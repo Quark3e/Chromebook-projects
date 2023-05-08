@@ -10,7 +10,7 @@ windowRes = (600,300)
 # mouse callback function
 def draw_objects(event,x,y,flags,param):
     global x1,y1,x2,y2,drawing,mode,temp,buttonPressed,img
-    x2,y2 = x,y
+    x2,y2 = x,y 
     if drawing:
       img = np.zeros((windowRes[1],windowRes[0],3), np.uint8)
     if event == cv2.EVENT_LBUTTONDOWN:

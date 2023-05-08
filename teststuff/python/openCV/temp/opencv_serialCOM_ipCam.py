@@ -78,22 +78,14 @@ while True:
         #print(coord)
     # display the image
     stacked = np.hstack((img, filtered))
-    cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7)) #type: ignore
+    cv2.imshow('Windows', cv2.resize(stacked, None, fx=0.7, fy=0.7))
     # Send coords to robot
     posX, posY, posZ = intensityVal*(0.8*posX + 0.2*(cX - 320)), intensityVal*(0.8*posY + 0.2*(480 - cY)), intensityVal*(cZ)
-    print(str(posX) + " " + str(posY) + " " + str(posZ) + " " + str(area))
+    #print(str(posX) + " " + str(posY) + " " + str(posZ) + " " + str(area))
     data = str(posX) + ":" + str(posY) + ":" + str(posZ) + "\n"
     ser.write(data.encode('utf-8'))
     # Press Esc key to exit
-    if cv2.waitKey(1) == 27:
+    if cv2.waitKey(1) == 27: 
         break
 cv2.destroyAllWindows()
-
-
-
-
-
-
-
-
 

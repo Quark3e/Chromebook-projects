@@ -29,7 +29,7 @@ parser.add_argument('--face_cascade', help='Path to face cascade.', default= haa
 parser.add_argument('--camera', help='Camera divide number.', type=int, default=0)
 args = parser.parse_args()
 face_cascade_name = args.face_cascade
-#eyes_cascade_name = args.eyes_cascade
+#eyes_cascade_name = args.eyes_cascade 
 #line 30
 face_cascade = cv.CascadeClassifier()
 #eyes_cascade = cv.CascadeClassifier()

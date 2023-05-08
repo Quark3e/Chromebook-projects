@@ -25,5 +25,5 @@ while True:
     # Press Esc key to exit
     if cv2.waitKey(1) == 27:
         break
-  
+ 
 cv2.destroyAllWindows()

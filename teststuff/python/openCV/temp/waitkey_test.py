@@ -13,4 +13,4 @@ while(1):
     elif k==-1:  # normally -1 returned,so don't print it
         continue
     else:
-        print(k) # else print its value
+        print(k) # else print its value 
