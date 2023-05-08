@@ -6,8 +6,13 @@ import cv2
 import numpy as np
 import imutils
 import time
+import os
 
-cap = cv2.VideoCapture(0)
+output_dir = r"test_media"
+os.chdir(output_dir)
+filename = "threshImg.jpg"
+
+# cap = cv2.VideoCapture(0)
 
 # A required callback method that goes into the trackbar function.
 def nothing(x):
@@ -79,15 +84,16 @@ while True:
         break
     
     # If the user presses `s` then print this array.
-    if key == ord('s'):
-        
+    if key == ord('s'): 
         thearray = [[l_h,l_s,l_v],[u_h, u_s, u_v]]
         print(thearray)
         
         # Also save this array as penval.npy
         np.save('hsv_value',thearray)
         break
-    
+    elif key == 32:
+        cv2.imwrite(filename, mask_3)
+
 # Release the camera & destroy the windows.    
 cv2.destroyAllWindows()
 

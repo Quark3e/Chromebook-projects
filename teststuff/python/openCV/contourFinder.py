@@ -20,13 +20,14 @@ def thresh_callback(val):
         color = (rng.randint(0,256), rng.randint(0,256), rng.randint(0,256))
         cv.drawContours(drawing, contours, i, color, 2, cv.LINE_8, hierarchy, 0)
     # Show in a window
-    cv.imshow('Contours', drawing)
+    drawing = np.hstack((src, drawing))
+    cv.imshow(source_window, drawing)
 # Load source image
 parser = argparse.ArgumentParser(description='Code for Finding contours in your image tutorial.')
-parser.add_argument('--input', help='Path to input image.', default='HappyFish.jpg')
+parser.add_argument('--input', help='Path to input image.', default='test_media/input_image.webp')
 args = parser.parse_args()
-# src = cv.imread(cv.samples.findFile(args.input))
-src = cv.imread("/home/berkhme/Chromebook-projects/teststuff/python/openCV/input_image.webp")
+src = cv.imread(cv.samples.findFile(args.input))
+# src = cv.imread("/home/berkhme/Chromebook-projects/teststuff/python/openCV/input_image.webp")
 if src is None:
     print('Could not open or find the image:', args.input)
     exit(0)
