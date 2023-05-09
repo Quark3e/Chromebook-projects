@@ -115,6 +115,7 @@ while True:
         break
     elif key == 32:
         cv2.imwrite(filename, stacked)
+        sleep(1)
     sleep(0.02)
 # Release the camera & destroy the windows.    
 cv2.destroyAllWindows()
