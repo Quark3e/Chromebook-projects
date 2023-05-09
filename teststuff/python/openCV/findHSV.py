@@ -7,6 +7,7 @@ import numpy as np
 import imutils
 import time
 import os
+from time import sleep
 
 output_dir = r"test_media"
 os.chdir(output_dir)
@@ -20,6 +21,9 @@ def nothing(x):
 
 # Initializing the webcam feed.
 #cap = cv2.VideoCapture(0)
+
+mp4Src = '/home/berkhme/Chromebook-projects/teststuff/python/openCV/test_media/VID_20230508_173143.mp4'
+cap = cv2.VideoCapture(mp4Src)
 #cap.set(3,1280)
 #cap.set(4,720)
 
@@ -32,13 +36,21 @@ cv2.namedWindow("Trackbars")
 # for S,V its 0-255.
 cv2.createTrackbar("L - H", "Trackbars", 0, 179, nothing)
 cv2.createTrackbar("L - S", "Trackbars", 0, 255, nothing)
-cv2.createTrackbar("L - V", "Trackbars", 0, 255, nothing)
+cv2.createTrackbar("L - V", "Trackbars", 255, 255, nothing)
 cv2.createTrackbar("U - H", "Trackbars", 179, 179, nothing)
-cv2.createTrackbar("U - S", "Trackbars", 255, 255, nothing)
+cv2.createTrackbar("U - S", "Trackbars", 9, 255, nothing)
 cv2.createTrackbar("U - V", "Trackbars", 255, 255, nothing)
- 
+
+kernel = np.ones((5, 5), np.uint8)
+font = cv2.FONT_HERSHEY_SIMPLEX
+
 while True:
     ret, imgTemp = cap.read()
+    # imgTemp = cv2.imread("/home/berkhme/Chromebook-projects/teststuff/python/openCV/test_media/IMG_20230508_173123.jpg")
+    if not ret:
+        cap.release()
+        cap = cv2.VideoCapture(mp4Src)
+        ret, imgTemp = cap.read()
     frame = cv2.resize(imgTemp, (640, 480))
 
     # Flip the frame horizontally (Not required)
@@ -72,8 +84,18 @@ while True:
     # we can stack it with the others
     mask_3 = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
     
+    morphImg = cv2.erode(mask_3, kernel, iterations=0)
+    morphImg = cv2.dilate(morphImg, kernel, iterations=10)
+    morphImg = cv2.erode(morphImg, kernel, iterations=1)
+
+    # mask_3 = cv2.putText(mask_3,"bin2_3channImg",(5,50),font,2,(255,255,255),2)
+    frame = cv2.putText(frame,"campFrame",(5,50),font,2,(255,255,255),2)
+    res = cv2.putText(res,"trackedArea",(5,50),font,2,(255,255,255),2)
+    morphImg = cv2.putText(morphImg,"morphed",(5,50),font,2,(255,255,255),2)
+
+
     # stack the mask, orginal frame and the filtered result
-    stacked = np.hstack((mask_3,frame,res))
+    stacked = np.hstack((frame, res, morphImg))
     
     # Show this stacked frame at 40% of the size.
     cv2.imshow('Trackbars',cv2.resize(stacked,None,fx=0.4,fy=0.4)) #type: ignore
@@ -92,8 +114,8 @@ while True:
         np.save('hsv_value',thearray)
         break
     elif key == 32:
-        cv2.imwrite(filename, mask_3)
-
+        cv2.imwrite(filename, stacked)
+    sleep(0.02)
 # Release the camera & destroy the windows.    
 cv2.destroyAllWindows()
 
