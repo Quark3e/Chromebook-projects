@@ -16,5 +16,5 @@
         "string": "cpp"
     },
     "python.autoComplete.extraPaths": ["/usr/lib/python3/dist-packages"],
-    "python.analysis.typeCheckingMode": "basic"
+    "python.analysis.typeCheckingMode": "off"
 }

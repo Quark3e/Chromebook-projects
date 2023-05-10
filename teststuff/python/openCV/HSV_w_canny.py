@@ -39,7 +39,13 @@ cv2.createTrackbar('Canny Thresh', srcWindow, cannyThresh_val, cannyThresh_val_m
 kernel = np.ones((5, 5), np.uint8)
 font = cv2.FONT_HERSHEY_SIMPLEX
 
+contours = 0
+cntArea = 0
+cntPos = [0,0]
+cntMoments = 0
+
 def cannyThresh(val, frame):
+    global contours, cntMoments, cntPos, cntArea, morphImg
     canny_output = cv2.Canny(cv2.blur(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY),(3,3)), val, val*2)
     contours, hierarchy = cv2.findContours(canny_output, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     cannyDrawing = np.zeros((canny_output.shape[0], canny_output.shape[1], 3), dtype=np.uint8)
@@ -48,6 +54,10 @@ def cannyThresh(val, frame):
         # color = (rng.randint(0,256), rng.randint(0,256), rng.randint(0,256))
         color = (255,255,255)
         cv2.drawContours(cannyDrawing, contours, i, color, 2, cv2.LINE_8, hierarchy, 0)
+        cntMoments = cv2.moments(contours[0])
+        cntPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
+        cntArea = cv2.contourArea(contours[0])
+        morphImg = cv2.putText(morphImg, str(int(cntArea)),(cntPos[0],cntPos[1]),font,1,(255,0,0),2)
     return cannyDrawing
 
 while True:
