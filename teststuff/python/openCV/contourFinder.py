@@ -42,5 +42,6 @@ cv.imshow(source_window, src)
 max_thresh = 255
 thresh = 100 # initial threshold
 cv.createTrackbar('Canny Thresh:', source_window, thresh, max_thresh, thresh_callback)
+
 thresh_callback(thresh)
 cv.waitKey()
