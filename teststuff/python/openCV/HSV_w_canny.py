@@ -18,6 +18,7 @@ def nothing(x):
     pass
 
 mp4Src = '/home/berkhme/Chromebook-projects/teststuff/python/openCV/test_media/VID_20230508_173143.mp4'
+mp4Src = "/home/berkhme/Chromebook-projects/teststuff/python/openCV/test_media/VID_20230511_173648.mp4"
 cap = cv2.VideoCapture(mp4Src)
 
 
@@ -43,6 +44,7 @@ contours = 0
 cntArea = 0
 cntPos = [0,0]
 cntMoments = 0
+areaFilterVal = 0.01
 
 def cannyThresh(val, frame):
     global contours, cntMoments, cntPos, cntArea, morphImg
@@ -55,9 +57,12 @@ def cannyThresh(val, frame):
         color = (255,255,255)
         cv2.drawContours(cannyDrawing, contours, i, color, 2, cv2.LINE_8, hierarchy, 0)
         cntMoments = cv2.moments(contours[0])
-        cntPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-        cntArea = cv2.contourArea(contours[0])
-        morphImg = cv2.putText(morphImg, str(int(cntArea)),(cntPos[0],cntPos[1]),font,1,(255,0,0),2)
+        try:
+            cntPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
+            cntArea = areaFilterVal * cv2.contourArea(contours[0]) + (1-areaFilterVal) * cntArea
+            morphImg = cv2.putText(morphImg, str(int(cntArea)),(cntPos[0],cntPos[1]),font,1,(255,0,0),2)
+        except ZeroDivisionError:
+            print("error")
     return cannyDrawing
 
 while True:
