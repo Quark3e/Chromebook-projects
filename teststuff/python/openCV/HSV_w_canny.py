@@ -57,20 +57,28 @@ def cannyThresh(val, frame):
         color = (255,255,255)
         cv2.drawContours(cannyDrawing, contours, i, color, 2, cv2.LINE_8, hierarchy, 0)
         cntMoments = cv2.moments(contours[0])
-        try:
+        if cntMoments['m00']!=0:
             cntPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-            cntArea = areaFilterVal * cv2.contourArea(contours[0]) + (1-areaFilterVal) * cntArea
+            # cntArea = areaFilterVal * cv2.contourArea(contours[0]) + (1-areaFilterVal) * cntArea
+            cntArea = cv2.contourArea(contours[0])
             morphImg = cv2.putText(morphImg, str(int(cntArea)),(cntPos[0],cntPos[1]),font,1,(255,0,0),2)
-        except ZeroDivisionError:
-            print("error")
+        else:
+            print("'m00' = 0")
     return cannyDrawing
 
+isPressed = False
+loopPaused = False
+
+imgTemp = None
+
 while True:
-    ret, imgTemp = cap.read()
-    if not ret:
-        cap.release()
-        cap = cv2.VideoCapture(mp4Src)
+
+    if not loopPaused:
         ret, imgTemp = cap.read()
+        if not ret:
+            cap.release()
+            cap = cv2.VideoCapture(mp4Src)
+            ret, imgTemp = cap.read()
     frame = cv2.resize(imgTemp, (640, 480))
     frame = cv2.flip( frame, 1 ) 
     
@@ -82,7 +90,7 @@ while True:
     u_h = cv2.getTrackbarPos("U - H", srcWindow)
     u_s = cv2.getTrackbarPos("U - S", srcWindow)
     u_v = cv2.getTrackbarPos("U - V", srcWindow)
- 
+
     lower_range = np.array([l_h, l_s, l_v])
     upper_range = np.array([u_h, u_s, u_v])
     
@@ -107,16 +115,22 @@ while True:
     
     # If the user presses ESC then exit the program
     key = cv2.waitKey(1)
-    if key == 27:
+    if key == 27: #esc
         break
     elif key == ord('s'): 
         thearray = [[l_h,l_s,l_v],[u_h, u_s, u_v]]
         print(thearray)
         np.save('hsv_value',thearray) # Also save this array as penval.npy
         break
-    elif key == 32:
+    elif key == 97: #a
         cv2.imwrite(filename, stacked)
         sleep(1)
+
+    if key == 32 and not isPressed: #space
+        isPressed = True
+        loopPaused = not loopPaused
+    elif key != 32:
+        isPressed = False
     sleep(0.02)
 cv2.destroyAllWindows()
 
