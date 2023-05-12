@@ -133,6 +133,8 @@ while True:
         loopPaused = not loopPaused
     elif key != 32:
         isPressed = False
+
+    cv2.moveWindow(srcWindow, 1000, 1000)
     sleep(0.02)
 cv2.destroyAllWindows()
 
