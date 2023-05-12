@@ -81,7 +81,7 @@ while True:
             ret, imgTemp = cap.read()
     frame = cv2.resize(imgTemp, (640, 480))
     frame = cv2.flip( frame, 1 ) 
-    bitFrame = cv2.resize(frame, (160,128))
+    bitFrame = cv2.resize(frame[0:480, 20:620],(160,128))
     
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     
@@ -113,7 +113,7 @@ while True:
 
     stacked = np.hstack((frame, res, morphImg, cannyImg))
     cv2.imshow(srcWindow,cv2.resize(stacked,None,fx=0.4,fy=0.4))
-    cv2.imshow("test", cv2.resize(bitFrame,None,fx=4,fy=4))
+    cv2.imshow("test", cv2.resize(bitFrame, (600,480)))
      
     # If the user presses ESC then exit the program
     key = cv2.waitKey(1)
