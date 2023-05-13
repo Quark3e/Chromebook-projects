@@ -7,7 +7,10 @@ import random as rng
 import os
 from time import sleep
 
-output_dir = r"test_media"
+
+mediaDir = "/home/berkhme/Chromebook-projects/teststuff/test_media/"
+
+output_dir = mediaDir
 os.chdir(output_dir)
 filename = "threshImg.jpg"
 
@@ -17,8 +20,8 @@ rng.seed(12345)
 def nothing(x):
     pass
 
-mp4Src = '/home/berkhme/Chromebook-projects/teststuff/python/openCV/test_media/VID_20230508_173143.mp4'
-mp4Src = "/home/berkhme/Chromebook-projects/teststuff/python/openCV/test_media/VID_20230511_173648.mp4"
+
+mp4Src = mediaDir+ "VID_20230511_173648.mp4"
 cap = cv2.VideoCapture(mp4Src)
 
 
@@ -46,6 +49,14 @@ cntPos = [0,0]
 cntMoments = 0
 areaFilterVal = 0.01
 
+frameLim = 100
+prevFrames = []
+loadedFrames = 0
+framesAreLoaded = None
+if loadedFrames < frameLim: framesAreLoaded = False
+frameIndex = frameLim #currently shown frame
+frameMove = 5
+
 def cannyThresh(val, frame):
     global contours, cntMoments, cntPos, cntArea, morphImg
     canny_output = cv2.Canny(cv2.blur(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY),(3,3)), val, val*2)
@@ -71,6 +82,9 @@ loopPaused = False
 
 imgTemp = None
 
+if not framesAreLoaded:
+    print("Loading frames for replay...", end='')
+
 while True:
 
     if not loopPaused:
@@ -80,7 +94,15 @@ while True:
             cap = cv2.VideoCapture(mp4Src)
             ret, imgTemp = cap.read()
     frame = cv2.resize(imgTemp, (640, 480))
-    frame = cv2.flip( frame, 1 ) 
+    frame = cv2.flip( frame, 1 )
+
+    if not framesAreLoaded:
+        prevFrames.append(imgTemp)
+        loadedFrames+=1
+        if loadedFrames >= frameLim: 
+            framesAreLoaded = True
+            print(" frames loaded")
+
     bitFrame = cv2.resize(frame[0:480, 20:620],(160,128))
     
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -113,7 +135,7 @@ while True:
 
     stacked = np.hstack((frame, res, morphImg, cannyImg))
     cv2.imshow(srcWindow,cv2.resize(stacked,None,fx=0.4,fy=0.4))
-    cv2.imshow("test", cv2.resize(bitFrame, (600,480)))
+    cv2.imshow("test", cv2.resize(bitFrame, (250,200)))
      
     # If the user presses ESC then exit the program
     key = cv2.waitKey(1)
@@ -133,8 +155,23 @@ while True:
         loopPaused = not loopPaused
     elif key != 32:
         isPressed = False
+        prevFrames = prevFrames[1:frameLim] + [imgTemp]
+
+    if key == 81 and framesAreLoaded:
+        loopPaused = True
+        if frameIndex > frameMove: frameIndex-=frameMove
+        else: print("viewing latest frame.")
+        imgTemp = prevFrames[frameIndex]
+        print("frame -")
+    elif key == 83 and framesAreLoaded:
+        loopPaused = True
+        if frameIndex < frameLim-frameMove: frameIndex+=frameMove
+        else: print("viewing oldes frame.")
+        imgTemp = prevFrames[frameIndex]
+        print("frame +")
 
     cv2.moveWindow(srcWindow, 1000, 1000)
+
     sleep(0.02)
 cv2.destroyAllWindows()
 
