@@ -1,6 +1,7 @@
+#!/usr/bin/env python3
+
 import matplotlib.pyplot as plt
 import numpy as np
-
 
 def f(t):
     return np.cos(2*np.pi*t) * np.exp(-t)

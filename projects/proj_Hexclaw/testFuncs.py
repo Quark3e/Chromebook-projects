@@ -5,8 +5,8 @@ import time
 import math
 import IK_module as IK
 
-fullRange = [180, 180]
-centerPos = [90, 90]
+fullRange = [18, 18]
+centerPos = [9, 9]
 
 toDraw = []
 for _ in range(fullRange[0]):
@@ -45,20 +45,20 @@ def removeCopies(oldList, occurance={}):
 
 def check(val):
     global toDraw, fullRange
-    #print(val)
+    # print(val)
 
     if val[0]<=fullRange[0]-1 and val[0]>=0 and val[1]<=fullRange[1]-1 and val[1]>=0:
         # toDraw[val[0]][val[1]]='o'
         toDraw[val[1]]=toDraw[val[1]][:val[0]]+" "+toDraw[val[1]][val[0]+1:]
-        # os.system("clear")
-        # for lst in toDraw:
-        #     print(addSpace(lst))
-        # print(val)
-        # time.sleep(0.01)
+        os.system("clear")
+        for lst in toDraw:
+            print(addSpace(lst))
+        print(val)
+        time.sleep(0.01)
         # if val == [4,1]: input("point reached. paused...")
     return
 
-def pathFind(axisRange, startPos, method=5):
+def pathFind(axisRange, startPos, method=2):
     """Iterate through 2d array/list in a pattern
     ## Parameters:
     - axisRange [unit: integers]: length of biggest axis
