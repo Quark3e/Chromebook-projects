@@ -22,6 +22,7 @@ def thresh_callback(val):
     # Show in a window
     cv.imshow('Contours', drawing)
 # Load source image
+
 parser = argparse.ArgumentParser(description='Code for Finding contours in your image tutorial.')
 parser.add_argument('--input', help='Path to input image.', default='HappyFish.jpg')
 args = parser.parse_args()
