@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+
 from __future__ import print_function
 import cv2
 import numpy as np
@@ -7,11 +8,40 @@ import random as rng
 import os
 from time import sleep
 
+useTft_disp = True
 
-mediaDir = "/home/berkhme/Chromebook-projects/teststuff/test_media/"
+import digitalio
+import board
+from PIL import Image, ImageDraw, ImageOps
+from adafruit_rgb_display import st7735
+
+cs_pin = digitalio.DigitalInOut(board.CE0)
+dc_pin = digitalio.DigitalInOut(board.D25)
+reset_pin = digitalio.DigitalInOut(board.D24)
+
+BAUDRATE = 24_000_000
+
+spi = board.SPI()
+disp = st7735.ST7735R(spi, rotation=270, cs=cs_pin, dc=dc_pin, rst=reset_pin, baudrate=BAUDRATE)
+
+if disp.rotation % 180 == 90:
+    disp_height = disp.width
+    disp_width = disp.height
+else:
+    disp_width = disp.width
+    disp_height = disp.height
+
+image = Image.new("RGB", (disp_width, disp_height))
+draw = ImageDraw.Draw(image)
+
+
+displayToOpenCV = False
+
+# mediaDir = "/home/pi/Chromebook-projects/teststuff/test_media"
+mediaDir = ""
 
 output_dir = mediaDir
-os.chdir(output_dir)
+# os.chdir(output_dir)
 filename = "threshImg.jpg"
 
 rng.seed(12345)
@@ -25,20 +55,25 @@ mp4Src = mediaDir+ "VID_20230511_173648.mp4"
 cap = cv2.VideoCapture(mp4Src)
 
 
-srcWindow = "mainWindow"
-cv2.namedWindow(srcWindow)
-cv2.createTrackbar("L - H", srcWindow, 0, 179, nothing)
-cv2.createTrackbar("L - S", srcWindow, 0, 255, nothing)
-cv2.createTrackbar("L - V", srcWindow, 255, 255, nothing)
-cv2.createTrackbar("U - H", srcWindow, 179, 179, nothing)
-cv2.createTrackbar("U - S", srcWindow, 9, 255, nothing)
-cv2.createTrackbar("U - V", srcWindow, 255, 255, nothing)
-cv2.createTrackbar("dilate1_iter", srcWindow, 10, 20, nothing)
-cv2.createTrackbar("erode1_iter", srcWindow, 0, 20, nothing)
+l_pos = [0, 0, 255]
+u_pos = [179, 9, 255]
 
-cannyThresh_val = 100
-cannyThresh_val_max = 255
-cv2.createTrackbar('Canny Thresh', srcWindow, cannyThresh_val, cannyThresh_val_max, nothing)
+
+srcWindow = "mainWindow"
+if displayToOpenCV:
+    cv2.namedWindow(srcWindow)
+    cv2.createTrackbar("L - H", srcWindow, l_pos[0], 179, nothing)
+    cv2.createTrackbar("L - S", srcWindow, l_pos[1], 255, nothing)
+    cv2.createTrackbar("L - V", srcWindow, l_pos[2], 255, nothing)
+    cv2.createTrackbar("U - H", srcWindow, u_pos[0], 179, nothing)
+    cv2.createTrackbar("U - S", srcWindow, u_pos[1], 255, nothing)
+    cv2.createTrackbar("U - V", srcWindow, u_pos[2], 255, nothing)
+    cv2.createTrackbar("dilate1_iter", srcWindow, 10, 20, nothing)
+    cv2.createTrackbar("erode1_iter", srcWindow, 0, 20, nothing)
+
+    cannyThresh_val = 100
+    cannyThresh_val_max = 255
+    cv2.createTrackbar('Canny Thresh', srcWindow, cannyThresh_val, cannyThresh_val_max, nothing)
 
 kernel = np.ones((5, 5), np.uint8)
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -85,15 +120,18 @@ imgTemp = None
 if not framesAreLoaded:
     print("Loading frames for replay...", end='')
 
-while True:
 
+ret, imgTemp = cap.read()
+
+while True:
     if not loopPaused:
         ret, imgTemp = cap.read()
         if not ret:
+            print("could not capture frame")
             cap.release()
             cap = cv2.VideoCapture(mp4Src)
             ret, imgTemp = cap.read()
-    frame = cv2.resize(imgTemp, (640, 480))
+    frame = cv2.resize(imgTemp, (640, 480)) #type: ignore
     frame = cv2.flip( frame, 1 )
 
     if not framesAreLoaded:
@@ -102,77 +140,96 @@ while True:
         if loadedFrames >= frameLim: 
             framesAreLoaded = True
             print(" frames loaded")
-
-    bitFrame = cv2.resize(frame[0:480, 20:620],(160,128))
     
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    
-    l_h = cv2.getTrackbarPos("L - H", srcWindow)
-    l_s = cv2.getTrackbarPos("L - S", srcWindow)
-    l_v = cv2.getTrackbarPos("L - V", srcWindow)
-    u_h = cv2.getTrackbarPos("U - H", srcWindow)
-    u_s = cv2.getTrackbarPos("U - S", srcWindow)
-    u_v = cv2.getTrackbarPos("U - V", srcWindow)
 
-    lower_range = np.array([l_h, l_s, l_v])
-    upper_range = np.array([u_h, u_s, u_v])
-    
-    mask = cv2.inRange(hsv, lower_range, upper_range)
+    if displayToOpenCV:    
+        l_h = cv2.getTrackbarPos("L - H", srcWindow)
+        l_s = cv2.getTrackbarPos("L - S", srcWindow)
+        l_v = cv2.getTrackbarPos("L - V", srcWindow)
+        u_h = cv2.getTrackbarPos("U - H", srcWindow)
+        u_s = cv2.getTrackbarPos("U - S", srcWindow)
+        u_v = cv2.getTrackbarPos("U - V", srcWindow)
+        lower_range = np.array([l_h, l_s, l_v])
+        upper_range = np.array([u_h, u_s, u_v])
+
+        mask = cv2.inRange(hsv, lower_range, upper_range)
+    else:
+        mask = cv2.inRange(hsv, np.array(l_pos), np.array(u_pos))
+
     res = cv2.bitwise_and(frame, frame, mask=mask)
     
     mask_3 = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
 
     morphImg = cv2.erode(mask_3, kernel, iterations=0)
-    morphImg = cv2.dilate(morphImg, kernel, iterations=cv2.getTrackbarPos("dilate1_iter", srcWindow))
-    morphImg = cv2.erode(morphImg, kernel, iterations=cv2.getTrackbarPos("erode1_iter", srcWindow))
+    if displayToOpenCV:
+        morphImg = cv2.dilate(morphImg, kernel, iterations=cv2.getTrackbarPos("dilate1_iter", srcWindow))
+        morphImg = cv2.erode(morphImg, kernel, iterations=cv2.getTrackbarPos("erode1_iter", srcWindow))
+    else:
+        morphImg = cv2.dilate(morphImg, kernel, iterations=10)
+        morphImg = cv2.erode(morphImg, kernel, iterations=0)
 
-    cannyImg = cannyThresh(cv2.getTrackbarPos('Canny Thresh', srcWindow),morphImg)
+
+    if displayToOpenCV: cannyImg = cannyThresh(cv2.getTrackbarPos('Canny Thresh', srcWindow),morphImg)
+    else: cannyImg = cannyThresh(50, morphImg)
+
+    bitFrame = cv2.resize(morphImg[0:480, 20:620],(160,128))
 
     frame = cv2.putText(frame,"campFrame",(5,50),font,2,(255,255,255),2)
     res = cv2.putText(res,"trackedArea",(5,50),font,2,(255,255,255),2)
     morphImg = cv2.putText(morphImg,"morphed",(5,50),font,2,(255,255,255),2)
     cannyImg = cv2.putText(cannyImg,"cannyThresh",(5,50),font,2,(255,255,255),2)
 
-    stacked = np.hstack((frame, res, morphImg, cannyImg))
-    cv2.imshow(srcWindow,cv2.resize(stacked,None,fx=0.4,fy=0.4))
-    cv2.imshow("test", cv2.resize(bitFrame, (250,200)))
-     
+
+    if displayToOpenCV:
+        stacked = np.hstack((frame, res, morphImg, cannyImg))
+        cv2.imshow(srcWindow,cv2.resize(stacked,None,fx=0.4,fy=0.4)) #type: ignore
+        cv2.imshow("test", cv2.resize(bitFrame, (250,200)))
+
+    PIL_img = Image.fromarray(cv2.cvtColor(bitFrame, cv2.COLOR_BGR2RGB))
+    # PIL_img = ImageOps.pad(
+    #     PIL_img.convert("RGB"),
+    #     (disp_width, disp_height),
+    #     method=Image.NEAREST,
+    #     color=(0,0,0),
+    #     centering=(0.5,0.5)
+    # )
+    disp.image(PIL_img)
+
     # If the user presses ESC then exit the program
-    key = cv2.waitKey(1)
-    if key == 27: #esc
-        break
-    elif key == ord('s'): 
-        thearray = [[l_h,l_s,l_v],[u_h, u_s, u_v]]
-        print(thearray)
-        np.save('hsv_value',thearray) # Also save this array as penval.npy
-        break
-    elif key == 97: #a
-        cv2.imwrite(filename, stacked)
-        sleep(1)
+    if displayToOpenCV:
+        key = cv2.waitKey(1)
+        if key == 27: #esc
+            break
+        elif key == ord('s'): 
+            thearray = [[l_h,l_s,l_v],[u_h, u_s, u_v]] #type: ignore
+            print(thearray)
+            np.save('hsv_value',thearray) # Also save this array as penval.npy
+            break
+        elif key == 97: #a
+            cv2.imwrite(filename, stacked) #type: ignore
+            sleep(1)
 
-    if key == 32 and not isPressed: #space
-        isPressed = True
-        loopPaused = not loopPaused
-    elif key != 32:
-        isPressed = False
-        prevFrames = prevFrames[1:frameLim] + [imgTemp]
+        if key == 32 and not isPressed: #space
+            isPressed = True
+            loopPaused = not loopPaused
+        elif key != 32:
+            isPressed = False
+            prevFrames = prevFrames[1:frameLim] + [imgTemp]
 
-    if key == 81 and framesAreLoaded:
-        loopPaused = True
-        if frameIndex > frameMove: frameIndex-=frameMove
-        else: print("viewing latest frame.")
-        imgTemp = prevFrames[frameIndex]
-        print("frame -")
-    elif key == 83 and framesAreLoaded:
-        loopPaused = True
-        if frameIndex < frameLim-frameMove: frameIndex+=frameMove
-        else: print("viewing oldes frame.")
-        imgTemp = prevFrames[frameIndex]
-        print("frame +")
-
-    cv2.moveWindow(srcWindow, 1000, 1000)
-
-    sleep(0.02)
+        if key == 81 and framesAreLoaded:
+            loopPaused = True
+            if frameIndex > frameMove: frameIndex-=frameMove
+            else: print("viewing latest frame.")
+            imgTemp = prevFrames[frameIndex]
+            print("frame -")
+        elif key == 83 and framesAreLoaded:
+            loopPaused = True
+            if frameIndex < frameLim-frameMove: frameIndex+=frameMove
+            else: print("viewing oldes frame.")
+            imgTemp = prevFrames[frameIndex]
+            print("frame +")
+    # sleep(0.0002)
 cv2.destroyAllWindows()
 
 
