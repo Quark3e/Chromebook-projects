@@ -189,9 +189,7 @@ while True:
     PIL_img = Image.fromarray(cv2.cvtColor(bitFrame, cv2.COLOR_BGR2RGB))
     # PIL_img = ImageOps.pad(PIL_img.convert("RGB"),(disp_width, disp_height),method=Image.NEAREST,color=(0,0,0),centering=(0.5,0.5))
     
-    t1 = perf_counter()
     disp.image(PIL_img)
-    print((perf_counter()-t1)*1000)
 
     # If the user presses ESC then exit the program
     if displayToOpenCV:
