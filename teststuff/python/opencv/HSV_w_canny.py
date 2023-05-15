@@ -10,14 +10,14 @@ from time import sleep, perf_counter
 
 useTft_disp = True
 
-import digitalio
-import board
+import digitalio #type: ignore
+import board #type: ignore
 from PIL import Image, ImageDraw, ImageOps
-from adafruit_rgb_display import st7735
+from adafruit_rgb_display import st7735 #type: ignore
 
-cs_pin = digitalio.DigitalInOut(board.CE0)
-dc_pin = digitalio.DigitalInOut(board.D25)
-reset_pin = digitalio.DigitalInOut(board.D24)
+cs_pin = digitalio.DigitalInOut(board.CE0) #type: ignore
+dc_pin = digitalio.DigitalInOut(board.D25) #type: ignore
+reset_pin = digitalio.DigitalInOut(board.D24) #type:ignore
 
 BAUDRATE = 24_000_000
 
@@ -53,6 +53,9 @@ def nothing(x):
 
 mp4Src = mediaDir+ "VID_20230511_173648.mp4"
 cap = cv2.VideoCapture(mp4Src)
+
+capSize = [int(cap.get(3)), int(cap.get(4))]
+capOut = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 20, (capSize[0],capSize[1]))
 
 
 l_pos = [0, 0, 255]
@@ -180,9 +183,9 @@ while True:
     morphImg = cv2.putText(morphImg,"morphed",(5,50),font,2,(255,255,255),2)
     cannyImg = cv2.putText(cannyImg,"cannyThresh",(5,50),font,2,(255,255,255),2)
 
+    stacked = np.hstack((frame, res, morphImg, cannyImg))
 
     if displayToOpenCV:
-        stacked = np.hstack((frame, res, morphImg, cannyImg))
         cv2.imshow(srcWindow,cv2.resize(stacked,None,fx=0.4,fy=0.4)) #type: ignore
         cv2.imshow("test", cv2.resize(bitFrame, (250,200)))
 
@@ -190,6 +193,7 @@ while True:
     # PIL_img = ImageOps.pad(PIL_img.convert("RGB"),(disp_width, disp_height),method=Image.NEAREST,color=(0,0,0),centering=(0.5,0.5))
     
     disp.image(PIL_img)
+    capOut.write(stacked)
 
     # If the user presses ESC then exit the program
     if displayToOpenCV:
@@ -225,6 +229,9 @@ while True:
             imgTemp = prevFrames[frameIndex]
             print("frame +")
     # sleep(0.0002)
+
+cap.release()
+capOut.release()
 cv2.destroyAllWindows()
 
 
