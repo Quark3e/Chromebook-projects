@@ -8,31 +8,32 @@ import random as rng
 import os
 from time import sleep, perf_counter
 
-useTft_disp = True
+displayToTFT = False
 
-import digitalio #type: ignore
-import board #type: ignore
-from PIL import Image, ImageDraw, ImageOps
-from adafruit_rgb_display import st7735 #type: ignore
+if displayToTFT:
+    import digitalio #type: ignore
+    import board #type: ignore
+    from PIL import Image, ImageDraw, ImageOps
+    from adafruit_rgb_display import st7735 #type: ignore
 
-cs_pin = digitalio.DigitalInOut(board.CE0) #type: ignore
-dc_pin = digitalio.DigitalInOut(board.D25) #type: ignore
-reset_pin = digitalio.DigitalInOut(board.D24) #type:ignore
+    cs_pin = digitalio.DigitalInOut(board.CE0) #type: ignore
+    dc_pin = digitalio.DigitalInOut(board.D25) #type: ignore
+    reset_pin = digitalio.DigitalInOut(board.D24) #type:ignore
 
-BAUDRATE = 24_000_000
+    BAUDRATE = 24_000_000
 
-spi = board.SPI()
-disp = st7735.ST7735R(spi, rotation=270, cs=cs_pin, dc=dc_pin, rst=reset_pin, baudrate=BAUDRATE)
+    spi = board.SPI()
+    disp = st7735.ST7735R(spi, rotation=270, cs=cs_pin, dc=dc_pin, rst=reset_pin, baudrate=BAUDRATE)
 
-if disp.rotation % 180 == 90:
-    disp_height = disp.width
-    disp_width = disp.height
-else:
-    disp_width = disp.width
-    disp_height = disp.height
+    if disp.rotation % 180 == 90:
+        disp_height = disp.width
+        disp_width = disp.height
+    else:
+        disp_width = disp.width
+        disp_height = disp.height
 
-image = Image.new("RGB", (disp_width, disp_height))
-draw = ImageDraw.Draw(image)
+    image = Image.new("RGB", (disp_width, disp_height))
+    draw = ImageDraw.Draw(image)
 
 
 displayToOpenCV = False
@@ -51,11 +52,20 @@ def nothing(x):
     pass
 
 
+def convert_avi_to_mp4(avi_file_path, output_name):
+    os.popen("ffmpeg -i '{input}' -ac 2 -b:v 2000k -c:a aac -c:v libx264 -b:a 160k -vprofile high -bf 0 -strict experimental -f mp4 '{output}.mp4'".format(input = avi_file_path, output = output_name))
+    return True
+
+
 mp4Src = mediaDir+ "VID_20230511_173648.mp4"
 cap = cv2.VideoCapture(mp4Src)
 
-capSize = [int(cap.get(3)), int(cap.get(4))]
-capOut = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 20, (capSize[0],capSize[1]))
+
+outFileName = "output.avi"
+capSize = (int(cap.get(3)), int(cap.get(4)))
+# fourcc = cv2.CV_FOURCC(*'XVID')
+capOut = cv2.VideoWriter(outFileName,cv2.VideoWriter_fourcc(*'MJPG'), 20, (2560, 480))
+# capOut = cv2.VideoWriter('output.mp4',fourcc, 10, (capSize[0],capSize[1]))
 
 
 l_pos = [0, 0, 255]
@@ -134,6 +144,7 @@ while True:
             cap.release()
             cap = cv2.VideoCapture(mp4Src)
             ret, imgTemp = cap.read()
+            break
     frame = cv2.resize(imgTemp, (640, 480)) #type: ignore
     frame = cv2.flip( frame, 1 )
 
@@ -189,10 +200,13 @@ while True:
         cv2.imshow(srcWindow,cv2.resize(stacked,None,fx=0.4,fy=0.4)) #type: ignore
         cv2.imshow("test", cv2.resize(bitFrame, (250,200)))
 
-    PIL_img = Image.fromarray(cv2.cvtColor(bitFrame, cv2.COLOR_BGR2RGB))
-    # PIL_img = ImageOps.pad(PIL_img.convert("RGB"),(disp_width, disp_height),method=Image.NEAREST,color=(0,0,0),centering=(0.5,0.5))
-    
-    disp.image(PIL_img)
+    if displayToTFT:
+        PIL_img = Image.fromarray(cv2.cvtColor(bitFrame, cv2.COLOR_BGR2RGB))
+        # PIL_img = ImageOps.pad(PIL_img.convert("RGB"),(disp_width, disp_height),method=Image.NEAREST,color=(0,0,0),centering=(0.5,0.5))
+        
+        disp.image(PIL_img)
+
+    # print([stacked.shape[1], stacked.shape[0]])
     capOut.write(stacked)
 
     # If the user presses ESC then exit the program
@@ -230,8 +244,12 @@ while True:
             print("frame +")
     # sleep(0.0002)
 
-cap.release()
 capOut.release()
-cv2.destroyAllWindows()
+
+convert_avi_to_mp4(outFileName, outFileName)
+
+if displayToOpenCV:
+    cap.release()
+    cv2.destroyAllWindows()
 
 
