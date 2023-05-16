@@ -77,7 +77,7 @@ bool mode_orients = false;
 bool mode_intro = false;
 
 int l_HSV[3] = {0, 0, 255};
-int u_HSV[3] = {0, 0, 255};
+int u_HSV[3] = {179, 9, 255};
 
 int areaLim = 10'000;
 
