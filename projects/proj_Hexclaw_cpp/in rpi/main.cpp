@@ -1,4 +1,15 @@
 
+/*
+ * Project Name: Hexclaw  
+ * File: main.cpp
+ * Description: Robot Arm Control project  
+ * Author: Erkhme Byambadorj.
+ * Created May 2023
+ * Description: See URL for full details.
+ * NOTE :: NOT FINISHED
+ * URL: 
+ */
+
 //nodemcu/esp8266 module udp communication
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -92,6 +103,7 @@ int resolvehelper(const char* hostname, int family, const char* service, sockadd
     return result;
 }
 
+// initialize udp "settings"
 void nodemcu_udp_setup() {
 	bind_result = 0;
 	sock = socket(AF_INET, SOCK_DGRAM, 0);
@@ -115,6 +127,8 @@ void nodemcu_udp_setup() {
 	toESP_msg = "1";
 }
 
+
+// request to nodemcu board, receive {axis}_accel values, solve orient[0,1] variables
 void updateOrients(bool printResult) {
 	size_t msg_length = strlen(toESP_msg);
 	bind_result = sendto(

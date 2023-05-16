@@ -61,10 +61,12 @@ mp4Src = mediaDir+ "VID_20230511_173648.mp4"
 cap = cv2.VideoCapture(mp4Src)
 
 
+prefRes = (640, 480)
+
 outFileName = "output.avi"
 capSize = (int(cap.get(3)), int(cap.get(4)))
 # fourcc = cv2.CV_FOURCC(*'XVID')
-capOut = cv2.VideoWriter(outFileName,cv2.VideoWriter_fourcc(*'MJPG'), 20, (2560, 480))
+capOut = cv2.VideoWriter(outFileName,cv2.VideoWriter_fourcc(*'MJPG'), 20, (2*prefRes[0], 2*prefRes[1]))
 # capOut = cv2.VideoWriter('output.mp4',fourcc, 10, (capSize[0],capSize[1]))
 
 
@@ -145,7 +147,7 @@ while True:
             cap = cv2.VideoCapture(mp4Src)
             ret, imgTemp = cap.read()
             break
-    frame = cv2.resize(imgTemp, (640, 480)) #type: ignore
+    frame = cv2.resize(imgTemp, prefRes) #type: ignore
     frame = cv2.flip( frame, 1 )
 
     if not framesAreLoaded:
@@ -187,14 +189,16 @@ while True:
     if displayToOpenCV: cannyImg = cannyThresh(cv2.getTrackbarPos('Canny Thresh', srcWindow),morphImg)
     else: cannyImg = cannyThresh(50, morphImg)
 
-    bitFrame = cv2.resize(morphImg[0:480, 20:620],(160,128))
+    bitFrame = cv2.resize(morphImg[0:prefRes[1], 20:prefRes[0]-20],(160,128))
 
     frame = cv2.putText(frame,"campFrame",(5,50),font,2,(255,255,255),2)
     res = cv2.putText(res,"trackedArea",(5,50),font,2,(255,255,255),2)
     morphImg = cv2.putText(morphImg,"morphed",(5,50),font,2,(255,255,255),2)
     cannyImg = cv2.putText(cannyImg,"cannyThresh",(5,50),font,2,(255,255,255),2)
 
-    stacked = np.hstack((frame, res, morphImg, cannyImg))
+
+    # stacked = np.hstack((frame, res, morphImg, cannyImg))
+    stacked = np.hstack((np.vstack((frame, morphImg)), np.vstack((res, cannyImg))))
 
     if displayToOpenCV:
         cv2.imshow(srcWindow,cv2.resize(stacked,None,fx=0.4,fy=0.4)) #type: ignore

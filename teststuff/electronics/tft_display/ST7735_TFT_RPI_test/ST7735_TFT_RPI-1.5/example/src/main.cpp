@@ -539,7 +539,7 @@ void Test14(void)
 		fread(bmpBuffer, pixelSize, 128 * 128, pFile);
 		fclose(pFile);
 
-		myTFT.TFTdrawBitmap24(0, 0, bmpBuffer, 128, 128); 
+		myTFT.TFTdrawBitmap24(0, 0, bmpBuffer, 128, 128);
 		TFT_MILLISEC_DELAY(TEST_DELAY5);
 	}
 	free(bmpBuffer);  // Free Up Buffer
