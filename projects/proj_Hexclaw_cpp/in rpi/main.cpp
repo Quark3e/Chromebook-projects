@@ -383,7 +383,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 		//delay: 9-13ms
 		if(mode!=3) {
 			cv::cvtColor(imgThreshold,imgThreshold,cv::COLOR_GRAY2BGR);
-			cv::hconcat(imgFlipped,imgThreshold,imgFlipped);
+			cv::hconcat(imgFlipped,imgThreshold,imgFlipped) //merge imgThreshold and imgFlipped horizontally
 		}
 
 		//delay: 0ms
