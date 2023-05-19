@@ -24,7 +24,7 @@
 
 // Section :: Globals 
 ST7735_TFT myTFT;
-bool bTestFPS = true; // Optional ,runs FPS test at end if true.
+bool bTestFPS = false; // Optional ,runs FPS test at end if true.
 bool printText = false;
 
 //  Section ::  Function Headers 
