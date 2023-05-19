@@ -4,13 +4,12 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/adxl345_joan/adxl345_joan.cpp" "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/adxl345_joan/build/CMakeFiles/adxl345_joan.dir/adxl345_joan.cpp.o"
+  "/home/pi/Chromebook-projects/teststuff/electronics/tft_display/ST7735_TFT_RPI_test/ST7735_TFT_RPI-1.5/example/src/main.cpp" "/home/pi/Chromebook-projects/teststuff/electronics/tft_display/ST7735_TFT_RPI_test/ST7735_TFT_RPI-1.5/example/build/CMakeFiles/st7735.dir/src/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
-  "../pigpio"
   )
 
 # Targets to which this target links.

@@ -105,6 +105,18 @@ float mp1(float x) {
     return y;
 }
 
+
+/// @brief Sends rotation commands to servo motors
+/// @param pcaBoard is a PCA9685 class object pointer
+/// @param new_rotation 6 element float() array of new rotations
+/// @param old_rotation 6 element float() array of old/previous/current rotations
+/// @param servoInitialize *true* if it's the first time this function is called; *false* otherwise
+/// @param mode *0*-rotation values sent directly; *1*-sent linearly over *totalTime* duration; *2*-sent according to mp1 over *totalTime* duration
+/// @param totalTime time it takes for mode [1, 2] to finish
+/// @param useDefault *true*-include IK-offsets in angles BEFORE writing to servo motors; *false*-do not include IK-offsets
+/// @param printErrors whether to print any errors
+/// @param printResult whether to print any results/checkpoints/non-essential-info
+/// @return *0* if successful, *-1* otherwise
 int sendToServo(
     PCA9685* pcaBoard,
     float new_rotation[6],
@@ -189,6 +201,19 @@ int sendToServo(
 
 
 // Inverse Kinematics - specific functions:
+/// @brief Calculate Inverse Kinematic angles from given PP and orientation
+/// @param q 6 element float() array linked via pointers to original source
+/// @param PP XYZ 3 element float() array
+/// @param a orient[0]
+/// @param b orient[1]
+/// @param Y orient[2]
+/// @param mode *0*-returns in radians; *1*-returns in degrees
+/// @param posOption "+" positive IK-setup; "-" negative IK_setup
+/// @param length_scalar scaling variable for each robot arm/length
+/// @param coord_scalar scaling variable for each coordinate axis in given PP
+/// @param printText whether to print non-essential-info
+/// @param printErrors whether to print essential-info/error-info
+/// @return returns true if position is reachable with given setups; false otherwise
 bool getAngles(
 	float q[6],
 	float PP[3],

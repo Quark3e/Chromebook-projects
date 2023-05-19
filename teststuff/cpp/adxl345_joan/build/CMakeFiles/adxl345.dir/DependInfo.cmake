@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/adxl345_joan/adxl345_joan.cpp" "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/adxl345_joan/build/CMakeFiles/adxl345.dir/adxl345_joan.cpp.o"
+  "/home/pi/Chromebook-projects/teststuff/cpp/adxl345_joan/adxl345_joan.cpp" "/home/pi/Chromebook-projects/teststuff/cpp/adxl345_joan/build/CMakeFiles/adxl345.dir/adxl345_joan.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

@@ -1,1 +1,0 @@
-/usr/bin/c++ -rdynamic CMakeFiles/adxl345_joan.dir/adxl345_joan.cpp.o -o adxl345_joan 

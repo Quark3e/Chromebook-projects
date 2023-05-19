@@ -10,6 +10,21 @@ find_package(OpenCV REQUIRED)
 # include_directories()
 
 include_directories(${OpenCV_INCLUDE_DIRS})
+
 add_executable(Hexclaw_Main main.cpp)
+
+target_link_libraries(
+    Hexclaw_Main
+    bcm2835
+    rt
+    ST7735_TFT_RPI
+)
+target_compile_options(
+    Hexclaw_Main
+    PUBLIC
+    # -Wall
+    -pthread
+)
+
 target_link_libraries(Hexclaw_Main ${PiPCA9685_LIBRARY})
 target_link_libraries(Hexclaw_Main ${OpenCV_LIBS})

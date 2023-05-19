@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/adxl345_joan/adxl345_joan.cpp
+/home/pi/Chromebook-projects/teststuff/cpp/adxl345_joan/adxl345_joan.cpp
 stdio.h
 -
 stdlib.h

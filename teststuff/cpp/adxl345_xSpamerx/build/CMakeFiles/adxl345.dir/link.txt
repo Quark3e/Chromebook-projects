@@ -1,0 +1,1 @@
+/usr/bin/c++ -rdynamic CMakeFiles/adxl345.dir/main.cpp.o -o adxl345  -lpigpio -lrt 

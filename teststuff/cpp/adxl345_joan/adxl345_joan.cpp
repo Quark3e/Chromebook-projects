@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
     lz = 0;
 
     start = time_time();
-
+    printf("t1\n");
     for (i=0; i<LOOPS; i++) {
         data[0] = DATAX0;
         bytes = readBytes(h, data, 7);
@@ -68,7 +68,6 @@ int main(int argc, char *argv[]) {
             x = (data[2]<<8)|data[1];
             y = (data[4]<<8)|data[3];
             z = (data[6]<<8)|data[5];
-
             if ((abs(x-lx) > 30) || (abs(y-ly) > 30) || (abs(z-lz) > 30)) {
             printf("x=%d y=%d z=%d\n", x, y, z);
 
@@ -76,6 +75,7 @@ int main(int argc, char *argv[]) {
             ly = y;
             lz = z;
             }
+            else printf("x:%d y:%d z:%d\n", x, y, z);
         }
         else printf("spiXfer error (%d)\n", bytes);
     }

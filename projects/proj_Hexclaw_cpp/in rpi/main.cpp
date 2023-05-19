@@ -10,7 +10,7 @@
  * URL: 
  */
 
-//nodemcu/esp8266 module udp communication
+// nodemcu/esp8266 module udp communication
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -26,7 +26,7 @@
 
 #define MAXLINE 2048
 
-//default headers/includes
+// default/basic headers/includes
 #include <iostream>
 #include <math.h>
 #include <stdio.h>
@@ -35,21 +35,27 @@
 #include <fstream> //read and write to file (hsv_settings.dat)
 #include <algorithm> //ex. find() and erase()
 #include <unistd.h>
+#include <time.h>
 
-//opencv/image tracking
+// opencv/image tracking
 #include <opencv4/opencv2/opencv.hpp>
 #include <opencv4/opencv2/highgui/highgui.hpp>
 #include <opencv4/opencv2/imgproc/imgproc.hpp>
 
-//pca9685 communication
+// PCA9685 communication
 #include <PiPCA9685/PCA9685.h>
+
+// TFT display libraries
+#include <bcm2835.h>
+#include "ST7735_TFT.h"
+#include "/home/pi/Chromebook-projects/teststuff/electronics/tft_display/ST7735_TFT_RPI_test/ST7735_TFT_RPI-1.5/example/include/Bi_Color_Bitmap.h" // Data for test 11 and 12.
 
 #include "IK_header.h"
 
-using namespace std;
-// using namespace cv;
 
-//udp com related: udp communication variable declarations
+using namespace std;
+
+// udp com related: udp communication variable declarations
 int bind_result;
 int sock;
 char buffer[MAXLINE];
@@ -59,7 +65,49 @@ sockaddr_in addrListen;
 sockaddr_storage addrDest;
 const char* toESP_msg;
 
-//IK related: ik calc variable declaration
+// tft display setup
+ST7735_TFT myTFT;
+
+
+int8_t Setup(void) {
+
+	cout << "TFT Start!" << endl;
+	if(!bcm2835_init())
+	{
+		cout << "Error : Problem with init bcm2835 library" << endl;
+		return -1;
+	}
+	
+// ** USER OPTION 1 GPIO/SPI TYPE HW OR SW **
+	int8_t RST_TFT = 24;
+	int8_t DC_TFT = 25;
+	int8_t SCLK_TFT = -1; // 5, change to GPIO no for sw spi, -1 hw spi
+	int8_t SDIN_TFT = -1; // 6, change to GPIO no for sw spi, -1 hw spi
+	int8_t CS_TFT = -1 ;  // 8, change to GPIO no for sw spi, -1 hw spi
+	myTFT.TFTSetupGPIO(RST_TFT, DC_TFT, CS_TFT, SCLK_TFT, SDIN_TFT);
+//*********************************************
+
+// ** USER OPTION 2 Screen Setup **
+	uint8_t OFFSET_COL = 0;  // 2, These offsets can be adjusted for any issues->
+	uint8_t OFFSET_ROW = 0; // 3, with manufacture tolerance/defects
+	uint16_t TFT_WIDTH = 128;// Screen width in pixels
+	uint16_t TFT_HEIGHT = 160; // Screen height in pixels
+	myTFT.TFTInitScreenSize(OFFSET_COL, OFFSET_ROW , TFT_WIDTH , TFT_HEIGHT);
+// ***********************************
+
+//
+// ** USER OPTION 3 PCB_TYPE + SPI baud rate + SPI_CE_PIN**
+	uint32_t SCLK_FREQ =  8000000 ; // HW Spi freq in Hertz , MAX 125 Mhz MIN 30Khz
+	uint8_t SPI_CE_PIN = 0; // which HW SPI chip enable pin to use,  0 or 1
+	// pass enum to param1 ,4 choices,see README
+	if(!myTFT.TFTInitPCBType(TFT_ST7735R_Red, SCLK_FREQ, SPI_CE_PIN))return -1;
+	// Note : if using SW SPI you do not have to pass anything for param 2&3, it will do nothing. 
+//*****************************
+	return 0;
+}
+
+
+// IK related: ik calc variable declaration
 float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
 float orient[3] = {0,0,0}; //degrees
@@ -70,11 +118,13 @@ float cam_PP_offset[3] = {0,0,0};
 
 int webcamIndex = 0;
 
+
 bool displayImg = true;
 bool calibrateHSV = false;
 
 bool mode_orients = false;
 bool mode_intro = false;
+
 
 int l_HSV[3] = {0, 0, 255};
 int u_HSV[3] = {179, 9, 255};
@@ -383,9 +433,9 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 		//delay: 9-13ms
 		if(mode!=3) {
 			cv::cvtColor(imgThreshold,imgThreshold,cv::COLOR_GRAY2BGR);
-			cv::hconcat(imgFlipped,imgThreshold,imgFlipped) //merge imgThreshold and imgFlipped horizontally
+			cv::hconcat(imgFlipped,imgThreshold,imgFlipped); //merge imgThreshold and imgFlipped horizontally
 		}
-
+		
 		//delay: 0ms
 		// float temp = 1000*(clock()-t1)/CLOCKS_PER_SEC;
 		// if(temp>=1000) {
