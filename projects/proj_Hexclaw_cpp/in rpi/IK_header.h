@@ -105,6 +105,18 @@ float mp1(float x) {
     return y;
 }
 
+
+/// @brief Sends rotation commands to servo motors
+/// @param pcaBoard is a PCA9685 class object pointer
+/// @param new_rotation 6 element float() array of new rotations
+/// @param old_rotation 6 element float() array of old/previous/current rotations
+/// @param servoInitialize *true* if it's the first time this function is called; *false* otherwise
+/// @param mode *0*-rotation values sent directly; *1*-sent linearly over *totalTime* duration; *2*-sent according to mp1 over *totalTime* duration
+/// @param totalTime time it takes for mode [1, 2] to finish
+/// @param useDefault *true*-include IK-offsets in angles BEFORE writing to servo motors; *false*-do not include IK-offsets
+/// @param printErrors whether to print any errors
+/// @param printResult whether to print any results/checkpoints/non-essential-info
+/// @return *0* if successful, *-1* otherwise
 int sendToServo(
     PCA9685* pcaBoard,
     float new_rotation[6],

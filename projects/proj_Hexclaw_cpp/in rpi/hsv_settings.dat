@@ -5,4 +5,4 @@ values:HSV
 2;[52,48,0:91,243,255]      //nighttime green
 3;[59,73,189:101,184,246]   //daytime green with map accounted for
 4;[56,54,23:95,199,255]
-5;[0,0,255:0,0,255]         //IR tracking HSV
+5;[0,0,255:179,9,255]         //IR tracking HSV
