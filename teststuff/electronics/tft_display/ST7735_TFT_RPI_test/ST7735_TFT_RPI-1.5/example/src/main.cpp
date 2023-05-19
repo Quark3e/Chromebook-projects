@@ -17,15 +17,15 @@
 
 // Section :: Defines   
 //  Test timing related defines 
-#define TEST_DELAY1 1000
-#define TEST_DELAY2 2000
-#define TEST_DELAY5 5000
+#define TEST_DELAY1 100
+#define TEST_DELAY2 500
+#define TEST_DELAY5 500
 #define CLOCK_DISPLAY_TIME 100
 
 // Section :: Globals 
 ST7735_TFT myTFT;
-bool bTestFPS = false; // Optional ,runs FPS test at end if true.
-bool printText = true;
+bool bTestFPS = true; // Optional ,runs FPS test at end if true.
+bool printText = false;
 
 //  Section ::  Function Headers 
 
