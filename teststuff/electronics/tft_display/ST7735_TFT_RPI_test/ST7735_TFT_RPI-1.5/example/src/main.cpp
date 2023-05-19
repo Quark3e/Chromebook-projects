@@ -13,7 +13,7 @@
 #include <bcm2835.h> // for SPI GPIO and delays.
 #include <time.h> // for test 11 & FPS
 #include "ST7735_TFT.h"
-#include "Bi_Color_Bitmap.h" // Data for test 11 and 12.
+#include "/home/pi/Chromebook-projects/teststuff/electronics/tft_display/ST7735_TFT_RPI_test/ST7735_TFT_RPI-1.5/example/include/Bi_Color_Bitmap.h" // Data for test 11 and 12.
 
 // Section :: Defines   
 //  Test timing related defines 
