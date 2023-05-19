@@ -107,19 +107,21 @@ int8_t Setup(void) {
 }
 
 
-Bitmap^ OpenCvWrapper::ConvertMatToBitmap(cv::Mat matToConvert) {
-    imshow("Window", matToConvert);
-    Bitmap^ test = gcnew Bitmap(matToConvert.rows, matToConvert.cols, matToConvert.step1(), System::Drawing::Imaging::PixelFormat::Format4bppIndexed, IntPtr(matToConvert.data));
-
-    return test;
-}
-
-
 void matToTFT(cv::Mat threshImg) {
 	cv::Size imgSize = threshImg.size();
 	cv::resize(threshImg, threshImg, cv::Size(), 128*(imgSize.width/imgSize.height), 128);
 	cv::Mat cropImg = threshImg(cv::Rect(160, 128, 128*(imgSize.width/imgSize.height), 128));
+	
+	size_t pixelSize = 3;
+	uint8_t* bmpBuffer = NULL;
+	bmpBuffer = (uint8_t*)malloc((160 * 128) * pixelSize);
+	if (bmpBuffer == NULL) {
+		std::cout << "Error Test14 : MALLOC could not assign memory " << std::endl;
+		return;
+	}
 
+	cv::cvtColor(cropImg, bmpBuffer, cv::COLOR_BGR5652RGB);
+	myTFT.TFTdrawBitmap24(0, 0, bmpBuffer, 160, 128);
 }
 
 

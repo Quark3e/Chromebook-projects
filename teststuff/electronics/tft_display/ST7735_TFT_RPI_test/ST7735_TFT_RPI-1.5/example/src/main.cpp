@@ -557,7 +557,6 @@ void Test14(void)
 		fseek(pFile, 54, 0); // Put file in Buffer
 		fread(bmpBuffer, pixelSize, 128 * 128, pFile);
 		fclose(pFile);
-
 		myTFT.TFTdrawBitmap24(0, 0, bmpBuffer, 128, 128);
 		TFT_MILLISEC_DELAY(TEST_DELAY5);
 	}
@@ -631,7 +630,7 @@ void Test16(void)
 	TFT_MILLISEC_DELAY(TEST_DELAY1);
 	
 	FILE *pFile ;
-	size_t pixelSize = 3;
+	size_t pixelSize = 1;
 	uint8_t* bmpBuffer = NULL;
 	bmpBuffer = (uint8_t*)malloc((160 * 128) * pixelSize);
 	if (bmpBuffer == NULL)
@@ -645,11 +644,11 @@ void Test16(void)
 		std::cout << "Error Test14: File does not exist" << std::endl;
 		return;
 	}
-	fseek(pFile, 132, 0); // Put file in Buffer
+	fseek(pFile, 72, 0); // Put file in Buffer
 	fread(bmpBuffer, pixelSize, 160 * 128, pFile);
 	fclose(pFile);
 
-	myTFT.TFTdrawBitmap(0, 0, 160, 128, ST7735_BLACK, ST7735_WHITE, bmpBuffer);
+	myTFT.TFTdrawBitmap16(0, 0, bmpBuffer, 160, 128);
 	TFT_MILLISEC_DELAY(TEST_DELAY5);
 	free(bmpBuffer);  // Free Up Buffer
 }

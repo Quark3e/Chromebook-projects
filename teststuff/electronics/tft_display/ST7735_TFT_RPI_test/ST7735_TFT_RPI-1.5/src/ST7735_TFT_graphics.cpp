@@ -699,7 +699,8 @@ void ST7735_TFT_graphics ::TFTdrawBitmap24(uint8_t x, uint8_t y, uint8_t *pBmp, 
 // Param 3 A pointer to the databuffer containing Bitmap data
 // Param 4,5: width and height 0-127 possible values width and height of bitmap in pixels
 // Note as of version 1.4 uses spiWriteBuffer method
-void ST7735_TFT_graphics ::TFTdrawBitmap16(uint8_t x, uint8_t y, uint8_t *pBmp, char w, char h) {
+void ST7735_TFT_graphics ::TFTdrawBitmap16(uint8_t x, uint8_t y, uint8_t *pBmp, char w, char h)
+{
 	uint8_t i, j;
 	uint16_t color;
 	uint32_t ptr;
