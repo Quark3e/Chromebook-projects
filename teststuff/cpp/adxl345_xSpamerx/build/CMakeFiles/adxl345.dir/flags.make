@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/adxl345_joan/pigpio
+CXX_INCLUDES = 
 
-CXX_FLAGS = -std=gnu++14
+CXX_FLAGS = -O3 -DNDEBUG -Wall -pthread -std=gnu++14
 

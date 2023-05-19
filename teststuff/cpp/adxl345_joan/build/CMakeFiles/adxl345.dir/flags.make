@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = 
 
-CXX_FLAGS =  -Wall -std=c++14 -O3 -DNDEBUG
+CXX_FLAGS = -O3 -DNDEBUG -Wall -pthread -std=gnu++14
 

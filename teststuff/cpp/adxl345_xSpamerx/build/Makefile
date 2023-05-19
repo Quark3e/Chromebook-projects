@@ -67,10 +67,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/pi/Chromebook-projects/teststuff/cpp/adxl345_joan
+CMAKE_SOURCE_DIR = /home/pi/Chromebook-projects/teststuff/cpp/adxl345_xSpamerx
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/pi/Chromebook-projects/teststuff/cpp/adxl345_joan/build
+CMAKE_BINARY_DIR = /home/pi/Chromebook-projects/teststuff/cpp/adxl345_xSpamerx/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -99,9 +99,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/pi/Chromebook-projects/teststuff/cpp/adxl345_joan/build/CMakeFiles /home/pi/Chromebook-projects/teststuff/cpp/adxl345_joan/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/pi/Chromebook-projects/teststuff/cpp/adxl345_xSpamerx/build/CMakeFiles /home/pi/Chromebook-projects/teststuff/cpp/adxl345_xSpamerx/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/pi/Chromebook-projects/teststuff/cpp/adxl345_joan/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/pi/Chromebook-projects/teststuff/cpp/adxl345_xSpamerx/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -142,32 +142,32 @@ adxl345/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345.dir/build.make CMakeFiles/adxl345.dir/build
 .PHONY : adxl345/fast
 
-adxl345_joan.o: adxl345_joan.cpp.o
+main.o: main.cpp.o
 
-.PHONY : adxl345_joan.o
+.PHONY : main.o
 
 # target to build an object file
-adxl345_joan.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345.dir/build.make CMakeFiles/adxl345.dir/adxl345_joan.cpp.o
-.PHONY : adxl345_joan.cpp.o
+main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345.dir/build.make CMakeFiles/adxl345.dir/main.cpp.o
+.PHONY : main.cpp.o
 
-adxl345_joan.i: adxl345_joan.cpp.i
+main.i: main.cpp.i
 
-.PHONY : adxl345_joan.i
+.PHONY : main.i
 
 # target to preprocess a source file
-adxl345_joan.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345.dir/build.make CMakeFiles/adxl345.dir/adxl345_joan.cpp.i
-.PHONY : adxl345_joan.cpp.i
+main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345.dir/build.make CMakeFiles/adxl345.dir/main.cpp.i
+.PHONY : main.cpp.i
 
-adxl345_joan.s: adxl345_joan.cpp.s
+main.s: main.cpp.s
 
-.PHONY : adxl345_joan.s
+.PHONY : main.s
 
 # target to generate assembly for a file
-adxl345_joan.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345.dir/build.make CMakeFiles/adxl345.dir/adxl345_joan.cpp.s
-.PHONY : adxl345_joan.cpp.s
+main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adxl345.dir/build.make CMakeFiles/adxl345.dir/main.cpp.s
+.PHONY : main.cpp.s
 
 # Help Target
 help:
@@ -178,9 +178,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... adxl345"
-	@echo "... adxl345_joan.o"
-	@echo "... adxl345_joan.i"
-	@echo "... adxl345_joan.s"
+	@echo "... main.o"
+	@echo "... main.i"
+	@echo "... main.s"
 .PHONY : help
 
 

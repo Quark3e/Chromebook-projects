@@ -24,7 +24,8 @@
 
 // Section :: Globals 
 ST7735_TFT myTFT;
-bool bTestFPS = true; // Optional ,runs FPS test at end if true.
+bool bTestFPS = false; // Optional ,runs FPS test at end if true.
+bool printText = false;
 
 //  Section ::  Function Headers 
 
@@ -128,7 +129,7 @@ int8_t Setup(void)
 }
 
 void Test0(void) {
-
+	if(printText) printf("test0\n");
 	char teststr1[] = "Default 1";
 	char teststr2[] = "THICK 2";
 	char teststr3[] = "Seven 3";
@@ -156,6 +157,7 @@ void Test0(void) {
 }
 
 void Test1A(void) {
+	if(printText) printf("test1A\n");
 	char teststr1[] = "WHITE";
 	char teststr2[] = "BLUE";
 	char teststr3[] = "RED";
@@ -183,6 +185,7 @@ void Test1A(void) {
 }
 
 void Test1B(void) {
+	if(printText) printf("test1B\n");
 	uint8_t row = 5;
 	uint8_t col = 5;
 	for (char i = 0; i < 126; i++) {
@@ -215,6 +218,7 @@ void Test1B(void) {
 
 void Test1C(void)
 {
+	if(printText) printf("test1C\n");
 	int myInt=931;
 	char myStr[5];
 	myTFT.TFTFontNum(TFTFont_Seven_Seg);
@@ -233,6 +237,7 @@ void Test1C(void)
 
 
 void Test1D(void){
+	if(printText) printf("test1D\n");
 
 	myTFT.setTextSize(1);  // Test a string with print 
 	myTFT.TFTsetCursor(10,10);
@@ -285,6 +290,7 @@ void Test1D(void){
 
 void Test1E(void)
 {
+	if(printText) printf("test1E\n");
 	// Note fonts 7 and 8 are numbers only + : 
 	char teststr1[] = "12:81";
 	char teststr2[] = "72:83";
@@ -302,6 +308,7 @@ void Test1E(void)
 }
 
 void Test2(void) {
+	if(printText) printf("test2\n");
 	myTFT.TFTFontNum(TFTFont_Default);
 	char teststr1[] = "TEST";
 	myTFT.TFTdrawText(0, 5, teststr1, ST7735_WHITE, ST7735_BLACK, 2);
@@ -316,6 +323,7 @@ void Test2(void) {
 
 void Test3(void)  
 {
+	if(printText) printf("test3\n");
 	myTFT.TFTdrawPixel(85, 5, ST7735_WHITE);
 	myTFT.TFTdrawPixel(87, 7, ST7735_WHITE);
 	myTFT.TFTdrawPixel(89, 9, ST7735_WHITE);
@@ -328,6 +336,7 @@ void Test3(void)
 }
 
 void Test4(void) {
+	if(printText) printf("test4\n");
 	myTFT.TFTdrawRectWH(5, 5, 20, 20, ST7735_RED);
 	myTFT.TFTfillRectangle(45, 5, 20, 20, ST7735_YELLOW);
 	myTFT.TFTfillRect(85, 5, 20, 20, ST7735_GREEN);
@@ -339,11 +348,13 @@ void Test4(void) {
 }
 
 void Test5(void) {
+	if(printText) printf("test5\n");
 	myTFT.TFTdrawCircle(40, 20, 15, ST7735_GREEN);
 	myTFT.TFTfillCircle(80, 20, 15, ST7735_YELLOW);
 }
 
 void Test6(void) {
+	if(printText) printf("test6\n");
 	myTFT.TFTdrawTriangle(5, 80, 50, 40, 95, 80, ST7735_CYAN);
 	myTFT.TFTfillTriangle(55, 120, 100, 90, 127, 120, ST7735_RED);
 
@@ -354,6 +365,7 @@ void Test6(void) {
 
 void Test7(void) 
 {
+	if(printText) printf("test7\n");
 	const uint8_t LINES = 10, LINE_SIZE = 10, LINE_OFFSET = 3, TOP_FIXED = 0, BOTTOM_FIXED = 0;
 	char teststr1[] = "Scroll test";
 	
@@ -379,6 +391,7 @@ void Test7(void)
 
 void Test8() 
 {
+	if(printText) printf("test8\n");
 	char teststr1[] = "Press Play";
 	//Draw play button 
 	myTFT.TFTfillRoundRect(25, 10, 78, 60, 8, ST7735_WHITE);
@@ -396,6 +409,7 @@ void Test8()
 
 void Test9()
 {
+	if(printText) printf("test9\n");
 	char teststr0[] = "Rotate 0"; //normal
 	char teststr1[] = "Rotate 90"; // 90
 	char teststr2[] = "Rotate 180"; // 180
@@ -428,6 +442,7 @@ void Test9()
 
 void Test10()
 {
+	if(printText) printf("test10\n");
 	char teststr1[] = "Mode test";
 	myTFT.TFTfillRoundRect(25, 10, 78, 60, 8, ST7735_YELLOW);
 	myTFT.TFTdrawText(30, 80, teststr1, ST7735_WHITE, ST7735_RED, 1);
@@ -449,6 +464,7 @@ void Test10()
 
 void Test11(void)
 {
+	if(printText) printf("test11\n");
 	time_t now;
 	struct tm *timenow;
 	char value[10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
@@ -495,6 +511,7 @@ void Test11(void)
 
 void Test12(void)
 {
+	if(printText) printf("test12\n");
 	myTFT.TFTfillScreen(ST7735_BLACK);
 	char teststr1[] = "Bitmap 2 ";
 	myTFT.TFTdrawText(5, 5, teststr1, ST7735_WHITE, ST7735_BLACK, 2);
@@ -506,6 +523,7 @@ void Test12(void)
 // bitmap 24 colour , All files format = Windows BITMAPINFOHEADER offset 54
 void Test14(void)
 {
+	if(printText) printf("test14\n");
 	myTFT.TFTfillScreen(ST7735_BLACK);
 	char teststr1[] = "Bitmap 24";
 	myTFT.TFTdrawText(5, 5, teststr1, ST7735_WHITE, ST7735_BLACK, 2);
@@ -555,6 +573,7 @@ void Test14(void)
 
 void Test15(void)
 {
+	if(printText) printf("test15\n");
 	myTFT.TFTfillScreen(ST7735_BLACK);
 	char teststr1[] = "Bitmap 16";
 	myTFT.TFTdrawText(5, 5, teststr1, ST7735_WHITE, ST7735_BLACK, 2);
@@ -602,6 +621,7 @@ void Test15(void)
 } // end of test 15
 
 void TestFPS(void) {
+	if(printText) printf("testFPS\n");
 	// Clear The Screen
 	myTFT.TFTfillRectangle(0, 0, 160, 80, ST7735_BLACK);
 
@@ -649,6 +669,7 @@ void TestFPS(void) {
 
 void EndTests(void)
 {
+	printf("EndTests\n");
 	char teststr1[] = "Tests over";
 	myTFT.TFTfillScreen(ST7735_BLACK);
 	myTFT.TFTdrawText(5, 50, teststr1, ST7735_GREEN, ST7735_BLACK, 2);
