@@ -68,7 +68,6 @@ const char* toESP_msg;
 // tft display setup
 ST7735_TFT myTFT;
 
-
 int8_t Setup(void) {
 
 	cout << "TFT Start!" << endl;
@@ -103,7 +102,24 @@ int8_t Setup(void) {
 	if(!myTFT.TFTInitPCBType(TFT_ST7735R_Red, SCLK_FREQ, SPI_CE_PIN))return -1;
 	// Note : if using SW SPI you do not have to pass anything for param 2&3, it will do nothing. 
 //*****************************
+	myTFT.TFTsetRotation(TFT_Degress_90);
 	return 0;
+}
+
+
+Bitmap^ OpenCvWrapper::ConvertMatToBitmap(cv::Mat matToConvert) {
+    imshow("Window", matToConvert);
+    Bitmap^ test = gcnew Bitmap(matToConvert.rows, matToConvert.cols, matToConvert.step1(), System::Drawing::Imaging::PixelFormat::Format4bppIndexed, IntPtr(matToConvert.data));
+
+    return test;
+}
+
+
+void matToTFT(cv::Mat threshImg) {
+	cv::Size imgSize = threshImg.size();
+	cv::resize(threshImg, threshImg, cv::Size(), 128*(imgSize.width/imgSize.height), 128);
+	cv::Mat cropImg = threshImg(cv::Rect(160, 128, 128*(imgSize.width/imgSize.height), 128));
+
 }
 
 
@@ -121,6 +137,7 @@ int webcamIndex = 0;
 
 bool displayImg = true;
 bool calibrateHSV = false;
+bool displayTFT = true;
 
 bool mode_orients = false;
 bool mode_intro = false;
@@ -375,7 +392,6 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 		createTrackbars(win_name);
 	}
 	cv::Mat imgOriginal, imgFlipped, imgHSV, imgThreshold;
-	
 	// int fps=0, frames=0, totalDelay=0;
 	// clock_t t1 = clock();
 
@@ -435,6 +451,10 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 			cv::cvtColor(imgThreshold,imgThreshold,cv::COLOR_GRAY2BGR);
 			cv::hconcat(imgFlipped,imgThreshold,imgFlipped); //merge imgThreshold and imgFlipped horizontally
 		}
+		if(displayTFT) {
+			matToTFT(imgThreshold);
+		
+		}
 		
 		//delay: 0ms
 		// float temp = 1000*(clock()-t1)/CLOCKS_PER_SEC;
@@ -479,7 +499,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 			}
 			else if(keyInp==116 && mode==0) { //'t'
 				hsv_settingsRead(win_name, 0);
-			} 
+			}
 		}
 		printf("\n");
 	}

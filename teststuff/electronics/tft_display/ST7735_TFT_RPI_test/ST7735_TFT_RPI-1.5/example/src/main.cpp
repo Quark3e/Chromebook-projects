@@ -19,13 +19,13 @@
 //  Test timing related defines 
 #define TEST_DELAY1 100
 #define TEST_DELAY2 1000
-#define TEST_DELAY5 1000
+#define TEST_DELAY5 5000
 #define CLOCK_DISPLAY_TIME 100
 
 // Section :: Globals 
 ST7735_TFT myTFT;
 bool bTestFPS = false; // Optional ,runs FPS test at end if true.
-bool printText = false;
+bool printText = true;
 
 //  Section ::  Function Headers 
 
@@ -48,7 +48,8 @@ void Test10(void); // change modes test -> Invert, display on/off and Sleep.
 void Test11(void); // "clock demo" icons, small bi-color bitmaps, font 7-8
 void Test12(void); // 2 color bitmap
 void Test14(void); // 24 color bitmap
-void Test15(void); // 16 color bitmap 
+void Test15(void); // 16 color bitmap
+void Test16(void); //custom function for 160x128
 void TestFPS(void); // Frames per second 24 color bitmap test, optional(bTestFPS)
 void EndTests(void);
 
@@ -61,25 +62,26 @@ int main(void)
 {
 
 	if(!Setup())return -1;
-	Test0();
-	Test1A();
-	Test1B();
-	Test1C();
-	Test1D();
-	Test1E();
-	Test2();
-	Test3();
-	Test4();
-	Test5();
-	Test6();
-	Test7();
-	Test8();
-	Test9();
-	Test10();
-	Test11();
-	Test12();
-	Test14();
-	Test15();
+	// Test0();
+	// Test1A();
+	// Test1B();
+	// Test1C();
+	// Test1D();
+	// Test1E();
+	// Test2();
+	// Test3();
+	// Test4();
+	// Test5();
+	// Test6();
+	// Test7();
+	// Test8();
+	// Test9();
+	// Test10();
+	// Test11();
+	// Test12();
+	// Test14();
+	// Test15();
+	Test16();
 	if (bTestFPS == true) TestFPS();
 	EndTests();
 	return 0;
@@ -552,7 +554,6 @@ void Test14(void)
 			std::cout << "Error Test14: File does not exist" << std::endl;
 			return;
 		}
-		
 		fseek(pFile, 54, 0); // Put file in Buffer
 		fread(bmpBuffer, pixelSize, 128 * 128, pFile);
 		fclose(pFile);
@@ -619,6 +620,39 @@ void Test15(void)
 	free(bmpBuffer1); // Free Up Buffer
 	myTFT.TFTfillScreen(ST7735_BLACK);
 } // end of test 15
+
+
+void Test16(void)
+{
+	if(printText) printf("test16\n");
+	myTFT.TFTfillScreen(ST7735_BLACK);
+	char teststr1[] = "Bitmap 24";
+	myTFT.TFTdrawText(5, 5, teststr1, ST7735_WHITE, ST7735_BLACK, 2);
+	TFT_MILLISEC_DELAY(TEST_DELAY1);
+	
+	FILE *pFile ;
+	size_t pixelSize = 3;
+	uint8_t* bmpBuffer = NULL;
+	bmpBuffer = (uint8_t*)malloc((160 * 128) * pixelSize);
+	if (bmpBuffer == NULL)
+	{
+		std::cout << "Error Test14 : MALLOC could not assign memory " << std::endl;
+		return;
+	}
+	pFile = fopen("bitmap/color-bars.bmp", "r");
+	if (pFile == NULL)  // Check file exists
+	{
+		std::cout << "Error Test14: File does not exist" << std::endl;
+		return;
+	}
+	fseek(pFile, 132, 0); // Put file in Buffer
+	fread(bmpBuffer, pixelSize, 160 * 128, pFile);
+	fclose(pFile);
+
+	myTFT.TFTdrawBitmap(0, 0, 160, 128, ST7735_BLACK, ST7735_WHITE, bmpBuffer);
+	TFT_MILLISEC_DELAY(TEST_DELAY5);
+	free(bmpBuffer);  // Free Up Buffer
+}
 
 void TestFPS(void) {
 	if(printText) printf("testFPS\n");
