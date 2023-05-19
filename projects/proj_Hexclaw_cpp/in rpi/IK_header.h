@@ -201,6 +201,19 @@ int sendToServo(
 
 
 // Inverse Kinematics - specific functions:
+/// @brief Calculate Inverse Kinematic angles from given PP and orientation
+/// @param q 6 element float() array linked via pointers to original source
+/// @param PP XYZ 3 element float() array
+/// @param a orient[0]
+/// @param b orient[1]
+/// @param Y orient[2]
+/// @param mode *0*-returns in radians; *1*-returns in degrees
+/// @param posOption "+" positive IK-setup; "-" negative IK_setup
+/// @param length_scalar scaling variable for each robot arm/length
+/// @param coord_scalar scaling variable for each coordinate axis in given PP
+/// @param printText whether to print non-essential-info
+/// @param printErrors whether to print essential-info/error-info
+/// @return returns true if position is reachable with given setups; false otherwise
 bool getAngles(
 	float q[6],
 	float PP[3],
