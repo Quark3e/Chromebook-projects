@@ -1,1 +1,1 @@
-/usr/bin/c++ -O3 -DNDEBUG -rdynamic CMakeFiles/adxl345.dir/main.cpp.o -o adxl345  -lpigpio -lrt 
+/usr/bin/c++ -rdynamic CMakeFiles/adxl345.dir/main.cpp.o -o adxl345  -lpigpio -lrt 
