@@ -130,7 +130,9 @@ float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
 float orient[3] = {0,0,0}; //degrees
 float PP[3] = {0,150,150};
-float axisScal[3] = {0.7, 0.7, 1};
+float axisScal[3] = {0.7, 0.7, 1.1};
+float axisOffset[3] = {0, 0, -50};
+float axisFilter[3] = {0.5, 0.1, 1};
 
 float cam_PP_offset[3] = {0,0,0};
 
@@ -438,9 +440,11 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 				}
 				if(mode!=2) {
 					cv::Size camSize = imgFlipped.size();
-					PP[0] = int(ceil(float(posX - camSize.width/2)*axisScal[0]));
-					PP[1] = int(ceil(float(camSize.height - posY)*axisScal[1]));
-					printf(" x:%d y:%d ",int(PP[0]),int(PP[1]));
+					PP[0] = axisFilter[0] * float(ceil(float(posX - camSize.width/2)*axisScal[0]) + axisOffset[0]) + (1-axisFilter[0])*PP[0];
+					PP[1] = axisFilter[1] * float(ceil(float(camSize.height - posY)*axisScal[1]) + axisOffset[1]) + (1-axisFilter[1])*PP[1];
+					PP[2] = axisFilter[2] * float(axisScal[2]*(0.07*(5000-sqrt(dArea))) + axisOffset[2])/(cos(toRadians(orient[0]))*cos(toRadians(orient[1]))) + (1-axisFilter[2])*PP[2];
+
+					printf(" x:%d y:%d z:%d",int(PP[0]),int(PP[1]), int(PP[2]));
 					updateOrients(true);
 					if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
 						sendToServo(pcaSrc,new_q,current_q,false);
