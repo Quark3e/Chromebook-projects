@@ -120,8 +120,8 @@ void matToTFT(cv::Mat threshImg) {
 		return;
 	}
 
-	cv::cvtColor(cropImg, bmpBuffer, cv::COLOR_BGR5652RGB);
-	myTFT.TFTdrawBitmap24(0, 0, bmpBuffer, 160, 128);
+	//cv::cvtColor(cropImg, bmpBuffer, cv::COLOR_BGR5652RGB);
+	//myTFT.TFTdrawBitmap24(0, 0, bmpBuffer, 160, 128);
 }
 
 
@@ -139,7 +139,7 @@ int webcamIndex = 0;
 
 bool displayImg = true;
 bool calibrateHSV = false;
-bool displayTFT = true;
+bool displayTFT = false;
 
 bool mode_orients = false;
 bool mode_intro = false;
