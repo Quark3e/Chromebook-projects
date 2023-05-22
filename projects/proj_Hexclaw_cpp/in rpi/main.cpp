@@ -84,7 +84,7 @@ int8_t Setup(void) {
 	int8_t SDIN_TFT = -1; // 6, change to GPIO no for sw spi, -1 hw spi
 	int8_t CS_TFT = -1 ;  // 8, change to GPIO no for sw spi, -1 hw spi
 	myTFT.TFTSetupGPIO(RST_TFT, DC_TFT, CS_TFT, SCLK_TFT, SDIN_TFT);
-//*********************************************
+
 
 // ** USER OPTION 2 Screen Setup **
 	uint8_t OFFSET_COL = 0;  // 2, These offsets can be adjusted for any issues->
@@ -92,16 +92,15 @@ int8_t Setup(void) {
 	uint16_t TFT_WIDTH = 128;// Screen width in pixels
 	uint16_t TFT_HEIGHT = 160; // Screen height in pixels
 	myTFT.TFTInitScreenSize(OFFSET_COL, OFFSET_ROW , TFT_WIDTH , TFT_HEIGHT);
-// ***********************************
 
-//
+
 // ** USER OPTION 3 PCB_TYPE + SPI baud rate + SPI_CE_PIN**
 	uint32_t SCLK_FREQ =  8000000 ; // HW Spi freq in Hertz , MAX 125 Mhz MIN 30Khz
 	uint8_t SPI_CE_PIN = 0; // which HW SPI chip enable pin to use,  0 or 1
 	// pass enum to param1 ,4 choices,see README
 	if(!myTFT.TFTInitPCBType(TFT_ST7735R_Red, SCLK_FREQ, SPI_CE_PIN))return -1;
 	// Note : if using SW SPI you do not have to pass anything for param 2&3, it will do nothing. 
-//*****************************
+
 	myTFT.TFTsetRotation(TFT_Degress_90);
 	return 0;
 }
@@ -130,9 +129,9 @@ float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
 float orient[3] = {0,0,0}; //degrees
 float PP[3] = {0,150,150};
-float axisScal[3] = {0.7, 0.7, 1.1};
-float axisOffset[3] = {0, 0, -50};
-float axisFilter[3] = {0.5, 0.1, 1};
+float axisScal[3] = {0.5, 0.5, 1.5};
+float axisOffset[3] = {0, 0, -250};
+float axisFilter[3] = {0.1, 0.1, 1};
 
 float cam_PP_offset[3] = {0,0,0};
 
