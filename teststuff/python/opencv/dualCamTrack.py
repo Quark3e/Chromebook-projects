@@ -30,6 +30,8 @@ prefRes = (640, 480)
 
 l_pos = [0, 0, 255]
 u_pos = [179, 9, 255]
+
+
 kernel = np.ones((5, 5), np.uint8)
 font = cv2.FONT_HERSHEY_SIMPLEX
 
@@ -43,7 +45,7 @@ def processFrame(img, flag):
     frame = cv2.resize(img, prefRes)
     frame = cv2.flip(frame, 1)
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    
+
 
 while True:
     ret[0], imgTemp[0] = cam0.read()
