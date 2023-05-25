@@ -36,7 +36,7 @@ if displayToTFT:
     draw = ImageDraw.Draw(image)
 
 
-displayToOpenCV = False
+displayToOpenCV = True
 
 # mediaDir = "/home/pi/Chromebook-projects/teststuff/test_media"
 mediaDir = ""
@@ -250,7 +250,7 @@ while True:
 
 capOut.release()
 
-convert_avi_to_mp4(outFileName, outFileName)
+# convert_avi_to_mp4(outFileName, outFileName)
 
 if displayToOpenCV:
     cap.release()
