@@ -7,6 +7,7 @@ from time import sleep
 import openCV_addon as ad
 import math
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
 def nothing(x):
     pass
@@ -73,29 +74,48 @@ def processFrame(img, flag, winName):
 
     contours, hierarchy = cv2.findContours(morphImg, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
+def initialize():
+    
 
-while True:
+fig, ax = plt.subplots()
+xData, yData = [], []
+ln, = plt.plot([], [], 'ro')
+
+def plt_init():
+    ax.set_xlim(0, 5000)
+    ax.set_ylim(0, 500)
+    return ln,
+
+def plt_update():
+    global imgTemp, ret, contours, cntArea, cntPos, cntMoments, values, xData, yData
     ret[0], imgTemp[0] = cam0.read()
     ret[1], imgTemp[1] = cam1.read()
     if ret[0]==False or ret[1]==False:
         print("could not capture from cam. returned:", ret)
-        break
-    processFrame(imgTemp[0], 0, cam0)
-    processFrame(imgTemp[1], 1, cam1)
+    else:    
+        processFrame(imgTemp[0], 0, cam0)
+        processFrame(imgTemp[1], 1, cam1)
 
-    for i in range(1, len(contours)):
-        cntMoments = cv2.moments(contours[0])
-        if cntMoments['m00'] != 0:
-            cntArea = cv2.contourArea(contours[0])
-            cntPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-            if cntPos[1] not in values:
-                values.update({cntPos[1]: [cntArea]})
-            else:
-                values[cntPos[1]].append(int(cntArea))
-            if len(values[cntPos[1]]) >= 100:
-                values[cntPos[1]] = sum(values[cntPos[1]])/len(values[cntPos[1]])
-                
-            
+        for i in range(1, len(contours)):
+            cntMoments = cv2.moments(contours[0])
+            if cntMoments['m00'] != 0:
+                cntArea = cv2.contourArea(contours[0])
+                cntPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
+                if cntPos[1] not in values:
+                    values.update({cntPos[1]: [cntArea]})
+                else:
+                    values[cntPos[1]].append(int(cntArea))
+                if len(values[cntPos[1]]) >= 100:
+                    values[cntPos[1]] = sum(values[cntPos[1]])/len(values[cntPos[1]])
+        tempDict = list(values.keys()).sort()
+        values = {i: values[i] for i in tempDict}
+        xData, yData = [], []
+        for key, val in values.items():
+            yData.append(key)
+            xData.append(val)
 
 
+if __name__=="__main__":
+    ani = FuncAnimation(fig, plt_update,  init_func=plt_init(), blit=True)
 
+    plt.show()
