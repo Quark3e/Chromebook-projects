@@ -28,10 +28,9 @@ if displayToOpenCV:
     ad.hsv_trackbars("cap0", hsvCam0)
     ad.hsv_trackbars("cap1", hsvCam1)
 
-
+#   int(zAxis): [cntArea],
 values = {
-    "area": [],
-    "zAxis": []
+    0: [],
 }
 
 prefRes = (640, 480)
@@ -74,19 +73,6 @@ def processFrame(img, flag, winName):
 
     contours, hierarchy = cv2.findContours(morphImg, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-    for i in range(1, len(contours)):
-        cntMoments = cv2.moments(contours[0])
-        if cntMoments['m00'] != 0:
-            cntArea = cv2.contourArea(contours[0])
-            if flag==0:
-                cntPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-            elif flag==1:
-                values["area"].append(int(cntArea))
-                values["zAxis"].append(int(cntMoments['m01']/cntMoments['m00']))
-                if len(values["area"]) >= 100:
-                    values["zAxis"] = int(sum(values["zAxis"])/len(values["zAxis"]))
-                    values["area"] = int(sum(values["area"])/len(values["area"]))
-            
 
 while True:
     ret[0], imgTemp[0] = cam0.read()
@@ -96,7 +82,20 @@ while True:
         break
     processFrame(imgTemp[0], 0, cam0)
     processFrame(imgTemp[1], 1, cam1)
-    
+
+    for i in range(1, len(contours)):
+        cntMoments = cv2.moments(contours[0])
+        if cntMoments['m00'] != 0:
+            cntArea = cv2.contourArea(contours[0])
+            cntPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
+            if cntPos[1] not in values:
+                values.update({cntPos[1]: [cntArea]})
+            else:
+                values[cntPos[1]].append(int(cntArea))
+            if len(values[cntPos[1]]) >= 100:
+                values[cntPos[1]] = sum(values[cntPos[1]])/len(values[cntPos[1]])
+                
+            
 
 
 
