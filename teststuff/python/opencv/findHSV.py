@@ -9,8 +9,8 @@ import time
 import os
 from time import sleep
 
-output_dir = r"test_media"
-os.chdir(output_dir)
+# output_dir = r"test_media"
+# os.chdir(output_dir)
 filename = "threshImg.jpg"
 
 # cap = cv2.VideoCapture(0)
@@ -19,11 +19,13 @@ filename = "threshImg.jpg"
 def nothing(x):
     pass
 
-# Initializing the webcam feed.
-#cap = cv2.VideoCapture(0)
+mode = 0
 
-mp4Src = '/home/berkhme/Chromebook-projects/teststuff/python/openCV/test_media/VID_20230508_173143.mp4'
-cap = cv2.VideoCapture(mp4Src)
+# Initializing the webcam feed.
+if mode==0: cap = cv2.VideoCapture(0)
+elif mode==1:
+    mp4Src = '/home/berkhme/Chromebook-projects/teststuff/python/openCV/test_media/VID_20230508_173143.mp4'
+    cap = cv2.VideoCapture(mp4Src)
 #cap.set(3,1280)
 #cap.set(4,720)
 
@@ -48,9 +50,13 @@ while True:
     ret, imgTemp = cap.read()
     # imgTemp = cv2.imread("/home/berkhme/Chromebook-projects/teststuff/python/openCV/test_media/IMG_20230508_173123.jpg")
     if not ret:
-        cap.release()
-        cap = cv2.VideoCapture(mp4Src)
-        ret, imgTemp = cap.read()
+        if mode==0:
+            print("could not open camera")
+            break
+        elif mode==1:
+            cap.release()
+            cap = cv2.VideoCapture(mp4Src)
+            ret, imgTemp = cap.read()
     frame = cv2.resize(imgTemp, (640, 480))
 
     # Flip the frame horizontally (Not required)

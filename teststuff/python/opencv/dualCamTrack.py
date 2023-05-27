@@ -20,7 +20,7 @@ displayToOpenCV = True
 
 #lower, upper values
 hsvCam0 = [[0, 0, 255], [179, 9, 255]] #ir webcam
-hsvCam1 = [[59, 73, 189], [101, 184, 246]]
+hsvCam1 = [[0, 0, 255], [179, 9, 255]]
 
 
 if displayToOpenCV:
@@ -28,6 +28,8 @@ if displayToOpenCV:
     cv2.namedWindow("cap1") #z
     ad.hsv_trackbars("cap0", hsvCam0)
     ad.hsv_trackbars("cap1", hsvCam1)
+    cv2.moveWindow("cap0", 100, 100)
+    cv2.moveWindow("cap1", 100+700, 100)
 
 #   int(zAxis): [cntArea],
 values = {
@@ -50,6 +52,7 @@ frame = [0, 0]
 
 def processFrame(img, flag, winName):
     global contours, cntMoments, cntPos, cntArea, values, morphImg, frame
+    hsvList = []
     if flag==0:
         hsvList = hsvCam0
     elif flag==1:
@@ -70,11 +73,10 @@ def processFrame(img, flag, winName):
         mask = cv2.inRange(hsv, np.array(hsvList[0]), np.array(hsvList[1]))
     propMask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
 
-    morphImg[flag] = cv2.erode(propMask, kernel, iterations=0)
+    morphImg[flag] = cv2.erode(cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR), kernel, iterations=0)
     morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=10)
     morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=0)
-
-    contours[flag], hierarchy = cv2.findContours(morphImg[flag], cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(morphImg[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 def configure_settings():
     if not displayToOpenCV:
@@ -85,26 +87,28 @@ def configure_settings():
         ret[1], imgTemp[1] = cam1.read()
         if ret[0]==False or ret[1]==False: print("could not capture from cam. returned:", ret)
         else:    
-            processFrame(imgTemp[0], 0, cam0)
-            processFrame(imgTemp[1], 1, cam1)
+            processFrame(imgTemp[0], 0, "cap0")
+            processFrame(imgTemp[1], 1, "cap1")
             for flag in range(1):
-                for i in range(1, len(contours)):
-                    cntMoments = cv2.moments(contours[0])
+                for i in range(1, len([contours[flag]])):
+                    cntMoments = cv2.moments(contours[flag][0])
                     if cntMoments['m00'] != 0:
                         if flag==0:
                             cntPos_xy = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                            cntArea = cv2.contourArea(contours[0])
+                            cntArea = cv2.contourArea(contours[flag][0])
                             if displayToOpenCV:
                                 morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(cntPos_xy[0],cntPos_xy[1]),font,1,(255,0,0),2)
                         elif flag==1:
                             cntPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
                             if displayToOpenCV:
                                 morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntPos[1])),(cntPos[0],cntPos[1]),font,1,(255,0,0),2)
-
-            cv2.imshow("cap0", cv2.resize(np.hstack((morphImg[0], frame[0])), None, fx=0.4, fy=0.4))
-            cv2.imshow("cap1", cv2.resize(np.hstack((morphImg[1], frame[1])), None, fx=0.4, fy=0.4))
+            # print((morphImg[0]).shape, (frame[0]).shape)
+            cv2.imshow("cap0", cv2.resize(np.hstack((morphImg[0], frame[0])), None, fx=0.4, fy=0.4)) # type: ignore
+            cv2.imshow("cap1", cv2.resize(np.hstack((morphImg[1], frame[1])), None, fx=0.4, fy=0.4)) # type: ignore
             key = cv2.waitKey(1)
             if key==27:
+                exit()
+            elif key==32:
                 return
 
 def script_exit():
@@ -134,8 +138,8 @@ def plt_update():
     ret[1], imgTemp[1] = cam1.read()
     if ret[0]==False or ret[1]==False: print("could not capture from cam. returned:", ret)
     else:    
-        processFrame(imgTemp[0], 0, cam0)
-        processFrame(imgTemp[1], 1, cam1)
+        processFrame(imgTemp[0], 0, "cap0")
+        processFrame(imgTemp[1], 1, "cap1")
         for flag in range(1):
             for i in range(1, len(contours)):
                 cntMoments = cv2.moments(contours[0])
