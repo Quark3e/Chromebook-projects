@@ -14,8 +14,8 @@ xData = eval(f.readline())
 yData = eval(f.readline())
 
 def zAdjFunc(var):
-    ans = 0
-    ans = var**(4/6)
+    ans = var
+    # ans = var**(4/6)
     return ans
 
 xData = [zAdjFunc(i) for i in xData]
