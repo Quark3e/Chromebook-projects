@@ -135,6 +135,13 @@ float axisFilter[3] = {0.1, 0.1, 1};
 
 float cam_PP_offset[3] = {0,0,0};
 
+float zAxisFunc(float val) {
+	float ans = 0;
+
+	ans = 0.003306*pow(pow(val, float(4)/6), 2)-4.537*pow(val,(float(4)/6))+1580;
+	return ans;
+}
+
 int webcamIndex = 0;
 
 
@@ -441,7 +448,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 					cv::Size camSize = imgFlipped.size();
 					PP[0] = axisFilter[0] * float(ceil(float(posX - camSize.width/2)*axisScal[0]) + axisOffset[0]) + (1-axisFilter[0])*PP[0];
 					PP[1] = axisFilter[1] * float(ceil(float(camSize.height - posY)*axisScal[1]) + axisOffset[1]) + (1-axisFilter[1])*PP[1];
-					PP[2] = axisFilter[2] * float(axisScal[2]*(0.07*(5000-sqrt(dArea))) + axisOffset[2])/*(cos(toRadians(orient[0]))*cos(toRadians(orient[1])))*/ + (1-axisFilter[2])*PP[2];
+					PP[2] = axisFilter[2] * float(axisScal[2]*(0.07*(5000-sqrt(dArea))) + axisOffset[2]) + (1-axisFilter[2])*PP[2];
 
 					printf(" x:%d y:%d z:%d",int(PP[0]),int(PP[1]), int(PP[2]));
 					updateOrients(true);
