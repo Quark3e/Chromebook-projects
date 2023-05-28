@@ -2,7 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import json
+import math
 
 fig, ax = plt.subplots()
 
@@ -13,6 +13,12 @@ f = open("zAxis-Area_values.dat", "r")
 xData = eval(f.readline())
 yData = eval(f.readline())
 
+def zAdjFunc(var):
+    ans = 0
+    ans = var**(4/6)
+    return ans
+
+xData = [zAdjFunc(i) for i in xData]
 xData2, yData2 = xData.copy(), yData.copy()
 
 # for key, val in values.items():
@@ -30,17 +36,17 @@ for i in range(meanGap, len(xData)-meanGap):
     xData2[i] = mean(xData, i, meanGap)
     yData2[i] = mean(yData, i, meanGap)
 
-polyDeg = 9
+polyDeg = 3
 z = np.polyfit(xData, yData, polyDeg)
 polyFunc = np.poly1d(z)
-print(polyFunc)
+print(str(polyFunc))
 
 ax.scatter(xData, yData, s=2, label="raw data", )
 ax.plot(xData2, yData2, label="mean: "+str(meanGap), color="red", alpha=0.5)
-ax.plot(xData, polyFunc(xData), label="fit polynomial: "+str(polyDeg)+"th deg.", color="green")
+ax.plot(xData, polyFunc(xData), label="fit polynomial: "+str(polyDeg)+" deg", color="green")
 
-plt.xlabel("contour moment area")
-plt.ylabel("z axis")
+plt.ylabel("contour moment area")
+plt.xlabel("z axis")
 
 plt.title("cnt area - webcam distance(z axis height)")
 
