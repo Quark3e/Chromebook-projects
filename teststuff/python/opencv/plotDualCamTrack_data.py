@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# zAxis =0.003306(x**(4/6))**2-4.537(x**(4/6))+1580
+
 import numpy as np
 import matplotlib.pyplot as plt
 import math
@@ -15,7 +17,7 @@ yData = eval(f.readline())
 
 def zAdjFunc(var):
     ans = var
-    # ans = var**(4/6)
+    ans = var**(4/6)
     return ans
 
 xData = [zAdjFunc(i) for i in xData]
@@ -36,7 +38,7 @@ for i in range(meanGap, len(xData)-meanGap):
     xData2[i] = mean(xData, i, meanGap)
     yData2[i] = mean(yData, i, meanGap)
 
-polyDeg = 3
+polyDeg = 2
 z = np.polyfit(xData, yData, polyDeg)
 polyFunc = np.poly1d(z)
 print(str(polyFunc))
