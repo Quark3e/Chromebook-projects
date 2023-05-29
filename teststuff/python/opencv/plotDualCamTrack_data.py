@@ -47,8 +47,8 @@ ax.scatter(xData, yData, s=2, label="raw data", )
 ax.plot(xData2, yData2, label="mean: "+str(meanGap), color="red", alpha=0.5)
 ax.plot(xData, polyFunc(xData), label="fit polynomial: "+str(polyDeg)+" deg", color="green")
 
-plt.ylabel("contour moment area")
-plt.xlabel("z axis")
+plt.xlabel("contour moment area")
+plt.ylabel("z axis")
 
 plt.title("cnt area - webcam distance(z axis height)")
 
