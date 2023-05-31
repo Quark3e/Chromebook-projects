@@ -129,16 +129,16 @@ float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
 float orient[3] = {0,0,0}; //degrees
 float PP[3] = {0,150,150};
-float axisScal[3] = {0.5, 0.5, 1.5};
+float axisScal[3] = {0.75, 0.75, 1};
 float axisOffset[3] = {0, 0, 0};
-float axisFilter[3] = {0.1, 0.1, 1};
+float axisFilter[3] = {1, 1, 1};
 
 float cam_PP_offset[3] = {0,0,0};
 
 float zAxisFunc(float area) {
 	float ans = 0;
-	float val = pow(area, float(4)/6);
-	ans = 0.003306*pow(val, 2)-4.537*val+1580;
+	float val = pow(area, float(2)/7);
+	ans = 0.003306*pow(val, 2)-4.537*val+1580-1200;
 	return ans;
 }
 
@@ -449,7 +449,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 					PP[0] = axisFilter[0] * float(ceil(float(posX - camSize.width/2)*axisScal[0]) + axisOffset[0]) + (1-axisFilter[0])*PP[0];
 					PP[1] = axisFilter[1] * float(ceil(float(camSize.height - posY)*axisScal[1]) + axisOffset[1]) + (1-axisFilter[1])*PP[1];
 					PP[2] = axisFilter[2] * float(axisScal[2]*zAxisFunc(dArea) + axisOffset[2]) + (1-axisFilter[2])*PP[2];
-
+					printf("dArea%d", int(dArea));
 					printf(" x:%d y:%d z:%d",int(PP[0]),int(PP[1]), int(PP[2]));
 					updateOrients(true);
 					if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
