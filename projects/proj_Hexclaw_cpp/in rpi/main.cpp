@@ -68,7 +68,7 @@ const char* toESP_msg;
 // tft display setup
 ST7735_TFT myTFT;
 
-int8_t Setup(void) {
+int8_t tft_setup(void) {
 
 	cout << "TFT Start!" << endl;
 	if(!bcm2835_init())

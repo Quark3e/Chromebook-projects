@@ -2,19 +2,33 @@
 
 import socket
 import time
+import select
 
 msgFromClient = "Hello UDP Server"
+msgFromClient = "test"
 bytesToSend = str.encode(msgFromClient)
-serverAddressPort = ("http://192.168.1.117", 53)
+serverAddressPort = ("192.168.1.117", 53)
+serverAddressPort = ("127.0.0.1", 20001)
 bufferSize = 1024
 
 # Create a UDP socket at client side
 UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
- # Send to server using created UDP socket
-UDPClientSocket.sendto(bytesToSend, serverAddressPort)
+# UDPClientSocket.setblocking(0)
+# UDPClientSocket.settimeout(10)
 
-msgFromServer = UDPClientSocket.recvfrom(bufferSize)
+time.sleep(5)
 
-msg = "Message from Server {}".format(msgFromServer[0])
-print(msg)
+while True:
+    # Send to server using created UDP socket
+    UDPClientSocket.sendto(bytesToSend, serverAddressPort)
+    print("Message from Client: \"{}\"".format(msgFromClient))
+    
+    ready = [True]
+    # ready = select.select([UDPClientSocket], [], [], 1)
+    if ready[0]:
+        msgFromServer = UDPClientSocket.recvfrom(bufferSize)
+
+        msg = "Message from Server: \"{}\"".format(msgFromServer[0])
+        print(msg)
+    time.sleep(1)
