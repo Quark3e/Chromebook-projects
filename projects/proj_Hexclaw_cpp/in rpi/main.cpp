@@ -129,7 +129,7 @@ float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
 float orient[3] = {0,0,0}; //degrees
 float PP[3] = {0,150,150};
-float axisScal[3] = {0.75, 0.75, 1};
+float axisScal[3] = {0.5, 0.5, 1};
 float axisOffset[3] = {0, 0, 0};
 float axisFilter[3] = {1, 1, 1};
 
@@ -216,15 +216,19 @@ void updateOrients(bool printResult) {
 	int n = recvfrom(
 		sock, (char*)buffer, MAXLINE, MSG_WAITALL,
 		(struct sockaddr*)&addrDest, &len);
+
 	buffer[n] = '\0';
 	if(printResult) {
 		printf("\tSent %d bytes\t",bind_result);
 		printf("Read from server: \"%s\"\t",buffer);
 	}
+	cout << " msg_waitall:" << MSG_WAITALL << " errno:" << errno << " ";
+
+	// cout << "[n=" << n << " 0:\"" <<buffer[0] << "\" n-1:\"" << buffer[n-1] << "\" ]";
 	string temp = "";
-	
 	if(buffer[0]=='{' && buffer[n-1]==';') { //{x:y:z}
-		if(printResult) cout << buffer << "\t";
+		// printf("is in\n");
+		// if(printResult) cout << buffer << "\t";
 		for(int i=0; i<n-1; i++) temp+=buffer[i];
 		x_accel = stof(temp.substr(1, temp.find(':')));
 		temp.erase(0, temp.find(':')+1);
@@ -240,7 +244,7 @@ void updateOrients(bool printResult) {
 		if(x_accel>1) x_accel = 0.99;
 		if(y_accel>1) y_accel = 0.99;
 		if(z_accel>1) z_accel = 0.99;
-		if(printResult) printf("x_acc:%f\ty_acc:%f\tz_acc:%f\t",x_accel,y_accel,z_accel);
+		// if(printResult) printf("x_acc:%d\ty_acc:%d\tz_acc:%d\t",int(x_accel),int(y_accel),int(z_accel));
 
 		pitch = atan(y_accel / sqrt(pow(x_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
 		roll = atan(-1 * x_accel / sqrt(pow(y_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
@@ -267,7 +271,7 @@ void updateOrients(bool printResult) {
 			else orient[0] = Roll;
 			orient[0] = orient[0] * bPos;
 		}
-		if(printResult) printf("a:%d \tb:%d  \tRoll:%d  \tPitch:%d", 
+		if(printResult) printf("a:%d  b:%d  Roll:%d  Pitch:%d", 
 		int(orient[0]), int(orient[1]), int(Roll), int(Pitch));
 	}
 }
