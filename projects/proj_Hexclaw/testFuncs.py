@@ -8,6 +8,9 @@ import IK_module as IK
 fullRange = [18, 18]
 centerPos = [9, 9]
 
+testingMethod = 0
+lst = []
+
 toDraw = []
 for _ in range(fullRange[0]):
     # toDraw.append(fullRange[1]*[' '])
@@ -54,17 +57,21 @@ def check(val):
         for lst in toDraw:
             print(addSpace(lst))
         print(val)
+        print("method:", testingMethod)
         time.sleep(0.01)
         # if val == [4,1]: input("point reached. paused...")
     return
 
-def pathFind(axisRange, startPos, method=2):
+def pathFind(axisRange, startPos, method=0):
+    global testingMethod
     """Iterate through 2d array/list in a pattern
     ## Parameters:
     - axisRange [unit: integers]: length of biggest axis
     - startPos [unit: integers]: start position [x, y]
     """
+    testingMethod = method
     t1 = time.perf_counter()
+    check(startPos)
     if method==0:
         for x in range(axisRange):
             for y in range(axisRange):
@@ -94,7 +101,7 @@ def pathFind(axisRange, startPos, method=2):
                 #     startPos[1]+round(math.cos(IK.toRadians(angle))*radius)
                 # ])
     if method==4:
-        print(len(lst1))
+        # print(len(lst1))
         for _ in lst1:
             check(_)
     if method==5:
@@ -125,12 +132,12 @@ def main():
     # # toDraw[centerPos[0]][centerPos[1]] = 's'
     # toDraw[centerPos[1]]=toDraw[centerPos[1]][:centerPos[0]]+"o"+toDraw[centerPos[1]][centerPos[0]+1:]
 
-    # global lst1
+    global lst1
     # lst1=[]
-    # # for lst in toDraw:
-    # #     print(lst)
-    # # pathListFile = open("findOrientPath.dat", "r")
-    # # readOrientPath(pathListFile)
+    # for lst in toDraw:
+    #     print(lst)
+    pathListFile = open("findOrientPath.dat", "r")
+    readOrientPath(pathListFile)
     pathFind(fullRange[0],centerPos)
     # # writeOrientPath(pathListFile)
     # print(IK.getNumFromString("150.233123123 6.23 420.21\n"," "))
