@@ -8,12 +8,11 @@
 
 import numpy as np
 import time
+import math
 import os
 import matplotlib.pyplot as plt
 from datetime import datetime
-
-from IK_module import sendToServo, toDegrees, toRadians, getAngles
-
+import adafruit_adxl34x
 
 from board import SCL, SDA #type: ignore
 import busio #type: ignore
@@ -21,9 +20,30 @@ from adafruit_motor import servo #type: ignore
 from adafruit_servokit import ServoKit #type: ignore
 from adafruit_pca9685 import PCA9685 #type: ignore
 
+from IK_module import sendToServo, toDegrees, toRadians, getAngles
+
+
 i2c = busio.I2C(SCL, SDA)
 pca = PCA9685(i2c)
 pca.frequency = 50
+
+accelerometer = adafruit_adxl34x.ADXL345(i2c)
+
+X_out, Y_out, Z_out = accelerometer.acceleration
+Roll, Pitch, roll, pitch = 0.1, 0.1, 0.1, 0.1
+tiltFilter = 0.1
+
+
+def readAccelerometer():
+    global X_out, Y_out, Z_out, Roll, Pitch, roll, pitch
+    X_out, Y_out, Z_out = accelerometer.acceleration
+    #x is roll and y is pitch (it's switched so the servo can be fit to the servo robot arm)
+    pitch = math.atan(Y_out / math.sqrt(pow(X_out, 2) + pow(Z_out, 2))) * 180 / math.pi
+    roll = math.atan(-1 * X_out / math.sqrt(pow(Y_out, 2) + pow(Z_out, 2))) * 180 / math.pi
+    #filter
+    Roll = (1-tiltFilter) * Roll + tiltFilter * roll
+    Pitch = (1-tiltFilter) * Pitch + tiltFilter * pitch
+
 
 servo = [servo.Servo(pca.channels[0]),
          servo.Servo(pca.channels[1]),
