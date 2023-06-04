@@ -459,7 +459,11 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 				dArea = cv::contourArea(contours[i]);
 				// cout << contours[0][0].x << endl;
 				if(dArea>=areaLim) {
-					int posX = contours[i][0].x, posY = contours[i][0].y;
+					cv::RotatedRect minRect = cv::minAreaRect(cv::Mat(contours[i]));
+					// cout << minRect.size.width << " " << minRect.size.height << " ";
+
+					int posX = contours[i][0].x + minRect.size.width/2, posY = contours[i][0].y + minRect.size.height/2;
+					
 					if(mode!=3) {
 						cv::circle(imgFlipped,cv::Point(posX,posY),50,cv::Scalar(0,0,0),2);
 						cv::putText(imgFlipped,to_string(int(dArea)),cv::Point(posX,posY),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false);
