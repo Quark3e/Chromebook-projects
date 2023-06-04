@@ -12,8 +12,8 @@ from matplotlib.animation import FuncAnimation
 def nothing(x):
     pass
 
-cam0 = cv2.VideoCapture(2)
-cam1 = cv2.VideoCapture(0)
+cam0 = cv2.VideoCapture(0)
+cam1 = cv2.VideoCapture(2)
 
 displayToOpenCV = True
 
@@ -53,7 +53,7 @@ cntMoments = 0
 frame = [0, 0]
 
 def processFrame(img, flag, winName):
-    global contours, cntMoments, cntPos, cntArea, values, morphImg, frame
+    global contours, cntMoments, cntPos, cntArea, morphImg, frame
     hsvList = []
     if flag==0:
         hsvList = hsvCam0
@@ -90,7 +90,7 @@ def processFrame(img, flag, winName):
 def configure_settings():
     if not displayToOpenCV:
         return
-    global imgTemp, ret, contours, cntArea, cntPos, cntMoments, values
+    global imgTemp, ret, contours, cntArea, cntPos, cntMoments
     while True:
         ret[0], imgTemp[0] = cam0.read()
         ret[1], imgTemp[1] = cam1.read()
@@ -100,17 +100,18 @@ def configure_settings():
             processFrame(imgTemp[1], 1, "cap1")
             for flag in range(2):
                 for i in range(len(contours[flag])):
-                    cntMoments = cv2.moments(contours[flag][0])
-                    if cntMoments['m00'] != 0:
-                        if flag==0:
-                            cntPos_xy = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                            cntArea = cv2.contourArea(contours[flag][0])
-                            if displayToOpenCV:
-                                morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(cntPos_xy[0],cntPos_xy[1]),font,1,(255,0,0),2)
-                        elif flag==1:
-                            cntPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                            if displayToOpenCV:
-                                morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntPos[1])),(cntPos[0],cntPos[1]),font,1,(255,0,0),2)
+                    if cv2.contourArea(contours[flag][0]) > 1000:
+                        cntMoments = cv2.moments(contours[flag][0])
+                        if cntMoments['m00'] != 0:
+                            if flag==0:
+                                cntPos_xy = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
+                                cntArea = cv2.contourArea(contours[flag][0])
+                                if displayToOpenCV:
+                                    morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(cntPos_xy[0],cntPos_xy[1]),font,1,(255,0,0),2)
+                            elif flag==1:
+                                cntPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
+                                if displayToOpenCV:
+                                    morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntPos[1])),(cntPos[0],cntPos[1]),font,1,(255,0,0),2)
             print(prefRes[1]-cntPos[1], cntArea)
             # print((morphImg[0]).shape, (frame[0]).shape)
             cv2.imshow("cap0", cv2.resize(np.hstack((morphImg[0], frame[0])), None, fx=0.4, fy=0.4)) # type: ignore
@@ -126,10 +127,12 @@ def script_exit():
     print("exit initialized...", end='')
     tempDict = list(values.keys())
     tempDict.sort()
+    print("raw:", values)
+    print("----------------")
     values = {i: values[i] for i in tempDict}
     print("sorting:")
     print("----------------")
-    print(values)
+    print("sorted:",values)
     print("----------------")
     xData, yData = [], []
     for key in values:
@@ -149,7 +152,6 @@ def script_exit():
     print("----------------")
     outFile.close()
     return
-    exit()
 
 fig, ax = plt.subplots()
 ln, = plt.plot([], [], 'ro')
@@ -230,6 +232,8 @@ while True:
         pass
     else:
         break
+
+print("plotting..")
 
 plt.plot(xData, yData)
 
