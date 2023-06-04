@@ -75,9 +75,14 @@ def processFrame(img, flag, winName):
         mask = cv2.inRange(hsv, np.array(hsvList[0]), np.array(hsvList[1]))
     propMask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
 
-    morphImg[flag] = cv2.erode(cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR), kernel, iterations=0)
-    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=10)
-    morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=0)
+    # morphImg[flag] = cv2.erode(cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR), kernel, iterations=0)
+    # morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=10)
+    # morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=0)
+
+    morphImg[flag] = cv2.erode(cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR), kernel, 1)
+    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=1)
+    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=1)
+    morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=1)
 
     _, thresh[flag] = cv2.threshold(morphImg[flag], 127, 255, cv2.THRESH_BINARY)
     contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(thresh[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
