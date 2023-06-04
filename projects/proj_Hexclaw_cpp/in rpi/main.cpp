@@ -137,10 +137,10 @@ float cam_PP_offset[3] = {0,0,0};
 
 float zAxisFunc(float area) {
 	float ans = 0;
-	// float val = pow(area, float(2)/7);
-	// ans = 0.003306*pow(val, 2)-4.537*val+1580-1200;
-	float val = pow(area, float(4)/6);
-	ans = 0.003306*pow(val, 2)-4.537*val+1580;
+	float val = pow(area, float(2)/7);
+	ans = 0.003306*pow(val, 2)-4.537*val+1580-1250;
+	// float val = pow(area, float(4)/6);
+	// ans = 0.003306*pow(val, 2)-4.537*val+1580;
 	return ans;
 }
 
@@ -409,21 +409,22 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 		cv::namedWindow(win_name);
 		createTrackbars(win_name);
 	}
-	cv::Mat imgOriginal, imgFlipped, imgHSV, imgThreshold;
+	cv::Mat imgRaw, imgOriginal, imgFlipped, imgHSV, imgThreshold;
 	// int fps=0, frames=0, totalDelay=0;
 	// clock_t t1 = clock();
 
 	while(true) {
 		//delay: 4-5ms
-		if(!(cap->read(imgOriginal))) {
+		if(!(cap->read(imgRaw))) {
 			printf("error: Cannot read frame");
 			cv::destroyAllWindows();
 			return -1;
 		}
 
 		//delay: unknown
-		cv::resize(imgOriginal, imgOriginal, cv::Size(prefSize[0], prefSize[1]), cv::INTER_LINEAR);
-
+		cv::resize(imgRaw, imgOriginal, cv::Size(prefSize[0], prefSize[1]), cv::INTER_LINEAR);
+		// cout << imgOriginal.cols << "x" << imgOriginal.rows;
+		
 		//delay: 4-7ms
 		cv::flip(imgOriginal, imgFlipped, 1);
 		//delay: 3-5ms
