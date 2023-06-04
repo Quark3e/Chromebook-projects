@@ -137,10 +137,14 @@ float cam_PP_offset[3] = {0,0,0};
 
 float zAxisFunc(float area) {
 	float ans = 0;
-	float val = pow(area, float(2)/7);
-	ans = 0.003306*pow(val, 2)-4.537*val+1580-1200;
+	// float val = pow(area, float(2)/7);
+	// ans = 0.003306*pow(val, 2)-4.537*val+1580-1200;
+	float val = pow(area, float(4)/6);
+	ans = 0.003306*pow(val, 2)-4.537*val+1580;
 	return ans;
 }
+
+int prefSize[2] = {640, 480};
 
 int webcamIndex = 0;
 
@@ -416,6 +420,9 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 			cv::destroyAllWindows();
 			return -1;
 		}
+
+		//delay: unknown
+		cv::resize(imgOriginal, imgOriginal, cv::Size(prefSize[0], prefSize[1]), cv::INTER_LINEAR);
 
 		//delay: 4-7ms
 		cv::flip(imgOriginal, imgFlipped, 1);
