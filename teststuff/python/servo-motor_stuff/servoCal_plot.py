@@ -83,9 +83,10 @@ def configure_plots():
     Plot read value [y] from real life degree disk on given value [x] in degrees.
     '''
     global ax, fig
-    fig = plt.figure()
-    fig.legend()
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots()
+
+    plt.legend()
+
     ax.set_xlim(0,180)
     ax.set_ylim(-90,90)
     ax.set_aspect('equal',adjustable='box')
@@ -98,9 +99,9 @@ def main():
     global correctionFile
     configure_plots()
     breakVal = False
-    for q in range(6):
+    for q in range(1,3):
         # os.system('clear')
-        print("Testing servo:",q)
+        print(f"Testing servo q[{q}]")
         servo[q].angle = 180
         time.sleep(0.5)
         servo[q].angle = 0
@@ -110,12 +111,15 @@ def main():
         for x in range(0,19,1):
             servo[q].angle = x*10
             print(" sent angle:",x*10, end='')
-            inpOpt = input(" read angle: ")
+            readAccelerometer()
+            time.sleep(0.8)
+            inpOpt = roll
             if inpOpt == "exit":
                 breakVal = True
                 break
             y_q[q][x] = 0 + round(float(inpOpt) - x*10)
             x_q[q][x] = x*10
+            time.sleep(0.1)
         if breakVal: break
         for l in range(6):
             servo[l].angle = sTemp[q][l]
@@ -123,7 +127,7 @@ def main():
         print(y_q)
         time.sleep(0.2)
         print("-----------------")
-    ax.legend()
+
     plt.show()
 
 
