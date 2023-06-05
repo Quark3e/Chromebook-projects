@@ -65,13 +65,13 @@ servo[4].angle = sDefault[4]
 servo[5].angle = sDefault[5]
 time.sleep(1)
 
-sTemp = [ #is sent AFTER that angle is finished, so loop[q] and then sTemp[q], so sTemp[q] before loop[q]
-    [90,55,45,90,100,90], #before q2, after q1
+sPrep = [ #is sent AFTER that angle is finished, so loop[q] and then sPrep[q], so sPrep[q] before loop[q]
+    [0,90,45,90,90,90],
+    [90,0,45,90,90,90],
     [90,90,0,90,90,90],
-    [180,90,135,0,90,90],
+    [90,90,135,0,90,90],
     [90,90,135,90,0,90],
-    [90,90,135,90,90,0],
-    [90,55,180,90,90,100,90]
+    [90,90,135,90,90,0]
 ]
 
 x_q = 6*[19*[0]]
@@ -100,6 +100,8 @@ def main():
     configure_plots()
     breakVal = False
     for q in range(1,3):
+        for l in range(6):
+            servo[l].angle = sPrep[q][l]
         # os.system('clear')
         print(f"Testing servo q[{q}]")
         servo[q].angle = 180
@@ -118,9 +120,6 @@ def main():
             x_q[q][x] = x*10
 
             time.sleep(0.1)
-        if breakVal: break
-        for l in range(6):
-            servo[l].angle = sTemp[q][l]
 
         fitPoly = np.polyfit(x_q[q], y_q[q], 2)
         polyFunc = np.poly1d(fitPoly)
