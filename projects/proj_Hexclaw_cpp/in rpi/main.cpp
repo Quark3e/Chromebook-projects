@@ -129,9 +129,9 @@ float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
 float orient[3] = {0,0,0}; //degrees
 float PP[3] = {0,150,150};
-float axisScal[3] = {0.5, 0.5, 1};
+float axisScal[3] = {0.5, 0.5, 0.4};
 float axisOffset[3] = {0, 0, 0};
-float axisFilter[3] = {1, 1, 1};
+float axisFilter[3] = {1, 1, 0.5};
 
 float cam_PP_offset[3] = {0,0,0};
 
@@ -227,8 +227,8 @@ void updateOrients(bool printResult) {
 
 	buffer[n] = '\0';
 	if(printResult) {
-		printf("\tSent %d bytes\t",bind_result);
-		printf("Read from server: \"%s\"\t",buffer);
+		// printf("\tSent %d bytes\t",bind_result);
+		printf("\tRead from server: \"%s\"\t",buffer);
 	}
 	cout << " msg_waitall:" << MSG_WAITALL << " errno:" << errno << " ";
 
@@ -279,7 +279,7 @@ void updateOrients(bool printResult) {
 			else orient[0] = Roll;
 			orient[0] = orient[0] * bPos;
 		}
-		if(printResult) printf("a:%d  b:%d  Roll:%d  Pitch:%d", 
+		if(printResult) printf("a:%3d b:%3d  Roll:%3d Pitch:%3d", 
 		int(orient[0]), int(orient[1]), int(Roll), int(Pitch));
 	}
 }
@@ -473,8 +473,8 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 						PP[0] = axisFilter[0] * float(ceil(float(posX - camSize.width/2)*axisScal[0]) + axisOffset[0]) + (1-axisFilter[0])*PP[0];
 						PP[1] = axisFilter[1] * float(ceil(float(camSize.height - posY)*axisScal[1]) + axisOffset[1]) + (1-axisFilter[1])*PP[1];
 						PP[2] = axisFilter[2] * float(axisScal[2]*zAxisFunc(dArea) + axisOffset[2]) + (1-axisFilter[2])*PP[2];
-						printf("dArea%d", int(dArea));
-						printf(" x:%d y:%d z:%d",int(PP[0]),int(PP[1]), int(PP[2]));
+						printf("dArea:%6d", int(dArea));
+						printf(" x:%3d y:%3d z:%3d",int(PP[0]),int(PP[1]), int(PP[2]));
 						updateOrients(true);
 						if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
 							sendToServo(pcaSrc,new_q,current_q,false);
