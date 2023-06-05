@@ -9,7 +9,6 @@ while True:
     client_socket.settimeout(1.0)
     message = b'test'
     addr = ("192.168.1.117", 53)
-    client_socket.bind(addr)
 
     start = time.time()
     client_socket.sendto(message, addr)
