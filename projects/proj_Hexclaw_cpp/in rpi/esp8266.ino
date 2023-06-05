@@ -177,6 +177,7 @@ String filterToggle = "on";
 void loop() {
     int packetSize = Udp.parsePacket();
     if (packetSize) { // receive incoming UDP packets
+        digitalWrite(D8, LOW);
         if(digitalRead(0)==HIGH) filterToggle = "off;";
         else filterToggle = "on ;";
         int len = Udp.read(incomingPacket, 255);
@@ -201,5 +202,6 @@ void loop() {
         Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
         Udp.write(newReplyPack);
         Udp.endPacket();
+        digitalWrite(D8, HIGH);
     }
 }

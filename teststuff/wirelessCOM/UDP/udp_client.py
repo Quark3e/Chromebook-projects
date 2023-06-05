@@ -8,7 +8,7 @@ msgFromClient = "Hello UDP Server"
 msgFromClient = "test"
 bytesToSend = str.encode(msgFromClient)
 serverAddressPort = ("192.168.1.117", 53)
-serverAddressPort = ("127.0.0.1", 20001)
+# serverAddressPort = ("127.0.0.1", 20001)
 bufferSize = 1024
 
 # Create a UDP socket at client side
