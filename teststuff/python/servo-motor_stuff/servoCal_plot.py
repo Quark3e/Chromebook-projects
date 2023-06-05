@@ -114,19 +114,25 @@ def main():
             readAccelerometer()
             time.sleep(0.8)
             inpOpt = roll
-            if inpOpt == "exit":
-                breakVal = True
-                break
-            y_q[q][x] = 0 + round(float(inpOpt) - x*10)
+            y_q[q][x] = round(inpOpt)
             x_q[q][x] = x*10
+
             time.sleep(0.1)
         if breakVal: break
         for l in range(6):
             servo[l].angle = sTemp[q][l]
-        ax.plot(x_q[q],y_q[q],linestyle='solid',label=str(q))
+
+        fitPoly = np.polyfit(x_q[q], y_q[q], 2)
+        polyFunc = np.poly1d(fitPoly)
+        print(str(polyFunc))
+
+        ax.plot(x_q[q], polyFunc(x_q[q]), label=f"q[{q}] fitPoly.", color="green")
+        ax.plot(x_q[q], y_q[q], linestyle='solid',label=f"q[{q}] raw")
+
         print(y_q)
         time.sleep(0.2)
         print("-----------------")
+
 
     plt.show()
 
