@@ -5,6 +5,7 @@
 #  error rate by plotting the values on a graph.
 # */
 
+servoToTest = [1, 2] #servo[] index's of the ones to test
 
 import numpy as np
 import time
@@ -65,6 +66,19 @@ servo[4].angle = sDefault[4]
 servo[5].angle = sDefault[5]
 time.sleep(1)
 
+print(f"testing servos: {servoToTest}")
+time.sleep(0.5)
+for s in servoToTest:
+    print(f"- q:[{s}]")
+    for a in range(181):
+        servo[s].angle = a
+        time.sleep(0.02)
+    time.sleep(1)
+    for a in range(180, -1, -1):
+        servo[s].angle = a
+    time.sleep(2)
+
+
 sPrep = [ #is sent AFTER that angle is finished, so loop[q] and then sPrep[q], so sPrep[q] before loop[q]
     [0,90,45,90,90,90],
     [90,0,45,90,90,90],
@@ -98,8 +112,7 @@ def configure_plots():
 def main():
     global correctionFile
     configure_plots()
-    breakVal = False
-    for q in range(1,3):
+    for q in servoToTest:
         print(f"Testing servo q[{q}]")
         for l in range(6):
             servo[l].angle = sPrep[q][l]
@@ -107,14 +120,14 @@ def main():
         servo[q].angle = 180
         time.sleep(0.5)
         servo[q].angle = 0
-        if input(" calibrate degreeDisk (fixate disk 0 with current servo position)\n press enter to continue (or 'exit' to exit)...") == "exit":
+        if input(" calibrate degreeDisk (fixate disk 0 with current servo position)\n press space and enter to continue (or write 'exit' to exit)...") == "exit":
             return
         print()
         for x in range(0,19,1):
             servo[q].angle = x*10
             print(" sent angle:",x*10, end='')
             readAccelerometer()
-            time.sleep(0.8)
+            time.sleep(1)
             inpOpt = pitch
             y_q[q][x] = round(inpOpt)
             x_q[q][x] = x*10
