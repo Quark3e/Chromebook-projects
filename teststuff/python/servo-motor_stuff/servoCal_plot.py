@@ -67,17 +67,25 @@ servo[5].angle = sDefault[5]
 time.sleep(1)
 
 print(f"testing servos: {servoToTest}")
-time.sleep(0.5)
-for s in servoToTest:
-    print(f"- q:[{s}]")
-    for a in range(181):
-        servo[s].angle = a
-        time.sleep(0.02)
-    time.sleep(1)
-    for a in range(180, -1, -1):
-        servo[s].angle = a
-    time.sleep(2)
-
+try:
+    time.sleep(0.5)
+    for s in servoToTest:
+        print(f"- q:[{s}]")
+        for a in range(181):
+            servo[s].angle = a
+            time.sleep(0.02)
+        time.sleep(1)
+        for a in range(180, -1, -1):
+            servo[s].angle = a
+        time.sleep(2)
+except KeyboardInterrupt:
+    inp = input("paused. Want to exit [y/n]?:")
+    if inp=="y" or inp=="exit":
+        print("exiting...")
+        time.sleep(0.5)
+        exit()
+    elif inp=="n" or inp==" ":
+        pass
 
 sPrep = [ #is sent AFTER that angle is finished, so loop[q] and then sPrep[q], so sPrep[q] before loop[q]
     [0,90,45,90,90,90],
