@@ -28,7 +28,7 @@ while True:
     print( \
         "accel:{:4.1f} {:4.1f} {:4.1f} rotat:{:6.1f} {:6.1f}".format(\
             X_out, Y_out, Z_out,\
-            Roll, Pitch\
+            roll, pitch\
         )\
     )
     time.sleep(0.05)
