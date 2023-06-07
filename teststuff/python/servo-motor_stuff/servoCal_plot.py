@@ -100,10 +100,10 @@ def main():
     configure_plots()
     breakVal = False
     for q in range(1,3):
+        print(f"Testing servo q[{q}]")
         for l in range(6):
             servo[l].angle = sPrep[q][l]
         # os.system('clear')
-        print(f"Testing servo q[{q}]")
         servo[q].angle = 180
         time.sleep(0.5)
         servo[q].angle = 0
@@ -115,7 +115,7 @@ def main():
             print(" sent angle:",x*10, end='')
             readAccelerometer()
             time.sleep(0.8)
-            inpOpt = roll
+            inpOpt = pitch
             y_q[q][x] = round(inpOpt)
             x_q[q][x] = x*10
 
@@ -130,8 +130,9 @@ def main():
 
         print(y_q)
         time.sleep(0.2)
+        print(f"finished testing servo q[{q}]")
         print("-----------------")
-
+        input("")
 
     plt.show()
 
