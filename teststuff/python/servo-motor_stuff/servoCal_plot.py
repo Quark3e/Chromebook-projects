@@ -177,7 +177,7 @@ def main():
 
     plt.grid()
     plt.legend()
-    plt.savefig("plot_img")
+    plt.savefig("plot_"+str([testedServos]), dpi=300)
     plt.show()
 
 
@@ -191,13 +191,13 @@ def main():
     toFile_readable = "{\n"
     for q in testedServos:
         toFile_readable += "\t" + str(y_q[q]) + "\n"
-    toFile_readable += "}\n"
+    toFile_readable += "}, "
 
     toFile_functions = "{\n"
     for q in testedServos:
         toFile_functions += f"read: q[{q}]:\n" + str(givPolyFunc[q]) + "\n"
         toFile_functions += f"inve: q[{q}]:\n" + str(invPolyFunc[q]) + "\n"
-    toFile_functions += "}\n"
+    toFile_functions += "};\n"
 
     print(toFile_readable)
     toFile += toFile_readable + toFile_functions
