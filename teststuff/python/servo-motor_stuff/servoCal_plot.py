@@ -6,6 +6,7 @@
 # */
 
 servoToTest = [1, 2] #servo[] index's of the ones to test
+testedServos = [] #index of servos that were actually tested
 
 import numpy as np
 import time
@@ -58,34 +59,48 @@ correctionFile = open("servoCorrections.dat", "a")
 
 sDefault = [90,55,180-0,90,180-80,90]
 
-servo[0].angle = sDefault[0]
-servo[1].angle = sDefault[1]
-servo[2].angle = sDefault[2]
-servo[3].angle = sDefault[3]
-servo[4].angle = sDefault[4]
-servo[5].angle = sDefault[5]
-time.sleep(1)
+#servo[0].angle = sDefault[0]
+#servo[1].angle = sDefault[1]
+#servo[2].angle = sDefault[2]
+#servo[3].angle = sDefault[3]
+#servo[4].angle = sDefault[4]
+#servo[5].angle = sDefault[5]
+#time.sleep(1)
 
 print(f"testing servos: {servoToTest}")
-try:
-    time.sleep(0.5)
-    for s in servoToTest:
-        print(f"- q:[{s}]")
-        for a in range(181):
-            servo[s].angle = a
-            time.sleep(0.02)
-        time.sleep(1)
-        for a in range(180, -1, -1):
-            servo[s].angle = a
-        time.sleep(2)
-except KeyboardInterrupt:
-    inp = input("paused. Want to exit [y/n]?:")
-    if inp=="y" or inp=="exit":
-        print("exiting...")
+
+optAngles = [90, 90, 45, 90, 90, 90]
+
+givPolyFunc = 6*[None]
+invPolyFunc = 6*[None]
+
+runInitia = False
+
+if runInitia:
+    try:
         time.sleep(0.5)
-        exit()
-    elif inp=="n" or inp==" ":
-        pass
+        for n in range(6):
+            servo[n].angle = optAngles[n]
+        time.sleep(1)
+        for s in servoToTest:
+            print(f"- q:[{s}]")
+            for a in range(181):
+                servo[s].angle = a
+                time.sleep(0.02)
+            time.sleep(1)
+            for a in range(180, -1, -1):
+                servo[s].angle = a
+                time.sleep(0.02)
+            time.sleep(2)
+            servo[s].angle = optAngles[s]
+    except KeyboardInterrupt:
+        inp = input("paused. Want to exit [y/n]?:")
+        if inp=="y" or inp=="exit":
+            print("exiting...")
+            time.sleep(0.5)
+            exit()
+        elif inp=="n" or inp==" ":
+            pass
 
 sPrep = [ #is sent AFTER that angle is finished, so loop[q] and then sPrep[q], so sPrep[q] before loop[q]
     [0,90,45,90,90,90],
@@ -107,10 +122,6 @@ def configure_plots():
     global ax, fig
     fig, ax = plt.subplots()
 
-    plt.legend()
-
-    ax.set_xlim(0,180)
-    ax.set_ylim(-90,90)
     ax.set_aspect('equal',adjustable='box')
     ax.set_xlabel("given value [degrees]")
     ax.set_ylabel("read error rate | read-given [degrees]")
@@ -128,8 +139,11 @@ def main():
         servo[q].angle = 180
         time.sleep(0.5)
         servo[q].angle = 0
-        if input(" calibrate degreeDisk (fixate disk 0 with current servo position)\n press space and enter to continue (or write 'exit' to exit)...") == "exit":
+        inp = input(" calibrate degreeDisk (fixate disk 0 with current servo position)\n press options:\n-space and enter to continue\n-\"end\" to ignore rest and plot\n-\"exit\" to exit script\ninput: ")
+        if inp=="exit":
             return
+        elif inp=="end":
+            break
         print()
         for x in range(0,19,1):
             servo[q].angle = x*10
@@ -137,40 +151,57 @@ def main():
             readAccelerometer()
             time.sleep(1)
             inpOpt = pitch
-            y_q[q][x] = round(inpOpt)
+            if x<=8: y_q[q][x] = round(inpOpt)
+            elif x>8: y_q[q][x] = 180-round(inpOpt)
             x_q[q][x] = x*10
 
             time.sleep(0.1)
 
-        fitPoly = np.polyfit(x_q[q], y_q[q], 2)
-        polyFunc = np.poly1d(fitPoly)
-        print(str(polyFunc))
+        givenPoly = np.polyfit(x_q[q], y_q[q], 5)
+        inversedPoly = np.polyfit(y_q[q], x_q[q], 5)
+        invPolyFunc[q] = np.poly1d(inversedPoly)
+        givPolyFunc[q] = np.poly1d(givenPoly)
+        print("\n",str(givPolyFunc[q]),"\n", sep='')
 
-        ax.plot(x_q[q], polyFunc(x_q[q]), label=f"q[{q}] fitPoly.", color="green")
+        ax.plot(x_q[q], givPolyFunc[q](x_q[q]), label=f"q[{q}] fitPoly.", color="green")
         ax.plot(x_q[q], y_q[q], linestyle='solid',label=f"q[{q}] raw")
 
-        print(y_q)
+        print(f"{q}:",y_q[q])
         time.sleep(0.2)
+        testedServos.append(q)
         print(f"finished testing servo q[{q}]")
         print("-----------------")
         input("")
 
+    ax.plot(x_q[q], x_q[q], linestyle='dotted', label="given")	
+
+    plt.grid()
+    plt.legend()
+    plt.savefig("plot_img")
     plt.show()
 
 
     currentDate = str(datetime.now()) + ";"
     toFile = currentDate
     tempDict_read = {}
-    for q in range(6): tempDict_read.update({q:y_q[q]})
+    for q in testedServos: tempDict_read.update({q:y_q[q]})
     toFile += str(tempDict_read) + "\n" #type: ignore
     print("toFile <<",toFile)
 
     toFile_readable = "{\n"
-    for q in range(6): toFile_readable += "\t" + str(y_q) + "\n"
+    for q in testedServos:
+        toFile_readable += "\t" + str(y_q[q]) + "\n"
     toFile_readable += "}\n"
+
+    toFile_functions = "{\n"
+    for q in testedServos:
+        toFile_functions += f"read: q[{q}]:\n" + str(givPolyFunc[q]) + "\n"
+        toFile_functions += f"inve: q[{q}]:\n" + str(invPolyFunc[q]) + "\n"
+    toFile_functions += "}\n"
+
     print(toFile_readable)
-    toFile += toFile_readable
-    correctionFile.write(toFile)
+    toFile += toFile_readable + toFile_functions
+    correctionFile.write("\n"+toFile)
 
 
 if __name__ == "__main__":
