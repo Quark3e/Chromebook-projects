@@ -57,9 +57,9 @@ fstream
 -
 algorithm
 -
-unistd.h
--
 time.h
+-
+stdint.h
 -
 opencv4/opencv2/opencv.hpp
 -
@@ -75,7 +75,7 @@ ST7735_TFT.h
 /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/ST7735_TFT.h
 /home/pi/Chromebook-projects/teststuff/electronics/tft_display/ST7735_TFT_RPI_test/ST7735_TFT_RPI-1.5/example/include/Bi_Color_Bitmap.h
 -
-wiringPi.h
+pigpio.h
 -
 IK_header.h
 /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.h

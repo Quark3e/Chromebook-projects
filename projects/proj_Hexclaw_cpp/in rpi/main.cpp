@@ -34,7 +34,6 @@
 #include <string>
 #include <fstream> //read and write to file (hsv_settings.dat)
 #include <algorithm> //ex. find() and erase()
-#include <unistd.h>
 #include <time.h>
 #include <stdint.h>
 
@@ -174,6 +173,8 @@ float accelFilter = 0.1;
 vector<vector<cv::Point>> contours;
 vector<cv::Vec4i> hierarchy;
 
+bool pigpioInitia = false;
+int pin_ledRelay = 23;
 
 int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr) {
     int result;
@@ -565,10 +566,14 @@ int main(int argc, char** argv) {
 	//nodemcu udp communication setup/initialization
 	nodemcu_udp_setup();
 
-	if(gpioInitialise()<0) cout << "pigpio \"gpioInitialise()\" failed\n";
+	if(gpioInitialise()<0) {
+		cout << "pigpio \"gpioInitialise()\" failed\n";
+		pigpioInitia = false;
+	}
 	else {
-		gpioSetMode(23, PI_INPUT)
-		
+		gpioSetMode(pin_ledRelay, PI_OUTPUT);
+		pigpioInitia = true;
+		gpioWrite(pin_ledRelay, 1);
 	}
 
 	if(argc<=1) {calibrateHSV=false; displayImg=false;}
@@ -625,9 +630,38 @@ int main(int argc, char** argv) {
 		new_q[4] = -20;
 		new_q[5] = 0;
 		printf("running intro...\t");
+		
+		gpioWrite(pin_ledRelay, 0);
+		gpioWrite(pin_ledRelay, 1);
+
+		usleep(750'000);
+
 		sendToServo(&pca, new_q, current_q, false, 2, 10);
+
 		printf("intro finished\n");
 		usleep(3'000'000);
+
+		for(int i=0; i<4; i++) {
+			gpioWrite(pin_ledRelay, 0);
+			usleep(30'000);
+			gpioWrite(pin_ledRelay, 1);
+			usleep(30'000);
+		}
+		usleep(1'500'000);
+		gpioWrite(pin_ledRelay, 0);
+		usleep(250'000);
+		gpioWrite(pin_ledRelay, 1);
+		usleep(500'000);
+		gpioWrite(pin_ledRelay, 0);
+		usleep(100'000);
+		gpioWrite(pin_ledRelay, 1);
+		usleep(2'000'000);
+		gpioWrite(pin_ledRelay, 0);
+		
+		usleep(2'000'000);
+
+		gpioWrite(pin_ledRelay, 1);
+
 		new_q[0] = 45;
 		new_q[1] = 0;
 		new_q[2] = -45;
@@ -639,6 +673,9 @@ int main(int argc, char** argv) {
 
 
 	sendToServo(&pca, new_q, current_q, true, 2, 2, true, true, true);
-
+	if(pigpioInitia) {
+		gpioTerminate();
+		gpioWrite(pin_ledRelay, 0);
+	}
 	return 0;
 }

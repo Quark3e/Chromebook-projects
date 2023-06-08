@@ -6,7 +6,6 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-    gpioTerminate();
     if(gpioInitialise() <0) return 1;
 
     gpioSetMode(23, PI_OUTPUT);
