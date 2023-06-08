@@ -36,6 +36,7 @@
 #include <algorithm> //ex. find() and erase()
 #include <unistd.h>
 #include <time.h>
+#include <stdint.h>
 
 // opencv/image tracking
 #include <opencv4/opencv2/opencv.hpp>
@@ -49,6 +50,9 @@
 #include <bcm2835.h>
 #include "ST7735_TFT.h"
 #include "/home/pi/Chromebook-projects/teststuff/electronics/tft_display/ST7735_TFT_RPI_test/ST7735_TFT_RPI-1.5/example/include/Bi_Color_Bitmap.h" // Data for test 11 and 12.
+
+// RPi specific functions
+#include <pigpio.h>
 
 #include "IK_header.h"
 
@@ -561,6 +565,11 @@ int main(int argc, char** argv) {
 	//nodemcu udp communication setup/initialization
 	nodemcu_udp_setup();
 
+	if(gpioInitialise()<0) cout << "pigpio \"gpioInitialise()\" failed\n";
+	else {
+		gpioSetMode(23, PI_INPUT)
+		
+	}
 
 	if(argc<=1) {calibrateHSV=false; displayImg=false;}
 	else if(argc>=2) {

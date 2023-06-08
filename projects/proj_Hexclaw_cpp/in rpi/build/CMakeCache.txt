@@ -221,6 +221,9 @@ OpenCV_DIR:PATH=/usr/local/lib/arm-linux-gnueabihf/cmake/opencv4
 //The directory containing a CMake configuration file for PiPCA9685.
 PiPCA9685_DIR:PATH=/usr/local/lib/PiPCA9685/cmake
 
+//Path to a library.
+WIRINGPI_LIBRARIES:FILEPATH=WIRINGPI_LIBRARIES-NOTFOUND
+
 
 ########################
 # INTERNAL cache entries
