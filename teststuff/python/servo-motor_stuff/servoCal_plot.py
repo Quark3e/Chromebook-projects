@@ -177,7 +177,7 @@ def main():
 
     plt.grid()
     plt.legend()
-    plt.savefig("plot_img")
+    plt.savefig("plot_"+str([testedServos]), dpi=300)
     plt.show()
 
 
