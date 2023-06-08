@@ -12,7 +12,7 @@ def func1(x):
 x = [n for n in range(0, 190, 10)]
 y_0 = [func0(n) for n in x]
 y_1 = [func1(n) for n in x]
-y_1_fit = [func1(n) for n in y_0]
+y_1_fit = [func1(func0(n)) for n in x]
 
 plt.plot(x, x, label="correct")
 plt.plot(x, y_0, label="read poly")
