@@ -38,6 +38,9 @@ void add_defaults(float angles[6]) {
     angles[5] = offset_q[5] + angles[5];
 }
 
+/// @brief apply correction function values for each servos error rate
+/// @param angles float array of rotation values to correct
+/// @return nothing. Modifies parameter variable
 void q_corrections(float angles[6]) {
     float error_Consts[6] = {
         0.802139037433155,
@@ -49,8 +52,13 @@ void q_corrections(float angles[6]) {
     };
     angles[0] = angles[0] * error_Consts[0];
     // angles[1] = angles[1] * error_Consts[1];
-    angles[1] = 1.751*pow(10, -9)*pow(angles[1], 5)-7.693*pow(10, -7)*pow(angles[1], 4)+0.000117*pow(angles[1], 3)-0.006447*pow(angles[1], 2)+0.71*angles[1]+25.66;
-    cout << angles[1];
+    angles[1] =
+        1.751 * pow(10, -9) * pow(angles[1], 5)
+        -7.693 * pow(10, -7) * pow(angles[1], 4)
+        +0.000117 * pow(angles[1], 3)
+        -0.006447 * pow(angles[1], 2)
+        +0.71 * angles[1]
+        +25.66;
     angles[2] = angles[2] * error_Consts[2];
     angles[3] = angles[3] * error_Consts[3];
     angles[4] = angles[4] * error_Consts[4];
