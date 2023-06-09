@@ -6,10 +6,10 @@ import socket
 # for pings in range(10):
 while True:
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    client_socket.settimeout(1.0)
+    client_socket.settimeout(0.5)
     message = b'test'
     addr = ("192.168.1.117", 53)
-
+    # client_socket.bind(("100.115.92.198", 53))
     start = time.time()
     client_socket.sendto(message, addr)
     try:
