@@ -127,7 +127,8 @@ def q_corrections(q):
         - q modified
     """
     q[0] = q[0] * constants_q[0]["fixed"]
-    q[1] = q[1] * constants_q[1]["fixed"]
+    # q[1] = q[1] * constants_q[1]["fixed"]
+    q[1] = 1.751*pow(10, -9)*pow(q[1], 5)-7.693*pow(10, -7)*pow(q[1], 4)+0.000117*pow(q[1], 3)-0.006447*pow(q[1], 2)+0.71*q[1]+25.66
     q[2] = q[2] * constants_q[2]["fixed"]
     q[3] = q[3] * constants_q[3]["fixed"]
     # if q[4]<90: q[4] = (default_q[4] - ((default_q[4]-q[4])*default_q[4]) /135)

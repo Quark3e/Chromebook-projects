@@ -13,7 +13,11 @@ plotTitle = None
 
 inpVar = input("enter servo indexes to test: ").split()
 servoToTest = [int(n) for n in inpVar]
-plotTitle = input("enter plot-title/filename: ").split()
+plotTitle = input("enter plot-title/filename [no space]: ")
+useCorr = input("use q_corrections [y/n]?: ")
+
+if useCorr=="y": useCorr = True
+elif useCorr=="n": useCorr = False
 
 
 import numpy as np
@@ -30,7 +34,16 @@ from adafruit_motor import servo #type: ignore
 from adafruit_servokit import ServoKit #type: ignore
 from adafruit_pca9685 import PCA9685 #type: ignore
 
-from IK_module import sendToServo, toDegrees, toRadians, getAngles
+from IK_module import sendToServo, toDegrees, toRadians, getAngles, q_corrections
+
+
+def servoSol(servoIndex, angle):
+    if useCorr:
+        tempLst = 6*[0]
+        tempLst[servoIndex] = angle
+        q_corrections(tempLst)
+        return tempLst[servoIndex]
+    else: return angle
 
 
 i2c = busio.I2C(SCL, SDA)
@@ -133,7 +146,7 @@ def configure_plots():
     ax.set_aspect('equal',adjustable='box')
     ax.set_xlabel("given value [degrees]")
     ax.set_ylabel("read error rate | read-given [degrees]")
-    plt.title("Error rate graph")
+    plt.title(plotTitle)
 
 
 def main():
@@ -142,11 +155,8 @@ def main():
     for q in servoToTest:
         print(f"Testing servo q[{q}]")
         for l in range(6):
-            servo[l].angle = sPrep[q][l]
+            servo[l].angle = servoSol(l, sPrep[q][l])
         # os.system('clear')
-        servo[q].angle = 180
-        time.sleep(0.5)
-        servo[q].angle = 0
         inp = input(" calibrate degreeDisk (fixate disk 0 with current servo position)\n press options:\n-space and enter to continue\n-\"end\" to ignore rest and plot\n-\"exit\" to exit script\ninput: ")
         if inp=="exit":
             return
@@ -154,8 +164,8 @@ def main():
             break
         print()
         for x in range(0,19,1):
-            servo[q].angle = x*10
-            print(" sent angle:",x*10, end='')
+            servo[q].angle = servoSol(q, x*10)
+            print(" sent angle:", useCorr, ": ",servoSol(q, x*10), end='', sep='')
             readAccelerometer()
             time.sleep(1)
             inpOpt = pitch
@@ -185,12 +195,12 @@ def main():
 
     plt.grid()
     plt.legend()
-    plt.savefig("plot_"+str([testedServos]), dpi=300)
+    plt.savefig("plot_"+plotTitle, dpi=300)
     plt.show()
 
 
-    currentDate = str(datetime.now()) + ";"
-    toFile = currentDate
+    currentDate = str(datetime.now())
+    toFile = currentDate + "; testingSolution:" + useCorr + "; "
     tempDict_read = {}
     for q in testedServos: tempDict_read.update({q:y_q[q]})
     toFile += str(tempDict_read) + "\n" #type: ignore
