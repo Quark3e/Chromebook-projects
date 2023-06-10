@@ -147,7 +147,6 @@ int sendToServo(
         When the function is ran for the first time and servoInitialize is one, an empty array
         needs to be entered that will be used in *EVERY* call of sendToServo
         */
-        printResult = false;
 	   	int returnCode = 0;
 
         if(servoInitialize) {
@@ -155,13 +154,26 @@ int sendToServo(
         }
 
         if(useDefault) add_defaults(new_rotation);
+        if(printResult && useDefault) {
+            printf(
+                "angles with offset added: %d %d %d %d %d %d\n",
+                int(new_rotation[0]),
+                int(new_rotation[1]),
+                int(new_rotation[2]),
+                int(new_rotation[3]),
+                int(new_rotation[4]),
+                int(new_rotation[5])
+                );
+        }
 
         q_corrections(new_rotation);
 
         if(exceedCheck(new_rotation, printErrors)) {}//return -1;
         if(printResult) {
             printf("sent: ");
-            for(int i=0; i<6; i++) { printf("%f ", new_rotation[i]); }
+            for(int i=0; i<6; i++) {
+                printf("%f ", new_rotation[i]);
+            }
             printf("\n");
         }
 
@@ -187,7 +199,6 @@ int sendToServo(
                 }
                 if(printResult) { printf("s_diff[%d]: %f\n",i, s_diff[i]); }
             }
-            
             total_iteration = int(findVal(s_diff, sizeof(s_diff)/sizeof(int),0));
             if(printResult) printf("total_iteration:%d\n",total_iteration);
             for(int count=0; count<total_iteration-1; count++) {
@@ -203,8 +214,9 @@ int sendToServo(
                         pcaBoard->set_pwm(q, 0, round(400*(val/180))+100);
                     }
                     old_rotation[q] = val;
-                    if(printResult) printf("val:%f\n",val);
+                    if(printResult) printf("%d ",int(round(val)));
                 }
+                if(printResult) printf("----------\n");
                 if(totalTime>0.1) usleep(int(totalTime/total_iteration*1'000'000));
             }
         }
