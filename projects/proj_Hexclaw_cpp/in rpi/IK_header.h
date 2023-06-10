@@ -10,10 +10,10 @@ using namespace std;
 using namespace PiPCA9685;
 
 
-float arm_link[6] = {145, 130, 75, 50, 25, 25};
+float arm_link[6] = {145, 130, 75, 50, 25, 25}; //mm
 float sLoadWeight[6] = {0, 0.130, 0.085, 0, 0, 0}; //kg
 float offset_q[6] = {90, 0, 135, 90, 90, 90};
-float startup_q[6] = {0, 115, -90, 0, -25, 00};
+float startup_q[6] = {0, 115, -90, 0, -25, 00}; //offset not added
 
 float toDegrees(float radians) { return (radians*180)/M_PI; }
 float toRadians(float degrees) { return (degrees*M_PI)/180; }
@@ -77,12 +77,24 @@ bool exceedCheck(float angles[6], bool printErrors=false) {
     string typeOfExceeded[6] = {"null", "null", "null", "null", "null", "null"};
 
     for(int i=0; i<5; i++) {
-        if(angles[i]<0) { exceeded=true; whichExceeded[i]=true; typeOfExceeded[i]="under"; angles[i]=0; }
-        if(angles[i]>180) { exceeded=true; whichExceeded[i]=true; typeOfExceeded[i]="over"; angles[i]=180;}
+        if(int(angles[i])<0) {
+            exceeded=true;
+            whichExceeded[i]=true;
+            typeOfExceeded[i]="under";
+            angles[i]=0; 
+        }
+        if(int(angles[i])>180) {
+            exceeded=true;
+            whichExceeded[i]=true;
+            typeOfExceeded[i]="over";
+            angles[i]=180;
+        }
     }
     if(exceeded && printErrors) {
-        for(int i=0; i<6; i++) { if(whichExceeded[i]) printf(" servo %d exceeded by: %s",i, typeOfExceeded[i]); }
+        printf("\n");
+        for(int i=0; i<6; i++) { if(whichExceeded[i]) printf("\t-servo q[%d] exceeded: %s\n",i, typeOfExceeded[i].c_str()); }
     }
+    printf("\n");
     if(exceeded) return true;
     else return false;   
 }
@@ -147,6 +159,11 @@ int sendToServo(
         When the function is ran for the first time and servoInitialize is one, an empty array
         needs to be entered that will be used in *EVERY* call of sendToServo
         */
+
+        if(printResult) {
+            printf("\tNEW SENDTOSERVO()\n");
+        }
+
 	   	int returnCode = 0;
 
         if(servoInitialize) {
@@ -170,10 +187,11 @@ int sendToServo(
 
         if(exceedCheck(new_rotation, printErrors)) {}//return -1;
         if(printResult) {
-            printf("sent: ");
-            for(int i=0; i<6; i++) {
-                printf("%f ", new_rotation[i]);
-            }
+            printf("mode: %d  totalTime[sec]:%.2f\n", mode, totalTime);
+            printf(" new: ");
+            for(int i=0; i<6; i++) { printf("%.2f ", new_rotation[i]); }
+            printf("\n old: ");
+            for(int i=0; i<6; i++) { printf("%.2f ", old_rotation[i]); }
             printf("\n");
         }
 
@@ -189,6 +207,7 @@ int sendToServo(
             float s_temp[6];
             for(int i=0; i<6; i++) {
                 if(!servoInitialize) {
+                    if(printResult) printf(" - new:%4d   old:%4d   ", int(new_rotation[i]), int(old_rotation[i]));
                     s_diff[i] = new_rotation[i] - old_rotation[i];
                     s_temp[i] = old_rotation[i];
                 }
@@ -197,7 +216,7 @@ int sendToServo(
                     s_diff[i] = new_rotation[i]-old_rotation[i];
                     s_temp[i] = old_rotation[i];
                 }
-                if(printResult) { printf("s_diff[%d]: %f\n",i, s_diff[i]); }
+                if(printResult) { printf("s_diff[%d]: %6.2f\n",i, s_diff[i]); }
             }
             total_iteration = int(findVal(s_diff, sizeof(s_diff)/sizeof(int),0));
             if(printResult) printf("total_iteration:%d\n",total_iteration);
@@ -214,7 +233,7 @@ int sendToServo(
                         pcaBoard->set_pwm(q, 0, round(400*(val/180))+100);
                     }
                     old_rotation[q] = val;
-                    if(printResult) printf("%d ",int(round(val)));
+                    if(printResult) printf("%3d ",int(round(val)));
                 }
                 if(printResult) printf("----------\n");
                 if(totalTime>0.1) usleep(int(totalTime/total_iteration*1'000'000));
@@ -222,9 +241,9 @@ int sendToServo(
         }
         if(printResult) {
             printf("received: ");
-            for(int i=0; i<6; i++) {printf("%f ",old_rotation[i]);}
-            printf("\n");
+            for(int i=0; i<6; i++) {printf("%d ",int(old_rotation[i]));}
         }
+        printf("\n");
         return returnCode;
     }
 
