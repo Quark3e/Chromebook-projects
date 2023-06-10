@@ -94,7 +94,7 @@ bool exceedCheck(float angles[6], bool printErrors=false) {
         printf("\n");
         for(int i=0; i<6; i++) { if(whichExceeded[i]) printf("\t-servo q[%d] exceeded: %s\n",i, typeOfExceeded[i].c_str()); }
     }
-    printf("\n");
+    // printf("\n");
     if(exceeded) return true;
     else return false;   
 }
@@ -242,8 +242,8 @@ int sendToServo(
         if(printResult) {
             printf("received: ");
             for(int i=0; i<6; i++) {printf("%d ",int(old_rotation[i]));}
+            printf("\n");
         }
-        printf("\n");
         return returnCode;
     }
 

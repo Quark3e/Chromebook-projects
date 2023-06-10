@@ -576,8 +576,6 @@ int main(int argc, char** argv) {
 		gpioWrite(pin_ledRelay, 1);
 	}
 
-	pigpioInitia = false; // NOTE: TEMPORARY
-
 	if(argc<=1) {calibrateHSV=false; displayImg=false;}
 	else if(argc>=2) {
 		if(argv[1]=="-0") {calibrateHSV=false; displayImg=true;}
@@ -591,8 +589,8 @@ int main(int argc, char** argv) {
 	PiPCA9685::PCA9685 pca{};
 	pca.set_pwm_freq(50.0);
 	//initialization command send to pca-board
-	printf("\n- section: \"initialisation\"\n");
-	sendToServo(&pca, new_q, current_q, true, 0, 0, true, true, true);
+	// printf("\n- section: \"initialisation\"\n");
+	sendToServo(&pca, new_q, current_q, true);
 
 	if(!mode_orients && !mode_intro) {
 		printf("special mode not on\n");
@@ -645,11 +643,11 @@ int main(int argc, char** argv) {
 			gpioWrite(pin_ledRelay, 1);
 		}
 		usleep(750'000);
-		printf("\n- section: \"slow start\"\n");
-		sendToServo(&pca, new_q, current_q, false, 2, 2, true, true, true);
+		// printf("\n- section: \"slow start\"\n");
+		sendToServo(&pca, new_q, current_q, false, 2, 10);
 
 		// printf("intro finished\n");
-		// usleep(3'000'000);
+		usleep(3'000'000);
 		if(pigpioInitia) {
 			for(int i=0; i<4; i++) {
 				gpioWrite(pin_ledRelay, 0);
@@ -677,13 +675,13 @@ int main(int argc, char** argv) {
 		new_q[3] = 90;
 		new_q[4] = 90;
 		new_q[5] = 0;
-		printf("\n- section: \"crash\"\n");
-		sendToServo(&pca,new_q,current_q, false, 0, 0, true, true, true);
+		// printf("\n- section: \"crash\"\n");
+		sendToServo(&pca,new_q,current_q, false);
 	}
 
 	for(int n=0; n<6; n++) new_q[n] = startup_q[n];
-	printf("\n- section: \"closing\"\n");
-	sendToServo(&pca, new_q, current_q, false, 2, 2, true, true, true);
+	// printf("\n- section: \"closing\"\n");
+	sendToServo(&pca, new_q, current_q, false, 2, 2);
 	if(pigpioInitia) {
 		gpioTerminate();
 		gpioWrite(pin_ledRelay, 0);
