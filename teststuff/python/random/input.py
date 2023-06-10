@@ -11,6 +11,7 @@ var1, var2, var3 = 0, 0, 0
 
 
 var3 = input("Enter three values: ").split()
+print(len(var3))
 print(var3)
 if var3[0] == 'exit':
     print("detected \"exit\", is exiting...")

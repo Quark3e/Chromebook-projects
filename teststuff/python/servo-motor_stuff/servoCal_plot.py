@@ -5,8 +5,16 @@
 #  error rate by plotting the values on a graph.
 # */
 
+inpVar = None
+
 servoToTest = [1, 2] #servo[] index's of the ones to test
 testedServos = [] #index of servos that were actually tested
+plotTitle = None
+
+inpVar = input("enter servo indexes to test: ").split()
+servoToTest = [int(n) for n in inpVar]
+plotTitle = input("enter plot-title/filename: ").split()
+
 
 import numpy as np
 import time
