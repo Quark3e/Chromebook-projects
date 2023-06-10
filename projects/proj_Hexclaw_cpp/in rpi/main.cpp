@@ -157,7 +157,7 @@ bool calibrateHSV = false;
 bool displayTFT = false;
 
 bool mode_orients = false;
-bool mode_intro = false;
+bool mode_intro = true;
 
 
 int l_HSV[3] = {0, 0, 255};
@@ -449,7 +449,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) );
 		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) ); 
 
-		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 5); 
+		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 10); 
 		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)));
 
 		//delay: 1-2ms
@@ -476,7 +476,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 					if(mode!=2) {
 						cv::Size camSize = imgFlipped.size();
 						PP[0] = axisFilter[0] * float(ceil(float(posX - camSize.width/2)*axisScal[0]) + axisOffset[0]) + (1-axisFilter[0])*PP[0];
-						PP[1] = axisFilter[1] * float(ceil(float(camSize.height - posY)*axisScal[1]) + axisOffset[1]) + (1-axisFilter[1])*PP[1];
+						PP[1] = axisFilter[1] * float(ceil(float(camSize.height/2 - posY)*axisScal[1]) + axisOffset[1]) + (1-axisFilter[1])*PP[1];
 						PP[2] = axisFilter[2] * float(axisScal[2]*zAxisFunc(dArea) + axisOffset[2]) + (1-axisFilter[2])*PP[2];
 						printf("dArea:%6d", int(dArea));
 						printf(" x:%3d y:%3d z:%3d",int(PP[0]),int(PP[1]), int(PP[2]));
@@ -589,10 +589,10 @@ int main(int argc, char** argv) {
 	PiPCA9685::PCA9685 pca{};
 	pca.set_pwm_freq(50.0);
 	//initialization command send to pca-board
+	cout << "sent servo initialisation.\n";
 	sendToServo(&pca, new_q, current_q, true, 0);
 
-
-	if(!mode_orients) {
+	if(!mode_orients && !mode_intro) {
 		printf("special mode not on\n");
 		cv::VideoCapture cap(webcamIndex);
 		if(!cap.isOpened()) {
@@ -603,7 +603,7 @@ int main(int argc, char** argv) {
 
 		if(calibrateHSV) { if(displayFunc(&cap, 0, &pca)==-1) { return 0; } }
 		if(displayImg) { if(displayFunc(&cap, 1, &pca)==-1) { return 0; } }
-		if(!calibrateHSV && !displayImg) {
+		if(!calibrateHSV && !displayImg && !mode_intro) {
 			if(displayFunc(&cap, 3, &pca)==-1) { return 0; }
 		}
 	}
@@ -625,50 +625,51 @@ int main(int argc, char** argv) {
 	else if(mode_intro) {
 		new_q[0] = 0;
 		new_q[1] = 135;
-		new_q[2] = 115;
+		new_q[2] = -50;
 		new_q[3] = 0;
 		new_q[4] = -20;
 		new_q[5] = 0;
 		printf("running intro...\t");
-		
-		gpioWrite(pin_ledRelay, 0);
-		gpioWrite(pin_ledRelay, 1);
-
+		usleep(1'000'000);
+		if(pigpioInitia) {
+			gpioWrite(pin_ledRelay, 0);
+			gpioWrite(pin_ledRelay, 1);
+		}
 		usleep(750'000);
-
-		sendToServo(&pca, new_q, current_q, false, 2, 10);
+		cout << "sending first intro mov.\n";
+		sendToServo(&pca, new_q, current_q, false, 2, 10, true, true, true);
 
 		printf("intro finished\n");
 		usleep(3'000'000);
-
-		for(int i=0; i<4; i++) {
+		if(pigpioInitia) {
+			for(int i=0; i<4; i++) {
+				gpioWrite(pin_ledRelay, 0);
+				usleep(30'000);
+				gpioWrite(pin_ledRelay, 1);
+				usleep(30'000);
+			}
+			usleep(1'500'000);
 			gpioWrite(pin_ledRelay, 0);
-			usleep(30'000);
+			usleep(250'000);
 			gpioWrite(pin_ledRelay, 1);
-			usleep(30'000);
+			usleep(500'000);
+			gpioWrite(pin_ledRelay, 0);
+			usleep(100'000);
+			gpioWrite(pin_ledRelay, 1);
+			usleep(2'000'000);
+			gpioWrite(pin_ledRelay, 0);
 		}
-		usleep(1'500'000);
-		gpioWrite(pin_ledRelay, 0);
-		usleep(250'000);
-		gpioWrite(pin_ledRelay, 1);
-		usleep(500'000);
-		gpioWrite(pin_ledRelay, 0);
-		usleep(100'000);
-		gpioWrite(pin_ledRelay, 1);
-		usleep(2'000'000);
-		gpioWrite(pin_ledRelay, 0);
-		
 		usleep(2'000'000);
 
-		gpioWrite(pin_ledRelay, 1);
-
+		if(pigpioInitia) gpioWrite(pin_ledRelay, 1);
+		cout << "sending intro end...\n";
 		new_q[0] = 45;
 		new_q[1] = 0;
 		new_q[2] = -45;
 		new_q[3] = 90;
 		new_q[4] = 90;
 		new_q[5] = 0;
-		sendToServo(&pca,new_q,current_q,false);
+		sendToServo(&pca,new_q,current_q,false, 0, 0, true, true, true);
 	}
 
 

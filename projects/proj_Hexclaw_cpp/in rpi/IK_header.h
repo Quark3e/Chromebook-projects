@@ -59,7 +59,13 @@ void q_corrections(float angles[6]) {
         -0.006447 * pow(angles[1], 2)
         +0.71 * angles[1]
         +25.66;
-    angles[2] = angles[2] * error_Consts[2];
+    angles[2] = 
+        4.605 * pow(10, -9) * pow(angles[2], 5)
+        -2.178 * pow(10, -6) * pow(angles[2], 4)
+        +0.0003815 * pow(angles[2],3)
+        -0.02938 * pow(angles[2],2)
+        +1.776 * angles[2]
+        +4.114;
     angles[3] = angles[3] * error_Consts[3];
     angles[4] = angles[4] * error_Consts[4];
     angles[5] = angles[5] * error_Consts[5];
@@ -151,6 +157,7 @@ int sendToServo(
         if(useDefault) add_defaults(new_rotation);
 
         q_corrections(new_rotation);
+
         if(exceedCheck(new_rotation, printErrors)) {}//return -1;
         if(printResult) {
             printf("sent: ");

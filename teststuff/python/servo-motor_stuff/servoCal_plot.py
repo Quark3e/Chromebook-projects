@@ -37,8 +37,8 @@ from adafruit_pca9685 import PCA9685 #type: ignore
 from IK_module import sendToServo, toDegrees, toRadians, getAngles, q_corrections
 
 
-def servoSol(servoIndex, angle):
-    if useCorr:
+def servoSol(servoIndex, angle, useSol):
+    if useSol:
         tempLst = 6*[0]
         tempLst[servoIndex] = angle
         q_corrections(tempLst)
@@ -126,7 +126,7 @@ if runInitia:
 sPrep = [ #is sent AFTER that angle is finished, so loop[q] and then sPrep[q], so sPrep[q] before loop[q]
     [0,90,45,90,90,90],
     [90,0,45,90,90,90],
-    [90,90,0,90,90,90],
+    [90,135,0,90,90,90],
     [90,90,135,0,90,90],
     [90,90,135,90,0,90],
     [90,90,135,90,90,0]
@@ -155,7 +155,9 @@ def main():
     for q in servoToTest:
         print(f"Testing servo q[{q}]")
         for l in range(6):
-            servo[l].angle = servoSol(l, sPrep[q][l])
+            if l<q: tempUseCorr = True
+            else: tempUseCorr = False
+            servo[l].angle = servoSol(l, sPrep[q][l], tempUseCorr)
         # os.system('clear')
         inp = input(" calibrate degreeDisk (fixate disk 0 with current servo position)\n press options:\n-space and enter to continue\n-\"end\" to ignore rest and plot\n-\"exit\" to exit script\ninput: ")
         if inp=="exit":
@@ -164,8 +166,8 @@ def main():
             break
         print()
         for x in range(0,19,1):
-            servo[q].angle = servoSol(q, x*10)
-            print(" sent angle:", useCorr, ": ",servoSol(q, x*10), end='', sep='')
+            servo[q].angle = servoSol(q, x*10, useCorr)
+            print(" sent angle:", useCorr, ": ",servoSol(q, x*10, useCorr), end='', sep='')
             readAccelerometer()
             time.sleep(1)
             inpOpt = pitch
@@ -200,7 +202,7 @@ def main():
 
 
     currentDate = str(datetime.now())
-    toFile = currentDate + "; testingSolution:" + useCorr + "; "
+    toFile = currentDate + "; testingSolution:" + str(useCorr) + "; "
     tempDict_read = {}
     for q in testedServos: tempDict_read.update({q:y_q[q]})
     toFile += str(tempDict_read) + "\n" #type: ignore
