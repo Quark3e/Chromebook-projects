@@ -134,7 +134,7 @@ float orient[3] = {0,0,0}; //degrees
 float PP[3] = {0,150,150};
 float axisScal[3] = {0.5, 0.5, 0.4};
 float axisOffset[3] = {0, 50, 0};
-float axisFilter[3] = {1, 1, 0.5};
+float axisFilter[3] = {0.1, 0.1, 0.5};
 
 float cam_PP_offset[3] = {0,0,0};
 
@@ -163,7 +163,7 @@ bool mode_intro = false;
 int l_HSV[3] = {0, 0, 255};
 int u_HSV[3] = {179, 9, 255};
 
-int areaLim = 1000;
+int areaLim = 2000;
 
 float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
 
@@ -236,7 +236,7 @@ void updateOrients(bool printResult) {
 		// printf("\tSent %d bytes\t",bind_result);
 		printf("\tRead from server: \"%s\"\t",buffer);
 	}
-	cout << " msg_waitall:" << MSG_WAITALL << " errno:" << errno << " ";
+	cout /*<< " msg_waitall:" << MSG_WAITALL */<< " errno:" << errno << " ";
 
 	// cout << "[n=" << n << " 0:\"" <<buffer[0] << "\" n-1:\"" << buffer[n-1] << "\" ]";
 	string temp = "";
@@ -448,7 +448,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 		
 		//delay: 2-3ms
 		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) );
-		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 5); 
+		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 10); 
 
 		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 10); 
 		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 5);
