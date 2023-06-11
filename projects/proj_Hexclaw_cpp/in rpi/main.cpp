@@ -173,7 +173,9 @@ float accelFilter = 0.1;
 vector<vector<cv::Point>> contours;
 vector<cv::Vec4i> hierarchy;
 
-float validCnt_pos[20][2]; //array of contours above threshold; form [x, y]
+/// @brief array of contours above threshold; form [x, y]
+float validCnt_pos[20][2];
+
 int validCnt_index = 0; //index of biggest validCnt_pos sent (so =1 means there is one elemment)
 float totCnt_pos[2];
 float totCnt_area = 0;
@@ -462,7 +464,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 		imgThreshold);
 		
 		//delay: 2-3ms
-		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) );
+		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
 		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1); 
 
 		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1); 
@@ -501,7 +503,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 					PP[0] = axisFilter[0] * float(ceil(float(totCnt_pos[0] - camSize.width/2)*axisScal[0]) + axisOffset[0]) + (1-axisFilter[0])*PP[0];
 					PP[1] = axisFilter[1] * float(ceil(float(camSize.height - totCnt_pos[1])*axisScal[1]) + axisOffset[1]) + (1-axisFilter[1])*PP[1];
 					PP[2] = axisFilter[2] * float(axisScal[2]*zAxisFunc(totCnt_area) + axisOffset[2]) + (1-axisFilter[2])*PP[2];
-					printf("total dArea:%6d", int(totCnt_area));
+					printf("num. cnt:%2d total dArea:%6d", validCnt_index, int(totCnt_area));
 					printf(" x:%3d y:%3d z:%3d",int(PP[0]),int(PP[1]), int(PP[2]));
 					updateOrients(true);
 					if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
