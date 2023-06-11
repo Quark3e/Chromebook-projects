@@ -688,8 +688,8 @@ int main(int argc, char** argv) {
 	printf("\n- section: \"closing\"\n");
 	sendToServo(&pca, new_q, current_q, false, 2, 2);
 	if(pigpioInitia) {
-		gpioTerminate();
 		gpioWrite(pin_ledRelay, 0);
+		gpioTerminate();
 	}
 	return 0;
 }
