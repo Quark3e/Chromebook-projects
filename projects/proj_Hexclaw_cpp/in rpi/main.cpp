@@ -133,7 +133,7 @@ float new_q[6] = {0,0,0,0,0,0};
 float orient[3] = {0,0,0}; //degrees
 float PP[3] = {0,150,150};
 float axisScal[3] = {0.5, 0.5, 0.4};
-float axisOffset[3] = {0, 0, 0};
+float axisOffset[3] = {0, 50, 0};
 float axisFilter[3] = {1, 1, 0.5};
 
 float cam_PP_offset[3] = {0,0,0};
@@ -172,6 +172,7 @@ float accelFilter = 0.1;
 
 vector<vector<cv::Point>> contours;
 vector<cv::Vec4i> hierarchy;
+
 
 bool pigpioInitia = false;
 int pin_ledRelay = 23;
@@ -447,10 +448,10 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 		
 		//delay: 2-3ms
 		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) );
-		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) ); 
+		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 5); 
 
 		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 10); 
-		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)));
+		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 5);
 
 		//delay: 1-2ms
 		if(mode>=1) {
@@ -459,7 +460,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 			double dM10 = imgMoments.m10;
 			double dArea = imgMoments.m00;
 			cv::findContours(imgThreshold, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_NONE);
-			
+			dArea = 0;
 			for(unsigned int i=0; i<contours.size(); i++) {
 				dArea = cv::contourArea(contours[i]);
 				// cout << contours[0][0].x << endl;
@@ -467,7 +468,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 					cv::RotatedRect minRect = cv::minAreaRect(cv::Mat(contours[i]));
 					// cout << minRect.size.width << " " << minRect.size.height << " ";
 
-					int posX = contours[i][0].x + minRect.size.width/2, posY = contours[i][0].y + minRect.size.height/2;
+					int posX = contours[i][0].x /*	+ minRect.size.width/4*/, posY = contours[i][0].y + minRect.size.height/2;
 					
 					if(mode!=3) {
 						cv::circle(imgFlipped,cv::Point(posX,posY),50,cv::Scalar(0,0,0),2);
@@ -476,7 +477,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 					if(mode!=2) {
 						cv::Size camSize = imgFlipped.size();
 						PP[0] = axisFilter[0] * float(ceil(float(posX - camSize.width/2)*axisScal[0]) + axisOffset[0]) + (1-axisFilter[0])*PP[0];
-						PP[1] = axisFilter[1] * float(ceil(float(camSize.height/2 - posY)*axisScal[1]) + axisOffset[1]) + (1-axisFilter[1])*PP[1];
+						PP[1] = axisFilter[1] * float(ceil(float(camSize.height - posY)*axisScal[1]) + axisOffset[1]) + (1-axisFilter[1])*PP[1];
 						PP[2] = axisFilter[2] * float(axisScal[2]*zAxisFunc(dArea) + axisOffset[2]) + (1-axisFilter[2])*PP[2];
 						printf("dArea:%6d", int(dArea));
 						printf(" x:%3d y:%3d z:%3d",int(PP[0]),int(PP[1]), int(PP[2]));
@@ -486,6 +487,9 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 						}
 					}
 				}
+			}
+			if(dArea>=areaLim) {
+				
 			}
 		}
 		//delay: 9-13ms

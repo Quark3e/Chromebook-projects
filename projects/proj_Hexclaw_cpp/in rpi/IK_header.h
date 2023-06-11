@@ -71,7 +71,7 @@ void q_corrections(float angles[6]) {
     angles[5] = angles[5] * error_Consts[5];
 }
 
-bool exceedCheck(float angles[6], bool printErrors=false) {
+bool exceedCheck(float angles[6], bool printErrors=true) {
     bool exceeded = false;
     bool whichExceeded[6] = {false, false, false, false, false, false};
     string typeOfExceeded[6] = {"null", "null", "null", "null", "null", "null"};
