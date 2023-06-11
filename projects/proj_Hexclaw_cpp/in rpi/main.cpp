@@ -134,7 +134,7 @@ float orient[3] = {0,0,0}; //degrees
 float PP[3] = {0,150,150};
 float axisScal[3] = {0.5, 0.5, 0.4};
 float axisOffset[3] = {0, 50, 0};
-float axisFilter[3] = {0.1, 0.1, 0.5};
+float axisFilter[3] = {1, 1, 0.5};
 
 float cam_PP_offset[3] = {0,0,0};
 
