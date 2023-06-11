@@ -173,13 +173,13 @@ float accelFilter = 0.1;
 vector<vector<cv::Point>> contours;
 vector<cv::Vec4i> hierarchy;
 
-float validCnt_pos = [20][2]; //array of contours above limit; form [x, y]
+float validCnt_pos[20][2]; //array of contours above threshold; form [x, y]
 int validCnt_index = 0; //index of biggest validCnt_pos sent (so =1 means there is one elemment)
-float totCnt_pos = [2];
+float totCnt_pos[2];
 float totCnt_area = 0;
 
 void get_totCnt_pos(float allCnt[20][2], int cntIndex, float totCntPos_ptr[2]) {
-	float xTot=0; yTot = 0;
+	float xTot=0, yTot = 0;
 	for(int i=0; i<cntIndex; i++) {
 		xTot += allCnt[i][0];
 		yTot += allCnt[i][1];
