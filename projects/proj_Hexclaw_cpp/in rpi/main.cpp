@@ -163,7 +163,7 @@ bool mode_intro = false;
 int l_HSV[3] = {0, 0, 255};
 int u_HSV[3] = {179, 9, 255};
 
-int areaLim = 2000;
+int areaLim = 1000;
 
 float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
 
@@ -172,6 +172,21 @@ float accelFilter = 0.1;
 
 vector<vector<cv::Point>> contours;
 vector<cv::Vec4i> hierarchy;
+
+float validCnt_pos = [20][2]; //array of contours above limit; form [x, y]
+int validCnt_index = 0; //index of biggest validCnt_pos sent (so =1 means there is one elemment)
+float totCnt_pos = [2];
+float totCnt_area = 0;
+
+void get_totCnt_pos(float allCnt[20][2], int cntIndex, float totCntPos_ptr[2]) {
+	float xTot=0; yTot = 0;
+	for(int i=0; i<cntIndex; i++) {
+		xTot += allCnt[i][0];
+		yTot += allCnt[i][1];
+	}
+	totCntPos_ptr[0] = xTot / cntIndex;
+	totCntPos_ptr[1] = yTot / cntIndex;
+}
 
 
 bool pigpioInitia = false;
@@ -448,48 +463,51 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 		
 		//delay: 2-3ms
 		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) );
-		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 10); 
+		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1); 
 
-		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 10); 
-		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 5);
+		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1); 
+		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
 
 		//delay: 1-2ms
-		if(mode>=1) {
+		if(mode >= 1) {
 			cv::Moments imgMoments = cv::moments(imgThreshold);
 			double dM01 = imgMoments.m01;
 			double dM10 = imgMoments.m10;
 			double dArea = imgMoments.m00;
 			cv::findContours(imgThreshold, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_NONE);
 			dArea = 0;
+			validCnt_index = 0;
+			totCnt_area = 0;
 			for(unsigned int i=0; i<contours.size(); i++) {
 				dArea = cv::contourArea(contours[i]);
 				// cout << contours[0][0].x << endl;
-				if(dArea>=areaLim) {
+				if(dArea >= areaLim) {
 					cv::RotatedRect minRect = cv::minAreaRect(cv::Mat(contours[i]));
-					// cout << minRect.size.width << " " << minRect.size.height << " ";
-
 					int posX = contours[i][0].x /*	+ minRect.size.width/4*/, posY = contours[i][0].y + minRect.size.height/2;
-					
-					if(mode!=3) {
-						cv::circle(imgFlipped,cv::Point(posX,posY),50,cv::Scalar(0,0,0),2);
-						cv::putText(imgFlipped,to_string(int(dArea)),cv::Point(posX,posY),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false);
-					}
-					if(mode!=2) {
-						cv::Size camSize = imgFlipped.size();
-						PP[0] = axisFilter[0] * float(ceil(float(posX - camSize.width/2)*axisScal[0]) + axisOffset[0]) + (1-axisFilter[0])*PP[0];
-						PP[1] = axisFilter[1] * float(ceil(float(camSize.height - posY)*axisScal[1]) + axisOffset[1]) + (1-axisFilter[1])*PP[1];
-						PP[2] = axisFilter[2] * float(axisScal[2]*zAxisFunc(dArea) + axisOffset[2]) + (1-axisFilter[2])*PP[2];
-						printf("dArea:%6d", int(dArea));
-						printf(" x:%3d y:%3d z:%3d",int(PP[0]),int(PP[1]), int(PP[2]));
-						updateOrients(true);
-						if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
-							sendToServo(pcaSrc,new_q,current_q,false);
-						}
-					}
+					validCnt_pos[i][0] = posX;
+					validCnt_pos[i][1] = posY;
+					validCnt_index += 1;
+					totCnt_area += dArea;
 				}
 			}
-			if(dArea>=areaLim) {
-				
+			if(validCnt_index > 0) {
+				get_totCnt_pos(validCnt_pos, validCnt_index, totCnt_pos);
+				if(mode != 3) {
+					cv::circle(imgFlipped,cv::Point(totCnt_pos[0],totCnt_pos[1]),50,cv::Scalar(0,0,0),2);
+					cv::putText(imgFlipped,to_string(int(totCnt_area)),cv::Point(totCnt_pos[0],totCnt_pos[1]),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false);
+				}
+				if(mode != 2) {
+					cv::Size camSize = imgFlipped.size();
+					PP[0] = axisFilter[0] * float(ceil(float(totCnt_pos[0] - camSize.width/2)*axisScal[0]) + axisOffset[0]) + (1-axisFilter[0])*PP[0];
+					PP[1] = axisFilter[1] * float(ceil(float(camSize.height - totCnt_pos[1])*axisScal[1]) + axisOffset[1]) + (1-axisFilter[1])*PP[1];
+					PP[2] = axisFilter[2] * float(axisScal[2]*zAxisFunc(totCnt_area) + axisOffset[2]) + (1-axisFilter[2])*PP[2];
+					printf("total dArea:%6d", int(totCnt_area));
+					printf(" x:%3d y:%3d z:%3d",int(PP[0]),int(PP[1]), int(PP[2]));
+					updateOrients(true);
+					if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
+						sendToServo(pcaSrc,new_q,current_q,false);
+					}
+				}
 			}
 		}
 		//delay: 9-13ms

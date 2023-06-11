@@ -20,6 +20,7 @@ float toRadians(float degrees) { return (degrees*M_PI)/180; }
 
 float get3dDistance(float p1[3], float p2[3]) { return sqrt(pow(p2[0]-p1[0],2) + pow(p2[1]-p1[1],2) + pow(p2[2]-p1[2],2)); }
 
+
 int PoN(float var) {
 	if(var>0) return 1;
 	else if(var<0) return -1;
