@@ -68,6 +68,8 @@ def pathFind(axisRange, startPos, method=0):
     ## Parameters:
     - axisRange [unit: integers]: length of biggest axis
     - startPos [unit: integers]: start position [x, y]
+    - method [unit: integers]:
+        - 0:
     """
     testingMethod = method
     t1 = time.perf_counter()
