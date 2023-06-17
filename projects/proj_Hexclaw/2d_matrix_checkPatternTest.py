@@ -6,15 +6,18 @@ import math
 import IK_module as IK
 
 fullRange = [18, 18]
-centerPos = [9, 9]
+centerPos = [4, 4]
 
 testingMethod = 0
 lst = []
+printDraw = False
 
-toDraw = []
-for _ in range(fullRange[0]):
-    # toDraw.append(fullRange[1]*[' '])
-    toDraw.append(fullRange[1]*"■")
+def toDraw_init():
+    global toDraw
+    toDraw = []
+    for _ in range(fullRange[0]):
+        # toDraw.append(fullRange[1]*[' '])
+        toDraw.append(fullRange[1]*"■")
 
 def addSpace(string):
     temp=""
@@ -53,12 +56,14 @@ def check(val):
     if val[0]<=fullRange[0]-1 and val[0]>=0 and val[1]<=fullRange[1]-1 and val[1]>=0:
         # toDraw[val[0]][val[1]]='o'
         toDraw[val[1]]=toDraw[val[1]][:val[0]]+" "+toDraw[val[1]][val[0]+1:]
-        os.system("clear")
+        if printDraw: os.system("clear")
         for lst in toDraw:
-            print(addSpace(lst))
-        print(val)
-        print("method:", testingMethod)
-        time.sleep(0.01)
+            retStr = addSpace(lst)
+            if printDraw: print(retStr)
+        if printDraw:
+            print(val)
+            print("method:", testingMethod)
+            time.sleep(0.01)
         # if val == [4,1]: input("point reached. paused...")
     return
 
@@ -73,17 +78,17 @@ def pathFind(axisRange, startPos, method=0):
     """
     testingMethod = method
     t1 = time.perf_counter()
-    check(startPos)
+    # check(startPos)
     if method==0:
         for x in range(axisRange):
             for y in range(axisRange):
                 check([x,y])
-    if method==1:
+    elif method==1:
         for radius in range(1,axisRange):
-            for x in range(radius+1):
-                for y in range(radius+1):
+            for x in range(radius-1):
+                for y in range(radius-1):
                     check([startPos[0]-round(radius/2)+x, startPos[1]-round(radius/2)+y])
-    if method==2:
+    elif method==2:
         for radius in range(1,axisRange):
             for x in range(startPos[0]-radius, startPos[0]+radius+1):
                 check([x, startPos[1]-radius])
@@ -91,7 +96,7 @@ def pathFind(axisRange, startPos, method=0):
             for y in range(startPos[1]-radius, startPos[1]+radius+1):
                 check([startPos[0]-radius, y])
                 check([startPos[0]+radius, y])
-    if method==3:
+    elif method==3:
         for radius in range(1,axisRange):
             for angle in range(0,360,1): #not viable
                 check([
@@ -102,17 +107,35 @@ def pathFind(axisRange, startPos, method=0):
                 #     startPos[0]+round(math.sin(IK.toRadians(angle))*radius),
                 #     startPos[1]+round(math.cos(IK.toRadians(angle))*radius)
                 # ])
-    if method==4:
+    elif method==4:
         # print(len(lst1))
         for _ in lst1:
             check(_)
-    if method==5:
+    elif method==5:
         for x in range(axisRange+1):
             for y in range(axisRange+1):
                 check([startPos[0]+x, startPos[1]+y])
                 check([startPos[0]+x, startPos[1]-y])
                 check([startPos[0]-x, startPos[1]+y])
                 check([startPos[0]-x, startPos[1]-y])
+    elif method==6:
+        if startPos[1]<=round(fullRange[1]/2): B_dir=-1
+        else: B_dir=1
+        for x in range(axisRange+1):
+            for y in range(axisRange+1):
+                check([startPos[0]+x, startPos[1]+y*B_dir])
+                check([startPos[0]-x, startPos[1]+y*B_dir])
+            for y in range(axisRange+1):
+                check([startPos[0]+x, startPos[1]+y*(-B_dir)])
+                check([startPos[0]-x, startPos[1]+y*(-B_dir)])
+    elif method==7:
+        B_dir = [0, 0]
+        for axis in range(len(startPos)):
+            if startPos[axis]<=0: B_dir[axis]=-1
+            else: B_dir[axis]=1
+        
+    else:
+        return
     t2 = time.perf_counter()
     print(f"Total time: {round((t2-t1)*1000)}ms")
     return
@@ -133,19 +156,29 @@ def writeOrientPath(listFile):
 def main():
     # # toDraw[centerPos[0]][centerPos[1]] = 's'
     # toDraw[centerPos[1]]=toDraw[centerPos[1]][:centerPos[0]]+"o"+toDraw[centerPos[1]][centerPos[0]+1:]
-
-    global lst1
-    # lst1=[]
-    # for lst in toDraw:
-    #     print(lst)
-    pathListFile = open("findOrientPath.dat", "r")
-    readOrientPath(pathListFile)
-    pathFind(fullRange[0],centerPos)
-    # # writeOrientPath(pathListFile)
-    # print(IK.getNumFromString("150.233123123 6.23 420.21\n"," "))
+    global lst1, printDraw
+    while True:
+        toDraw_init()
+        inp = input("enter mode:")
+        if inp=="exit": break
+        tempMode = int(inp)
+        inp = input("print result? [y/n]:")
+        if inp=="exit": break
+        elif inp=="y": printDraw=True
+        elif inp=="n": printDraw=False
+        # lst1=[]
+        # for lst in toDraw:
+        #     print(lst)
+        pathListFile = open("findOrientPath.dat", "r")
+        readOrientPath(pathListFile)
+        pathFind(fullRange[0],centerPos, tempMode)
+        # # writeOrientPath(pathListFile)
+        # print(IK.getNumFromString("150.233123123 6.23 420.21\n"," "))
+        print()
 
     return
 
 
 if __name__ == "__main__":
+    toDraw_init()
     main()

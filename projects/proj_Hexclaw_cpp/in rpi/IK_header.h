@@ -253,10 +253,10 @@ int sendToServo(
 /// @brief Calculate Inverse Kinematic angles from given PP and orientation
 /// @param q 6 element float() array linked via pointers to original source
 /// @param PP XYZ 3 element float() array
-/// @param a orient[0]
-/// @param b orient[1]
-/// @param Y orient[2]
-/// @param mode *0*-returns in radians; *1*-returns in degrees
+/// @param a orient[0] [radians]
+/// @param b orient[1] [radians]
+/// @param Y orient[2] [radians]
+/// @param mode 0-q return in radians; 1-q return in degrees
 /// @param posOption "+" positive IK-setup; "-" negative IK_setup
 /// @param length_scalar scaling variable for each robot arm/length
 /// @param coord_scalar scaling variable for each coordinate axis in given PP
@@ -392,5 +392,24 @@ bool getAngles(
 	
 	return isReachable;
 }
+
+
+void findValidOrient(float PP[3], float currOrient[3], float returnOrient[2], float qAngles[6]) {
+    int B_dir = 0;
+
+    if(currOrient[1]<=0) B_dir = -1;
+    else B_dir = 1;
+    for(int x=alpha; alpha<=180; alpha++) {
+        for(int beta=0; beta<=180; beta++) {
+            if(getAngles(qAngles, PP, toRadians(currOrient[0]+alpha),toRadians(currOrient[1]+beta*B_dir),toRadians(currOrient[3]), 1)) { return; }
+            if(getAngles(qAngles, PP, toRadians(currOrient[0]-alpha),toRadians(currOrient[1]+beta*B_dir),toRadians(currOrient[3]), 1)) { return; }
+        }
+        for(int beta=0; beta<=180; beta++) {
+            if(getAngles(qAngles, PP, toRadians(currOrient[0]+alpha),toRadians(currOrient[1]+beta*(-B_dir)),toRadians(currOrient[3]), 1)) { return; }
+            if(getAngles(qAngles, PP, toRadians(currOrient[0]-alpha),toRadians(currOrient[1]+beta*(-B_dir)),toRadians(currOrient[3]), 1)) { return; }
+        }
+    }
+}
+
 
 
