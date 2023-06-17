@@ -379,7 +379,7 @@ bool getAngles(
 		if(printText) printf(" %d",int(round(toDegrees(q[i]))));
 		if(isnan(q[i])) {
 			isReachable = false;
-			if(printErrors) printf(" q%d is Not a Number\n",i+1);;
+			if(printErrors) printf(" q[%d] is Not a Number\n",i);;
 		}	
 	}
 
@@ -394,21 +394,41 @@ bool getAngles(
 }
 
 
-void findValidOrient(float PP[3], float currOrient[3], float returnOrient[2], float qAngles[6]) {
+bool findValidOrient(float PP[3], float currOrient[3], float retOrient[2], float qAngles[6]) {
     int B_dir = 0;
+
+    retOrient[0] = currOrient[0];
+    retOrient[1] = currOrient[1];
 
     if(currOrient[1]<=0) B_dir = -1;
     else B_dir = 1;
     for(int x=alpha; alpha<=180; alpha++) {
         for(int beta=0; beta<=180; beta++) {
-            if(getAngles(qAngles, PP, toRadians(currOrient[0]+alpha),toRadians(currOrient[1]+beta*B_dir),toRadians(currOrient[3]), 1)) { return; }
-            if(getAngles(qAngles, PP, toRadians(currOrient[0]-alpha),toRadians(currOrient[1]+beta*B_dir),toRadians(currOrient[3]), 1)) { return; }
+            if(getAngles(qAngles, PP, toRadians(currOrient[0]+alpha),toRadians(currOrient[1]+beta*B_dir),toRadians(currOrient[3]), 1)) {
+                retOrient[0] = currOrient[0] + alpha;
+                retOrient[1] = currOrient[1] + beta*B_dir;
+                return true;
+            }
+            if(getAngles(qAngles, PP, toRadians(currOrient[0]-alpha),toRadians(currOrient[1]+beta*B_dir),toRadians(currOrient[3]), 1)) {
+                retOrient[0] = currOrient[0] - alpha;
+                retOrient[1] = currOrient[1] + beta*B_dir;
+                return true;
+            }
         }
         for(int beta=0; beta<=180; beta++) {
-            if(getAngles(qAngles, PP, toRadians(currOrient[0]+alpha),toRadians(currOrient[1]+beta*(-B_dir)),toRadians(currOrient[3]), 1)) { return; }
-            if(getAngles(qAngles, PP, toRadians(currOrient[0]-alpha),toRadians(currOrient[1]+beta*(-B_dir)),toRadians(currOrient[3]), 1)) { return; }
+            if(getAngles(qAngles, PP, toRadians(currOrient[0]+alpha),toRadians(currOrient[1]+beta*(-B_dir)),toRadians(currOrient[3]), 1)) {
+                retOrient[0] = currOrient[0] + alpha;
+                retOrient[1] = currOrient[1] + beta*(-B_dir);
+                return true;
+            }
+            if(getAngles(qAngles, PP, toRadians(currOrient[0]-alpha),toRadians(currOrient[1]+beta*(-B_dir)),toRadians(currOrient[3]), 1)) {
+                retOrient[0] = currOrient[0] - alpha;
+                retOrient[1] = currOrient[1] + beta*(-B_dir);
+                return true;
+            }
         }
     }
+    return false;
 }
 
 
