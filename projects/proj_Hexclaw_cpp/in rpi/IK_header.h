@@ -405,7 +405,10 @@ bool findValidOrient(float PP[3], float currOrient[3], float retOrient[2], float
     else B_dir = 1;
     for(int x=alpha; alpha<=180; alpha+=orientAcc[0]) {
         for(int beta=0; beta<=180; beta+=orientAcc[1]) {
-            if(getAngles(qAngles, PP, toRadians(currOrient[0]+alpha),toRadians(currOrient[1]+beta*B_dir),toRadians(currOrient[3]), 1)) {
+            
+            if(
+                (currOrient[0]+alpha) < 
+                getAngles(qAngles, PP, toRadians(currOrient[0]+alpha),toRadians(currOrient[1]+beta*B_dir),toRadians(currOrient[3]), 1)) {
                 retOrient[0] = currOrient[0] + alpha;
                 retOrient[1] = currOrient[1] + beta*B_dir;
                 return true;
