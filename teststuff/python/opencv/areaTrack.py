@@ -15,7 +15,8 @@ def nothing(x):
 cam0 = cv2.VideoCapture(0)
 cam1 = cv2.VideoCapture(2)
 
-
+cam0.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
+cam1.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
 
 displayToOpenCV = True
 
