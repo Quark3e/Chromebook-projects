@@ -15,6 +15,8 @@ def nothing(x):
 cam0 = cv2.VideoCapture(0)
 cam1 = cv2.VideoCapture(2)
 
+
+
 displayToOpenCV = True
 
 

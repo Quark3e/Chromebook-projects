@@ -510,7 +510,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 					else if(findValidOrient(PP, orient, orient, new_q)) {
 						sendToServo(pcaSrc,new_q,current_q,false);
 					}
-					else printf("valid orient not found\n");
+					else printf("valid orient for (%d, %d, %d) not found\n", int(PP[0]), int(PP[1]), int(PP[2]));
 				}
 			}
 		}

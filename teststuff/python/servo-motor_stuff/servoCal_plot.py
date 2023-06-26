@@ -2,7 +2,7 @@
 
 #/*
 # A script to "attempt" fixing every servo motors
-#  error rate by plotting the values on a graph.
+#  error rate (from ADXL345 accelerometer tilt) by plotting the values on a graph.
 # */
 
 inpVar = None
