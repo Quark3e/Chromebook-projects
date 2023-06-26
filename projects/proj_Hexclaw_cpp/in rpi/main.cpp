@@ -625,7 +625,7 @@ int main(int argc, char** argv) {
 			cout << "error: Cannot open web cam." << endl;
 			return -1;
 		}
-		
+		cv::set(CAP_PROP_AUTO_EXPOSURE, 0);
 		hsv_settingsRead("",5,"hsv_settings.dat",false);
 
 		if(calibrateHSV) { if(displayFunc(&cap, 0, &pca)==-1) { return 0; } }
