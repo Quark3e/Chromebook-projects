@@ -169,13 +169,15 @@ def script_exit():
     outFile.close()
     return
 
-fig, ax = plt.subplots()
-ln, = plt.plot([], [], 'ro')
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
 
 def plt_init():
     print("check init start")
-    ax.set_xlim(0, 5000)
-    ax.set_ylim(0, 500)
+    ax.set(xlim3d=(-150, 150), xlabel='X')
+    ax.set(ylim3d=(-150, 150), ylabel='Y')
+    ax.set(zlim3d=(0, 300), zlabel='Z')
+    ax.view_init(elev=30, azim=60)
     print("check init end")
 
 def plt_update(n):
@@ -243,6 +245,7 @@ configure_settings()
 
 # ani = FuncAnimation(fig, plt_update, 10, init_func=plt_init(), blit=True)
 
+plt_init()
 while True:
     if plt_update(0):
         pass
