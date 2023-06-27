@@ -53,8 +53,8 @@ outFile = open("zAxis-Area_values.dat", "a")
 
 values = {} 
 # temporary holder for values:
-#   str([x, y, z]): [ [cntArea, ...], [[x, y, z], ...] ],
-#   str([x, y, z]): [ [cntArea, ...], [[x, y, z], ...] ],
+#   str([x, y, z]): [cntArea, ...],
+#   str([x, y, z]): [cntArea, ...],
 #   ...
 
 # xData, yData, zData, areaData = [], [], [], []
@@ -227,26 +227,17 @@ def plt_update(n):
                 else: print("cntMoments['m00'] = 0")
         
         if str(cntPos) not in values:
-            values.update(
-                {
-                    str(cntPos): [
-                        [int(cntArea)],
-                        [cntPos]
-                    ]
-                }
-            )
+            values.update( { str(cntPos): [int(cntArea)] } )
         else:
-            values[str(cntPos)][0].append(int(cntArea))
-            values[str(cntPos)][1].append(cntPos)
-        if len(values[str(cntPos)][0]) >= 100: # check if there are more than 100 elements stored
-            values[str(cntPos)][0] = sum(values[str(cntPos)][0])/len(values[str(cntPos)][0])
-            
-            print("averages value:", cntPos[1]  )
+            values[str(cntPos)].append(int(cntArea))
+        if len(values[str(cntPos)]) >= 100: # check if there are more than 100 cntArea-values stored
+            values[str(cntPos)] = sum(values[str(cntPos)])/len(values[str(cntPos)])
+            print("solved average area for pos: ", cntPos)
 
-        tempDict = list(values.keys())
-        tempDict.sort()
-        values = {i: values[i] for i in tempDict}
-        xData, yData = [], []
+        data["x"]
+        data["y"]
+        data["z"]
+        data["x"]
         for key, val in values.items():
             yData.append(key)
             xData.append(val)
@@ -284,6 +275,6 @@ while True:
 
 print("plotting..")
 
-plt.plot(xData, yData)
+ax.scatter(data["x"], data["y"], data["z"])
 
 plt.show()

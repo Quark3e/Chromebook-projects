@@ -201,7 +201,6 @@ def plt_update(n):
         tempDict = list(values.keys())
         tempDict.sort()
         values = {i: values[i] for i in tempDict}
-        xData, yData = [], []
         for key, val in values.items():
             yData.append(key)
             xData.append(val)
