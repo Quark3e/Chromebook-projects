@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.animation
 import pandas as pd
+import math
 
 
 a = np.random.rand(2000, 3)*10
@@ -22,10 +23,15 @@ fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 title = ax.set_title('3D Test')
 
+plt.legend()
+
 data=df[df['time']==0]
-graph = ax.scatter(data.x, data.y, data.z)
+
+z = [math.sin(n) for n in range(100)]
+graph = ax.scatter(data.x, data.y, data.z, c=z, cmap="magma")
 
 ani = matplotlib.animation.FuncAnimation(fig, update_graph, 19, 
                                interval=40, blit=False)
 
+plt.colorbar(graph)
 plt.show()

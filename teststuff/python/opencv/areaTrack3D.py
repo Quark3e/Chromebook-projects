@@ -272,6 +272,7 @@ while True:
 
 print("plotting..")
 
-ax.scatter(data["x"], data["y"], data["z"])
+resultGraph = ax.scatter(data["x"], data["y"], data["z"], c=data["area"], cmape="magma")
 
+plt.colorbar(resultGraph)
 plt.show()
