@@ -159,10 +159,12 @@ def script_exit():
 
     print("raw:", values)
     print("----------------")
+    for key in data: data[key] = []
+
     for key, val in values.items():
         values[key] = int(sum(values[key])/len(values[key]))
         strPos = list(key)
-        if strPos[0] not in data["x"] and strPos[1] not in data["y"] and strPos[2] not in data["z"]:
+        if not (strPos[0] in data["x"] and strPos[1] in data["y"] and strPos[2] in data["z"]):
             data["x"].append(strPos[0])
             data["y"].append(strPos[1])
             data["z"].append(strPos[2])
