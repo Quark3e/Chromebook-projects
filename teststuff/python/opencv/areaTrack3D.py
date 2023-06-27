@@ -22,6 +22,7 @@ import openCV_addon as ad
 import math
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+import sys
 
 def nothing(x):
     pass
@@ -239,6 +240,8 @@ def plt_update(n):
         cv2.imshow("cap1", cv2.resize(np.hstack((morphImg[1], frame[1])), None, fx=0.4, fy=0.4))
         key = cv2.waitKey(1)
         if key==27:
+            sys.exit()
+        elif key==32:
             script_exit()
             return False
         elif key==ord('s'):
