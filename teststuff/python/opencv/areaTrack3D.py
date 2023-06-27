@@ -6,6 +6,13 @@
 #   save contourArea values
 #flag==1:
 #   save z values
+#
+#if xy values exist: append list: xy, contourArea and z values
+#else if xy values doesnt exist: update dict with values as element [0]
+
+#in 'zAxis-Area_values.dat' it'll store:
+#   [contourArea, ...]
+#   [[x,y,z], ...]
 
 import cv2
 import numpy as np
@@ -43,9 +50,15 @@ if displayToOpenCV:
 
 #   int(zAxis): [cntArea],
 outFile = open("zAxis-Area_values.dat", "a")
-values = {}
-xData, yData, zData, areaData = [], [], [], []
-data = {
+
+values = {} 
+# temporary holder for values:
+#   str([x, y, z]): [ [cntArea, ...], [[x, y, z], ...] ],
+#   str([x, y, z]): [ [cntArea, ...], [[x, y, z], ...] ],
+#   ...
+
+# xData, yData, zData, areaData = [], [], [], []
+data = { # what is sent to .scatter() or .plot()
     "x": [],
     "y": [],
     "z": [],
@@ -64,6 +77,7 @@ thresh = [0, 0]
 ret = [0, 0]
 contours = [0, 0]
 cntArea = 0
+tempPos = [0, 0]
 cntPos = [0, 0, 0]
 cntMoments = 0
 frame = [0, 0]
@@ -141,6 +155,7 @@ def configure_settings():
 def script_exit():
     global values, data
     print("exit initialized...", end='')
+
     tempDict = list(values.keys())
     tempDict.sort()
     print("raw:", values)
@@ -190,27 +205,42 @@ def plt_update(n):
     else:    
         processFrame(imgTemp[0], 0, "cap0") #solve contourArea and xy pos
         processFrame(imgTemp[1], 1, "cap1")
+        cntPos = [None, None, None]
+        tempPos = [None, None]
         for flag in range(2):
             for i in range(len(contours[flag])):
                 cntMoments = cv2.moments(contours[flag][0])
                 if cntMoments['m00'] != 0:
                     if flag==0:
-                        cntPos_xy = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
+                        tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
+                        cntPos[0] = round(tempPos[0]/10)*10
+                        cntPos[1] = round(tempPos[1]/10)*10
                         cntArea = cv2.contourArea(contours[flag][0])
                         if displayToOpenCV:
-                            morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(cntPos_xy[0],cntPos_xy[1]),font,1,(255,0,0),2)
+                            morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1,(255,0,0),2)
                     elif flag==1:
-                        cntPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
+                        tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
+                        cntPos[2] = round(tempPos[1]/10)*10
                         if displayToOpenCV:
-                            morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntPos[1])),(cntPos[0],cntPos[1]),font,1,(255,0,0),2)
-                        cntPos[1] = prefRes[1] - cntPos[1]
+                            morphImg[flag] = cv2.putText(morphImg[flag],str(int(tempPos[1])),(tempPos[0],tempPos[1]),font,1,(255,0,0),2)
+                        cntPos[2] = prefRes[1] - cntPos[2]
+                else: print("cntMoments['m00'] = 0")
         
-        if cntPos[1] not in values:
-            values.update({cntPos[1]: [cntArea]})
+        if str(cntPos) not in values:
+            values.update(
+                {
+                    str(cntPos): [
+                        [int(cntArea)],
+                        [cntPos]
+                    ]
+                }
+            )
         else:
-            values[cntPos[1]].append(int(cntArea))
-        if len(values[cntPos[1]]) >= 100:
-            values[cntPos[1]] = sum(values[cntPos[1]])/len(values[cntPos[1]])
+            values[str(cntPos)][0].append(int(cntArea))
+            values[str(cntPos)][1].append(cntPos)
+        if len(values[str(cntPos)][0]) >= 100: # check if there are more than 100 elements stored
+            values[str(cntPos)][0] = sum(values[str(cntPos)][0])/len(values[str(cntPos)][0])
+            
             print("averages value:", cntPos[1]  )
 
         tempDict = list(values.keys())
