@@ -59,10 +59,10 @@ values = {}
 
 # xData, yData, zData, areaData = [], [], [], []
 data = { # what is sent to .scatter() or .plot()
+    "area": [],
     "x": [],
     "y": [],
-    "z": [],
-    "area": []
+    "z": []
 }
 
 prefRes = (640, 480)
@@ -156,30 +156,29 @@ def script_exit():
     global values, data
     print("exit initialized...", end='')
 
-    tempDict = list(values.keys())
-    tempDict.sort()
     print("raw:", values)
     print("----------------")
-    values = {i: values[i] for i in tempDict}
-    print("sorting:")
-    print("----------------")
-    print("sorted:",values)
-    print("----------------")
-    for key in data: data[key] = []
-    for key in values:
+    for key, val in values.items():
         values[key] = int(sum(values[key])/len(values[key]))
-        yData.append(key)
-        xData.append(values[key])
-        print(key,": ",values[key],sep='')
+        strPos = list(key)
+        if strPos[0] not in data["x"] and strPos[1] not in data["y"] and strPos[2] not in data["z"]:
+            data["x"].append(strPos[0])
+            data["y"].append(strPos[1])
+            data["z"].append(strPos[2])
+            data["area"].append(val)
+            print(key,": ", values[key], sep='')
+        else: print("pos:", strPos, " already in dict 'data'")
+
     print("----------------")
     # outFile.write(str(values)+"\n")
-    outFile.write(str(xData)+"\n")
-    outFile.write(str(yData)+"\n")
+    outFile.write(str(data["area"])+"\n")
+    outFile.write(str(data["x"])+"\n")
+    outFile.write(str(data["y"])+"\n")
+    outFile.write(str(data["z"])+"\n")
     outFile.write("\n")
     print(values)
     print("----------------")
-    print(xData)
-    print(yData)
+    for key in data: print(data[key])
     print("----------------")
     outFile.close()
     return
@@ -197,7 +196,7 @@ def plt_init():
 
 def plt_update(n):
     # print("check update")
-    global imgTemp, ret, contours, cntArea, cntPos, cntMoments, values, xData, yData
+    global imgTemp, ret, contours, cntArea, cntPos, cntMoments, values
     ret[0], imgTemp[0] = cam0.read()
     ret[1], imgTemp[1] = cam1.read()
     # print("check 2")
@@ -234,13 +233,6 @@ def plt_update(n):
             values[str(cntPos)] = sum(values[str(cntPos)])/len(values[str(cntPos)])
             print("solved average area for pos: ", cntPos)
 
-        data["x"]
-        data["y"]
-        data["z"]
-        data["x"]
-        for key, val in values.items():
-            yData.append(key)
-            xData.append(val)
         # ln.set_data(xData, yData)
     if displayToOpenCV:
         cv2.imshow("cap0", cv2.resize(np.hstack((morphImg[0], frame[0])), None, fx=0.4, fy=0.4))
