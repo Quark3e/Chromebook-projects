@@ -112,7 +112,7 @@ def processFrame(img, flag, winName):
     # morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=0)
 
     morphImg[flag] = cv2.erode(cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR), kernel, 1)
-    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=1)
+    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=2)
     morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=1)
     morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=1)
 
@@ -217,14 +217,14 @@ def plt_update(n):
                 if cntMoments['m00'] != 0:
                     if flag==0:
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                        cntPos[0] = round(tempPos[0])
-                        cntPos[1] = round(tempPos[1])
+                        cntPos[0] = round(tempPos[0]/10)*10
+                        cntPos[1] = round(tempPos[1]/10)*10
                         cntArea = cv2.contourArea(contours[flag][0])
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1,(255,0,0),2)
                     elif flag==1:
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                        cntPos[2] = round(tempPos[1])
+                        cntPos[2] = round(tempPos[1]/10)*10
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(tempPos[1])),(tempPos[0],tempPos[1]),font,1,(255,0,0),2)
                         cntPos[2] = prefRes[1] - cntPos[2]
