@@ -42,12 +42,13 @@ hsvCam1 = [[0, 0, 255], [179, 9, 255]] #z
 
 
 if displayToOpenCV:
-    cv2.namedWindow("cap0") #xy
-    cv2.namedWindow("cap1") #z
-    ad.hsv_trackbars("cap0", hsvCam0)
-    ad.hsv_trackbars("cap1", hsvCam1)
-    cv2.moveWindow("cap0", 100, 100)
-    cv2.moveWindow("cap1", 100+700, 100)
+    dispWin = ["cam0", "cam1"]
+    cv2.namedWindow(dispWin[0]) #xy
+    cv2.namedWindow(dispWin[1]) #z
+    ad.hsv_trackbars(dispWin[0], hsvCam0)
+    ad.hsv_trackbars(dispWin[1], hsvCam1)
+    cv2.moveWindow(dispWin[0], 100, 100)
+    cv2.moveWindow(dispWin[1], 100+700, 100)
 
 #   int(zAxis): [cntArea],
 outFile = open("zAxis-Area_values.dat", "a")
@@ -75,16 +76,16 @@ imgTemp = [0, 0]
 morphImg = [0, 0]
 thresh = [0, 0]
 
-ret = [0, 0]
+ret = [0, 0] # boolean(s) for if .read() succesfully returned an image from VideoCapture object
 contours = [0, 0]
-cntArea = 0
+cntArea = 0 # contour(/area) of tracking as seen from cam[0]
 tempPos = [0, 0]
 cntPos = [0, 0, 0]
 cntMoments = 0
 frame = [0, 0]
 
 def processFrame(img, flag, winName):
-    global contours, cntMoments, cntPos, cntArea, morphImg, frame
+    global contours, cntPos, cntArea, morphImg, frame
     hsvList = []
     if flag==0:
         hsvList = hsvCam0
@@ -111,14 +112,14 @@ def processFrame(img, flag, winName):
     # morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=0)
 
     morphImg[flag] = cv2.erode(cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR), kernel, 1)
-    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=1)
+    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=2)
     morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=1)
     morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=1)
 
     _, thresh[flag] = cv2.threshold(morphImg[flag], 127, 255, cv2.THRESH_BINARY)
     contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(thresh[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-def configure_settings():
+def configure_settings(): #NOTE: NOT UPDATED
     if not displayToOpenCV:
         return
     global imgTemp, ret, contours, cntArea, cntPos, cntMoments
@@ -164,6 +165,7 @@ def script_exit():
     for key, val in values.items():
         values[key] = int(sum(values[key])/len(values[key]))
         strPos = list(key)
+        print(strPos, f"[{strPos[0], strPos[1], strPos[2]}]", type(strPos))
         if not (strPos[0] in data["x"] and strPos[1] in data["y"] and strPos[2] in data["z"]):
             data["x"].append(strPos[0])
             data["y"].append(strPos[1])
@@ -205,8 +207,8 @@ def plt_update(n):
     # print("check 2")
     if ret[0]==False or ret[1]==False: print("could not capture from cam. returned:", ret)
     else:    
-        processFrame(imgTemp[0], 0, "cap0") #solve contourArea and xy pos
-        processFrame(imgTemp[1], 1, "cap1")
+        processFrame(imgTemp[0], 0, dispWin[0]) #solve contourArea and xy pos
+        processFrame(imgTemp[1], 1, dispWin[1])
         cntPos = [None, None, None]
         tempPos = [None, None]
         for flag in range(2):
@@ -227,26 +229,27 @@ def plt_update(n):
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(tempPos[1])),(tempPos[0],tempPos[1]),font,1,(255,0,0),2)
                         cntPos[2] = prefRes[1] - cntPos[2]
                 else: print("cntMoments['m00'] = 0")
-        
-        if str(cntPos) not in values:
-            values.update( { str(cntPos): [int(cntArea)] } )
-        else:
-            values[str(cntPos)].append(int(cntArea))
-        if len(values[str(cntPos)]) >= 100: # check if there are more than 100 cntArea-values stored
-            values[str(cntPos)] = sum(values[str(cntPos)])/len(values[str(cntPos)])
-            print("solved average area for pos: ", cntPos)
+        if cntArea != None and None not in cntPos:
+            if str(cntPos) not in values:
+                values.update({str(cntPos): [int(cntArea)]})
+                print("updated 'values' with: {", str(cntPos), ": ", values[str(cntPos)], "}", sep='')
+            else:
+                values[str(cntPos)].append(int(cntArea))
+            if len(values[str(cntPos)]) >= 10: # check if there are more than 100 cntArea-values stored
+                values[str(cntPos)] = sum(values[str(cntPos)])/len(values[str(cntPos)])
+                print(f"average area for pos: {str(cntPos)} solved")
 
         # ln.set_data(xData, yData)
     if displayToOpenCV:
-        cv2.imshow("cap0", cv2.resize(np.hstack((morphImg[0], frame[0])), None, fx=0.4, fy=0.4))
-        cv2.imshow("cap1", cv2.resize(np.hstack((morphImg[1], frame[1])), None, fx=0.4, fy=0.4))
-        key = cv2.waitKey(1)
+        cv2.imshow(dispWin[0], cv2.resize(np.hstack((morphImg[0], frame[0])), None, fx=0.4, fy=0.4))
+        cv2.imshow(dispWin[1], cv2.resize(np.hstack((morphImg[1], frame[1])), None, fx=0.4, fy=0.4))
+        key = cv2.waitKey(5)
         if key==27:
             sys.exit()
         elif key==32:
             script_exit()
             return False
-        elif key==ord('s'):
+        elif key==115:
             print([hsvCam0],[hsvCam1])
             np.save('hsv_value_cam0',[hsvCam0])
             np.save('hsv_value_cam1',[hsvCam1])
