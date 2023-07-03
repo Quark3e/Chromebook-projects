@@ -17,6 +17,7 @@
 import cv2
 import numpy as np
 import os
+import os.path
 from time import sleep
 import openCV_addon as ad
 import math
@@ -119,41 +120,6 @@ def processFrame(img, flag, winName):
     _, thresh[flag] = cv2.threshold(morphImg[flag], 127, 255, cv2.THRESH_BINARY)
     contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(thresh[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-def configure_settings(): #NOTE: NOT UPDATED
-    if not displayToOpenCV:
-        return
-    global imgTemp, ret, contours, cntArea, cntPos, cntMoments
-    while True:
-        ret[0], imgTemp[0] = cam0.read()
-        ret[1], imgTemp[1] = cam1.read()
-        if ret[0]==False or ret[1]==False: print("could not capture from cam. returned:", ret)
-        else:    
-            processFrame(imgTemp[0], 0, "cap0")
-            processFrame(imgTemp[1], 1, "cap1")
-            for flag in range(2):
-                for i in range(len(contours[flag])):
-                    if cv2.contourArea(contours[flag][0]) > 1000:
-                        cntMoments = cv2.moments(contours[flag][0])
-                        if cntMoments['m00'] != 0:
-                            if flag==0:
-                                cntPos_xy = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                                cntArea = cv2.contourArea(contours[flag][0])
-                                if displayToOpenCV:
-                                    morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(cntPos_xy[0],cntPos_xy[1]),font,1,(255,0,0),2)
-                            elif flag==1:
-                                cntPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                                if displayToOpenCV:
-                                    morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntPos[1])),(cntPos[0],cntPos[1]),font,1,(255,0,0),2)
-            print(prefRes[1]-cntPos[1], cntArea)
-            # print((morphImg[0]).shape, (frame[0]).shape)
-            cv2.imshow("cap0", cv2.resize(np.hstack((morphImg[0], frame[0])), None, fx=0.4, fy=0.4)) # type: ignore
-            cv2.imshow("cap1", cv2.resize(np.hstack((morphImg[1], frame[1])), None, fx=0.4, fy=0.4)) # type: ignore
-            key = cv2.waitKey(1)
-            if key==27:
-                exit()
-            elif key==32:
-                return
-
 def script_exit():
     global values, data
     print("exit initialized...", end='')
@@ -163,9 +129,9 @@ def script_exit():
     for key in data: data[key] = []
 
     for key, val in values.items():
-        values[key] = int(sum(values[key])/len(values[key]))
-        strPos = list(key)
-        print(strPos, f"[{strPos[0], strPos[1], strPos[2]}]", type(strPos))
+        if type(val)==type(list()): val = int(sum(val)/len(val))
+        strPos = eval(key)
+        print(f"key:{key} strPos:{strPos} elements:[{strPos[0]}, {strPos[1]}, {strPos[2]}] type:{type(strPos)} value:{val}")
         if not (strPos[0] in data["x"] and strPos[1] in data["y"] and strPos[2] in data["z"]):
             data["x"].append(strPos[0])
             data["y"].append(strPos[1])
@@ -174,7 +140,7 @@ def script_exit():
             print(key,": ", values[key], sep='')
         else: print("pos:", strPos, " already in dict 'data'")
 
-    print("----------------")
+    print("----------------values")
     # outFile.write(str(values)+"\n")
     outFile.write(str(data["area"])+"\n")
     outFile.write(str(data["x"])+"\n")
@@ -182,9 +148,9 @@ def script_exit():
     outFile.write(str(data["z"])+"\n")
     outFile.write("\n")
     print(values)
-    print("----------------")
-    for key in data: print(data[key])
-    print("----------------")
+    print("----------------data")
+    print(data)
+    print("----------------script_exit() end")
     outFile.close()
     return
 
@@ -217,8 +183,8 @@ def plt_update(n):
                 if cntMoments['m00'] != 0:
                     if flag==0:
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                        cntPos[0] = round(tempPos[0]/10)*10
-                        cntPos[1] = round(tempPos[1]/10)*10
+                        cntPos[0] = round((tempPos[0]-prefRes[0]/2)/10)*10
+                        cntPos[1] = round((prefRes[1]/2-tempPos[1])/10)*10
                         cntArea = cv2.contourArea(contours[flag][0])
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1,(255,0,0),2)
@@ -234,9 +200,10 @@ def plt_update(n):
                 values.update({str(cntPos): [int(cntArea)]})
                 print("updated 'values' with: {", str(cntPos), ": ", values[str(cntPos)], "}", sep='')
             else:
+                print(values[str(cntPos)])
                 values[str(cntPos)].append(int(cntArea))
             if len(values[str(cntPos)]) >= 10: # check if there are more than 100 cntArea-values stored
-                values[str(cntPos)] = sum(values[str(cntPos)])/len(values[str(cntPos)])
+                values[str(cntPos)] = [sum(values[str(cntPos)])/len(values[str(cntPos)])]
                 print(f"average area for pos: {str(cntPos)} solved")
 
         # ln.set_data(xData, yData)
@@ -262,7 +229,7 @@ def plt_update(n):
     return True
 
 # if __name__=="__main__":
-configure_settings()
+#configure_settings()
 
 # ani = FuncAnimation(fig, plt_update, 10, init_func=plt_init(), blit=True)
 
@@ -275,7 +242,14 @@ while True:
 
 print("plotting..")
 
-resultGraph = ax.scatter(data["x"], data["y"], data["z"], c=data["area"], cmape="magma")
+resultGraph = ax.scatter(data["x"], data["y"], data["z"], c=data["area"], cmap="magma")
 
 plt.colorbar(resultGraph)
+
+fileName = "areaTrack3D_media/img"
+for i in range(1000):
+    if not os.path.isfile(fileName+str(i)+".png"):
+        plt.savefig(fileName+str(i)+".png")
+        break
 plt.show()
+
