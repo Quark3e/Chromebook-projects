@@ -84,7 +84,7 @@ cntMoments = 0
 frame = [0, 0]
 
 def processFrame(img, flag, winName):
-    global contours, cntMoments, cntPos, cntArea, morphImg, frame
+    global contours, cntPos, cntArea, morphImg, frame
     hsvList = []
     if flag==0:
         hsvList = hsvCam0
@@ -164,6 +164,7 @@ def script_exit():
     for key, val in values.items():
         values[key] = int(sum(values[key])/len(values[key]))
         strPos = list(key)
+        print(strPos, f"[{strPos[0], strPos[1], strPos[2]}]", type(strPos))
         if not (strPos[0] in data["x"] and strPos[1] in data["y"] and strPos[2] in data["z"]):
             data["x"].append(strPos[0])
             data["y"].append(strPos[1])
@@ -215,38 +216,39 @@ def plt_update(n):
                 if cntMoments['m00'] != 0:
                     if flag==0:
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                        cntPos[0] = round(tempPos[0]/10)*10
-                        cntPos[1] = round(tempPos[1]/10)*10
+                        cntPos[0] = round(tempPos[0])
+                        cntPos[1] = round(tempPos[1])
                         cntArea = cv2.contourArea(contours[flag][0])
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1,(255,0,0),2)
                     elif flag==1:
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                        cntPos[2] = round(tempPos[1]/10)*10
+                        cntPos[2] = round(tempPos[1])
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(tempPos[1])),(tempPos[0],tempPos[1]),font,1,(255,0,0),2)
                         cntPos[2] = prefRes[1] - cntPos[2]
                 else: print("cntMoments['m00'] = 0")
-        
-        if str(cntPos) not in values:
-            values.update( { str(cntPos): [int(cntArea)] } )
-        else:
-            values[str(cntPos)].append(int(cntArea))
-        if len(values[str(cntPos)]) >= 100: # check if there are more than 100 cntArea-values stored
-            values[str(cntPos)] = sum(values[str(cntPos)])/len(values[str(cntPos)])
-            print("solved average area for pos: ", cntPos)
+        if cntArea != None and None not in cntPos:
+            if str(cntPos) not in values:
+                values.update({str(cntPos): [int(cntArea)]})
+                print("updated 'values' with: {", str(cntPos), ": ", values[str(cntPos)], "}", sep='')
+            else:
+                values[str(cntPos)].append(int(cntArea))
+            if len(values[str(cntPos)]) >= 10: # check if there are more than 100 cntArea-values stored
+                values[str(cntPos)] = sum(values[str(cntPos)])/len(values[str(cntPos)])
+                print(f"average area for pos: {str(cntPos)} solved")
 
         # ln.set_data(xData, yData)
     if displayToOpenCV:
         cv2.imshow("cap0", cv2.resize(np.hstack((morphImg[0], frame[0])), None, fx=0.4, fy=0.4))
         cv2.imshow("cap1", cv2.resize(np.hstack((morphImg[1], frame[1])), None, fx=0.4, fy=0.4))
-        key = cv2.waitKey(1)
+        key = cv2.waitKey(5)
         if key==27:
             sys.exit()
         elif key==32:
             script_exit()
             return False
-        elif key==ord('s'):
+        elif key==115:
             print([hsvCam0],[hsvCam1])
             np.save('hsv_value_cam0',[hsvCam0])
             np.save('hsv_value_cam1',[hsvCam1])
