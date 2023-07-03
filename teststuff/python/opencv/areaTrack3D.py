@@ -75,9 +75,9 @@ imgTemp = [0, 0]
 morphImg = [0, 0]
 thresh = [0, 0]
 
-ret = [0, 0]
+ret = [0, 0] # boolean(s) for if .read() succesfully returned an image from VideoCapture object
 contours = [0, 0]
-cntArea = 0
+cntArea = 0 # contour(/area) of tracking as seen from cam[0]
 tempPos = [0, 0]
 cntPos = [0, 0, 0]
 cntMoments = 0
