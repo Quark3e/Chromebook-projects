@@ -42,12 +42,13 @@ hsvCam1 = [[0, 0, 255], [179, 9, 255]] #z
 
 
 if displayToOpenCV:
-    cv2.namedWindow("cap0") #xy
-    cv2.namedWindow("cap1") #z
-    ad.hsv_trackbars("cap0", hsvCam0)
-    ad.hsv_trackbars("cap1", hsvCam1)
-    cv2.moveWindow("cap0", 100, 100)
-    cv2.moveWindow("cap1", 100+700, 100)
+    dispWin = ["cam0", "cam1"]
+    cv2.namedWindow(dispWin[0]) #xy
+    cv2.namedWindow(dispWin[1]) #z
+    ad.hsv_trackbars(dispWin[0], hsvCam0)
+    ad.hsv_trackbars(dispWin[1], hsvCam1)
+    cv2.moveWindow(dispWin[0], 100, 100)
+    cv2.moveWindow(dispWin[1], 100+700, 100)
 
 #   int(zAxis): [cntArea],
 outFile = open("zAxis-Area_values.dat", "a")
@@ -118,7 +119,7 @@ def processFrame(img, flag, winName):
     _, thresh[flag] = cv2.threshold(morphImg[flag], 127, 255, cv2.THRESH_BINARY)
     contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(thresh[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-def configure_settings():
+def configure_settings(): #NOTE: NOT UPDATED
     if not displayToOpenCV:
         return
     global imgTemp, ret, contours, cntArea, cntPos, cntMoments
@@ -206,8 +207,8 @@ def plt_update(n):
     # print("check 2")
     if ret[0]==False or ret[1]==False: print("could not capture from cam. returned:", ret)
     else:    
-        processFrame(imgTemp[0], 0, "cap0") #solve contourArea and xy pos
-        processFrame(imgTemp[1], 1, "cap1")
+        processFrame(imgTemp[0], 0, dispWin[0]) #solve contourArea and xy pos
+        processFrame(imgTemp[1], 1, dispWin[1])
         cntPos = [None, None, None]
         tempPos = [None, None]
         for flag in range(2):
@@ -240,8 +241,8 @@ def plt_update(n):
 
         # ln.set_data(xData, yData)
     if displayToOpenCV:
-        cv2.imshow("cap0", cv2.resize(np.hstack((morphImg[0], frame[0])), None, fx=0.4, fy=0.4))
-        cv2.imshow("cap1", cv2.resize(np.hstack((morphImg[1], frame[1])), None, fx=0.4, fy=0.4))
+        cv2.imshow(dispWin[0], cv2.resize(np.hstack((morphImg[0], frame[0])), None, fx=0.4, fy=0.4))
+        cv2.imshow(dispWin[1], cv2.resize(np.hstack((morphImg[1], frame[1])), None, fx=0.4, fy=0.4))
         key = cv2.waitKey(5)
         if key==27:
             sys.exit()
