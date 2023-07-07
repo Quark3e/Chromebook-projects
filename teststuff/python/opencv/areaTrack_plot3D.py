@@ -12,7 +12,6 @@ import argparse
 parser = argparse.ArgumentParser(
     prog="areaTrack_plot3D",
     description="scatter plot 3D data sets",
-
 )
 parser.add_argument('setIndex', type=str, nargs='?', help='optional integer argument for data set index')
 # parser.add_argument('')
@@ -22,7 +21,7 @@ args = parser.parse_args()
 fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
 
-plt_elev, plt_azim = 30, 15
+plt_elev, plt_azim = 90, 0
 def plt_init():
     ax.set(xlim3d=(-250, 250), xlabel='X')
     ax.set(ylim3d=(-250, 250), ylabel='Y')
@@ -85,6 +84,6 @@ plt.title("contour Area - point coordinate")
 plt.legend()
 plt.grid()
 
-plt.savefig(f"areaTrack3D_media/img_{args.setIndex}_{plt_elev}:{plt_azim}.png")
+plt.savefig(f"areaTrack3D_media/img_{args.setIndex}_{plt_elev}:{plt_azim}.png", dpi=300)
 
 plt.show()
