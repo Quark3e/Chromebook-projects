@@ -142,6 +142,7 @@ def script_exit():
 
     print("----------------values")
     # outFile.write(str(values)+"\n")
+    outFile.write("3D\n")
     outFile.write(str(data["area"])+"\n")
     outFile.write(str(data["x"])+"\n")
     outFile.write(str(data["y"])+"\n")

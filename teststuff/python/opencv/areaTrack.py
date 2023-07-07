@@ -146,6 +146,7 @@ def script_exit():
         print(key,": ",values[key],sep='')
     print("----------------")
     # outFile.write(str(values)+"\n")
+    outFile.write("2D\n")
     outFile.write(str(xData)+"\n")
     outFile.write(str(yData)+"\n")
     outFile.write("\n")

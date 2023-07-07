@@ -5,15 +5,34 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+import sys
 
 fig, ax = plt.subplots()
 
-xData, yData = [], []
+
+dataIndex = 0
+values = []
+# [
+#   xData
+#   yData,
+# ]
 
 
 f = open("zAxis-Area_values.dat", "r")
-xData = eval(f.readline())
-yData = eval(f.readline())
+while True:
+    line = f.readline()
+    # print(line)
+    if line == "2D\n":
+        values.append([eval(f.readline()), eval(f.readline())])
+    if not line: break
+
+print(f"loaded '{len(values)}' data sets")
+if dataIndex >= len(values):
+    print("dataIndex bigger than available data sets.\n exiting..")
+    sys.exit()
+
+xData = values[dataIndex][0]
+yData = values[dataIndex][1]
 
 def zAdjFunc(var):
     ans = var
