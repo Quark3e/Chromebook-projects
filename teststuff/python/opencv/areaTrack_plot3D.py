@@ -7,18 +7,27 @@ import matplotlib.pyplot as plt
 import math
 import sys
 import time
+import argparse
+
+parser = argparse.ArgumentParser(
+    prog="areaTrack_plot3D",
+    description="scatter plot 3D data sets",
+
+)
+parser.add_argument('setIndex', type=str, nargs='?', help='optional integer argument for data set index')
+# parser.add_argument('')
+
+args = parser.parse_args()
 
 fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
 
 def plt_init():
-    ax.set(xlim3d=(-150, 150), xlabel='X')
-    ax.set(ylim3d=(-150, 150), ylabel='Y')
-    ax.set(zlim3d=(0, 300), zlabel='Z')
+    ax.set(xlim3d=(-250, 250), xlabel='X')
+    ax.set(ylim3d=(-250, 250), ylabel='Y')
+    ax.set(zlim3d=(0, 400), zlabel='Z')
     ax.view_init(elev=30, azim=60)
 
-
-dataIndex = 10
 values = []
 # xData, yData = [], []
 
@@ -35,15 +44,33 @@ while True:
         i+=4
     if not line: break
 
+indexSpec = False
+dataIndex = 0
+if args.setIndex != None:
+    if args.setIndex == "all": indexSpec = True
+    else: dataIndex = int(args.setIndex)
+
+
 print(f"\nloaded '{len(values)}' data sets")
-if dataIndex >= len(values):
-    print("dataIndex bigger than available data sets.\n exiting..")
+if indexSpec == False and dataIndex >= len(values):
+    print("dataIndex bigger than available data sets.")
     sys.exit()
 
-areaData = values[dataIndex][0]
-xData = values[dataIndex][1]
-yData = values[dataIndex][2]
-zData = values[dataIndex][3]
+areaData = []
+xData = []
+yData = []
+zData = []
+if indexSpec:
+    for i in range(len(values)):
+        areaData += values[i][0]
+        xData += values[i][1]
+        yData += values[i][2]
+        zData += values[i][3]
+else:
+    areaData = values[dataIndex][0]
+    xData = values[dataIndex][1]
+    yData = values[dataIndex][2]
+    zData = values[dataIndex][3]
 
 # def zAdjFunc(var):
 #     ans = var
@@ -65,7 +92,7 @@ zData = values[dataIndex][3]
 
 plt_init()
 
-rawData = ax.scatter(xData, yData, zData, c=areaData, cmap="magma", label="raw data")
+rawData = ax.scatter(xData, yData, zData, c=areaData, s=5, cmap="magma", label="raw data")
 # ax.plot(xData2, yData2, label="mean: "+str(meanGap), color="red", alpha=0.5)
 # ax.plot(xData, polyFunc(xData), label="fit polynomial: "+str(polyDeg)+" deg", color="green")
 
