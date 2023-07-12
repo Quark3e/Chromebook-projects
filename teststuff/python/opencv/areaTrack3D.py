@@ -41,9 +41,9 @@ displayToOpenCV = False
 hsvCam0 = [[0, 0, 255], [179, 9, 255]] #ir webcam; x y, area
 hsvCam1 = [[0, 0, 255], [179, 9, 255]] #z
 
-
+dispWin = ["cam0", "cam1"]
 if displayToOpenCV:
-    dispWin = ["cam0", "cam1"]
+    #dispWin = ["cam0", "cam1"]
     cv2.namedWindow(dispWin[0]) #xy
     cv2.namedWindow(dispWin[1]) #z
     ad.hsv_trackbars(dispWin[0], hsvCam0)

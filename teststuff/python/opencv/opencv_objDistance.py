@@ -43,7 +43,8 @@ camFOV = None # [degrees]
 def getObjDistance(scrHeight): # return [mm]
     # use height (y values)
     global cntDistance
-    ans = (obj_height * 360 * prefRes[2]) / (2 * np.pi * camFOV * scrHeight)
+    if obj_height == None or camFOV == None: return 0
+    ans = (obj_height * 360 * prefRes[1]) / (2 * np.pi * camFOV * scrHeight)
     cntDistance = ans
     return ans
 
