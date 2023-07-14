@@ -36,7 +36,7 @@ cntPos = [0, 0]
 cntMoments = 0
 cntDistance = None
 
-obj_height = None # real object height [mm]
+obj_height = 100 # real object height [mm]
 obj_screen = [None, None]
 camFOV = None # [degrees]
 
@@ -56,15 +56,15 @@ def processFrame(img, winName):
     hsvImg = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     if displayToOpenCV:    
-        hsvList[0][0] = cv2.getTrackbarPos("L - H", winName)
-        hsvList[0][1] = cv2.getTrackbarPos("L - S", winName)
-        hsvList[0][2] = cv2.getTrackbarPos("L - V", winName)
-        hsvList[1][0] = cv2.getTrackbarPos("U - H", winName)
-        hsvList[1][1] = cv2.getTrackbarPos("U - S", winName)
-        hsvList[1][2] = cv2.getTrackbarPos("U - V", winName)
-        mask = cv2.inRange(hsv, np.array(hsvList[0]), np.array(hsvList[1]))
+        hsvLim[0][0] = cv2.getTrackbarPos("L - H", winName)
+        hsvLim[0][1] = cv2.getTrackbarPos("L - S", winName)
+        hsvLim[0][2] = cv2.getTrackbarPos("L - V", winName)
+        hsvLim[1][0] = cv2.getTrackbarPos("U - H", winName)
+        hsvLim[1][1] = cv2.getTrackbarPos("U - S", winName)
+        hsvLim[1][2] = cv2.getTrackbarPos("U - V", winName)
+        mask = cv2.inRange(hsvImg, np.array(hsvLim[0]), np.array(hsvLim[1]))
     else:
-        mask = cv2.inRange(hsv, np.array(hsvList[0]), np.array(hsvList[1]))
+        mask = cv2.inRange(hsvImg, np.array(hsvLim[0]), np.array(hsvLim[1]))
     propMask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
 
     morphImg = cv2.erode(cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR), kernel, 1)
@@ -73,7 +73,7 @@ def processFrame(img, winName):
     morphImg = cv2.erode(morphImg, kernel, iterations=1)
 
     _, thresh = cv2.threshold(morphImg, 127, 255, cv2.THRESH_BINARY)
-    contours, hierarchy = cv2.findContours(cv2.cvtColor(thresh, cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIM>
+    contours, hierarchy = cv2.findContours(cv2.cvtColor(thresh, cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 def main():
     global imgTemp, ret, contours, cntArea, cntPos, cntMoments, cntDistance, values, obj_screen
@@ -84,7 +84,7 @@ def main():
         cntPos = [None, None]
         for i in range(len(contours)):
             cntMoments = cv2.moments(contours[0])
-            temp = [int(cntMoments['m10']/cntMoments['m00'], int(cntMoments['m01']/cntMoments['m00'])]
+            tempPos = [int(cntMoments['m10']/cntMoments['m00']), int(cntMoments['m01']/cntMoments['m00'])]
             cntPos[0] = round(tempPos[0] - prefRes[0]/2)
             cntPos[1] = round(prefRes[1]/2 - tempPos[1])
             cntArea = cv2.contourArea(contours[0])
@@ -94,6 +94,7 @@ def main():
             if displayToOpenCV:
                 morphImg = cv2.putText(morphImg, str(int(cntDistance)+"mm"), (10, 10), font, 1, (255, 0, 0), 2)
                 morphImg = cv2.putText(morphImg, str(int(cntArea)), (tempPos[0], tempPos[1]), font, 1, (255, 0, 0), 2)
+                morphImg = cv2.putText(morphImg, str(int(cntDistance)), (50, 50), font, 1, (255, 0, 0), 2)
     if displayToOpenCV:
         cv2.imshow(camWin, cv2.resize(np.stack((morphImg, frame)), None, fx=0.4, fy=0.4))
         key = cv2.waitKey(5)
@@ -102,7 +103,7 @@ def main():
 
 if __name__=="__main__":
     while True:
-        if plt_update():pass
+        if main():pass
         else: break
 
 
