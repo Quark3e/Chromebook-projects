@@ -34,7 +34,7 @@ cam1 = cv2.VideoCapture(2)
 cam0.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
 cam1.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
 
-displayToOpenCV = False
+displayToOpenCV = True
 
 
 #lower, upper values
