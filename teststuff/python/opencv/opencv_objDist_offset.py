@@ -42,6 +42,7 @@ cntArea = None
 cntPos = [0, 0]
 cntMoments = 0
 cntDistance = None
+cntDistance_real = None
 
 obj_height = 40 # real object height [mm]
 obj_screen = [None, None]
@@ -100,7 +101,7 @@ def processFrame(img, winName):
 
 
 def main():
-    global imgTemp, ret, contours, cntArea, cntPos, cntMoments, cntDistance, values, obj_screen, morphImg
+    global imgTemp, ret, contours, cntArea, cntPos, cntMoments, cntDistance, obj_screen, morphImg, cntDistance_real
     ret, imgTemp = cam.read()
     if ret==False: print("could not capture from cam")
     else:
@@ -117,11 +118,12 @@ def main():
             cntArea = cv2.contourArea(contours[0])
             _, _, obj_screen[0], obj_screen[1] = cv2.boundingRect(contours[0])
             getObjDistance(obj_screen[1])
-            print("object distance: ", cntDistance, "mm", sep='', end="\r")
+            cntDistance_real = solveDistOffset(cntDistance, cntPos)
+            print(f"object distances: raw:{cntDistance}mm   solved:{cntDistance_real}mm", end="\r")
             if displayToOpenCV:
-                morphImg = cv2.putText(morphImg, str(int(cntDistance))+"mm", (10, 50), font, 1, (255, 0, 0), 2)
                 morphImg = cv2.putText(morphImg, str(int(cntArea)), (tempPos[0], tempPos[1]), font, 1, (255, 0, 0), 2)
-                morphImg = cv2.putText(morphImg, str(int(cntDistance)), (50, 100), font, 1, (255, 0, 0), 2)
+                morphImg = cv2.putText(morphImg, f"raw:   {cntDistance}mm", (10, 50), font, 1, (255, 0, 0), 2)
+                morphImg = cv2.putText(morphImg, f"solv.: {cntDistance_real}mm", (50, 100), font, 1, (255, 0, 0), 2)
         if displayToOpenCV:
             cv2.imshow(camWin, np.hstack((morphImg, frame)))
             # cv2.imshow(camWin, cv2.resize(morphImg, None, fx=0.9, fy=0.9))
