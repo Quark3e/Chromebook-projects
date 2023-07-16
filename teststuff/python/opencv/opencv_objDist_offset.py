@@ -92,7 +92,7 @@ def processFrame(img, winName):
     propMask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
 
     morphImg = cv2.erode(cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR), kernel, iterations=1)
-    morphImg = cv2.dilate(morphImg, kernel, iterations=4)
+    morphImg = cv2.dilate(morphImg, kernel, iterations=5)
     # morphImg = cv2.dilate(morphImg, kernel, iterations=1)
     # morphImg = cv2.erode(morphImg, kernel, iterations=1)
 
