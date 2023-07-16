@@ -119,12 +119,12 @@ def main():
             _, _, obj_screen[0], obj_screen[1] = cv2.boundingRect(contours[0])
             getObjDistance(obj_screen[1])
             cntDistance_real = solveDistOffset(cntDistance, cntPos)
-            print(f"object distances: raw:{cntDistance}mm   solved:{cntDistance_real[0]}mm   offset:{cntDistance_real[1]}mm", end="\r")
+            print(f"object distances: raw:{cntDistance:.2f}mm   solved:{cntDistance_real[0]:.2f}mm   offset:{cntDistance_real[1]:.2f}mm", end="\r")
             if displayToOpenCV:
                 morphImg = cv2.putText(morphImg, str(int(cntArea)), (tempPos[0], tempPos[1]), font, 1, (255, 0, 0), 2)
-                morphImg = cv2.putText(morphImg, f"raw:   {cntDistance}mm", (10, 50), font, 1, (255, 0, 0), 2)
-                morphImg = cv2.putText(morphImg, f"solv.: {cntDistance_real[0]}mm", (10, 100), font, 1, (255, 0, 0), 2)
-                morphImg = cv2.putText(morphImg, f"offs.: {cntDistance_real[1]}mm", (10, 150), font, 1, (255, 0, 0), 2)
+                morphImg = cv2.putText(morphImg, f"raw:   {cntDistance:-2f}mm", (10, 50), font, 1, (255, 0, 0), 2)
+                morphImg = cv2.putText(morphImg, f"solv.: {cntDistance_real[0]:.2f}mm", (10, 100), font, 1, (255, 0, 0), 2)
+                morphImg = cv2.putText(morphImg, f"offs.: {cntDistance_real[1]:.2f}mm", (10, 150), font, 1, (255, 0, 0), 2)
         if displayToOpenCV:
             cv2.imshow(camWin, np.hstack((morphImg, frame)))
             # cv2.imshow(camWin, cv2.resize(morphImg, None, fx=0.9, fy=0.9))
