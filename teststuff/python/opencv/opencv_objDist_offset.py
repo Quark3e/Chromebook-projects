@@ -92,7 +92,7 @@ def processFrame(img, winName):
     propMask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
 
     morphImg = cv2.erode(cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR), kernel, iterations=1)
-    morphImg = cv2.dilate(morphImg, kernel, iterations=3)
+    morphImg = cv2.dilate(morphImg, kernel, iterations=4)
     # morphImg = cv2.dilate(morphImg, kernel, iterations=1)
     # morphImg = cv2.erode(morphImg, kernel, iterations=1)
 
@@ -122,7 +122,7 @@ def main():
             print(f"object distances: raw:{cntDistance:.2f}mm   solved:{cntDistance_real[0]:.2f}mm   offset:{cntDistance_real[1]:.2f}mm", end="\r")
             if displayToOpenCV:
                 morphImg = cv2.putText(morphImg, f"{cntArea:.1f}", (tempPos[0], tempPos[1]), font, 1, (255, 0, 0), 2)
-                morphImg = cv2.putText(morphImg, f"raw:   {cntDistance:.2f}mm", (10, 50), font, 1, (255, 0, 0), 2)
+                morphImg = cv2.putText(morphImg, f"raw:  {cntDistance:.2f}mm", (10, 50), font, 1, (255, 0, 0), 2)
                 morphImg = cv2.putText(morphImg, f"solv.: {cntDistance_real[0]:.2f}mm", (10, 100), font, 1, (255, 0, 0), 2)
                 morphImg = cv2.putText(morphImg, f"offs.: {cntDistance_real[1]:.2f}mm", (10, 150), font, 1, (255, 0, 0), 2)
         if displayToOpenCV:
