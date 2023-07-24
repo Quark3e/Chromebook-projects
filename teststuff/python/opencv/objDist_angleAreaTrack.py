@@ -26,6 +26,7 @@ from matplotlib.animation import FuncAnimation
 import sys
 
 import socket
+#output: b'{0.08:0.03:0.89}off;' 0.037755489349365234
 
 
 def nothing(x):
