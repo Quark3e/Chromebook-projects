@@ -88,7 +88,7 @@ def processFrame(img, winName):
     hsvList = hsvCam0
     frame = cv2.resize(img, prefRes)
     frame= cv2.flip(frame, 1)
-    hsv = cv2.cvtColor(frame[flag], cv2.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     
     if displayToOpenCV:    
         hsvList[0][0] = cv2.getTrackbarPos("L - H", winName)
