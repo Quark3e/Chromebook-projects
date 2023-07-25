@@ -18,7 +18,7 @@ while True:
         data, server = client_socket.recvfrom(1024)
         end = time.time()
         elapsed = end - start
-        print(f'data:{data} elapsed:{round(elapsed, 4)}')
+        print(f'data:{data.decode()} elapsed:{round(elapsed, 4)}')
     except socket.timeout:
         print('REQUEST TIMED OUT')
     time.sleep(0.01)

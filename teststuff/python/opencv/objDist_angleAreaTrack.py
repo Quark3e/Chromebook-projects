@@ -31,7 +31,7 @@ import socket
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client_socket.settimeout(0.5)
-
+client_msg = b"test"
 
 
 def nothing(x):
