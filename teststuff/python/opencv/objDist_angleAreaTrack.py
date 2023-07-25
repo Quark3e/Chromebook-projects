@@ -18,56 +18,61 @@ import cv2
 import numpy as np
 import os
 import os.path
-from time import sleep
+import time
 import openCV_addon as ad
 import math
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import sys
-
 import socket
-#output: b'{0.08:0.03:0.89}off;' 0.037755489349365234
-#output (new): data:b'{-0.11:-0.00:0.85}off;' elapsed:0.006
+
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client_socket.settimeout(0.5)
-client_msg = b"test"
+client_msg = b"fromClient"
+addr = ("192.168.1.117", 53)
 
 
 def nothing(x):
     pass
 
 cam0 = cv2.VideoCapture(0)
+cam1 = cv2.VideoCapture(2)
 
 cam0.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
+cam1.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
 
 displayToOpenCV = True
 
 
 #lower, upper values
-hsvCam0 = [[0, 0, 255], [179, 9, 255]] #ir webcam
+hsvCam0 = [[0, 0, 255], [179, 9, 255]] #area
+hsvCam1 = [[0, 0, 255], [179, 9, 255]] #z
 
-dispWin = "cam0"
+dispWin = ["cam0", "cam1"]
 if displayToOpenCV:
     #dispWin = ["cam0", "cam1"]
-    cv2.namedWindow(dispWin)
-    ad.hsv_trackbars(dispWin, hsvCam0)
-    cv2.moveWindow(dispWin, 100, 100)
+    cv2.namedWindow(dispWin[0]) #xy
+    cv2.namedWindow(dispWin[1]) #z
+    ad.hsv_trackbars(dispWin[0], hsvCam0)
+    ad.hsv_trackbars(dispWin[1], hsvCam1)
+    cv2.moveWindow(dispWin[0], 100, 100)
+    cv2.moveWindow(dispWin[1], 100+700, 100)
 
 #   int(zAxis): [cntArea],
-outFile = open("areaAngleOffset.dat", "a")
+outFile = open("zAxis-Area_values.dat", "a")
 
 values = {} 
 # temporary holder for values:
-#   distance: [[angle], [cntArea]],
-#   distance: [[angle], [cntArea]],
+#   z: [[angle], [cntArea]],
+#   z: [[angle], [cntArea]],
 #   ...
 
-# xData, yData, zData, areaData = [], [], [], []
+# xData, yData, zData = [], [], []  #angle, cntArea, z
 data = { # what is sent to .scatter() or .plot()
     "angle": [],
-    "cntArea": [],
-    "distance": []
+    "area": [],
+    "z": []
 }
 
 prefRes = (640, 480)
@@ -75,25 +80,28 @@ prefRes = (640, 480)
 kernel = np.ones((5, 5), np.uint8)
 font = cv2.FONT_HERSHEY_SIMPLEX
 
-imgTemp = 0
-morphImg = 0
-thresh = 0
+imgTemp = [0, 0]
+morphImg = [0, 0]
+thresh = [0, 0]
 
-ret = 0 # boolean(s) for if .read() succesfully returned an image from VideoCapture object
-contours = 0
-cntArea = 0 # contour(/area) of tracking as seen from cam[0]
+ret = [0, 0] # boolean(s) for if .read() succesfully returned an image from VideoCapture object
+contours = [0, 0]
+cntArea = 0 # contour(area) of tracking as seen from cam[0]
 tempPos = [0, 0]
-cntPos = [0, 0]
+cntPos = [0, 0, 0]
 cntMoments = 0
 frame = [0, 0]
 
-def processFrame(img, winName):
+def processFrame(img, flag, winName):
     global contours, cntPos, cntArea, morphImg, frame
     hsvList = []
-    hsvList = hsvCam0
-    frame = cv2.resize(img, prefRes)
-    frame= cv2.flip(frame, 1)
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    if flag==0:
+        hsvList = hsvCam0
+    elif flag==1:
+        hsvList = hsvCam0
+    frame[flag] = cv2.resize(img, prefRes)
+    frame[flag] = cv2.flip(frame[flag], 1)
+    hsv = cv2.cvtColor(frame[flag], cv2.COLOR_BGR2HSV)
     
     if displayToOpenCV:    
         hsvList[0][0] = cv2.getTrackbarPos("L - H", winName)
@@ -111,19 +119,21 @@ def processFrame(img, winName):
     # morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=10)
     # morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=0)
 
-    morphImg = cv2.erode(cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR), kernel, 1)
-    morphImg = cv2.dilate(morphImg, kernel, iterations=2)
-    morphImg = cv2.dilate(morphImg, kernel, iterations=1)
-    morphImg = cv2.erode(morphImg, kernel, iterations=1)
+    morphImg[flag] = cv2.erode(cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR), kernel, 1)
+    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=2)
+    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=1)
+    morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=1)
 
-    _, thresh = cv2.threshold(morphImg, 127, 255, cv2.THRESH_BINARY)
-    contours, hierarchy = cv2.findContours(cv2.cvtColor(thresh, cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    _, thresh[flag] = cv2.threshold(morphImg[flag], 127, 255, cv2.THRESH_BINARY)
+    contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(thresh[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 def script_exit():
     global values, data
     print("exit initialized...", end='')
 
-    print("raw:", values)
+    print("raw:")
+    for key, val in values.items():
+        print(f"{key}: {val}")
     print("----------------")
     for key in data: data[key] = []
 
@@ -159,9 +169,9 @@ ax = fig.add_subplot(projection='3d')
 
 def plt_init():
     print("check init start")
-    ax.set(xlim3d=(-150, 150), xlabel='angle')
-    ax.set(ylim3d=(-150, 150), ylabel='distance')
-    ax.set(zlim3d=(0, 300), zlabel='cntArea')
+    ax.set(xlim3d=(-150, 150), xlabel='X')
+    ax.set(ylim3d=(-150, 150), ylabel='Y')
+    ax.set(zlim3d=(0, 300), zlabel='Z')
     ax.view_init(elev=30, azim=60)
     print("check init end")
 
@@ -169,13 +179,16 @@ def plt_update(n):
     # print("check update")
     global imgTemp, ret, contours, cntArea, cntPos, cntMoments, values
     ret[0], imgTemp[0] = cam0.read()
+    ret[1], imgTemp[1] = cam1.read()
     # print("check 2")
     if ret[0]==False or ret[1]==False: print("could not capture from cam. returned:", ret)
     else:    
         processFrame(imgTemp[0], 0, dispWin[0]) #solve contourArea and xy pos
-        cntPos = [None, None]
+        processFrame(imgTemp[1], 1, dispWin[1])
+        cntPos = [None, None, None]
         tempPos = [None, None]
-            for i in range(len(contours)):
+        for flag in range(2):
+            for i in range(len(contours[flag])):
                 cntMoments = cv2.moments(contours[flag][0])
                 if cntMoments['m00'] != 0:
                     if flag==0:
@@ -205,7 +218,8 @@ def plt_update(n):
 
         # ln.set_data(xData, yData)
     if displayToOpenCV:
-        cv2.imshow(dispWin, cv2.resize(np.hstack((morphImg, frame)), None, fx=0.4, fy=0.4))
+        cv2.imshow(dispWin[0], cv2.resize(np.hstack((morphImg[0], frame[0])), None, fx=0.4, fy=0.4))
+        cv2.imshow(dispWin[1], cv2.resize(np.hstack((morphImg[1], frame[1])), None, fx=0.4, fy=0.4))
         key = cv2.waitKey(5)
         if key==27:
             sys.exit()
@@ -213,12 +227,14 @@ def plt_update(n):
             script_exit()
             return False
         elif key==115:
-            print([hsvCam0])
+            print([hsvCam0],[hsvCam1])
             np.save('hsv_value_cam0',[hsvCam0])
+            np.save('hsv_value_cam1',[hsvCam1])
             script_exit()
         elif key==97:
-            cv2.imwrite("cam0_img", np.hstack((morphImg, frame)))
-            sleep(1)
+            cv2.imwrite("cam0_img", np.hstack((morphImg[0], frame[0])))
+            cv2.imwrite("cam1_img", np.hstack((morphImg[1], frame[1])))
+            time.sleep(1)
     # print("check 3")
     return True
 
