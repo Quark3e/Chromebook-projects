@@ -29,6 +29,11 @@ import socket
 #output: b'{0.08:0.03:0.89}off;' 0.037755489349365234
 #output (new): data:b'{-0.11:-0.00:0.85}off;' elapsed:0.006
 
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+client_socket.settimeout(0.5)
+
+
+
 def nothing(x):
     pass
 
