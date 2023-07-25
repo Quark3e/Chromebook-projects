@@ -5,7 +5,7 @@ import socket
 
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-client_socket.settimeout(0.5)
+client_socket.settimeout(0.1)
 message = b'test'
 addr = ("192.168.1.117", 53)
 
@@ -22,4 +22,3 @@ while True:
     except socket.timeout:
         print('REQUEST TIMED OUT')
     time.sleep(0.001)
-    
