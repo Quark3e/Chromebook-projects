@@ -21,3 +21,4 @@ while True:
         print(f'data:{data} elapsed:{round(elapsed, 4)}')
     except socket.timeout:
         print('REQUEST TIMED OUT')
+    time.sleep(1)
