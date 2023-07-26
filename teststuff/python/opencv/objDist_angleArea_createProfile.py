@@ -44,7 +44,7 @@ def reqToServer():
         server_msg = tempData.decode()
     except socket.timeout:
         print("request timed out")
-
+# {0.05:0.17:0.88}off;
 
 X_out, Y_out, Z_out = 0, 0, 0
 Roll, Pitch, roll, pitch = 0.1, 0.1, 0.1, 0.1
@@ -53,7 +53,17 @@ tiltFilter = 0.1
 def readAccelerometer():
     global X_out, Y_out, Z_out, Roll, Pitch, roll, pitch
     reqToServer()
-    X_out, Y_out, Z_out = accelerometer.acceleration
+    if len(server_msg)>=1 and (server_msg[:1]=="{" and server_msg[-5]=="}" and server_msg[-1]==";"):
+        tempMsg = server_msg.replace(":", ",")
+        msgTuple = eval(tempMsg[1:-5])
+        X_out, Y_out, Z_out = msgTuple
+
+    if X_out > 1: X_out = 1
+    if Y_out > 1: Y_out = 1
+    if Z_out > 1: Z_out = 1
+    if X_out < -1: X_out = -1
+    if Y_out < -1: Y_out = -1
+    if Z_out < -1: Z_out = -1
     #x is roll and y is pitch (it's switched so the servo can be fit to the servo robot arm)
     pitch = math.atan(Y_out / math.sqrt(pow(X_out, 2) + pow(Z_out, 2))) * 180 / math.pi
     roll = math.atan(-1 * X_out / math.sqrt(pow(Y_out, 2) + pow(Z_out, 2))) * 180 / math.pi
@@ -108,8 +118,8 @@ values = {}
 
 dataSets = {}
 # "permanet" holder for values in data sets where each angle has a single corresponding area value
-#   z: [[angle,], [area,]],
-#   z: [[angle,], [area,]],
+#   z: [[angle_roll,], [angle_pitch,], [area,]],
+#   z: [[angle_roll,], [angle_pitch,], [area,]],
 #   ---
 
 prefRes = (640, 480)
@@ -176,10 +186,6 @@ def script_exit():
             print(f"- \t{key1}: {val1}")
     print("----------------")
 
-    for key, val in dataSets:
-            dataSets[key0][0] = []
-            dataSets[key0][1] = []
-
     print("processing:")
     for key0, val0 in values.items():
         for key1, val1 in val0.items():
@@ -193,8 +199,9 @@ def script_exit():
     print("filling \"dataSets\":")
     for key0, val0 in values.items():
         if key0 not in dataSets:
-            dataSets.update({key0: [[], []]})
+            dataSets.update({key0: [[], [], []]})
         for key1, val1 in val0.items():
+            angleStr = [int(key1[0:key1.find(":")])]
             if not (key1 in dataSets[key0][0]):
                 dataSets[key0][0].append(key1)
                 dataSets[key0][1].append(val1)
@@ -218,9 +225,9 @@ ax = fig.add_subplot(projection='3d')
 
 def plt_init():
     print("check init start")
-    ax.set(xlim3d=(-150, 150), xlabel='X')
-    ax.set(ylim3d=(-150, 150), ylabel='Y')
-    ax.set(zlim3d=(0, 300), zlabel='Z')
+    ax.set(xlim3d=(-150, 150), xlabel='roll')
+    ax.set(ylim3d=(-150, 150), ylabel='pitch')
+    ax.set(zlim3d=(0, 300), zlabel='area')
     ax.view_init(elev=30, azim=60)
     print("check init end")
 
@@ -236,6 +243,7 @@ def plt_update(n):
         processFrame(imgTemp[1], 1, dispWin[1])
         cntPos = [None, None, None]
         tempPos = [None, None]
+
         for flag in range(2):
             for i in range(len(contours[flag])):
                 cntMoments = cv2.moments(contours[flag][0])
@@ -255,15 +263,24 @@ def plt_update(n):
                         cntPos[2] = prefRes[1] - cntPos[2]
                 else: print("cntMoments['m00'] = 0")
         if cntArea != None and None not in cntPos:
-            if cntPos[2] in values and :
-                values.update({cntPos[2]: {}})
-                print("updated 'values' with: {", str(cntPos), ": ", values[str(cntPos)], "}", sep='')
+            angleStr = f"{round(roll)}:{round(pitch)}"
+            if not (cntPos[2] in values):
+                values.update( {
+                        cntPos[2]: {
+                            angleStr: [int(cntArea)]
+                        }
+                    }
+                )
+            elif not (angleStr in values[cntPos[2]]):
+                values[cntPos[2]].update({
+                        angleStr: [int(cntArea)]
+                    }
+                 )
             else:
-                print(values[str(cntPos)])
-                values[str(cntPos)].append(int(cntArea))
-            if len(values[str(cntPos)]) >= 10: # check if there are more than 100 cntArea-values stored
-                values[str(cntPos)] = [sum(values[str(cntPos)])/len(values[str(cntPos)])]
-                print(f"average area for pos: {str(cntPos)} solved")
+                values[cntPos[2]][angleStr].append(int(cntArea))
+                if len(values[cntPos[2]][angleStr]) >= 10: # check if there are more than 100 cntArea-values stored
+                    values[cntPos[2]][angleStr] = [sum(values[cntPos[2]][angleStr])/len(values[cntPos[2]][angleStr])]
+                    print(f"average area for z:\"{cntPos[2]}\" angles:\"{angleStr}\" solved")
 
         # ln.set_data(xData, yData)
     if displayToOpenCV:
@@ -301,7 +318,8 @@ while True:
 
 print("plotting..")
 
-resultGraph = ax.scatter(data[""], data["y"], data["z"], c=data["area"], cmap="magma")
+# resultGraph = ax.scatter(data[""], data["y"], data["z"], c=data["area"], cmap="magma")
+resultGraph = ax.scatter(data[""], data["y"], data["z"], cmap="magma")
 
 plt.colorbar(resultGraph)
 
