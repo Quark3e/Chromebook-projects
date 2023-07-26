@@ -201,11 +201,11 @@ def script_exit():
         if key0 not in dataSets:
             dataSets.update({key0: [[], [], []]})
         for key1, val1 in val0.items():
-            angleStr = [int(key1[0:key1.find(":")])]
-            if not (key1 in dataSets[key0][0]):
-                dataSets[key0][0].append(key1)
-                dataSets[key0][1].append(val1)
-                print(key,": ", values[key], sep='')
+            angleStr = [int(key1[0:key1.find(":")]), int(key1[key1.find(":")+1:])]
+            dataSets[key0][0].append(angleStr[0])
+            dataSets[key0][1].append(angleStr[1])
+            dataSets[key0][2].append(val1)
+            print(key,": ", values[key], sep='')
 
     print("----------------values")
     # outFile.write(str(values)+"\n")
@@ -318,8 +318,10 @@ while True:
 
 print("plotting..")
 
+
+z_pick = 200
 # resultGraph = ax.scatter(data[""], data["y"], data["z"], c=data["area"], cmap="magma")
-resultGraph = ax.scatter(data[""], data["y"], data["z"], cmap="magma")
+resultGraph = ax.scatter(dataSets[z_pick][0], dataSets[z_pick][1], data[z_pick][2], cmap="magma")
 
 plt.colorbar(resultGraph)
 
