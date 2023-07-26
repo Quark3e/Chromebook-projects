@@ -31,6 +31,35 @@ client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client_socket.settimeout(0.5)
 client_msg = b"fromClient"
 addr = ("192.168.1.117", 53)
+server_msg = ""
+
+def reqToServer():
+    global server_msg, elapsedTime
+    start = time.time()
+    client_socket.sendto(client_msg, addr)
+    try:
+        tempData, server = client_socket.recvfrom(1024)
+        end = time.time()
+        elapsedTime = end - start
+        server_msg = tempData.decode()
+    except socket.timeout:
+        print("request timed out")
+
+
+X_out, Y_out, Z_out = 0, 0, 0
+Roll, Pitch, roll, pitch = 0.1, 0.1, 0.1, 0.1
+tiltFilter = 0.1
+
+def readAccelerometer():
+    global X_out, Y_out, Z_out, Roll, Pitch, roll, pitch
+    reqToServer()
+    X_out, Y_out, Z_out = accelerometer.acceleration
+    #x is roll and y is pitch (it's switched so the servo can be fit to the servo robot arm)
+    pitch = math.atan(Y_out / math.sqrt(pow(X_out, 2) + pow(Z_out, 2))) * 180 / math.pi
+    roll = math.atan(-1 * X_out / math.sqrt(pow(Y_out, 2) + pow(Z_out, 2))) * 180 / math.pi
+    #filter
+    Roll = (1-tiltFilter) * Roll + tiltFilter * roll
+    Pitch = (1-tiltFilter) * Pitch + tiltFilter * pitch
 
 
 def nothing(x):
@@ -60,20 +89,28 @@ if displayToOpenCV:
     cv2.moveWindow(dispWin[1], 100+700, 100)
 
 #   int(zAxis): [cntArea],
-outFile = open("zAxis-Area_values.dat", "a")
+outFile = open("angleArea_profiles.dat", "a")
 
 values = {} 
-# temporary holder for values:
-#   z: [[angle], [cntArea]],
-#   z: [[angle], [cntArea]],
+# temporary holder for values where each "angle" has several data values
+#   z:
+#   {
+#       angle: [area,],
+#       angle: [area,],
+#   }
+#   z:
+#   {
+#       angle: [area,],
+#       angle: [area,],
+#   }
 #   ...
 
-# xData, yData, zData = [], [], []  #angle, cntArea, z
-data = { # what is sent to .scatter() or .plot()
-    "angle": [],
-    "area": [],
-    "z": []
-}
+
+dataSets = {}
+# "permanet" holder for values in data sets where each angle has a single corresponding area value
+#   z: [[angle,], [area,]],
+#   z: [[angle,], [area,]],
+#   ---
 
 prefRes = (640, 480)
 
@@ -128,37 +165,50 @@ def processFrame(img, flag, winName):
     contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(thresh[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 def script_exit():
-    global values, data
+    global values, dataSets
     print("exit initialized...", end='')
 
     print("raw:")
+    print("- syntax: \"z axis pos: { angle: [cntArea] }\n")
     for key, val in values.items():
-        print(f"{key}: {val}")
+        print(f"- {key}:")
+        for key1, val1 in val.items():
+            print(f"- \t{key1}: {val1}")
     print("----------------")
-    for key in data: data[key] = []
 
+    for key, val in dataSets:
+            dataSets[key0][0] = []
+            dataSets[key0][1] = []
+
+    print("processing:")
+    for key0, val0 in values.items():
+        for key1, val1 in val0.items():
+            if type(val1) == type(list()): values[key0][key1] = sum(values[key0][key1])/len(values[key0][key1])
     for key, val in values.items():
-        if type(val)==type(list()): val = int(sum(val)/len(val))
-        strPos = eval(key)
-        print(f"key:{key} strPos:{strPos} elements:[{strPos[0]}, {strPos[1]}, {strPos[2]}] type:{type(strPos)} value:{val}")
-        if not (strPos[0] in data["x"] and strPos[1] in data["y"] and strPos[2] in data["z"]):
-            data["x"].append(strPos[0])
-            data["y"].append(strPos[1])
-            data["z"].append(strPos[2])
-            data["area"].append(val)
-            print(key,": ", values[key], sep='')
-        else: print("pos:", strPos, " already in dict 'data'")
+        print(f"- {key}:")
+        for key1, val1 in val.items():
+            print(f"- \t{key1}: {val1}")
+    print("----------------")
+
+    print("filling \"dataSets\":")
+    for key0, val0 in values.items():
+        if key0 not in dataSets:
+            dataSets.update({key0: [[], []]})
+        for key1, val1 in val0.items():
+            if not (key1 in dataSets[key0][0]):
+                dataSets[key0][0].append(key1)
+                dataSets[key0][1].append(val1)
+                print(key,": ", values[key], sep='')
 
     print("----------------values")
     # outFile.write(str(values)+"\n")
-    outFile.write("3D\n")
-    outFile.write(str(data["angle"])+"\n")
-    outFile.write(str(data["area"])+"\n")
-    outFile.write(str(data["z"])+"\n")
+    outFile.write("profile:1\n")
+    for z, vals in dataSets.items():
+        outFile.write(f"{z}: {vals}"+"\n")
     outFile.write("\n")
     print(values)
     print("----------------data")
-    print(data)
+    print(dataSets)
     print("----------------script_exit() end")
     outFile.close()
     return
@@ -205,8 +255,8 @@ def plt_update(n):
                         cntPos[2] = prefRes[1] - cntPos[2]
                 else: print("cntMoments['m00'] = 0")
         if cntArea != None and None not in cntPos:
-            if str(cntPos) not in values:
-                values.update({str(cntPos): [int(cntArea)]})
+            if cntPos[2] in values and :
+                values.update({cntPos[2]: {}})
                 print("updated 'values' with: {", str(cntPos), ": ", values[str(cntPos)], "}", sep='')
             else:
                 print(values[str(cntPos)])
@@ -251,7 +301,7 @@ while True:
 
 print("plotting..")
 
-resultGraph = ax.scatter(data["x"], data["y"], data["z"], c=data["area"], cmap="magma")
+resultGraph = ax.scatter(data[""], data["y"], data["z"], c=data["area"], cmap="magma")
 
 plt.colorbar(resultGraph)
 

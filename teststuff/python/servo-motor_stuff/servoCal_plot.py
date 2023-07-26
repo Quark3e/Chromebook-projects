@@ -26,7 +26,7 @@ import math
 import os
 import matplotlib.pyplot as plt
 from datetime import datetime
-import adafruit_adxl34x
+import adafruit_adxl34x #type: ignore
 
 from board import SCL, SDA #type: ignore
 import busio #type: ignore
