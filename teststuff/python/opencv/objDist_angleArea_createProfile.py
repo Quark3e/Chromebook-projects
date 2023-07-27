@@ -319,9 +319,9 @@ while True:
 print("plotting..")
 
 
-z_pick = 200
+z_pick = round(len(dataSets)/2)
 # resultGraph = ax.scatter(data[""], data["y"], data["z"], c=data["area"], cmap="magma")
-resultGraph = ax.scatter(dataSets[z_pick][0], dataSets[z_pick][1], data[z_pick][2], cmap="magma")
+resultGraph = ax.scatter(dataSets[z_pick][0], dataSets[z_pick][1], dataSets[z_pick][2], cmap="magma")
 
 plt.colorbar(resultGraph)
 
