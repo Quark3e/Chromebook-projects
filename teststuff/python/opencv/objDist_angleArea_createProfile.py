@@ -70,6 +70,7 @@ def readAccelerometer():
     #filter
     Roll = (1-tiltFilter) * Roll + tiltFilter * roll
     Pitch = (1-tiltFilter) * Pitch + tiltFilter * pitch
+    print(f" accel: x:{X_out} y:{Y_out} z:{Z_out} roll:{roll} pitch:{pitch}", end='\r')
 
 
 def nothing(x):
