@@ -46,7 +46,7 @@ def reqToServer():
         print("request timed out")
 # {0.05:0.17:0.88}off;
 
-X_out, Y_out, Z_out = 0, 0, 0
+X_out, Y_out, Z_out = 0.1, 0.1, 0.1
 Roll, Pitch, roll, pitch = 0.1, 0.1, 0.1, 0.1
 tiltFilter = 0.1
 
@@ -58,6 +58,8 @@ def readAccelerometer():
         msgTuple = eval(tempMsg[1:-5])
         X_out, Y_out, Z_out = msgTuple
 
+    print(f" accel: x:{X_out} y:{Y_out} z:{Z_out} roll:{roll} pitch:{pitch}", end='\r')
+    
     if X_out > 1: X_out = 1
     if Y_out > 1: Y_out = 1
     if Z_out > 1: Z_out = 1
