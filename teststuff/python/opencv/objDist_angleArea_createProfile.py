@@ -257,6 +257,7 @@ def plt_update(n):
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1,(255,0,0),2)
                     elif flag==1:
+                        readAccelerometer()
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
                         cntPos[2] = round(tempPos[1]/10)*10
                         if displayToOpenCV:
@@ -322,9 +323,9 @@ print("plotting..")
 
 z_pick = round(len(dataSets)/2)
 # resultGraph = ax.scatter(data[""], data["y"], data["z"], c=data["area"], cmap="magma")
-resultGraph = ax.scatter(dataSets[z_pick][0], dataSets[z_pick][1], dataSets[z_pick][2], cmap="magma")
+resultGraph = ax.scatter(dataSets[z_pick][0], dataSets[z_pick][1], dataSets[z_pick][2])
 
-plt.colorbar(resultGraph)
+# plt.colorbar(resultGraph)
 
 fileName = "areaTrack3D_media/img"
 for i in range(1000):
