@@ -252,23 +252,23 @@ def plt_update(n):
         tempPos = [None, None]
 
         for flag in range(2):
-            for i in range(len(contours[flag])):
-                cntMoments = cv2.moments(contours[flag][0])
+            for i in range(len(contours[flag])): #type: ignore
+                cntMoments = cv2.moments(contours[flag][0]) #type: ignore
                 if cntMoments['m00'] != 0:
                     if flag==0:
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                        cntPos[0] = round((tempPos[0]-prefRes[0]/2)/10)*10
-                        cntPos[1] = round((prefRes[1]/2-tempPos[1])/10)*10
-                        cntArea = cv2.contourArea(contours[flag][0])
+                        cntPos[0] = round((tempPos[0]-prefRes[0]/2)/10)*10 #type: ignore
+                        cntPos[1] = round((prefRes[1]/2-tempPos[1])/10)*10 #type: ignore
+                        cntArea = cv2.contourArea(contours[flag][0]) #type: ignore
                         if displayToOpenCV:
-                            morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1,(255,0,0),2)
+                            morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
                     elif flag==1:
                         readAccelerometer()
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                        cntPos[2] = round(tempPos[1]/10)*10
+                        cntPos[2] = round(tempPos[1]/10)*10 #type: ignore
                         if displayToOpenCV:
-                            morphImg[flag] = cv2.putText(morphImg[flag],str(int(tempPos[1])),(tempPos[0],tempPos[1]),font,1,(255,0,0),2)
-                        cntPos[2] = prefRes[1] - cntPos[2]
+                            morphImg[flag] = cv2.putText(morphImg[flag],str(int(tempPos[1])),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
+                        cntPos[2] = prefRes[1] - cntPos[2] #type: ignore
                 else: print("cntMoments['m00'] = 0")
         if cntArea != None and None not in cntPos:
             angleStr = f"{round(roll)}:{round(pitch)}"
