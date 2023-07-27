@@ -169,10 +169,10 @@ def processFrame(img, flag, winName):
     # morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=10)
     # morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=0)
 
-    morphImg[flag] = cv2.erode(cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR), kernel, 1)
-    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=2)
-    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=1)
-    morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=1)
+    morphImg[flag] = cv2.erode(cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR), kernel, iterations=1)
+    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=4)
+    # morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=1)
+    # morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=1)
 
     _, thresh[flag] = cv2.threshold(morphImg[flag], 127, 255, cv2.THRESH_BINARY)
     contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(thresh[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -208,7 +208,7 @@ def script_exit():
             dataSets[key0][0].append(angleStr[0])
             dataSets[key0][1].append(angleStr[1])
             dataSets[key0][2].append(val1)
-            print(key,": ", values[key], sep='')
+            print(key0,": ", values[key0], sep='')
 
     print("----------------values")
     # outFile.write(str(values)+"\n")
@@ -224,14 +224,18 @@ def script_exit():
     return
 
 fig = plt.figure()
-ax = fig.add_subplot(projection='3d')
+# ax = fig.add_subplot(projection='3d')
 
 def plt_init():
     print("check init start")
-    ax.set(xlim3d=(-150, 150), xlabel='roll')
-    ax.set(ylim3d=(-150, 150), ylabel='pitch')
-    ax.set(zlim3d=(0, 300), zlabel='area')
-    ax.view_init(elev=30, azim=60)
+    plt.xlim(-90, 90)
+    plt.ylim(-90, 90)
+    plt.xlabel("roll")
+    plt.ylabel("pitch")
+    # ax.set(xlim3d=(-90, 90), xlabel='roll')
+    # ax.set(ylim3d=(-90, 90), ylabel='pitch')
+    # ax.set(zlim3d=(0, 300), zlabel='area')
+    # ax.view_init(elev=30, azim=60)
     print("check init end")
 
 def plt_update(n):
@@ -322,17 +326,22 @@ while True:
 
 print("plotting..")
 
-
-z_pick = round(len(dataSets)/2)
+i = 0
+z_pick = 0
+for key,var in dataSets.items():
+    if i==0: z_pick = key
+    elif len(var[0]) > len(dataSets[z_pick][0]): z_pick = key
+    i+=1
 # resultGraph = ax.scatter(data[""], data["y"], data["z"], c=data["area"], cmap="magma")
-resultGraph = ax.scatter(dataSets[z_pick][0], dataSets[z_pick][1], dataSets[z_pick][2])
+resultGraph = plt.scatter(dataSets[z_pick][0], dataSets[z_pick][1], c=dataSets[z_pick][2], cmap="magma")
 
-# plt.colorbar(resultGraph)
+plt.colorbar(resultGraph)
+plt.title(str(z_pick))
 
-fileName = "areaTrack3D_media/img"
+fileName = "objDist_angleArea_media/img_z:"+str(z_pick)+"_"
 for i in range(1000):
     if not os.path.isfile(fileName+str(i)+".png"):
-        plt.savefig(fileName+str(i)+".png")
+        plt.savefig(fileName+str(i)+".png", dpi=300)
         break
 plt.show()
 
