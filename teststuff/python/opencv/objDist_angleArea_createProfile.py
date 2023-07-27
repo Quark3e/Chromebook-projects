@@ -212,10 +212,10 @@ def script_exit():
 
     print("----------------values")
     # outFile.write(str(values)+"\n")
-    outFile.write("profile:1\n")
+    outFile.write("profile:1{\n")
     for z, vals in dataSets.items():
         outFile.write(f"{z}: {vals}"+"\n")
-    outFile.write("\n")
+    outFile.write("}\n")
     print(values)
     print("----------------data")
     print(dataSets)
@@ -318,30 +318,47 @@ def plt_update(n):
 # ani = FuncAnimation(fig, plt_update, 10, init_func=plt_init(), blit=True)
 
 plt_init()
-while True:
-    if plt_update(0):
-        pass
-    else:
-        break
+def opt0():
+    #track and save new data sets from profile 1
+    plt_init()
+    while True:
+        if plt_update(0):
+            pass
+        else:
+            break
+    print("plotting..")
+    i = 0
+    z_pick = 0
+    for key,var in dataSets.items():
+        if i==0: z_pick = key
+        elif len(var[0]) > len(dataSets[z_pick][0]): z_pick = key
+        i+=1
+    # resultGraph = ax.scatter(data[""], data["y"], data["z"], c=data["area"], cmap="magma")
+    resultGraph = plt.scatter(dataSets[z_pick][0], dataSets[z_pick][1], c=dataSets[z_pick][2], cmap="magma")
 
-print("plotting..")
+    plt.colorbar(resultGraph)
+    plt.title(str(z_pick))
 
-i = 0
-z_pick = 0
-for key,var in dataSets.items():
-    if i==0: z_pick = key
-    elif len(var[0]) > len(dataSets[z_pick][0]): z_pick = key
-    i+=1
-# resultGraph = ax.scatter(data[""], data["y"], data["z"], c=data["area"], cmap="magma")
-resultGraph = plt.scatter(dataSets[z_pick][0], dataSets[z_pick][1], c=dataSets[z_pick][2], cmap="magma")
+    fileName = "objDist_angleArea_media/img_z:"+str(z_pick)+"_"
+    for i in range(1000):
+        if not os.path.isfile(fileName+str(i)+".png"):
+            plt.savefig(fileName+str(i)+".png", dpi=300)
+            break
+    plt.show()
 
-plt.colorbar(resultGraph)
-plt.title(str(z_pick))
+def opt1():
+    #read and sum all values for same profile (mainly 1)
+    pass
 
-fileName = "objDist_angleArea_media/img_z:"+str(z_pick)+"_"
-for i in range(1000):
-    if not os.path.isfile(fileName+str(i)+".png"):
-        plt.savefig(fileName+str(i)+".png", dpi=300)
-        break
-plt.show()
+def main():
+    print("Options:")
+    print("0. Track and create new data sets for profile 1")
+    
+
+    inp = input("input: ")
+    if inp=="0": opt0()
+
+if __name__=="__main__":
+    main()
+
 
