@@ -26,6 +26,7 @@ from matplotlib.animation import FuncAnimation
 import sys
 import socket
 
+profilesFile = "angleArea_profiles.dat"
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client_socket.settimeout(0.5)
@@ -102,7 +103,6 @@ if displayToOpenCV:
     cv2.moveWindow(dispWin[1], 100+700, 100)
 
 #   int(zAxis): [cntArea],
-outFile = open("angleArea_profiles.dat", "a")
 
 values = {} 
 # temporary holder for values where each "angle" has several data values
@@ -211,10 +211,12 @@ def script_exit():
             print(key0,": ", values[key0], sep='')
 
     print("----------------values")
+
+    outFile = open(profilesFile, "a")
     # outFile.write(str(values)+"\n")
     outFile.write("profile:1{\n")
     for z, vals in dataSets.items():
-        outFile.write(f"{z}: {vals}"+"\n")
+        outFile.write(f"z:{z}: {vals}"+"\n")
     outFile.write("}\n")
     print(values)
     print("----------------data")
@@ -339,7 +341,7 @@ def opt0():
     plt.colorbar(resultGraph)
     plt.title(str(z_pick))
 
-    fileName = "objDist_angleArea_media/img_z:"+str(z_pick)+"_"
+    fileName = "objDist_angleArea_media/p1_z:"+str(z_pick)+"_"
     for i in range(1000):
         if not os.path.isfile(fileName+str(i)+".png"):
             plt.savefig(fileName+str(i)+".png", dpi=300)
@@ -348,12 +350,18 @@ def opt0():
 
 def opt1():
     #read and sum all values for same profile (mainly 1)
-    pass
+
+    with open(profilesFile, "r") as readFile:
+        for line in readFile:
+            if line[0:9] == "profile:1":
+                line = readFile.readline()
+                if line[0:2]=="z:":
+                    
 
 def main():
     print("Options:")
     print("0. Track and create new data sets for profile 1")
-    
+    print("1. Load and save average of all dataSets for profile 1")    
 
     inp = input("input: ")
     if inp=="0": opt0()
