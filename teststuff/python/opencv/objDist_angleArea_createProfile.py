@@ -179,30 +179,30 @@ def processFrame(img, flag, winName):
     _, thresh[flag] = cv2.threshold(morphImg[flag], 127, 255, cv2.THRESH_BINARY)
     contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(thresh[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-def script_exit():
+def script_exit(printText=True):
     #reads from values and appends to file
     global values, dataSets
-    print("exit initialized...", end='')
+    if printText: print("exit initialized...", end='')
 
-    print("raw:")
-    print("- syntax: \"z axis pos: { angle: [cntArea] }\n")
+    if printText: print("raw:")
+    if printText: print("- syntax: \"z axis pos: { angle: [cntArea] }\n")
     for key, val in values.items():
-        print(f"- {key}:")
+        if printText: print(f"- {key}:")
         for key1, val1 in val.items():
-            print(f"- \t{key1}: {val1}")
-    print("----------------")
+            if printText: print(f"- \t{key1}: {val1}")
+    if printText: print("----------------")
 
-    print("processing:")
+    if printText: print("processing:")
     for key0, val0 in values.items():
         for key1, val1 in val0.items():
             if type(val1) == type(list()): values[key0][key1] = sum(values[key0][key1])/len(values[key0][key1])
     for key, val in values.items():
-        print(f"- {key}:")
+        if printText: print(f"- {key}:")
         for key1, val1 in val.items():
-            print(f"- \t{key1}: {val1}")
-    print("----------------")
+            if printText: print(f"- \t{key1}: {val1}")
+    if printText: print("----------------")
 
-    print("filling \"dataSets\":")
+    if printText: print("filling \"dataSets\":")
     for key0, val0 in values.items():
         if key0 not in dataSets:
             dataSets.update({key0: [[], [], []]})
@@ -211,36 +211,36 @@ def script_exit():
             dataSets[key0][0].append(angleStr[0])
             dataSets[key0][1].append(angleStr[1])
             dataSets[key0][2].append(val1)
-            print(key0,": ", values[key0], sep='')
+            if printText: print(key0,": ", values[key0], sep='')
 
-    print("----------------values")
+    if printText: print("----------------values")
 
     outFile = open(profilesFile, "a")
     # outFile.write(str(values)+"\n")
     outFile.write("profile:1{\n")
     for z, vals in dataSets.items():
         outFile.write(f"z:{z}: {vals}"+"\n")
-    outFile.write("}\n")
-    print(values)
-    print("----------------data")
-    print(dataSets)
-    print("----------------script_exit() end")
+    outFile.write("}\n\n")
+    if printText: print(values)
+    if printText: print("----------------data")
+    if printText: print(dataSets)
+    if printText: print("----------------script_exit() end")
     outFile.close()
     return
 
 fig = plt.figure()
-# ax = fig.add_subplot(projection='3d')
+ax = fig.add_subplot(projection='3d')
 
 def plt_init():
     print("check init start")
-    plt.xlim(-90, 90)
-    plt.ylim(-90, 90)
-    plt.xlabel("roll")
-    plt.ylabel("pitch")
-    # ax.set(xlim3d=(-90, 90), xlabel='roll')
-    # ax.set(ylim3d=(-90, 90), ylabel='pitch')
-    # ax.set(zlim3d=(0, 300), zlabel='area')
-    # ax.view_init(elev=30, azim=60)
+    # plt.xlim(-90, 90)
+    # plt.ylim(-90, 90)
+    # plt.xlabel("roll")
+    # plt.ylabel("pitch")
+    ax.set(xlim3d=(-90, 90), xlabel='roll')
+    ax.set(ylim3d=(-90, 90), ylabel='pitch')
+    ax.set(zlim3d=(0, 480), zlabel='distance')
+    ax.view_init(elev=30, azim=60)
     print("check init end")
 
 def plt_update(n):
@@ -383,23 +383,37 @@ def opt1():
                             values[zVar][angleStr] = [sum(values[zVar][angleStr])/len(values[zVar][angleStr])]
                             # print(f"average area for z:\"{zVar}\" angles:\"{angleStr}\" solved")
     print("")
-    script_exit()
+    script_exit(printText=False)
     plt_init()
     print("plotting..")
-    i = 0
-    z_pick = 0
-    for key,var in dataSets.items():
-        if i==0: z_pick = key
-        elif len(var[0]) > len(dataSets[z_pick][0]): z_pick = key
-        i+=1
-    # resultGraph = ax.scatter(data[""], data["y"], data["z"], c=data["area"], cmap="magma")
-    resultGraph = plt.scatter(dataSets[z_pick][0], dataSets[z_pick][1], c=dataSets[z_pick][2], cmap="magma")
+
+    plotMethod = 1
+    if plotMethod==0:
+        i = 0
+        z_pick = 0
+        for key,var in dataSets.items():
+            if i==0: z_pick = key
+            elif len(var[0]) > len(dataSets[z_pick][0]): z_pick = key
+            i+=1
+        resultGraph = plt.scatter(dataSets[z_pick][0], dataSets[z_pick][1], c=dataSets[z_pick][2], cmap="magma")
+
+        plt.title(str(z_pick))
+        fileName = "objDist_angleArea_media/p1_z:"+str(z_pick)+"_"
+
+    elif plotMethod==1:
+        numPoints = 0
+        for key, val in dataSets.items():
+            resultGraph = ax.scatter(val[0], val[1], len(val[0])*[key], c=val[2], cmap="magma",s=1)
+            numPoints+=len(val[0])
+
+        plt.title(f"complete plot: {numPoints} points")
+
+        fileName = "objDist_angleArea_media/p1_fullPlot_"
+
 
     plt.colorbar(resultGraph)
-    plt.title(str(z_pick))
 
-    fileName = "objDist_angleArea_media/p1_z:"+str(z_pick)+"_"
-    for i in range(1000):
+    for i in range(10000):
         if not os.path.isfile(fileName+str(i)+".png"):
             plt.savefig(fileName+str(i)+".png", dpi=300)
             break
