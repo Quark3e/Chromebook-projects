@@ -358,6 +358,7 @@ def opt1():
     # pf_index = 1
     with open(profilesFile, "r") as readFile:
         for line in readFile:
+            print(f"reading line: \"{line}\"", end="\r")
             if line[0:2] == "z:":
                 zVar = int(line[2:zVar.find(":",zVar.find(":")+1)])
                 lstLine = eval(line[zVar.find("["):])
@@ -380,6 +381,7 @@ def opt1():
                         if len(values[zVar][angleStr]) >= 10: # check if there are more than 100 cntArea-values stored
                             values[zVar][angleStr] = [sum(values[zVar][angleStr])/len(values[zVar][angleStr])]
                             # print(f"average area for z:\"{zVar}\" angles:\"{angleStr}\" solved")
+    print("")
     script_exit()
     plt_init()
     print("plotting..")
