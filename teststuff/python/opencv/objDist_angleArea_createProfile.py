@@ -405,14 +405,20 @@ def opt1():
             break
     plt.show()
 
+def opt2():
+
+    pass
+
 def main():
     print("Options:")
     print("0. Track and create new data sets for profile 1")
-    print("1. Load and save average of all dataSets for profile 1")    
+    print("1. Load and save average of all dataSets for profile 1")
+    print("2. Display dataSets")
 
     inp = input("input: ")
     if inp=="0": opt0()
     elif inp=="1": opt1()
+    elif inp=="2": opt2()
 
 if __name__=="__main__":
     main()
