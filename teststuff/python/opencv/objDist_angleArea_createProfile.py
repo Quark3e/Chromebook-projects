@@ -322,6 +322,40 @@ def plt_update(n):
 
 # ani = FuncAnimation(fig, plt_update, 10, init_func=plt_init(), blit=True)
 
+def readFile_loadValues():
+    global values
+    values = {}
+    correctPf = False
+    pf_index = 1
+    with open(profilesFile, "r") as readFile:
+        for line in readFile:
+            print(f"reading line: \"{line}\"", end="\r")
+            if line[:8]=="profile:" and int(line[8])==pf_index: correctPf = True
+            elif line[0]=="}": correctPf = False
+            if correctPf and line[0:2] == "z:":
+                zVar = int(line[2:line.find(":",line.find(":")+1)])
+                lstLine = eval(line[line.find("["):])
+                for i in range(len(lstLine[0])):
+                    angleStr = f"{round(lstLine[0][i])}:{round(lstLine[1][i])}"
+                    if not (zVar in values):
+                        values.update( {
+                                zVar: {
+                                    angleStr: [lstLine[2][i]]
+                                }
+                            }
+                        )
+                    elif not (angleStr in values[zVar]):
+                        values[zVar].update({
+                                angleStr: [lstLine[2][i]]
+                            }
+                        )
+                    else:
+                        values[zVar][angleStr].append(lstLine[2][i])
+                        if len(values[zVar][angleStr]) >= 10: # check if there are more than 100 cntArea-values stored
+                            values[zVar][angleStr] = [sum(values[zVar][angleStr])/len(values[zVar][angleStr])]
+                            # print(f"average area for z:\"{zVar}\" angles:\"{angleStr}\" solved")
+
+
 plt_init()
 def opt0():
     #track and save new data sets from profile 1
@@ -353,35 +387,8 @@ def opt0():
     plt.show()
 
 def opt1():
-    global values
+    readFile_loadValues()
     #read and sum all values for same profile (mainly 1)
-    values = {}
-    # pf_index = 1
-    with open(profilesFile, "r") as readFile:
-        for line in readFile:
-            print(f"reading line: \"{line}\"", end="\r")
-            if line[0:2] == "z:":
-                zVar = int(line[2:line.find(":",line.find(":")+1)])
-                lstLine = eval(line[line.find("["):])
-                for i in range(len(lstLine[0])):
-                    angleStr = f"{round(lstLine[0][i])}:{round(lstLine[1][i])}"
-                    if not (zVar in values):
-                        values.update( {
-                                zVar: {
-                                    angleStr: [lstLine[2][i]]
-                                }
-                            }
-                        )
-                    elif not (angleStr in values[zVar]):
-                        values[zVar].update({
-                                angleStr: [lstLine[2][i]]
-                            }
-                        )
-                    else:
-                        values[zVar][angleStr].append(lstLine[2][i])
-                        if len(values[zVar][angleStr]) >= 10: # check if there are more than 100 cntArea-values stored
-                            values[zVar][angleStr] = [sum(values[zVar][angleStr])/len(values[zVar][angleStr])]
-                            # print(f"average area for z:\"{zVar}\" angles:\"{angleStr}\" solved")
     print("")
     script_exit(printText=False)
     plt_init()
@@ -420,8 +427,9 @@ def opt1():
     plt.show()
 
 def opt2():
+    readFile_loadValues()
 
-    pass
+    
 
 def main():
     print("Options:")
