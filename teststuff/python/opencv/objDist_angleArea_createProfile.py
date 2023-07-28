@@ -180,6 +180,7 @@ def processFrame(img, flag, winName):
     contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(thresh[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 def script_exit():
+    #reads from values and appends to file
     global values, dataSets
     print("exit initialized...", end='')
 
