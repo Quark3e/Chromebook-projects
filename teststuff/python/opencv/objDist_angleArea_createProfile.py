@@ -240,7 +240,7 @@ def plt_init():
     ax.set(xlim3d=(-90, 90), xlabel='roll')
     ax.set(ylim3d=(-90, 90), ylabel='pitch')
     ax.set(zlim3d=(0, 480), zlabel='distance')
-    ax.view_init(elev=30, azim=60)
+    ax.view_init(azim=-90, elev=90)
     print("check init end")
 
 def plt_update(n):
