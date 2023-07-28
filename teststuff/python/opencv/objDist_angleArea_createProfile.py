@@ -79,28 +79,30 @@ def readAccelerometer():
 def nothing(x):
     pass
 
-cam0 = cv2.VideoCapture(0)
-cam1 = cv2.VideoCapture(2)
-
-cam0.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
-cam1.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
 
 displayToOpenCV = True
 
+def opt0_setup():
+    global cam0, cam1, dispWin, hsvCam0, hsvCam1
+    cam0 = cv2.VideoCapture(0)
+    cam1 = cv2.VideoCapture(2)
 
-#lower, upper values
-hsvCam0 = [[0, 0, 255], [179, 9, 255]] #area
-hsvCam1 = [[0, 0, 255], [179, 9, 255]] #z
+    cam0.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
+    cam1.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
 
-dispWin = ["cam0", "cam1"]
-if displayToOpenCV:
-    #dispWin = ["cam0", "cam1"]
-    cv2.namedWindow(dispWin[0]) #xy
-    cv2.namedWindow(dispWin[1]) #z
-    ad.hsv_trackbars(dispWin[0], hsvCam0)
-    ad.hsv_trackbars(dispWin[1], hsvCam1)
-    cv2.moveWindow(dispWin[0], 100, 100)
-    cv2.moveWindow(dispWin[1], 100+700, 100)
+    #lower, upper values
+    hsvCam0 = [[0, 0, 255], [179, 9, 255]] #area
+    hsvCam1 = [[0, 0, 255], [179, 9, 255]] #z
+
+    dispWin = ["cam0", "cam1"]
+    if displayToOpenCV:
+        #dispWin = ["cam0", "cam1"]
+        cv2.namedWindow(dispWin[0]) #xy
+        cv2.namedWindow(dispWin[1]) #z
+        ad.hsv_trackbars(dispWin[0], hsvCam0)
+        ad.hsv_trackbars(dispWin[1], hsvCam1)
+        cv2.moveWindow(dispWin[0], 100, 100)
+        cv2.moveWindow(dispWin[1], 100+700, 100)
 
 #   int(zAxis): [cntArea],
 
@@ -322,6 +324,7 @@ def plt_update(n):
 plt_init()
 def opt0():
     #track and save new data sets from profile 1
+    opt0_setup()
     plt_init()
     while True:
         if plt_update(0):
