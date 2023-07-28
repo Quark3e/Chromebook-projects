@@ -349,14 +349,55 @@ def opt0():
     plt.show()
 
 def opt1():
+    global values
     #read and sum all values for same profile (mainly 1)
-
+    values = {}
+    # pf_index = 1
     with open(profilesFile, "r") as readFile:
         for line in readFile:
-            if line[0:9] == "profile:1":
-                line = readFile.readline()
-                if line[0:2]=="z:":
-                    
+            if line[0:2] == "z:":
+                zVar = int(line[2:zVar.find(":",zVar.find(":")+1)])
+                lstLine = eval(line[zVar.find("["):])
+                for i in range(len(lstLine[0])):
+                    angleStr = f"{round(lstLine[0][i])}:{round(lstLine[1][i])}"
+                    if not (zVar in values):
+                        values.update( {
+                                zVar: {
+                                    angleStr: [lstLine[2][i]]
+                                }
+                            }
+                        )
+                    elif not (angleStr in values[zVar]):
+                        values[zVar].update({
+                                angleStr: [lstLine[2][i]]
+                            }
+                        )
+                    else:
+                        values[zVar][angleStr].append(lstLine[2][i])
+                        if len(values[zVar][angleStr]) >= 10: # check if there are more than 100 cntArea-values stored
+                            values[zVar][angleStr] = [sum(values[zVar][angleStr])/len(values[zVar][angleStr])]
+                            # print(f"average area for z:\"{zVar}\" angles:\"{angleStr}\" solved")
+    script_exit()
+    plt_init()
+    print("plotting..")
+    i = 0
+    z_pick = 0
+    for key,var in dataSets.items():
+        if i==0: z_pick = key
+        elif len(var[0]) > len(dataSets[z_pick][0]): z_pick = key
+        i+=1
+    # resultGraph = ax.scatter(data[""], data["y"], data["z"], c=data["area"], cmap="magma")
+    resultGraph = plt.scatter(dataSets[z_pick][0], dataSets[z_pick][1], c=dataSets[z_pick][2], cmap="magma")
+
+    plt.colorbar(resultGraph)
+    plt.title(str(z_pick))
+
+    fileName = "objDist_angleArea_media/p1_z:"+str(z_pick)+"_"
+    for i in range(1000):
+        if not os.path.isfile(fileName+str(i)+".png"):
+            plt.savefig(fileName+str(i)+".png", dpi=300)
+            break
+    plt.show()
 
 def main():
     print("Options:")
