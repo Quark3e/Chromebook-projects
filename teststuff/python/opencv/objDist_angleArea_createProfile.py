@@ -411,6 +411,7 @@ def main():
 
     inp = input("input: ")
     if inp=="0": opt0()
+    elif inp=="1": opt1()
 
 if __name__=="__main__":
     main()
