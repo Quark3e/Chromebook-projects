@@ -360,8 +360,8 @@ def opt1():
         for line in readFile:
             print(f"reading line: \"{line}\"", end="\r")
             if line[0:2] == "z:":
-                zVar = int(line[2:zVar.find(":",zVar.find(":")+1)])
-                lstLine = eval(line[zVar.find("["):])
+                zVar = int(line[2:line.find(":",line.find(":")+1)])
+                lstLine = eval(line[line.find("["):])
                 for i in range(len(lstLine[0])):
                     angleStr = f"{round(lstLine[0][i])}:{round(lstLine[1][i])}"
                     if not (zVar in values):
