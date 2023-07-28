@@ -27,6 +27,10 @@ import sys
 import socket
 
 profilesFile = "angleArea_profiles.dat"
+orient = {
+    "azim": 0,
+    "elev": 0
+}
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client_socket.settimeout(0.5)
@@ -228,20 +232,24 @@ def script_exit(printText=True):
     outFile.close()
     return
 
-fig = plt.figure()
-ax = fig.add_subplot(projection='3d')
 
-def plt_init():
-    print("check init start")
-    # plt.xlim(-90, 90)
-    # plt.ylim(-90, 90)
-    # plt.xlabel("roll")
-    # plt.ylabel("pitch")
-    ax.set(xlim3d=(-90, 90), xlabel='roll')
-    ax.set(ylim3d=(-90, 90), ylabel='pitch')
-    ax.set(zlim3d=(0, 480), zlabel='distance')
-    ax.view_init(azim=-90, elev=90)
-    print("check init end")
+def plt_init(printText=True, mode=0):
+    global ax, fig, orient
+    plt.close()
+    fig = plt.figure()
+    if printText: print("check init start")
+    if mode==0:
+        plt.xlim(-90, 90)
+        plt.ylim(-90, 90)
+        plt.xlabel("roll")
+        plt.ylabel("pitch")
+    elif mode==1:
+        ax = fig.add_subplot(projection='3d')
+        ax.set(xlim3d=(-90, 90), xlabel='roll')
+        ax.set(ylim3d=(-90, 90), ylabel='pitch')
+        ax.set(zlim3d=(0, 480), zlabel='distance')
+        ax.view_init(azim=orient["azim"], elev=orient["elev"])
+    if printText: print("check init end")
 
 def plt_update(n):
     # print("check update")
@@ -317,50 +325,56 @@ def plt_update(n):
     # print("check 3")
     return True
 
-# if __name__=="__main__":
-#configure_settings()
 
-# ani = FuncAnimation(fig, plt_update, 10, init_func=plt_init(), blit=True)
-
-def readFile_loadValues():
-    global values
+def readFile_loadValues(pf_index=1, mode=0):
+    global values, allDataSets
+    allDataSets = []
     values = {}
     correctPf = False
-    pf_index = 1
     with open(profilesFile, "r") as readFile:
         for line in readFile:
+            print("Mode:",mode)
             print(f"reading line: \"{line}\"", end="\r")
-            if line[:8]=="profile:" and int(line[8])==pf_index: correctPf = True
-            elif line[0]=="}": correctPf = False
-            if correctPf and line[0:2] == "z:":
-                zVar = int(line[2:line.find(":",line.find(":")+1)])
-                lstLine = eval(line[line.find("["):])
-                for i in range(len(lstLine[0])):
-                    angleStr = f"{round(lstLine[0][i])}:{round(lstLine[1][i])}"
-                    if not (zVar in values):
-                        values.update( {
-                                zVar: {
+            if mode==0:
+                if line[:8]=="profile:" and int(line[8])==pf_index: correctPf = True
+                elif line[0]=="}": correctPf = False
+                if correctPf and line[0:2] == "z:":
+                    zVar = int(line[2:line.find(":", line.find(":")+1)])
+                    lstLine = eval(line[line.find("["):])
+                    for i in range(len(lstLine[0])):
+                        angleStr = f"{round(lstLine[0][i])}:{round(lstLine[1][i])}"
+                        if not (zVar in values):
+                            values.update( {
+                                    zVar: {
+                                        angleStr: [lstLine[2][i]]
+                                    }
+                                }
+                            )
+                        elif not (angleStr in values[zVar]):
+                            values[zVar].update({
                                     angleStr: [lstLine[2][i]]
                                 }
-                            }
-                        )
-                    elif not (angleStr in values[zVar]):
-                        values[zVar].update({
-                                angleStr: [lstLine[2][i]]
-                            }
-                        )
-                    else:
-                        values[zVar][angleStr].append(lstLine[2][i])
-                        if len(values[zVar][angleStr]) >= 10: # check if there are more than 100 cntArea-values stored
-                            values[zVar][angleStr] = [sum(values[zVar][angleStr])/len(values[zVar][angleStr])]
-                            # print(f"average area for z:\"{zVar}\" angles:\"{angleStr}\" solved")
+                            )
+                        else:
+                            values[zVar][angleStr].append(lstLine[2][i])
+                            if len(values[zVar][angleStr]) >= 10: # check if there are more than 100 cntArea-values stored
+                                values[zVar][angleStr] = [sum(values[zVar][angleStr])/len(values[zVar][angleStr])]
+                                # print(f"average area for z:\"{zVar}\" angles:\"{angleStr}\" solved")
+            elif mode==1:
+                if line[:8]=="profile:" and int(line[8])==pf_index:
+                    correctPf = True
+                    allDataSets.append({})
+                elif line[0]=="}": correctPf = False
+                if correctPf and line[0:2]=="z:":
+                    zVar = int(line[2:line.find(":", line.find(":")+1)])
+                    lstLine = eval(line[line.find("["):])
+                    allDataSets[len(allDataSets)-1].update({zVar: lstLine})
 
 
-plt_init()
 def opt0():
     #track and save new data sets from profile 1
     opt0_setup()
-    plt_init()
+    plt_init(mode=0)
     while True:
         if plt_update(0):
             pass
@@ -373,6 +387,8 @@ def opt0():
         if i==0: z_pick = key
         elif len(var[0]) > len(dataSets[z_pick][0]): z_pick = key
         i+=1
+
+    
     # resultGraph = ax.scatter(data[""], data["y"], data["z"], c=data["area"], cmap="magma")
     resultGraph = plt.scatter(dataSets[z_pick][0], dataSets[z_pick][1], c=dataSets[z_pick][2], cmap="magma")
 
@@ -391,11 +407,11 @@ def opt1():
     #read and sum all values for same profile (mainly 1)
     print("")
     script_exit(printText=False)
-    plt_init()
     print("plotting..")
 
     plotMethod = 1
     if plotMethod==0:
+        plt_init(mode=0)
         i = 0
         z_pick = 0
         for key,var in dataSets.items():
@@ -408,6 +424,7 @@ def opt1():
         fileName = "objDist_angleArea_media/p1_z:"+str(z_pick)+"_"
 
     elif plotMethod==1:
+        plt_init(mode=1)
         numPoints = 0
         for key, val in dataSets.items():
             resultGraph = ax.scatter(val[0], val[1], len(val[0])*[key], c=val[2], cmap="magma",s=1)
@@ -427,20 +444,69 @@ def opt1():
     plt.show()
 
 def opt2():
-    readFile_loadValues()
+    global orient
+    readFile_loadValues(mode=1)
+    chosen_pf = 0
+    plotMethod = 1
+    print("\nNum. loaded profiles:", len(allDataSets))
+    while True:
+        while True:
+            pf_opt = input("input: ")
+            if pf_opt=="exit": return
+            elif pf_opt[:5]=="azim=": orient["azim"]=int(pf_opt[5:])
+            elif pf_opt[:5]=="elev=": orient["elev"]=int(pf_opt[5:])
+            elif pf_opt[:5]=="mode=": plotMethod = int(pf_opt[5])
+            elif pf_opt=="": pass
+            else:
+                chosen_pf = int(pf_opt)
+                break
 
-    
+        if plotMethod==0:
+            plt_init(printText=False, mode=0)
+            i = 0
+            z_pick = 0
+            for key,var in allDataSets[chosen_pf].items():
+                if i==0: z_pick = key
+                elif len(var[0]) > len(allDataSets[chosen_pf][z_pick][0]): z_pick = key
+                i+=1
+            resultGraph = plt.scatter(allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][1], c=allDataSets[chosen_pf][z_pick][2], cmap="magma")
+
+            plt.title(f"z:{z_pick}")
+            fileName = f"objDist_angleArea_media/p1_n{chosen_pf}_z:{z_pick}_"
+
+        elif plotMethod==1:
+            plt_init(printText=False, mode=1)
+            numPoints = 0
+            for key, val in allDataSets[chosen_pf].items():
+                resultGraph = ax.scatter(val[0], val[1], len(val[0])*[key], c=val[2], cmap="magma",s=1)
+                numPoints+=len(val[0])
+
+            plt.title(f"complete plot: {numPoints} points")
+            fileName = f"objDist_angleArea_media/p1_n{chosen_pf}_"+str(orient["azim"])+":"+str(orient["elev"])+"_"
+
+
+        plt.colorbar(resultGraph)
+
+        for i in range(10000):
+            if not os.path.isfile(fileName+str(i)+".png"):
+                plt.savefig(fileName+str(i)+".png", dpi=300)
+                break
+        plt.show()
+
 
 def main():
-    print("Options:")
-    print("0. Track and create new data sets for profile 1")
-    print("1. Load and save average of all dataSets for profile 1")
-    print("2. Display dataSets")
+    while True:
+        os.system("clear")
+        print("Options:")
+        print("0. Track and create new data sets for profile 1")
+        print("1. Load and save average of all dataSets for profile 1")
+        print("2. Display dataSets")
 
-    inp = input("input: ")
-    if inp=="0": opt0()
-    elif inp=="1": opt1()
-    elif inp=="2": opt2()
+        inp = input("input: ")
+        if inp=="exit": break
+        elif inp=="0": opt0()
+        elif inp=="1": opt1()
+        elif inp=="2": opt2()
 
 if __name__=="__main__":
     main()
