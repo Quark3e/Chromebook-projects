@@ -500,7 +500,7 @@ def main():
         print("Options:")
         print("0. Track and create new data sets for profile 1")
         print("1. Load and save average of all dataSets for profile 1")
-        print("2. Display dataSets")
+        print("2. Display dataSets from profiles File")
 
         inp = input("input: ")
         if inp=="exit": break
