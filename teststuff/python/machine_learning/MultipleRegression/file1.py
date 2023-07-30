@@ -9,7 +9,7 @@ df = pandas.read_csv("data.csv")
 print(f"read_csv:\t\t{round(perf_counter()-t1)}")
 t1 = perf_counter()
 
-print(df, end="\n\n")
+# print(df, end="\n\n")
 
 print(type(df))
 X = df[["Weight", "Volume"]]
@@ -27,6 +27,8 @@ print(f".fit:\t\t\t{round(perf_counter()-t1,4)}")
 t1 = perf_counter()
 
 predictedCO2 = regr.predict([[2300, 1300]])
+predictedCO2 = int(predictedCO2[0])
+print(type(predictedCO2))
 print(f"predicting:\t\t{round(perf_counter()-t1,4)}")
 t1 = perf_counter()
 

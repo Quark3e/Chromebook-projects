@@ -25,6 +25,8 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import sys
 import socket
+import pandas
+from sklearn import linear_model
 
 profilesFile = "angleArea_profiles.dat"
 orient = {
@@ -236,20 +238,22 @@ def script_exit(printText=True):
 def plt_init(printText=True, mode=0):
     global ax, fig, orient
     plt.close()
-    fig = plt.figure()
     if printText: print("check init start")
     if mode==0:
+        fig, ax = plt.subplots()
         plt.xlim(-90, 90)
         plt.ylim(-90, 90)
         plt.xlabel("roll")
         plt.ylabel("pitch")
     elif mode==1:
+        fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
         ax.set(xlim3d=(-90, 90), xlabel='roll')
         ax.set(ylim3d=(-90, 90), ylabel='pitch')
         ax.set(zlim3d=(0, 480), zlabel='distance')
         ax.view_init(azim=orient["azim"], elev=orient["elev"])
     if printText: print("check init end")
+    plt.grid()
 
 def plt_update(n):
     # print("check update")
@@ -331,10 +335,11 @@ def readFile_loadValues(pf_index=1, mode=0):
     allDataSets = []
     values = {}
     correctPf = False
+    nl_pos = 0
     with open(profilesFile, "r") as readFile:
         for line in readFile:
-            print("Mode:",mode)
-            print(f"reading line: \"{line}\"", end="\r")
+            print(f"mode:{mode} reading line: {nl_pos}", end="\r")
+            nl_pos+=1
             if mode==0:
                 if line[:8]=="profile:" and int(line[8])==pf_index: correctPf = True
                 elif line[0]=="}": correctPf = False
@@ -447,12 +452,13 @@ def opt2():
     global orient
     readFile_loadValues(mode=1)
     chosen_pf = 0
-    plotMethod = 1
+    plotMethod = 0
     print("\nNum. loaded profiles:", len(allDataSets))
     while True:
         while True:
             pf_opt = input("input: ")
-            if pf_opt=="exit": return
+            if pf_opt=="back": return
+            elif pf_opt=="exit": sys.exit()
             elif pf_opt[:5]=="azim=": orient["azim"]=int(pf_opt[5:])
             elif pf_opt[:5]=="elev=": orient["elev"]=int(pf_opt[5:])
             elif pf_opt[:5]=="mode=": plotMethod = int(pf_opt[5])
@@ -469,7 +475,47 @@ def opt2():
                 if i==0: z_pick = key
                 elif len(var[0]) > len(allDataSets[chosen_pf][z_pick][0]): z_pick = key
                 i+=1
-            resultGraph = plt.scatter(allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][1], c=allDataSets[chosen_pf][z_pick][2], cmap="magma")
+
+            tempDict = {
+                "roll": allDataSets[chosen_pf][z_pick][0],
+                "pitch": allDataSets[chosen_pf][z_pick][1],
+                "area": allDataSets[chosen_pf][z_pick][2]
+            }
+            df = pandas.DataFrame(tempDict)
+            regrFeed = [
+                df[["roll", "pitch"]],
+                df["area"]
+            ]
+            regr = linear_model.LinearRegression()
+            regr.fit(regrFeed[0].values, regrFeed[1])
+
+            print("creating regr. data...")
+            regrData = {"roll":[], "pitch":[], "area":[]}
+            biggestVal = max([max([abs(i) for i in tempDict["roll"]]), max([abs(i) for i in tempDict["pitch"]])])
+            for flip in range(-1, 2, 2):
+                for x in range(0, biggestVal, 1):
+                    for y in range(0, biggestVal-x, 1):
+                        pos = [x*flip, y]
+                        print(f"-creating point: {pos}  ", end="\r")
+                        regrData["roll"].append(pos[0])
+                        regrData["pitch"].append(pos[1])
+                        regrData["area"].append(int(regr.predict([pos])))
+                        
+            for flip in range(-1, 2, 2):
+                for x in range(0, biggestVal, 1):
+                    for y in range(0, (0-biggestVal+x), -1):
+                        pos = [x*flip, y]
+                        print(f"-creating point: {pos}  ", end="\r")
+                        regrData["roll"].append(pos[0])
+                        regrData["pitch"].append(pos[1])
+                        regrData["area"].append(int(regr.predict([pos])))
+
+            print("scatter plotting data sets:")
+            resultGraph1 = plt.scatter(regrData["roll"], regrData["pitch"], c=regrData["area"], s=1.5, cmap="YlGn")
+            resultGraph0 = plt.scatter(allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][1], c=allDataSets[chosen_pf][z_pick][2], s=2, cmap="RdPu")
+
+            plt.colorbar(resultGraph0)
+            plt.colorbar(resultGraph1)
 
             plt.title(f"z:{z_pick}")
             fileName = f"objDist_angleArea_media/p1_n{chosen_pf}_z:{z_pick}_"
@@ -483,9 +529,7 @@ def opt2():
 
             plt.title(f"complete plot: {numPoints} points")
             fileName = f"objDist_angleArea_media/p1_n{chosen_pf}_"+str(orient["azim"])+":"+str(orient["elev"])+"_"
-
-
-        plt.colorbar(resultGraph)
+            plt.colorbar()
 
         for i in range(10000):
             if not os.path.isfile(fileName+str(i)+".png"):
