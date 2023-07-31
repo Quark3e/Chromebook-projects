@@ -287,7 +287,7 @@ def plt_update(n):
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(tempPos[1])),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
                         cntPos[2] = prefRes[1] - cntPos[2] #type: ignore
                 else: print("cntMoments['m00'] = 0")
-        if cntArea != None and None not in cntPos:
+        if cntArea != None and cntPos[0] != None and cntPos[1] != None:
             angleStr = f"{round(roll)}:{round(pitch)}"
             if not (cntPos[2] in values):
                 values.update( {
@@ -306,6 +306,9 @@ def plt_update(n):
                 if len(values[cntPos[2]][angleStr]) >= 10: # check if there are more than 100 cntArea-values stored
                     values[cntPos[2]][angleStr] = [sum(values[cntPos[2]][angleStr])/len(values[cntPos[2]][angleStr])]
                     print(f"average area for z:\"{cntPos[2]}\" angles:\"{angleStr}\" solved")
+            print(f"read: {'area:':<8}: {cntArea:<8} {'z:':<8}: {cntPos[2]:<8}", end='\r')
+        else:
+            print(f"read: {'area:':<8}: {cntArea:<8} {'z:':<8}: {cntPos[2]} [USING PREVIOUS Z VALUE]", end='\r')
 
         # ln.set_data(xData, yData)
     if displayToOpenCV:
