@@ -306,9 +306,9 @@ def plt_update(n):
                 if len(values[cntPos[2]][angleStr]) >= 10: # check if there are more than 100 cntArea-values stored
                     values[cntPos[2]][angleStr] = [sum(values[cntPos[2]][angleStr])/len(values[cntPos[2]][angleStr])]
                     print(f"average area for z:\"{cntPos[2]}\" angles:\"{angleStr}\" solved")
-            print(f"read: {'area:':<8}: {cntArea:<8} {'z:':<8}: {cntPos[2]:<8}", end='\r')
+            print(f"read: {'area:':<8}: {cntArea}  {'z:':<8}: {cntPos[2]}", end='\r')
         else:
-            print(f"read: {'area:':<8}: {cntArea:<8} {'z:':<8}: {cntPos[2]} [USING PREVIOUS Z VALUE]", end='\r')
+            print(f"read: {'area:':<8}: {cntArea}  {'z:':<8}: {cntPos[2]} [USING PREVIOUS Z VALUE]", end='\r')
 
         # ln.set_data(xData, yData)
     if displayToOpenCV:
