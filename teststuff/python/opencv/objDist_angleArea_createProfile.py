@@ -354,10 +354,13 @@ def readFile_loadValues(pf_index=1, mode=0):
     correctPf = False
     nl_pos = 0
     strComments = []
+    typeComments = []
     with open(profilesFile, "r") as readFile:
         for line in readFile:
             print(f"mode:{mode} reading line: {nl_pos}", end="\r")
-            if line[0:1]=="#": strComments.append(line[1:-1])
+            if line[0:1]=="#":
+                if line[1:4]=="raw" or line[1:4]=="sum": typeComments.append(line[1:4])
+                strComments.append(line[1:-1])
             nl_pos+=1
             if mode==0:
                 #solve sum of values
@@ -396,7 +399,7 @@ def readFile_loadValues(pf_index=1, mode=0):
                     zVar = int(line[2:line.find(":", line.find(":")+1)])
                     lstLine = eval(line[line.find("["):])
                     allDataSets[len(allDataSets)-1].update({zVar: lstLine})
-    return strComments
+    return strComments, typeComments
 
 def opt0():
     #track and save new data sets from profile 1
@@ -438,7 +441,7 @@ def opt1():
     readFile_loadValues()
     #read and sum all values for same profile (mainly 1)
     print("")
-    script_exit(printText=False, strComments=["raw"])
+    script_exit(printText=False, strComments=["sum"])
     print("plotting..")
 
     plotMethod = 1
@@ -477,10 +480,12 @@ def opt1():
 
 def opt2():
     global orient
-    readFile_loadValues(mode=1)
+    strComments, typeComments = readFile_loadValues(mode=1)
     chosen_pf = 0
     plotMethod = 0
     print("\nNum. loaded profiles:", len(allDataSets))
+    for i in range(len(typeComments)):
+        print(f"-{i}: {typeComments[i]}")
     while True:
         while True:
             pf_opt = input("input: ")
@@ -545,7 +550,7 @@ def opt2():
             plt.colorbar(resultGraph1)
 
             plt.title(f"z:{z_pick}")
-            fileName = f"objDist_angleArea_media/p1_n{chosen_pf}_z:{z_pick}_"
+            fileName = f"objDist_angleArea_media/{typeComments[chosen_pf]}_n{chosen_pf}_z:{z_pick}_"
 
         elif plotMethod==1:
             plt_init(printText=False, mode=1)
@@ -555,7 +560,7 @@ def opt2():
                 numPoints+=len(val[0])
 
             plt.title(f"complete plot: {numPoints} points")
-            fileName = f"objDist_angleArea_media/p1_n{chosen_pf}_"+str(orient["azim"])+":"+str(orient["elev"])+"_"
+            fileName = f"objDist_angleArea_media/{typeComments[chosen_pf]}_n{chosen_pf}_"+str(orient["azim"])+":"+str(orient["elev"])+"_"
             plt.colorbar(resultGraph)
 
         for i in range(10000):
