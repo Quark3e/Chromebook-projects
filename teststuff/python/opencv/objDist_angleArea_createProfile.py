@@ -27,6 +27,7 @@ import sys
 import socket
 import pandas
 from sklearn import linear_model
+from datetime import datetime
 
 profilesFile = "angleArea_profiles.dat"
 orient = {
@@ -185,7 +186,7 @@ def processFrame(img, flag, winName):
     _, thresh[flag] = cv2.threshold(morphImg[flag], 127, 255, cv2.THRESH_BINARY)
     contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(thresh[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-def script_exit(printText=True):
+def script_exit(printText=True, strComments = []):
     #reads from values and appends to file
     global values, dataSets
     if printText: print("exit initialized...", end='')
@@ -224,7 +225,15 @@ def script_exit(printText=True):
     outFile = open(profilesFile, "a")
     # outFile.write(str(values)+"\n")
     outFile.write("profile:1{\n")
+
+    currentDate = str(datetime.now())
+    outFile.write("#date:"+currentDate+"\n")
+
+    for cmnt in strComments: outFile.write("#"+cmnt+"\n")
+
     for z, vals in dataSets.items():
+        if z==None or None in vals:
+            print(f"warning: found None in \"{z}:{vals}\"")
         outFile.write(f"z:{z}: {vals}"+"\n")
     outFile.write("}\n\n")
     if printText: print(values)
@@ -339,9 +348,11 @@ def readFile_loadValues(pf_index=1, mode=0):
     values = {}
     correctPf = False
     nl_pos = 0
+    strComments = []
     with open(profilesFile, "r") as readFile:
         for line in readFile:
             print(f"mode:{mode} reading line: {nl_pos}", end="\r")
+            if line[0:1]=="#": strComments.append(line[1:-1])
             nl_pos+=1
             if mode==0:
                 if line[:8]=="profile:" and int(line[8])==pf_index: correctPf = True
@@ -377,7 +388,7 @@ def readFile_loadValues(pf_index=1, mode=0):
                     zVar = int(line[2:line.find(":", line.find(":")+1)])
                     lstLine = eval(line[line.find("["):])
                     allDataSets[len(allDataSets)-1].update({zVar: lstLine})
-
+    return strComments
 
 def opt0():
     #track and save new data sets from profile 1
@@ -388,6 +399,7 @@ def opt0():
             pass
         else:
             break
+    script_exit(strComments=["raw"])
     print("plotting..")
     i = 0
     z_pick = 0
@@ -414,7 +426,7 @@ def opt1():
     readFile_loadValues()
     #read and sum all values for same profile (mainly 1)
     print("")
-    script_exit(printText=False)
+    script_exit(printText=False, strComments=["raw"])
     print("plotting..")
 
     plotMethod = 1
