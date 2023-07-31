@@ -82,6 +82,8 @@ def readAccelerometer():
     Pitch = (1-tiltFilter) * Pitch + tiltFilter * pitch
     print(f" accel: x:{X_out} y:{Y_out} z:{Z_out} roll:{roll} pitch:{pitch}", end='\r')
 
+reqToServer()
+readAccelerometer()
 
 def nothing(x):
     pass
@@ -108,8 +110,8 @@ def opt0_setup():
         cv2.namedWindow(dispWin[1]) #z
         ad.hsv_trackbars(dispWin[0], hsvCam0)
         ad.hsv_trackbars(dispWin[1], hsvCam1)
-        cv2.moveWindow(dispWin[0], 100, 100)
-        cv2.moveWindow(dispWin[1], 100+700, 100)
+        cv2.moveWindow(dispWin[0], 100, 500)
+        cv2.moveWindow(dispWin[1], 100+700, 500)
 
 #   int(zAxis): [cntArea],
 
@@ -234,7 +236,8 @@ def script_exit(printText=True, strComments = []):
     for z, vals in dataSets.items():
         if z==None or None in vals:
             print(f"warning: found None in \"{z}:{vals}\"")
-        outFile.write(f"z:{z}: {vals}"+"\n")
+        else:
+            outFile.write(f"z:{z}: {vals}"+"\n")
     outFile.write("}\n\n")
     if printText: print(values)
     if printText: print("----------------data")
@@ -266,7 +269,7 @@ def plt_init(printText=True, mode=0):
 
 def plt_update(n):
     # print("check update")
-    global imgTemp, ret, contours, cntArea, cntPos, cntMoments, values
+    global imgTemp, ret, contours, cntArea, cntPos, cntMoments, values, cntPos
     ret[0], imgTemp[0] = cam0.read()
     ret[1], imgTemp[1] = cam1.read()
     # print("check 2")
@@ -274,8 +277,10 @@ def plt_update(n):
     else:    
         processFrame(imgTemp[0], 0, dispWin[0]) #solve contourArea and xy pos
         processFrame(imgTemp[1], 1, dispWin[1])
-        cntPos = [None, None, None]
+        cntPos[0] = None
+        cntPos[1] = None
         tempPos = [None, None]
+        cntArea = None
 
         for flag in range(2):
             for i in range(len(contours[flag])): #type: ignore
@@ -296,7 +301,7 @@ def plt_update(n):
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(tempPos[1])),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
                         cntPos[2] = prefRes[1] - cntPos[2] #type: ignore
                 else: print("cntMoments['m00'] = 0")
-        if cntArea != None and cntPos[0] != None and cntPos[1] != None:
+        if cntArea != None:
             angleStr = f"{round(roll)}:{round(pitch)}"
             if not (cntPos[2] in values):
                 values.update( {
@@ -315,9 +320,8 @@ def plt_update(n):
                 if len(values[cntPos[2]][angleStr]) >= 10: # check if there are more than 100 cntArea-values stored
                     values[cntPos[2]][angleStr] = [sum(values[cntPos[2]][angleStr])/len(values[cntPos[2]][angleStr])]
                     print(f"average area for z:\"{cntPos[2]}\" angles:\"{angleStr}\" solved")
-            print(f"read: {'area:':<8}: {cntArea}  {'z:':<8}: {cntPos[2]}", end='\r')
-        else:
-            print(f"read: {'area:':<8}: {cntArea}  {'z:':<8}: {cntPos[2]} [USING PREVIOUS Z VALUE]", end='\r')
+            if cntPos[2]==None: print(f"read: {'area:':<8}: {cntArea}  {'z:':<8}: {cntPos[2]} [USING PREVIOUS Z VALUE]", end='\r')
+            else: print(f"read: {'area:':<8}: {cntArea}  {'z:':<8}: {cntPos[2]}", end='\r')
 
         # ln.set_data(xData, yData)
     if displayToOpenCV:
@@ -327,13 +331,14 @@ def plt_update(n):
         if key==27:
             sys.exit()
         elif key==32:
-            script_exit()
+            script_exit(strComments=["raw"])
             return False
         elif key==115:
             print([hsvCam0],[hsvCam1])
             np.save('hsv_value_cam0',[hsvCam0])
             np.save('hsv_value_cam1',[hsvCam1])
-            script_exit()
+            script_exit(strComments=["raw"])
+            return False
         elif key==97:
             cv2.imwrite("cam0_img", np.hstack((morphImg[0], frame[0])))
             cv2.imwrite("cam1_img", np.hstack((morphImg[1], frame[1])))
@@ -355,7 +360,9 @@ def readFile_loadValues(pf_index=1, mode=0):
             if line[0:1]=="#": strComments.append(line[1:-1])
             nl_pos+=1
             if mode==0:
+                #solve sum of values
                 if line[:8]=="profile:" and int(line[8])==pf_index: correctPf = True
+                elif line[0:4] =="#sum": correctPf = False
                 elif line[0]=="}": correctPf = False
                 if correctPf and line[0:2] == "z:":
                     zVar = int(line[2:line.find(":", line.find(":")+1)])
@@ -380,6 +387,7 @@ def readFile_loadValues(pf_index=1, mode=0):
                                 values[zVar][angleStr] = [sum(values[zVar][angleStr])/len(values[zVar][angleStr])]
                                 # print(f"average area for z:\"{zVar}\" angles:\"{angleStr}\" solved")
             elif mode==1:
+                #independantly save values
                 if line[:8]=="profile:" and int(line[8])==pf_index:
                     correctPf = True
                     allDataSets.append({})
@@ -392,6 +400,8 @@ def readFile_loadValues(pf_index=1, mode=0):
 
 def opt0():
     #track and save new data sets from profile 1
+    global cntPos
+    cntPos = [None, None, None]
     opt0_setup()
     plt_init(mode=0)
     while True:
@@ -399,7 +409,7 @@ def opt0():
             pass
         else:
             break
-    script_exit(strComments=["raw"])
+    cv2.destroyAllWindows()
     print("plotting..")
     i = 0
     z_pick = 0
@@ -415,7 +425,7 @@ def opt0():
     plt.colorbar(resultGraph)
     plt.title(str(z_pick))
 
-    fileName = "objDist_angleArea_media/p1_z:"+str(z_pick)+"_"
+    fileName = "objDist_angleArea_media/raw_z:"+str(z_pick)+"_"
     for i in range(1000):
         if not os.path.isfile(fileName+str(i)+".png"):
             plt.savefig(fileName+str(i)+".png", dpi=300)
@@ -423,6 +433,8 @@ def opt0():
     plt.show()
 
 def opt1():
+
+
     readFile_loadValues()
     #read and sum all values for same profile (mainly 1)
     print("")
@@ -441,7 +453,7 @@ def opt1():
         resultGraph = plt.scatter(dataSets[z_pick][0], dataSets[z_pick][1], c=dataSets[z_pick][2], cmap="magma")
 
         plt.title(str(z_pick))
-        fileName = "objDist_angleArea_media/p1_z:"+str(z_pick)+"_"
+        fileName = "objDist_angleArea_media/sum_z:"+str(z_pick)+"_"
 
     elif plotMethod==1:
         plt_init(mode=1)
@@ -452,7 +464,7 @@ def opt1():
 
         plt.title(f"complete plot: {numPoints} points")
 
-        fileName = "objDist_angleArea_media/p1_fullPlot_"
+        fileName = "objDist_angleArea_media/sum_fullPlot_"
 
 
     plt.colorbar(resultGraph)
@@ -544,7 +556,7 @@ def opt2():
 
             plt.title(f"complete plot: {numPoints} points")
             fileName = f"objDist_angleArea_media/p1_n{chosen_pf}_"+str(orient["azim"])+":"+str(orient["elev"])+"_"
-            plt.colorbar()
+            plt.colorbar(resultGraph)
 
         for i in range(10000):
             if not os.path.isfile(fileName+str(i)+".png"):
