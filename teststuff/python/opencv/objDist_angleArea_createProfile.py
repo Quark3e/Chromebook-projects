@@ -58,7 +58,7 @@ X_out, Y_out, Z_out = 0.1, 0.1, 0.1
 Roll, Pitch, roll, pitch = 0.1, 0.1, 0.1, 0.1
 tiltFilter = 0.1
 
-def readAccelerometer():
+def readAccelerometer(printText=True):
     global X_out, Y_out, Z_out, Roll, Pitch, roll, pitch
     reqToServer()
     if len(server_msg)>=1 and (server_msg[:1]=="{" and server_msg[-5]=="}" and server_msg[-1]==";"):
@@ -66,7 +66,7 @@ def readAccelerometer():
         msgTuple = eval(tempMsg[1:-5])
         X_out, Y_out, Z_out = msgTuple
 
-    print(f" accel: x:{X_out} y:{Y_out} z:{Z_out} roll:{roll} pitch:{pitch}", end='\r')
+    if printText: print(f" accel: x:{X_out} y:{Y_out} z:{Z_out} roll:{roll} pitch:{pitch}", end='\r')
     
     if X_out > 1: X_out = 1
     if Y_out > 1: Y_out = 1
@@ -80,7 +80,7 @@ def readAccelerometer():
     #filter
     Roll = (1-tiltFilter) * Roll + tiltFilter * roll
     Pitch = (1-tiltFilter) * Pitch + tiltFilter * pitch
-    print(f" accel: x:{X_out} y:{Y_out} z:{Z_out} roll:{roll} pitch:{pitch}", end='\r')
+    if printText: print(f" accel: x:{X_out} y:{Y_out} z:{Z_out} roll:{roll} pitch:{pitch}", end='\r')
 
 reqToServer()
 readAccelerometer()
@@ -110,8 +110,8 @@ def opt0_setup():
         cv2.namedWindow(dispWin[1]) #z
         ad.hsv_trackbars(dispWin[0], hsvCam0)
         ad.hsv_trackbars(dispWin[1], hsvCam1)
-        cv2.moveWindow(dispWin[0], 100, 500)
-        cv2.moveWindow(dispWin[1], 100+700, 500)
+        cv2.moveWindow(dispWin[0], 50, 400)
+        cv2.moveWindow(dispWin[1], 50+640, 400)
 
 #   int(zAxis): [cntArea],
 
@@ -294,8 +294,9 @@ def plt_update(n):
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
                     elif flag==1:
-                        readAccelerometer()
+                        readAccelerometer(printText=False)
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
+                        
                         tempPos[1] = round(tempPos[1]/10)*10 #type: ignore
                         #cntPos[2] = round(tempPos[1]/10)*10 #type: ignore
                         if displayToOpenCV:
@@ -303,13 +304,16 @@ def plt_update(n):
                         tempPos[1] = prefRes[1] - tempPos[1] #type: ignore
                         #cntPos[2] = prefRes[1] - cntPos[2] #type: ignore
                 else: print("cntMoments['m00'] = 0")
+            if flag==1 and len(contours[flag])<=0:
+                tempPos = [None, None]
         if cntArea != None:
+            angleStr = f"{round(roll)}:{round(pitch)}"
+            print(f"read: angles:{str(round(roll)):<3}:{str(round(pitch)):<3} area:{str(cntArea):<10} z:{str(cntPos[2]):<5}")
             if tempPos[1]==None:
-                print(f"read: {'area:':<8}: {cntArea} {'z:':<8}:{cntPos[2]} [USING PREVIOUS Z VALUE]", end='\r')
+                print("[USING PREVIOUS Z VALUE]", end='')
             else:
                 cntPos[2] = tempPos[1]
-                print(f"read: {'area:':<8}: {cntArea} {'z:':<8}:{cntPos[2]:<25} ", end='\r')
-            angleStr = f"{round(roll)}:{round(pitch)}"
+                print("                        ", end='')
             if not (cntPos[2] in values):
                 values.update( {
                         cntPos[2]: {
@@ -326,8 +330,8 @@ def plt_update(n):
                 values[cntPos[2]][angleStr].append(int(cntArea))
                 if len(values[cntPos[2]][angleStr]) >= 10: # check if there are more than 100 cntArea-values stored
                     values[cntPos[2]][angleStr] = [sum(values[cntPos[2]][angleStr])/len(values[cntPos[2]][angleStr])]
-                    print(f"average area for z:\"{cntPos[2]}\" angles:\"{angleStr}\" solved")
-
+                    print(f"average area for z:\"{round(cntPos[2],2)}\" solved", end=' ')
+            print("\r", end='')
         # ln.set_data(xData, yData)
     if displayToOpenCV:
         cv2.imshow(dispWin[0], cv2.resize(np.hstack((morphImg[0], frame[0])), None, fx=0.4, fy=0.4))
@@ -488,10 +492,13 @@ def opt2():
     strComments, typeComments = readFile_loadValues(mode=1)
     chosen_pf = 0
     plotMethod = 0
+    auto_z = True
+    z_pick = 0
     print("\nNum. loaded profiles:", len(allDataSets))
     for i in range(len(typeComments)):
         print(f"-{i}: {typeComments[i]}")
     while True:
+        zFuse = False
         while True:
             pf_opt = input("input: ")
             if pf_opt=="back": return
@@ -499,6 +506,15 @@ def opt2():
             elif pf_opt[:5]=="azim=": orient["azim"]=int(pf_opt[5:])
             elif pf_opt[:5]=="elev=": orient["elev"]=int(pf_opt[5:])
             elif pf_opt[:5]=="mode=": plotMethod = int(pf_opt[5])
+            elif pf_opt[:2]=="z=": 
+                if pf_opt[2:]=="auto": auto_z = True
+                else:
+                    auto_z = False
+                    z_pick = round(int(pf_opt[2:])/10)*10
+            elif pf_opt[:4]=="fuse":
+                zFuse = True
+                chosen_pf = int(pf_opt[5:])
+                break
             elif pf_opt=="": pass
             else:
                 chosen_pf = int(pf_opt)
@@ -507,17 +523,32 @@ def opt2():
         if plotMethod==0:
             plt_init(printText=False, mode=0)
             i = 0
-            z_pick = 0
-            for key,var in allDataSets[chosen_pf].items():
-                if i==0: z_pick = key
-                elif len(var[0]) > len(allDataSets[chosen_pf][z_pick][0]): z_pick = key
-                i+=1
+            if auto_z:
+                for key,var in allDataSets[chosen_pf].items():
+                    if i==0: z_pick = key
+                    elif len(var[0]) > len(allDataSets[chosen_pf][z_pick][0]): z_pick = key
+                    i+=1
 
-            tempDict = {
-                "roll": allDataSets[chosen_pf][z_pick][0],
-                "pitch": allDataSets[chosen_pf][z_pick][1],
-                "area": allDataSets[chosen_pf][z_pick][2]
-            }
+            if not zFuse:
+                tempDict = {
+                    "roll": allDataSets[chosen_pf][z_pick][0],
+                    "pitch": allDataSets[chosen_pf][z_pick][1],
+                    "area": allDataSets[chosen_pf][z_pick][2]
+                }
+            elif zFuse:
+                temp=[[], [], []]
+                for key,val in allDataSets[chosen_pf].items():
+                    print(f"reading z: {key}", end='\r')
+                    temp[0] += val[0]
+                    temp[1] += val[1]
+                    temp[2] += val[2]
+                print()
+                tempDict = {
+                    "roll": temp[0],
+                    "pitch": temp[1],
+                    "area": temp[2]
+                }
+
             df = pandas.DataFrame(tempDict)
             regrFeed = [
                 df[["roll", "pitch"]],
@@ -557,8 +588,12 @@ def opt2():
             plt.colorbar(resultGraph0)
             plt.colorbar(resultGraph1)
 
-            plt.title(f"z:{z_pick}")
-            fileName = f"objDist_angleArea_media/{typeComments[chosen_pf]}_n{chosen_pf}_z:{z_pick}_"
+            if zFuse:
+                plt.title(f"z:FUSED")
+                fileName = f"objDist_angleArea_media/{typeComments[chosen_pf]}_n{chosen_pf}_z:FUSED_"
+            elif not zFuse:
+                plt.title(f"z:{z_pick}")
+                fileName = f"objDist_angleArea_media/{typeComments[chosen_pf]}_n{chosen_pf}_z:{z_pick}_"
 
         elif plotMethod==1:
             plt_init(printText=False, mode=1)
