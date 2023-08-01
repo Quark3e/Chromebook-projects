@@ -296,12 +296,19 @@ def plt_update(n):
                     elif flag==1:
                         readAccelerometer()
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                        cntPos[2] = round(tempPos[1]/10)*10 #type: ignore
+                        tempPos[1] = round(tempPos[1]/10)*10 #type: ignore
+                        #cntPos[2] = round(tempPos[1]/10)*10 #type: ignore
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(tempPos[1])),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
-                        cntPos[2] = prefRes[1] - cntPos[2] #type: ignore
+                        tempPos[1] = prefRes[1] - tempPos[1] #type: ignore
+                        #cntPos[2] = prefRes[1] - cntPos[2] #type: ignore
                 else: print("cntMoments['m00'] = 0")
         if cntArea != None:
+            if tempPos[1]==None:
+                print(f"read: {'area:':<8}: {cntArea} {'z:':<8}:{cntPos[2]} [USING PREVIOUS Z VALUE]", end='\r')
+            else:
+                cntPos[2] = tempPos[1]
+                print(f"read: {'area:':<8}: {cntArea} {'z:':<8}:{cntPos[2]:<25} ", end='\r')
             angleStr = f"{round(roll)}:{round(pitch)}"
             if not (cntPos[2] in values):
                 values.update( {
@@ -320,8 +327,6 @@ def plt_update(n):
                 if len(values[cntPos[2]][angleStr]) >= 10: # check if there are more than 100 cntArea-values stored
                     values[cntPos[2]][angleStr] = [sum(values[cntPos[2]][angleStr])/len(values[cntPos[2]][angleStr])]
                     print(f"average area for z:\"{cntPos[2]}\" angles:\"{angleStr}\" solved")
-            if cntPos[2]==None: print(f"read: {'area:':<8}: {cntArea}  {'z:':<8}: {cntPos[2]} [USING PREVIOUS Z VALUE]", end='\r')
-            else: print(f"read: {'area:':<8}: {cntArea}  {'z:':<8}: {cntPos[2]}", end='\r')
 
         # ln.set_data(xData, yData)
     if displayToOpenCV:
