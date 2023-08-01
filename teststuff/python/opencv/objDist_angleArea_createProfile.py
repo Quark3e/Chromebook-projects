@@ -523,7 +523,10 @@ def opt2():
 
             print("creating regr. data...")
             regrData = {"roll":[], "pitch":[], "area":[]}
-            biggestVal = max([max([abs(i) for i in tempDict["roll"]]), max([abs(i) for i in tempDict["pitch"]])])
+            
+            #is used to simulate only to the furthest axis value of given points
+            #biggestVal = max([max([abs(i) for i in tempDict["roll"]]), max([abs(i) for i in tempDict["pitch"]])])
+            biggestVal = 91
             for flip in range(-1, 2, 2):
                 for x in range(0, biggestVal, 1):
                     for y in range(0, biggestVal-x, 1):
