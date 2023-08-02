@@ -35,6 +35,9 @@ orient = {
     "elev": 0
 }
 
+thresh_zArea = 100
+
+
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client_socket.settimeout(0.5)
 client_msg = b"fromClient"
@@ -110,8 +113,8 @@ def opt0_setup():
         cv2.namedWindow(dispWin[1]) #z
         ad.hsv_trackbars(dispWin[0], hsvCam0)
         ad.hsv_trackbars(dispWin[1], hsvCam1)
-        cv2.moveWindow(dispWin[0], 50, 400)
-        cv2.moveWindow(dispWin[1], 50+640, 400)
+        cv2.moveWindow(dispWin[0], 10, 400)
+        cv2.moveWindow(dispWin[1], 10+640, 400)
 
 #   int(zAxis): [cntArea],
 
@@ -293,10 +296,9 @@ def plt_update(n):
                         cntArea = cv2.contourArea(contours[flag][0]) #type: ignore
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
-                    elif flag==1:
                         readAccelerometer(printText=False)
+                    elif flag==1 and cv2.contourArea(contours[flag][0]) >= thresh_zArea:
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                        
                         tempPos[1] = round(tempPos[1]/10)*10 #type: ignore
                         #cntPos[2] = round(tempPos[1]/10)*10 #type: ignore
                         if displayToOpenCV:
