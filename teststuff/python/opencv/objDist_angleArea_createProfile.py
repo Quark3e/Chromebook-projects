@@ -593,7 +593,7 @@ def opt2():
                         regrData["area"].append(int(regr.predict([pos])))
 
             print("scatter plotting data sets:")
-            resultGraph1 = plt.scatter(regrData["roll"], regrData["pitch"], c=regrData["area"], s=1.5, cmap="RdPu")
+            resultGraph1 = plt.scatter(regrData["roll"], regrData["pitch"], c=regrData["area"], s=1.5, cmap="YlGn")
             if not zFuse: resultGraph0 = plt.scatter(allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][1], c=allDataSets[chosen_pf][z_pick][2], s=2, cmap="RdPu")
             elif zFuse: resultGraph0 = plt.scatter(tempDict["roll"], tempDict["pitch"], c=tempDict["area"], s=2, cmap="RdPu")
 
