@@ -588,6 +588,8 @@ def opt2():
             plt.colorbar(resultGraph0)
             plt.colorbar(resultGraph1)
 
+            plt.axis("equal")
+
             if zFuse:
                 plt.title(f"z:FUSED")
                 fileName = f"objDist_angleArea_media/{typeComments[chosen_pf]}_n{chosen_pf}_z:FUSED_"
