@@ -36,7 +36,7 @@ orient = {
 }
 
 thresh_zArea = 100
-
+thresh_xyLim = [100, 100]
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client_socket.settimeout(0.5)
@@ -284,19 +284,28 @@ def plt_update(n):
         cntPos[1] = None
         tempPos = [None, None]
         cntArea = None
-
+        brdrColor = (255,255,255)
+        frame[0] = cv2.rectangle(frame[0], (int(prefRes[0]/2-thresh_xyLim[0]), int(prefRes[1]/2-thresh_xyLim[1])), (int(prefRes[0]/2+thresh_xyLim[0]), int(prefRes[1]/2+thresh_xyLim[1])), brdrColor, 2)
+        morphImg[0] = cv2.rectangle(morphImg[0], (int(prefRes[0]/2-thresh_xyLim[0]), int(prefRes[1]/2-thresh_xyLim[1])), (int(prefRes[0]/2+thresh_xyLim[0]), int(prefRes[1]/2+thresh_xyLim[1])), brdrColor, 2)
         for flag in range(2):
             for i in range(len(contours[flag])): #type: ignore
                 cntMoments = cv2.moments(contours[flag][0]) #type: ignore
                 if cntMoments['m00'] != 0:
-                    if flag==0:
+                    if flag==0 and (abs(cntMoments['m10']/cntMoments['m00']-prefRes[0]/2)<thresh_xyLim[0] and abs(prefRes[1]/2-cntMoments['m01']/cntMoments['m00'])<thresh_xyLim[1]):
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
                         cntPos[0] = round((tempPos[0]-prefRes[0]/2)/10)*10 #type: ignore
                         cntPos[1] = round((prefRes[1]/2-tempPos[1])/10)*10 #type: ignore
                         cntArea = cv2.contourArea(contours[flag][0]) #type: ignore
+                        brdrColor = (255, 255, 255)
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
                         readAccelerometer(printText=False)
+                    elif flag==0:
+                        print(" OBJECT POS IS OUTSIDE thresh_xyLim ", '\r')
+                        brdrColor = (255, 0, 0)
+                        #if displayToOpenCV:
+                            #morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
+                            #morphImg[flag] = cv2.copyMakeBorder(morphImg[flag], 20, 20, 20, 20, cv2.BORDER_CONSTANT, value=[255, 0, 0]) #type: ignore
                     elif flag==1 and cv2.contourArea(contours[flag][0]) >= thresh_zArea:
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
                         tempPos[1] = round(tempPos[1]/10)*10 #type: ignore
@@ -584,8 +593,9 @@ def opt2():
                         regrData["area"].append(int(regr.predict([pos])))
 
             print("scatter plotting data sets:")
-            resultGraph1 = plt.scatter(regrData["roll"], regrData["pitch"], c=regrData["area"], s=1.5, cmap="YlGn")
-            resultGraph0 = plt.scatter(allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][1], c=allDataSets[chosen_pf][z_pick][2], s=2, cmap="RdPu")
+            resultGraph1 = plt.scatter(regrData["roll"], regrData["pitch"], c=regrData["area"], s=1.5, cmap="RdPu")
+            if not zFuse: resultGraph0 = plt.scatter(allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][1], c=allDataSets[chosen_pf][z_pick][2], s=2, cmap="RdPu")
+            elif zFuse: resultGraph0 = plt.scatter(tempDict["roll"], tempDict["pitch"], c=tempDict["area"], s=2, cmap="RdPu")
 
             plt.colorbar(resultGraph0)
             plt.colorbar(resultGraph1)
