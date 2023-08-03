@@ -456,9 +456,20 @@ def opt0():
     plt.show()
 
 def opt1():
+    global values
+    strComments, typeComments = readFile_loadValues(mode=1)
+    for i in range(len(typeComments)):
+        print(f"-{i}: {typeComments[i]}")
+    print("enter indexes(i) to solved avg for")
+    inp = input("input: ")
+    if inp=="exit": sys.exit()
+    elif inp=="back": return
+    else:
+        avgList = [int(i) for i in inp.split()]
 
+    for i in avgList:
+        for n in range(len(allDataSets[i])):
 
-    readFile_loadValues()
     #read and sum all values for same profile (mainly 1)
     print("")
     script_exit(printText=False, strComments=["sum"])
@@ -504,12 +515,17 @@ def opt2():
     chosen_pf = 0
     plotMethod = 0
     auto_z = True
+    show_predict = False #Whether to display prediction first or dataSets first
     z_pick = 0
+
+
     print("\nNum. loaded profiles:", len(allDataSets))
     for i in range(len(typeComments)):
         print(f"-{i}: {typeComments[i]}")
     while True:
         zFuse = False
+        show_predict = False
+
         while True:
             pf_opt = input("input: ")
             if pf_opt=="back": return
@@ -517,7 +533,8 @@ def opt2():
             elif pf_opt[:5]=="azim=": orient["azim"]=int(pf_opt[5:])
             elif pf_opt[:5]=="elev=": orient["elev"]=int(pf_opt[5:])
             elif pf_opt[:5]=="mode=": plotMethod = int(pf_opt[5])
-            elif pf_opt[:2]=="z=": 
+            elif pf_opt[:7]=="pFirst=": show_predict = eval(pf_opt[7:])
+            elif pf_opt[:2]=="z=":
                 if pf_opt[2:]=="auto": auto_z = True
                 else:
                     auto_z = False
@@ -594,8 +611,8 @@ def opt2():
 
             print("scatter plotting data sets:")
             resultGraph1 = plt.scatter(regrData["roll"], regrData["pitch"], c=regrData["area"], s=1.5, cmap="YlGn")
-            if not zFuse: resultGraph0 = plt.scatter(allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][1], c=allDataSets[chosen_pf][z_pick][2], s=2, cmap="RdPu")
-            elif zFuse: resultGraph0 = plt.scatter(tempDict["roll"], tempDict["pitch"], c=tempDict["area"], s=2, cmap="RdPu")
+            if not zFuse and not show_predict: resultGraph0 = plt.scatter(allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][1], c=allDataSets[chosen_pf][z_pick][2], s=2, cmap="RdPu")
+            elif zFuse and not show_predict: resultGraph0 = plt.scatter(tempDict["roll"], tempDict["pitch"], c=tempDict["area"], s=2, cmap="RdPu")
 
             plt.colorbar(resultGraph0)
             plt.colorbar(resultGraph1)
