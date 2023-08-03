@@ -378,9 +378,6 @@ def readFile_loadValues(pf_index=1, mode=0):
     with open(profilesFile, "r") as readFile:
         for line in readFile:
             print(f"mode:{mode} reading line: {nl_pos}", end="\r")
-            if line[0:1]=="#":
-                if line[1:4]=="raw" or line[1:4]=="sum": typeComments.append(line[1:4])
-                strComments.append(line[1:-1])
             nl_pos+=1
             if mode==0:
                 #solve sum of values
@@ -409,6 +406,13 @@ def readFile_loadValues(pf_index=1, mode=0):
                             if len(values[zVar][angleStr]) >= 10: # check if there are more than 100 cntArea-values stored
                                 values[zVar][angleStr] = [sum(values[zVar][angleStr])/len(values[zVar][angleStr])]
                                 # print(f"average area for z:\"{zVar}\" angles:\"{angleStr}\" solved")
+                elif correctPf and line[0:1]=="#" and not (line[1:5] == "date" or line[1:8] == "profile"):
+                        if line[1:4]=="raw" or line[1:4]=="sum":
+                            typeComments.append(" ")
+                            strComments.append(" ")
+                            typeComments[len(typeComments)-1] = (line[1:4])
+                        elif not (line[1:5] == "date" or line[1:8] == "profile"):
+                            strComments[len(strComments)-1] = (line[1:-1])
             elif mode==1:
                 #independantly save values
                 if line[:8]=="profile:" and int(line[8])==pf_index:
@@ -419,6 +423,13 @@ def readFile_loadValues(pf_index=1, mode=0):
                     zVar = int(line[2:line.find(":", line.find(":")+1)])
                     lstLine = eval(line[line.find("["):])
                     allDataSets[len(allDataSets)-1].update({zVar: lstLine})
+                elif correctPf and line[0:1]=="#" and not (line[1:5] == "date" or line[1:8] == "profile"):
+                        if line[1:4]=="raw" or line[1:4]=="sum":
+                            typeComments.append(" ")
+                            strComments.append(" ")
+                            typeComments[len(typeComments)-1] = (line[1:4])
+                        elif not (line[1:5] == "date" or line[1:8] == "profile"):
+                            strComments[len(strComments)-1] = (line[1:-1])
     return strComments, typeComments
 
 def opt0():
@@ -459,7 +470,7 @@ def opt1():
     global values
     strComments, typeComments = readFile_loadValues(mode=1)
     for i in range(len(typeComments)):
-        print(f"-{i}: {typeComments[i]}")
+        print(f"-{i}: {typeComments[i]}: {strComments[i]}")
     print("enter indexes(i) to solved avg for")
     inp = input("input: ")
     if inp=="exit": sys.exit()
@@ -467,12 +478,31 @@ def opt1():
     else:
         avgList = [int(i) for i in inp.split()]
 
-    for i in avgList:
-        for n in range(len(allDataSets[i])):
+    for n in avgList:
+        for key,val in allDataSets[n].items():
+            print(f"{key}: ")
+            for i in range(len(val[0])):
+                angleStr = f"{round(val[0][i])}:{round(val[1][i])}"
+                if not (key in values):
+                    values.update( {
+                            key: {
+                                angleStr: [val[2][i]]
+                            }
+                        }
+                    )
+                elif not (angleStr in values[key]):
+                    values[key].update( {
+                            angleStr: [val[2][i]]
+                        }
+                    )
+                else:
+                    values[key][angleStr].append(val[2][i])
+                    if len(values[key][angleStr]) >= 10: # check if there are more than 100 cntArea-values stored
+                            values[key][angleStr] = [sum(values[key][angleStr])/len(values[key][angleStr])]
 
     #read and sum all values for same profile (mainly 1)
     print("")
-    script_exit(printText=False, strComments=["sum"])
+    script_exit(printText=False, strComments=["sum", f"idx:{[i for i in avgList]}"])
     print("plotting..")
 
     plotMethod = 1
@@ -498,7 +528,7 @@ def opt1():
 
         plt.title(f"complete plot: {numPoints} points")
 
-        fileName = "objDist_angleArea_media/sum_fullPlot_"
+        fileName = f"objDist_angleArea_media/sum_fullPlot{[i for i in avgList]}_"
 
 
     plt.colorbar(resultGraph)
@@ -521,7 +551,7 @@ def opt2():
 
     print("\nNum. loaded profiles:", len(allDataSets))
     for i in range(len(typeComments)):
-        print(f"-{i}: {typeComments[i]}")
+        print(f"-{i}: {typeComments[i]}: {strComments[i]}")
     while True:
         zFuse = False
         show_predict = False
