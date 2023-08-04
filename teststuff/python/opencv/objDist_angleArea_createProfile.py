@@ -375,6 +375,7 @@ def readFile_loadValues(pf_index=1, mode=0):
     nl_pos = 0
     strComments = []
     typeComments = []
+    dateComments = []
     with open(profilesFile, "r") as readFile:
         for line in readFile:
             print(f"mode:{mode} reading line: {nl_pos}", end="\r")
@@ -406,10 +407,13 @@ def readFile_loadValues(pf_index=1, mode=0):
                             if len(values[zVar][angleStr]) >= 10: # check if there are more than 100 cntArea-values stored
                                 values[zVar][angleStr] = [sum(values[zVar][angleStr])/len(values[zVar][angleStr])]
                                 # print(f"average area for z:\"{zVar}\" angles:\"{angleStr}\" solved")
-                elif correctPf and line[0:1]=="#" and not (line[1:5] == "date" or line[1:8] == "profile"):
-                        if line[1:4]=="raw" or line[1:4]=="sum":
+                elif correctPf and line[0:1]=="#" and line[1:8] != "profile":
+                        if line[1:5] == "date":
                             typeComments.append(" ")
                             strComments.append(" ")
+                            dateComments.append(" ")
+                            dateComments[len(dateComments)-1] = (line[1:-1])
+                        elif line[1:4]=="raw" or line[1:4]=="sum":
                             typeComments[len(typeComments)-1] = (line[1:4])
                         elif not (line[1:5] == "date" or line[1:8] == "profile"):
                             strComments[len(strComments)-1] = (line[1:-1])
@@ -423,14 +427,17 @@ def readFile_loadValues(pf_index=1, mode=0):
                     zVar = int(line[2:line.find(":", line.find(":")+1)])
                     lstLine = eval(line[line.find("["):])
                     allDataSets[len(allDataSets)-1].update({zVar: lstLine})
-                elif correctPf and line[0:1]=="#" and not (line[1:5] == "date" or line[1:8] == "profile"):
-                        if line[1:4]=="raw" or line[1:4]=="sum":
+                elif correctPf and line[0:1]=="#" and line[1:8] != "profile":
+                        if line[1:5] == "date":
                             typeComments.append(" ")
                             strComments.append(" ")
+                            dateComments.append(" ")
+                            dateComments[len(dateComments)-1] = (line[1:-1])
+                        elif line[1:4]=="raw" or line[1:4]=="sum":
                             typeComments[len(typeComments)-1] = (line[1:4])
                         elif not (line[1:5] == "date" or line[1:8] == "profile"):
                             strComments[len(strComments)-1] = (line[1:-1])
-    return strComments, typeComments
+    return strComments, typeComments, dateComments
 
 def opt0():
     #track and save new data sets from profile 1
@@ -468,9 +475,10 @@ def opt0():
 
 def opt1():
     global values
-    strComments, typeComments = readFile_loadValues(mode=1)
+    strComments, typeComments, dateComments = readFile_loadValues(mode=1)
+    print(len(strComments), len(typeComments), len(dateComments))
     for i in range(len(typeComments)):
-        print(f"-{i}: {typeComments[i]}: {strComments[i]}")
+        print(f"-{i:<2}: {typeComments[i]:<5}: {dateComments[i]:<32}: {strComments[i]:<20}")
     print("enter indexes(i) to solved avg for")
     inp = input("input: ")
     if inp=="exit": sys.exit()
@@ -541,7 +549,7 @@ def opt1():
 
 def opt2():
     global orient
-    strComments, typeComments = readFile_loadValues(mode=1)
+    strComments, typeComments, dateComments = readFile_loadValues(mode=1)
     chosen_pf = 0
     plotMethod = 0
     auto_z = True
@@ -551,7 +559,7 @@ def opt2():
 
     print("\nNum. loaded profiles:", len(allDataSets))
     for i in range(len(typeComments)):
-        print(f"-{i}: {typeComments[i]}: {strComments[i]}")
+        print(f"-{i:<2}: {typeComments[i]:<5}: {dateComments[i]:<32}: {strComments[i]:<20}")
     while True:
         zFuse = False
         show_predict = False
