@@ -583,6 +583,9 @@ def opt2():
             elif pf_opt=="exit": sys.exit()
             elif pf_opt[:5]=="azim=": orient["azim"]=int(pf_opt[5:])
             elif pf_opt[:5]=="elev=": orient["elev"]=int(pf_opt[5:])
+            elif pf_opt[:5]=="view=":
+                orient["azim"]=int(eval(pf_opt[5:])[0])
+                orient["elev"]=int(eval(pf_opt[5:])[1])
             elif pf_opt[:5]=="mode=": plotMethod = int(pf_opt[5])
             elif pf_opt[:7]=="pFirst=": show_predict = eval(pf_opt[7:])
             elif pf_opt[:2]=="z=":
