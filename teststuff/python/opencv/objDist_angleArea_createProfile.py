@@ -31,8 +31,8 @@ from datetime import datetime
 
 profilesFile = "angleArea_profiles.dat"
 orient = {
-    "azim": 0,
-    "elev": 0
+    "azim": -135,
+    "elev": 30
 }
 
 thresh_zArea = 100
@@ -255,11 +255,24 @@ def plt_init(printText=True, mode=0):
     plt.close()
     if printText: print("check init start")
     if mode==0:
-        fig, ax = plt.subplots()
-        plt.xlim(-90, 90)
-        plt.ylim(-90, 90)
-        plt.xlabel("roll")
-        plt.ylabel("pitch")
+        fig = plt.figure(figsize=(11, 4))
+        ax = 2*[0]
+        ax[0] = fig.add_subplot(1,2,1,projection='3d') #type: ignore
+        ax[1] = fig.add_subplot(1,2,2) #type: ignore
+
+        # ax = [fig.add_subplot(1, 2, 1, projection='3d'), fig.add_subplot(1, 2, 2)]
+        for ap in ax: ap.grid(True)
+
+        ax[0].set(xlim3d=(-90, 90), xlabel="roll")
+        ax[0].set(ylim3d=(-90, 90), ylabel="pitch")
+        ax[0].set(zlim3d=(0, prefRes[1]), zlabel="distance")
+        ax[0].view_init(azim=orient["azim"], elev=orient["elev"])
+
+        ax[1].axis("equal")
+        ax[1].set_xlabel("roll")
+        ax[1].set_ylabel("pitch")
+        ax[1].set_xlim([-90, 90])
+        ax[1].set_ylim([-90, 90])
     elif mode==1:
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
@@ -548,7 +561,7 @@ def opt1():
     plt.show()
 
 def opt2():
-    global orient
+    global orient, ax, fig
     strComments, typeComments, dateComments = readFile_loadValues(mode=1)
     chosen_pf = 0
     plotMethod = 0
@@ -580,6 +593,7 @@ def opt2():
             elif pf_opt[:4]=="fuse":
                 zFuse = True
                 chosen_pf = int(pf_opt[5:])
+                plotMethod=0
                 break
             elif pf_opt=="": pass
             else:
@@ -648,14 +662,23 @@ def opt2():
                         regrData["area"].append(int(regr.predict([pos])))
 
             print("scatter plotting data sets:")
-            resultGraph1 = plt.scatter(regrData["roll"], regrData["pitch"], c=regrData["area"], s=1.5, cmap="YlGn")
-            if not zFuse and not show_predict: resultGraph0 = plt.scatter(allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][1], c=allDataSets[chosen_pf][z_pick][2], s=2, cmap="RdPu")
-            elif zFuse and not show_predict: resultGraph0 = plt.scatter(tempDict["roll"], tempDict["pitch"], c=tempDict["area"], s=2, cmap="RdPu")
+            resultGraph1 = ax[1].scatter(regrData["roll"], regrData["pitch"], c=regrData["area"], s=1.5, cmap="YlGn")
+            if not zFuse and not show_predict:
+                resultGraph0 = ax[1].scatter(allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][1], c=allDataSets[chosen_pf][z_pick][2], s=2, cmap="RdPu")
+            elif zFuse and not show_predict:
+                resultGraph0 = ax[1].scatter(tempDict["roll"], tempDict["pitch"], c=tempDict["area"], s=2, cmap="RdPu")
 
-            if not show_predict: plt.colorbar(resultGraph0)
-            plt.colorbar(resultGraph1)
 
-            plt.axis("equal")
+            numPoints = 0
+            for key, val in allDataSets[chosen_pf].items():
+                resultGraph2 = ax[0].scatter(val[0], val[1], len(val[0])*[key], c=val[2], cmap="magma", s=1)
+                numPoints+=len(val[0])
+
+
+            if not show_predict:
+                fig.colorbar(resultGraph0, ax=ax[1])
+            fig.colorbar(resultGraph1, ax=ax[1])
+            fig.colorbar(resultGraph2, ax=ax[0])
 
             if zFuse:
                 plt.title(f"idx:{chosen_pf} z:FUSED")
