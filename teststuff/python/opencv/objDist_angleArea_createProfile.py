@@ -652,16 +652,16 @@ def opt2():
             if not zFuse and not show_predict: resultGraph0 = plt.scatter(allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][1], c=allDataSets[chosen_pf][z_pick][2], s=2, cmap="RdPu")
             elif zFuse and not show_predict: resultGraph0 = plt.scatter(tempDict["roll"], tempDict["pitch"], c=tempDict["area"], s=2, cmap="RdPu")
 
-            plt.colorbar(resultGraph0)
+            if not show_predict: plt.colorbar(resultGraph0)
             plt.colorbar(resultGraph1)
 
             plt.axis("equal")
 
             if zFuse:
-                plt.title(f"z:FUSED")
+                plt.title(f"idx:{chosen_pf} z:FUSED")
                 fileName = f"objDist_angleArea_media/{typeComments[chosen_pf]}_n{chosen_pf}_z:FUSED_"
             elif not zFuse:
-                plt.title(f"z:{z_pick}")
+                plt.title(f"idx:{chosen_pf} z:{z_pick}")
                 fileName = f"objDist_angleArea_media/{typeComments[chosen_pf]}_n{chosen_pf}_z:{z_pick}_"
 
         elif plotMethod==1:
@@ -671,7 +671,7 @@ def opt2():
                 resultGraph = ax.scatter(val[0], val[1], len(val[0])*[key], c=val[2], cmap="magma",s=1)
                 numPoints+=len(val[0])
 
-            plt.title(f"complete plot: {numPoints} points")
+            plt.title(f"idx:{chosen_pf} complete plot: {numPoints} points")
             fileName = f"objDist_angleArea_media/{typeComments[chosen_pf]}_n{chosen_pf}_"+str(orient["azim"])+":"+str(orient["elev"])+"_"
             plt.colorbar(resultGraph)
 
