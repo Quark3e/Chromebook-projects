@@ -665,11 +665,11 @@ def opt2():
                         regrData["area"].append(int(regr.predict([pos])))
 
             print("scatter plotting data sets:")
-            resultGraph1 = ax[1].scatter(regrData["roll"], regrData["pitch"], c=regrData["area"], s=1.5, cmap="YlGn")
+            resultGraph1 = ax[1].scatter(regrData["roll"], regrData["pitch"], c=regrData["area"], s=1.5, cmap="magma")
             if not zFuse and not show_predict:
-                resultGraph0 = ax[1].scatter(allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][1], c=allDataSets[chosen_pf][z_pick][2], s=2, cmap="RdPu")
+                resultGraph0 = ax[1].scatter(allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][1], c=allDataSets[chosen_pf][z_pick][2], s=2, cmap="magma")
             elif zFuse and not show_predict:
-                resultGraph0 = ax[1].scatter(tempDict["roll"], tempDict["pitch"], c=tempDict["area"], s=2, cmap="RdPu")
+                resultGraph0 = ax[1].scatter(tempDict["roll"], tempDict["pitch"], c=tempDict["area"], s=2, cmap="magma")
 
 
             numPoints = 0
