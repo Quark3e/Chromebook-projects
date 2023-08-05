@@ -702,7 +702,7 @@ def opt2():
             print("scatter plotting data sets:")
             resultGraph1 = ax["slice"].scatter(regrData["roll"], regrData["pitch"], c=regrData["area"], s=1.5, cmap="magma")
             
-            data_2d_lim = [[-10, 10], [-10, 10]]
+            data_2d_lim = [[-5, 5], [-5, 5]]
             data_2d_lsts = [[], []]
             data_2d = {
                 "roll": [[], []],
