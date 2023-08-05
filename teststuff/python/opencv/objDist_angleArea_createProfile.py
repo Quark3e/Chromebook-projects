@@ -255,7 +255,7 @@ def plt_init(printText=True, mode=0):
     plt.close()
     if printText: print("check init start")
     if mode==0:
-        fig = plt.figure(figsize=(11, 11))
+        fig = plt.figure(figsize=(19, 10))
         ax = {
             "raw": 0,
             "slice": 0,
@@ -267,33 +267,31 @@ def plt_init(printText=True, mode=0):
         ax["roll"] = fig.add_subplot(2,2,3)
         ax["pitch"] = fig.add_subplot(2,2,4)
 
-        print(ax)
-
-        # ax = [fig.add_subplot(1, 2, 1, projection='3d'), fig.add_subplot(1, 2, 2)]
-        for key in ax:
-            ax[key].grid(True)
-            print(key)
 
         ax["raw"].set(xlim3d=(-90, 90), xlabel="roll")
         ax["raw"].set(ylim3d=(-90, 90), ylabel="pitch")
         ax["raw"].set(zlim3d=(0, prefRes[1]), zlabel="distance")
         ax["raw"].view_init(azim=orient["azim"], elev=orient["elev"])
+        ax["raw"].grid(True)
 
         ax["slice"].axis("equal")
         ax["slice"].set_xlabel("roll")
         ax["slice"].set_ylabel("pitch")
         ax["slice"].set_xlim([-90, 90])
         ax["slice"].set_ylim([-90, 90])
+        ax["slice"].grid(True)
 
         ax["roll"].set_xlabel("roll")
         ax["roll"].set_ylabel("area")
         ax["roll"].set_ylim([1000, 6000])
         ax["roll"].set_xlim([-90, 90])
+        ax["roll"].grid(True)
 
         ax["pitch"].set_xlabel("pitch")
         ax["pitch"].set_ylabel("area")
         ax["pitch"].set_ylim([1000, 6000])
         ax["pitch"].set_xlim([-90, 90])
+        ax["pitch"].grid(True)
     elif mode==1:
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
@@ -586,9 +584,9 @@ def ax_addPolyfits(x, y, n, ax_key):
     global ax, fig
 
     # print(x, y)
-    print(f"solving polyfits for \"{ax_key}\"")
+    # print(f"solving polyfits for \"{ax_key}\"")
     ax[ax_key].scatter(x, y, label="data", s=1)
-    for i in range(1, n+1):
+    for i in n:
         givenPoly = np.polyfit(x, y, i)
         polyFunc = np.poly1d(givenPoly)
         # print(polyFunc)
@@ -604,7 +602,7 @@ def opt2():
     auto_z = True
     show_predict = False #Whether to display prediction first or dataSets first
     z_pick = 0
-
+    polyfitRange = [i for i in range(1, 10, 1)]
 
     print("\nNum. loaded profiles:", len(allDataSets))
     for i in range(len(typeComments)):
@@ -624,6 +622,7 @@ def opt2():
                 orient["elev"]=int(eval(pf_opt[5:])[1])
             elif pf_opt[:5]=="mode=": plotMethod = int(pf_opt[5])
             elif pf_opt[:7]=="pFirst=": show_predict = eval(pf_opt[7:])
+            elif pf_opt[:8]=="polyfit=": polyfitRange = eval(pf_opt[8:])
             elif pf_opt[:2]=="z=":
                 if pf_opt[2:]=="auto": auto_z = True
                 else:
@@ -738,8 +737,8 @@ def opt2():
                     data_2d["pitch"][0].append(data_2d_lsts[1][0][i])
                     data_2d["pitch"][1].append(data_2d_lsts[0][1][i])
             
-            ax_addPolyfits(data_2d["roll"][0], data_2d["roll"][1],10, "roll")
-            ax_addPolyfits(data_2d["pitch"][0], data_2d["pitch"][1], 10, "pitch")
+            ax_addPolyfits(data_2d["roll"][0], data_2d["roll"][1], polyfitRange, "roll")
+            ax_addPolyfits(data_2d["pitch"][0], data_2d["pitch"][1], polyfitRange, "pitch")
             ax["roll"].legend()
             ax["pitch"].legend()
 
@@ -770,7 +769,7 @@ def opt2():
 
         for i in range(10000):
             if not os.path.isfile(fileName+str(i)+".png"):
-                plt.savefig(fileName+str(i)+".png", dpi=300)
+                plt.savefig(fileName+str(i)+".png", dpi=fig.dpi+100)
                 break
         plt.show()
 
