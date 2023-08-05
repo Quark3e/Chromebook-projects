@@ -255,24 +255,45 @@ def plt_init(printText=True, mode=0):
     plt.close()
     if printText: print("check init start")
     if mode==0:
-        fig = plt.figure(figsize=(11, 4))
-        ax = 2*[0]
-        ax[0] = fig.add_subplot(1,2,1,projection='3d') #type: ignore
-        ax[1] = fig.add_subplot(1,2,2) #type: ignore
+        fig = plt.figure(figsize=(11, 11))
+        ax = {
+            "raw": 0,
+            "slice": 0,
+            "roll": 0,
+            "pitch": 0
+        }
+        ax["raw"] = fig.add_subplot(2,2,1,projection='3d') #type: ignore
+        ax["slice"] = fig.add_subplot(2,2,2) #type: ignore
+        ax["roll"] = fig.add_subplot(2,2,3)
+        ax["pitch"] = fig.add_subplot(2,2,4)
+
+        print(ax)
 
         # ax = [fig.add_subplot(1, 2, 1, projection='3d'), fig.add_subplot(1, 2, 2)]
-        for ap in ax: ap.grid(True)
+        for key in ax:
+            ax[key].grid(True)
+            print(key)
 
-        ax[0].set(xlim3d=(-90, 90), xlabel="roll")
-        ax[0].set(ylim3d=(-90, 90), ylabel="pitch")
-        ax[0].set(zlim3d=(0, prefRes[1]), zlabel="distance")
-        ax[0].view_init(azim=orient["azim"], elev=orient["elev"])
+        ax["raw"].set(xlim3d=(-90, 90), xlabel="roll")
+        ax["raw"].set(ylim3d=(-90, 90), ylabel="pitch")
+        ax["raw"].set(zlim3d=(0, prefRes[1]), zlabel="distance")
+        ax["raw"].view_init(azim=orient["azim"], elev=orient["elev"])
 
-        ax[1].axis("equal")
-        ax[1].set_xlabel("roll")
-        ax[1].set_ylabel("pitch")
-        ax[1].set_xlim([-90, 90])
-        ax[1].set_ylim([-90, 90])
+        ax["slice"].axis("equal")
+        ax["slice"].set_xlabel("roll")
+        ax["slice"].set_ylabel("pitch")
+        ax["slice"].set_xlim([-90, 90])
+        ax["slice"].set_ylim([-90, 90])
+
+        ax["roll"].set_xlabel("roll")
+        ax["roll"].set_ylabel("area")
+        ax["roll"].set_ylim([1000, 6000])
+        ax["roll"].set_xlim([-90, 90])
+
+        ax["pitch"].set_xlabel("pitch")
+        ax["pitch"].set_ylabel("area")
+        ax["pitch"].set_ylim([1000, 6000])
+        ax["pitch"].set_xlim([-90, 90])
     elif mode==1:
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
@@ -560,6 +581,21 @@ def opt1():
             break
     plt.show()
 
+
+def ax_addPolyfits(x, y, n, ax_key):
+    global ax, fig
+
+    # print(x, y)
+    print(f"solving polyfits for \"{ax_key}\"")
+    ax[ax_key].scatter(x, y, label="data", s=1)
+    for i in range(1, n+1):
+        givenPoly = np.polyfit(x, y, i)
+        polyFunc = np.poly1d(givenPoly)
+        # print(polyFunc)
+        temp_x = [q for q in range(-90, 91)]
+        ax[ax_key].plot(temp_x, polyFunc(temp_x), linestyle="solid", label=f"n:{i}", linewidth=1)
+
+
 def opt2():
     global orient, ax, fig
     strComments, typeComments, dateComments = readFile_loadValues(mode=1)
@@ -665,30 +701,60 @@ def opt2():
                         regrData["area"].append(int(regr.predict([pos])))
 
             print("scatter plotting data sets:")
-            resultGraph1 = ax[1].scatter(regrData["roll"], regrData["pitch"], c=regrData["area"], s=1.5, cmap="magma")
-            if not zFuse and not show_predict:
-                resultGraph0 = ax[1].scatter(allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][1], c=allDataSets[chosen_pf][z_pick][2], s=2, cmap="magma")
+            resultGraph1 = ax["slice"].scatter(regrData["roll"], regrData["pitch"], c=regrData["area"], s=1.5, cmap="magma")
+            
+            data_2d_lim = [[-10, 10], [-10, 10]]
+            data_2d_lsts = [[], []]
+            data_2d = {
+                "roll": [[], []],
+                "pitch": [[], []]
+            }
+
+            if not zFuse and not show_predict: 
+                resultGraph0 = ax["slice"].scatter(allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][1], c=allDataSets[chosen_pf][z_pick][2], s=2, cmap="magma")
+                data_2d_lsts = [
+                    [allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][2]],
+                    [allDataSets[chosen_pf][z_pick][1], allDataSets[chosen_pf][z_pick][2]]
+                    ]
             elif zFuse and not show_predict:
-                resultGraph0 = ax[1].scatter(tempDict["roll"], tempDict["pitch"], c=tempDict["area"], s=2, cmap="magma")
-
-
+                resultGraph0 = ax["slice"].scatter(tempDict["roll"], tempDict["pitch"], c=tempDict["area"], s=2, cmap="magma")
+                data_2d_lsts = [
+                    [tempDict["roll"], tempDict["area"]],
+                    [tempDict["pitch"]], tempDict["area"]
+                ]
             numPoints = 0
             for key, val in allDataSets[chosen_pf].items():
-                resultGraph2 = ax[0].scatter(val[0], val[1], len(val[0])*[key], c=val[2], cmap="magma", s=1)
+                resultGraph2 = ax["raw"].scatter(val[0], val[1], len(val[0])*[key], c=val[2], cmap="magma", s=1)
                 numPoints+=len(val[0])
+            
+
+            for i in range(len(data_2d_lsts[0][0])):
+                checkVal_r = data_2d_lsts[1][0][i]
+                checkVal_p = data_2d_lsts[0][0][i]
+                if checkVal_r>data_2d_lim[1][0] and checkVal_r<data_2d_lim[1][1]:
+                    data_2d["roll"][0].append(data_2d_lsts[0][0][i])
+                    data_2d["roll"][1].append(data_2d_lsts[0][1][i])
+                if checkVal_p>data_2d_lim[0][0] and checkVal_p<data_2d_lim[0][1]:
+                    data_2d["pitch"][0].append(data_2d_lsts[1][0][i])
+                    data_2d["pitch"][1].append(data_2d_lsts[0][1][i])
+            
+            ax_addPolyfits(data_2d["roll"][0], data_2d["roll"][1],10, "roll")
+            ax_addPolyfits(data_2d["pitch"][0], data_2d["pitch"][1], 10, "pitch")
+            ax["roll"].legend()
+            ax["pitch"].legend()
 
 
             if not show_predict:
-                fig.colorbar(resultGraph0, ax=ax[1])
-            fig.colorbar(resultGraph1, ax=ax[1])
-            fig.colorbar(resultGraph2, ax=ax[0])
+                fig.colorbar(resultGraph0, ax=ax["slice"])
+            fig.colorbar(resultGraph1, ax=ax["slice"])
+            fig.colorbar(resultGraph2, ax=ax["raw"])
 
-            ax[0].title.set_text(f"3D plot: idx:{strComments[chosen_pf]}")
+            ax["raw"].title.set_text(f"3D plot: idx:{strComments[chosen_pf]}")
             if zFuse:
-                ax[1].title.set_text(f"idx:{chosen_pf} z:FUSED")
+                ax["slice"].title.set_text(f"idx:{chosen_pf} z:FUSED")
                 fileName = f"objDist_angleArea_media/{typeComments[chosen_pf]}_n{chosen_pf}_z:FUSED_"
             elif not zFuse:
-                ax[1].title.set_text(f"idx:{chosen_pf} z:{z_pick}")
+                ax["slice"].title.set_text(f"idx:{chosen_pf} z:{z_pick}")
                 fileName = f"objDist_angleArea_media/{typeComments[chosen_pf]}_n{chosen_pf}_z:{z_pick}_"
 
         elif plotMethod==1:
