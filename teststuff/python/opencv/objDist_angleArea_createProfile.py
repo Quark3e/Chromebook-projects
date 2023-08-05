@@ -683,11 +683,12 @@ def opt2():
             fig.colorbar(resultGraph1, ax=ax[1])
             fig.colorbar(resultGraph2, ax=ax[0])
 
+            ax[0].title.set_text(f"3D plot: idx:{strComments[chosen_pf]}")
             if zFuse:
-                plt.title(f"idx:{chosen_pf} z:FUSED")
+                ax[1].title.set_text(f"idx:{chosen_pf} z:FUSED")
                 fileName = f"objDist_angleArea_media/{typeComments[chosen_pf]}_n{chosen_pf}_z:FUSED_"
             elif not zFuse:
-                plt.title(f"idx:{chosen_pf} z:{z_pick}")
+                ax[1].title.set_text(f"idx:{chosen_pf} z:{z_pick}")
                 fileName = f"objDist_angleArea_media/{typeComments[chosen_pf]}_n{chosen_pf}_z:{z_pick}_"
 
         elif plotMethod==1:
