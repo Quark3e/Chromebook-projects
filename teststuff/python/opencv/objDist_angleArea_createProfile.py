@@ -752,8 +752,8 @@ def opt2():
                 "roll": 0,
                 "pitch": 0
             }
-            ax2["roll"] = fig.add_subplot(1, 2, 1, projection='3d')
-            ax2["pitch"] = fig.add_subplot(1, 2, 2, projection='3d')
+            ax2["roll"] = fig2.add_subplot(1, 2, 1, projection='3d')
+            ax2["pitch"] = fig2.add_subplot(1, 2, 2, projection='3d')
             ax2_polyN = [3]
             ax2_polyFuncs = {
                 "roll": [],
@@ -768,22 +768,37 @@ def opt2():
             
 
             print("\nCreating polyfit grid(s):")
-            for n in range(-90, 91, sum(abs(data_2d_lim[0][0])+data_2d_lim[0][1])):
+            for n in range(-90, 91, abs(data_2d_lim[0][0])+data_2d_lim[0][1]):
                 print(f"- roll: n:{n}", end="\r")
-                data_2d_strt[0] = n
+                data_2d_strt[1] = n
                 data_2d["roll"] = [[], []]
                 for i in range(len(data_2d_lsts[0][0])):
                     if data_2d_lsts[1][0][i]>(data_2d_strt[1]+data_2d_lim[1][0]) and data_2d_lsts[1][0][i]<(data_2d_strt[1]+data_2d_lim[1][1]):
                         data_2d["roll"][0].append(data_2d_lsts[0][0][i])
                         data_2d["roll"][1].append(data_2d_lsts[0][1][i])
-                for q in ax2_polyN:
-                    givenPoly = np.polyfit(data_2d["roll"][0], data_2d["roll"][1], q)
-                    polyFunc = np.poly1d(givenPoly)
-                    temp_x = [x for x in range(-90, 91)]
-                    ax2["roll"].plot(temp_x, polyFunc(temp_x), linestyle="solid", label=f"{n} n:{q}")
+                if len(data_2d["roll"][0])>0:
+                    for q in ax2_polyN:
+                        givenPoly = np.polyfit(data_2d["roll"][0], data_2d["roll"][1], q)
+                        polyFunc = np.poly1d(givenPoly)
+                        ax2_polyFuncs["roll"].append(polyFunc)
+                        temp_x = [x for x in range(-90, 91)]
+                        ax2["roll"].plot(temp_x, len(temp_x)*[n], z=polyFunc(temp_x), linestyle="solid", label=f"{n} n:{q}")
             print("")
-            for n in range(-90, 91, sum(abs(data_2d_lim[1][0])+data_2d_lim[1][1])):
-                pass
+            for n in range(-90, 91, abs(data_2d_lim[1][0])+data_2d_lim[1][1]):
+                print(f"- pitch: n:{n}", end="\r")
+                data_2d_strt[0] = n
+                data_2d["pitch"] = [[], []]
+                for i in range(len(data_2d_lsts[1][0])):
+                    if data_2d_lsts[0][0][i]>(data_2d_strt[0]+data_2d_lim[0][0]) and data_2d_lsts[0][0][i]<(data_2d_strt[0]+data_2d_lim[0][1]):
+                        data_2d["pitch"][0].append(data_2d_lsts[1][0][i])
+                        data_2d["pitch"][1].append(data_2d_lsts[1][1][i])
+                if len(data_2d["pitch"][0])>0:
+                    for q in ax2_polyN:
+                        givenPoly = np.polyfit(data_2d["pitch"][0], data_2d["pitch"][1], q)
+                        polyFunc = np.poly1d(givenPoly)
+                        ax2_polyFuncs["pitch"].append(polyFunc)
+                        temp_x = [x for x in range(-90, 91)]
+                        ax2["pitch"].plot(len(temp_x)*[n], temp_x, z=polyFunc(temp_x), linestyle="solid", label=f"{n} n:{q}")
 
             if not show_predict:
                 fig.colorbar(resultGraph0, ax=ax["slice"])
