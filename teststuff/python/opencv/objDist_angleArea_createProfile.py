@@ -34,9 +34,11 @@ orient = {
     "azim": -135,
     "elev": 30
 }
+toSaveFig = True
 
 thresh_zArea = 100
 thresh_xyLim = [100, 100]
+
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client_socket.settimeout(0.5)
@@ -300,7 +302,7 @@ def plt_init(printText=True, mode=0):
         ax.set(zlim3d=(0, 480), zlabel='distance')
         ax.view_init(azim=orient["azim"], elev=orient["elev"])
     if printText: print("check init end")
-    plt.grid()
+    # plt.grid()
 
 def plt_update(n):
     # print("check update")
@@ -585,7 +587,7 @@ def ax_addPolyfits(x, y, n, ax_key):
 
     # print(x, y)
     # print(f"solving polyfits for \"{ax_key}\"")
-    ax[ax_key].scatter(x, y, label="data", s=1)
+    ax[ax_key].scatter(x, y, label="data", s=1, c="#fa0000")
     for i in n:
         givenPoly = np.polyfit(x, y, i)
         polyFunc = np.poly1d(givenPoly)
@@ -595,7 +597,7 @@ def ax_addPolyfits(x, y, n, ax_key):
 
 
 def opt2():
-    global orient, ax, fig
+    global orient, ax, fig, toSaveFig
     strComments, typeComments, dateComments = readFile_loadValues(mode=1)
     chosen_pf = 0
     plotMethod = 0
@@ -615,6 +617,7 @@ def opt2():
             pf_opt = input("input: ")
             if pf_opt=="back": return
             elif pf_opt=="exit": sys.exit()
+            elif pf_opt[:8]=="savefig=": toSaveFig = eval(pf_opt[8:])
             elif pf_opt[:5]=="azim=": orient["azim"]=int(pf_opt[5:])
             elif pf_opt[:5]=="elev=": orient["elev"]=int(pf_opt[5:])
             elif pf_opt[:5]=="view=":
@@ -702,7 +705,10 @@ def opt2():
             print("scatter plotting data sets:")
             resultGraph1 = ax["slice"].scatter(regrData["roll"], regrData["pitch"], c=regrData["area"], s=1.5, cmap="magma")
             
-            data_2d_lim = [[-5, 5], [-5, 5]]
+            data_2d_lim = [[-1, 1], [-1, 1]]
+            ax["roll"].title.set_text(f"lim:{data_2d_lim[0]}")
+            ax["pitch"].title.set_text(f"lim:{data_2d_lim[1]}")
+            data_2d_strt = [0, 0]
             data_2d_lsts = [[], []]
             data_2d = {
                 "roll": [[], []],
@@ -728,12 +734,10 @@ def opt2():
             
 
             for i in range(len(data_2d_lsts[0][0])):
-                checkVal_r = data_2d_lsts[1][0][i]
-                checkVal_p = data_2d_lsts[0][0][i]
-                if checkVal_r>data_2d_lim[1][0] and checkVal_r<data_2d_lim[1][1]:
+                if data_2d_lsts[1][0][i]>(data_2d_strt[1]+data_2d_lim[1][0]) and data_2d_lsts[1][0][i]<(data_2d_strt[1]+data_2d_lim[1][1]):
                     data_2d["roll"][0].append(data_2d_lsts[0][0][i])
                     data_2d["roll"][1].append(data_2d_lsts[0][1][i])
-                if checkVal_p>data_2d_lim[0][0] and checkVal_p<data_2d_lim[0][1]:
+                if data_2d_lsts[0][0][i]>(data_2d_strt[0]+data_2d_lim[0][0]) and data_2d_lsts[0][0][i]<(data_2d_strt[0]+data_2d_lim[0][1]):
                     data_2d["pitch"][0].append(data_2d_lsts[1][0][i])
                     data_2d["pitch"][1].append(data_2d_lsts[0][1][i])
             
@@ -742,6 +746,44 @@ def opt2():
             ax["roll"].legend()
             ax["pitch"].legend()
 
+            fig2 = plt.figure()
+            fileName2 = f"polyfit_RollPitch_grid_"
+            ax2 = {
+                "roll": 0,
+                "pitch": 0
+            }
+            ax2["roll"] = fig.add_subplot(1, 2, 1, projection='3d')
+            ax2["pitch"] = fig.add_subplot(1, 2, 2, projection='3d')
+            ax2_polyN = [3]
+            ax2_polyFuncs = {
+                "roll": [],
+                "pitch": []
+            }
+            for key in ax2:
+                ax2[key].set(xlim3d=(-90, 90), xlabel="roll")
+                ax2[key].set(ylim3d=(-90, 90), ylabel="pitch")
+                ax2[key].set(zlim3d=(0, prefRes[1]), zlabel="area")
+                ax2[key].view_init(azim=orient["azim"], elev=orient["elev"])
+                ax2[key].grid(True)
+            
+
+            print("\nCreating polyfit grid(s):")
+            for n in range(-90, 91, sum(abs(data_2d_lim[0][0])+data_2d_lim[0][1])):
+                print(f"- roll: n:{n}", end="\r")
+                data_2d_strt[0] = n
+                data_2d["roll"] = [[], []]
+                for i in range(len(data_2d_lsts[0][0])):
+                    if data_2d_lsts[1][0][i]>(data_2d_strt[1]+data_2d_lim[1][0]) and data_2d_lsts[1][0][i]<(data_2d_strt[1]+data_2d_lim[1][1]):
+                        data_2d["roll"][0].append(data_2d_lsts[0][0][i])
+                        data_2d["roll"][1].append(data_2d_lsts[0][1][i])
+                for q in ax2_polyN:
+                    givenPoly = np.polyfit(data_2d["roll"][0], data_2d["roll"][1], q)
+                    polyFunc = np.poly1d(givenPoly)
+                    temp_x = [x for x in range(-90, 91)]
+                    ax2["roll"].plot(temp_x, polyFunc(temp_x), linestyle="solid", label=f"{n} n:{q}")
+            print("")
+            for n in range(-90, 91, sum(abs(data_2d_lim[1][0])+data_2d_lim[1][1])):
+                pass
 
             if not show_predict:
                 fig.colorbar(resultGraph0, ax=ax["slice"])
@@ -756,6 +798,8 @@ def opt2():
                 ax["slice"].title.set_text(f"idx:{chosen_pf} z:{z_pick}")
                 fileName = f"objDist_angleArea_media/{typeComments[chosen_pf]}_n{chosen_pf}_z:{z_pick}_"
 
+            saveFigCheck = [True, True]
+
         elif plotMethod==1:
             plt_init(printText=False, mode=1)
             numPoints = 0
@@ -766,11 +810,19 @@ def opt2():
             plt.title(f"idx:{chosen_pf} complete plot: {numPoints} points")
             fileName = f"objDist_angleArea_media/{typeComments[chosen_pf]}_n{chosen_pf}_"+str(orient["azim"])+":"+str(orient["elev"])+"_"
             plt.colorbar(resultGraph)
+            saveFigCheck = [True, False]
+            
+        if toSaveFig:
+            saveFigCheck = [True, True]
+            for i in range(10000):
+                if not os.path.isfile(fileName+str(i)+".png") and saveFigCheck[0]:
+                    fig.savefig(fileName+str(i)+".png", dpi=fig.dpi+100)
+                    saveFigCheck[0] = False
+                if not os.path.isfile(fileName2+str(i)+".png") and saveFigCheck[1]:
+                    fig2.savefig(fileName2+str(i)+".png", dpi=fig2.dpi+100)
+                    saveFigCheck[1] = False
+                if not True in saveFigCheck: break
 
-        for i in range(10000):
-            if not os.path.isfile(fileName+str(i)+".png"):
-                plt.savefig(fileName+str(i)+".png", dpi=fig.dpi+100)
-                break
         plt.show()
 
 
