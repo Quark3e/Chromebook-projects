@@ -813,7 +813,7 @@ def opt2():
                             ax2_polyFuncs["roll"][2].append([min(data_2d["roll"][0]), max(data_2d["roll"][0])])
                             temp_x = [x for x in range(min(data_2d["roll"][0]), max(data_2d["roll"][0]))]
                             ax2["roll"].plot(temp_x, polyFunc(temp_x), zdir='y', zs=n, linestyle="solid", label=f"{n} n:{q}", linewidth=1, c="#32a852")
-                ax2["roll"].title.set_text(f"n:{ax2_polyN}")
+                ax2["roll"].title.set_text(f"roll n:{ax2_polyN}")
                 print("")
                 for n in range(-90, 90, abs(data_2d_lim[1][0])+data_2d_lim[1][1]):
                     print(f"- pitch: n:{n}", end="\r")
@@ -834,7 +834,7 @@ def opt2():
                             ax2_polyFuncs["pitch"][2].append([min(data_2d["pitch"][0]), max(data_2d["pitch"][0])])
                             temp_x = [x for x in range(min(data_2d["pitch"][0]), max(data_2d["pitch"][0]))]
                             ax2["pitch"].plot(temp_x, polyFunc(temp_x), zdir='x', zs=n, linestyle="solid", label=f"{n} n:{q}", linewidth=1, c="#32a852")
-                ax2["pitch"].title.set_text(f"n:{ax2_polyN}")
+                ax2["pitch"].title.set_text(f"pitch n:{ax2_polyN}")
             else:
                 saveFigCheck = [True, False]
 
