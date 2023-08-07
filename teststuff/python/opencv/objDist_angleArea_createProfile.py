@@ -606,18 +606,19 @@ def opt2():
     z_pick = 0
     polyfitRange = [i for i in range(1, 10, 1)]
     polyfitRange = [2, 3]
-
+    polyfitMeth = 1 #0-use point range; 1-[-90, 90]
 
     fileName2 = f"objDist_angleArea_media/polyfit_RollPitch_grid_"
     
-    print("\nNum. loaded profiles:", len(allDataSets))
-    for i in range(len(typeComments)):
-        print(f"-{i:<2}: {typeComments[i]:<5}: {dateComments[i]:<32}: {strComments[i]:<20}")
     while True:
         zFuse = False
         show_predict = False
 
         while True:
+            os.system("clear")
+            print("\nNum. loaded profiles:", len(allDataSets))
+            for i in range(len(typeComments)):
+                print(f"-{i:<2}: {typeComments[i]:<5}: {dateComments[i]:<32}: {strComments[i]:<20}")
             print("")
             pf_opt = input("input: ")
             if pf_opt=="back": return
@@ -631,6 +632,7 @@ def opt2():
             elif pf_opt[:5]=="mode=": plotMethod = int(pf_opt[5])
             elif pf_opt[:7]=="pFirst=": show_predict = eval(pf_opt[7:])
             elif pf_opt[:8]=="polyfit=": polyfitRange = eval(pf_opt[8:])
+            elif pf_opt[:14]=="polyfitMethod=": polyfitMeth = int(pf_opt[14:])
             elif pf_opt[:2]=="z=":
                 if pf_opt[2:]=="auto": auto_z = True
                 else:
@@ -757,7 +759,9 @@ def opt2():
                 ax["pitch"].legend()
 
 
-                fileName2 = f"objDist_angleArea_media/polyfit_RollPitch_grid_"
+                fileName2 = f"objDist_angleArea_media/polyfit_RollPitch_grid_n{chosen_pf}_"
+                if zFuse: fileName2 += "z:FUSED_"
+                elif not zFuse: fileName2 += f"z:{z_pick}_"
                 fig2 = plt.figure(figsize=(12,6))
                 ax2 = {
                     "roll": 0,
@@ -769,7 +773,7 @@ def opt2():
                 ax2["pitch"] = fig2.add_subplot(2, 2, 3, projection='3d')
                 ax2["roll2d"] = fig2.add_subplot(2, 2, 2)
                 ax2["pitch2d"] = fig2.add_subplot(2, 2, 4)
-                ax2_polyN = [3]
+                ax2_polyN = polyfitRange
                 ax2_polyFuncs = {
                     "roll": [[], [], [], [[], [], []]], #[ [pos,], [func,], [[min, max],], [[], [], []] ]
                     "pitch": [[], [], [], [[], [], []]]
@@ -839,13 +843,24 @@ def opt2():
                 if len(ax2_polyFuncs[key][0])>0:
                     for i in range(len(ax2_polyFuncs[key][0])):
                         print(f"{key:<6}: {i} ", end='')
-                        temp_x = [x for x in range(ax2_polyFuncs[key][2][i][0], ax2_polyFuncs[key][2][i][1])]
-                        if min(ax2_polyFuncs[key][1][i](temp_x).tolist())>=expResult[0] and max(ax2_polyFuncs[key][1][i].tolist())<=expResult:
+                        n_val = ax2_polyFuncs[key][0][i]
+                        if polyfitMeth==0: temp_x = [x for x in range(ax2_polyFuncs[key][2][i][0], ax2_polyFuncs[key][2][i][1])]
+                        elif polyfitMeth==1: temp_x = [x for x in range(-(90-abs(n_val)), 90-abs(n_val)+1)]
+                        f_temp = ax2_polyFuncs[key][1][i](temp_x).tolist()
+                        # print(ax2_polyFuncs[key][1][i])
+                        # print(ax2_polyFuncs[key][2][i])
+                        # print(temp_x)
+                        # print(f_temp)
+                        # print("\n")
+                        if len(ax2_polyFuncs[key][2][i])>=2 \
+                            and ax2_polyFuncs[key][2][i][0] != ax2_polyFuncs[key][2][i][1] \
+                            and min(f_temp)>=expResult[0] \
+                            and max(f_temp)<=expResult[1]:
                             ax2_polyFuncs[key][3][0] += temp_x
-                            ax2_polyFuncs[key][3][1] += len(temp_x)*[ax2_polyFuncs[key][0][i]]
+                            ax2_polyFuncs[key][3][1] += len(temp_x)*[n_val]
                             ax2_polyFuncs[key][3][2] += ax2_polyFuncs[key][1][i](temp_x).tolist()
                         else:
-                            print(f"[not included: had values exceeding {expResult} range]", end='')
+                            print(f"[not included: had values exceeding {expResult} range]")
                         print("", end="\r")
             print("")
             polyfitGraph0 = ax2["roll2d"].scatter(ax2_polyFuncs["roll"][3][0], ax2_polyFuncs["roll"][3][1], c=ax2_polyFuncs["roll"][3][2], s=2, cmap="magma")
