@@ -761,20 +761,31 @@ def opt2():
                 fig2 = plt.figure(figsize=(12,6))
                 ax2 = {
                     "roll": 0,
-                    "pitch": 0
+                    "pitch": 0,
+                    "roll2d": 0,
+                    "pitch2d": 0
                 }
-                ax2["roll"] = fig2.add_subplot(1, 2, 1, projection='3d')
-                ax2["pitch"] = fig2.add_subplot(1, 2, 2, projection='3d')
+                ax2["roll"] = fig2.add_subplot(2, 2, 1, projection='3d')
+                ax2["pitch"] = fig2.add_subplot(2, 2, 3, projection='3d')
+                ax2["roll2d"] = fig2.add_subplot(2, 2, 2)
+                ax2["pitch2d"] = fig2.add_subplot(2, 2, 4)
                 ax2_polyN = [3]
                 ax2_polyFuncs = {
-                    "roll": [],
-                    "pitch": []
+                    "roll": [[], [], [], [[], [], []]], #[ [pos,], [func,], [[min, max],], [[], [], []] ]
+                    "pitch": [[], [], [], [[], [], []]]
                 }
                 for key in ax2:
-                    ax2[key].set(xlim3d=(-90, 90), xlabel="roll")
-                    ax2[key].set(ylim3d=(-90, 90), ylabel="pitch")
-                    ax2[key].set(zlim3d=(1, 6000), zlabel="area")
-                    ax2[key].view_init(azim=orient["azim"], elev=orient["elev"])
+                    if key[-2:] != "2d":
+                        ax2[key].set(xlim3d=(-90, 90), xlabel="roll")
+                        ax2[key].set(ylim3d=(-90, 90), ylabel="pitch")
+                        ax2[key].set(zlim3d=(1, 6000), zlabel="area")
+                        ax2[key].view_init(azim=orient["azim"], elev=orient["elev"])
+                    elif key[-2:] == "2d":
+                        ax2[key].axis("equal")
+                        ax2[key].set_xlabel("roll")
+                        ax2[key].set_ylabel("pitch")
+                        ax2[key].set_xlim([-90, 90])
+                        ax2[key].set_ylim([-90, 90])
                     ax2[key].grid(True)
                 
 
@@ -789,45 +800,54 @@ def opt2():
                         and len(data_2d_lsts[0][0])>=data_2d_nLim[0]:
                             data_2d["roll"][0].append(data_2d_lsts[0][0][i])
                             data_2d["roll"][1].append(data_2d_lsts[0][1][i])
-                    # print(data_2d["roll"])
                     if len(data_2d["roll"][0])>=data_2d_nLim[0]:
                         for q in ax2_polyN:
                             givenPoly = np.polyfit(data_2d["roll"][0], data_2d["roll"][1], q)
                             polyFunc = np.poly1d(givenPoly)
-                            ax2_polyFuncs["roll"].append(polyFunc)
+                            ax2_polyFuncs["roll"][0].append(n)
+                            ax2_polyFuncs["roll"][1].append(polyFunc)
+                            ax2_polyFuncs["roll"][2].append([min(data_2d["roll"][0]), max(data_2d["roll"][0])])
                             temp_x = [x for x in range(min(data_2d["roll"][0]), max(data_2d["roll"][0]))]
                             ax2["roll"].plot(temp_x, polyFunc(temp_x), zdir='y', zs=n, linestyle="solid", label=f"{n} n:{q}", linewidth=1, c="#32a852")
+                ax2["roll"].title.set_text(f"n:{ax2_polyN}")
                 print("")
-                # print("len:",len(data_2d_lsts[1][0]))
-                # print("plus:", data_2d_strt[0]+data_2d_lim[0][1])
-                # print("minus:", data_2d_strt[0]+data_2d_lim[0][0])
-                # print(abs(data_2d_lim[1][0])+data_2d_lim[1][1])
                 for n in range(-90, 90, abs(data_2d_lim[1][0])+data_2d_lim[1][1]):
-                    # print(n)
                     print(f"- pitch: n:{n}", end="\r")
                     data_2d_strt[0] = n
                     data_2d["pitch"] = [[], []]
                     for i in range(len(data_2d_lsts[1][0])):
-                        # print(f"len:{len(data_2d_lsts[1][0])}",
-                        #       f"plus:{data_2d_strt[0]+data_2d_lim[0][1]}",
-                        #       f"minus:{data_2d_strt[0]+data_2d_lim[0][0]}",
-                        #       f"i:{data_2d_lsts[0][0][i]}")
                         if data_2d_lsts[0][0][i]>(data_2d_strt[0]+data_2d_lim[0][0]) \
                         and data_2d_lsts[0][0][i]<(data_2d_strt[0]+data_2d_lim[0][1]) \
                         and len(data_2d_lsts[1][0])>=data_2d_nLim[1]:
                             data_2d["pitch"][0].append(data_2d_lsts[1][0][i])
                             data_2d["pitch"][1].append(data_2d_lsts[1][1][i])
-                            # print("checkPoint")
-                    # print(data_2d["pitch"])
                     if len(data_2d["pitch"][0])>=data_2d_nLim[1]:
                         for q in ax2_polyN:
                             givenPoly = np.polyfit(data_2d["pitch"][0], data_2d["pitch"][1], q)
                             polyFunc = np.poly1d(givenPoly)
-                            ax2_polyFuncs["pitch"].append(polyFunc)
+                            ax2_polyFuncs["pitch"][0].append(n)
+                            ax2_polyFuncs["pitch"][1].append(polyFunc)
+                            ax2_polyFuncs["pitch"][2].append([min(data_2d["pitch"][0]), max(data_2d["pitch"][0])])
                             temp_x = [x for x in range(min(data_2d["pitch"][0]), max(data_2d["pitch"][0]))]
                             ax2["pitch"].plot(temp_x, polyFunc(temp_x), zdir='x', zs=n, linestyle="solid", label=f"{n} n:{q}", linewidth=1, c="#32a852")
+                ax2["pitch"].title.set_text(f"n:{ax2_polyN}")
             else:
                 saveFigCheck = [True, False]
+
+        
+            for key in ax2_polyFuncs:
+                if len(ax2_polyFuncs[key][0])>0:
+                    for i in range(len(ax2_polyFuncs[key][0])):
+                        print(f"{key:<6}: {i}", end='\r')
+                        temp_x = [x for x in range(ax2_polyFuncs[key][2][i][0], ax2_polyFuncs[key][2][i][1])]
+                        ax2_polyFuncs[key][3][0] += temp_x
+                        ax2_polyFuncs[key][3][1] += len(temp_x)*[ax2_polyFuncs[key][0][i]]
+                        ax2_polyFuncs[key][3][2] += ax2_polyFuncs[key][1][i](temp_x).tolist()
+            print("")
+            polyfitGraph0 = ax2["roll2d"].scatter(ax2_polyFuncs["roll"][3][0], ax2_polyFuncs["roll"][3][1], c=ax2_polyFuncs["roll"][3][2], s=2, cmap="magma")
+            polyfitGraph1 = ax2["pitch2d"].scatter(ax2_polyFuncs["pitch"][3][1], ax2_polyFuncs["pitch"][3][0], c=ax2_polyFuncs["pitch"][3][2], s=2, cmap="magma")
+            fig2.colorbar(polyfitGraph0, ax=ax2["roll2d"])
+            fig2.colorbar(polyfitGraph1, ax=ax2["pitch2d"])
 
             if not show_predict:
                 fig.colorbar(resultGraph0, ax=ax["slice"])
