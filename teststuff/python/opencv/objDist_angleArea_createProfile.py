@@ -834,15 +834,19 @@ def opt2():
             else:
                 saveFigCheck = [True, False]
 
-        
+            expResult = [0, 6000]
             for key in ax2_polyFuncs:
                 if len(ax2_polyFuncs[key][0])>0:
                     for i in range(len(ax2_polyFuncs[key][0])):
-                        print(f"{key:<6}: {i}", end='\r')
+                        print(f"{key:<6}: {i} ", end='')
                         temp_x = [x for x in range(ax2_polyFuncs[key][2][i][0], ax2_polyFuncs[key][2][i][1])]
-                        ax2_polyFuncs[key][3][0] += temp_x
-                        ax2_polyFuncs[key][3][1] += len(temp_x)*[ax2_polyFuncs[key][0][i]]
-                        ax2_polyFuncs[key][3][2] += ax2_polyFuncs[key][1][i](temp_x).tolist()
+                        if min(ax2_polyFuncs[key][1][i](temp_x).tolist())>=expResult[0] and max(ax2_polyFuncs[key][1][i].tolist())<=expResult:
+                            ax2_polyFuncs[key][3][0] += temp_x
+                            ax2_polyFuncs[key][3][1] += len(temp_x)*[ax2_polyFuncs[key][0][i]]
+                            ax2_polyFuncs[key][3][2] += ax2_polyFuncs[key][1][i](temp_x).tolist()
+                        else:
+                            print(f"[not included: had values exceeding {expResult} range]", end='')
+                        print("", end="\r")
             print("")
             polyfitGraph0 = ax2["roll2d"].scatter(ax2_polyFuncs["roll"][3][0], ax2_polyFuncs["roll"][3][1], c=ax2_polyFuncs["roll"][3][2], s=2, cmap="magma")
             polyfitGraph1 = ax2["pitch2d"].scatter(ax2_polyFuncs["pitch"][3][1], ax2_polyFuncs["pitch"][3][0], c=ax2_polyFuncs["pitch"][3][2], s=2, cmap="magma")
