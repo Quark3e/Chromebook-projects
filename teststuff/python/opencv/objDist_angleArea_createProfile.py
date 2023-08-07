@@ -40,6 +40,11 @@ thresh_zArea = 100
 thresh_xyLim = [100, 100]
 
 
+data_2d_lim = [[-2, 2], [-2, 2]]
+#polyfitRange = [i for i in range(1, 10, 1)]
+polyfitRange = [2]
+
+
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client_socket.settimeout(0.5)
 client_msg = b"fromClient"
@@ -597,15 +602,13 @@ def ax_addPolyfits(x, y, n, ax_key):
 
 
 def opt2():
-    global orient, ax, fig, toSaveFig
+    global orient, ax, fig, toSaveFig, data_2d_lim, polyfitRange
     strComments, typeComments, dateComments = readFile_loadValues(mode=1)
     chosen_pf = 0
     plotMethod = 0
     auto_z = True
     show_predict = False #Whether to display prediction first or dataSets first
     z_pick = 0
-    polyfitRange = [i for i in range(1, 10, 1)]
-    polyfitRange = [2, 3]
     polyfitMeth = 1 #0-use point range; 1-[-90, 90]
 
     fileName2 = f"objDist_angleArea_media/polyfit_RollPitch_grid_"
@@ -633,6 +636,7 @@ def opt2():
             elif pf_opt[:7]=="pFirst=": show_predict = eval(pf_opt[7:])
             elif pf_opt[:8]=="polyfit=": polyfitRange = eval(pf_opt[8:])
             elif pf_opt[:14]=="polyfitMethod=": polyfitMeth = int(pf_opt[14:])
+            elif pf_opt[:8]=="polyLim=": data_2d_lim = [eval(pf_opt[8:]), eval(pf_opt[8:])]
             elif pf_opt[:2]=="z=":
                 if pf_opt[2:]=="auto": auto_z = True
                 else:
@@ -712,7 +716,6 @@ def opt2():
             print("scatter plotting data sets:")
             resultGraph1 = ax["slice"].scatter(regrData["roll"], regrData["pitch"], c=regrData["area"], s=1.5, cmap="magma")
             
-            data_2d_lim = [[-2, 2], [-2, 2]]
             data_2d_nLim = [5, 5]
             ax["roll"].title.set_text(f"lim:{data_2d_lim[0]}")
             ax["pitch"].title.set_text(f"lim:{data_2d_lim[1]}")
@@ -767,12 +770,16 @@ def opt2():
                     "roll": 0,
                     "pitch": 0,
                     "roll2d": 0,
-                    "pitch2d": 0
+                    "pitch2d": 0,
+                    "mixed": 0,
+                    "mixed2d": 0
                 }
-                ax2["roll"] = fig2.add_subplot(2, 2, 1, projection='3d')
-                ax2["pitch"] = fig2.add_subplot(2, 2, 3, projection='3d')
-                ax2["roll2d"] = fig2.add_subplot(2, 2, 2)
-                ax2["pitch2d"] = fig2.add_subplot(2, 2, 4)
+                ax2["roll"] = fig2.add_subplot(2, 3, 1, projection='3d')
+                ax2["pitch"] = fig2.add_subplot(2, 3, 2, projection='3d')
+                ax2["mixed"] = fig2.add_subplot(2, 3, 3, projection='3d')
+                ax2["roll2d"] = fig2.add_subplot(2, 3, 4)
+                ax2["pitch2d"] = fig2.add_subplot(2, 3, 5)
+                ax2["mixed2d"] = fig2.add_subplot(2, 3, 6)
                 ax2_polyN = polyfitRange
                 ax2_polyFuncs = {
                     "roll": [[], [], [], [[], [], []]], #[ [pos,], [func,], [[min, max],], [[], [], []] ]
@@ -813,6 +820,7 @@ def opt2():
                             ax2_polyFuncs["roll"][2].append([min(data_2d["roll"][0]), max(data_2d["roll"][0])])
                             temp_x = [x for x in range(min(data_2d["roll"][0]), max(data_2d["roll"][0]))]
                             ax2["roll"].plot(temp_x, polyFunc(temp_x), zdir='y', zs=n, linestyle="solid", label=f"{n} n:{q}", linewidth=1, c="#32a852")
+                            ax2["mixed"].plot(temp_x, polyFunc(temp_x), zdir='y', zs=n, linestyle="solid", label=f"{n} n:{q}", linewidth=1, c="#32a852")
                 ax2["roll"].title.set_text(f"roll n:{ax2_polyN}")
                 print("")
                 for n in range(-90, 90, abs(data_2d_lim[1][0])+data_2d_lim[1][1]):
@@ -834,6 +842,7 @@ def opt2():
                             ax2_polyFuncs["pitch"][2].append([min(data_2d["pitch"][0]), max(data_2d["pitch"][0])])
                             temp_x = [x for x in range(min(data_2d["pitch"][0]), max(data_2d["pitch"][0]))]
                             ax2["pitch"].plot(temp_x, polyFunc(temp_x), zdir='x', zs=n, linestyle="solid", label=f"{n} n:{q}", linewidth=1, c="#32a852")
+                            ax2["mixed"].plot(temp_x, polyFunc(temp_x), zdir='x', zs=n, linestyle="solid", label=f"{n} n:{q}", linewidth=1, c="#32a852")
                 ax2["pitch"].title.set_text(f"pitch n:{ax2_polyN}")
             else:
                 saveFigCheck = [True, False]
@@ -867,7 +876,32 @@ def opt2():
             polyfitGraph1 = ax2["pitch2d"].scatter(ax2_polyFuncs["pitch"][3][1], ax2_polyFuncs["pitch"][3][0], c=ax2_polyFuncs["pitch"][3][2], s=2, cmap="magma")
             fig2.colorbar(polyfitGraph0, ax=ax2["roll2d"])
             fig2.colorbar(polyfitGraph1, ax=ax2["pitch2d"])
-
+            
+            tempValues = {} # "x:y": z,
+            tempLst = [[], [], []]
+            for key in ax2_polyFuncs:
+                for i in range(len(ax2_polyFuncs[key][3][0])):
+                    print(f"checking for avg: i: {i} ", end='')
+                    zVal = ax2_polyFuncs[key][3][2][i]
+                    if key=="roll": strPos = f"{ax2_polyFuncs[key][3][0][i]}:{ax2_polyFuncs[key][3][1][i]}"
+                    if key=="pitch": strPos = f"{ax2_polyFuncs[key][3][1][i]}:{ax2_polyFuncs[key][3][0][i]}"
+                    if strPos in tempValues: tempValues[strPos] = round((tempValues[strPos]+zVal)/2); print(" solved avg", end='')
+                    elif strPos not in tempValues: tempValues.update({strPos: zVal})
+                    print(f"{' ':<36}", end='\r')
+            for key,val in tempValues.items():
+                tempLst[0].append(int(key[:key.find(":")]))
+                tempLst[1].append(int(key[key.find(":")+1:]))
+                tempLst[2].append(val)
+                                            
+            #tempLst = [
+            #    ax2_polyFuncs["roll"][3][0]+ax2_polyFuncs["pitch"][3][1],
+            #    ax2_polyFuncs["roll"][3][1]+ax2_polyFuncs["pitch"][3][0],
+            #    ax2_polyFuncs["roll"][3][2]+ax2_polyFuncs["pitch"][3][2]
+            #]
+            
+            polyfitGraph2 = ax2["mixed2d"].scatter(tempLst[0], tempLst[1], c=tempLst[2], s=2, cmap="magma")
+            fig2.colorbar(polyfitGraph2, ax=ax2["mixed2d"])
+            
             if not show_predict:
                 fig.colorbar(resultGraph0, ax=ax["slice"])
             fig.colorbar(resultGraph1, ax=ax["slice"])
