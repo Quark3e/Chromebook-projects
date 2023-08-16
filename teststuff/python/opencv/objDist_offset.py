@@ -50,6 +50,9 @@ camFOV = 35 #y axis [degrees]
 
 angPerPx = camFOV / prefRes[1]
 
+
+#NOTE: change order so getObjDistance is used last and area_angle corrections like tilt and offset are used first
+
 def getObjDistance(scrHeight): # return [mm]
     # use height (y values)
     global cntDistance

@@ -22,6 +22,7 @@ import time
 import openCV_addon as ad
 import math
 import matplotlib.pyplot as plt
+from matplotlib import cm
 from matplotlib.animation import FuncAnimation
 import sys
 import socket
@@ -754,10 +755,13 @@ def opt2():
                     data_2d["pitch"][1].append(data_2d_lsts[0][1][i])
 
             tempCheck = [len(val) for val in data_2d["roll"]]+[len(val) for val in data_2d["pitch"]]
+            axisFuncs = [0, 0]
             if not 0 in tempCheck:
                 saveFigCheck = [True, True]
                 ax_addPolyfits(data_2d["roll"][0], data_2d["roll"][1], polyfitRange, "roll")
                 ax_addPolyfits(data_2d["pitch"][0], data_2d["pitch"][1], polyfitRange, "pitch")
+                axisFuncs[0] = np.poly1d(np.polyfit(data_2d["roll"][0], data_2d["roll"][1], 2))
+                axisFuncs[1] = np.poly1d(np.polyfit(data_2d["pitch"][0], data_2d["pitch"][1], 2))
                 ax["roll"].legend()
                 ax["pitch"].legend()
 
@@ -765,21 +769,25 @@ def opt2():
                 fileName2 = f"objDist_angleArea_media/polyfit_RollPitch_grid_n{chosen_pf}_"
                 if zFuse: fileName2 += "z:FUSED_"
                 elif not zFuse: fileName2 += f"z:{z_pick}_"
-                fig2 = plt.figure(figsize=(12,6))
+                fig2 = plt.figure(figsize=(19,9))
                 ax2 = {
                     "roll": 0,
                     "pitch": 0,
                     "roll2d": 0,
                     "pitch2d": 0,
                     "mixed": 0,
-                    "mixed2d": 0
+                    "mixed2d": 0,
+                    "predict": 0,
+                    "predict2d": 0
                 }
-                ax2["roll"] = fig2.add_subplot(2, 3, 1, projection='3d')
-                ax2["pitch"] = fig2.add_subplot(2, 3, 2, projection='3d')
-                ax2["mixed"] = fig2.add_subplot(2, 3, 3, projection='3d')
-                ax2["roll2d"] = fig2.add_subplot(2, 3, 4)
-                ax2["pitch2d"] = fig2.add_subplot(2, 3, 5)
-                ax2["mixed2d"] = fig2.add_subplot(2, 3, 6)
+                ax2["roll"] = fig2.add_subplot(2, 4, 1, projection='3d')
+                ax2["pitch"] = fig2.add_subplot(2, 4, 2, projection='3d')
+                ax2["mixed"] = fig2.add_subplot(2, 4, 3, projection='3d')
+                ax2["predict"]= fig2.add_subplot(2, 4, 4, projection='3d')
+                ax2["roll2d"] = fig2.add_subplot(2, 4, 5)
+                ax2["pitch2d"] = fig2.add_subplot(2, 4, 6)
+                ax2["mixed2d"] = fig2.add_subplot(2, 4, 7)
+                ax2["predict2d"] = fig2.add_subplot(2, 4, 8)
                 ax2_polyN = polyfitRange
                 ax2_polyFuncs = {
                     "roll": [[], [], [], [[], [], []]], #[ [pos,], [func,], [[min, max],], [[], [], []] ]
@@ -815,12 +823,13 @@ def opt2():
                         for q in ax2_polyN:
                             givenPoly = np.polyfit(data_2d["roll"][0], data_2d["roll"][1], q)
                             polyFunc = np.poly1d(givenPoly)
-                            ax2_polyFuncs["roll"][0].append(n)
-                            ax2_polyFuncs["roll"][1].append(polyFunc)
-                            ax2_polyFuncs["roll"][2].append([min(data_2d["roll"][0]), max(data_2d["roll"][0])])
-                            temp_x = [x for x in range(min(data_2d["roll"][0]), max(data_2d["roll"][0]))]
-                            ax2["roll"].plot(temp_x, polyFunc(temp_x), zdir='y', zs=n, linestyle="solid", label=f"{n} n:{q}", linewidth=1, c="#32a852")
-                            ax2["mixed"].plot(temp_x, polyFunc(temp_x), zdir='y', zs=n, linestyle="solid", label=f"{n} n:{q}", linewidth=1, c="#32a852")
+                            if polyFunc.coeffs[0]<0:
+                                ax2_polyFuncs["roll"][0].append(n)
+                                ax2_polyFuncs["roll"][1].append(polyFunc)
+                                ax2_polyFuncs["roll"][2].append([min(data_2d["roll"][0]), max(data_2d["roll"][0])])
+                                temp_x = [x for x in range(min(data_2d["roll"][0]), max(data_2d["roll"][0]))]
+                                ax2["roll"].plot(temp_x, polyFunc(temp_x), zdir='y', zs=n, linestyle="solid", label=f"{n} n:{q}", linewidth=1, c="#32a852")
+                                ax2["mixed"].plot(temp_x, polyFunc(temp_x), zdir='y', zs=n, linestyle="solid", label=f"{n} n:{q}", linewidth=1, c="#32a852")
                 ax2["roll"].title.set_text(f"roll n:{ax2_polyN}")
                 print("")
                 for n in range(-90, 90, abs(data_2d_lim[1][0])+data_2d_lim[1][1]):
@@ -837,12 +846,13 @@ def opt2():
                         for q in ax2_polyN:
                             givenPoly = np.polyfit(data_2d["pitch"][0], data_2d["pitch"][1], q)
                             polyFunc = np.poly1d(givenPoly)
-                            ax2_polyFuncs["pitch"][0].append(n)
-                            ax2_polyFuncs["pitch"][1].append(polyFunc)
-                            ax2_polyFuncs["pitch"][2].append([min(data_2d["pitch"][0]), max(data_2d["pitch"][0])])
-                            temp_x = [x for x in range(min(data_2d["pitch"][0]), max(data_2d["pitch"][0]))]
-                            ax2["pitch"].plot(temp_x, polyFunc(temp_x), zdir='x', zs=n, linestyle="solid", label=f"{n} n:{q}", linewidth=1, c="#32a852")
-                            ax2["mixed"].plot(temp_x, polyFunc(temp_x), zdir='x', zs=n, linestyle="solid", label=f"{n} n:{q}", linewidth=1, c="#32a852")
+                            if polyFunc.coeffs[0]<0:
+                                ax2_polyFuncs["pitch"][0].append(n)
+                                ax2_polyFuncs["pitch"][1].append(polyFunc)
+                                ax2_polyFuncs["pitch"][2].append([min(data_2d["pitch"][0]), max(data_2d["pitch"][0])])
+                                temp_x = [x for x in range(min(data_2d["pitch"][0]), max(data_2d["pitch"][0]))]
+                                ax2["pitch"].plot(temp_x, polyFunc(temp_x), zdir='x', zs=n, linestyle="solid", label=f"{n} n:{q}", linewidth=1, c="#32a852")
+                                ax2["mixed"].plot(temp_x, polyFunc(temp_x), zdir='x', zs=n, linestyle="solid", label=f"{n} n:{q}", linewidth=1, c="#32a852")
                 ax2["pitch"].title.set_text(f"pitch n:{ax2_polyN}")
             else:
                 saveFigCheck = [True, False]
@@ -888,19 +898,60 @@ def opt2():
                     if strPos in tempValues: tempValues[strPos] = round((tempValues[strPos]+zVal)/2); print(" solved avg", end='')
                     elif strPos not in tempValues: tempValues.update({strPos: zVal})
                     print(f"{' ':<36}", end='\r')
+                          
             for key,val in tempValues.items():
                 tempLst[0].append(int(key[:key.find(":")]))
                 tempLst[1].append(int(key[key.find(":")+1:]))
                 tempLst[2].append(val)
-                                            
-            #tempLst = [
-            #    ax2_polyFuncs["roll"][3][0]+ax2_polyFuncs["pitch"][3][1],
-            #    ax2_polyFuncs["roll"][3][1]+ax2_polyFuncs["pitch"][3][0],
-            #    ax2_polyFuncs["roll"][3][2]+ax2_polyFuncs["pitch"][3][2]
-            #]
+            ax2["mixed2d"].scatter(tempLst[0], tempLst[1], c=tempLst[2], s=3, cmap="magma")
             
-            polyfitGraph2 = ax2["mixed2d"].scatter(tempLst[0], tempLst[1], c=tempLst[2], s=2, cmap="magma")
-            fig2.colorbar(polyfitGraph2, ax=ax2["mixed2d"])
+            print("finding value(s) closest to [0, 0]:")
+            cntrVal = [tempLst[0][0], tempLst[1][0], tempLst[2][0]]
+            for i in range(1, len(tempLst[0])):
+                print(f"closest: ", cntrVal, f"{'':10}", end='\r')
+                if abs(tempLst[0][i])+abs(tempLst[1][i])<abs(cntrVal[0])+abs(cntrVal[1]):
+                    cntrVal = [tempLst[0][i], tempLst[1][i], tempLst[2][i]]
+            print("")
+            
+            tempDict = {
+                "roll": tempLst[0],
+                "pitch": tempLst[1],
+                "area": tempLst[2]
+            }
+            
+            def predFunc0(x, y):
+                print(axisFuncs[0], '', axisFuncs[1], sep='\n')
+                z_0 = [axisFuncs[0](x).tolist(), axisFuncs[1](y).tolist()]
+                z_coef = [0, 0]
+                z_coef[0] = [round(n/cntrVal[2],2) for n in z_0[0]]
+                z_coef[1] = [round(n/cntrVal[2],2) for n in z_0[1]]
+                z = []
+                for i in range(len(z_coef[0])):
+                    z.append(z_coef[0][i]*z_coef[1][i])
+                return z
+                      
+            print("creating polyfit based regr. data...")
+            
+            predData = [[], [], []]
+            for i_x in range(-90, 91, 1):
+                for i_y in range(-90, 91, 1):
+                    print(f"- x:{i_x:<3} y:{i_y:<3}", end='\r')
+                    pos = [i_x, i_y]
+                    predData[0].append(i_x)
+                    predData[1].append(i_y)
+            predData[2] = predFunc0(predData[0], predData[1])
+            print("")
+            print(len(predData[0]))
+            meshX, meshY = np.meshgrid(predData[0], predData[1], sparse=True)
+            ax2["predict"].plot_trisurf(predData[0], predData[1], np.array(predData[2]), cmap=cm.coolwarm, antialiased=False)
+            ax2["predict"].set(zlim3d=(0, 1), zlabel="coeff")
+            #ax2["predict"].set(xticklabels=[], yticklabels=[], zticklabels=[])
+            #ax2["predict"].scatter(predData[0], predData[1], predData[2], c=predData[2], s=2)
+            #fig2.colorbar(ax2["predict"].collections[0], ax=ax2["predict"])
+                      
+            ax2["predict2d"].scatter(predData[0], predData[1], c=predData[2], s=2, cmap="magma")
+            fig2.colorbar(ax2["predict2d"].collections[0], ax=ax2["predict2d"])
+            
             
             if not show_predict:
                 fig.colorbar(resultGraph0, ax=ax["slice"])
