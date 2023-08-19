@@ -17,5 +17,8 @@
     },
     "python.autoComplete.extraPaths": ["/usr/lib/python3/dist-packages"],
     "python.analysis.typeCheckingMode": "off",
-    "C_Cpp.default.compilerPath": "/usr/bin/g++"
+    "C_Cpp.default.compilerPath": "/usr/bin/g++",
+    "python.analysis.extraPaths": [
+        "/usr/lib/python3/dist-packages"
+    ]
 }
