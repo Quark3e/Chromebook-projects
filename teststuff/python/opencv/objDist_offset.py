@@ -1,12 +1,70 @@
 #!/usr/bin/env python3
 
+
 import cv2
 import numpy as np
 import os
 import math
 import sys
+import socket
+import pandas
 from time import sleep, perf_counter
+import time
 import openCV_addon as ad
+
+
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+client_socket.settimeout(0.5)
+client_msg = b"fromClient"
+addr = ("192.168.1.117", 53)
+server_msg = ""
+
+def reqToServer():
+    global server_msg, elapsedTime
+    start = time.time()
+    client_socket.sendto(client_msg, addr)
+    try:
+        tempData, server = client_socket.recvfrom(1024)
+        end = time.time()
+        elapsedTime = end - start
+        server_msg = tempData.decode()
+    except socket.timeout:
+        print("request timed out")
+# {0.05:0.17:0.88}off;
+
+X_out, Y_out, Z_out = 0.1, 0.1, 0.1
+Roll, Pitch, roll, pitch = 0.1, 0.1, 0.1, 0.1
+tiltFilter = 0.1
+
+def readAccelerometer(printText=True):
+    global X_out, Y_out, Z_out, Roll, Pitch, roll, pitch
+    reqToServer()
+    if len(server_msg)>=1 and (server_msg[:1]=="{" and server_msg[-5]=="}" and server_msg[-1]==";"):
+        tempMsg = server_msg.replace(":", ",")
+        msgTuple = eval(tempMsg[1:-5])
+        X_out, Y_out, Z_out = msgTuple
+
+    if printText: print(f" accel: x:{X_out} y:{Y_out} z:{Z_out} roll:{roll} pitch:{pitch}", end='\r')
+    
+    if X_out > 1: X_out = 1
+    if Y_out > 1: Y_out = 1
+    if Z_out > 1: Z_out = 1
+    if X_out < -1: X_out = -1
+    if Y_out < -1: Y_out = -1
+    if Z_out < -1: Z_out = -1
+    #x is roll and y is pitch (it's switched so the servo can be fit to the servo robot arm)
+    pitch = math.atan(Y_out / math.sqrt(pow(X_out, 2) + pow(Z_out, 2))) * 180 / math.pi
+    roll = math.atan(-1 * X_out / math.sqrt(pow(Y_out, 2) + pow(Z_out, 2))) * 180 / math.pi
+    #filter
+    Roll = (1-tiltFilter) * Roll + tiltFilter * roll
+    Pitch = (1-tiltFilter) * Pitch + tiltFilter * pitch
+    if printText: print(f" accel: x:{X_out} y:{Y_out} z:{Z_out} roll:{roll} pitch:{pitch}", end='\r')
+
+reqToServer()
+readAccelerometer()
+
+
+
 
 def toDegrees(radians): return (radians * 180) / math.pi
 def toRadians(degrees): return (degrees * math.pi) / 180
@@ -49,6 +107,16 @@ obj_screen = [None, None]
 camFOV = 35 #y axis [degrees]
 
 angPerPx = camFOV / prefRes[1]
+
+
+def angleCorrections(areaHeight):
+    #NOTE: uses height instead of area number
+    newArea = 0
+    readAccelerometer()
+
+    return newArea
+
+#NOTE: change order so getObjDistance is used last and area_angle corrections like tilt and offset are used first
 
 def getObjDistance(scrHeight): # return [mm]
     # use height (y values)
