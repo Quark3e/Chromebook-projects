@@ -38,10 +38,10 @@ orient = {
 toSaveFig = True
 
 thresh_zArea = 100
-thresh_xyLim = [100, 100]
+thresh_xyLim = [100, 100] #border square where readings "outside" aren't valid
 
 
-data_2d_lim = [[-2, 2], [-2, 2]]
+data_2d_lim = [[-2, 2], [-2, 2]] #range of points fused into one axis
 #polyfitRange = [i for i in range(1, 10, 1)]
 polyfitRange = [2]
 
