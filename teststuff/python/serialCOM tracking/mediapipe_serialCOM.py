@@ -11,7 +11,7 @@ import math
 import time
 import serial
 import requests
-import cv2
+import cv2 #type: ignore
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles

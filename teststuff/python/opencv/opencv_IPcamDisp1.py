@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # import the opencv library
-import cv2
+import cv2 #type: ignore
   
   
 # define a video capture object

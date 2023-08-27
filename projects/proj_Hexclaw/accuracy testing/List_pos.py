@@ -6,7 +6,7 @@
 # Import essential libraries
 from fileinput import filename
 import requests
-import cv2
+import cv2 #type: ignore
 import numpy as np
 import imutils
 import time

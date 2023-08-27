@@ -2,7 +2,7 @@
 
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-import cv2
+import cv2 #type: ignore
 import numpy as np
 import time
 import math

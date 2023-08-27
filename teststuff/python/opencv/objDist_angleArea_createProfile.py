@@ -14,7 +14,7 @@
 #   [contourArea, ...]
 #   [[x,y,z], ...]
 
-import cv2
+import cv2 #type: ignore
 import numpy as np
 import os
 import os.path
@@ -124,28 +124,8 @@ def opt0_setup():
         cv2.moveWindow(dispWin[0], 10, 400)
         cv2.moveWindow(dispWin[1], 10+640, 400)
 
-#   int(zAxis): [cntArea],
-
-values = {} 
-# temporary holder for values where each "angle" has several data values
-#   z:
-#   {
-#       angle: [area,],
-#       angle: [area,],
-#   }
-#   z:
-#   {
-#       angle: [area,],
-#       angle: [area,],
-#   }
-#   ...
-
-
+values = {}
 dataSets = {}
-# "permanet" holder for values in data sets where each angle has a single corresponding area value
-#   z: [[angle_roll,], [angle_pitch,], [area,]],
-#   z: [[angle_roll,], [angle_pitch,], [area,]],
-#   ---
 
 prefRes = (640, 480)
 

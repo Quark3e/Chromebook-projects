@@ -8,7 +8,7 @@
 
 # Import essential libraries
 import requests
-import cv2
+import cv2 #type: ignore
 import numpy as np
 import imutils
 import time
@@ -16,7 +16,7 @@ import math
 import adafruit_adxl34x # type: ignore
 import sys
 from threading import Thread
-import RPi.GPIO as GPIO #type: ignore
+import RPi.GPIO as GPIO #type: ignore #type: ignore
 
 sys.path.append('/home/pi/Chromebook-projects/projects/proj_Hexclaw')
 
