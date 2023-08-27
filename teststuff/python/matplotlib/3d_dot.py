@@ -39,6 +39,7 @@ def updatePos(n):
         )
     posPlot.set_3d_properties(np.array([PP[2]]))
     return posPlot,
+
 ani = FuncAnimation(fig, updatePos, int(360/sudoSpeedAdj), interval=20, blit=True)
 
 plt.show()
