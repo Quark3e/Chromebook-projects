@@ -13,6 +13,13 @@ import sys
 import socket
 from datetime import datetime
 
+
+def toRadians(degrees):
+    return (degrees*np.pi)/180
+def toDegrees(radians):
+    return (radians*180)/np.pi
+
+
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client_socket.settimeout(0.5)
 client_msg = b"fromClient"
@@ -91,6 +98,9 @@ imgTemp = [0, 0]
 morphImg = [0, 0]
 thresh = [0, 0]
 
+PP_read = [0, 0, 0]
+raw_read = [0, 0, 0, 0]
+
 ret = [0, 0] # boolean(s) for if .read() succesfully returned an image from VideoCapture object
 contours = [0, 0]
 cntArea = 0 # contour(area) of tracking as seen from cam[0]
@@ -135,7 +145,7 @@ def processFrame(img, flag, winName):
     contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(thresh[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 def camPos_update():
-    global imgTemp, ret, contours, cntArea, cntMoments, values, cntPos
+    global imgTemp, ret, contours, cntArea, cntMoments, cntPos, raw_read
     ret[0], imgTemp[0] = cam[0].read()
     ret[1], imgTemp[1] = cam[1].read()
 
@@ -161,17 +171,24 @@ def camPos_update():
                         readAccelerometer(printText=False)
                     elif flag==1:
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                        tempPos[1] = round(tempPos[1]) #NOTE: check if this is correct (if not then objDist_angleArea_createProfile.py could be using incorrect z as reference)
+                        tempPos[0] = round(tempPos[0]-prefRes[0]/2)
+                        tempPos[1] = round(prefRes[1] - tempPos[1]) #[x, z]
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(tempPos[1])),(tempPos[0],tempPos[1]),font,1,(255,0,0),2)
-                        tempPos[1] = prefRes[1] - tempPos[1]
                 else: print("cntMoments['m00] == 0")
-            
+            if flag==1 and len(contours[flag])<=0: tempPos = [None, None]
+        if cntArea != None and not (None in tempPos) and not (None in cntPos):
+            raw_read = [cntPos[0], cntPos[1], tempPos[0], tempPos[1]]
+            cntPos[2] = tempPos[1]
+    if displayToOpenCV:
+        cv2.imshow(dispWin[0], cv2.resize(np.hstack((morphImg[0], frame[0])), None, fx=0.4, fy=0.4))
+        cv2.imshow(dispWin[1], cv2.resize(np.hstack((morphImg[1], frame[1])), None, fx=0.4, fy=0.4))
+        key = cv2.waitKey(5)
+        if key==27:
+            sys.exit()
+        elif key==32: return False
+    return True
 
-def toRadians(degrees):
-    return (degrees*np.pi)/180
-def toDegrees(radians):
-    return (radians*180)/np.pi
 
 fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
@@ -191,18 +208,14 @@ posPlot, = ax.plot([PP[0]], [PP[1]], [PP[2]], marker='o')
 
 def updatePos(n):
     global PP
-    # posPlot._offsets3d = ()
-    angle = int(sudoSpeedAdj*n)
-    PP[0] = radius*math.cos(toRadians(angle))
-    PP[1] = radius*math.sin(toRadians(angle))
-    PP[2] = PP[2]
+    camPos_update()
     posPlot.set_data(
-        np.array([PP[0]]),
-        np.array([PP[1]])
+        np.array([cntPos[0]]),
+        np.array([cntPos[1]])
         )
-    posPlot.set_3d_properties(np.array([PP[2]]))
+    posPlot.set_3d_properties(np.array([cntPos[2]]))
     return posPlot,
 
-ani = FuncAnimation(fig, updatePos, int(360/sudoSpeedAdj), interval=20, blit=True)
+ani = FuncAnimation(fig, updatePos, int(360/sudoSpeedAdj), interval=0, blit=True)
 
 plt.show()
