@@ -21,7 +21,9 @@ setup_anim1 = {
     "delayMS": 0.5,
     "inbDelay": 0,
 }
-
+setup_anim2 = {
+    "delayMS": 500
+}
 
 def toRadians(degrees):
     return (degrees*math.pi)/180
@@ -65,6 +67,15 @@ def anim1():
             sendData(data, PIN_DATA, PIN_LATCH, PIN_CLOCK)
             time.sleep(delay)
 
+def anim2():
+    delay = setup_anim2["delayMS"]/1000
+    while True:
+        data = "00000000"
+        for i in range(127):
+            binVar = bin(i)[2:]
+            data = data[:7-len(binVar)] + binVar + "0"
+            sendData(data, PIN_DATA, PIN_LATCH, PIN_CLOCK)
+            time.sleep(delay)
 if __name__=="__main__":
-    anim1()
+    anim2()
 
