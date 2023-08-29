@@ -29,4 +29,4 @@ def analog_read():
 
 while True:
     print(analog_read())
-    time.sleep(1)
+    time.sleep(0.01)
