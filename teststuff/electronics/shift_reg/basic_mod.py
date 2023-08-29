@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO #type: ignore
 GPIO.setmode(GPIO.BCM)
 
 def sendData(strVal, dataPin, latchPin, clockPin):

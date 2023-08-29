@@ -2,7 +2,7 @@
 
 
 from __future__ import print_function
-import cv2
+import cv2 #type: ignore
 import numpy as np
 import random as rng
 import os

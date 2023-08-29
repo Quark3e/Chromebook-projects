@@ -14,7 +14,7 @@
 #   [contourArea, ...]
 #   [[x,y,z], ...]
 
-import cv2
+import cv2 #type: ignore
 import numpy as np
 import os
 import os.path

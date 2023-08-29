@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Import packages
-import cv2
+import cv2 #type: ignore
 
 img = cv2.imread('/home/berkhme/Chromebook-projects/teststuff/test_media/color-bars.webp') # load a dummy image
 img = cv2.resize(img, (320, 180))

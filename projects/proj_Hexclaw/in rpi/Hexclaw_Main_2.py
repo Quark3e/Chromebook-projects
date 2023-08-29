@@ -15,9 +15,9 @@ import math
 from datetime import datetime
 import adafruit_adxl34x # type: ignore
 import sys
-import cv2 #type: ignore
+import cv2 #type: ignore #type: ignore
 import os
-import RPi.GPIO as GPIO #type: ignore
+import RPi.GPIO as GPIO #type: ignore #type: ignore
 import serial #type: ignore
 import matplotlib.pyplot as plt #type: ignore
 

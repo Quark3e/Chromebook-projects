@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import cv2
+import cv2 #type: ignore
 import numpy as np
 from matplotlib import pyplot as plt
 

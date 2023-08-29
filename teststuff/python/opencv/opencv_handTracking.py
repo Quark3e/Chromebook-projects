@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import cv2
+import cv2 #type: ignore
 import mediapipe as mp
 import time
 

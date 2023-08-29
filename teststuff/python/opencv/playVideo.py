@@ -2,7 +2,7 @@
 
 
 # importing libraries
-import cv2
+import cv2 #type: ignore
 import numpy as np
   
 # Create a VideoCapture object and read from input file

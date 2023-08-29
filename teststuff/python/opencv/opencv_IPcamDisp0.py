@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import urllib.request
-import cv2
+import cv2 #type: ignore
 import numpy as np
 import time
 URL = "http://192.168.1.124:8080"

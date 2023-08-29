@@ -14,7 +14,7 @@
 #   [contourArea, ...]
 #   [[x,y,z], ...]
 
-import cv2
+import cv2 #type: ignore
 import numpy as np
 import os
 import os.path
@@ -38,10 +38,10 @@ orient = {
 toSaveFig = True
 
 thresh_zArea = 100
-thresh_xyLim = [100, 100]
+thresh_xyLim = [100, 100] #border square where readings "outside" aren't valid
 
 
-data_2d_lim = [[-2, 2], [-2, 2]]
+data_2d_lim = [[-2, 2], [-2, 2]] #range of points fused into one axis
 #polyfitRange = [i for i in range(1, 10, 1)]
 polyfitRange = [2]
 
@@ -124,28 +124,8 @@ def opt0_setup():
         cv2.moveWindow(dispWin[0], 10, 400)
         cv2.moveWindow(dispWin[1], 10+640, 400)
 
-#   int(zAxis): [cntArea],
-
-values = {} 
-# temporary holder for values where each "angle" has several data values
-#   z:
-#   {
-#       angle: [area,],
-#       angle: [area,],
-#   }
-#   z:
-#   {
-#       angle: [area,],
-#       angle: [area,],
-#   }
-#   ...
-
-
+values = {}
 dataSets = {}
-# "permanet" holder for values in data sets where each angle has a single corresponding area value
-#   z: [[angle_roll,], [angle_pitch,], [area,]],
-#   z: [[angle_roll,], [angle_pitch,], [area,]],
-#   ---
 
 prefRes = (640, 480)
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from __future__ import print_function
-import cv2 as cv
+import cv2 #type: ignore as cv
 import argparse
 def detectAndDisplay(frame):
     frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)

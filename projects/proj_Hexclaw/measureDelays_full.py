@@ -6,7 +6,7 @@
 # */
 
 
-import cv2
+import cv2 #type: ignore
 import numpy as np
 import matplotlib.pyplot as plt
 import time
@@ -15,7 +15,7 @@ import adafruit_adxl34x #type: ignore
 import sys
 from threading import Thread
 from datetime import datetime
-import RPi.GPIO as GPIO #type: ignore
+import RPi.GPIO as GPIO #type: ignore #type: ignore
 
 sys.path.append('home/py/Chromebook-projects/projects/proj_Hexclaw')
 

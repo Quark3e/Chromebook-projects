@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import numpy as np
-import cv2 as cv
+import cv2 #type: ignore as cv
 
 cap = cv.VideoCapture('http://192.168.1.124:8080')
 

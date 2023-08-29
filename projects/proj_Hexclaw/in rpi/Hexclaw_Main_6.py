@@ -12,9 +12,9 @@ import time
 import math
 import adafruit_adxl34x # type: ignore
 import sys
-import cv2
+import cv2 #type: ignore
 import os
-import RPi.GPIO as GPIO #type: ignore
+import RPi.GPIO as GPIO #type: ignore #type: ignore
 
 sys.path.append('/home/pi/Chromebook-projects/projects/proj_Hexclaw')
 
