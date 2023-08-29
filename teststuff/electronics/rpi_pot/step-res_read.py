@@ -2,11 +2,25 @@
 
 import RPi.GPIO as GPIO #type: ignore #type: ignore
 import time
+import math
 
 GPIO.setmode(GPIO.BCM)
 
 pin_a = 18
 pin_b = 24
+
+totTime = 0
+calcRes = 0
+
+parts = {
+    "R": 1000,
+    "C": 0.22*10**-6,
+    "V_B": 3.3,
+    "V_trigg": 1.8
+}
+
+def R_t(t):
+    return -(t) / ( parts["C"] * math.log(-(parts["V_trigg"]-parts["V_B"])/parts["V_B"]) ) - parts["R"]
 
 def discharge():
     GPIO.setup(pin_a, GPIO.IN)
@@ -15,12 +29,16 @@ def discharge():
     time.sleep(0.004)
 
 def charge_time():
+    global totTime, calcRes
+    t1 = time.perf_counter()
     GPIO.setup(pin_b, GPIO.IN)
     GPIO.setup(pin_a, GPIO.OUT)
     count = 0
     GPIO.output(pin_a, True)
     while not GPIO.input(pin_b):
         count = count + 1
+    totTime = (time.perf_counter() - t1) + 0.00003
+    calcRes = R_t(totTime)
     return count
 
 def analog_read():
@@ -28,5 +46,5 @@ def analog_read():
     return charge_time()
 
 while True:
-    print(analog_read())
+    print(f"delay:{round(totTime*1000, 2)}ms:    calc_Res.:{round(calcRes):<5}    analog inp.:{analog_read()}")
     time.sleep(0.01)
