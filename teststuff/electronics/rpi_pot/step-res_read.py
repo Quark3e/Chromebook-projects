@@ -30,14 +30,14 @@ def discharge():
 
 def charge_time():
     global totTime, calcRes
-    t1 = time.perf_counter()
+    t1 = time.time()
     GPIO.setup(pin_b, GPIO.IN)
     GPIO.setup(pin_a, GPIO.OUT)
     count = 0
     GPIO.output(pin_a, True)
     while not GPIO.input(pin_b):
         count = count + 1
-    totTime = (time.perf_counter() - t1) + 0.00003
+    totTime = (time.time() - t1)
     calcRes = R_t(totTime)
     return count
 
