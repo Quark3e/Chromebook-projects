@@ -45,6 +45,7 @@ def analog_read():
     discharge()
     return charge_time()
 
-while True:
-    print(f"delay:{round(totTime*1000, 2)}ms:    calc_Res.:{round(calcRes):<5}    analog inp.:{analog_read()}")
-    time.sleep(0.01)
+if __name__=="__main__":
+    while True:
+        print(f"delay:{round(totTime*1000, 2)}ms:    calc_Res.:{round(calcRes):<5}    analog inp.:{analog_read()}")
+        time.sleep(0.01)

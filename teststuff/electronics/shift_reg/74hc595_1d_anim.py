@@ -4,6 +4,9 @@ import RPi.GPIO as GPIO #type: ignore
 import time
 import math
 from basic_mod import sendData
+import sys
+sys.path.append("../electronics")
+import stepRes_read as pot
 
 GPIO.setmode(GPIO.BCM)
 
@@ -14,6 +17,8 @@ PIN_CLOCK = 20
 GPIO.setup(PIN_DATA, GPIO.OUT)
 GPIO.setup(PIN_LATCH, GPIO.OUT)
 GPIO.setup(PIN_CLOCK, GPIO.OUT)
+
+animOpt = 1
 
 setup_anim1 = {
     "spac": 0.05,
@@ -37,7 +42,7 @@ def spac_round(val, spac = 0.25):
 
 def anim0():
     while True:
-        for i in range(7):
+        for i in range(8):
             data = "00000000"
             data = data[:i] + "1" + data[i+1:]
             sendData(data, PIN_DATA, PIN_LATCH, PIN_CLOCK)
@@ -59,6 +64,9 @@ def anim1():
         for i in range(1,round(1/spac)+1):
             #print("i:", i, end=' ')
             for n in range(8):
+                #var = pot.analog_read()
+                #inbDelay = abs(pot.calcRes) / 1000000000
+                #print(inbDelay)
                 if ledVal[n]*(1/spac)>=i: data = data[:n]+"1"+data[n+1:]
                 else: data = data[:n]+"0"+data[n+1:]
                 #print(ledVal[n]*(1/spac), end=' ')
@@ -76,6 +84,9 @@ def anim2():
             data = data[:7-len(binVar)] + binVar + "0"
             sendData(data, PIN_DATA, PIN_LATCH, PIN_CLOCK)
             time.sleep(delay)
+
 if __name__=="__main__":
-    anim2()
+    if animOpt==0: anim0()
+    elif animOpt==1: anim1()
+    elif animOpt==2: anim2()
 
