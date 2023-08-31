@@ -30,6 +30,7 @@ setup_anim2 = {
     "delayMS": 500
 }
 
+
 def toRadians(degrees):
     return (degrees*math.pi)/180
 
@@ -85,8 +86,21 @@ def anim2():
             sendData(data, PIN_DATA, PIN_LATCH, PIN_CLOCK)
             time.sleep(delay)
 
+def anim3():
+    delay = 0
+    while True:
+        var = pot.analog_read()
+        delay = ((abs(pot.calcRes)/10_000)**4)
+        print(f"delay: {delay*1000:<20} ms", end='\r')
+        data = "00010000"
+        sendData(data, PIN_DATA, PIN_LATCH, PIN_CLOCK)
+        time.sleep(delay)
+        sendData("00000000", PIN_DATA, PIN_LATCH, PIN_CLOCK)
+        time.sleep(delay)
+
 if __name__=="__main__":
     if animOpt==0: anim0()
     elif animOpt==1: anim1()
     elif animOpt==2: anim2()
+    elif animOpt==3: anim3()
 
