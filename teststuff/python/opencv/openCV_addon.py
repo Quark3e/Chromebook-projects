@@ -1,9 +1,11 @@
 
 import cv2 #type: ignore
 
+
+
+
 def nothing(x):
     pass
-
 
 def hsv_trackbars(winName, presetVal):
     cv2.createTrackbar("L - H", winName, presetVal[0][0], 179, nothing)
