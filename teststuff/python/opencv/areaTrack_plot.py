@@ -7,10 +7,10 @@ import matplotlib.pyplot as plt
 import math
 import sys
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(12,6), dpi=100)
 
-
-dataIndex = 0
+polyDeg = 10
+dataIndex = 1
 values = []
 # [
 #   xData
@@ -57,14 +57,17 @@ for i in range(meanGap, len(xData)-meanGap):
     xData2[i] = mean(xData, i, meanGap)
     yData2[i] = mean(yData, i, meanGap)
 
-polyDeg = 2
-z = np.polyfit(xData, yData, polyDeg)
-polyFunc = np.poly1d(z)
-print(str(polyFunc))
+def testFits(deg):
+    z = np.polyfit(xData, yData, deg)
+    polyFunc = np.poly1d(z)
+    #print(str(polyFunc))
+    return polyFunc
 
 ax.scatter(xData, yData, s=2, label="raw data", )
 ax.plot(xData2, yData2, label="mean: "+str(meanGap), color="red", alpha=0.5)
-ax.plot(xData, polyFunc(xData), label="fit polynomial: "+str(polyDeg)+" deg", color="green")
+
+for i in range(8, 10+1, 2):
+    ax.plot(xData, testFits(i)(xData), label="fit polyDeg: "+str(i)+" deg", alpha=0.5)
 
 plt.xlabel("contour moment area")
 plt.ylabel("z axis")
