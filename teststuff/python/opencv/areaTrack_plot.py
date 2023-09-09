@@ -58,9 +58,10 @@ for i in range(meanGap, len(xData)-meanGap):
     yData2[i] = mean(yData, i, meanGap)
 
 def testFits(deg):
+    print("-----------polyDeg:", deg)
     z = np.polyfit(xData, yData, deg)
     polyFunc = np.poly1d(z)
-    #print(str(polyFunc))
+    print(str(polyFunc))
     return polyFunc
 
 ax.scatter(xData, yData, s=2, label="raw data", )
