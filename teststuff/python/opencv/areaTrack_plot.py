@@ -65,7 +65,7 @@ def testFits(deg):
     return polyFunc
 
 ax.scatter(xData, yData, s=2, label="raw data", )
-ax.plot(xData2, yData2, label="mean: "+str(meanGap), color="red", alpha=0.5)
+ax.plot(xData2, yData2, label="mean: "+str(meanGap), color="green", alpha=0.5)
 
 for i in range(8, 10+1, 2):
     ax.plot(xData, testFits(i)(xData), label="fit polyDeg: "+str(i)+" deg", alpha=0.5)
