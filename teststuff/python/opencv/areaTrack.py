@@ -16,8 +16,8 @@ def nothing(x):
 cam0 = cv2.VideoCapture(0)
 cam1 = cv2.VideoCapture(2)
 
-cam0.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
-cam1.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
+#cam0.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
+#cam1.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
 
 displayToOpenCV = True
 
@@ -26,14 +26,15 @@ displayToOpenCV = True
 hsvCam0 = [[0, 0, 255], [179, 9, 255]] #ir webcam
 hsvCam1 = [[0, 0, 255], [179, 9, 255]]
 
+camNm = ["cap0 - area", "cap1 - zAxis"]
 
 if displayToOpenCV:
-    cv2.namedWindow("cap0") #xy
-    cv2.namedWindow("cap1") #z
-    ad.hsv_trackbars("cap0", hsvCam0)
-    ad.hsv_trackbars("cap1", hsvCam1)
-    cv2.moveWindow("cap0", 100, 100)
-    cv2.moveWindow("cap1", 100+700, 100)
+    cv2.namedWindow(camNm[0]) #xy
+    cv2.namedWindow(camNm[1]) #z
+    ad.hsv_trackbars(camNm[0], hsvCam0)
+    ad.hsv_trackbars(camNm[1], hsvCam1)
+    cv2.moveWindow(camNm[0], 100, 100)
+    cv2.moveWindow(camNm[1], 100+700, 100)
 
 #   int(zAxis): [cntArea],
 outFile = open("zAxis-Area_values.dat", "a")
@@ -84,9 +85,9 @@ def processFrame(img, flag, winName):
     # morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=0)
 
     morphImg[flag] = cv2.erode(cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR), kernel, 1)
-    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=1)
-    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=1)
-    morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=1)
+    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=4)
+    #morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=1)
+    #morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=1)
 
     _, thresh[flag] = cv2.threshold(morphImg[flag], 127, 255, cv2.THRESH_BINARY)
     contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(thresh[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -100,8 +101,8 @@ def configure_settings():
         ret[1], imgTemp[1] = cam1.read()
         if ret[0]==False or ret[1]==False: print("could not capture from cam. returned:", ret)
         else:    
-            processFrame(imgTemp[0], 0, "cap0")
-            processFrame(imgTemp[1], 1, "cap1")
+            processFrame(imgTemp[0], 0, camNm[0])
+            processFrame(imgTemp[1], 1, camNm[1])
             for flag in range(2):
                 for i in range(len(contours[flag])):
                     if cv2.contourArea(contours[flag][0]) > 1000:
@@ -118,8 +119,8 @@ def configure_settings():
                                     morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntPos[1])),(cntPos[0],cntPos[1]),font,1,(255,0,0),2)
             print(prefRes[1]-cntPos[1], cntArea)
             # print((morphImg[0]).shape, (frame[0]).shape)
-            cv2.imshow("cap0", cv2.resize(np.hstack((morphImg[0], frame[0])), None, fx=0.4, fy=0.4)) # type: ignore
-            cv2.imshow("cap1", cv2.resize(np.hstack((morphImg[1], frame[1])), None, fx=0.4, fy=0.4)) # type: ignore
+            cv2.imshow(camNm[0], cv2.resize(np.hstack((morphImg[0], frame[0])), None, fx=0.4, fy=0.4)) # type: ignore
+            cv2.imshow(camNm[1], cv2.resize(np.hstack((morphImg[1], frame[1])), None, fx=0.4, fy=0.4)) # type: ignore
             key = cv2.waitKey(1)
             if key==27:
                 exit()
@@ -128,7 +129,7 @@ def configure_settings():
 
 def script_exit():
     global values, xData, yData
-    print("exit initialized...", end='')
+    print("exit initialized...")
     tempDict = list(values.keys())
     tempDict.sort()
     print("raw:", values)
@@ -175,8 +176,8 @@ def plt_update(n):
     # print("check 2")
     if ret[0]==False or ret[1]==False: print("could not capture from cam. returned:", ret)
     else:    
-        processFrame(imgTemp[0], 0, "cap0")
-        processFrame(imgTemp[1], 1, "cap1")
+        processFrame(imgTemp[0], 0, camNm[0])
+        processFrame(imgTemp[1], 1, camNm[1])
         for flag in range(2):
             for i in range(len(contours[flag])):
                 cntMoments = cv2.moments(contours[flag][0])
@@ -196,14 +197,15 @@ def plt_update(n):
             values.update({cntPos[1]: [cntArea]})
         else:
             values[cntPos[1]].append(int(cntArea))
+            print(len(values), len(values[cntPos[1]]), end=' ')
         if len(values[cntPos[1]]) >= 100:
             values[cntPos[1]] = sum(values[cntPos[1]])/len(values[cntPos[1]])
             print("averages value:", cntPos[1]  )
 
         # ln.set_data(xData, yData)
     if displayToOpenCV:
-        cv2.imshow("cap0", cv2.resize(np.hstack((morphImg[0], frame[0])), None, fx=0.4, fy=0.4))
-        cv2.imshow("cap1", cv2.resize(np.hstack((morphImg[1], frame[1])), None, fx=0.4, fy=0.4))
+        cv2.imshow(camNm[0], cv2.resize(np.hstack((morphImg[0], frame[0])), None, fx=0.4, fy=0.4))
+        cv2.imshow(camNm[1], cv2.resize(np.hstack((morphImg[1], frame[1])), None, fx=0.4, fy=0.4))
         key = cv2.waitKey(1)
         if key==27:
             sys.exit()

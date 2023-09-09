@@ -18,7 +18,7 @@ GPIO.setup(PIN_DATA, GPIO.OUT)
 GPIO.setup(PIN_LATCH, GPIO.OUT)
 GPIO.setup(PIN_CLOCK, GPIO.OUT)
 
-animOpt = 1
+animOpt = 0
 
 setup_anim1 = {
     "spac": 0.05,
