@@ -36,7 +36,7 @@ yData = values[dataIndex][1]
 
 def zAdjFunc(var):
     ans = var
-    ans = var**(4/6)
+    ans = var
     return ans
 
 xData = [zAdjFunc(i) for i in xData]
