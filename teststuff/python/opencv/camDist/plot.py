@@ -18,7 +18,7 @@ values = []
 # ]
 
 
-f = open("zAxis-Area_values.dat", "r")
+f = open("data/raw_values.dat", "r")
 
 while True:
     line = f.readline()
@@ -58,7 +58,7 @@ def testFits(deg):
 ax.scatter(xData, yData, s=2, label="raw data", )
 ax.plot(xData2, yData2, label="mean: "+str(meanGap), color="green", alpha=0.5)
 
-funcFile = open("zAxis-Area_func.dat", "a")
+funcFile = open("data/solved_func.dat", "a")
 
 for i in range(2, 10+1, 2):
     tempFunc = testFits(i)

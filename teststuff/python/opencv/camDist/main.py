@@ -37,7 +37,7 @@ if displayToOpenCV:
     cv2.moveWindow(camNm[1], 100+700, 100)
 
 #   int(zAxis): [cntArea],
-outFile = open("zAxis-Area_values.dat", "a")
+outFile = open("/data/raw_values.dat", "a")
 values = {}
 xData, yData = [], []
 
