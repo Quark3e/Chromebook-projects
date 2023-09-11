@@ -46,7 +46,7 @@ def readAccelerometer(printText=True):
     global X_out, Y_out, Z_out, Roll, Pitch, roll, pitch
     reqToServer()
     if len(server_msg)>=1 and (server_msg[:1]=="{" and server_msg[-5]=="}" and server_msg[-1]==";"):
-        tempMsg = server_msg.replace(":", ";")
+        tempMsg = server_msg.replace(":", ",")
         msgTuple = eval(tempMsg[1:-5])
         X_out, Y_out, Z_out = msgTuple
     
@@ -71,11 +71,11 @@ readAccelerometer()
 
 displayToOpenCV = True
 
-cam = [cv2.VideoCapure(0), cv2.VideoCapture(2)]
+cam = [cv2.VideoCapture(2), cv2.VideoCapture(0)]
 prefRes = (640, 480)
 
-cam[0].set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
-cam[1].set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
+#cam[0].set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
+#cam[1].set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
 
 #lower, upper values
 hsvCam0 = [[0, 0, 255], [179, 9, 255]] #area
@@ -168,13 +168,13 @@ def camPos_update():
                         cntArea = cv2.contourArea(contours[flag][0])
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1, (255,0,0),2)
-                        readAccelerometer(printText=False)
+                        readAccelerometer()
                     elif flag==1:
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                        tempPos[0] = round(tempPos[0]-prefRes[0]/2)
-                        tempPos[1] = round(prefRes[1] - tempPos[1]) #[x, z]
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(tempPos[1])),(tempPos[0],tempPos[1]),font,1,(255,0,0),2)
+                        tempPos[0] = round(tempPos[0]-prefRes[0]/2)
+                        tempPos[1] = round(prefRes[1] - tempPos[1])
                 else: print("cntMoments['m00] == 0")
             if flag==1 and len(contours[flag])<=0: tempPos = [None, None]
         if cntArea != None and not (None in tempPos) and not (None in cntPos):
@@ -190,7 +190,7 @@ def camPos_update():
     return True
 
 
-fig = plt.figure()
+fig = plt.figure(dpi=100)
 ax = fig.add_subplot(projection='3d')
 
 ax.set(xlim3d=(-150, 150), xlabel='X')
@@ -205,17 +205,24 @@ sudoSpeedAdj = 2
 
 posPlot, = ax.plot([PP[0]], [PP[1]], [PP[2]], marker='o')
 
-
 def updatePos(n):
-    global PP
+    global PP, cntPos
+    #print("update", end=' ')
     camPos_update()
-    posPlot.set_data(
-        np.array([cntPos[0]]),
-        np.array([cntPos[1]])
-        )
-    posPlot.set_3d_properties(np.array([cntPos[2]]))
+    #cntPos = [50*math.cos(toRadians(n)),50*math.sin(toRadians(n)),cntPos[2]]
+    if not None in cntPos:
+        posPlot.set_data(
+            np.array([cntPos[0]]),
+            np.array([cntPos[1]])
+            )
+        posPlot.set_3d_properties(np.array([cntPos[2]]))
     return posPlot,
 
-ani = FuncAnimation(fig, updatePos, int(360/sudoSpeedAdj), interval=0, blit=True)
+#while True:
+#    camPos_update()
+#    print(cntPos)
+
+ani = FuncAnimation(fig, updatePos, 360, interval=1, blit=True)
+
 
 plt.show()
