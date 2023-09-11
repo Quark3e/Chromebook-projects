@@ -23,7 +23,7 @@ def toDegrees(radians):
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client_socket.settimeout(0.5)
 client_msg = b"fromClient"
-addr = ["192.168.1.117", 53]
+addr = ("192.168.1.117", 53)
 server_msg = ""
 def reqToServer():
     global server_msg, elapsedTime
@@ -195,7 +195,7 @@ ax = fig.add_subplot(projection='3d')
 
 ax.set(xlim3d=(-150, 150), xlabel='X')
 ax.set(ylim3d=(-150, 150), ylabel='Y')
-ax.set(zlim3d=(0, 300), zlabel='Z')
+ax.set(zlim3d=(0, 400), zlabel='Z')
 ax.view_init(elev=30, azim=60)
 
 PP = [0, 0, 150]
