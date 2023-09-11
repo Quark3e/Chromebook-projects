@@ -19,6 +19,7 @@ values = []
 
 
 f = open("zAxis-Area_values.dat", "r")
+
 while True:
     line = f.readline()
     # print(line)
@@ -34,18 +35,8 @@ if dataIndex >= len(values):
 xData = values[dataIndex][0]
 yData = values[dataIndex][1]
 
-def zAdjFunc(var):
-    ans = var
-    ans = var
-    return ans
 
-xData = [zAdjFunc(i) for i in xData]
 xData2, yData2 = xData.copy(), yData.copy()
-
-# for key, val in values.items():
-#     xData.append(int(val))
-#     yData.append(int(key))
-
 
 def mean(lst, index, numvalues):
     tempList = [lst[i] for i in range(index-numvalues, index+numvalues+1)]
@@ -67,8 +58,15 @@ def testFits(deg):
 ax.scatter(xData, yData, s=2, label="raw data", )
 ax.plot(xData2, yData2, label="mean: "+str(meanGap), color="green", alpha=0.5)
 
-for i in range(8, 10+1, 2):
-    ax.plot(xData, testFits(i)(xData), label="fit polyDeg: "+str(i)+" deg", alpha=0.5)
+funcFile = open("zAxis-Area_func.dat", "a")
+
+for i in range(2, 10+1, 2):
+    tempFunc = testFits(i)
+#    funcFile.write(f"\n----------deg: {i}\n")
+#    funcFile.write(str(tempFunc.c)+"\n")
+#    funcFile.write(str(tempFunc))
+#    funcFile.write("\n")
+    ax.plot(xData, tempFunc(xData), label="fit polyDeg: "+str(i)+" deg", alpha=0.7, linewidth=3)
 
 plt.xlabel("contour moment area")
 plt.ylabel("z axis")
