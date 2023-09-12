@@ -18,6 +18,17 @@ values = []
 # ]
 
 
+def checkfunc(x):
+    c = [1.11616931*10**-39, -2.07682935*10**-34, 1.68556962*10**-29, -7.83319285*10**-25,
+             2.30122730*10**-20, -4.45491855*10**-16, 5.75203827*10**-12, -4.90909892*10**-8,
+             2.68701764*10**-4, -8.89666871*10**-1, 1.61255736*10**3]
+    
+    return sum([c[n]*(x**(10-n)) for n in range(len(c))])
+
+def polyTest(xData):
+    return [checkfunc(x) for x in xData]
+
+
 f = open("data/raw_values.dat", "r")
 
 while True:
@@ -66,7 +77,9 @@ for i in range(2, 10+1, 2):
 #    funcFile.write(str(tempFunc.c)+"\n")
 #    funcFile.write(str(tempFunc))
 #    funcFile.write("\n")
-    ax.plot(xData, tempFunc(xData), label="fit polyDeg: "+str(i)+" deg", alpha=0.7, linewidth=3)
+    ax.plot(xData, tempFunc(xData), label="fit polyDeg: "+str(i)+" deg", alpha=0.35, linewidth=4)
+ax.plot(xData, polyTest(xData), label='check plot', alpha=1, linewidth=2)
+
 
 plt.xlabel("contour moment area")
 plt.ylabel("z axis")

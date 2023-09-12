@@ -20,10 +20,17 @@ def toDegrees(radians):
     return (radians*180)/np.pi
 
 
-def distMeth_0(cntArea):
-    zVal = 0
+def checkfunc(x):
+    c = [1.11616931*10**-39, -2.07682935*10**-34, 1.68556962*10**-29, -7.83319285*10**-25,
+             2.30122730*10**-20, -4.45491855*10**-16, 5.75203827*10**-12, -4.90909892*10**-8,
+             2.68701764*10**-4, -8.89666871*10**-1, 1.61255736*10**3]
+    
+    return sum([c[n]*(x**(10-n)) for n in range(len(c))])
 
-    return zVal
+def polyTest(xData):
+    return [checkfunc(x) for x in xData]
+
+
 
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -112,6 +119,7 @@ contours = [0, 0]
 cntArea = 0 # contour(area) of tracking as seen from cam[0]
 tempPos = [0, 0]
 cntPos = [0, 0, 0]
+cntPos_z = 0
 cntMoments = 0
 frame = [0, 0]
 
@@ -151,7 +159,7 @@ def processFrame(img, flag, winName):
     contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(thresh[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 def camPos_update():
-    global imgTemp, ret, contours, cntArea, cntMoments, cntPos, raw_read
+    global imgTemp, ret, contours, cntArea, cntMoments, cntPos, cntPos_z, raw_read
     ret[0], imgTemp[0] = cam[0].read()
     ret[1], imgTemp[1] = cam[1].read()
 
@@ -172,6 +180,7 @@ def camPos_update():
                         cntPos[0] = round(tempPos[0]-prefRes[0]/2)
                         cntPos[1] = round(prefRes[1]/2-tempPos[1])
                         cntArea = cv2.contourArea(contours[flag][0])
+                        cntPos_z = checkfunc(cntArea)
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1, (255,0,0),2)
                         readAccelerometer()
@@ -209,10 +218,12 @@ radius = 100
 sudoSpeedAdj = 2
 
 
+
 posPlot, = ax.plot([PP[0]], [PP[1]], [PP[2]], marker='o')
+posPlot2,= ax.plot([PP[0]], [PP[1]], [PP[2]], marker='o', color="green", label="")
 
 def updatePos(n):
-    global PP, cntPos
+    global PP, cntPos, cntPos_z
     #print("update", end=' ')
     camPos_update()
     #cntPos = [50*math.cos(toRadians(n)),50*math.sin(toRadians(n)),cntPos[2]]
