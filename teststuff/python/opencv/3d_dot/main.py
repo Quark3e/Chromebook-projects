@@ -20,6 +20,12 @@ def toDegrees(radians):
     return (radians*180)/np.pi
 
 
+def distMeth_0(cntArea):
+    zVal = 0
+
+    return zVal
+
+
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client_socket.settimeout(0.5)
 client_msg = b"fromClient"
