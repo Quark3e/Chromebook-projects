@@ -31,7 +31,7 @@ def plt_init():
 values = []
 # xData, yData = [], []
 
-f = open("zAxis-Area_values.dat", "r")
+f = open("data/raw_values.dat", "r")
 print("loading data sets:\n")
 i = 0
 while True:
@@ -47,9 +47,9 @@ while True:
 indexSpec = False
 dataIndex = 0
 if args.setIndex != None:
-    if args.setIndex == "all": indexSpec = True
-    else: dataIndex = int(args.setIndex)
-
+    if args.setIndex == "sum": indexSpec = True
+    elif type(args.setIndex)==type(int()): dataIndex = int(args.setIndex)
+    else: print("\ninvalid arg input")
 
 print(f"\nloaded '{len(values)}' data sets")
 if indexSpec == False and dataIndex >= len(values):
@@ -84,6 +84,6 @@ plt.title("contour Area - point coordinate")
 plt.legend()
 plt.grid()
 
-plt.savefig(f"areaTrack3D_media/img_{args.setIndex}_{plt_elev}:{plt_azim}.png", dpi=300)
+plt.savefig(f"3D_media/img_{args.setIndex}_{plt_elev}:{plt_azim}.png", dpi=300)
 
 plt.show()
