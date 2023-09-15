@@ -25,7 +25,7 @@ class AnimatedScatter(object):
         tempC = np.random.random((1, 2)).T
         self.scat0 = self.ax.scatter([p0[0]],[p0[1]],[p0[2]], s=50, cmap="jet", edgecolor="k", label="dot 0")
         self.scat1 = self.ax.scatter([p1[0]],[p1[1]],[p1[2]], s=50, cmap="magma", edgecolor="k", label="dot 1")
-        self.plot0, = self.ax.plot([p0[0], p1[0]],[p0[1], p1[1]],[p0[2], p1[2]])
+        self.plot0, = self.ax.plot([p0[0], p1[0]],[p0[1], p1[1]],[p0[2], p1[2]], linestyle="dotted")
         self.ax.axis("equal")
         self.ax.set(xlim3d=(-200, 200), xlabel="X")
         self.ax.set(ylim3d=(-200, 200), ylabel="Y")

@@ -206,54 +206,41 @@ def camPos_update():
 
 
 class AnimatedScatter(object):
-    def __init(self):
+    def __init__(self):
         self.stream = self.data_stream()
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(projection="3d")
-        self.ani
+        self.ani = FuncAnimation(self.fig, self.update,interval=1,init_func=self.setup_plot,blit=False)
+    def setup_plot(self):
+        p0, p1 = next(self.stream)
+        self.scat0 = self.ax.scatter([p0[0]],[p0[1]],[p0[2]], s=20, cmap="jet", edgecolor="k", label="correct")
+        self.scat1 = self.ax.scatter([p1[0]],[p1[1]],[p1[2]], s=20, cmap="magma", edgecolor="k", label="svoled")
+        self.plot0, = self.ax.plot([p0[0], p1[0]],[p0[1], p1[1]],[p0[2], p1[2]], linestyle="dotted")
+        self.ax.axis("equal")
+        self.ax.grid()
+        self.ax.set(xlim3d=(-200, 200), xlabel="X")
+        self.ax.set(ylim3d=(-200, 200), ylabel="Y")
+        self.ax.set(zlim3d=(0, 400), zlabel="Z")
+        self.ax.view_init(elev=30, azim=60)
+        self.ax.legend()
+        return self.scat0, self.scat1, self.plot0
+    def data_stream(self):
+        while True:
+            camPos_update()
+            if not None in cntPos:
+                p0 = cntPos
+                p1 = cntPos[:2]+[cntPos_z]
+                yield p0, p1
+    def update(self, i):
+        p0, p1 = next(self.stream)
+        self.scat0._offsets3d=([p0[0]], [p0[1]], [p0[2]])
+        self.scat1._offsets3d=([p1[0]], [p1[1]], [p1[2]])
+        # print([p0[0], p1[0]],[p0[1], p1[1]], [p0[2], p1[2]])
+        # self.plot0.set_data([p0[0], p1[0]],[p0[1], p1[1]])
+        self.plot0.set_data_3d([p0[0], p1[0]],[p0[1], p1[1]], [p0[2], p1[2]])
+        return self.scat0, self.scat1, self.plot0
 
 
-
-
-fig = plt.figure(dpi=100)
-ax = fig.add_subplot(projection='3d')
-
-
-
-
-
-ax.set(xlim3d=(-150, 150), xlabel='X')
-ax.set(ylim3d=(-150, 150), ylabel='Y')
-ax.set(zlim3d=(0, 400), zlabel='Z')
-ax.view_init(elev=30, azim=60)
-
-PP = [0, 0, 150]
-radius = 100
-sudoSpeedAdj = 2
-
-
-
-posPlot, = ax.plot([PP[0]], [PP[1]], [PP[2]], marker='o')
-posPlot2,= ax.plot([PP[0]], [PP[1]], [PP[2]], marker='o', color="green", label="")
-
-def updatePos(n):
-    global PP, cntPos, cntPos_z
-    #print("update", end=' ')
-    camPos_update()
-    #cntPos = [50*math.cos(toRadians(n)),50*math.sin(toRadians(n)),cntPos[2]]
-    if not None in cntPos:
-        posPlot.set_data(
-            np.array([cntPos[0]]),
-            np.array([cntPos[1]])
-            )
-        posPlot.set_3d_properties(np.array([cntPos[2]]))
-    return posPlot,
-
-#while True:
-#    camPos_update()
-#    print(cntPos)
-
-ani = FuncAnimation(fig, updatePos, 360, interval=1, blit=True)
-
-
-plt.show()
+if __name__=="__main__":
+    a = AnimatedScatter()
+    plt.show()
