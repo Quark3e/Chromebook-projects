@@ -26,10 +26,8 @@ def checkfunc(x):
              2.68701764*10**-4, -8.89666871*10**-1, 1.61255736*10**3]
     
     return sum([c[n]*(x**(10-n)) for n in range(len(c))])
-
 def polyTest(xData):
     return [checkfunc(x) for x in xData]
-
 
 
 
@@ -205,8 +203,24 @@ def camPos_update():
     return True
 
 
+
+
+class AnimatedScatter(object):
+    def __init(self):
+        self.stream = self.data_stream()
+        self.fig = plt.figure()
+        self.ax = self.fig.add_subplot(projection="3d")
+        self.ani
+
+
+
+
 fig = plt.figure(dpi=100)
 ax = fig.add_subplot(projection='3d')
+
+
+
+
 
 ax.set(xlim3d=(-150, 150), xlabel='X')
 ax.set(ylim3d=(-150, 150), ylabel='Y')
