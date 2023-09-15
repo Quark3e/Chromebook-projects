@@ -203,8 +203,6 @@ def camPos_update():
     return True
 
 
-
-
 class AnimatedScatter(object):
     def __init__(self):
         self.stream = self.data_stream()
