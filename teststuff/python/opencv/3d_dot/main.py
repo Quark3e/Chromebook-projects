@@ -24,8 +24,8 @@ def checkfunc(x):
     c = [1.11616931*10**-39, -2.07682935*10**-34, 1.68556962*10**-29, -7.83319285*10**-25,
              2.30122730*10**-20, -4.45491855*10**-16, 5.75203827*10**-12, -4.90909892*10**-8,
              2.68701764*10**-4, -8.89666871*10**-1, 1.61255736*10**3]
-    
     return sum([c[n]*(x**(10-n)) for n in range(len(c))])
+
 def polyTest(xData):
     return [checkfunc(x) for x in xData]
 
@@ -181,7 +181,7 @@ def camPos_update():
                         cntPos_z = checkfunc(cntArea)
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1, (255,0,0),2)
-                        readAccelerometer()
+                        readAccelerometer(False)
                     elif flag==1:
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
                         if displayToOpenCV:
@@ -206,7 +206,7 @@ def camPos_update():
 class AnimatedScatter(object):
     def __init__(self):
         self.stream = self.data_stream()
-        self.fig = plt.figure()
+        self.fig = plt.figure(dpi=200)
         self.ax = self.fig.add_subplot(projection="3d")
         self.ani = FuncAnimation(self.fig, self.update,interval=1,init_func=self.setup_plot,blit=False)
     def setup_plot(self):
