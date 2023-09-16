@@ -170,7 +170,7 @@ float zAxisFunc(float area) {
 
 int prefSize[2] = {640, 480};
 
-int webcamIndex = 0;
+int webcamIndex = 2;
 
 
 bool displayImg = true;
