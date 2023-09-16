@@ -132,18 +132,39 @@ float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
 float orient[3] = {0,0,0}; //degrees
 float PP[3] = {0,150,150};
-float axisScal[3] = {0.5, 0.5, 0.4};
-float axisOffset[3] = {0, 50, 0};
-float axisFilter[3] = {1, 1, 0.5};
+float axisScal[3] = {1, 1, 1};
+float axisOffset[3] = {0, 0, 0};
+float axisFilter[3] = {1, 1, 1};
 
 float cam_PP_offset[3] = {0,0,0};
 
+/// @brief solve z-axis/cam-distance from area
+/// @param area cntArea
+/// @return z-axis
 float zAxisFunc(float area) {
 	float val, ans = 0;
 	// val = pow(area, float(2)/7);
 	// ans = 0.003306*pow(val, 2)-4.537*val+1580-1250;
-	val = pow(area, float(4)/6);
-	ans = 0.003306*pow(val, 2)-4.537*val+1580;
+	// val = pow(area, float(4)/6);
+	// ans = 0.003306*pow(val, 2)-4.537*val+1580;
+
+	float c[11] = {
+		 1.11616931 * pow(10, -39),
+		-2.07682935 * pow(10, -34),
+		 1.68556962 * pow(10, -29),
+		-7.83319285 * pow(10, -25),
+		 2.30122730 * pow(10, -20),
+		-4.45491855 * pow(10, -16),
+		 5.75203827 * pow(10, -12),
+		-4.90909892 * pow(10, -8),
+		 2.68701764 * pow(10, -4),
+		-8.89666871 * pow(10, -1),
+		 1.61255736 * pow(10, 3)
+			 }
+	for(int i=0; i<11; i++) {
+		val+=c[i]*pow(area, 10-i);
+	}
+	ans = val;
 	return ans;
 }
 
@@ -178,7 +199,7 @@ int validCnt_index = 0; //index of biggest validCnt_pos sent (so =1 means there 
 float totCnt_pos[2];
 float totCnt_area = 0;
 
-void get_totCnt_pos(float allCnt[20][2], int cntIndex, float totCntPos_ptr[2]) {
+void getAvg_cntPos(float allCnt[20][2], int cntIndex, float totCntPos_ptr[2]) {
 	float xTot=0, yTot = 0;
 	for(int i=0; i<cntIndex; i++) {
 		xTot += allCnt[i][0];
@@ -463,10 +484,10 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 		
 		//delay: 2-3ms
 		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
-		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1); 
+		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 4); 
 
-		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1); 
-		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
+		// cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1); 
+		// cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
 
 		//delay: 1-2ms
 		if(mode >= 1) {
@@ -491,15 +512,15 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 				}
 			}
 			if(validCnt_index > 0) {
-				get_totCnt_pos(validCnt_pos, validCnt_index, totCnt_pos);
+				getAvg_cntPos(validCnt_pos, validCnt_index, totCnt_pos);
 				if(mode != 3) {
 					cv::circle(imgFlipped,cv::Point(totCnt_pos[0],totCnt_pos[1]),50,cv::Scalar(0,0,0),2);
 					cv::putText(imgFlipped,to_string(int(totCnt_area)),cv::Point(totCnt_pos[0],totCnt_pos[1]),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false);
 				}
 				if(mode != 2) {
 					cv::Size camSize = imgFlipped.size();
-					PP[0] = axisFilter[0] * float(ceil(float(totCnt_pos[0] - camSize.width/2)*axisScal[0]) + axisOffset[0]) + (1-axisFilter[0])*PP[0];
-					PP[1] = axisFilter[1] * float(ceil(float(camSize.height - totCnt_pos[1])*axisScal[1]) + axisOffset[1]) + (1-axisFilter[1])*PP[1];
+					PP[0] = axisFilter[0] * float(round(float(totCnt_pos[0] - camSize.width/2)*axisScal[0]) + axisOffset[0]) + (1-axisFilter[0])*PP[0];
+					PP[1] = axisFilter[1] * float(round(float(camSize.height - totCnt_pos[1])*axisScal[1]) + axisOffset[1]) + (1-axisFilter[1])*PP[1];
 					PP[2] = axisFilter[2] * float(axisScal[2]*zAxisFunc(totCnt_area) + axisOffset[2]) + (1-axisFilter[2])*PP[2];
 					printf("num. cnt:%2d total dArea:%6d", validCnt_index, int(totCnt_area));
 					printf(" x:%3d y:%3d z:%3d",int(PP[0]),int(PP[1]), int(PP[2]));
