@@ -82,7 +82,7 @@ readAccelerometer()
 
 displayToOpenCV = True
 
-cam = [cv2.VideoCapture(2), cv2.VideoCapture(0)]
+cam = [cv2.VideoCapture(0), cv2.VideoCapture(2)]
 prefRes = (640, 480)
 
 #cam[0].set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode

@@ -136,8 +136,6 @@ float axisScal[3] = {1, 1, 1};
 float axisOffset[3] = {0, 0, 50};
 float axisFilter[3] = {1, 1, 1};
 
-float cam_PP_offset[3] = {0,0,0};
-
 /// @brief solve z-axis/cam-distance from area
 /// @param area cntArea
 /// @return z-axis
