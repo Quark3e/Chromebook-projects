@@ -133,7 +133,7 @@ float new_q[6] = {0,0,0,0,0,0};
 float orient[3] = {0,0,0}; //degrees
 float PP[3] = {0,150,150};
 float axisScal[3] = {1, 1, 1};
-float axisOffset[3] = {0, 0, 0};
+float axisOffset[3] = {0, 0, 50};
 float axisFilter[3] = {1, 1, 1};
 
 float cam_PP_offset[3] = {0,0,0};
@@ -298,8 +298,8 @@ void updateOrients(bool printResult) {
 
 		pitch = atan(y_accel / sqrt(pow(x_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
 		roll = atan(-1 * x_accel / sqrt(pow(y_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
-		pitch = 0-pitch;
-		roll = 0-roll;
+		pitch = -pitch;
+		roll = -roll;
 
 		if(useFilter) {
 			Pitch = (1-accelFilter) * Pitch + accelFilter * pitch;
