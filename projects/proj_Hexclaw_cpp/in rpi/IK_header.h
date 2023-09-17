@@ -403,7 +403,7 @@ bool findValidOrient(float PP[3], float currOrient[3], float retOrient[2], float
 
     if(currOrient[1]<=0) B_dir = -1;
     else B_dir = 1;
-    for(int x=alpha; alpha<=180; alpha+=orientAcc[0]) {
+    for(int alpha=0; alpha<=180; alpha+=orientAcc[0]) {
         for(int beta=0; beta<=180; beta+=orientAcc[1]) {
             
             if(

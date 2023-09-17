@@ -158,7 +158,7 @@ float zAxisFunc(float area) {
 		 2.68701764 * pow(10, -4),
 		-8.89666871 * pow(10, -1),
 		 1.61255736 * pow(10, 3)
-			 }
+			 };
 	for(int i=0; i<11; i++) {
 		val+=c[i]*pow(area, 10-i);
 	}
@@ -644,7 +644,7 @@ int main(int argc, char** argv) {
 			cout << "error: Cannot open web cam." << endl;
 			return -1;
 		}
-		cv::set(CAP_PROP_AUTO_EXPOSURE, 0);
+		cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0);
 		hsv_settingsRead("",5,"hsv_settings.dat",false);
 
 		if(calibrateHSV) { if(displayFunc(&cap, 0, &pca)==-1) { return 0; } }
