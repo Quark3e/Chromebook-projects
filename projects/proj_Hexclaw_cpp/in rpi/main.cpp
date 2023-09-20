@@ -132,15 +132,15 @@ float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
 float orient[3] = {0,0,0}; //degrees
 float PP[3] = {0,150,150};
-float axisScal[3] = {1, 1, 1};
-float axisOffset[3] = {0, 0, 50};
+float axisScal[3] = {0.6, 0.6, 0.9};
+float axisOffset[3] = {0, 0, -100};
 float axisFilter[3] = {1, 1, 1};
 
 /// @brief solve z-axis/cam-distance from area
 /// @param area cntArea
 /// @return z-axis
 float zAxisFunc(float area) {
-	float val, ans = 0;
+	float val=0, ans = 0;
 	// val = pow(area, float(2)/7);
 	// ans = 0.003306*pow(val, 2)-4.537*val+1580-1250;
 	// val = pow(area, float(4)/6);
@@ -163,6 +163,7 @@ float zAxisFunc(float area) {
 		val+=c[i]*pow(area, 10-i);
 	}
 	ans = val;
+    //cout << " func_z:" << area;
 	return ans;
 }
 
@@ -296,8 +297,8 @@ void updateOrients(bool printResult) {
 
 		pitch = atan(y_accel / sqrt(pow(x_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
 		roll = atan(-1 * x_accel / sqrt(pow(y_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
-		pitch = -pitch;
-		roll = -roll;
+		//pitch = -pitch;
+		//roll = -roll;
 
 		if(useFilter) {
 			Pitch = (1-accelFilter) * Pitch + accelFilter * pitch;
