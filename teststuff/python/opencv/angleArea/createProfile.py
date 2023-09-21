@@ -27,6 +27,7 @@ from matplotlib.animation import FuncAnimation
 import sys
 import socket
 import pandas
+import csv
 from sklearn import linear_model
 from datetime import datetime
 
@@ -934,7 +935,15 @@ def opt2():
             #ax2["predict"].set(xticklabels=[], yticklabels=[], zticklabels=[])
             #ax2["predict"].scatter(predData[0], predData[1], predData[2], c=predData[2], s=2)
             #fig2.colorbar(ax2["predict"].collections[0], ax=ax2["predict"])
-            dataFileName = f"dataSet_pf{chosen_pf}_{strComments[chosen_pf]}_fuse-{str(zFuse)}.dat".replace(" ","")
+            dataFileName = f"dataSet_pf{chosen_pf}_fuse-{str(zFuse)}.dat".replace(" ","")
+            
+            csv_fields = ["Roll","Pitch","Area"]
+            csv_rows = [[predData[0][n],predData[1][n],predData[2][n]] for n in range(len(predData[0]))]
+            with open(dirPath["data"]+"csv_"+dataFileName[:-4]+".csv", "w") as f:
+                write = csv.writer(f)
+                write.writerow(csv_fields)
+                write.writerows(csv_rows)
+
             dataFile = open(dirPath["data"]+dataFileName, "w")
             for sets in predData: dataFile.write(str(sets)+"\n")
             dataFile.close()

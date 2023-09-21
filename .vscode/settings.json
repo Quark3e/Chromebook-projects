@@ -13,7 +13,9 @@
         "ostream": "cpp",
         "string_view": "cpp",
         "regex": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "istream": "cpp",
+        "streambuf": "cpp"
     },
     "python.autoComplete.extraPaths": ["/usr/lib/python3/dist-packages"],
     "python.analysis.typeCheckingMode": "off",

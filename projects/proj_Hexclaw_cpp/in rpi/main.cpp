@@ -36,6 +36,7 @@
 #include <algorithm> //ex. find() and erase()
 #include <time.h>
 #include <stdint.h>
+#include <vector>
 
 // opencv/image tracking
 #include <opencv4/opencv2/opencv.hpp>
@@ -136,6 +137,28 @@ float axisScal[3] = {0.6, 0.6, 0.9};
 float axisOffset[3] = {0, 0, -100};
 float axisFilter[3] = {1, 1, 1};
 
+float angleArea_coef[181][181];
+
+void load_csvFile(string filePath = "csv_dataSet_pf17_fuse-True.csv") {
+	ifstream csvFile(filePath);
+	if(!csvFile.is_open()) {
+		printf("error: Cannot open csv file");
+		cout << filePath << "\"\n";
+	}
+	string line;
+	getline(csvFile, line);
+	while(getline(csvFile, line)) {
+		int x, y;
+		x = stof(line.substr(0, line.find(",")));
+		line.erase(0, line.find(",")+1);
+		y = stof(line.substr(0, line.find(",")));
+		line.erase(0, line.find(",")+1);
+		angleArea_coef[int(round(x+90))][int(round(y+90))] = stof(line.substr(0, line.find(",")));
+	}
+	csvFile.close()
+
+}
+
 /// @brief solve z-axis/cam-distance from area
 /// @param area cntArea
 /// @return z-axis
@@ -162,7 +185,7 @@ float zAxisFunc(float area) {
 	for(int i=0; i<11; i++) {
 		val+=c[i]*pow(area, 10-i);
 	}
-	ans = val;
+	ans = val*(1/angleArea_coef[int(round(orient[0]))][int(round(orient[1]))]);
     //cout << " func_z:" << area;
 	return ans;
 }
@@ -438,6 +461,11 @@ void hsv_settingsWrite(int indeks=0, bool overWrite=false, string filePath="hsv_
 	wFile.close();
 }
 
+/// @brief main function to read, display and control the robot
+/// @param cap cv::VideoCapture object pointer: for main camera
+/// @param mode -0: setup/calibrate hsv; -1: w. sendToServo; -2: without sendToServo; -3: w. sendToServo without cv disp.
+/// @param pcaSrc PiPCA9682 object pointer: for pca9685 board
+/// @return 0 [integer]
 int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 	/*
 	mode:
@@ -568,12 +596,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 			// printf(" %d ", keyInp);
 			if(keyInp==27) return -1; //'esc'
 			else if(keyInp==32) break; //'space'
-			else if(keyInp==115) { //'s'
-				if(mode==0) {
-					//save HSV values
-					hsv_settingsWrite(0);
-				}
-			}
+			else if(keyInp==115) { /*'s'*/ if(mode==0) { /*save HSV values*/ hsv_settingsWrite(0); } }
 			else if(keyInp==114) { //'r'
 				string inputVar = "";
 				int indVar = 0;
@@ -585,9 +608,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 				cin.ignore();
 				hsv_settingsRead(win_name, indVar);
 			}
-			else if(keyInp==116 && mode==0) { //'t'
-				hsv_settingsRead(win_name, 0);
-			}
+			else if(keyInp==116 && mode==0) { /*'t'*/ hsv_settingsRead(win_name, 0); }
 		}
 		printf("\n");
 	}
