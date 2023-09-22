@@ -27,10 +27,16 @@ from matplotlib.animation import FuncAnimation
 import sys
 import socket
 import pandas
+import csv
 from sklearn import linear_model
 from datetime import datetime
 
-profilesFile = "angleArea_profiles.dat"
+dirPath = {
+    "media": "media/",
+    "data": "data/"
+}
+
+profilesFile = "profiles.dat"
 orient = {
     "azim": -135,
     "elev": 30
@@ -486,10 +492,10 @@ def opt0():
     plt.colorbar(resultGraph)
     plt.title(str(z_pick))
 
-    fileName = "objDist_angleArea_media/raw_z:"+str(z_pick)+"_"
+    fileName = "raw_z:"+str(z_pick)+"_"
     for i in range(1000):
         if not os.path.isfile(fileName+str(i)+".png"):
-            plt.savefig(fileName+str(i)+".png", dpi=300)
+            plt.savefig(dirPath["media"]+fileName+str(i)+".png", dpi=300)
             break
     plt.show()
 
@@ -545,7 +551,7 @@ def opt1():
         resultGraph = plt.scatter(dataSets[z_pick][0], dataSets[z_pick][1], c=dataSets[z_pick][2], cmap="magma")
 
         plt.title(str(z_pick))
-        fileName = "objDist_angleArea_media/sum_z:"+str(z_pick)+"_"
+        fileName = "sum_z:"+str(z_pick)+"_"
 
     elif plotMethod==1:
         plt_init(mode=1)
@@ -556,14 +562,14 @@ def opt1():
 
         plt.title(f"complete plot: {numPoints} points")
 
-        fileName = f"objDist_angleArea_media/sum_fullPlot{[i for i in avgList]}_"
+        fileName = f"sum_fullPlot{[i for i in avgList]}_"
 
 
     plt.colorbar(resultGraph)
 
     for i in range(10000):
         if not os.path.isfile(fileName+str(i)+".png"):
-            plt.savefig(fileName+str(i)+".png", dpi=300)
+            plt.savefig(dirPath["media"]+fileName+str(i)+".png", dpi=300)
             break
     plt.show()
 
@@ -592,7 +598,7 @@ def opt2():
     z_pick = 0
     polyfitMeth = 1 #0-use point range; 1-[-90, 90]
 
-    fileName2 = f"objDist_angleArea_media/polyfit_RollPitch_grid_"
+    fileName2 = f"polyfit_RollPitch_grid_"
     
     while True:
         zFuse = False
@@ -746,7 +752,7 @@ def opt2():
                 ax["pitch"].legend()
 
 
-                fileName2 = f"objDist_angleArea_media/polyfit_RollPitch_grid_n{chosen_pf}_"
+                fileName2 = f"polyfit_RollPitch_grid_n{chosen_pf}_"
                 if zFuse: fileName2 += "z:FUSED_"
                 elif not zFuse: fileName2 += f"z:{z_pick}_"
                 fig2 = plt.figure(figsize=(19,9))
@@ -785,6 +791,7 @@ def opt2():
                         ax2[key].set_ylabel("pitch")
                         ax2[key].set_xlim([-90, 90])
                         ax2[key].set_ylim([-90, 90])
+                    ax2[key].title.set_text(key)
                     ax2[key].grid(True)
                 
 
@@ -928,7 +935,18 @@ def opt2():
             #ax2["predict"].set(xticklabels=[], yticklabels=[], zticklabels=[])
             #ax2["predict"].scatter(predData[0], predData[1], predData[2], c=predData[2], s=2)
             #fig2.colorbar(ax2["predict"].collections[0], ax=ax2["predict"])
-                      
+            dataFileName = f"dataSet_pf{chosen_pf}_fuse-{str(zFuse)}.dat".replace(" ","")
+            
+            csv_fields = ["Roll","Pitch","Area"]
+            csv_rows = [[predData[0][n],predData[1][n],predData[2][n]] for n in range(len(predData[0]))]
+            with open(dirPath["data"]+"csv_"+dataFileName[:-4]+".csv", "w") as f:
+                write = csv.writer(f)
+                write.writerow(csv_fields)
+                write.writerows(csv_rows)
+
+            dataFile = open(dirPath["data"]+dataFileName, "w")
+            for sets in predData: dataFile.write(str(sets)+"\n")
+            dataFile.close()
             ax2["predict2d"].scatter(predData[0], predData[1], c=predData[2], s=2, cmap="magma")
             fig2.colorbar(ax2["predict2d"].collections[0], ax=ax2["predict2d"])
             
@@ -941,10 +959,10 @@ def opt2():
             ax["raw"].title.set_text(f"3D plot: idx:{strComments[chosen_pf]}")
             if zFuse:
                 ax["slice"].title.set_text(f"idx:{chosen_pf} z:FUSED")
-                fileName = f"objDist_angleArea_media/{typeComments[chosen_pf]}_n{chosen_pf}_z:FUSED_"
+                fileName = f"{typeComments[chosen_pf]}_n{chosen_pf}_z:FUSED_"
             elif not zFuse:
                 ax["slice"].title.set_text(f"idx:{chosen_pf} z:{z_pick}")
-                fileName = f"objDist_angleArea_media/{typeComments[chosen_pf]}_n{chosen_pf}_z:{z_pick}_"
+                fileName = f"{typeComments[chosen_pf]}_n{chosen_pf}_z:{z_pick}_"
 
         elif plotMethod==1:
             plt_init(printText=False, mode=1)
@@ -954,17 +972,17 @@ def opt2():
                 numPoints+=len(val[0])
 
             plt.title(f"idx:{chosen_pf} complete plot: {numPoints} points")
-            fileName = f"objDist_angleArea_media/{typeComments[chosen_pf]}_n{chosen_pf}_"+str(orient["azim"])+":"+str(orient["elev"])+"_"
+            fileName = f"{typeComments[chosen_pf]}_n{chosen_pf}_"+str(orient["azim"])+":"+str(orient["elev"])+"_"
             plt.colorbar(resultGraph)
             saveFigCheck = [True, False]
             
         if toSaveFig:
             for i in range(10000):
-                if not os.path.isfile(fileName+str(i)+".png") and saveFigCheck[0]:
-                    fig.savefig(fileName+str(i)+".png", dpi=fig.dpi+100)
+                if not os.path.isfile(dirPath["media"]+fileName+str(i)+".png") and saveFigCheck[0]:
+                    fig.savefig(dirPath["media"]+fileName+str(i)+".png", dpi=fig.dpi+100)
                     saveFigCheck[0] = False
-                if not os.path.isfile(fileName2+str(i)+".png") and saveFigCheck[1]:
-                    fig2.savefig(fileName2+str(i)+".png", dpi=fig2.dpi+100)
+                if not os.path.isfile(dirPath["media"]+fileName2+str(i)+".png") and saveFigCheck[1]:
+                    fig2.savefig(dirPath["media"]+fileName2+str(i)+".png", dpi=fig2.dpi+100)
                     saveFigCheck[1] = False
                 if not True in saveFigCheck: break
 
