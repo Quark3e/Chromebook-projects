@@ -17,7 +17,7 @@ class AnimatedScatter(object):
         self.degrees = 0
         self.graphRanges = {"x": (-200, 200), "y":(-200, 200), "z":(0, 400)}
         self.stream = self.data_stream()
-        self.fig = plt.figure(figsize=(19,9))
+        self.fig = plt.figure(figsize=(15,7))
         self.ax = {
             "3d": 0, #3d view
             "xz": 0, #front view
@@ -27,7 +27,7 @@ class AnimatedScatter(object):
         count = 0
         for key in self.ax:
             count+=1
-            if self.ax=="3d": self.ax[key] = self.fig.add_subplot(2,2,count,projection="3d")
+            if key=="3d": self.ax[key] = self.fig.add_subplot(2,2,count,projection="3d")
             else: self.ax[key] = self.fig.add_subplot(2,2,count)
             self.ax[key].grid()
             self.ax[key].axis("equal")
@@ -39,14 +39,14 @@ class AnimatedScatter(object):
         self.ps_Stuff = {}
         for key in self.ax: self.ps_Stuff.update({key: 3*[0]})
 
-        self.ps_Stuff["3d"][0] = self.ax["3d"].scatter([p0["x"]],[p0["y"]],[p0["z"]], s=50, cmap="jet", edgecolor="k", label="dot 0")
-        self.ps_Stuff["3d"][1] = self.ax["3d"].scatter([p1["x"]],[p1["y"]],[p1["z"]], s=50, cmap="magma", edgecolor="k", label="dot 1")
+        self.ps_Stuff["3d"][0] = self.ax["3d"].scatter([p0["x"]],[p0["y"]],[p0["z"]], edgecolor="k", label="dot 0")
+        self.ps_Stuff["3d"][1] = self.ax["3d"].scatter([p1["x"]],[p1["y"]],[p1["z"]], edgecolor="k", label="dot 1")
         self.ps_Stuff["3d"][2], = self.ax["3d"].plot([p0["x"], p1["x"]],[p0["y"], p1["y"]],[p0["z"], p1["z"]], linestyle="dotted")
 
         for key in self.ax:
             if key=="3d": continue
-            self.ps_Stuff[key][0] = self.ax[key].scatter([p0[key[:1]]],[p0[key[1:2]]], s=50, cmap="jet", edgecolor="k", label="dot 0")
-            self.ps_Stuff[key][1] = self.ax[key].scatter([p1[key[:1]]],[p1[key[1:2]]], s=50, cmap="jet", edgecolor="k", label="dot 1")
+            self.ps_Stuff[key][0] = self.ax[key].scatter([p0[key[:1]]],[p0[key[1:2]]], edgecolor="k", label="dot 0")
+            self.ps_Stuff[key][1] = self.ax[key].scatter([p1[key[:1]]],[p1[key[1:2]]], edgecolor="k", label="dot 1")
             self.ps_Stuff[key][2], = self.ax[key].plot([p0[key[:1]],p1[key[:1]]],[p0[key[1:2]],p1[key[1:2]]], linestyle="dotted")
 
         self.ax["3d"].set(xlim3d=self.graphRanges["x"], xlabel="X")
@@ -66,17 +66,6 @@ class AnimatedScatter(object):
     def data_stream(self):
         #global radius, degrees
         print("data_stream accessed")
-        p0 = {
-            "x": self.radius*math.sin(toRadians(self.degrees)),
-            "y": self.radius*math.cos(toRadians(self.degrees)),
-            "z": 200
-        }
-        p1 = {
-            "x": 0,
-            "y": self.radius*math.sin(toRadians(self.degrees)),
-            "z": self.radius*math.cos(toRadians(self.degrees))+200
-        }
-        s, c = np.random.random((1, 2)).T
         while True:
             p0 = {
                 "x": self.radius*math.sin(toRadians(self.degrees)),
@@ -90,20 +79,17 @@ class AnimatedScatter(object):
             }
             self.degrees+=10
             if self.degrees>360: self.degrees=1
-            #print(f"deg:{degrees} :{math.sin(toRadians(degrees))} x:{x} y{y}")
             yield p0, p1
     def update(self, i):
         p0, p1 = next(self.stream)
         self.ps_Stuff["3d"][0]._offsets3d=([p0["x"]], [p0["y"]], [p0["z"]])
         self.ps_Stuff["3d"][1]._offsets3d=([p1["x"]], [p1["y"]], [p1["z"]])
         self.ps_Stuff["3d"][2].set_data_3d([p0["x"], p1["x"]],[p0["y"], p1["y"]], [p0["z"], p1["z"]])
-
         for key in self.ax:
             if key=="3d": continue
             self.ps_Stuff[key][0].set_offsets([p0[key[:1]], p0[key[1:2]]])
             self.ps_Stuff[key][1].set_offsets([p1[key[:1]], p1[key[1:2]]])
-        # print([p0["x"], p1["x"]],[p0["y"], p1["y"]], [p0["z"], p1["z"]])
-        # self.ps_Stuff["3d"][2].set_data([p0["x"], p1["x"]],[p0["y"], p1["y"]])
+            self.ps_Stuff[key][2].set_data([[p0[key[:1]],p1[key[:1]]],[p0[key[1:2]],p1[key[1:2]]]])
         return self.ps_Stuff["3d"][0], self.ps_Stuff["3d"][1], self.ps_Stuff["3d"][2] \
         , self.ps_Stuff["xz"][0], self.ps_Stuff["xz"][1], self.ps_Stuff["xz"][2] \
         , self.ps_Stuff["yz"][0], self.ps_Stuff["yz"][1], self.ps_Stuff["yz"][2] \
