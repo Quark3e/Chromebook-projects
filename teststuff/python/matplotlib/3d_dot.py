@@ -15,6 +15,7 @@ class AnimatedScatter(object):
     def __init__(self):
         self.radius = 75
         self.degrees = 0
+        self.graphRanges = {"x": (-200, 200), "y":(-200, 200), "z":(0, 400)}
         self.stream = self.data_stream()
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(projection="3d")
