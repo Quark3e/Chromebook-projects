@@ -139,7 +139,8 @@ float axisFilter[3] = {1, 1, 1};
 
 float angleArea_coef[181][181];
 
-void load_csvFile(string filePath = "csv_dataSet_pf17_fuse-True.csv") {
+
+void load_csvFile(string filePath = "data/csv_dataSet_pf17_fuse-True.csv") {
 	ifstream csvFile(filePath);
 	if(!csvFile.is_open()) {
 		printf("error: Cannot open csv file");
@@ -159,10 +160,18 @@ void load_csvFile(string filePath = "csv_dataSet_pf17_fuse-True.csv") {
 
 }
 
+
+int prefSize[2] = {640, 480};
+
+float camFOV[2] = {round(35*(640/480)), 35};
+float angPerPix = camFOV[1]/prefSize[1];
+
+
 /// @brief solve z-axis/cam-distance from area
-/// @param area cntArea
-/// @return z-axis
-float zAxisFunc(float area) {
+/// @param area [float]: cntArea
+/// @param objPos [float array [2]]: xy coordinate of the object [NOTE: assuming center of screen=[0, 0]]
+/// @return [float]: assumed z-axis value
+float zAxisFunc(float area, float objPos[2]) {
 	float val=0, ans = 0;
 	// val = pow(area, float(2)/7);
 	// ans = 0.003306*pow(val, 2)-4.537*val+1580-1250;
@@ -182,15 +191,21 @@ float zAxisFunc(float area) {
 		-8.89666871 * pow(10, -1),
 		 1.61255736 * pow(10, 3)
 			 };
-	for(int i=0; i<11; i++) {
-		val+=c[i]*pow(area, 10-i);
-	}
-	ans = val*(1/angleArea_coef[int(round(orient[0]))][int(round(orient[1]))]);
-    //cout << " func_z:" << area;
+	for(int i=0; i<11; i++) { val+=c[i]*pow(area, 10-i); }
+	/*
+	[-x:x] = [alpha:-alpha]
+	[-y:y] = [-beta:beta]
+	*/
+	ans = val * (1 / angleArea_coef[
+			int(round(orient[0]+(0-objPos[0]*angPerPix)))
+		][
+			int(round(orient[1]+objPos[1]*angPerPix))
+		]);
+    
+	
 	return ans;
 }
 
-int prefSize[2] = {640, 480};
 
 int webcamIndex = 2;
 
@@ -221,6 +236,10 @@ int validCnt_index = 0; //index of biggest validCnt_pos sent (so =1 means there 
 float totCnt_pos[2];
 float totCnt_area = 0;
 
+/// @brief Get avg xy coordinates from list of coordinates
+/// @param allCnt array of coordinates
+/// @param cntIndex number of elements in array
+/// @param totCntPos_ptr "pointer" array to hold "returned" result/xy_coordinate
 void getAvg_cntPos(float allCnt[20][2], int cntIndex, float totCntPos_ptr[2]) {
 	float xTot=0, yTot = 0;
 	for(int i=0; i<cntIndex; i++) {
@@ -462,10 +481,10 @@ void hsv_settingsWrite(int indeks=0, bool overWrite=false, string filePath="hsv_
 }
 
 /// @brief main function to read, display and control the robot
-/// @param cap cv::VideoCapture object pointer: for main camera
-/// @param mode -0: setup/calibrate hsv; -1: w. sendToServo; -2: without sendToServo; -3: w. sendToServo without cv disp.
-/// @param pcaSrc PiPCA9682 object pointer: for pca9685 board
-/// @return 0 [integer]
+/// @param cap [cv::VideoCapture object pointer]: for main camera
+/// @param mode [integer]: -0: setup/calibrate hsv; -1: w. sendToServo; -2: without sendToServo; -3: w. sendToServo without cv disp.
+/// @param pcaSrc [PiPCA9682 object pointer]: for pca9685 board
+/// @return [integer]: 0 - normal function finish; -1 - exit program entirely
 int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 	/*
 	mode:
@@ -632,6 +651,7 @@ int main(int argc, char** argv) {
 
 	//nodemcu udp communication setup/initialization
 	nodemcu_udp_setup();
+	load_csvFile();
 
 	if(gpioInitialise()<0) {
 		cout << "pigpio \"gpioInitialise()\" failed\n";
