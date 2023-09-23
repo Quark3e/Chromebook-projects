@@ -32,16 +32,19 @@ class AnimatedScatter(object):
             self.ax[key].grid()
             self.ax[key].axis("equal")
             self.ax[key].title.set_text(key)
-        self.ani = animation.FuncAnimation(self.fig, self.update, interval=1, init_func=self.setup_plot, blit=False)
+        self.ani = animation.FuncAnimation(self.fig, self.update, interval=1, init_func=self.setup_plot, blit=True)
     def setup_plot(self):
         p0, p1 = next(self.stream)
         tempC = np.random.random((1, 2)).T
         self.ps_Stuff = {}
         for key in self.ax: self.ps_Stuff.update({key: 3*[0]})
 
-        self.ps_Stuff["3d"][0] = self.ax["3d"].scatter([p0["x"]],[p0["y"]],[p0["z"]], edgecolor="k", label="dot 0")
-        self.ps_Stuff["3d"][1] = self.ax["3d"].scatter([p1["x"]],[p1["y"]],[p1["z"]], edgecolor="k", label="dot 1")
-        self.ps_Stuff["3d"][2], = self.ax["3d"].plot([p0["x"], p1["x"]],[p0["y"], p1["y"]],[p0["z"], p1["z"]], linestyle="dotted")
+        # self.ps_Stuff["3d"][0] = self.ax["3d"].scatter([p0["x"]],[p0["y"]],[p0["z"]], edgecolor="k", label="dot 0")
+        # self.ps_Stuff["3d"][1] = self.ax["3d"].scatter([p1["x"]],[p1["y"]],[p1["z"]], edgecolor="k", label="dot 1")
+        # print("------", p0)
+        self.ps_Stuff["3d"][0], = self.ax["3d"].plot([p0["x"], p0["x"]], [p0["y"], p0["y"]], [p0["z"], p0["z"]], linewidth=7)
+        self.ps_Stuff["3d"][1], = self.ax["3d"].plot([p1["x"], p1["x"]], [p1["y"], p1["y"]], [p1["z"], p1["z"]], linewidth=7)
+        self.ps_Stuff["3d"][2], = self.ax["3d"].plot([p0["x"], p1["x"]], [p0["y"], p1["y"]], [p0["z"], p1["z"]], linestyle="dotted")
 
         for key in self.ax:
             if key=="3d": continue
@@ -82,9 +85,11 @@ class AnimatedScatter(object):
             yield p0, p1
     def update(self, i):
         p0, p1 = next(self.stream)
-        self.ps_Stuff["3d"][0]._offsets3d=([p0["x"]], [p0["y"]], [p0["z"]])
-        self.ps_Stuff["3d"][1]._offsets3d=([p1["x"]], [p1["y"]], [p1["z"]])
-        self.ps_Stuff["3d"][2].set_data_3d([p0["x"], p1["x"]],[p0["y"], p1["y"]], [p0["z"], p1["z"]])
+        # self.ps_Stuff["3d"][0]._offsets3d=([p0["x"]], [p0["y"]], [p0["z"]])
+        # self.ps_Stuff["3d"][1]._offsets3d=([p1["x"]], [p1["y"]], [p1["z"]])
+        self.ps_Stuff["3d"][0].set_data_3d([p0["x"], p0["x"]+1], [p0["y"], p0["y"]+1], [p0["z"], p0["z"]+1])
+        self.ps_Stuff["3d"][1].set_data_3d([p1["x"], p1["x"]+1], [p1["y"], p1["y"]+1], [p1["z"], p1["z"]+1])
+        self.ps_Stuff["3d"][2].set_data_3d([p0["x"], p1["x"]], [p0["y"], p1["y"]], [p0["z"], p1["z"]])
         for key in self.ax:
             if key=="3d": continue
             self.ps_Stuff[key][0].set_offsets([p0[key[:1]], p0[key[1:2]]])
