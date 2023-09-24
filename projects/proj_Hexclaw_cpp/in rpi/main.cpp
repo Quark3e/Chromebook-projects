@@ -141,6 +141,7 @@ float angleArea_coef[181][181];
 
 
 void load_csvFile(string filePath = "data/csv_dataSet_pf17_fuse-True.csv") {
+    printf("Loading csv file:\n");
 	ifstream csvFile(filePath);
 	if(!csvFile.is_open()) {
 		printf("error: Cannot open csv file");
@@ -154,31 +155,37 @@ void load_csvFile(string filePath = "data/csv_dataSet_pf17_fuse-True.csv") {
 		line.erase(0, line.find(",")+1);
 		y = stof(line.substr(0, line.find(",")));
 		line.erase(0, line.find(",")+1);
-		angleArea_coef[int(round(x+90))][int(round(y+90))] = stof(line.substr(0, line.find(",")));
+        x = int(round(x+90));
+        y = int(round(y+90));
+        float saveVal = stof(line.substr(0, line.find(",")));
+		angleArea_coef[x][y] = saveVal;
+        printf("- [%d][%d]: %f\n", x, y, saveVal);
 	}
-	csvFile.close()
+	csvFile.close();
 
 }
 
 
 int prefSize[2] = {640, 480};
 
-float camFOV[2] = {round(35*(640/480)), 35};
+float camFOV[2] = {round(43*(640/480)), 43};
 float angPerPix = camFOV[1]/prefSize[1];
 
 
 /// @brief solve z-axis/cam-distance from area
 /// @param area [float]: cntArea
-/// @param objPos [float array [2]]: xy coordinate of the object [NOTE: assuming center of screen=[0, 0]]
+/// @param posX [float]: x coordinate of the object [NOTE: assuming center of screen=[0, 0]]
+/// @param posY [float]: y coordinate
 /// @return [float]: assumed z-axis value
-float zAxisFunc(float area, float objPos[2]) {
+float zAxisFunc(float area, float posX, float posY) {
 	float val=0, ans = 0;
 	// val = pow(area, float(2)/7);
 	// ans = 0.003306*pow(val, 2)-4.537*val+1580-1250;
 	// val = pow(area, float(4)/6);
 	// ans = 0.003306*pow(val, 2)-4.537*val+1580;
-
-	float c[11] = {
+    // area = round(area/10)*10;
+	
+    float c[11] = {
 		 1.11616931 * pow(10, -39),
 		-2.07682935 * pow(10, -34),
 		 1.68556962 * pow(10, -29),
@@ -196,13 +203,13 @@ float zAxisFunc(float area, float objPos[2]) {
 	[-x:x] = [alpha:-alpha]
 	[-y:y] = [-beta:beta]
 	*/
-	ans = val * (1 / angleArea_coef[
-			int(round(orient[0]+(0-objPos[0]*angPerPix)))
+	ans = val
+        * (1 / angleArea_coef[
+			int(round(/*orient[0]*/-(0-posX*angPerPix)))+90
 		][
-			int(round(orient[1]+objPos[1]*angPerPix))
+			int(round(/*orient[1]+*/posY*angPerPix))+90
 		]);
-    
-	
+
 	return ans;
 }
 
@@ -565,9 +572,10 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 				}
 				if(mode != 2) {
 					cv::Size camSize = imgFlipped.size();
+                    float camPos[2] = {totCnt_pos[0]-camSize.width/2, camSize.height-totCnt_pos[1]};
 					PP[0] = axisFilter[0] * float(round(float(totCnt_pos[0] - camSize.width/2)*axisScal[0]) + axisOffset[0]) + (1-axisFilter[0])*PP[0];
 					PP[1] = axisFilter[1] * float(round(float(camSize.height - totCnt_pos[1])*axisScal[1]) + axisOffset[1]) + (1-axisFilter[1])*PP[1];
-					PP[2] = axisFilter[2] * float(axisScal[2]*zAxisFunc(totCnt_area) + axisOffset[2]) + (1-axisFilter[2])*PP[2];
+					PP[2] = axisFilter[2] * float(axisScal[2]*zAxisFunc(totCnt_area, camPos[0], camPos[1]) + axisOffset[2]) + (1-axisFilter[2])*PP[2];
 					printf("num. cnt:%2d total dArea:%6d", validCnt_index, int(totCnt_area));
 					printf(" x:%3d y:%3d z:%3d",int(PP[0]),int(PP[1]), int(PP[2]));
 					updateOrients(true);

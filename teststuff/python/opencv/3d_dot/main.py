@@ -13,6 +13,7 @@ import sys
 import socket
 from datetime import datetime
 
+displayToOpenCV = True
 
 def toRadians(degrees):
     return (degrees*np.pi)/180
@@ -24,6 +25,7 @@ def checkfunc(x):
     c = [1.11616931*10**-39, -2.07682935*10**-34, 1.68556962*10**-29, -7.83319285*10**-25,
              2.30122730*10**-20, -4.45491855*10**-16, 5.75203827*10**-12, -4.90909892*10**-8,
              2.68701764*10**-4, -8.89666871*10**-1, 1.61255736*10**3]
+
     return sum([c[n]*(x**(10-n)) for n in range(len(c))])
 
 def polyTest(xData):
@@ -69,20 +71,21 @@ def readAccelerometer(printText=True):
     if X_out < -1: X_out = -1
     if Y_out < -1: Y_out = -1
     if Z_out < -1: Z_out = -1
+    if X_out==0: X_out=0.1
+    if Y_out==0: Y_out=0.1
+    if Z_out==0: Z_out=0.1
     #x is roll and y is pitch (it's switched so the servo can be fit to the servo robot arm)
-    pitch = math.atan(Y_out / math.sqrt(pow(X_out, 2) + pow(Z_out, 2))) * 180 / math.pi
-    roll = math.atan(-1 * X_out / math.sqrt(pow(Y_out, 2) + pow(Z_out, 2))) * 180 / math.pi
+    pitch = math.atan(Y_out / math.sqrt(pow(X_out, 2) + pow(Z_out, 2))) * 180 / np.pi
+    roll = math.atan(-1 * X_out / math.sqrt(pow(Y_out, 2) + pow(Z_out, 2))) * 180 / np.pi
     #filter
     Roll = (1-tiltFilter) * Roll + tiltFilter * roll
     Pitch = (1-tiltFilter) * Pitch + tiltFilter * pitch
-    if printText: print(f" accel: x:{X_out} y:{Y_out} z:{Z_out} roll:{roll} pitch:{pitch}", end='\r')
+    if printText: print(f" accel: x:{X_out} y:{Y_out} z:{Z_out} roll:{round(roll,2)} pitch:{round(pitch,2)}", end='\r')
 
 reqToServer()
 readAccelerometer()
 
-displayToOpenCV = True
-
-cam = [cv2.VideoCapture(0), cv2.VideoCapture(2)]
+cam = [cv2.VideoCapture(2), cv2.VideoCapture(0)]
 prefRes = (640, 480)
 
 #cam[0].set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
@@ -99,8 +102,8 @@ if displayToOpenCV:
     cv2.namedWindow(dispWin[1]) #z
     ad.hsv_trackbars(dispWin[0], hsvCam0)
     ad.hsv_trackbars(dispWin[1], hsvCam1)
-    cv2.moveWindow(dispWin[0], 10, 400)
-    cv2.moveWindow(dispWin[1], 10+640, 400)
+    cv2.moveWindow(dispWin[0], 0, 500)
+    cv2.moveWindow(dispWin[1], 640, 500)
 
 kernel = np.ones((5, 5), np.uint8)
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -207,9 +210,9 @@ class AnimatedScatter(object):
     def __init__(self):
         self.radius = 75
         self.degrees = 0
-        self.graphRanges = {"x": (-200, 200), "y":(-200, 200), "z":(0, 400)}
+        self.graphRanges = {"x": (-200, 200), "y":(-200, 200), "z":(0, 500)}
         self.stream = self.data_stream()
-        self.fig = plt.figure(figsize=(15,7))
+        self.fig = plt.figure(dpi=150)
         self.ax = {
             "3d": 0, #3d view
             "xz": 0, #front view
@@ -224,7 +227,7 @@ class AnimatedScatter(object):
             self.ax[key].grid()
             self.ax[key].axis("equal")
             self.ax[key].title.set_text(key)
-        self.ani = animation.FuncAnimation(self.fig, self.update, interval=1, init_func=self.setup_plot, blit=True)
+        self.ani = FuncAnimation(self.fig, self.update, interval=1, init_func=self.setup_plot, blit=True)
     def setup_plot(self):
         p0, p1 = next(self.stream)
         tempC = np.random.random((1, 2)).T
@@ -267,7 +270,7 @@ class AnimatedScatter(object):
                 p0 = {"x":cntPos[0], "y":cntPos[1], "z":cntPos[2]}
                 zVals = cntPos[:2]+[cntPos_z]
                 p1 = {"x": zVals[0], "y":zVals[1], "z":zVals[2]}
-                yield p0, p1
+            yield p0, p1
     def update(self, i):
         p0, p1 = next(self.stream)
         # self.ps_Stuff["3d"][0]._offsets3d=([p0["x"]], [p0["y"]], [p0["z"]])
