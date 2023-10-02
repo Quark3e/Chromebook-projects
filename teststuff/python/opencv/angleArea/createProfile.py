@@ -55,7 +55,7 @@ polyfitRange = [2]
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client_socket.settimeout(0.5)
 client_msg = b"fromClient"
-addr = ("192.168.1.117", 53)
+addr = ("192.168.1.118", 53)
 server_msg = ""
 
 def reqToServer():
@@ -91,6 +91,9 @@ def readAccelerometer(printText=True):
     if X_out < -1: X_out = -1
     if Y_out < -1: Y_out = -1
     if Z_out < -1: Z_out = -1
+    if X_out==0: X_out=0.01
+    if Y_out==0: Y_out=0.01
+    if Z_out==0: Z_out=0.01
     #x is roll and y is pitch (it's switched so the servo can be fit to the servo robot arm)
     pitch = math.atan(Y_out / math.sqrt(pow(X_out, 2) + pow(Z_out, 2))) * 180 / math.pi
     roll = math.atan(-1 * X_out / math.sqrt(pow(Y_out, 2) + pow(Z_out, 2))) * 180 / math.pi
@@ -110,11 +113,11 @@ displayToOpenCV = True
 
 def opt0_setup():
     global cam0, cam1, dispWin, hsvCam0, hsvCam1
-    cam0 = cv2.VideoCapture(0)
-    cam1 = cv2.VideoCapture(2)
+    cam0 = cv2.VideoCapture(2)
+    cam1 = cv2.VideoCapture(0)
 
-    cam0.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
-    cam1.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
+    #cam0.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
+    #cam1.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
 
     #lower, upper values
     hsvCam0 = [[0, 0, 255], [179, 9, 255]] #area
@@ -127,8 +130,8 @@ def opt0_setup():
         cv2.namedWindow(dispWin[1]) #z
         ad.hsv_trackbars(dispWin[0], hsvCam0)
         ad.hsv_trackbars(dispWin[1], hsvCam1)
-        cv2.moveWindow(dispWin[0], 10, 400)
-        cv2.moveWindow(dispWin[1], 10+640, 400)
+        cv2.moveWindow(dispWin[0], 200, 420)
+        cv2.moveWindow(dispWin[1], 200+640, 420)
 
 values = {}
 dataSets = {}
@@ -297,7 +300,7 @@ def plt_init(printText=True, mode=0):
     # plt.grid()
 
 def plt_update(n):
-    # print("check update")
+    print(" Running:  \"update\"")
     global imgTemp, ret, contours, cntArea, cntPos, cntMoments, values, cntPos
     ret[0], imgTemp[0] = cam0.read()
     ret[1], imgTemp[1] = cam1.read()
