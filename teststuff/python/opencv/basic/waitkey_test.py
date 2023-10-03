@@ -2,7 +2,7 @@
 # Import packages
 import cv2 #type: ignore
 
-img = cv2.imread('/home/berkhme/Chromebook-projects/teststuff/test_media/color-bars.webp') # load a dummy image
+img = cv2.imread('/home/berkhme/github_repo/Chromebook-projects/teststuff/test_media/color-bars.webp') # load a dummy image
 img = cv2.resize(img, (320, 180))
 
 cv2.namedWindow("temp")
