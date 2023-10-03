@@ -14,7 +14,7 @@
 #   [contourArea, ...]
 #   [[x,y,z], ...]
 
-import cv2 #type: ignore
+import cv2
 import numpy as np
 import os
 import os.path
@@ -131,7 +131,7 @@ def opt0_setup():
         ad.hsv_trackbars(dispWin[0], hsvCam0)
         ad.hsv_trackbars(dispWin[1], hsvCam1)
         cv2.moveWindow(dispWin[0], 200, 420)
-        cv2.moveWindow(dispWin[1], 200+640, 420)
+        cv2.moveWindow(dispWin[1], 200+512, 420)
 
 values = {}
 dataSets = {}
@@ -152,6 +152,8 @@ tempPos = [0, 0]
 cntPos = [0, 0, 0]
 cntMoments = 0
 frame = [0, 0]
+
+isRecVals = False
 
 def processFrame(img, flag, winName):
     global contours, cntPos, cntArea, morphImg, frame
@@ -299,9 +301,10 @@ def plt_init(printText=True, mode=0):
     if printText: print("check init end")
     # plt.grid()
 
+
 def plt_update(n):
-    print(" Running:  \"update\"")
-    global imgTemp, ret, contours, cntArea, cntPos, cntMoments, values, cntPos
+    # print(" Running:  \"update\"")
+    global imgTemp, ret, contours, cntArea, cntPos, cntMoments, values, cntPos, isRecVals
     ret[0], imgTemp[0] = cam0.read()
     ret[1], imgTemp[1] = cam1.read()
     # print("check 2")
@@ -346,7 +349,7 @@ def plt_update(n):
                 else: print("cntMoments['m00'] = 0")
             if flag==1 and len(contours[flag])<=0:
                 tempPos = [None, None]
-        if cntArea != None:
+        if cntArea != None and isRecVals:
             angleStr = f"{round(roll)}:{round(pitch)}"
             print(f"read: angles:{str(round(roll)):<3}:{str(round(pitch)):<3} area:{str(cntArea):<10} z:{str(cntPos[2]):<5}")
             if tempPos[1]==None:
@@ -374,8 +377,13 @@ def plt_update(n):
             print("\r", end='')
         # ln.set_data(xData, yData)
     if displayToOpenCV:
+        if not isRecVals:
+            cv2.putText(morphImg[0], "NOT SAVING DATA", (20,40), font, 1, (0, 0, 255), 2)
+        elif isRecVals:
+            cv2.putText(morphImg[0], "Rec.", (20,40), font, 1, (0, 255, 0), 2)
         cv2.imshow(dispWin[0], cv2.resize(np.hstack((morphImg[0], frame[0])), None, fx=0.4, fy=0.4))
         cv2.imshow(dispWin[1], cv2.resize(np.hstack((morphImg[1], frame[1])), None, fx=0.4, fy=0.4))
+        # print(cv2.getWindowImageRect(dispWin[0]))
         key = cv2.waitKey(5)
         if key==27:
             sys.exit()
@@ -392,6 +400,8 @@ def plt_update(n):
             cv2.imwrite("cam0_img", np.hstack((morphImg[0], frame[0])))
             cv2.imwrite("cam1_img", np.hstack((morphImg[1], frame[1])))
             time.sleep(1)
+        elif key==114:
+            isRecVals = True
     # print("check 3")
     return True
 
@@ -470,7 +480,9 @@ def readFile_loadValues(pf_index=1, mode=0):
 
 def opt0():
     #track and save new data sets from profile 1
-    global cntPos
+    global cntPos, isRecVals
+    if displayToOpenCV: isRecVals = False
+    elif not displayToOpenCV: isRecVals = True
     cntPos = [None, None, None]
     opt0_setup()
     plt_init(mode=0)
