@@ -478,6 +478,16 @@ def readFile_loadValues(pf_index=1, mode=0):
                             strComments[len(strComments)-1] = (line[1:-1])
     return strComments, typeComments, dateComments
 
+def validSaveFig(figToSave, fileName, filePath, imgDpi=300, saveCopies=True, fileExt=".png"):
+    if saveCopies:
+        for i in range(10000):
+            if not os.path.isfile(filePath+fileName+str(i)+fileExt):
+                figToSave.savefig(filePath+fileName+str(i)+fileExt, dpi=imgDpi)
+                break
+    elif not saveCopies:
+        figToSave.savefig(filePath+fileName+fileExt, dpi=imgDpi)
+
+
 def opt0():
     #track and save new data sets from profile 1
     global cntPos, isRecVals
@@ -508,10 +518,11 @@ def opt0():
     plt.title(str(z_pick))
 
     fileName = "raw_z:"+str(z_pick)+"_"
-    for i in range(1000):
-        if not os.path.isfile(fileName+str(i)+".png"):
-            plt.savefig(dirPath["media"]+fileName+str(i)+".png", dpi=300)
-            break
+    validSaveFig(plt, fileName, dirPath["media"])
+    # for i in range(1000):
+    #     if not os.path.isfile(fileName+str(i)+".png"):
+    #         plt.savefig(dirPath["media"]+fileName+str(i)+".png", dpi=300)
+    #         break
     plt.show()
 
 def opt1():
@@ -582,10 +593,11 @@ def opt1():
 
     plt.colorbar(resultGraph)
 
-    for i in range(10000):
-        if not os.path.isfile(fileName+str(i)+".png"):
-            plt.savefig(dirPath["media"]+fileName+str(i)+".png", dpi=300)
-            break
+    validSaveFig(plt, fileName, dirPath["media"])
+    # for i in range(10000):
+    #     if not os.path.isfile(fileName+str(i)+".png"):
+    #         plt.savefig(dirPath["media"]+fileName+str(i)+".png", dpi=300)
+    #         break
     plt.show()
 
 
@@ -631,7 +643,7 @@ def opt2():
             elif pf_opt[:8]=="savefig=": toSaveFig = eval(pf_opt[8:])
             elif pf_opt[:5]=="azim=": orient["azim"]=int(pf_opt[5:])
             elif pf_opt[:5]=="elev=": orient["elev"]=int(pf_opt[5:])
-            elif pf_opt[:5]=="view=":
+            elif pf_opt[:5]=="view=": #view=[azim, elev]
                 orient["azim"]=int(eval(pf_opt[5:])[0])
                 orient["elev"]=int(eval(pf_opt[5:])[1])
             elif pf_opt[:5]=="mode=": plotMethod = int(pf_opt[5])
@@ -978,6 +990,7 @@ def opt2():
             elif not zFuse:
                 ax["slice"].title.set_text(f"idx:{chosen_pf} z:{z_pick}")
                 fileName = f"{typeComments[chosen_pf]}_n{chosen_pf}_z:{z_pick}_"
+            fileName+=f'[{orient["azim"]},{orient["elev"]}]_'
 
         elif plotMethod==1:
             plt_init(printText=False, mode=1)
@@ -991,15 +1004,10 @@ def opt2():
             plt.colorbar(resultGraph)
             saveFigCheck = [True, False]
             
+        saveEx = False
         if toSaveFig:
-            for i in range(10000):
-                if not os.path.isfile(dirPath["media"]+fileName+str(i)+".png") and saveFigCheck[0]:
-                    fig.savefig(dirPath["media"]+fileName+str(i)+".png", dpi=fig.dpi+100)
-                    saveFigCheck[0] = False
-                if not os.path.isfile(dirPath["media"]+fileName2+str(i)+".png") and saveFigCheck[1]:
-                    fig2.savefig(dirPath["media"]+fileName2+str(i)+".png", dpi=fig2.dpi+100)
-                    saveFigCheck[1] = False
-                if not True in saveFigCheck: break
+            if saveFigCheck[0]:  validSaveFig(fig, fileName, dirPath["media"], imgDpi=fig.dpi+100, saveCopies=saveEx); saveFigCheck[0] = False
+            if saveFigCheck[1]:  validSaveFig(fig2, fileName2, dirPath["media"], imgDpi=fig.dpi+100, saveCopies=saveEx); saveFigCheck[1] = False
 
         plt.show()
 
