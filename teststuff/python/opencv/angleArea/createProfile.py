@@ -621,6 +621,7 @@ def opt2():
     chosen_pf = 0
     plotMethod = 0
     auto_z = True
+    zPickRange = [-10, 10]
     show_predict = False #Whether to display prediction first or dataSets first
     z_pick = 0
     polyfitMeth = 1 #0-use point range; 1-[-90, 90]
@@ -647,6 +648,7 @@ def opt2():
                 orient["azim"]=int(eval(pf_opt[5:])[0])
                 orient["elev"]=int(eval(pf_opt[5:])[1])
             elif pf_opt[:5]=="mode=": plotMethod = int(pf_opt[5])
+            elif pf_opt[:7]=="zRange=": zPickRange = eval(pf_opt[7:])
             elif pf_opt[:7]=="pFirst=": show_predict = eval(pf_opt[7:])
             elif pf_opt[:8]=="polyfit=": polyfitRange = eval(pf_opt[8:])
             elif pf_opt[:14]=="polyfitMethod=": polyfitMeth = int(pf_opt[14:])
@@ -676,10 +678,16 @@ def opt2():
                     i+=1
 
             if not zFuse:
+                temp=[[], [], []]
+                for z in range(z_pick+zPickRange[0], z_pick+zPickRange[1]+1):
+                    if z in allDataSets[chosen_pf]:
+                        temp[0] += allDataSets[chosen_pf][z][0]
+                        temp[1] += allDataSets[chosen_pf][z][1]
+                        temp[2] += allDataSets[chosen_pf][z][2]
                 tempDict = {
-                    "roll": allDataSets[chosen_pf][z_pick][0],
-                    "pitch": allDataSets[chosen_pf][z_pick][1],
-                    "area": allDataSets[chosen_pf][z_pick][2]
+                    "roll": temp[0],
+                    "pitch": temp[1],
+                    "area": temp[2]
                 }
             elif zFuse:
                 temp=[[], [], []]
@@ -782,6 +790,7 @@ def opt2():
                 fileName2 = f"polyfit_RollPitch_grid_n{chosen_pf}_"
                 if zFuse: fileName2 += "z:FUSED_"
                 elif not zFuse: fileName2 += f"z:{z_pick}_"
+                fileName2+=f'[{orient["azim"]},{orient["elev"]}]_'+f"{zPickRange}".replace(" ", "")+"_"
                 fig2 = plt.figure(figsize=(19,9))
                 ax2 = {
                     "roll": 0,
@@ -990,7 +999,7 @@ def opt2():
             elif not zFuse:
                 ax["slice"].title.set_text(f"idx:{chosen_pf} z:{z_pick}")
                 fileName = f"{typeComments[chosen_pf]}_n{chosen_pf}_z:{z_pick}_"
-            fileName+=f'[{orient["azim"]},{orient["elev"]}]_'
+            fileName+=f'[{orient["azim"]},{orient["elev"]}]_'+f"{zPickRange}".replace(" ", "")+"_"
 
         elif plotMethod==1:
             plt_init(printText=False, mode=1)
