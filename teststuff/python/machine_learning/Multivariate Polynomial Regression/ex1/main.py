@@ -41,11 +41,13 @@ new_df = pd.DataFrame(
     )
 # print(new_df)
 
-new_df.groupby('one')['value'].apply(','.join).reset_index()
+# new_df.groupby('one')['value'].apply(','.join).reset_index()
 
 # print(new_df)
 
-raw_df.to_csv("testFile.csv", sep="\t", index=False)
+new_df.to_csv("testFile.csv", sep="\t", index=False)
+
+sys.exit()
 
 df = pd.DataFrame(target.data, columns=raw_df.feature_names)
 df['PRICE'] = target.target
