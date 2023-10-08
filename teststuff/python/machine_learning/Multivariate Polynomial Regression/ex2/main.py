@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 # https://www.kaggle.com/datasets/ciphernine/brooklyn-real-estate-listings
 # place it in the same folder as this workbook
 # df = pd.read_csv('archive/brooklyn_listings.csv')
-df = pd.read_csv("/home/berkhme/github_repo/Chromebook-projects/teststuff/python/opencv/angleArea/data/raw_csv_dataSet_pf26_fuse-False.csv")
+df = pd.read_csv("/home/berkhme/github_repo/Chromebook-projects/teststuff/python/opencv/angleArea/data/raw_csv_dataSet_pf24_fuse-True.csv")
 
 # print(df)
 # varNom = {"z":"price","x":"bathrooms","y":"sqft"}
@@ -44,7 +44,7 @@ pltVal = [
 # print("0 values visual:", x_values[0], y_values[0])
 # print(df)
 
-degree=4
+degree=3
 
 # PolynomialFeatures will create a new matrix consisting of all polynomial combinations 
 # of the features with a degree less than or equal to the degree we just gave the model (2)
