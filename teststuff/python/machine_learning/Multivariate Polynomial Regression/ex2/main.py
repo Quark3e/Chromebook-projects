@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 # https://www.kaggle.com/datasets/ciphernine/brooklyn-real-estate-listings
 # place it in the same folder as this workbook
 # df = pd.read_csv('archive/brooklyn_listings.csv')
-df = pd.read_csv("/home/berkhme/github_repo/Chromebook-projects/teststuff/python/opencv/angleArea/data/csv_dataSet_pf27_fuse-True.csv")
+df = pd.read_csv("/home/berkhme/github_repo/Chromebook-projects/teststuff/python/opencv/angleArea/data/raw_csv_dataSet_pf26_fuse-False.csv")
 
 # print(df)
 # varNom = {"z":"price","x":"bathrooms","y":"sqft"}
@@ -44,7 +44,7 @@ pltVal = [
 # print("0 values visual:", x_values[0], y_values[0])
 # print(df)
 
-degree=2
+degree=4
 
 # PolynomialFeatures will create a new matrix consisting of all polynomial combinations 
 # of the features with a degree less than or equal to the degree we just gave the model (2)
@@ -64,6 +64,15 @@ poly_model.fit(poly_x_values, y_values)
 regression_model = LinearRegression()
 
 regression_model.fit(poly_x_values, y_values)
+testX_values = [[0], [0]]
+
+for x in range(-90, 91):
+    for y in range(-90, 91):
+        testX_values[0].append(x)
+        testX_values[1].append(y)
+
+
+# print(poly_x_values)
 y_pred = regression_model.predict(poly_x_values)
 pltVal[2] = y_pred.tolist()
 # print(poly_x_values)
@@ -83,7 +92,7 @@ orient={"azim":0,"elev":0}
 for axis in ax:
     axis.set(xlim3d=(-90, 90), xlabel=varNom["x"])
     axis.set(ylim3d=(-90, 90), ylabel=varNom["y"])
-    axis.set(zlim3d=(0, 1), xlabel=varNom["z"])
+    axis.set(zlim3d=(0, int(round(y_values.max()/1000)*1000)), zlabel=varNom["z"])
     axis.view_init(azim=orient["azim"],elev=orient["elev"])
     axis.grid(True)
 
@@ -96,8 +105,8 @@ for axis in ax:
 polyfitGraph0 = ax[0].scatter(pltVal[0], pltVal[1], pltVal[3], c=pltVal[3], cmap="magma", label="correct data")
 polyfitGraph1 = ax[1].scatter(pltVal[0], pltVal[1], pltVal[2], c=pltVal[2], cmap="magma", label="predict data")
 
-# fig.colorbar(polyfitGraph0, ax[0])
-# fig.colorbar(polyfitGraph1, ax[1])
+# fig.colorbar(polyfitGraph0, ax[0], location="bottom")
+# fig.colorbar(polyfitGraph1, ax[1], location="bottom")
 
 ax[0].legend()
 ax[1].legend()
