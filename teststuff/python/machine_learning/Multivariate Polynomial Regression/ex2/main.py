@@ -10,28 +10,22 @@ import pandas as pd
 import numpy as np
 # visualization
 import matplotlib.pyplot as plt
+from matplotlib import cm
 
 # dataset
 # https://www.kaggle.com/datasets/ciphernine/brooklyn-real-estate-listings
 # place it in the same folder as this workbook
 # df = pd.read_csv('archive/brooklyn_listings.csv')
-df = pd.read_csv("/home/berkhme/github_repo/Chromebook-projects/teststuff/python/opencv/angleArea/data/raw_csv_dataSet_pf24_fuse-True.csv")
+df = pd.read_csv("/home/berkhme/github_repo/Chromebook-projects/teststuff/python/opencv/angleArea/data/raw_csv_dataSet_pf27_fuse-True.csv")
 
-# print(df)
-# varNom = {"z":"price","x":"bathrooms","y":"sqft"}
 varNom = {"z":"Area","x":"Roll","y":"Pitch"}
 
-# for this example, we're going to estimate the price with sqft, bathroom, and bedrooms
 df = df[[varNom["z"],varNom["x"],varNom["y"]]].dropna()
-
-# show some random lines from our data
-# print(df.sample(n=500))
 
 
 x_values = df[[varNom["x"],varNom["y"]]].values
 y_values = df[varNom["z"]].values
 
-# print(df[varNom["x"]].values.tolist())
 
 pltVal = [
     df[varNom["x"]].values.tolist(),
@@ -39,31 +33,26 @@ pltVal = [
     0,
     df[varNom["z"]].values.tolist()
 ]
+pltRes = [
+    df[varNom["x"]].values.tolist(),
+    df[varNom["y"]].values.tolist(),
+    0,
+]
 
-# visual
-# print("0 values visual:", x_values[0], y_values[0])
-# print(df)
 
-degree=3
-
-# PolynomialFeatures will create a new matrix consisting of all polynomial combinations 
-# of the features with a degree less than or equal to the degree we just gave the model (2)
+degree=10
 poly_model = PolynomialFeatures(degree=degree)
-
-# transform out polynomial features
 poly_x_values = poly_model.fit_transform(x_values)
-
-# should be in the form [1, a, b, a^2, ab, b^2]
-# print(f'initial values {x_values[0]}\nMapped to {poly_x_values[0]}')
-
-# [1, a=5, b=2940, a^2=25, 5*2940=14700, b^2=8643600]
-
 poly_model.fit(poly_x_values, y_values)
 
-# we use linear regression as a base!!! ** sometimes misunderstood **
 regression_model = LinearRegression()
 
 regression_model.fit(poly_x_values, y_values)
+
+
+useNew = True #variable to switch between predicting existing xy values or to use new values
+
+
 testX_values = [[0], [0]]
 
 for x in range(-90, 91):
@@ -72,21 +61,29 @@ for x in range(-90, 91):
         testX_values[1].append(y)
 
 
-# print(poly_x_values)
-y_pred = regression_model.predict(poly_x_values)
-pltVal[2] = y_pred.tolist()
-# print(poly_x_values)
+if not useNew: y_pred = regression_model.predict(poly_x_values)
 
-regression_model.coef_
+elif useNew:
+    test_df = pd.DataFrame({"Roll":testX_values[0],"Pitch":testX_values[1]})
+    test_df = test_df[["Roll", "Pitch"]]
+    xTest_values = test_df[["Roll","Pitch"]].values
+    xTest = poly_model.fit_transform(xTest_values)
+    y_pred = regression_model.predict(xTest)
+    pltRes[0] = test_df["Roll"].values.tolist()
+    pltRes[1] = test_df["Pitch"].values.tolist()
 
-print(y_values.max())
+
+pltRes[2] = y_pred.tolist()
+
+# regression_model.coef_
+
 
 fig = plt.figure(figsize=(12,7))
 ax=[0, 0]
 ax[0] = fig.add_subplot(1,2,1,projection="3d")
 ax[1] = fig.add_subplot(1,2,2,projection="3d")
 
-orient={"azim":0,"elev":0}
+orient={"azim":140,"elev":30}
 
 
 for axis in ax:
@@ -96,17 +93,9 @@ for axis in ax:
     axis.view_init(azim=orient["azim"],elev=orient["elev"])
     axis.grid(True)
 
-# for axis in ax:
-#     axis.set_xlabel("bathrooms")
-#     axis.set_ylabel("sqft")
-#     axis.set_xlim([0, 50])
-#     axis.set_ylim([0, 30_000])
 
-polyfitGraph0 = ax[0].scatter(pltVal[0], pltVal[1], pltVal[3], c=pltVal[3], cmap="magma", label="correct data")
-polyfitGraph1 = ax[1].scatter(pltVal[0], pltVal[1], pltVal[2], c=pltVal[2], cmap="magma", label="predict data")
-
-# fig.colorbar(polyfitGraph0, ax[0], location="bottom")
-# fig.colorbar(polyfitGraph1, ax[1], location="bottom")
+ax[0].scatter(pltVal[0], pltVal[1], pltVal[3], c=pltVal[3], cmap="magma", label="correct data")
+ax[1].scatter(pltRes[0], pltRes[1], pltRes[2], c=pltRes[2], cmap="magma", label="predict data")
 
 ax[0].legend()
 ax[1].legend()
