@@ -301,6 +301,22 @@ def plt_init(printText=True, mode=0):
     if printText: print("check init end")
     # plt.grid()
 
+def solveContours(allContours, areaThreshold):
+    allPositions = [[], []]
+    totArea = 0
+    for cnt in allContours:
+        CntMoments = cv2.moments(cnt)
+        if CntMoments["m00"] != 0:
+            area = cv2.contourArea(cnt)
+            if area>=areaThreshold:
+                allPositions[0].append(CntMoments["m10"]/CntMoments["m00"])
+                allPositions[1].append(CntMoments["m01"]/CntMoments["m00"])
+                totArea+=area
+    avgPos = [
+        sum(allPositions[0])/len(allPositions[0]),
+        sum(allPositions[1])/len(allPositions[1])
+    ]
+    return [avgPos, totArea]
 
 def plt_update(n):
     # print(" Running:  \"update\"")
@@ -320,33 +336,28 @@ def plt_update(n):
         frame[0] = cv2.rectangle(frame[0], (int(prefRes[0]/2-thresh_xyLim[0]), int(prefRes[1]/2-thresh_xyLim[1])), (int(prefRes[0]/2+thresh_xyLim[0]), int(prefRes[1]/2+thresh_xyLim[1])), brdrColor, 2)
         morphImg[0] = cv2.rectangle(morphImg[0], (int(prefRes[0]/2-thresh_xyLim[0]), int(prefRes[1]/2-thresh_xyLim[1])), (int(prefRes[0]/2+thresh_xyLim[0]), int(prefRes[1]/2+thresh_xyLim[1])), brdrColor, 2)
         for flag in range(2):
-            for i in range(len(contours[flag])): #type: ignore
-                cntMoments = cv2.moments(contours[flag][0]) #type: ignore
-                if cntMoments['m00'] != 0:
-                    if flag==0 and (abs(cntMoments['m10']/cntMoments['m00']-prefRes[0]/2)<thresh_xyLim[0] and abs(prefRes[1]/2-cntMoments['m01']/cntMoments['m00'])<thresh_xyLim[1]):
-                        tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                        cntPos[0] = round((tempPos[0]-prefRes[0]/2)/10)*10 #type: ignore
-                        cntPos[1] = round((prefRes[1]/2-tempPos[1])/10)*10 #type: ignore
-                        cntArea = cv2.contourArea(contours[flag][0]) #type: ignore
-                        brdrColor = (255, 255, 255)
-                        if displayToOpenCV:
-                            morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
-                        readAccelerometer(printText=False)
-                    elif flag==0:
-                        print(" OBJECT POS IS OUTSIDE thresh_xyLim ", '\r')
-                        brdrColor = (255, 0, 0)
-                        #if displayToOpenCV:
-                            #morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
-                            #morphImg[flag] = cv2.copyMakeBorder(morphImg[flag], 20, 20, 20, 20, cv2.BORDER_CONSTANT, value=[255, 0, 0]) #type: ignore
-                    elif flag==1 and cv2.contourArea(contours[flag][0]) >= thresh_zArea:
-                        tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                        tempPos[1] = round(tempPos[1]/10)*10 #type: ignore
-                        #cntPos[2] = round(tempPos[1]/10)*10 #type: ignore
-                        if displayToOpenCV:
-                            morphImg[flag] = cv2.putText(morphImg[flag],str(int(tempPos[1])),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
-                        tempPos[1] = prefRes[1] - tempPos[1] #type: ignore
-                        #cntPos[2] = prefRes[1] - cntPos[2] #type: ignore
-                else: print("cntMoments['m00'] = 0")
+            # for i in range(len(contours[flag])): #type: ignore
+            tempPos, cntArea = solveContours(contours[flag], 0)
+
+            if flag==0 and (abs(tempPos[0]-prefRes[0]/2)<thresh_xyLim[0] and abs(prefRes[1]/2-tempPos[1])<thresh_xyLim[1]):
+                cntPos[0] = round((tempPos[0]-prefRes[0]/2)/10)*10 #type: ignore
+                cntPos[1] = round((prefRes[1]/2-tempPos[1])/10)*10 #type: ignore
+                brdrColor = (255, 255, 255)
+                if displayToOpenCV:
+                    morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
+                readAccelerometer(printText=False)
+            elif flag==0:
+                print(" OBJECT POS IS OUTSIDE thresh_xyLim ", '\r')
+                brdrColor = (255, 0, 0)
+                #if displayToOpenCV:
+                    #morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
+                    #morphImg[flag] = cv2.copyMakeBorder(morphImg[flag], 20, 20, 20, 20, cv2.BORDER_CONSTANT, value=[255, 0, 0]) #type: ignore
+            elif flag==1 and cntArea >= thresh_zArea:
+                tempPos[1] = int(round(tempPos[1]/10)*10) #type: ignore
+                if displayToOpenCV:
+                    morphImg[flag] = cv2.putText(morphImg[flag],str(int(tempPos[1])),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
+                tempPos[1] = prefRes[1] - tempPos[1] #type: ignore
+
             if flag==1 and len(contours[flag])<=0:
                 tempPos = [None, None]
         if cntArea != None and isRecVals:

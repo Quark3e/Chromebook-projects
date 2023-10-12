@@ -40,7 +40,7 @@ pltRes = [
 ]
 
 
-degree=10
+degree=7
 poly_model = PolynomialFeatures(degree=degree)
 poly_x_values = poly_model.fit_transform(x_values)
 poly_model.fit(poly_x_values, y_values)
@@ -50,7 +50,7 @@ regression_model = LinearRegression()
 regression_model.fit(poly_x_values, y_values)
 
 
-useNew = True #variable to switch between predicting existing xy values or to use new values
+useNew = False #variable to switch between predicting existing xy values or to use new values
 
 
 testX_values = [[0], [0]]
@@ -83,7 +83,7 @@ ax=[0, 0]
 ax[0] = fig.add_subplot(1,2,1,projection="3d")
 ax[1] = fig.add_subplot(1,2,2,projection="3d")
 
-orient={"azim":140,"elev":30}
+orient={"azim":0,"elev":90}
 
 
 for axis in ax:
@@ -103,10 +103,11 @@ plt.grid(True)
 
 plt.show()
 
+
 # mean_squared_error(y_values, y_pred, squared=False)
 
 # # check our accuracy for each degree, the lower the error the better!
-# number_degrees = [1,2,3,4,5,6,7]
+# number_degrees = [1,2,3,4,5,6,7,8,9,10,11,12]
 # plt_mean_squared_error = []
 # for degree in number_degrees:
 
