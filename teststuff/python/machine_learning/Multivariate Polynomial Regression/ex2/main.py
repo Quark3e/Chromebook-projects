@@ -40,7 +40,7 @@ pltRes = [
 ]
 
 
-degree=7
+degree=2
 poly_model = PolynomialFeatures(degree=degree)
 poly_x_values = poly_model.fit_transform(x_values)
 poly_model.fit(poly_x_values, y_values)
@@ -51,7 +51,7 @@ regression_model.fit(poly_x_values, y_values)
 
 
 useNew = True #variable to switch between predicting existing xy values or to use new values
-testNew = True
+testNew = False
 
 testX_values = [[0], [0]]
 
@@ -86,7 +86,7 @@ ax=[0, 0]
 ax[0] = fig.add_subplot(1,2,1,projection="3d")
 ax[1] = fig.add_subplot(1,2,2,projection="3d")
 
-orient={"azim":0,"elev":90}
+orient={"azim":40,"elev":30}
 
 
 for axis in ax:
@@ -99,8 +99,8 @@ for axis in ax:
 
 ax[0].scatter(pltVal[0], pltVal[1], pltVal[3], c=pltVal[3], cmap="magma", label="correct data")
 
-ax[1].plot_trisurf(pltRes[0], pltRes[1], pltRes[2], cmap="magma")
-# ax[1].scatter(pltRes[0], pltRes[1], pltRes[2], c=pltRes[2], cmap="magma", label="predict data")
+# ax[1].plot_trisurf(pltRes[0], pltRes[1], pltRes[2], cmap="magma")
+ax[1].scatter(pltRes[0], pltRes[1], pltRes[2], c=pltRes[2], cmap="magma", label="predict data")
 
 ax[0].legend()
 ax[1].legend()
