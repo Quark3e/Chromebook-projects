@@ -11,12 +11,13 @@ import numpy as np
 # visualization
 import matplotlib.pyplot as plt
 from matplotlib import cm
+import sys
 
 # dataset
 # https://www.kaggle.com/datasets/ciphernine/brooklyn-real-estate-listings
 # place it in the same folder as this workbook
 # df = pd.read_csv('archive/brooklyn_listings.csv')
-df = pd.read_csv("/home/berkhme/github_repo/Chromebook-projects/teststuff/python/opencv/angleArea/data/raw_csv_dataSet_pf26_fuse-True.csv")
+df = pd.read_csv("/home/berkhme/github_repo/Chromebook-projects/teststuff/python/opencv/angleArea/data/raw_csv_dataSet_pf27_fuse-True.csv")
 
 varNom = {"z":"Area","x":"Roll","y":"Pitch"}
 
@@ -25,7 +26,6 @@ df = df[[varNom["z"],varNom["x"],varNom["y"]]].dropna()
 
 x_values = df[[varNom["x"],varNom["y"]]].values
 y_values = df[varNom["z"]].values
-
 
 pltVal = [
     df[varNom["x"]].values.tolist(),
@@ -50,8 +50,8 @@ regression_model = LinearRegression()
 regression_model.fit(poly_x_values, y_values)
 
 
-useNew = False #variable to switch between predicting existing xy values or to use new values
-
+useNew = True #variable to switch between predicting existing xy values or to use new values
+testNew = True
 
 testX_values = [[0], [0]]
 
@@ -62,18 +62,21 @@ for x in range(-90, 91):
 
 
 if not useNew: y_pred = regression_model.predict(poly_x_values)
-
-elif useNew:
+elif useNew and not testNew:
     test_df = pd.DataFrame({"Roll":testX_values[0],"Pitch":testX_values[1]})
     test_df = test_df[["Roll", "Pitch"]]
     xTest_values = test_df[["Roll","Pitch"]].values
+    # print(xTest_values)
     xTest = poly_model.fit_transform(xTest_values)
     y_pred = regression_model.predict(xTest)
     pltRes[0] = test_df["Roll"].values.tolist()
     pltRes[1] = test_df["Pitch"].values.tolist()
+elif useNew and testNew:
+    xArr = np.array([[testX_values[0][i],testX_values[1][i]] for i in range(len(testX_values[0]))])
+    print(xArr)
+    sys.exit()
 
-
-pltRes[2] = y_pred.tolist()
+if not testNew: pltRes[2] = y_pred.tolist()
 
 # regression_model.coef_
 
