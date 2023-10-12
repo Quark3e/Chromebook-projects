@@ -16,7 +16,7 @@ from matplotlib import cm
 # https://www.kaggle.com/datasets/ciphernine/brooklyn-real-estate-listings
 # place it in the same folder as this workbook
 # df = pd.read_csv('archive/brooklyn_listings.csv')
-df = pd.read_csv("/home/berkhme/github_repo/Chromebook-projects/teststuff/python/opencv/angleArea/data/raw_csv_dataSet_pf27_fuse-True.csv")
+df = pd.read_csv("/home/berkhme/github_repo/Chromebook-projects/teststuff/python/opencv/angleArea/data/raw_csv_dataSet_pf26_fuse-True.csv")
 
 varNom = {"z":"Area","x":"Roll","y":"Pitch"}
 
@@ -95,7 +95,9 @@ for axis in ax:
 
 
 ax[0].scatter(pltVal[0], pltVal[1], pltVal[3], c=pltVal[3], cmap="magma", label="correct data")
-ax[1].scatter(pltRes[0], pltRes[1], pltRes[2], c=pltRes[2], cmap="magma", label="predict data")
+
+ax[1].plot_trisurf(pltRes[0], pltRes[1], pltRes[2], cmap="magma")
+# ax[1].scatter(pltRes[0], pltRes[1], pltRes[2], c=pltRes[2], cmap="magma", label="predict data")
 
 ax[0].legend()
 ax[1].legend()
