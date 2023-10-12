@@ -12,12 +12,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import sys
+import os
+
+absPath = os.path.realpath(__file__)[:-7]
 
 # dataset
 # https://www.kaggle.com/datasets/ciphernine/brooklyn-real-estate-listings
 # place it in the same folder as this workbook
 # df = pd.read_csv('archive/brooklyn_listings.csv')
-df = pd.read_csv("/home/berkhme/github_repo/Chromebook-projects/teststuff/python/opencv/angleArea/data/raw_csv_dataSet_pf27_fuse-True.csv")
+
+orient = {"azim":40, "elev":30}
+
+dataSetName = "raw_csv_dataSet_pf27_fuse-True"
+
+df = pd.read_csv("/home/berkhme/github_repo/Chromebook-projects/teststuff/python/opencv/angleArea/data/"+dataSetName+".csv")
 
 varNom = {"z":"Area","x":"Roll","y":"Pitch"}
 
@@ -86,7 +94,6 @@ ax=[0, 0]
 ax[0] = fig.add_subplot(1,2,1,projection="3d")
 ax[1] = fig.add_subplot(1,2,2,projection="3d")
 
-orient={"azim":40,"elev":30}
 
 
 for axis in ax:
@@ -105,6 +112,8 @@ ax[1].scatter(pltRes[0], pltRes[1], pltRes[2], c=pltRes[2], cmap="magma", label=
 ax[0].legend()
 ax[1].legend()
 plt.grid(True)
+
+plt.savefig(absPath+"media/"+dataSetName+"_"+f"n{degree}_"+f"[{orient['azim']}:{orient['elev']}]"+".png")
 
 plt.show()
 
