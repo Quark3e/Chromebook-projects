@@ -21,7 +21,7 @@ absPath = os.path.realpath(__file__)[:-7]
 # place it in the same folder as this workbook
 # df = pd.read_csv('archive/brooklyn_listings.csv')
 
-orient = {"azim":40, "elev":30}
+orient = {"azim":0, "elev":90}
 
 dataSetName = "raw_csv_dataSet_pf27_fuse-True"
 
