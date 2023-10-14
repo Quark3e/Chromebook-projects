@@ -304,6 +304,7 @@ def plt_init(printText=True, mode=0):
 def solveContours(allContours, areaThreshold):
     allPositions = [[], []]
     totArea = 0
+    if len(allContours)==0: return [[0,0], 0]
     for cnt in allContours:
         CntMoments = cv2.moments(cnt)
         if CntMoments["m00"] != 0:
@@ -313,10 +314,10 @@ def solveContours(allContours, areaThreshold):
                 allPositions[1].append(CntMoments["m01"]/CntMoments["m00"])
                 totArea+=area
     avgPos = [
-        sum(allPositions[0])/len(allPositions[0]),
-        sum(allPositions[1])/len(allPositions[1])
+        int(round(sum(allPositions[0])/len(allPositions[0]))),
+        int(round(sum(allPositions[1])/len(allPositions[1])))
     ]
-    return [avgPos, totArea]
+    return [avgPos, int(totArea)]
 
 def plt_update(n):
     # print(" Running:  \"update\"")
@@ -344,7 +345,10 @@ def plt_update(n):
                 cntPos[1] = round((prefRes[1]/2-tempPos[1])/10)*10 #type: ignore
                 brdrColor = (255, 255, 255)
                 if displayToOpenCV:
-                    morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
+                    morphImg[flag] = cv2.putText(morphImg[flag], \
+                    str(int(cntArea)), \
+                    (tempPos[0],tempPos[1]), \
+                    font,1,(255,0,0),2) #type: ignore
                 readAccelerometer(printText=False)
             elif flag==0:
                 print(" OBJECT POS IS OUTSIDE thresh_xyLim ", '\r')
@@ -355,7 +359,10 @@ def plt_update(n):
             elif flag==1 and cntArea >= thresh_zArea:
                 tempPos[1] = int(round(tempPos[1]/10)*10) #type: ignore
                 if displayToOpenCV:
-                    morphImg[flag] = cv2.putText(morphImg[flag],str(int(tempPos[1])),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
+                    morphImg[flag] = cv2.putText(morphImg[flag], \
+                    str(int(tempPos[1])), \
+                    (tempPos[0],tempPos[1]), \
+                    font,1,(255,0,0),2) #type: ignore
                 tempPos[1] = prefRes[1] - tempPos[1] #type: ignore
 
             if flag==1 and len(contours[flag])<=0:
