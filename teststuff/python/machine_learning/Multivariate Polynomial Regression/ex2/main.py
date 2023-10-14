@@ -61,7 +61,7 @@ regression_model.fit(poly_x_values, y_values)
 useNew = True #variable to switch between predicting existing xy values or to use new values
 testNew = False
 
-testX_values = [[0], [0]]
+testX_values = [[], []]
 
 for x in range(-90, 91):
     for y in range(-90, 91):
@@ -71,14 +71,23 @@ for x in range(-90, 91):
 
 if not useNew: y_pred = regression_model.predict(poly_x_values)
 elif useNew and not testNew:
-    test_df = pd.DataFrame({"Roll":testX_values[0],"Pitch":testX_values[1]})
-    test_df = test_df[["Roll", "Pitch"]]
-    xTest_values = test_df[["Roll","Pitch"]].values
-    # print(xTest_values)
-    xTest = poly_model.fit_transform(xTest_values)
-    y_pred = regression_model.predict(xTest)
-    pltRes[0] = test_df["Roll"].values.tolist()
-    pltRes[1] = test_df["Pitch"].values.tolist()
+    # test_df = pd.DataFrame({"Roll":testX_values[0],"Pitch":testX_values[1]})
+    # xTest_values = test_df[["Roll","Pitch"]].values
+    # tempTest = np.array([[testX_values[0][i],testX_values[1][i]] for i in range(len(testX_values[0]))])
+    # print("original:\n",xTest_values)
+    # print("test:\n", tempTest)
+    # xTest = poly_model.fit_transform(tempTest)
+    y_pred = regression_model.predict( \
+        poly_model.fit_transform( \
+            np.array( \
+                [[testX_values[0][i],testX_values[1][i]] for i in range(len(testX_values[0]))] \
+            ) \
+        ) \
+    )
+    # pltRes[0] = test_df["Roll"].values.tolist()
+    # pltRes[1] = test_df["Pitch"].values.tolist()
+    pltRes[0] = testX_values[0]
+    pltRes[1] = testX_values[1]
 elif useNew and testNew:
     xArr = np.array([[testX_values[0][i],testX_values[1][i]] for i in range(len(testX_values[0]))])
     print(xArr)
