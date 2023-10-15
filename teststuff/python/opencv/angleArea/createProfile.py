@@ -48,16 +48,15 @@ orient = {
 }
 
 op2_settings = {
-    "thresh_zArea": 100,
-    "toSaveFig": True,
-    "thresh_xyLim": [100, 100], #border square where readings "outside" aren't valid
-    "data_2d_lim": [[-5, 5], [-5, 5]], #range of points fused into one axis
-    "polyfitRange": [2],
-    "zPickRange": [-10, 10],
-    "show_predict": False, #Whether to display prediction first or dataSets first
-    "data_2d_nLim": [5, 5]
+    "thresh_zArea": {"value": 100, "type": type(int()), "func": lambda var: int(var), "description": "minimum area for zCam to recognize z value"},
+    "toSaveFig": {"value": True, "type": type(bool()), "func": lambda var: bool(var), "description": "whether to save figures as png images"},
+    "thresh_xyLim": {"value": [100, 100], "type": type(list()), "func": lambda var: eval(var), "description": "[x,y]  border square where readings \"outside\" aren't valid"},
+    "data_2d_lim": {"value": [[-5, 5], [-5, 5]], "type": type(list()), "func": lambda var: eval(var), "description": "[[x_min,x_max],[y_min,y_max]]  range of points fused into one axis"},
+    "polyfitRange": {"value": [2], "type": type(list()), "func": lambda var: eval(var), "description": "[n]  list of degree(s) of polynomial regression models to create"},
+    "zPickRange": {"value": [-10, 10], "type": type(list()), "func": lambda var: eval(var), "description": "[z_min,z_max]  range of values outside given z value to also include data points "},
+    "show_predict": {"value": False, "type": type(bool()), "func": lambda var: bool(var), "description": "whether to display prediction first or dataSets first"},
+    "data_2d_nLim": {"value": [5, 5], "type": type(list()), "func": lambda var: eval(var), "description": "[min,max]  list of minimum number of data points for an axis slice to be made"}
 }
-
 
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -342,13 +341,13 @@ def plt_update(n):
         tempPos = [None, None]
         cntArea = None
         brdrColor = (255,255,255)
-        frame[0] = cv2.rectangle(frame[0], (int(prefRes[0]/2-op2_settings["thresh_xyLim"][0]), int(prefRes[1]/2-op2_settings["thresh_xyLim"][1])), (int(prefRes[0]/2+op2_settings["thresh_xyLim"][0]), int(prefRes[1]/2+op2_settings["thresh_xyLim"][1])), brdrColor, 2)
-        morphImg[0] = cv2.rectangle(morphImg[0], (int(prefRes[0]/2-op2_settings["thresh_xyLim"][0]), int(prefRes[1]/2-op2_settings["thresh_xyLim"][1])), (int(prefRes[0]/2+op2_settings["thresh_xyLim"][0]), int(prefRes[1]/2+op2_settings["thresh_xyLim"][1])), brdrColor, 2)
+        frame[0] = cv2.rectangle(frame[0], (int(prefRes[0]/2-op2_settings["thresh_xyLim"]["value"][0]), int(prefRes[1]/2-op2_settings["thresh_xyLim"]["value"][1])), (int(prefRes[0]/2+op2_settings["thresh_xyLim"]["value"][0]), int(prefRes[1]/2+op2_settings["thresh_xyLim"]["value"][1])), brdrColor, 2)
+        morphImg[0] = cv2.rectangle(morphImg[0], (int(prefRes[0]/2-op2_settings["thresh_xyLim"]["value"][0]), int(prefRes[1]/2-op2_settings["thresh_xyLim"]["value"][1])), (int(prefRes[0]/2+op2_settings["thresh_xyLim"]["value"][0]), int(prefRes[1]/2+op2_settings["thresh_xyLim"]["value"][1])), brdrColor, 2)
         for flag in range(2):
             # for i in range(len(contours[flag])): #type: ignore
             tempPos, cntArea = solveContours(contours[flag], 0)
 
-            if flag==0 and (abs(tempPos[0]-prefRes[0]/2)<op2_settings["thresh_xyLim"][0] and abs(prefRes[1]/2-tempPos[1])<op2_settings["thresh_xyLim"][1]):
+            if flag==0 and (abs(tempPos[0]-prefRes[0]/2)<op2_settings["thresh_xyLim"]["value"][0] and abs(prefRes[1]/2-tempPos[1])<op2_settings["thresh_xyLim"]["value"][1]):
                 cntPos[0] = round((tempPos[0]-prefRes[0]/2)/10)*10 #type: ignore
                 cntPos[1] = round((prefRes[1]/2-tempPos[1])/10)*10 #type: ignore
                 brdrColor = (255, 255, 255)
@@ -364,7 +363,7 @@ def plt_update(n):
                 #if displayToOpenCV:
                     #morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
                     #morphImg[flag] = cv2.copyMakeBorder(morphImg[flag], 20, 20, 20, 20, cv2.BORDER_CONSTANT, value=[255, 0, 0]) #type: ignore
-            elif flag==1 and cntArea >= op2_settings["thresh_zArea"]:
+            elif flag==1 and cntArea >= op2_settings["thresh_zArea"]["value"]:
                 tempPos[1] = int(round(tempPos[1]/10)*10) #type: ignore
                 if displayToOpenCV:
                     morphImg[flag] = cv2.putText(morphImg[flag], \
@@ -655,32 +654,42 @@ def opt2():
     while True:
         zFuse = False
         clearScr = True
-        op2_settings["show_predict"] = False
+        op2_settings["show_predict"]["value"] = False
 
         while True:
-            if clearScr: os.system("clear")
-            print("\nNum. loaded profiles:", len(allDataSets))
-            for i in range(len(typeComments)):
-                print(f"-{i:<2}: {typeComments[i]:<5}: {dateComments[i]:<32}: {strComments[i]:<20}")
+            if clearScr:
+                os.system("clear")
+                print("\nNum. loaded profiles:", len(allDataSets))
+                for i in range(len(typeComments)):
+                    print(f"-{i:<2}: {typeComments[i]:<5}: {dateComments[i]:<32}: {strComments[i]:<20}")
             print("")
             pf_opt = input("input: ")
             if pf_opt=="back": return
             elif pf_opt=="exit": sys.exit()
             elif pf_opt[:8]=="settings":
-                print(op2_settings)
+                print(f"{'Name':<25}: {'Value':<25}: {'Type':<25}: Description")
+                for key,val in op2_settings.items():
+                    # print(f"{key:<20}: {str(val['value']):<20}: {str(val['type']):<20}: {val['description']}")
+                    print(f"{key:<25}: ",end='')
+                    print(f"{str(val['value']):<25}: ",end='')
+                    print(f"{str(val['type']):<25}: ",end='')
+                    print(f"{val['description']}")
                 clearScr = False
-            elif pf_opt[:8]=="savefig=": op2_settings["toSaveFig"] = eval(pf_opt[8:])
+            elif pf_opt[:8]=="savefig=": op2_settings["toSaveFig"]["value"] = eval(pf_opt[8:])
             elif pf_opt[:5]=="azim=": orient["azim"]=int(pf_opt[5:])
             elif pf_opt[:5]=="elev=": orient["elev"]=int(pf_opt[5:])
             elif pf_opt[:5]=="view=": #view=[azim, elev]
                 orient["azim"]=int(eval(pf_opt[5:])[0])
                 orient["elev"]=int(eval(pf_opt[5:])[1])
             elif pf_opt[:5]=="mode=": plotMethod = int(pf_opt[5])
-            elif pf_opt[:7]=="zRange=": op2_settings["zPickRange"] = eval(pf_opt[7:])
-            elif pf_opt[:7]=="pFirst=": op2_settings["show_predict"] = eval(pf_opt[7:])
-            elif pf_opt[:8]=="polyfit=": op2_settings["polyfitRange"] = eval(pf_opt[8:])
+            elif pf_opt[:7]=="zRange=": op2_settings["zPickRange"]["value"] = eval(pf_opt[7:])
+            elif pf_opt[:7]=="pFirst=": op2_settings["show_predict"]["value"] = eval(pf_opt[7:])
+            elif pf_opt[:8]=="polyfit=": op2_settings["polyfitRange"]["value"] = eval(pf_opt[8:])
             elif pf_opt[:14]=="polyfitMethod=": polyfitMeth = int(pf_opt[14:])
-            elif pf_opt[:8]=="polyLim=": op2_settings["data_2d_lim"] = [eval(pf_opt[8:]), eval(pf_opt[8:])]
+            elif pf_opt[:8]=="polyLim=": op2_settings['data_2d_lim']["value"] = [eval(pf_opt[8:]), eval(pf_opt[8:])]
+            elif pf_opt[:4]=="eval":
+                eval(pf_opt[5:])
+                input("paused...")
             elif pf_opt[:2]=="z=":
                 if pf_opt[2:]=="auto": auto_z = True
                 else:
@@ -692,10 +701,19 @@ def opt2():
                 plotMethod=0
                 break
             elif pf_opt=="": pass
-            else:
+            elif pf_opt[0] in [str(i) for i in range(10)]:
                 chosen_pf = int(pf_opt)
                 clearScr = True
                 break
+            else:
+                if "=" in pf_opt and pf_opt[:pf_opt.find("=")] in op2_settings:
+                    op2_settings[pf_opt[:pf_opt.find("=")]]["value"] = op2_settings[pf_opt[:pf_opt.find("=")]]["func"](pf_opt[pf_opt.find("=")+1:])
+                    # print(op2_settings[pf_opt[:pf_opt.find("=")]])
+                    # input("pause")
+                else:
+                    print(f"Error: \"{pf_opt}\" is not a valid argument.")
+                    time.sleep(1)
+                clearScr = True
 
         if plotMethod==0:
             plt_init(printText=False, mode=0)
@@ -708,7 +726,7 @@ def opt2():
 
             if not zFuse:
                 temp=[[], [], []]
-                for z in range(z_pick+op2_settings["zPickRange"][0], z_pick+op2_settings["zPickRange"][1]+1):
+                for z in range(z_pick+op2_settings["zPickRange"]["value"][0], z_pick+op2_settings["zPickRange"]["value"][1]+1):
                     if z in allDataSets[chosen_pf]:
                         temp[0] += allDataSets[chosen_pf][z][0]
                         temp[1] += allDataSets[chosen_pf][z][1]
@@ -746,7 +764,7 @@ def opt2():
             # regr = linear_model.LinearRegression()
             # regr.fit(regrFeed[0].values, regrFeed[1])
 
-            print("creating regr. data...")
+            print("creating regr. data...\n")
             regrData = {"roll":[], "pitch":[], "area":[]}
             
             def polyChangeList(pos):
@@ -776,8 +794,8 @@ def opt2():
             print("scatter plotting data sets:")
             resultGraph1 = ax["slice"].scatter(regrData["roll"], regrData["pitch"], c=regrData["area"], s=1.5, cmap="magma")
             
-            ax["roll"].title.set_text(f"lim:{op2_settings['data_2d_lim'][0]}")
-            ax["pitch"].title.set_text(f"lim:{op2_settings['data_2d_lim'][1]}")
+            ax["roll"].title.set_text(f"lim:{str(op2_settings['data_2d_lim']['value'][0])}")
+            ax["pitch"].title.set_text(f"lim:{str(op2_settings['data_2d_lim']['value'][1])}")
             data_2d_strt = [0, 0]
             data_2d_lsts = [[], []]
             data_2d = {
@@ -785,18 +803,13 @@ def opt2():
                 "pitch": [[], []]
             }
 
-            if not zFuse and not op2_settings["show_predict"]: 
-                resultGraph0 = ax["slice"].scatter(allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][1], c=allDataSets[chosen_pf][z_pick][2], s=2, cmap="magma")
-                data_2d_lsts = [
-                    [allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][2]],
-                    [allDataSets[chosen_pf][z_pick][1], allDataSets[chosen_pf][z_pick][2]]
-                    ]
-            elif zFuse and not op2_settings["show_predict"]:
+            if not op2_settings["show_predict"]["value"]: 
+                # resultGraph0 = ax["slice"].scatter(allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][1], c=allDataSets[chosen_pf][z_pick][2], s=2, cmap="magma")
                 resultGraph0 = ax["slice"].scatter(tempDict["roll"], tempDict["pitch"], c=tempDict["area"], s=2, cmap="magma")
                 data_2d_lsts = [
                     [tempDict["roll"], tempDict["area"]],
                     [tempDict["pitch"], tempDict["area"]]
-                ]
+                    ]
             numPoints = 0
             for key, val in allDataSets[chosen_pf].items():
                 resultGraph2 = ax["raw"].scatter(val[0], val[1], len(val[0])*[key], c=val[2], cmap="magma", s=1)
@@ -805,10 +818,10 @@ def opt2():
             
             for i in range(len(data_2d_lsts[0][0])):
                 # print(data_2d_lsts[1][0][i], "-------------", data_2d_lsts[0][0][i])
-                if data_2d_lsts[1][0][i]>(data_2d_strt[1]+op2_settings["data_2d_lim"][1][0]) and data_2d_lsts[1][0][i]<(data_2d_strt[1]+op2_settings["data_2d_lim"][1][1]):
+                if data_2d_lsts[1][0][i]>(data_2d_strt[1]+op2_settings['data_2d_lim']["value"][1][0]) and data_2d_lsts[1][0][i]<(data_2d_strt[1]+op2_settings['data_2d_lim']["value"][1][1]):
                     data_2d["roll"][0].append(data_2d_lsts[0][0][i])
                     data_2d["roll"][1].append(data_2d_lsts[0][1][i])
-                if data_2d_lsts[0][0][i]>(data_2d_strt[0]+op2_settings["data_2d_lim"][0][0]) and data_2d_lsts[0][0][i]<(data_2d_strt[0]+op2_settings["data_2d_lim"][0][1]):
+                if data_2d_lsts[0][0][i]>(data_2d_strt[0]+op2_settings['data_2d_lim']["value"][0][0]) and data_2d_lsts[0][0][i]<(data_2d_strt[0]+op2_settings['data_2d_lim']["value"][0][1]):
                     data_2d["pitch"][0].append(data_2d_lsts[1][0][i])
                     data_2d["pitch"][1].append(data_2d_lsts[0][1][i])
 
@@ -816,8 +829,8 @@ def opt2():
             axisFuncs = [0, 0]
             if not 0 in tempCheck:
                 saveFigCheck = [True, True]
-                ax_addPolyfits(data_2d["roll"][0], data_2d["roll"][1], op2_settings["polyfitRange"], "roll")
-                ax_addPolyfits(data_2d["pitch"][0], data_2d["pitch"][1], op2_settings["polyfitRange"], "pitch")
+                ax_addPolyfits(data_2d["roll"][0], data_2d["roll"][1], op2_settings["polyfitRange"]["value"], "roll")
+                ax_addPolyfits(data_2d["pitch"][0], data_2d["pitch"][1], op2_settings["polyfitRange"]["value"], "pitch")
                 axisFuncs[0] = np.poly1d(np.polyfit(data_2d["roll"][0], data_2d["roll"][1], 2))
                 axisFuncs[1] = np.poly1d(np.polyfit(data_2d["pitch"][0], data_2d["pitch"][1], 2))
                 ax["roll"].legend()
@@ -828,8 +841,8 @@ def opt2():
                 if zFuse: fileName2 += "z:FUSED_"
                 elif not zFuse: fileName2 += f"z:{z_pick}_"
                 fileName2+=f'[{orient["azim"]},{orient["elev"]}]_'+ \
-                    f"{op2_settings['zPickRange']}_".replace(" ", "")+ \
-                    f"{op2_settings['data_2d_lim']}_".replace(" ","")
+                    f"{op2_settings['zPickRange']['value']}_".replace(" ", "")+ \
+                    f"{op2_settings['data_2d_lim']['value']}_".replace(" ","")
                 fig2 = plt.figure(figsize=(19,9))
                 ax2 = {
                     "roll": 0,
@@ -849,7 +862,7 @@ def opt2():
                 ax2["pitch2d"] = fig2.add_subplot(2, 4, 6)
                 ax2["mixed2d"] = fig2.add_subplot(2, 4, 7)
                 ax2["predict2d"] = fig2.add_subplot(2, 4, 8)
-                ax2_polyN = op2_settings["polyfitRange"]
+                ax2_polyN = op2_settings["polyfitRange"]["value"]
                 ax2_polyFuncs = {
                     "roll": [[], [], [], [[], [], []]], #[ [pos,], [func,], [[min, max],], [[], [], []] ]
                     "pitch": [[], [], [], [[], [], []]]
@@ -871,17 +884,17 @@ def opt2():
                 
 
                 print("\nCreating polyfit grid(s):")
-                for n in range(-90, 90, abs(op2_settings["data_2d_lim"][0][0])+op2_settings["data_2d_lim"][0][1]):
+                for n in range(-90, 90, abs(op2_settings['data_2d_lim']["value"][0][0])+op2_settings['data_2d_lim']["value"][0][1]):
                     print(f"- roll: n:{n}", end="\r")
                     data_2d_strt[1] = n
                     data_2d["roll"] = [[], []]
                     for i in range(len(data_2d_lsts[0][0])):
-                        if data_2d_lsts[1][0][i]>(data_2d_strt[1]+op2_settings["data_2d_lim"][1][0]) \
-                        and data_2d_lsts[1][0][i]<(data_2d_strt[1]+op2_settings["data_2d_lim"][1][1]) \
-                        and len(data_2d_lsts[0][0])>=op2_settings["data_2d_nLim"][0]:
+                        if data_2d_lsts[1][0][i]>(data_2d_strt[1]+op2_settings['data_2d_lim']["value"][1][0]) \
+                        and data_2d_lsts[1][0][i]<(data_2d_strt[1]+op2_settings['data_2d_lim']["value"][1][1]) \
+                        and len(data_2d_lsts[0][0])>=op2_settings["data_2d_nLim"]["value"][0]:
                             data_2d["roll"][0].append(data_2d_lsts[0][0][i])
                             data_2d["roll"][1].append(data_2d_lsts[0][1][i])
-                    if len(data_2d["roll"][0])>=op2_settings["data_2d_nLim"][0]:
+                    if len(data_2d["roll"][0])>=op2_settings["data_2d_nLim"]["value"][0]:
                         for q in ax2_polyN:
                             givenPoly = np.polyfit(data_2d["roll"][0], data_2d["roll"][1], q)
                             polyFunc = np.poly1d(givenPoly)
@@ -894,17 +907,17 @@ def opt2():
                                 ax2["mixed"].plot(temp_x, polyFunc(temp_x), zdir='y', zs=n, linestyle="solid", label=f"{n} n:{q}", linewidth=1, c="#32a852")
                 ax2["roll"].title.set_text(f"roll n:{ax2_polyN}")
                 print("")
-                for n in range(-90, 90, abs(op2_settings["data_2d_lim"][1][0])+op2_settings["data_2d_lim"][1][1]):
+                for n in range(-90, 90, abs(op2_settings['data_2d_lim']["value"][1][0])+op2_settings['data_2d_lim']["value"][1][1]):
                     print(f"- pitch: n:{n}", end="\r")
                     data_2d_strt[0] = n
                     data_2d["pitch"] = [[], []]
                     for i in range(len(data_2d_lsts[1][0])):
-                        if data_2d_lsts[0][0][i]>(data_2d_strt[0]+op2_settings["data_2d_lim"][0][0]) \
-                        and data_2d_lsts[0][0][i]<(data_2d_strt[0]+op2_settings["data_2d_lim"][0][1]) \
-                        and len(data_2d_lsts[1][0])>=op2_settings["data_2d_nLim"][1]:
+                        if data_2d_lsts[0][0][i]>(data_2d_strt[0]+op2_settings['data_2d_lim']["value"][0][0]) \
+                        and data_2d_lsts[0][0][i]<(data_2d_strt[0]+op2_settings['data_2d_lim']["value"][0][1]) \
+                        and len(data_2d_lsts[1][0])>=op2_settings["data_2d_nLim"]["value"][1]:
                             data_2d["pitch"][0].append(data_2d_lsts[1][0][i])
                             data_2d["pitch"][1].append(data_2d_lsts[1][1][i])
-                    if len(data_2d["pitch"][0])>=op2_settings["data_2d_nLim"][1]:
+                    if len(data_2d["pitch"][0])>=op2_settings["data_2d_nLim"]["value"][1]:
                         for q in ax2_polyN:
                             givenPoly = np.polyfit(data_2d["pitch"][0], data_2d["pitch"][1], q)
                             polyFunc = np.poly1d(givenPoly)
@@ -973,7 +986,7 @@ def opt2():
                 print(f"closest: ", cntrVal, f"{'':10}", end='\r')
                 if abs(tempLst[0][i])+abs(tempLst[1][i])<abs(cntrVal[0])+abs(cntrVal[1]):
                     cntrVal = [tempLst[0][i], tempLst[1][i], tempLst[2][i]]
-            print("")
+            print("\n")
             
             tempDict = {
                 "roll": tempLst[0],
@@ -982,7 +995,7 @@ def opt2():
             }
             
             def predFunc0(x, y):
-                print(axisFuncs[0], '', axisFuncs[1], sep='\n')
+                print("\n", axisFuncs[0], '', axisFuncs[1], sep='\n')
                 z_0 = [axisFuncs[0](x).tolist(), axisFuncs[1](y).tolist()]
                 z_coef = [0, 0]
                 z_coef[0] = [round(n/cntrVal[2],2) for n in z_0[0]]
@@ -992,7 +1005,7 @@ def opt2():
                     z.append(z_coef[0][i]*z_coef[1][i])
                 return z
                       
-            print("creating polyfit based regr. data...")
+            print("creating polyfit based regr. data...\n")
             
             predData = [[], [], []]
             for i_x in range(-90, 91, 1):
@@ -1039,7 +1052,7 @@ def opt2():
             fig2.colorbar(ax2["predict2d"].collections[0], ax=ax2["predict2d"])
             
             
-            if not op2_settings["show_predict"]:
+            if not op2_settings["show_predict"]["value"]:
                 fig.colorbar(resultGraph0, ax=ax["slice"])
             fig.colorbar(resultGraph1, ax=ax["slice"])
             fig.colorbar(resultGraph2, ax=ax["raw"])
@@ -1052,8 +1065,8 @@ def opt2():
                 ax["slice"].title.set_text(f"idx:{chosen_pf} z:{z_pick}")
                 fileName = f"n{chosen_pf}_z:{z_pick}_"
             fileName+=f'[{orient["azim"]},{orient["elev"]}]_'+ \
-                f'{op2_settings["zPickRange"]}_'.replace(" ", "")+ \
-                f"{op2_settings['data_2d_lim']}_".replace(" ","")
+                f'{op2_settings["zPickRange"]["value"]}_'.replace(" ", "")+ \
+                f"{op2_settings['data_2d_lim']['value']}_".replace(" ","")
 
         elif plotMethod==1:
             plt_init(printText=False, mode=1)
@@ -1063,12 +1076,12 @@ def opt2():
                 numPoints+=len(val[0])
 
             plt.title(f"idx:{chosen_pf} complete plot: {numPoints} points")
-            fileName = f"n{chosen_pf}_"+str(orient["azim"])+":"+str(orient["elev"])+"_"+f"{op2_settings['data_2d_lim']}_".replace(" ","")
+            fileName = f"n{chosen_pf}_"+str(orient["azim"])+":"+str(orient["elev"])+"_"+f"{op2_settings['data_2d_lim']['value']}_".replace(" ","")
             plt.colorbar(resultGraph)
             saveFigCheck = [True, False]
             
         saveEx = False
-        if op2_settings["toSaveFig"]:
+        if op2_settings["toSaveFig"]["value"]:
             if saveFigCheck[0]:  validSaveFig(fig, fileName, dirPath["media"], imgDpi=fig.dpi+100, saveCopies=saveEx); saveFigCheck[0] = False
             if saveFigCheck[1]:  validSaveFig(fig2, fileName2, dirPath["media"], imgDpi=fig.dpi+100, saveCopies=saveEx); saveFigCheck[1] = False
 
