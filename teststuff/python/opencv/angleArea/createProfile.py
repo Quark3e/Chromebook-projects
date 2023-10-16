@@ -55,7 +55,8 @@ op2_settings = {
     "polyfitRange": {"value": [2], "type": type(list()), "func": lambda var: eval(var), "description": "[n]  list of degree(s) of polynomial regression models to create"},
     "zPickRange": {"value": [-10, 10], "type": type(list()), "func": lambda var: eval(var), "description": "[z_min,z_max]  range of values outside given z value to also include data points "},
     "show_predict": {"value": False, "type": type(bool()), "func": lambda var: bool(var), "description": "whether to display prediction first or dataSets first"},
-    "data_2d_nLim": {"value": [5, 5], "type": type(list()), "func": lambda var: eval(var), "description": "[min,max]  list of minimum number of data points for an axis slice to be made"}
+    "data_2d_nLim": {"value": [5, 5], "type": type(list()), "func": lambda var: eval(var), "description": "[min,max]  list of minimum number of data points for an axis slice to be made"},
+    "zPick": {"value": "auto", "type": type(str()), "func": lambda var: str(var), "description": "what z-axis to pick. If none is given it defaults to \"auto\" (z with most data points)"}
 }
 
 
@@ -645,7 +646,7 @@ def opt2():
     strComments, typeComments, dateComments = readFile_loadValues(mode=1)
     chosen_pf = 0
     plotMethod = 0
-    auto_z = True
+    op2_settings["zPick"]["value"] = "auto"
     z_pick = 0
     polyfitMeth = 1 #0-use point range; 1-[-90, 90]
 
@@ -670,9 +671,9 @@ def opt2():
                 print(f"{'Name':<25}: {'Value':<25}: {'Type':<25}: Description")
                 for key,val in op2_settings.items():
                     # print(f"{key:<20}: {str(val['value']):<20}: {str(val['type']):<20}: {val['description']}")
-                    print(f"{key:<25}: ",end='')
-                    print(f"{str(val['value']):<25}: ",end='')
-                    print(f"{str(val['type']):<25}: ",end='')
+                    print(f"{key:<25}: ", end='')
+                    print(f"{str(val['value']):<25}: ", end='')
+                    print(f"{str(val['type']):<25}: ", end='')
                     print(f"{val['description']}")
                 clearScr = False
             elif pf_opt[:8]=="savefig=": op2_settings["toSaveFig"]["value"] = eval(pf_opt[8:])
@@ -690,11 +691,12 @@ def opt2():
             elif pf_opt[:4]=="eval":
                 eval(pf_opt[5:])
                 input("paused...")
-            elif pf_opt[:2]=="z=":
-                if pf_opt[2:]=="auto": auto_z = True
+            elif pf_opt[:2]=="z=" or ("=" in pf_opt and pf_opt[:pf_opt.find("=")]=="zPick"):
+                if "auto" in pf_opt:
+                    op2_settings["zPick"]["value"] = "auto"
                 else:
-                    auto_z = False
-                    z_pick = round(int(pf_opt[2:])/10)*10
+                    op2_settings["zPick"]["value"] = str(round(int(pf_opt[pf_opt.find("=")+1:])/10)*10)
+                    z_pick = int(op2_settings["zPick"]["value"])
             elif pf_opt[:4]=="fuse":
                 zFuse = True
                 chosen_pf = int(pf_opt[5:])
@@ -718,7 +720,7 @@ def opt2():
         if plotMethod==0:
             plt_init(printText=False, mode=0)
             i = 0
-            if auto_z:
+            if op2_settings["zPick"]["value"]=="auto":
                 for key,var in allDataSets[chosen_pf].items():
                     if i==0: z_pick = key
                     elif len(var[0]) > len(allDataSets[chosen_pf][z_pick][0]): z_pick = key
@@ -777,7 +779,7 @@ def opt2():
                 for x in range(0, biggestVal, 1):
                     for y in range(0, biggestVal-x, 1):
                         pos = [x*flip, y]
-                        print(f"-creating point: {pos}  ", end="\r")
+                        print(f"-solving regr. point: {pos}  ", end="\r")
                         regrData["roll"].append(pos[0])
                         regrData["pitch"].append(pos[1])
                         regrData["area"].append(int(polyChangeList(pos)))
@@ -786,7 +788,7 @@ def opt2():
                 for x in range(0, biggestVal, 1):
                     for y in range(0, (0-biggestVal+x), -1):
                         pos = [x*flip, y]
-                        print(f"-creating point: {pos}  ", end="\r")
+                        print(f"-solving regr. point: {pos}  ", end="\r")
                         regrData["roll"].append(pos[0])
                         regrData["pitch"].append(pos[1])
                         regrData["area"].append(int(polyChangeList(pos)))
@@ -1058,6 +1060,7 @@ def opt2():
             fig.colorbar(resultGraph2, ax=ax["raw"])
 
             ax["raw"].title.set_text(f"3D plot: idx:{strComments[chosen_pf]}")
+            fileName = f"n{chosen_pf}_"
             if zFuse:
                 ax["slice"].title.set_text(f"idx:{chosen_pf} z:FUSED")
                 fileName = f"n{chosen_pf}_z:FUSED_"
@@ -1084,7 +1087,8 @@ def opt2():
         if op2_settings["toSaveFig"]["value"]:
             if saveFigCheck[0]:  validSaveFig(fig, fileName, dirPath["media"], imgDpi=fig.dpi+100, saveCopies=saveEx); saveFigCheck[0] = False
             if saveFigCheck[1]:  validSaveFig(fig2, fileName2, dirPath["media"], imgDpi=fig.dpi+100, saveCopies=saveEx); saveFigCheck[1] = False
-
+        
+        print("showing plot(s)...")
         plt.show()
 
 

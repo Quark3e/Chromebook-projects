@@ -21,7 +21,7 @@ absPath = os.path.realpath(__file__)[:-7]
 # place it in the same folder as this workbook
 # df = pd.read_csv('archive/brooklyn_listings.csv')
 
-orient = {"azim":0, "elev":90}
+orient = {"azim":40, "elev":30}
 
 dataSetName = "raw_csv_dataSet_pf27_fuse-True"
 
@@ -57,6 +57,8 @@ regression_model = LinearRegression()
 
 regression_model.fit(poly_x_values, y_values)
 
+print(regression_model)
+print(regression_model.intercept_)
 print(regression_model.coef_)
 
 useNew = True #variable to switch between predicting existing xy values or to use new values
