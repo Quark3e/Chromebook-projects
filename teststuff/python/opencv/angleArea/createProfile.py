@@ -774,7 +774,7 @@ def opt2():
             #z,xrange,yrange,zrange,intercept,a,b,a^2,ab,b^2,date
             with open(dirPath["script"]+filename_coef, "r") as f:
                 read = csv.reader(f)
-                coefFile_content = [row for row in read]
+                coefFile_content = [row for row in read if len(row)!=0]
             model_coefs = regr.coef_
             model_intercept = regr.intercept_
 
@@ -793,55 +793,87 @@ def opt2():
                 currentDate
             ]
             if zFuse: checkRow[4]="[0:400]"
-            boolChecks = [
-                checkRow[0] in [var[0] for var in coefFile_content],
-                checkRow[1] in [var[1] for var in coefFile_content],
-                checkRow[2] in [var[2] for var in coefFile_content],
-                checkRow[3] in [var[3] for var in coefFile_content],
-                checkRow[4] in [var[4] for var in coefFile_content],
-            ]
+
+
+            boolChecks = 5*[0]
+            # print(boolChecks)
+            for n in coefFile_content: print(n)
+
+            idx_lists = [[n for n in range(1, len(coefFile_content)) if coefFile_content[n][0]==checkRow[0]]] + 4*[0]
+            boolChecks[0] = checkRow[0] in [coefFile_content[n][0] for n in idx_lists[0]]
+
+            print("\n",idx_lists[0],sep='')
+
+            print("--in loop--")
+            for d in range(1, 5):
+                idx_lists[d] = [i for i in idx_lists[d-1] if coefFile_content[i][d]==checkRow[d]]
+                print(idx_lists[d])
+                boolChecks[d] = checkRow[d] in [coefFile_content[i][d] for i in idx_lists[d]]
+            print(" -boolchecks: ", boolChecks)
+            print(" -idx_lists:  ", idx_lists)
             
             fullBreak = False
             print("Checking csv row with existing file...")
             if not False in boolChecks:
-                print("Matched first four elements:")
-                idx = [var[0] for var in coefFile_content].index(checkRow[0])
-                coefFile_content[idx][4] = str(model_intercept)
-                for i in range(5, 10): coefFile_content[idx][i] = str(model_coefs[i-4])
-                coefFile_content[idx][10] = currentDate
-            for rowIdx in range(5, -1, -1):
-                if rowIdx==1 or rowIdx==0:
-                    print("Matched no elements:")
-                    for i in range(1, len(coefFile_content)):
-                        if int(checkRow[0])<=int(coefFile_content[i][0]):
-                            coefFile_content.insert(i, checkRow)
-                            fullBreak=True
+                print(f"Matched n:5 elements: found a copy: overwriting")
+                idx = idx_lists[4][0]
+                coefFile_content[idx][5:] = checkRow[5:]
+            else:
+                for rowIdx in range(4, 0, -1):
+                    if not False in boolChecks[:rowIdx]:
+                        print(f"Matched n:{rowIdx} elements:")
+                        for i in idx_lists[rowIdx-1]:
+                            if rowIdx in [4, 3]:
+                                if sum([abs(f) for f in eval(checkRow[rowIdx].replace(":", ", "))]) < sum([abs(f) for f in eval(coefFile_content[i][rowIdx].replace(":", ", "))]):
+                                    coefFile_content.insert(i, checkRow)
+                                    fullBreak=True
+                                    break
+                            elif rowIdx in [2, 1]:
+                                if int(checkRow[rowIdx]) < int(coefFile_content[i][rowIdx]):
+                                    coefFile_content.insert(i, checkRow)
+                                    fullBreak=True
+                                    break
+                        else:
+                            coefFile_content.insert(idx_lists[rowIdx-1][-1]+1, checkRow)
                             break
-                    else: coefFile_content.insert(len(coefFile_content), checkRow)
-                elif rowIdx<5 and not False in boolChecks[:rowIdx]:
-                    print(f"Matched n:{rowIdx} elements:")
-                    start_idx = [row[0] for row in coefFile_content].index(checkRow[0])
-                    for i in range(start_idx+1, len(coefFile_content)):
-                        if int(checkRow[0])<=int(coefFile_content[i][0]):
-                            coefFile_content.insert(i, checkRow)
-                            fullBreak=True
-                            break
-                    else: coefFile_content.insert(len(coefFile_content), checkRow)
-                elif not False in boolChecks[:rowIdx]:
-                    print(f"Matched n:{rowIdx} elements:")
-                    start_idx = [row[:rowIdx] for row in coefFile_content].index(checkRow[:rowIdx])
-                    for i in range(start_idx+1, len(coefFile_content)):
-                        if sum([abs(f) for f in eval(checkRow[rowIdx-1].replace(":", ", "))])<=sum([abs(f) for f in eval(coefFile_content[i][rowIdx-1].replace(":", ", "))]):
-                            coefFile_content.insert(i, checkRow)
-                            fullBreak=True
-                            break
-                    else: coefFile_content.insert(len(coefFile_content), checkRow)
-                if fullBreak: break
 
+                    # if rowIdx==1 or rowIdx==0:
+                    #     print("Matched no elements:")
+                    #     for i in range(1, len(coefFile_content)):
+                    #         if int(checkRow[0])<=int(coefFile_content[i][0]):
+                    #             coefFile_content.insert(i, checkRow)
+                    #             fullBreak=True
+                    #             break
+                    #     else: coefFile_content.insert(len(coefFile_content), checkRow)
+                    # elif rowIdx<=2 and not False in boolChecks[:rowIdx]:
+                    #     print(f"Matched n:{rowIdx} elements:")
+                    #     start_idx = [row[0] for row in coefFile_content].index(checkRow[0])
+                    #     for i in range(start_idx+1, len(coefFile_content)):
+                    #         if int(checkRow[0])<=int(coefFile_content[i][0]):
+                    #             coefFile_content.insert(i, checkRow)
+                    #             fullBreak=True
+                    #             break
+                    #     else: coefFile_content.insert(len(coefFile_content), checkRow)
+                    # elif not False in boolChecks[:rowIdx]:
+                    #     print(f"Matched n:{rowIdx} elements:")
+                    #     start_idx = [row[:rowIdx] for row in coefFile_content].index(checkRow[:rowIdx])
+                    #     for i in idx_lists[]:
+                    #         if sum([abs(f) for f in eval(checkRow[rowIdx-1].replace(":", ", "))]) <= sum([abs(f) for f in eval(coefFile_content[i][rowIdx-1].replace(":", ", "))]):
+                    #             coefFile_content.insert(i, checkRow)
+                    #             fullBreak=True
+                    #             break
+                    #     else: coefFile_content.insert(len(coefFile_content), checkRow)
+                    if fullBreak: break
+                else:
+                    print("No matches")
+                    coefFile_content.insert(len(coefFile_content), checkRow)
+
+            print("Writing csv file..")
             with open(dirPath["script"]+filename_coef, "w") as f:
                 write = csv.writer(f)
                 write.writerows(coefFile_content)
-
+            input("paused.. (press enter to continue)")
+            continue
 
             # regr = linear_model.LinearRegression()
             # regr.fit(regrFeed[0].values, regrFeed[1])
