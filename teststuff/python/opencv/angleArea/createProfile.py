@@ -37,6 +37,7 @@ from sklearn.metrics import mean_squared_error
 from datetime import datetime
 
 dirPath = {
+    "script": "",
     "media": "media/",
     "data": "data/"
 }
@@ -725,6 +726,7 @@ def opt2():
                     if i==0: z_pick = key
                     elif len(var[0]) > len(allDataSets[chosen_pf][z_pick][0]): z_pick = key
                     i+=1
+                op2_settings["zPick"]["value"]=int(z_pick)
 
             if not zFuse:
                 temp=[[], [], []]
@@ -762,6 +764,83 @@ def opt2():
             poly_model.fit(temp_polyXValues, regrFeed[1])
             regr = LinearRegression()
             regr.fit(temp_polyXValues, regrFeed[1])
+
+
+            filename_coef = "model_n2_coef.csv"
+            coefFile_content = []
+
+            currentDate = str(datetime.now())
+
+            #z,xrange,yrange,zrange,intercept,a,b,a^2,ab,b^2,date
+            with open(dirPath["script"]+filename_coef, "r") as f:
+                read = csv.reader(f)
+                coefFile_content = [row for row in read]
+            model_coefs = regr.coef_
+            model_intercept = regr.intercept_
+
+            checkRow = [
+                str(chosen_pf),
+                str(op2_settings["zPick"]["value"]),
+                str(op2_settings["data_2d_lim"]["value"][0]).replace(", ", ":"),
+                str(op2_settings["data_2d_lim"]["value"][1]).replace(", ", ":"),
+                str(op2_settings["zPickRange"]["value"]).replace(", ", ":"),
+                str(model_intercept),
+                str(model_coefs[1]),
+                str(model_coefs[2]),
+                str(model_coefs[3]),
+                str(model_coefs[4]),
+                str(model_coefs[5]),
+                currentDate
+            ]
+            if zFuse: checkRow[4]=str([0, 400])
+            boolChecks = [
+                checkRow[0] in [var[0] for var in coefFile_content],
+                checkRow[1] in [var[1] for var in coefFile_content],
+                checkRow[2] in [var[2] for var in coefFile_content],
+                checkRow[3] in [var[3] for var in coefFile_content],
+                checkRow[4] in [var[4] for var in coefFile_content],
+            ]
+            
+            fullBreak = False
+            if not False in boolChecks:
+                print("Matched first four elements:")
+                idx = [var[0] for var in coefFile_content].index(checkRow[0])
+                coefFile_content[idx][4] = str(model_intercept)
+                for i in range(5, 10): coefFile_content[idx][i] = str(model_coefs[i-4])
+                coefFile_content[idx][10] = currentDate
+            for rowIdx in range(4, -1, -1):
+                if rowIdx==1 or rowIdx==0:
+                    print("Matched no elements:")
+                    for i in range(1, len(coefFile_content)):
+                        if int(checkRow[0])<=int(coefFile_content[i][0]):
+                            coefFile_content.insert(i, checkRow)
+                            fullBreak=True
+                            break
+                    else: coefFile_content.insert(len(coefFile_content), checkRow)
+                elif rowIdx==2 and not False in boolChecks[:rowIdx]:
+                    print(f"Matched n:{rowIdx} elements:")
+                    start_idx = [row[0] for row in coefFile_content].index(checkRow[0])
+                    for i in range(start_idx+1, len(coefFile_content)):
+                        if int(checkRow[0])<=int(coefFile_content[i][0]):
+                            coefFile_content.insert(i, checkRow)
+                            fullBreak=True
+                            break
+                    else: coefFile_content.insert(len(coefFile_content), checkRow)
+                elif not False in boolChecks[:rowIdx]:
+                    print(f"Matched n:{rowIdx} elements:")
+                    start_idx = [row[:rowIdx] for row in coefFile_content].index(checkRow[:rowIdx])
+                    for i in range(start_idx+1, len(coefFile_content)):
+                        if sum([abs(f) for f in eval(checkRow[rowIdx-1].replace(":", ", "))])<=sum([abs(f) for f in eval(coefFile_content[i][rowIdx-1].replace(":", ", "))]):
+                            coefFile_content.insert(i, checkRow)
+                            fullBreak=True
+                            break
+                    else: coefFile_content.insert(len(coefFile_content), checkRow)
+                if fullBreak: break
+
+            with open(dirPath["script"]+filename_coef, "w") as f:
+                write = csv.writer(f)
+                write.writerows(coefFile_content)
+
 
             # regr = linear_model.LinearRegression()
             # regr.fit(regrFeed[0].values, regrFeed[1])
@@ -1027,7 +1106,7 @@ def opt2():
             #fig2.colorbar(ax2["predict"].collections[0], ax=ax2["predict"])
             dataFileName = f"dataSet_pf{chosen_pf}_fuse-{str(zFuse)}.dat".replace(" ","")
             
-
+            print("\ncreating csv file(s)....")
             csv_fields = ["Roll","Pitch","Area"]
             csv_rows = [[predData[0][n],predData[1][n],predData[2][n]] for n in range(len(predData[0]))]
             with open(dirPath["data"]+"csv_"+dataFileName[:-4]+".csv", "w") as f:
@@ -1050,6 +1129,9 @@ def opt2():
             dataFile = open(dirPath["data"]+dataFileName, "w")
             for sets in predData: dataFile.write(str(sets)+"\n")
             dataFile.close()
+
+
+            print("\nplt plot miscellanious stuff...")
             ax2["predict2d"].scatter(predData[0], predData[1], c=predData[2], s=2, cmap="magma")
             fig2.colorbar(ax2["predict2d"].collections[0], ax=ax2["predict2d"])
             

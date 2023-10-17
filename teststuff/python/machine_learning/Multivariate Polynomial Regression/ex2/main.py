@@ -60,6 +60,7 @@ regression_model.fit(poly_x_values, y_values)
 print(regression_model)
 print(regression_model.intercept_)
 print(regression_model.coef_)
+print(regression_model.coef_[2])
 
 useNew = True #variable to switch between predicting existing xy values or to use new values
 testNew = False
