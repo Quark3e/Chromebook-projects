@@ -792,7 +792,7 @@ def opt2():
                 str(model_coefs[5]),
                 currentDate
             ]
-            if zFuse: checkRow[4]=str([0, 400])
+            if zFuse: checkRow[4]="[0:400]"
             boolChecks = [
                 checkRow[0] in [var[0] for var in coefFile_content],
                 checkRow[1] in [var[1] for var in coefFile_content],
@@ -802,13 +802,14 @@ def opt2():
             ]
             
             fullBreak = False
+            print("Checking csv row with existing file...")
             if not False in boolChecks:
                 print("Matched first four elements:")
                 idx = [var[0] for var in coefFile_content].index(checkRow[0])
                 coefFile_content[idx][4] = str(model_intercept)
                 for i in range(5, 10): coefFile_content[idx][i] = str(model_coefs[i-4])
                 coefFile_content[idx][10] = currentDate
-            for rowIdx in range(4, -1, -1):
+            for rowIdx in range(5, -1, -1):
                 if rowIdx==1 or rowIdx==0:
                     print("Matched no elements:")
                     for i in range(1, len(coefFile_content)):
@@ -817,7 +818,7 @@ def opt2():
                             fullBreak=True
                             break
                     else: coefFile_content.insert(len(coefFile_content), checkRow)
-                elif rowIdx==2 and not False in boolChecks[:rowIdx]:
+                elif rowIdx<5 and not False in boolChecks[:rowIdx]:
                     print(f"Matched n:{rowIdx} elements:")
                     start_idx = [row[0] for row in coefFile_content].index(checkRow[0])
                     for i in range(start_idx+1, len(coefFile_content)):
