@@ -800,7 +800,6 @@ def opt2():
 
 
             boolChecks = 5*[0]
-            # print(boolChecks)
             for n in coefFile_content: print(n)
 
             idx_lists = [[n for n in range(1, len(coefFile_content)) if coefFile_content[n][0]==checkRow[0]]] + 4*[0]
@@ -840,33 +839,6 @@ def opt2():
                         else:
                             coefFile_content.insert(idx_lists[rowIdx-1][-1]+1, checkRow)
                             break
-
-                    # if rowIdx==1 or rowIdx==0:
-                    #     print("Matched no elements:")
-                    #     for i in range(1, len(coefFile_content)):
-                    #         if int(checkRow[0])<=int(coefFile_content[i][0]):
-                    #             coefFile_content.insert(i, checkRow)
-                    #             fullBreak=True
-                    #             break
-                    #     else: coefFile_content.insert(len(coefFile_content), checkRow)
-                    # elif rowIdx<=2 and not False in boolChecks[:rowIdx]:
-                    #     print(f"Matched n:{rowIdx} elements:")
-                    #     start_idx = [row[0] for row in coefFile_content].index(checkRow[0])
-                    #     for i in range(start_idx+1, len(coefFile_content)):
-                    #         if int(checkRow[0])<=int(coefFile_content[i][0]):
-                    #             coefFile_content.insert(i, checkRow)
-                    #             fullBreak=True
-                    #             break
-                    #     else: coefFile_content.insert(len(coefFile_content), checkRow)
-                    # elif not False in boolChecks[:rowIdx]:
-                    #     print(f"Matched n:{rowIdx} elements:")
-                    #     start_idx = [row[:rowIdx] for row in coefFile_content].index(checkRow[:rowIdx])
-                    #     for i in idx_lists[]:
-                    #         if sum([abs(f) for f in eval(checkRow[rowIdx-1].replace(":", ", "))]) <= sum([abs(f) for f in eval(coefFile_content[i][rowIdx-1].replace(":", ", "))]):
-                    #             coefFile_content.insert(i, checkRow)
-                    #             fullBreak=True
-                    #             break
-                    #     else: coefFile_content.insert(len(coefFile_content), checkRow)
                     if fullBreak: break
                 else:
                     print("No matches")
