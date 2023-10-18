@@ -62,7 +62,7 @@ op2_settings = {
 
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-client_socket.settimeout(0.5)
+client_socket.settimeout(0.1)
 client_msg = b"fromClient"
 addr = ("192.168.1.118", 53)
 server_msg = ""
@@ -628,19 +628,23 @@ def opt1():
     plt.show()
 
 
-def ax_addPolyfits(x, y, n, ax_key):
-    global ax, fig
+def ax_addPolyfits(ax, fig, x, y, n, ax_key=None, temp_x = [q for q in range(-90, 91)]):
+    # global ax, fig
 
     # print(x, y)
     # print(f"solving polyfits for \"{ax_key}\"")
-    ax[ax_key].scatter(x, y, label="data", s=1, c="#fa0000")
-    for i in n:
-        givenPoly = np.polyfit(x, y, i)
-        polyFunc = np.poly1d(givenPoly)
-        # print(polyFunc)
-        temp_x = [q for q in range(-90, 91)]
-        ax[ax_key].plot(temp_x, polyFunc(temp_x), linestyle="solid", label=f"n:{i}", linewidth=1)
-
+    if ax_key!=None:
+        ax[ax_key].scatter(x, y, label="data", s=1, c="#fa0000")
+        for i in n:
+            givenPoly = np.polyfit(x, y, i)
+            polyFunc = np.poly1d(givenPoly)
+            ax[ax_key].plot(temp_x, polyFunc(temp_x), linestyle="solid", label=f"n:{i}", linewidth=1, alpha=0.7)
+    else:
+        ax.scatter(x, y, label="data", s=1, c="#fa0000")
+        for i in n:
+            givenPoly = np.polyfit(x, y, i)
+            polyFunc = np.poly1d(givenPoly)
+            ax.plot(temp_x, polyFunc(temp_x), linestyle="solid", label=f"n:{i}", linewidth=1, alpha=0.7)
 
 def opt2():
     global orient, ax, fig, op2_settings, df
@@ -872,8 +876,6 @@ def opt2():
             with open(dirPath["script"]+filename_coef, "w") as f:
                 write = csv.writer(f)
                 write.writerows(coefFile_content)
-            input("paused.. (press enter to continue)")
-            continue
 
             # regr = linear_model.LinearRegression()
             # regr.fit(regrFeed[0].values, regrFeed[1])
@@ -943,8 +945,8 @@ def opt2():
             axisFuncs = [0, 0]
             if not 0 in tempCheck:
                 saveFigCheck = [True, True]
-                ax_addPolyfits(data_2d["roll"][0], data_2d["roll"][1], op2_settings["polyfitRange"]["value"], "roll")
-                ax_addPolyfits(data_2d["pitch"][0], data_2d["pitch"][1], op2_settings["polyfitRange"]["value"], "pitch")
+                ax_addPolyfits(ax, fig, data_2d["roll"][0], data_2d["roll"][1], op2_settings["polyfitRange"]["value"], "roll")
+                ax_addPolyfits(ax, fig, data_2d["pitch"][0], data_2d["pitch"][1], op2_settings["polyfitRange"]["value"], "pitch")
                 axisFuncs[0] = np.poly1d(np.polyfit(data_2d["roll"][0], data_2d["roll"][1], 2))
                 axisFuncs[1] = np.poly1d(np.polyfit(data_2d["pitch"][0], data_2d["pitch"][1], 2))
                 ax["roll"].legend()
@@ -1207,6 +1209,37 @@ def opt2():
         plt.show()
 
 
+def opt3():
+    csvFile = pandas.read_csv("model_n2_coef.csv")
+
+    chosen_idx = 0
+
+    xValues = csvFile["z"][1:]
+
+    yValues = [
+        csvFile["intercept"][1:],
+        csvFile["a"][1:],
+        csvFile["b"][1:],
+        csvFile["a^2"][1:],
+        csvFile["ab"][1:],
+        csvFile["b^2"][1:],
+    ]
+    # print(yValues[2])
+
+    fig = plt.figure(dpi=150)
+    ax = fig.subplots()
+    ax.plot(xValues, yValues[chosen_idx])
+    
+    ax_addPolyfits(ax, fig, xValues, yValues[chosen_idx], [n for n in range(1, 5)], temp_x=[x for x in range(round(min(xValues)),round(max(xValues)))])
+
+    plt.legend()
+
+    plt.show()
+
+    # input("paused")
+    return
+
+
 def main():
     while True:
         os.system("clear")
@@ -1214,12 +1247,14 @@ def main():
         print("0. Track and create new data sets for profile 1")
         print("1. Load and save average of all dataSets for profile 1")
         print("2. Display dataSets from profiles File")
+        print("3. Create polfit models of op2 coefs")
 
         inp = input("input: ")
         if inp=="exit": break
         elif inp=="0": opt0()
         elif inp=="1": opt1()
         elif inp=="2": opt2()
+        elif inp=="3": opt3()
 
 if __name__=="__main__":
     main()
