@@ -50,14 +50,15 @@ orient = {
 
 op2_settings = {
     "thresh_zArea": {"value": 100, "type": type(int()), "func": lambda var: int(var), "description": "minimum area for zCam to recognize z value"},
-    "toSaveFig": {"value": True, "type": type(bool()), "func": lambda var: bool(var), "description": "whether to save figures as png images"},
+    "toSaveFig": {"value": True, "type": type(bool()), "func": lambda var: eval(var), "description": "whether to save figures as png images"},
     "thresh_xyLim": {"value": [100, 100], "type": type(list()), "func": lambda var: eval(var), "description": "[x,y]  border square where readings \"outside\" aren't valid"},
     "data_2d_lim": {"value": [[-5, 5], [-5, 5]], "type": type(list()), "func": lambda var: eval(var), "description": "[[x_min,x_max],[y_min,y_max]]  range of points fused into one axis"},
     "polyfitRange": {"value": [2], "type": type(list()), "func": lambda var: eval(var), "description": "[n]  list of degree(s) of polynomial regression models to create"},
     "zPickRange": {"value": [-10, 10], "type": type(list()), "func": lambda var: eval(var), "description": "[z_min,z_max]  range of values outside given z value to also include data points "},
-    "show_predict": {"value": False, "type": type(bool()), "func": lambda var: bool(var), "description": "whether to display prediction first or dataSets first"},
+    "show_predict": {"value": False, "type": type(bool()), "func": lambda var: eval(var), "description": "whether to display prediction first or dataSets first"},
     "data_2d_nLim": {"value": [5, 5], "type": type(list()), "func": lambda var: eval(var), "description": "[min,max]  list of minimum number of data points for an axis slice to be made"},
-    "zPick": {"value": "auto", "type": type(str()), "func": lambda var: str(var), "description": "what z-axis to pick. If none is given it defaults to \"auto\" (z with most data points)"}
+    "zPick": {"value": "auto", "type": type(str()), "func": lambda var: str(var), "description": "what z-axis to pick. If none is given it defaults to \"auto\" (z with most data points)"},
+    "useSlice": {"value": True, "type": type(bool()), "func": lambda var: eval(var), "description": "whether create regression model from chosen slice [True] or from entire pf dataSet"}
 }
 
 
@@ -732,37 +733,33 @@ def opt2():
                     i+=1
                 op2_settings["zPick"]["value"]=int(z_pick)
 
+
+            temp=[[], [], [], []]
             if not zFuse:
-                temp=[[], [], []]
                 for z in range(z_pick+op2_settings["zPickRange"]["value"][0], z_pick+op2_settings["zPickRange"]["value"][1]+1):
                     if z in allDataSets[chosen_pf]:
                         temp[0] += allDataSets[chosen_pf][z][0]
                         temp[1] += allDataSets[chosen_pf][z][1]
                         temp[2] += allDataSets[chosen_pf][z][2]
-                tempDict = {
-                    "roll": temp[0],
-                    "pitch": temp[1],
-                    "area": temp[2]
-                }
+                        temp[3] += len(allDataSets[chosen_pf][z][0])*[z]
             elif zFuse:
-                temp=[[], [], []]
                 for key,val in allDataSets[chosen_pf].items():
-                    print(f"reading z: {key}", end='\r')
+                    print(f"fuse: reading z: {key}", end='\r')
                     temp[0] += val[0]
                     temp[1] += val[1]
                     temp[2] += val[2]
+                    temp[3] += len(val[0])*[key]
                 print()
-                tempDict = {
-                    "roll": temp[0],
-                    "pitch": temp[1],
-                    "area": temp[2]
-                }
+            tempDict = {
+                "roll": temp[0],
+                "pitch": temp[1],
+                "area": temp[2],
+                "z": temp[3]
+            }
 
             df = pandas.DataFrame(tempDict).dropna()
-            regrFeed = [
-                df[["roll", "pitch"]],
-                df["area"]
-            ]
+            if op2_settings["useSlice"]["value"]: regrFeed = [df[["roll", "pitch"]], df["area"]]
+            elif not op2_settings["useSlice"]["value"]: regrFeed = [df[["roll", "pitch", "z"]], df["area"]]
             poly_model = PolynomialFeatures(degree=2)
             temp_polyXValues = poly_model.fit_transform(regrFeed[0])
             poly_model.fit(temp_polyXValues, regrFeed[1])
@@ -800,7 +797,7 @@ def opt2():
 
 
             boolChecks = 5*[0]
-            for n in coefFile_content: print(n)
+            # for n in coefFile_content: print(n)
 
             idx_lists = [[n for n in range(1, len(coefFile_content)) if coefFile_content[n][0]==checkRow[0]]] + 4*[0]
             boolChecks[0] = checkRow[0] in [coefFile_content[n][0] for n in idx_lists[0]]
@@ -810,10 +807,11 @@ def opt2():
             print("--in loop--")
             for d in range(1, 5):
                 idx_lists[d] = [i for i in idx_lists[d-1] if coefFile_content[i][d]==checkRow[d]]
-                print(idx_lists[d])
+                # print(idx_lists[d])
                 boolChecks[d] = checkRow[d] in [coefFile_content[i][d] for i in idx_lists[d]]
-            print(" -boolchecks: ", boolChecks)
-            print(" -idx_lists:  ", idx_lists)
+            # print(" -boolchecks: ", boolChecks)
+            # print(" -idx_lists:  ", idx_lists)
+            print(checkRow)
             
             fullBreak = False
             print("Checking csv row with existing file...")
@@ -853,7 +851,7 @@ def opt2():
             # regr.fit(regrFeed[0].values, regrFeed[1])
 
             print("creating regr. data...\n")
-            regrData = {"roll":[], "pitch":[], "area":[]}
+            regrData = {"roll":[], "pitch":[], "z":[] ,"area":[]}
             
             def polyChangeList(pos):
                 return np.squeeze(regr.predict(poly_model.fit_transform(np.array([pos]))))
@@ -865,18 +863,22 @@ def opt2():
                 for x in range(0, biggestVal, 1):
                     for y in range(0, biggestVal-x, 1):
                         pos = [x*flip, y]
+                        if not op2_settings["useSlice"]["value"]: pos.append(int(op2_settings["zPick"]["value"]))
                         print(f"-solving regr. point: {pos}  ", end="\r")
                         regrData["roll"].append(pos[0])
                         regrData["pitch"].append(pos[1])
+                        if not op2_settings["useSlice"]["value"]: regrData["z"].append(pos[2])
                         regrData["area"].append(int(polyChangeList(pos)))
                         
             for flip in range(-1, 2, 2):
                 for x in range(0, biggestVal, 1):
                     for y in range(0, (0-biggestVal+x), -1):
                         pos = [x*flip, y]
+                        if not op2_settings["useSlice"]["value"]: pos.append(int(op2_settings["zPick"]["value"]))
                         print(f"-solving regr. point: {pos}  ", end="\r")
                         regrData["roll"].append(pos[0])
                         regrData["pitch"].append(pos[1])
+                        if not op2_settings["useSlice"]["value"]: regrData["z"].append(pos[2])
                         regrData["area"].append(int(polyChangeList(pos)))
 
             print("scatter plotting data sets:")
@@ -930,7 +932,8 @@ def opt2():
                 elif not zFuse: fileName2 += f"z:{z_pick}_"
                 fileName2+=f'[{orient["azim"]},{orient["elev"]}]_'+ \
                     f"{op2_settings['zPickRange']['value']}_".replace(" ", "")+ \
-                    f"{op2_settings['data_2d_lim']['value']}_".replace(" ","")
+                    f"{op2_settings['data_2d_lim']['value']}_".replace(" ","")+ \
+                    f"{op2_settings['useSlice']['value']}_".replace(" ", "")
                 fig2 = plt.figure(figsize=(19,9))
                 ax2 = {
                     "roll": 0,
@@ -1158,7 +1161,8 @@ def opt2():
                 fileName = f"n{chosen_pf}_z:{z_pick}_"
             fileName+=f'[{orient["azim"]},{orient["elev"]}]_'+ \
                 f'{op2_settings["zPickRange"]["value"]}_'.replace(" ", "")+ \
-                f"{op2_settings['data_2d_lim']['value']}_".replace(" ","")
+                f"{op2_settings['data_2d_lim']['value']}_".replace(" ","")+ \
+                f"{op2_settings['useSlice']['value']}_".replace(" ", "")
 
         elif plotMethod==1:
             plt_init(printText=False, mode=1)
