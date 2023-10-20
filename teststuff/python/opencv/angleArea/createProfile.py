@@ -351,8 +351,9 @@ def plt_update(n):
         morphImg[0] = cv2.rectangle(morphImg[0], (int(prefRes[0]/2-op2_settings["thresh_xyLim"]["value"][0]), int(prefRes[1]/2-op2_settings["thresh_xyLim"]["value"][1])), (int(prefRes[0]/2+op2_settings["thresh_xyLim"]["value"][0]), int(prefRes[1]/2+op2_settings["thresh_xyLim"]["value"][1])), brdrColor, 2)
         for flag in range(2):
             # for i in range(len(contours[flag])): #type: ignore
-            tempPos, cntArea = solveContours(contours[flag], 0)
-
+            if flag==0: tempPos, cntArea = solveContours(contours[0], 0)
+            elif flag==1: tempPos, _ = solveContours(contours[1], 0)
+            
             if flag==0 and (abs(tempPos[0]-prefRes[0]/2)<op2_settings["thresh_xyLim"]["value"][0] and abs(prefRes[1]/2-tempPos[1])<op2_settings["thresh_xyLim"]["value"][1]):
                 cntPos[0] = round((tempPos[0]-prefRes[0]/2)/10)*10 #type: ignore
                 cntPos[1] = round((prefRes[1]/2-tempPos[1])/10)*10 #type: ignore
@@ -380,7 +381,7 @@ def plt_update(n):
 
             if flag==1 and len(contours[flag])<=0:
                 tempPos = [None, None]
-        print(cntArea, end=" ")
+        # print(cntArea, end=" ")
         if cntArea != None and isRecVals:
             angleStr = f"{round(roll)}:{round(pitch)}"
             print(f"read: angles:{str(round(roll)):<3}:{str(round(pitch)):<3} area:{str(cntArea):<10} z:{str(cntPos[2]):<5}")
