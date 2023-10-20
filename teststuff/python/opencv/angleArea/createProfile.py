@@ -58,7 +58,8 @@ op2_settings = {
     "show_predict": {"value": False, "type": type(bool()), "func": lambda var: eval(var), "description": "whether to display prediction first or dataSets first"},
     "data_2d_nLim": {"value": [5, 5], "type": type(list()), "func": lambda var: eval(var), "description": "[min,max]  list of minimum number of data points for an axis slice to be made"},
     "zPick": {"value": "auto", "type": type(str()), "func": lambda var: str(var), "description": "what z-axis to pick. If none is given it defaults to \"auto\" (z with most data points)"},
-    "useSlice": {"value": True, "type": type(bool()), "func": lambda var: eval(var), "description": "whether create regression model from chosen slice [True] or from entire pf dataSet"}
+    "useSlice": {"value": True, "type": type(bool()), "func": lambda var: eval(var), "description": "whether create regression model from chosen slice [True] or from entire pf dataSet"},
+    "saveCoef": {"value": False, "type": type(bool()), "func": lambda var: eval(var), "description": "whether to write regression model coefficients into coef file"}
 }
 
 
@@ -350,7 +351,7 @@ def plt_update(n):
             # for i in range(len(contours[flag])): #type: ignore
             tempPos, cntArea = solveContours(contours[flag], 0)
 
-            if flag==0 and (abs(tempPos[0]-prefRes[0]/2)<op2_settings["thresh_xyLim"]["value"][0] and abs(prefRes[1]/2-tempPos[1])<op2_settings["thresh_xyLim"]["value"][1]):
+            if flag==0:
                 cntPos[0] = round((tempPos[0]-prefRes[0]/2)/10)*10 #type: ignore
                 cntPos[1] = round((prefRes[1]/2-tempPos[1])/10)*10 #type: ignore
                 brdrColor = (255, 255, 255)
@@ -360,7 +361,7 @@ def plt_update(n):
                     (tempPos[0],tempPos[1]), \
                     font,1,(255,0,0),2) #type: ignore
                 readAccelerometer(printText=False)
-            elif flag==0:
+            elif flag==0 and not (abs(tempPos[0]-prefRes[0]/2)<op2_settings["thresh_xyLim"]["value"][0] and abs(prefRes[1]/2-tempPos[1])<op2_settings["thresh_xyLim"]["value"][1]):
                 print(" OBJECT POS IS OUTSIDE op2_settings[\"thresh_xyLim\"] ", '\r')
                 brdrColor = (255, 0, 0)
                 #if displayToOpenCV:
@@ -766,86 +767,86 @@ def opt2():
             regr = LinearRegression()
             regr.fit(temp_polyXValues, regrFeed[1])
 
+            if op2_settings["saveCoef"]["value"]:
+                filename_coef = "model_n2_coef.csv"
+                coefFile_content = []
 
-            filename_coef = "model_n2_coef.csv"
-            coefFile_content = []
+                currentDate = str(datetime.now())
 
-            currentDate = str(datetime.now())
+                #z,xrange,yrange,zrange,intercept,a,b,a^2,ab,b^2,date
+                with open(dirPath["script"]+filename_coef, "r") as f:
+                    read = csv.reader(f)
+                    coefFile_content = [row for row in read if len(row)!=0]
+                model_coefs = regr.coef_
+                model_intercept = regr.intercept_
 
-            #z,xrange,yrange,zrange,intercept,a,b,a^2,ab,b^2,date
-            with open(dirPath["script"]+filename_coef, "r") as f:
-                read = csv.reader(f)
-                coefFile_content = [row for row in read if len(row)!=0]
-            model_coefs = regr.coef_
-            model_intercept = regr.intercept_
-
-            checkRow = [
-                str(chosen_pf),
-                str(op2_settings["zPick"]["value"]),
-                str(op2_settings["data_2d_lim"]["value"][0]).replace(", ", ":"),
-                str(op2_settings["data_2d_lim"]["value"][1]).replace(", ", ":"),
-                str(op2_settings["zPickRange"]["value"]).replace(", ", ":"),
-                str(model_intercept),
-                str(model_coefs[1]),
-                str(model_coefs[2]),
-                str(model_coefs[3]),
-                str(model_coefs[4]),
-                str(model_coefs[5]),
-                currentDate
-            ]
-            if zFuse: checkRow[4]="[0:400]"
+                checkRow = [
+                    str(chosen_pf),
+                    str(op2_settings["zPick"]["value"]),
+                    str(op2_settings["data_2d_lim"]["value"][0]).replace(", ", ":"),
+                    str(op2_settings["data_2d_lim"]["value"][1]).replace(", ", ":"),
+                    str(op2_settings["zPickRange"]["value"]).replace(", ", ":"),
+                    str(model_intercept),
+                    str(model_coefs[1]),
+                    str(model_coefs[2]),
+                    str(model_coefs[3]),
+                    str(model_coefs[4]),
+                    str(model_coefs[5]),
+                    currentDate
+                ]
+                if zFuse: checkRow[4]="[0:400]"
 
 
-            boolChecks = 5*[0]
-            # for n in coefFile_content: print(n)
+                boolChecks = 5*[0]
+                # for n in coefFile_content: print(n)
 
-            idx_lists = [[n for n in range(1, len(coefFile_content)) if coefFile_content[n][0]==checkRow[0]]] + 4*[0]
-            boolChecks[0] = checkRow[0] in [coefFile_content[n][0] for n in idx_lists[0]]
+                idx_lists = [[n for n in range(1, len(coefFile_content)) if coefFile_content[n][0]==checkRow[0]]] + 4*[0]
+                boolChecks[0] = checkRow[0] in [coefFile_content[n][0] for n in idx_lists[0]]
 
-            print("\n",idx_lists[0],sep='')
+                print("\n",idx_lists[0],sep='')
 
-            print("--in loop--")
-            for d in range(1, 5):
-                idx_lists[d] = [i for i in idx_lists[d-1] if coefFile_content[i][d]==checkRow[d]]
-                # print(idx_lists[d])
-                boolChecks[d] = checkRow[d] in [coefFile_content[i][d] for i in idx_lists[d]]
-            # print(" -boolchecks: ", boolChecks)
-            # print(" -idx_lists:  ", idx_lists)
-            print(checkRow)
-            
-            fullBreak = False
-            print("Checking csv row with existing file...")
-            if not False in boolChecks:
-                print(f"Matched n:5 elements: found a copy: overwriting")
-                idx = idx_lists[4][0]
-                coefFile_content[idx][5:] = checkRow[5:]
-            else:
-                for rowIdx in range(4, 0, -1):
-                    if not False in boolChecks[:rowIdx]:
-                        print(f"Matched n:{rowIdx} elements:")
-                        for i in idx_lists[rowIdx-1]:
-                            if rowIdx in [4, 3]:
-                                if sum([abs(f) for f in eval(checkRow[rowIdx].replace(":", ", "))]) < sum([abs(f) for f in eval(coefFile_content[i][rowIdx].replace(":", ", "))]):
-                                    coefFile_content.insert(i, checkRow)
-                                    fullBreak=True
-                                    break
-                            elif rowIdx in [2, 1]:
-                                if int(checkRow[rowIdx]) < int(coefFile_content[i][rowIdx]):
-                                    coefFile_content.insert(i, checkRow)
-                                    fullBreak=True
-                                    break
-                        else:
-                            coefFile_content.insert(idx_lists[rowIdx-1][-1]+1, checkRow)
-                            break
-                    if fullBreak: break
+                print("--in loop--")
+                for d in range(1, 5):
+                    idx_lists[d] = [i for i in idx_lists[d-1] if coefFile_content[i][d]==checkRow[d]]
+                    # print(idx_lists[d])
+                    boolChecks[d] = checkRow[d] in [coefFile_content[i][d] for i in idx_lists[d]]
+                # print(" -boolchecks: ", boolChecks)
+                # print(" -idx_lists:  ", idx_lists)
+                print(checkRow)
+                
+                fullBreak = False
+                print("Checking csv row with existing file...")
+                if not False in boolChecks:
+                    print(f"Matched n:5 elements: found a copy: overwriting")
+                    idx = idx_lists[4][0]
+                    coefFile_content[idx][5:] = checkRow[5:]
                 else:
-                    print("No matches")
-                    coefFile_content.insert(len(coefFile_content), checkRow)
+                    for rowIdx in range(4, 0, -1):
+                        if not False in boolChecks[:rowIdx]:
+                            print(f"Matched n:{rowIdx} elements:")
+                            for i in idx_lists[rowIdx-1]:
+                                if rowIdx in [4, 3]:
+                                    if sum([abs(f) for f in eval(checkRow[rowIdx].replace(":", ", "))]) < sum([abs(f) for f in eval(coefFile_content[i][rowIdx].replace(":", ", "))]):
+                                        coefFile_content.insert(i, checkRow)
+                                        fullBreak=True
+                                        break
+                                elif rowIdx in [2, 1]:
+                                    if int(checkRow[rowIdx]) < int(coefFile_content[i][rowIdx]):
+                                        coefFile_content.insert(i, checkRow)
+                                        fullBreak=True
+                                        break
+                            else:
+                                coefFile_content.insert(idx_lists[rowIdx-1][-1]+1, checkRow)
+                                break
+                        if fullBreak: break
+                    else:
+                        print("No matches")
+                        coefFile_content.insert(len(coefFile_content), checkRow)
 
-            print("Writing csv file..")
-            with open(dirPath["script"]+filename_coef, "w") as f:
-                write = csv.writer(f)
-                write.writerows(coefFile_content)
+                print("Writing csv file..")
+                with open(dirPath["script"]+filename_coef, "w") as f:
+                    write = csv.writer(f)
+                    write.writerows(coefFile_content)
 
             # regr = linear_model.LinearRegression()
             # regr.fit(regrFeed[0].values, regrFeed[1])
