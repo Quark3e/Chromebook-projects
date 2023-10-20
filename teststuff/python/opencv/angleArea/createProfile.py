@@ -65,7 +65,7 @@ op2_settings = {
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client_socket.settimeout(0.1)
 client_msg = b"fromClient"
-addr = ("192.168.1.118", 53)
+addr = ("192.168.1.117", 53)
 server_msg = ""
 
 def reqToServer():
@@ -126,8 +126,8 @@ def opt0_setup():
     cam0 = cv2.VideoCapture(2)
     cam1 = cv2.VideoCapture(0)
 
-    #cam0.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
-    #cam1.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
+    cam0.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
+    cam1.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
 
     #lower, upper values
     hsvCam0 = [[0, 0, 255], [179, 9, 255]] #area
@@ -193,9 +193,9 @@ def processFrame(img, flag, winName):
     # morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=0)
 
     morphImg[flag] = cv2.erode(cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR), kernel, iterations=1)
-    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=4)
-    # morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=1)
-    # morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=1)
+    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=6)
+    #morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=1)
+    #morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=1)
 
     _, thresh[flag] = cv2.threshold(morphImg[flag], 127, 255, cv2.THRESH_BINARY)
     contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(thresh[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
