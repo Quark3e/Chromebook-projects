@@ -351,7 +351,7 @@ def plt_update(n):
             # for i in range(len(contours[flag])): #type: ignore
             tempPos, cntArea = solveContours(contours[flag], 0)
 
-            if flag==0:
+            if flag==0 and (abs(tempPos[0]-prefRes[0]/2)<op2_settings["thresh_xyLim"]["value"][0] and abs(prefRes[1]/2-tempPos[1])<op2_settings["thresh_xyLim"]["value"][1]):
                 cntPos[0] = round((tempPos[0]-prefRes[0]/2)/10)*10 #type: ignore
                 cntPos[1] = round((prefRes[1]/2-tempPos[1])/10)*10 #type: ignore
                 brdrColor = (255, 255, 255)
@@ -361,13 +361,13 @@ def plt_update(n):
                     (tempPos[0],tempPos[1]), \
                     font,1,(255,0,0),2) #type: ignore
                 readAccelerometer(printText=False)
-            elif flag==0 and not (abs(tempPos[0]-prefRes[0]/2)<op2_settings["thresh_xyLim"]["value"][0] and abs(prefRes[1]/2-tempPos[1])<op2_settings["thresh_xyLim"]["value"][1]):
+            elif flag==0:
                 print(" OBJECT POS IS OUTSIDE op2_settings[\"thresh_xyLim\"] ", '\r')
                 brdrColor = (255, 0, 0)
                 #if displayToOpenCV:
                     #morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1,(255,0,0),2) #type: ignore
                     #morphImg[flag] = cv2.copyMakeBorder(morphImg[flag], 20, 20, 20, 20, cv2.BORDER_CONSTANT, value=[255, 0, 0]) #type: ignore
-            elif flag==1 and cntArea >= op2_settings["thresh_zArea"]["value"]:
+            elif flag==1: # and cntArea >= op2_settings["thresh_zArea"]["value"]:
                 tempPos[1] = int(round(tempPos[1]/10)*10) #type: ignore
                 if displayToOpenCV:
                     morphImg[flag] = cv2.putText(morphImg[flag], \
@@ -1022,7 +1022,9 @@ def opt2():
                                 ax2["mixed"].plot(temp_x, polyFunc(temp_x), zdir='x', zs=n, linestyle="solid", label=f"{n} n:{q}", linewidth=1, c="#32a852")
                 ax2["pitch"].title.set_text(f"pitch n:{ax2_polyN}")
             else:
-                saveFigCheck = [True, False]
+                print("\nTempCheck = ", tempCheck)
+                exit()
+                # saveFigCheck = [True, False]
 
             expResult = [0, 6000]
             for key in ax2_polyFuncs:
