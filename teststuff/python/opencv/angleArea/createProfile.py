@@ -316,12 +316,12 @@ def solveContours(allContours, areaThreshold):
     allPositions = [[], []]
     totArea = 0
     if len(allContours)==0: return [[0,0], 0]
-    print(" len():", len(allContours), end=" ")
+    # print(" len():", len(allContours), end=" ")
     for cnt in allContours:
         CntMoments = cv2.moments(cnt)
         if CntMoments["m00"] != 0:
             area = cv2.contourArea(cnt)
-            print(area, end=" ")
+            # print(area, end=" ")
             if area>=areaThreshold:
                 allPositions[0].append(CntMoments["m10"]/CntMoments["m00"])
                 allPositions[1].append(CntMoments["m01"]/CntMoments["m00"])
