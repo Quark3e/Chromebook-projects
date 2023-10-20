@@ -380,6 +380,7 @@ def plt_update(n):
 
             if flag==1 and len(contours[flag])<=0:
                 tempPos = [None, None]
+            if flag==0: print(cntArea, end=" ")
         if cntArea != None and isRecVals:
             angleStr = f"{round(roll)}:{round(pitch)}"
             print(f"read: angles:{str(round(roll)):<3}:{str(round(pitch)):<3} area:{str(cntArea):<10} z:{str(cntPos[2]):<5}")
