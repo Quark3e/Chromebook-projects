@@ -1212,6 +1212,9 @@ def opt3():
     with open(dirPath["models"]+filename, "rb") as f:
         regrModel = pickle.load(f)
 
+
+    values_ord = {}
+
     values = {
         "roll": [],
         "pitch": [],
@@ -1224,25 +1227,41 @@ def opt3():
     sDiv = lambda var: var/abs(var)
 
     rDist = [
-        [50, 50],
+        [150, 250],
         [-90, 90],
         [-90, 90]
     ]
     spac = [
-        50,
+        100,
         2,
         2
     ]
     print("- loading/creating points:")
     for z in range(rDist[0][0], rDist[0][1]+spac[0], spac[0]):
+        values_ord.update({z:[[],[],[]]})
         for y in range(rDist[1][0], rDist[1][1]+spac[1], spac[1]):
             for x in range(round(sDiv(rDist[2][0])*(abs(rDist[2][0])-abs(y))), round(sDiv(rDist[2][1])*(abs(rDist[2][1])-abs(y)))+spac[2], spac[2]):
                 pos = [x, y, z]
-                print(f"point: [{x:>3},{y:>3}, {z:>3}]", end="\r")
-                values["roll"].append(x)
-                values["pitch"].append(y)
-                values["z"].append(z)
-                values["area"].append(int(np.squeeze(regrModel.predict(polyModel.fit_transform(np.array([pos]))))))
+                areaVal = int(np.squeeze(regrModel.predict(polyModel.fit_transform(np.array([pos])))))
+                print(f"point: [{x:>3},{y:>3}, {z:>3}] area:{areaVal:>6}", end="\r")
+
+                values_ord[z][0].append(x)
+                values_ord[z][1].append(y)
+                values_ord[z][2].append(areaVal)
+
+
+    print("")
+
+    for z in values_ord:
+        idx_max = values_ord[z][2].index(max(values_ord[z][2]))
+        maxArea = values_ord[z][2][idx_max]
+        print(f"z:{z:>3}: maxArea:{maxArea:>5}")
+        for i in range(len(values_ord[z][2])):
+            values_ord[z][2][i] = values_ord[z][2][i]/maxArea
+            values["roll"].append(values_ord[z][0][i])
+            values["pitch"].append(values_ord[z][1][i])
+            values["area"].append(values_ord[z][2][i])
+            values["z"].append(z)
     print("")
 
     fig = plt.figure(figsize=(11, 5))
