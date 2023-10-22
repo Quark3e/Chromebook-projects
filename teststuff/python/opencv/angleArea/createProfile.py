@@ -1227,12 +1227,12 @@ def opt3():
     sDiv = lambda var: var/abs(var)
 
     rDist = [
-        [150, 250],
+        [0, 400],
         [-90, 90],
         [-90, 90]
     ]
     spac = [
-        100,
+        25,
         2,
         2
     ]
@@ -1242,29 +1242,39 @@ def opt3():
         for y in range(rDist[1][0], rDist[1][1]+spac[1], spac[1]):
             for x in range(round(sDiv(rDist[2][0])*(abs(rDist[2][0])-abs(y))), round(sDiv(rDist[2][1])*(abs(rDist[2][1])-abs(y)))+spac[2], spac[2]):
                 pos = [x, y, z]
-                areaVal = int(np.squeeze(regrModel.predict(polyModel.fit_transform(np.array([pos])))))
-                print(f"point: [{x:>3},{y:>3}, {z:>3}] area:{areaVal:>6}", end="\r")
+                predVal = regrModel.predict(polyModel.fit_transform(np.array([pos])))
+                areaVal = (int(np.squeeze(predVal)))
+                print(f"point: [{x:>3},{y:>3}, {z:>3}] area:{areaVal:>6} predVal:{str(predVal):>6}", end="\r")
 
                 values_ord[z][0].append(x)
                 values_ord[z][1].append(y)
                 values_ord[z][2].append(areaVal)
-
+        minVar = min(values_ord[z][2])
+        for n in range(len(values_ord[z][2])):
+            values_ord[z][2][n] = values_ord[z][2][n]-minVar
 
     print("")
 
     for z in values_ord:
-        idx_max = values_ord[z][2].index(max(values_ord[z][2]))
-        maxArea = values_ord[z][2][idx_max]
-        print(f"z:{z:>3}: maxArea:{maxArea:>5}")
+        #idx_max = values_ord[z][2].index(max(values_ord[z][2]))
+        maxArea = max(values_ord[z][2])
+        print(f"z:{z:>3}: maxArea:{max(values_ord[z][2]):>5}")
         for i in range(len(values_ord[z][2])):
-            values_ord[z][2][i] = values_ord[z][2][i]/maxArea
+            # values_ord[z][2][i] = values_ord[z][2][i]/maxArea
             values["roll"].append(values_ord[z][0][i])
             values["pitch"].append(values_ord[z][1][i])
-            values["area"].append(values_ord[z][2][i])
+            values["area"].append(values_ord[z][2][i]/maxArea)
             values["z"].append(z)
     print("")
 
-    fig = plt.figure(figsize=(11, 5))
+    tempGroup = [[values["roll"][i],values["pitch"][i],values["z"][i],values["area"][i]] for i in range(len(values["roll"]))]
+
+    def findPosVal(pos):
+        for l in tempGroup:
+            if l[:3]==pos: return l[3]
+        else: print("couldn't find:", pos)
+
+    fig = plt.figure(figsize=(11, 10))
     ax = {
         "dataSet": None,
     }
@@ -1275,7 +1285,7 @@ def opt3():
         if key[-2:]!="2d":
             ax[key].set(xlim3d=tuple(rDist[1]), xlabel="roll")
             ax[key].set(ylim3d=tuple(rDist[2]), ylabel="pitch")
-            ax[key].set(zlim3d=tuple(rDist[0]), zlabel="z")
+            #ax[key].set(zlim3d=tuple(rDist[0]), zlabel="z")
             ax[key].view_init(azim=orient["azim"], elev=orient["elev"])
         else:
             ax[key].axis("equal")
@@ -1283,9 +1293,12 @@ def opt3():
             ax[key].set_xlabel("roll")
             ax[key].set_xlim(rDist[1])
             ax[key].set_xlim(rDist[2])
-        ax[key].title.set_text(key)
+        ax[key].title.set_text(key+str([n for n in range(rDist[0][0], rDist[0][1]+spac[0], spac[0])]))
         ax[key].grid(True)
         
+    for z in [n for n in range(rDist[0][0], rDist[0][1]+spac[0], spac[0])]:
+        ax["dataSet"].text(90, 0, findPosVal([90,0,z]), str(z))
+
     plotCbs.update({
         "plot1": [
                 ax["dataSet"].scatter(values["roll"], values["pitch"], values["z"], c=values["area"], s=2, cmap="magma"),
@@ -1297,7 +1310,7 @@ def opt3():
 
 
     for key,items in plotCbs.items():
-        cb = fig.colorbar(items[0], ax=ax[items[1]], location="left")
+        fig.colorbar(items[0], ax=ax[items[1]], location="left")
 
     plt.show()
 
