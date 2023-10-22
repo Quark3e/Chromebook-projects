@@ -30,6 +30,7 @@ import pandas
 import csv
 from datetime import datetime
 
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 # from sklearn import linear_model
 from sklearn.preprocessing import PolynomialFeatures
@@ -1205,29 +1206,79 @@ def opt2():
 
 
 def opt3():
-    csvFile = pandas.read_csv("model_n2_coef.csv")
+    print("opt 3: plotting regrmodel data")
 
-    chosen_idx = 0
+    filename = "d2pf39.pkl"
+    with open(dirPath["models"]+filename, "rb") as f:
+        regrModel = pickle.load(f)
 
-    xValues = csvFile["z"][1:]
+    values = {
+        "roll": [],
+        "pitch": [],
+        "z": [],
+        "area": []
+    }
 
-    yValues = [
-        csvFile["intercept"][1:],
-        csvFile["a"][1:],
-        csvFile["b"][1:],
-        csvFile["a^2"][1:],
-        csvFile["ab"][1:],
-        csvFile["b^2"][1:],
+    deg = 2
+    polyModel = PolynomialFeatures(degree=deg)
+    sDiv = lambda var: var/abs(var)
+
+    rDist = [
+        [50, 50],
+        [-90, 90],
+        [-90, 90]
     ]
-    # print(yValues[2])
+    spac = [
+        50,
+        2,
+        2
+    ]
+    print("- loading/creating points:")
+    for z in range(rDist[0][0], rDist[0][1]+spac[0], spac[0]):
+        for y in range(rDist[1][0], rDist[1][1]+spac[1], spac[1]):
+            for x in range(round(sDiv(rDist[2][0])*(abs(rDist[2][0])-abs(y))), round(sDiv(rDist[2][1])*(abs(rDist[2][1])-abs(y)))+spac[2], spac[2]):
+                pos = [x, y, z]
+                print(f"point: [{x:>3},{y:>3}, {z:>3}]", end="\r")
+                values["roll"].append(x)
+                values["pitch"].append(y)
+                values["z"].append(z)
+                values["area"].append(int(np.squeeze(regrModel.predict(polyModel.fit_transform(np.array([pos]))))))
+    print("")
 
-    fig = plt.figure(dpi=150)
-    ax = fig.subplots()
-    ax.plot(xValues, yValues[chosen_idx])
-    
-    ax_addPolyfits(ax, fig, xValues, yValues[chosen_idx], [n for n in range(1, 5)], temp_x=[x for x in range(round(min(xValues)),round(max(xValues)))])
+    fig = plt.figure(figsize=(11, 5))
+    ax = {
+        "dataSet": None,
+    }
+    plotCbs = {}
+    ax["dataSet"] = fig.add_subplot(1, 1, 1, projection="3d")
 
-    plt.legend()
+    for key in ax:
+        if key[-2:]!="2d":
+            ax[key].set(xlim3d=tuple(rDist[1]), xlabel="roll")
+            ax[key].set(ylim3d=tuple(rDist[2]), ylabel="pitch")
+            ax[key].set(zlim3d=tuple(rDist[0]), zlabel="z")
+            ax[key].view_init(azim=orient["azim"], elev=orient["elev"])
+        else:
+            ax[key].axis("equal")
+            ax[key].set_xlabel("roll")
+            ax[key].set_xlabel("roll")
+            ax[key].set_xlim(rDist[1])
+            ax[key].set_xlim(rDist[2])
+        ax[key].title.set_text(key)
+        ax[key].grid(True)
+        
+    plotCbs.update({
+        "plot1": [
+                ax["dataSet"].scatter(values["roll"], values["pitch"], values["z"], c=values["area"], s=2, cmap="magma"),
+                "dataSet"
+            ]
+        }
+    )
+    ax["dataSet"].legend()
+
+
+    for key,items in plotCbs.items():
+        cb = fig.colorbar(items[0], ax=ax[items[1]], location="left")
 
     plt.show()
 
@@ -1242,7 +1293,7 @@ def main():
         print("0. Track and create new data sets for profile 1")
         print("1. Load and save average of all dataSets for profile 1")
         print("2. Display dataSets from profiles File")
-        print("3. Create polfit models of op2 coefs")
+        print("3. Load regr model and plot")
 
         inp = input("input: ")
         if inp=="exit": break
