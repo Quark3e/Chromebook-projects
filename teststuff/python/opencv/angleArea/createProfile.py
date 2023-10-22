@@ -28,18 +28,22 @@ import sys
 import socket
 import pandas
 import csv
+from datetime import datetime
+
 
 # from sklearn import linear_model
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 
-from datetime import datetime
+import pickle
+
 
 dirPath = {
     "script": "",
     "media": "media/",
-    "data": "data/"
+    "data": "data/",
+    "models": "regrModels/",
 }
 
 profilesFile = "profiles.dat"
@@ -49,6 +53,8 @@ orient = {
 }
 
 op2_settings = {
+    "polyDegree": {"value": 2, "type": type(int()), "func": lambda var: int(var), "description": "degree of polynomial to create regr. model"},
+    "chosen_pf": {"value": 0, "type": type(int()), "func": lambda var: int(var), "description": "what profile (pf) to use"},
     "thresh_zArea": {"value": 100, "type": type(int()), "func": lambda var: int(var), "description": "minimum area for zCam to recognize z value"},
     "toSaveFig": {"value": True, "type": type(bool()), "func": lambda var: eval(var), "description": "whether to save figures as png images"},
     "thresh_xyLim": {"value": [100, 100], "type": type(list()), "func": lambda var: eval(var), "description": "[x,y]  border square where readings \"outside\" aren't valid"},
@@ -655,7 +661,7 @@ def ax_addPolyfits(ax, fig, x, y, n, ax_key=None, temp_x = [q for q in range(-90
 def opt2():
     global orient, ax, fig, op2_settings, df
     strComments, typeComments, dateComments = readFile_loadValues(mode=1)
-    chosen_pf = 0
+    op2_settings["chosen_pf"]["value"] = 0
     plotMethod = 0
     op2_settings["zPick"]["value"] = "auto"
     z_pick = 0
@@ -710,12 +716,12 @@ def opt2():
                     z_pick = int(op2_settings["zPick"]["value"])
             elif pf_opt[:4]=="fuse":
                 zFuse = True
-                chosen_pf = int(pf_opt[5:])
+                op2_settings["chosen_pf"]["value"] = int(pf_opt[5:])
                 plotMethod=0
                 break
             elif pf_opt=="": pass
             elif pf_opt[0] in [str(i) for i in range(10)]:
-                chosen_pf = int(pf_opt)
+                op2_settings["chosen_pf"]["value"] = int(pf_opt)
                 clearScr = True
                 break
             else:
@@ -732,9 +738,9 @@ def opt2():
             plt_init(printText=False, mode=0)
             i = 0
             if op2_settings["zPick"]["value"]=="auto":
-                for key,var in allDataSets[chosen_pf].items():
+                for key,var in allDataSets[op2_settings["chosen_pf"]["value"]].items():
                     if i==0: z_pick = key
-                    elif len(var[0]) > len(allDataSets[chosen_pf][z_pick][0]): z_pick = key
+                    elif len(var[0]) > len(allDataSets[op2_settings["chosen_pf"]["value"]][z_pick][0]): z_pick = key
                     i+=1
                 op2_settings["zPick"]["value"]=int(z_pick)
 
@@ -742,13 +748,13 @@ def opt2():
             temp=[[], [], [], []]
             if not zFuse:
                 for z in range(z_pick+op2_settings["zPickRange"]["value"][0], z_pick+op2_settings["zPickRange"]["value"][1]+1):
-                    if z in allDataSets[chosen_pf]:
-                        temp[0] += allDataSets[chosen_pf][z][0]
-                        temp[1] += allDataSets[chosen_pf][z][1]
-                        temp[2] += allDataSets[chosen_pf][z][2]
-                        temp[3] += len(allDataSets[chosen_pf][z][0])*[z]
+                    if z in allDataSets[op2_settings["chosen_pf"]["value"]]:
+                        temp[0] += allDataSets[op2_settings["chosen_pf"]["value"]][z][0]
+                        temp[1] += allDataSets[op2_settings["chosen_pf"]["value"]][z][1]
+                        temp[2] += allDataSets[op2_settings["chosen_pf"]["value"]][z][2]
+                        temp[3] += len(allDataSets[op2_settings["chosen_pf"]["value"]][z][0])*[z]
             elif zFuse:
-                for key,val in allDataSets[chosen_pf].items():
+                for key,val in allDataSets[op2_settings["chosen_pf"]["value"]].items():
                     print(f"fuse: reading z: {key}", end='\r')
                     temp[0] += val[0]
                     temp[1] += val[1]
@@ -765,11 +771,17 @@ def opt2():
             df = pandas.DataFrame(tempDict).dropna()
             if op2_settings["useSlice"]["value"]: regrFeed = [df[["roll", "pitch"]], df["area"]]
             elif not op2_settings["useSlice"]["value"]: regrFeed = [df[["roll", "pitch", "z"]], df["area"]]
-            poly_model = PolynomialFeatures(degree=2)
+            poly_model = PolynomialFeatures(degree=op2_settings["polyDegree"]["value"])
             temp_polyXValues = poly_model.fit_transform(regrFeed[0])
             poly_model.fit(temp_polyXValues, regrFeed[1])
             regr = LinearRegression()
             regr.fit(temp_polyXValues, regrFeed[1])
+
+            if not op2_settings["useSlice"]["value"]:
+                tempFileName = f'd{op2_settings["polyDegree"]["value"]}' + \
+                    f'pf{op2_settings["chosen_pf"]["value"]}'
+                with open(dirPath["models"]+tempFileName+".pkl", "wb") as f:
+                    pickle.dump(regr, f)
 
             if op2_settings["saveCoef"]["value"]:
                 filename_coef = "model_n2_coef.csv"
@@ -785,7 +797,7 @@ def opt2():
                 model_intercept = regr.intercept_
 
                 checkRow = [
-                    str(chosen_pf),
+                    str(op2_settings["chosen_pf"]["value"]),
                     str(op2_settings["zPick"]["value"]),
                     str(op2_settings["data_2d_lim"]["value"][0]).replace(", ", ":"),
                     str(op2_settings["data_2d_lim"]["value"][1]).replace(", ", ":"),
@@ -899,14 +911,14 @@ def opt2():
             }
 
             if not op2_settings["show_predict"]["value"]: 
-                # resultGraph0 = ax["slice"].scatter(allDataSets[chosen_pf][z_pick][0], allDataSets[chosen_pf][z_pick][1], c=allDataSets[chosen_pf][z_pick][2], s=2, cmap="magma")
+                # resultGraph0 = ax["slice"].scatter(allDataSets[op2_settings["chosen_pf"]["value"]][z_pick][0], allDataSets[op2_settings["chosen_pf"]["value"]][z_pick][1], c=allDataSets[op2_settings["chosen_pf"]["value"]][z_pick][2], s=2, cmap="magma")
                 resultGraph0 = ax["slice"].scatter(tempDict["roll"], tempDict["pitch"], c=tempDict["area"], s=2, cmap="magma")
                 data_2d_lsts = [
                     [tempDict["roll"], tempDict["area"]],
                     [tempDict["pitch"], tempDict["area"]]
                     ]
             numPoints = 0
-            for key, val in allDataSets[chosen_pf].items():
+            for key, val in allDataSets[op2_settings["chosen_pf"]["value"]].items():
                 resultGraph2 = ax["raw"].scatter(val[0], val[1], len(val[0])*[key], c=val[2], cmap="magma", s=1)
                 numPoints+=len(val[0])
             
@@ -932,7 +944,7 @@ def opt2():
                 ax["pitch"].legend()
 
 
-                fileName2 = f"polyfit_RollPitch_grid_n{chosen_pf}_"
+                fileName2 = f'polyfit_RollPitch_grid_n{op2_settings["chosen_pf"]["value"]}_'
                 if zFuse: fileName2 += "z:FUSED_"
                 elif not zFuse: fileName2 += f"z:{z_pick}_"
                 fileName2+=f'[{orient["azim"]},{orient["elev"]}]_'+ \
@@ -1121,7 +1133,7 @@ def opt2():
             #ax2["predict"].set(xticklabels=[], yticklabels=[], zticklabels=[])
             #ax2["predict"].scatter(predData[0], predData[1], predData[2], c=predData[2], s=2)
             #fig2.colorbar(ax2["predict"].collections[0], ax=ax2["predict"])
-            dataFileName = f"dataSet_pf{chosen_pf}_fuse-{str(zFuse)}.dat".replace(" ","")
+            dataFileName = f'dataSet_pf{op2_settings["chosen_pf"]["value"]}_fuse-{str(zFuse)}.dat'.replace(" ","")
             
             print("\ncreating csv file(s)....")
             csv_fields = ["Roll","Pitch","Area"]
@@ -1158,28 +1170,28 @@ def opt2():
             fig.colorbar(resultGraph1, ax=ax["slice"])
             fig.colorbar(resultGraph2, ax=ax["raw"])
 
-            ax["raw"].title.set_text(f"3D plot: idx:{strComments[chosen_pf]}")
-            fileName = f"n{chosen_pf}_"
+            ax["raw"].title.set_text(f'3D plot: idx:{strComments[op2_settings["chosen_pf"]["value"]]}')
+            fileName = f'n{op2_settings["chosen_pf"]["value"]}_'
             if zFuse:
-                ax["slice"].title.set_text(f"idx:{chosen_pf} z:FUSED")
-                fileName = f"n{chosen_pf}_z:FUSED_"
+                ax["slice"].title.set_text(f'idx:{op2_settings["chosen_pf"]["value"]} z:FUSED')
+                fileName = f'n{op2_settings["chosen_pf"]["value"]}_z:FUSED_'
             elif not zFuse:
-                ax["slice"].title.set_text(f"idx:{chosen_pf} z:{z_pick}")
-                fileName = f"n{chosen_pf}_z:{z_pick}_"
+                ax["slice"].title.set_text(f'idx:{op2_settings["chosen_pf"]["value"]} z:{z_pick}')
+                fileName = f'n{op2_settings["chosen_pf"]["value"]}_z:{z_pick}_'
             fileName+=f'[{orient["azim"]},{orient["elev"]}]_'+ \
                 f'{op2_settings["zPickRange"]["value"]}_'.replace(" ", "")+ \
-                f"{op2_settings['data_2d_lim']['value']}_".replace(" ","")+ \
-                f"{op2_settings['useSlice']['value']}_".replace(" ", "")
+                f'{op2_settings["data_2d_lim"]["value"]}_'.replace(" ","")+ \
+                f'{op2_settings["useSlice"]["value"]}_'.replace(" ", "")
 
         elif plotMethod==1:
             plt_init(printText=False, mode=1)
             numPoints = 0
-            for key, val in allDataSets[chosen_pf].items():
+            for key, val in allDataSets[op2_settings["chosen_pf"]["value"]].items():
                 resultGraph = ax.scatter(val[0], val[1], len(val[0])*[key], c=val[2], cmap="magma",s=1)
                 numPoints+=len(val[0])
 
-            plt.title(f"idx:{chosen_pf} complete plot: {numPoints} points")
-            fileName = f"n{chosen_pf}_"+str(orient["azim"])+":"+str(orient["elev"])+"_"+f"{op2_settings['data_2d_lim']['value']}_".replace(" ","")
+            plt.title(f'idx:{op2_settings["chosen_pf"]["value"]} complete plot: {numPoints} points')
+            fileName = f'n{op2_settings["chosen_pf"]["value"]}_'+str(orient["azim"])+":"+str(orient["elev"])+"_"+f"{op2_settings['data_2d_lim']['value']}_".replace(" ","")
             plt.colorbar(resultGraph)
             saveFigCheck = [True, False]
             
