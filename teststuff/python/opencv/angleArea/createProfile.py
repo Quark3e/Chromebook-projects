@@ -28,7 +28,7 @@ import sys
 import socket
 import pandas
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
@@ -1232,9 +1232,9 @@ def opt3():
         [-90, 90]
     ]
     spac = [
-        10,
-        2,
-        2
+        1,
+        1,
+        1
     ]
 
     totNumPoints = 0
@@ -1260,6 +1260,7 @@ def opt3():
         3: "\\",
     }
     symb = ['■', '⬛', '▉', '▉', '█']
+    symbIdx = 4
 
     startDate = datetime.now()
     print(f" {'Start time':<10}:", startDate)
@@ -1285,7 +1286,7 @@ def opt3():
                 percent = (progress/totNumPoints)*100
                 tempS = f"{progress:_}"
                 if count>=len(img): count=0
-                print(f" progress: {tempS:>10}: {round(percent,2):<5}%: |{str(math.floor(percent)*symb[3]+img[count]):<100}|: {round(speed,1):<6} pt/s      ", end='\r')
+                print(f" progress: {tempS:>10}: {round(percent,2):<5}%: |{str(math.floor(percent)*symb[symbIdx]+img[count]):<100}|: {round(speed,1):<6} pt/s: estimated time: {timedelta(seconds=(round((totNumPoints-oldProg)/speed)))} ", end='\r')
                 count+=1
                 oldProg=progress
                 t0=time.perf_counter()
@@ -1323,7 +1324,7 @@ def opt3():
 
     print("\ncreating csv file(s)....")
     csv_fields = ["Z", "Roll","Pitch","Area"]
-    with open(dirPath["script"]+"csv_"+"completeRender"+".csv", "w") as f:
+    with open(dirPath["script"]+"csv_"+str(totNumPoints)+"_completeRender"+".csv", "w") as f:
         write = csv.writer(f)
         write.writerow(csv_fields)
         write.writerows(tempGroup)
