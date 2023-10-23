@@ -1232,9 +1232,9 @@ def opt3():
         [-90, 90]
     ]
     spac = [
-        1,
-        1,
-        1
+        100,
+        2,
+        2
     ]
     print("- loading/creating points:")
     for z in range(rDist[0][0], rDist[0][1]+spac[0], spac[0]):
