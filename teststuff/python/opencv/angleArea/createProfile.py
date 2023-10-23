@@ -1232,54 +1232,71 @@ def opt3():
         [-90, 90]
     ]
     spac = [
-        25,
-        2,
-        2
+        1,
+        1,
+        1
     ]
     print("- loading/creating points:")
     for z in range(rDist[0][0], rDist[0][1]+spac[0], spac[0]):
         values_ord.update({z:[[],[],[]]})
+        print("z:", z, end="\r")
         for y in range(rDist[1][0], rDist[1][1]+spac[1], spac[1]):
             for x in range(round(sDiv(rDist[2][0])*(abs(rDist[2][0])-abs(y))), round(sDiv(rDist[2][1])*(abs(rDist[2][1])-abs(y)))+spac[2], spac[2]):
                 pos = [x, y, z]
                 predVal = regrModel.predict(polyModel.fit_transform(np.array([pos])))
                 areaVal = (int(np.squeeze(predVal)))
-                print(f"point: [{x:>3},{y:>3}, {z:>3}] area:{areaVal:>6} predVal:{str(predVal):>6}", end="\r")
+                #print(f"point: [{x:>3},{y:>3}, {z:>3}] area:{areaVal:>6} predVal:{str(predVal):>6}", end="\r")
 
                 values_ord[z][0].append(x)
                 values_ord[z][1].append(y)
                 values_ord[z][2].append(areaVal)
         minVar = min(values_ord[z][2])
         for n in range(len(values_ord[z][2])):
-            values_ord[z][2][n] = values_ord[z][2][n]-minVar
+            values_ord[z][2][n] = (values_ord[z][2][n]-minVar)
+        for n in range(len(values_ord[z][2])):
+            maxArea = max(values_ord[z][2])
+            values_ord[z][2][n] = values_ord[z][2][n]/max(values_ord[z][2])
 
     print("")
 
     for z in values_ord:
         #idx_max = values_ord[z][2].index(max(values_ord[z][2]))
-        maxArea = max(values_ord[z][2])
-        print(f"z:{z:>3}: maxArea:{max(values_ord[z][2]):>5}")
+        #print(f"z:{z:>3}: maxArea:{max(values_ord[z][2]):>5}")
         for i in range(len(values_ord[z][2])):
             # values_ord[z][2][i] = values_ord[z][2][i]/maxArea
             values["roll"].append(values_ord[z][0][i])
             values["pitch"].append(values_ord[z][1][i])
-            values["area"].append(values_ord[z][2][i]/maxArea)
+            values["area"].append(values_ord[z][2][i])
             values["z"].append(z)
     print("")
 
     tempGroup = [[values["roll"][i],values["pitch"][i],values["z"][i],values["area"][i]] for i in range(len(values["roll"]))]
+
+    print("\ncreating csv file(s)....")
+    csv_fields = ["Z", "Roll","Pitch","Area"]
+    with open(dirPath["script"]+"csv_"+"completeRender"+".csv", "w") as f:
+        write = csv.writer(f)
+        write.writerow(csv_fields)
+        write.writerows(tempGroup)
+
 
     def findPosVal(pos):
         for l in tempGroup:
             if l[:3]==pos: return l[3]
         else: print("couldn't find:", pos)
 
-    fig = plt.figure(figsize=(11, 10))
+    fig = plt.figure(figsize=(12, 8), dpi=100)
     ax = {
         "dataSet": None,
+        "xy2d": None,
+        "xz2d": None,
+        "yz2d": None,
     }
     plotCbs = {}
-    ax["dataSet"] = fig.add_subplot(1, 1, 1, projection="3d")
+    ax["dataSet"] = fig.add_subplot(2, 2, 1, projection="3d")
+    ax["xy2d"] = fig.add_subplot(2, 2, 2)
+    ax["xz2d"] = fig.add_subplot(2, 2, 3)
+    ax["yz2d"] = fig.add_subplot(2, 2, 4)
 
     for key in ax:
         if key[-2:]!="2d":
@@ -1290,27 +1307,58 @@ def opt3():
         else:
             ax[key].axis("equal")
             ax[key].set_xlabel("roll")
-            ax[key].set_xlabel("roll")
+            ax[key].set_ylabel("pitch")
             ax[key].set_xlim(rDist[1])
-            ax[key].set_xlim(rDist[2])
-        ax[key].title.set_text(key+str([n for n in range(rDist[0][0], rDist[0][1]+spac[0], spac[0])]))
+            ax[key].set_ylim(rDist[2])
+        if key=="dataSet": ax[key].title.set_text(key+str([n for n in range(rDist[0][0], rDist[0][1]+spac[0], spac[0])]))
+        else: ax[key].title.set_text(key)
         ax[key].grid(True)
         
     for z in [n for n in range(rDist[0][0], rDist[0][1]+spac[0], spac[0])]:
         ax["dataSet"].text(90, 0, findPosVal([90,0,z]), str(z))
 
+    xyVal = [
+        values_ord[200][0],
+        values_ord[200][1],
+        values_ord[200][2]
+    ]
+    xzVal = [
+        [tempGroup[i][0] for i in range(len(tempGroup)) if tempGroup[i][1]==0],
+        [tempGroup[i][2] for i in range(len(tempGroup)) if tempGroup[i][1]==0],
+        [tempGroup[i][3] for i in range(len(tempGroup)) if tempGroup[i][1]==0],
+    ]
+    yzVal = [
+        [tempGroup[i][1] for i in range(len(tempGroup)) if tempGroup[i][0]==0],
+        [tempGroup[i][2] for i in range(len(tempGroup)) if tempGroup[i][0]==0],
+        [tempGroup[i][3] for i in range(len(tempGroup)) if tempGroup[i][0]==0],
+    ]
+
     plotCbs.update({
-        "plot1": [
-                ax["dataSet"].scatter(values["roll"], values["pitch"], values["z"], c=values["area"], s=2, cmap="magma"),
-                "dataSet"
-            ]
-        }
-    )
+        "fullplot": [
+            ax["dataSet"].scatter(values["roll"], values["pitch"], values["z"], c=values["area"], s=2, cmap="magma"),
+            "dataSet"
+        ],
+        "xy": [
+            ax["xy2d"].scatter(xyVal[0], xyVal[1], c=xyVal[2], s=2, cmap="magma"),
+            "xy2d"
+        ],
+        "xz": [
+            ax["xz2d"].scatter(xzVal[0], xzVal[1], c=xzVal[2], s=2, cmap="magma"),
+            "xz2d"
+        ],
+        "yz": [
+            ax["yz2d"].scatter(yzVal[0], yzVal[1], c=yzVal[2], s=2, cmap="magma"),
+            "yz2d"
+        ]
+    })
     ax["dataSet"].legend()
 
 
     for key,items in plotCbs.items():
         fig.colorbar(items[0], ax=ax[items[1]], location="left")
+
+    validSaveFig(fig, "img0", dirPath["script"], imgDpi=300, saveCopies=False)
+    validSaveFig(fig, "img1", dirPath["script"], imgDpi=100, saveCopies=False)
 
     plt.show()
 
