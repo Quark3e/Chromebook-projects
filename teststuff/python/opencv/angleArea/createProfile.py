@@ -1232,30 +1232,79 @@ def opt3():
         [-90, 90]
     ]
     spac = [
-        100,
+        10,
         2,
         2
     ]
+
+    totNumPoints = 0
+    for z in range(rDist[0][0], rDist[0][1]+spac[0], spac[0]):
+        for y in range(rDist[1][0], rDist[1][1]+spac[1], spac[1]):
+            for x in range(round(sDiv(rDist[2][0])*(abs(rDist[2][0])-abs(y))), round(sDiv(rDist[2][1])*(abs(rDist[2][1])-abs(y)))+spac[2], spac[2]):
+                totNumPoints+=1
+    print(f" Total number of points: {totNumPoints:_}")
+
+
     print("- loading/creating points:")
+
+    oldProg=0
+    progress=0
+    percent=0
+    speed=0
+    count=0
+    checkCount=[0, 3, 0.08]
+    img = {
+        0: "|",
+        1: "/",
+        2: "-",
+        3: "\\",
+    }
+    symb = ['■', '⬛', '▉', '▉', '█']
+
+    startDate = datetime.now()
+    print(f" {'Start time':<10}:", startDate)
+
+    t0 = time.perf_counter()
     for z in range(rDist[0][0], rDist[0][1]+spac[0], spac[0]):
         values_ord.update({z:[[],[],[]]})
-        print("z:", z, end="\r")
         for y in range(rDist[1][0], rDist[1][1]+spac[1], spac[1]):
             for x in range(round(sDiv(rDist[2][0])*(abs(rDist[2][0])-abs(y))), round(sDiv(rDist[2][1])*(abs(rDist[2][1])-abs(y)))+spac[2], spac[2]):
                 pos = [x, y, z]
                 predVal = regrModel.predict(polyModel.fit_transform(np.array([pos])))
                 areaVal = (int(np.squeeze(predVal)))
                 #print(f"point: [{x:>3},{y:>3}, {z:>3}] area:{areaVal:>6} predVal:{str(predVal):>6}", end="\r")
-
                 values_ord[z][0].append(x)
                 values_ord[z][1].append(y)
                 values_ord[z][2].append(areaVal)
+                
+                progress+=1
+            if checkCount[0]>=checkCount[1] and (time.perf_counter()-t0)>=checkCount[2]:
+                t1 = time.perf_counter()
+                checkCount[0]=0
+                speed = (progress-oldProg)/(t1-t0)
+                percent = (progress/totNumPoints)*100
+                tempS = f"{progress:_}"
+                if count>=len(img): count=0
+                print(f" progress: {tempS:>10}: {round(percent,2):<5}%: |{str(math.floor(percent)*symb[3]+img[count]):<100}|: {round(speed,1):<6} pt/s      ", end='\r')
+                count+=1
+                oldProg=progress
+                t0=time.perf_counter()
+            checkCount[0]+=1
+    print("")
+    endDate = datetime.now()
+    print(f" {'End time':<10}:", endDate)
+    duration = endDate-startDate
+    print(f" {'Total time':<10}:", duration)
+
+    print("\n Solving z values:")
+    for z in range(rDist[0][0], rDist[0][1]+spac[0], spac[0]):
+        print(" z:", z, end='\r')
         minVar = min(values_ord[z][2])
         for n in range(len(values_ord[z][2])):
             values_ord[z][2][n] = (values_ord[z][2][n]-minVar)
         for n in range(len(values_ord[z][2])):
             maxArea = max(values_ord[z][2])
-            values_ord[z][2][n] = values_ord[z][2][n]/max(values_ord[z][2])
+            values_ord[z][2][n] = values_ord[z][2][n]/maxArea
 
     print("")
 
@@ -1305,13 +1354,20 @@ def opt3():
             #ax[key].set(zlim3d=tuple(rDist[0]), zlabel="z")
             ax[key].view_init(azim=orient["azim"], elev=orient["elev"])
         else:
-            ax[key].axis("equal")
-            ax[key].set_xlabel("roll")
-            ax[key].set_ylabel("pitch")
-            ax[key].set_xlim(rDist[1])
-            ax[key].set_ylim(rDist[2])
-        if key=="dataSet": ax[key].title.set_text(key+str([n for n in range(rDist[0][0], rDist[0][1]+spac[0], spac[0])]))
-        else: ax[key].title.set_text(key)
+            if key[:2]=="xy": ax[key].axis("equal")
+            if key[0]=="x":
+                ax[key].set_xlabel("roll")
+                ax[key].set_xlim(rDist[1])
+            elif key[0]=="y":
+                ax[key].set_xlabel("pitch")
+                ax[key].set_xlim(rDist[2])
+            if key[1]=="y":
+                ax[key].set_ylabel("pitch")
+                ax[key].set_ylim(rDist[2])
+            elif key[1]=="z":
+                ax[key].set_ylabel("z-dist")
+                ax[key].set_ylim(rDist[0])
+        ax[key].title.set_text(key)
         ax[key].grid(True)
         
     for z in [n for n in range(rDist[0][0], rDist[0][1]+spac[0], spac[0])]:
@@ -1357,8 +1413,8 @@ def opt3():
     for key,items in plotCbs.items():
         fig.colorbar(items[0], ax=ax[items[1]], location="left")
 
-    validSaveFig(fig, "img0", dirPath["script"], imgDpi=300, saveCopies=False)
-    validSaveFig(fig, "img1", dirPath["script"], imgDpi=100, saveCopies=False)
+    validSaveFig(fig, "img0"+str(totNumPoints), dirPath["script"], imgDpi=300, saveCopies=False)
+    validSaveFig(fig, "img1"+str(totNumPoints), dirPath["script"], imgDpi=100, saveCopies=False)
 
     plt.show()
 
