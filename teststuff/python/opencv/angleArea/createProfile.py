@@ -1324,10 +1324,12 @@ def opt3():
 
     print("\ncreating csv file(s)....")
     csv_fields = ["Z", "Roll","Pitch","Area"]
-    with open(dirPath["script"]+"csv_"+str(totNumPoints)+"_completeRender"+".csv", "w") as f:
-        write = csv.writer(f)
-        write.writerow(csv_fields)
-        write.writerows(tempGroup)
+    for i in range(4):
+        nLen = len(tempGroup)/4
+        with open(dirPath["script"]+"csv_"+str(totNumPoints)+f"_p{i}"+"_completeRender"+".csv", "w") as f:
+            write = csv.writer(f)
+            write.writerow(csv_fields)
+            write.writerows(tempGroup[round(i*nLen):round((i+1)*nLen)])
 
 
     def findPosVal(pos):
