@@ -1354,7 +1354,7 @@ def opt3():
         if key[-2:]!="2d":
             ax[key].set(xlim3d=tuple(rDist[1]), xlabel="roll")
             ax[key].set(ylim3d=tuple(rDist[2]), ylabel="pitch")
-            #ax[key].set(zlim3d=tuple(rDist[0]), zlabel="z")
+            ax[key].set(zlim3d=tuple(rDist[0]), zlabel="z")
             ax[key].view_init(azim=orient["azim"], elev=orient["elev"])
         else:
             if key[:2]=="xy": ax[key].axis("equal")
@@ -1424,6 +1424,94 @@ def opt3():
     # input("paused")
     return
 
+def opt4():
+    parts = 4
+    numPoints = 6568781
+    fileNom = [f"csv_{numPoints}_p" ,"_completeRender.csv"]
+    fileContent = parts*[None]
+
+    for i in range(parts):
+        print("reading part: p", i, sep='')
+        with open(dirPath["script"]+fileNom[0]+str(i)+fileNom[1], "r") as f:
+            read = csv.reader(f)
+            next(read, None)
+            fileContent[i] = [row for row in read if len(row)!=0]
+    contents = [fileContent[i] for i in range(parts)]
+
+    ordVal = {}
+    for el in contents:
+        print(el)
+        if el[0] in el:
+            ordVal[el[0]][0].append(el[1])
+            ordVal[el[0]][1].append(el[2])
+            ordVal[el[0]][2].append(el[3])
+        elif el[0] not in el:
+            ordVal.update({el[0]: [[el[1]], [el[2]], [el[3]]]})
+
+    allValues = {
+        "Z": [n[0] for n in contents],
+        "Roll": [n[1] for n in contents],
+        "Pitch": [n[2] for n in contents],
+        "Area": [n[3] for n in contents]
+    }
+
+    rDist = [
+        [0, 400],
+        [-90, 90],
+        [-90, 90]
+    ]
+    
+    fig = plt.figure(figsize=(12, 8), dpi=100)
+    ax = {
+        "full": None,
+        "slice2d": None,
+    }
+    plotCbs = {}
+    ax["full"] = fig.add_subplot(1, 2, 1, projection="3d")
+    ax["slice2d"] = fig.add_subplot(1, 2, 2)
+
+    for key in ax:
+        if key[-2:] != "2d":
+            ax[key].set(xlim3d=tuple(rDist[1]), xlabel="roll")
+            ax[key].set(ylim3d=tuple(rDist[2]), ylabel="pitch")
+            ax[key].set(zlim3d=tuple(rDist[0]), zlabel="z")
+            ax[key].view_init(azim=orient["azim"], elev=orient["elev"])
+        else:
+            ax[key].set_xlabel("roll")
+            ax[key].set_ylabel("pitch")
+            ax[key].set_xlim(rDist[1])
+            ax[key].set_ylim(rDist[2])
+        ax[key].title.set_text(key)
+        ax[key].grid(True)
+    plotCbs.update({
+        "full": [
+            ax["full"].scatter(allValues["Roll"], \
+                            allValues["Pitch"], \
+                            allValues["Z"], \
+                            c=allValues["Area"], \
+                            s=2, \
+                            cmap="magma"),
+            "full"
+        ],
+        "slice": [
+            ax["slice2d"].scatter(ordVal[op2_settings["zPick"]["value"]][0], \
+                                ordVal[op2_settings["zPick"]["value"]][1], \
+                                c=ordVal[op2_settings["zPick"]["value"]][2],
+                                s=2, \
+                                cmap="magma"),
+            "slice2d"
+        ]
+    })
+
+    for key,items in plotCbs.items():
+        fig.colorbar(items[0], ax=ax[items[1]], location="left")
+
+    validSaveFig(fig, "slice_"+str(numPoints)+"_z"+str(op2_settings["zPick"]["value"]),dirPath["script"],imgDpi=300,saveCopies=False)
+
+    plt.show()
+
+    return
+
 
 def main():
     while True:
@@ -1433,6 +1521,7 @@ def main():
         print("1. Load and save average of all dataSets for profile 1")
         print("2. Display dataSets from profiles File")
         print("3. Load regr model and plot")
+        print("4. Create slice of 3d dataset from models")
 
         inp = input("input: ")
         if inp=="exit": break
@@ -1440,6 +1529,7 @@ def main():
         elif inp=="1": opt1()
         elif inp=="2": opt2()
         elif inp=="3": opt3()
+        elif inp=="4": opt4()
 
 if __name__=="__main__":
     main()
