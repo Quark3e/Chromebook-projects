@@ -1467,12 +1467,21 @@ def opt4():
         elif el[0] not in ordVal:
             ordVal.update({el[2]: [[el[0]], [el[1]], [el[3]]]})
 
-    allValues = {
-        "Z": [n[2] for n in contents],
-        "Roll": [n[0] for n in contents],
-        "Pitch": [n[1] for n in contents],
-        "Area": [n[3] for n in contents]
-    }
+    # fullValues = {
+    #     "Z": [n[2] for n in contents],
+    #     "Roll": [n[0] for n in contents],
+    #     "Pitch": [n[1] for n in contents],
+    #     "Area": [n[3] for n in contents]
+    # }
+    fullValues = {"Roll":[], "Pitch":[], "Z":[], "Area":[]}
+
+    print("Creating values for full scatterplot values")
+    for val in contents:
+        if val[0]%2 and val[1]%2:
+            fullValues["Roll"].append(val[0])
+            fullValues["Pitch"].append(val[1])
+            fullValues["Z"].append(val[2])
+            fullValues["Area"].append(val[3])
 
     rDist = [
         [0, 400],
@@ -1505,10 +1514,10 @@ def opt4():
         ax[key].grid(True)
     plotCbs.update({
         "full": [
-            ax["full"].scatter(allValues["Roll"], \
-                            allValues["Pitch"], \
-                            allValues["Z"], \
-                            c=allValues["Area"], \
+            ax["full"].scatter(fullValues["Roll"], \
+                            fullValues["Pitch"], \
+                            fullValues["Z"], \
+                            c=fullValues["Area"], \
                             s=2, \
                             cmap="magma"),
             "full"
