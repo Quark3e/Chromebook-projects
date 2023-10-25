@@ -1233,8 +1233,8 @@ def opt3():
     ]
     spac = [
         1,
-        1,
-        1
+        2,
+        2
     ]
 
     totNumPoints = 0
@@ -1323,7 +1323,7 @@ def opt3():
     tempGroup = [[values["roll"][i],values["pitch"][i],values["z"][i],values["area"][i]] for i in range(len(values["roll"]))]
 
     print("\ncreating csv file(s)....")
-    csv_fields = ["Z", "Roll","Pitch","Area"]
+    csv_fields = ["Roll","Pitch","Z","Area"]
     for i in range(4):
         nLen = len(tempGroup)/4
         with open(dirPath["script"]+"csv_"+str(totNumPoints)+f"_p{i}"+"_completeRender"+".csv", "w") as f:
@@ -1425,33 +1425,52 @@ def opt3():
     return
 
 def opt4():
+    
+    op2_settings["zPick"]["value"] = 200
+
     parts = 4
     numPoints = 6568781
+    #numPoints = 1660541
     fileNom = [f"csv_{numPoints}_p" ,"_completeRender.csv"]
     fileContent = parts*[None]
 
+    print("")
+    print("Reading parts:")
     for i in range(parts):
-        print("reading part: p", i, sep='')
+        print(" reading part: p", i, sep='')
         with open(dirPath["script"]+fileNom[0]+str(i)+fileNom[1], "r") as f:
             read = csv.reader(f)
             next(read, None)
             fileContent[i] = [row for row in read if len(row)!=0]
-    contents = [fileContent[i] for i in range(parts)]
+    print("Saving parts into one big list:")
+    contents = []
+    for i in range(parts):
+        contents+=fileContent[i]
+    print(f" len():\n -contents      :{len(contents)}\n -contents[0]   :{len(contents[0])}\n")
 
+    print("Typecasting all values into float()")
+    for i in range(len(contents)):
+        print(f" n:{i}", end="\r")
+        contents[i][0]=float(contents[i][0])
+        contents[i][1]=float(contents[i][1])
+        contents[i][2]=float(contents[i][2])
+        contents[i][3]=float(contents[i][3])
+
+    print("Filling up ordVal{}:")
     ordVal = {}
     for el in contents:
-        print(el)
-        if el[0] in el:
-            ordVal[el[0]][0].append(el[1])
-            ordVal[el[0]][1].append(el[2])
-            ordVal[el[0]][2].append(el[3])
-        elif el[0] not in el:
-            ordVal.update({el[0]: [[el[1]], [el[2]], [el[3]]]})
+        print(f"[{el[0]:>5}, {el[1]:>5}, {el[2]:>5}, {el[3]:>15}]     ", end="\n")
+        if el[2] in ordVal:
+            ordVal[el[2]][0].append(el[0])
+            ordVal[el[2]][1].append(el[1])
+            ordVal[el[2]][2].append(el[3])
+        elif el[0] not in ordVal:
+            ordVal.update({el[2]: [[el[0]], [el[1]], [el[3]]]})
 
     allValues = {
-        "Z": [n[0] for n in contents],
-        "Roll": [n[1] for n in contents],
-        "Pitch": [n[2] for n in contents],
+        "Z": [n[2] for n in contents],
+        "Roll": [n[0] for n in contents],
+        "Pitch": [n[1] for n in contents],
         "Area": [n[3] for n in contents]
     }
 
@@ -1461,7 +1480,7 @@ def opt4():
         [-90, 90]
     ]
     
-    fig = plt.figure(figsize=(12, 8), dpi=100)
+    fig = plt.figure(figsize=(22, 8), dpi=100)
     ax = {
         "full": None,
         "slice2d": None,
@@ -1477,6 +1496,7 @@ def opt4():
             ax[key].set(zlim3d=tuple(rDist[0]), zlabel="z")
             ax[key].view_init(azim=orient["azim"], elev=orient["elev"])
         else:
+            ax[key].axis("equal")
             ax[key].set_xlabel("roll")
             ax[key].set_ylabel("pitch")
             ax[key].set_xlim(rDist[1])
