@@ -1426,7 +1426,8 @@ def opt3():
 
 def opt4():
     
-    op2_settings["zPick"]["value"] = 200
+    if op2_settings["zPick"]["value"]=="auto": op2_settings["zPick"]["value"]=200
+    else: op2_settings["zPick"]["value"]=int(op2_settings["zPick"]["value"])
 
     parts = 4
     numPoints = 6568781
@@ -1446,20 +1447,21 @@ def opt4():
     contents = []
     for i in range(parts):
         contents+=fileContent[i]
-    print(f" len():\n -contents      :{len(contents)}\n -contents[0]   :{len(contents[0])}\n")
+    print(f" len():\n -contents      :{len(contents):_}\n -contents[0]   :{len(contents[0]):_}\n")
 
     print("Typecasting all values into float()")
     for i in range(len(contents)):
-        print(f" n:{i}", end="\r")
+        temp = f"{i:_}"
+        print(f" n:{temp:>10}", end="\r")
         contents[i][0]=float(contents[i][0])
         contents[i][1]=float(contents[i][1])
         contents[i][2]=float(contents[i][2])
         contents[i][3]=float(contents[i][3])
 
-    print("Filling up ordVal{}:")
+    print("\nFilling up ordVal{}:")
     ordVal = {}
     for el in contents:
-        print(f"[{el[0]:>5}, {el[1]:>5}, {el[2]:>5}, {el[3]:>15}]     ", end="\n")
+        print(f"[{el[0]:>5}, {el[1]:>5}, {el[2]:>5}, {el[3]:>15}]     ", end="\r")
         if el[2] in ordVal:
             ordVal[el[2]][0].append(el[0])
             ordVal[el[2]][1].append(el[1])
@@ -1475,9 +1477,11 @@ def opt4():
     # }
     fullValues = {"Roll":[], "Pitch":[], "Z":[], "Area":[]}
 
-    print("Creating values for full scatterplot values")
+    print("\nCreating values for full scatterplot values")
+    filtVal = 4
     for val in contents:
-        if val[0]%2 and val[1]%2:
+        if val[0]%filtVal==0 and val[1]%filtVal==0:
+            print(f"[{val[0]:>5}, {val[1]:>5}, {val[2]:>5}, {val[3]:>15}]     ", end="\r")
             fullValues["Roll"].append(val[0])
             fullValues["Pitch"].append(val[1])
             fullValues["Z"].append(val[2])
@@ -1489,6 +1493,7 @@ def opt4():
         [-90, 90]
     ]
     
+    print("\nPreparing plot miscellanious")
     fig = plt.figure(figsize=(22, 8), dpi=100)
     ax = {
         "full": None,
@@ -1499,6 +1504,7 @@ def opt4():
     ax["slice2d"] = fig.add_subplot(1, 2, 2)
 
     for key in ax:
+        ax[key].title.set_text(key)
         if key[-2:] != "2d":
             ax[key].set(xlim3d=tuple(rDist[1]), xlabel="roll")
             ax[key].set(ylim3d=tuple(rDist[2]), ylabel="pitch")
@@ -1510,7 +1516,7 @@ def opt4():
             ax[key].set_ylabel("pitch")
             ax[key].set_xlim(rDist[1])
             ax[key].set_ylim(rDist[2])
-        ax[key].title.set_text(key)
+            ax[key].title.set_text(f"{key} {op2_settings['zPick']['value']}")
         ax[key].grid(True)
     plotCbs.update({
         "full": [
