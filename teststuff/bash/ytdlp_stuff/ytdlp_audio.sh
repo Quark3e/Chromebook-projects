@@ -37,8 +37,10 @@ IFS=$'\n'
 for item in $fileName
 do
     printf "\tfile: $item\n" 
-    rsync -ah --info=progress2 -e "ssh -p 2224" "$SCRIPTPATH/$item" berkhme@192.168.1.125:/storage/emulated/0/Music_files/
+    rsync -ah --info=progress2 -e "ssh -p 2224" "$SCRIPTPATH/$item" berkhme@192.168.1.124:/storage/emulated/0/Music_files/
     printf "\tmoving file to \"sent/\"\n"
     rm -r "$SCRIPTPATH/$item"
     #mv "$SCRIPTPATH/$item" sent/
 done
+
+echo "finished"

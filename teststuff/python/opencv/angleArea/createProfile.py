@@ -43,18 +43,21 @@ import pickle
 dirPath = {
     "script": str(os.path.realpath(__file__)),
     "media": {
+        "main":  {"path": "media/", "description": "main folder dir for media"},
         "errors":   {"path": "media/errors/", "description": "progress and failures"},
         "2ax_poly": {"path": "media/raw/2ax_polyfit/", "description": "images of roll-pitch axis based 2d polyfit"},
         "baseSlice":{"path": "media/raw/slice/", "description": "img0 of opt2"},
-        "slices":   {"path": "media/slices/", "description": "slices from full regr. model"}
+        "slices":   {"path": "media/slices/", "description": "slices from full regr. model"},
+        "read":     {"path": "media/read/", "description": "img created when new datasets are generated"}
+    
     },
     "data": {
+        "total":    {"path": "data/totalSet/", "description": "complete XYZCoef renders of points"},
         "datRaw":   {"path": "data/dat_raw/", "description": "coef. dataset in .dat format"},
         "csvRaw":   {"path": "data/csv_raw/", "description": "raw dataset in .csv format"},
         "csvCoef":  {"path": "data/csv_coef/","description": "coef. dataset in .csv format"}
     },
     "models": "regrModels/",
-    "modelslices": "media/slices/",
 }
 
 profilesFile = "profiles.dat"
@@ -568,10 +571,10 @@ def opt0():
     plt.title(str(z_pick))
 
     fileName = "raw_z:"+str(z_pick)+"_"
-    validSaveFig(plt, fileName, dirPath["media"])
+    validSaveFig(plt, fileName, dirPath["media"]["read"])
     # for i in range(1000):
     #     if not os.path.isfile(fileName+str(i)+".png"):
-    #         plt.savefig(dirPath["media"]+fileName+str(i)+".png", dpi=300)
+    #         plt.savefig(dirPath["media"]["read"]+fileName+str(i)+".png", dpi=300)
     #         break
     plt.show()
 
@@ -643,10 +646,10 @@ def opt1():
 
     plt.colorbar(resultGraph)
 
-    validSaveFig(plt, fileName, dirPath["media"])
+    validSaveFig(plt, fileName, dirPath["media"]["main"])
     # for i in range(10000):
     #     if not os.path.isfile(fileName+str(i)+".png"):
-    #         plt.savefig(dirPath["media"]+fileName+str(i)+".png", dpi=300)
+    #         plt.savefig(dirPath["media"]["main"]+fileName+str(i)+".png", dpi=300)
     #         break
     plt.show()
 
@@ -1149,7 +1152,7 @@ def opt2():
             print("\ncreating csv file(s)....")
             csv_fields = ["Roll","Pitch","Area"]
             csv_rows = [[predData[0][n],predData[1][n],predData[2][n]] for n in range(len(predData[0]))]
-            with open(dirPath["data"]+"csv_"+dataFileName[:-4]+".csv", "w") as f:
+            with open(dirPath["data"]["csvCoef"]+"csv_"+dataFileName[:-4]+".csv", "w") as f:
                 write = csv.writer(f)
                 write.writerow(csv_fields)
                 write.writerows(csv_rows)
@@ -1160,13 +1163,13 @@ def opt2():
                 df["area"].tolist()
             ]
             csv_rows = [[temp[0][n],temp[1][n],temp[2][n]] for n in range(len(temp[0]))]
-            with open(dirPath["data"]+"raw_csv_"+dataFileName[:-4]+".csv", "w") as f:
+            with open(dirPath["data"]["csvRaw"]+"raw_csv_"+dataFileName[:-4]+".csv", "w") as f:
                 write = csv.writer(f)
                 write.writerow(csv_fields)
                 write.writerows(csv_rows)
 
 
-            dataFile = open(dirPath["data"]+dataFileName, "w")
+            dataFile = open(dirPath["data"]["datRaw"]+dataFileName, "w")
             for sets in predData: dataFile.write(str(sets)+"\n")
             dataFile.close()
 
@@ -1208,8 +1211,8 @@ def opt2():
             
         saveEx = False
         if op2_settings["toSaveFig"]["value"]:
-            if saveFigCheck[0]:  validSaveFig(fig, fileName, dirPath["media"], imgDpi=fig.dpi+100, saveCopies=saveEx); saveFigCheck[0] = False
-            if saveFigCheck[1]:  validSaveFig(fig2, fileName2, dirPath["media"], imgDpi=fig.dpi+100, saveCopies=saveEx); saveFigCheck[1] = False
+            if saveFigCheck[0]:  validSaveFig(fig, fileName, dirPath["media"]["baseSlice"], imgDpi=fig.dpi+100, saveCopies=saveEx); saveFigCheck[0] = False
+            if saveFigCheck[1]:  validSaveFig(fig2, fileName2, dirPath["media"]["2ax_poly"], imgDpi=fig.dpi+100, saveCopies=saveEx); saveFigCheck[1] = False
         
         print("showing plot(s)...")
         plt.show()
@@ -1336,7 +1339,7 @@ def opt3():
     csv_fields = ["Roll","Pitch","Z","Area"]
     for i in range(4):
         nLen = len(tempGroup)/4
-        with open(dirPath["script"]+"csv_"+str(totNumPoints)+f"_p{i}"+"_completeRender"+".csv", "w") as f:
+        with open(dirPath["data"]["total"]+"csv_"+str(totNumPoints)+f"_p{i}"+"_completeRender"+".csv", "w") as f:
             write = csv.writer(f)
             write.writerow(csv_fields)
             write.writerows(tempGroup[round(i*nLen):round((i+1)*nLen)])
@@ -1426,7 +1429,7 @@ def opt3():
     for key,items in plotCbs.items():
         fig.colorbar(items[0], ax=ax[items[1]], location="left")
 
-    validSaveFig(fig, "img0"+str(totNumPoints), dirPath["script"], imgDpi=300, saveCopies=False)
+    validSaveFig(fig, "img0"+str(totNumPoints), dirPath["media"]["main"], imgDpi=300, saveCopies=False)
     # validSaveFig(fig, "img1"+str(totNumPoints), dirPath["script"], imgDpi=100, saveCopies=False)
 
     plt.show()
@@ -1448,7 +1451,7 @@ def opt4():
     print("Reading parts:")
     for i in range(parts):
         print(" reading part: p", i, sep='')
-        with open(dirPath["script"]+fileNom[0]+str(i)+fileNom[1], "r") as f:
+        with open(dirPath["data"]["total"]+fileNom[0]+str(i)+fileNom[1], "r") as f:
             read = csv.reader(f)
             next(read, None)
             fileContent[i] = [row for row in read if len(row)!=0]
@@ -1550,7 +1553,7 @@ def opt4():
         for key,items in plotCbs.items():
             fig.colorbar(items[0], ax=ax[items[1]], location="left")
         print(" -saving figure")
-        validSaveFig(fig, "slice_"+str(numPoints)+"_z"+f'{op2_settings["zPick"]["value"]:03d}',dirPath["modelslices"],imgDpi=300,saveCopies=False)
+        validSaveFig(fig, "slice_"+str(numPoints)+"_z"+f'{op2_settings["zPick"]["value"]:03d}',dirPath["media"]["slices"],imgDpi=300,saveCopies=False)
         print(" -showing plot:")
         plt.show()
 
