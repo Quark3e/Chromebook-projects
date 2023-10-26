@@ -1427,7 +1427,7 @@ def opt3():
 
 
     for key,items in plotCbs.items():
-        fig.colorbar(items[0], ax=ax[items[1]], location="left")
+        fig.colorbar(items[0], ax=ax[items[1]], location="right")
 
     validSaveFig(fig, "img0"+str(totNumPoints), dirPath["media"]["main"]["path"], imgDpi=300, saveCopies=False)
     # validSaveFig(fig, "img1"+str(totNumPoints), dirPath["script"], imgDpi=100, saveCopies=False)
