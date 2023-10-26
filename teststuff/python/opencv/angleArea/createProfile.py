@@ -42,7 +42,11 @@ import pickle
 
 dirPath = {
     "script": "",
-    "media": "media/raw/",
+    "media": {
+        "errors":   {"path": "media/errors/", "description": "progress and failures"},
+        "2ax_poly": {"path": "media/raw/2ax_polyfit/", "description": "images of roll-pitch axis based 2d polyfit"},
+        
+    },
     "data": "data/",
     "models": "regrModels/",
     "modelslices": "media/slices/",
@@ -1418,7 +1422,7 @@ def opt3():
         fig.colorbar(items[0], ax=ax[items[1]], location="left")
 
     validSaveFig(fig, "img0"+str(totNumPoints), dirPath["script"], imgDpi=300, saveCopies=False)
-    validSaveFig(fig, "img1"+str(totNumPoints), dirPath["script"], imgDpi=100, saveCopies=False)
+    # validSaveFig(fig, "img1"+str(totNumPoints), dirPath["script"], imgDpi=100, saveCopies=False)
 
     plt.show()
 
