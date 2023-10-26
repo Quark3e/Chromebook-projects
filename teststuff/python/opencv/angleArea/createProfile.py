@@ -41,13 +41,18 @@ import pickle
 
 
 dirPath = {
-    "script": "",
+    "script": str(os.path.realpath(__file__)),
     "media": {
         "errors":   {"path": "media/errors/", "description": "progress and failures"},
         "2ax_poly": {"path": "media/raw/2ax_polyfit/", "description": "images of roll-pitch axis based 2d polyfit"},
-        
+        "baseSlice":{"path": "media/raw/slice/", "description": "img0 of opt2"},
+        "slices":   {"path": "media/slices/", "description": "slices from full regr. model"}
     },
-    "data": "data/",
+    "data": {
+        "datRaw":   {"path": "data/dat_raw/", "description": "coef. dataset in .dat format"},
+        "csvRaw":   {"path": "data/csv_raw/", "description": "raw dataset in .csv format"},
+        "csvCoef":  {"path": "data/csv_coef/","description": "coef. dataset in .csv format"}
+    },
     "models": "regrModels/",
     "modelslices": "media/slices/",
 }
