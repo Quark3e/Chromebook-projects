@@ -42,9 +42,10 @@ import pickle
 
 dirPath = {
     "script": "",
-    "media": "media/",
+    "media": "media/raw/",
     "data": "data/",
     "models": "regrModels/",
+    "modelslices": "media/slices/",
 }
 
 profilesFile = "profiles.dat"
@@ -1485,40 +1486,40 @@ def opt4():
         [-90, 90]
     ]
     
-    print("\nPreparing plot miscellanious")
-    fig = plt.figure(figsize=(22, 8), dpi=100)
-    ax = {
-        "full": None,
-        "slice2d": None,
-    }
-    plotCbs = {}
-    ax["full"] = fig.add_subplot(1, 2, 1, projection="3d")
-    ax["slice2d"] = fig.add_subplot(1, 2, 2)
-
-    for key in ax:
-        ax[key].title.set_text(key)
-        if key[-2:] != "2d":
-            ax[key].set(xlim3d=tuple(rDist[1]), xlabel="roll")
-            ax[key].set(ylim3d=tuple(rDist[2]), ylabel="pitch")
-            ax[key].set(zlim3d=tuple(rDist[0]), zlabel="z")
-            ax[key].view_init(azim=orient["azim"], elev=orient["elev"])
-        else:
-            ax[key].axis("equal")
-            ax[key].set_xlabel("roll")
-            ax[key].set_ylabel("pitch")
-            ax[key].set_xlim(rDist[1])
-            ax[key].set_ylim(rDist[2])
-            ax[key].title.set_text(f"{key} {op2_settings['zPick']['value']}")
-        ax[key].grid(True)
+    
     while True:
         inp = input("\nEnter zPick: ")
         if inp=="exit": exit()
         elif inp=="back": break
         op2_settings["zPick"]["value"]=int(inp)
-        ax[key].title.set_text(f"{key} {op2_settings['zPick']['value']}")
-        
-        plotCbs.update({
-            "full": [
+        print("\nPreparing plot miscellanious")
+        fig = plt.figure(figsize=(22, 8), dpi=100)
+        ax = {
+            "full": None,
+            "slice2d": None,
+        }
+        plotCbs = {"full":[], "slice":[]}
+        ax["full"] = fig.add_subplot(1, 2, 1, projection="3d")
+        ax["slice2d"] = fig.add_subplot(1, 2, 2)
+
+        for key in ax:
+            ax[key].title.set_text(key)
+            if key[-2:] != "2d":
+                ax[key].set(xlim3d=tuple(rDist[1]), xlabel="roll")
+                ax[key].set(ylim3d=tuple(rDist[2]), ylabel="pitch")
+                ax[key].set(zlim3d=tuple(rDist[0]), zlabel="z")
+                ax[key].view_init(azim=orient["azim"], elev=orient["elev"])
+            else:
+                ax[key].axis("equal")
+                ax[key].set_xlabel("roll")
+                ax[key].set_ylabel("pitch")
+                ax[key].set_xlim(rDist[1])
+                ax[key].set_ylim(rDist[2])
+                ax[key].title.set_text(f"{key} {op2_settings['zPick']['value']}")
+            ax[key].grid(True)
+    
+        print(" -scatter plotting")
+        plotCbs["full"] = [
                 ax["full"].scatter(fullValues["Roll"], \
                                 fullValues["Pitch"], \
                                 fullValues["Z"], \
@@ -1526,8 +1527,8 @@ def opt4():
                                 s=2, \
                                 cmap="magma"),
                 "full"
-            ],
-            "slice": [
+            ]
+        plotCbs["slice"] = [
                 ax["slice2d"].scatter(ordVal[op2_settings["zPick"]["value"]][0], \
                                     ordVal[op2_settings["zPick"]["value"]][1], \
                                     c=ordVal[op2_settings["zPick"]["value"]][2],
@@ -1535,13 +1536,13 @@ def opt4():
                                     cmap="magma"),
                 "slice2d"
             ]
-        })
 
+        print(" -creating colorbars")
         for key,items in plotCbs.items():
             fig.colorbar(items[0], ax=ax[items[1]], location="left")
-
-        validSaveFig(fig, "slice_"+str(numPoints)+"_z"+str(op2_settings["zPick"]["value"]),dirPath["script"],imgDpi=300,saveCopies=False)
-
+        print(" -saving figure")
+        validSaveFig(fig, "slice_"+str(numPoints)+"_z"+f'{op2_settings["zPick"]["value"]:03d}',dirPath["script"],imgDpi=300,saveCopies=False)
+        print(" -showing plot:")
         plt.show()
 
     return
