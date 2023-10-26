@@ -571,7 +571,7 @@ def opt0():
     plt.title(str(z_pick))
 
     fileName = "raw_z:"+str(z_pick)+"_"
-    validSaveFig(plt, fileName, dirPath["media"]["read"])
+    validSaveFig(plt, fileName, dirPath["media"]["read"]["path"])
     # for i in range(1000):
     #     if not os.path.isfile(fileName+str(i)+".png"):
     #         plt.savefig(dirPath["media"]["read"]+fileName+str(i)+".png", dpi=300)
@@ -646,7 +646,7 @@ def opt1():
 
     plt.colorbar(resultGraph)
 
-    validSaveFig(plt, fileName, dirPath["media"]["main"])
+    validSaveFig(plt, fileName, dirPath["media"]["main"]["path"])
     # for i in range(10000):
     #     if not os.path.isfile(fileName+str(i)+".png"):
     #         plt.savefig(dirPath["media"]["main"]+fileName+str(i)+".png", dpi=300)
@@ -1152,7 +1152,7 @@ def opt2():
             print("\ncreating csv file(s)....")
             csv_fields = ["Roll","Pitch","Area"]
             csv_rows = [[predData[0][n],predData[1][n],predData[2][n]] for n in range(len(predData[0]))]
-            with open(dirPath["data"]["csvCoef"]+"csv_"+dataFileName[:-4]+".csv", "w") as f:
+            with open(dirPath["data"]["csvCoef"]["path"]+"csv_"+dataFileName[:-4]+".csv", "w") as f:
                 write = csv.writer(f)
                 write.writerow(csv_fields)
                 write.writerows(csv_rows)
@@ -1163,13 +1163,13 @@ def opt2():
                 df["area"].tolist()
             ]
             csv_rows = [[temp[0][n],temp[1][n],temp[2][n]] for n in range(len(temp[0]))]
-            with open(dirPath["data"]["csvRaw"]+"raw_csv_"+dataFileName[:-4]+".csv", "w") as f:
+            with open(dirPath["data"]["csvRaw"]["path"]+"raw_csv_"+dataFileName[:-4]+".csv", "w") as f:
                 write = csv.writer(f)
                 write.writerow(csv_fields)
                 write.writerows(csv_rows)
 
 
-            dataFile = open(dirPath["data"]["datRaw"]+dataFileName, "w")
+            dataFile = open(dirPath["data"]["datRaw"]["path"]+dataFileName, "w")
             for sets in predData: dataFile.write(str(sets)+"\n")
             dataFile.close()
 
@@ -1211,8 +1211,8 @@ def opt2():
             
         saveEx = False
         if op2_settings["toSaveFig"]["value"]:
-            if saveFigCheck[0]:  validSaveFig(fig, fileName, dirPath["media"]["baseSlice"], imgDpi=fig.dpi+100, saveCopies=saveEx); saveFigCheck[0] = False
-            if saveFigCheck[1]:  validSaveFig(fig2, fileName2, dirPath["media"]["2ax_poly"], imgDpi=fig.dpi+100, saveCopies=saveEx); saveFigCheck[1] = False
+            if saveFigCheck[0]:  validSaveFig(fig, fileName, dirPath["media"]["baseSlice"]["path"], imgDpi=fig.dpi+100, saveCopies=saveEx); saveFigCheck[0] = False
+            if saveFigCheck[1]:  validSaveFig(fig2, fileName2, dirPath["media"]["2ax_poly"]["path"], imgDpi=fig.dpi+100, saveCopies=saveEx); saveFigCheck[1] = False
         
         print("showing plot(s)...")
         plt.show()
@@ -1339,7 +1339,7 @@ def opt3():
     csv_fields = ["Roll","Pitch","Z","Area"]
     for i in range(4):
         nLen = len(tempGroup)/4
-        with open(dirPath["data"]["total"]+"csv_"+str(totNumPoints)+f"_p{i}"+"_completeRender"+".csv", "w") as f:
+        with open(dirPath["data"]["total"]["path"]+"csv_"+str(totNumPoints)+f"_p{i}"+"_completeRender"+".csv", "w") as f:
             write = csv.writer(f)
             write.writerow(csv_fields)
             write.writerows(tempGroup[round(i*nLen):round((i+1)*nLen)])
@@ -1429,7 +1429,7 @@ def opt3():
     for key,items in plotCbs.items():
         fig.colorbar(items[0], ax=ax[items[1]], location="left")
 
-    validSaveFig(fig, "img0"+str(totNumPoints), dirPath["media"]["main"], imgDpi=300, saveCopies=False)
+    validSaveFig(fig, "img0"+str(totNumPoints), dirPath["media"]["main"]["path"], imgDpi=300, saveCopies=False)
     # validSaveFig(fig, "img1"+str(totNumPoints), dirPath["script"], imgDpi=100, saveCopies=False)
 
     plt.show()
@@ -1451,7 +1451,7 @@ def opt4():
     print("Reading parts:")
     for i in range(parts):
         print(" reading part: p", i, sep='')
-        with open(dirPath["data"]["total"]+fileNom[0]+str(i)+fileNom[1], "r") as f:
+        with open(dirPath["data"]["total"]["path"]+fileNom[0]+str(i)+fileNom[1], "r") as f:
             read = csv.reader(f)
             next(read, None)
             fileContent[i] = [row for row in read if len(row)!=0]
@@ -1553,7 +1553,7 @@ def opt4():
         for key,items in plotCbs.items():
             fig.colorbar(items[0], ax=ax[items[1]], location="left")
         print(" -saving figure")
-        validSaveFig(fig, "slice_"+str(numPoints)+"_z"+f'{op2_settings["zPick"]["value"]:03d}',dirPath["media"]["slices"],imgDpi=300,saveCopies=False)
+        validSaveFig(fig, "slice_"+str(numPoints)+"_z"+f'{op2_settings["zPick"]["value"]:03d}',dirPath["media"]["slices"]["path"],imgDpi=300,saveCopies=False)
         print(" -showing plot:")
         plt.show()
 
