@@ -1431,7 +1431,6 @@ def opt4():
 
     parts = 4
     numPoints = 6568781
-    #numPoints = 1660541
     fileNom = [f"csv_{numPoints}_p" ,"_completeRender.csv"]
     fileContent = parts*[None]
 
@@ -1469,14 +1468,7 @@ def opt4():
         elif el[0] not in ordVal:
             ordVal.update({el[2]: [[el[0]], [el[1]], [el[3]]]})
 
-    # fullValues = {
-    #     "Z": [n[2] for n in contents],
-    #     "Roll": [n[0] for n in contents],
-    #     "Pitch": [n[1] for n in contents],
-    #     "Area": [n[3] for n in contents]
-    # }
     fullValues = {"Roll":[], "Pitch":[], "Z":[], "Area":[]}
-
     print("\nCreating values for full scatterplot values")
     filtVal = 4
     for val in contents:
@@ -1518,32 +1510,39 @@ def opt4():
             ax[key].set_ylim(rDist[2])
             ax[key].title.set_text(f"{key} {op2_settings['zPick']['value']}")
         ax[key].grid(True)
-    plotCbs.update({
-        "full": [
-            ax["full"].scatter(fullValues["Roll"], \
-                            fullValues["Pitch"], \
-                            fullValues["Z"], \
-                            c=fullValues["Area"], \
-                            s=2, \
-                            cmap="magma"),
-            "full"
-        ],
-        "slice": [
-            ax["slice2d"].scatter(ordVal[op2_settings["zPick"]["value"]][0], \
-                                ordVal[op2_settings["zPick"]["value"]][1], \
-                                c=ordVal[op2_settings["zPick"]["value"]][2],
+    while True:
+        inp = input("\nEnter zPick: ")
+        if inp=="exit": exit()
+        elif inp=="back": break
+        op2_settings["zPick"]["value"]=int(inp)
+        ax[key].title.set_text(f"{key} {op2_settings['zPick']['value']}")
+        
+        plotCbs.update({
+            "full": [
+                ax["full"].scatter(fullValues["Roll"], \
+                                fullValues["Pitch"], \
+                                fullValues["Z"], \
+                                c=fullValues["Area"], \
                                 s=2, \
                                 cmap="magma"),
-            "slice2d"
-        ]
-    })
+                "full"
+            ],
+            "slice": [
+                ax["slice2d"].scatter(ordVal[op2_settings["zPick"]["value"]][0], \
+                                    ordVal[op2_settings["zPick"]["value"]][1], \
+                                    c=ordVal[op2_settings["zPick"]["value"]][2],
+                                    s=2, \
+                                    cmap="magma"),
+                "slice2d"
+            ]
+        })
 
-    for key,items in plotCbs.items():
-        fig.colorbar(items[0], ax=ax[items[1]], location="left")
+        for key,items in plotCbs.items():
+            fig.colorbar(items[0], ax=ax[items[1]], location="left")
 
-    validSaveFig(fig, "slice_"+str(numPoints)+"_z"+str(op2_settings["zPick"]["value"]),dirPath["script"],imgDpi=300,saveCopies=False)
+        validSaveFig(fig, "slice_"+str(numPoints)+"_z"+str(op2_settings["zPick"]["value"]),dirPath["script"],imgDpi=300,saveCopies=False)
 
-    plt.show()
+        plt.show()
 
     return
 
