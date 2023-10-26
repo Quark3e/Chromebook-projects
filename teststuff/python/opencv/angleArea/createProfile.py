@@ -1541,7 +1541,7 @@ def opt4():
         for key,items in plotCbs.items():
             fig.colorbar(items[0], ax=ax[items[1]], location="left")
         print(" -saving figure")
-        validSaveFig(fig, "slice_"+str(numPoints)+"_z"+f'{op2_settings["zPick"]["value"]:03d}',dirPath["script"],imgDpi=300,saveCopies=False)
+        validSaveFig(fig, "slice_"+str(numPoints)+"_z"+f'{op2_settings["zPick"]["value"]:03d}',dirPath["modelslices"],imgDpi=300,saveCopies=False)
         print(" -showing plot:")
         plt.show()
 
