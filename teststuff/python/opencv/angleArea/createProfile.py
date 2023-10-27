@@ -1518,7 +1518,7 @@ def opt4():
             "full": None,
             "slice2d": None,
         }
-        plotCbs = {"full":[], "slice":[]}
+        plotCbs = {"full":[], "slice":[], "ghost":[]}
         ax["full"] = fig.add_subplot(1, 2, 1, projection="3d")
         ax["slice2d"] = fig.add_subplot(1, 2, 2)
 
@@ -1558,9 +1558,12 @@ def opt4():
                 "slice2d"
             ]
 
+        ghostZ=[op2_settings["zPick"]["value"]]*len(ghostX)        
+        plotCbs["ghost"] = [
+            ax["full"].scatter(ghostX,ghostY,ghostZ,s=3,alpha=0.1),
+            "full"
+        ]
 
-        ghostZ=[op2_settings["zPick"]["value"]]*len(ghostX)
-        ax["full"].scatter(ghostX,ghostY,ghostZ,s=3,alpha=0.1)
 
         print(" -creating colorbars")
         for key,items in plotCbs.items():
@@ -1568,6 +1571,9 @@ def opt4():
         print(" -saving figure")
         validSaveFig(fig, "slice_"+str(numPoints)+"_z"+f'{op2_settings["zPick"]["value"]:03d}',dirPath["media"]["slices"]["path"],imgDpi=300,saveCopies=False)
         print(" -showing plot:")
+        
+        exit()
+
         plt.show()
 
     return
