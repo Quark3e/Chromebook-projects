@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-import getpass
+#import getpass
+
+import os, time
 
 from pyngrok import ngrok, conf
 
@@ -8,7 +10,15 @@ from pyngrok import ngrok, conf
 #conf.get_default().auth_token = getpass.getpass()
 
 # Open a TCP ngrok tunnel to the SSH server
-connection_string = ngrok.connect("22", "tcp").public_url
+connection_string = ngrok.connect("2223", "tcp").public_url
 
 ssh_url, port = connection_string.strip("tcp://").split(":")
-print(f" * ngrok tunnel available, access with `ssh root@{ssh_url} -p{port}`")
+print(f" * ngrok tunnel available, access with `ssh pi@{ssh_url} -p{port}`")
+
+ngrok_process = ngrok.get_ngrok_process()
+
+try:
+    ngrok_process.proc.wait()
+except KeyboardInterrupt:
+    print("\n\nShutting down tunnel")
+    ngrok.kill()
