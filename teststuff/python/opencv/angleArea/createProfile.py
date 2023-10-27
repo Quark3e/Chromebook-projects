@@ -1497,8 +1497,16 @@ def opt4():
         [-90, 90],
         [-90, 90]
     ]
-    
-    
+
+    print("Generating slice ghost:")
+    ghostX,ghostY,ghostZ = [],[],[]
+    for x in range(-90,91,1):
+        for y in range(-90,91,1):
+            print(f"[{x:>3}:{y:>3}]",end="\r")
+            ghostX.append(x)
+            ghostY.append(y)
+    print("")
+
     while True:
         inp = input("\nEnter zPick: ")
         if inp=="exit": exit()
@@ -1531,6 +1539,7 @@ def opt4():
             ax[key].grid(True)
     
         print(" -scatter plotting")
+
         plotCbs["full"] = [
                 ax["full"].scatter(fullValues["Roll"], \
                                 fullValues["Pitch"], \
@@ -1548,6 +1557,10 @@ def opt4():
                                     cmap="magma"),
                 "slice2d"
             ]
+
+
+        ghostZ=[op2_settings["zPick"]["value"]]*len(ghostX)
+        ax["full"].scatter(ghostX,ghostY,ghostZ,s=3,alpha=0.1)
 
         print(" -creating colorbars")
         for key,items in plotCbs.items():
