@@ -1572,13 +1572,155 @@ def opt4():
         print(" -saving figure")
         validSaveFig(fig, "slice_"+str(numPoints)+"_z"+f'{op2_settings["zPick"]["value"]:03d}',dirPath["media"]["slices"]["path"],imgDpi=300,saveCopies=False)
         
-        exit()
+        # exit()
 
         print(" -showing plot:")
         plt.show()
 
     return
 
+
+def opt5():
+    
+    if op2_settings["zPick"]["value"]=="auto": op2_settings["zPick"]["value"]=200
+    else: op2_settings["zPick"]["value"]=int(op2_settings["zPick"]["value"])
+
+    parts = 4
+    numPoints = 6568781
+    fileNom = [f"csv_{numPoints}_p" ,"_completeRender.csv"]
+    fileContent = parts*[None]
+
+    print("")
+    print("Reading parts:")
+    for i in range(parts):
+        print(" reading part: p", i, sep='')
+        with open(dirPath["data"]["total"]["path"]+fileNom[0]+str(i)+fileNom[1], "r") as f:
+            read = csv.reader(f)
+            next(read, None)
+            fileContent[i] = [row for row in read if len(row)!=0]
+    print("Saving parts into one big list:")
+    contents = []
+    for i in range(parts):
+        contents+=fileContent[i]
+    print(f" len():\n -contents      :{len(contents):_}\n -contents[0]   :{len(contents[0]):_}\n")
+
+    print("Typecasting all values into float()")
+    for i in range(len(contents)):
+        temp = f"{i:_}"
+        print(f" n:{temp:>10}", end="\r")
+        contents[i][0]=float(contents[i][0])
+        contents[i][1]=float(contents[i][1])
+        contents[i][2]=float(contents[i][2])
+        contents[i][3]=float(contents[i][3])
+
+    print("\nFilling up ordVal{}:")
+    ordVal = {}
+    for el in contents:
+        print(f"[{el[0]:>5}, {el[1]:>5}, {el[2]:>5}, {el[3]:>15}]     ", end="\r")
+        if el[2] in ordVal:
+            ordVal[el[2]][0].append(el[0])
+            ordVal[el[2]][1].append(el[1])
+            ordVal[el[2]][2].append(el[3])
+        elif el[0] not in ordVal:
+            ordVal.update({el[2]: [[el[0]], [el[1]], [el[3]]]})
+
+    fullValues = {"Roll":[], "Pitch":[], "Z":[], "Area":[]}
+    print("\nCreating values for full scatterplot values")
+    filtVal = 4
+    for val in contents:
+        if val[0]%filtVal==0 and val[1]%filtVal==0:
+            print(f"[{val[0]:>5}, {val[1]:>5}, {val[2]:>5}, {val[3]:>15}]     ", end="\r")
+            fullValues["Roll"].append(val[0])
+            fullValues["Pitch"].append(val[1])
+            fullValues["Z"].append(val[2])
+            fullValues["Area"].append(val[3])
+
+    rDist = [
+        [0, 400],
+        [-90, 90],
+        [-90, 90]
+    ]
+
+    print("Generating slice ghost:")
+    ghostX,ghostY,ghostZ = [],[],[]
+    for x in range(-90,91,1):
+        for y in range(-90,91,1):
+            print(f"[{x:>3}:{y:>3}]",end="\r")
+            ghostX.append(x)
+            ghostY.append(y)
+    print("")
+
+    while True:
+        inp = input("\nEnter zPick: ")
+        if inp=="exit": exit()
+        elif inp=="back": break
+        op2_settings["zPick"]["value"]=int(inp)
+        print("\nPreparing plot miscellanious")
+        fig = plt.figure(figsize=(22, 8), dpi=100)
+        ax = {
+            "full": None,
+            "slice2d": None,
+        }
+        plotCbs = {"full":[], "slice":[], "ghost":[]}
+        ax["full"] = fig.add_subplot(1, 2, 1, projection="3d")
+        ax["slice2d"] = fig.add_subplot(1, 2, 2)
+
+        for key in ax:
+            ax[key].title.set_text(key)
+            if key[-2:] != "2d":
+                ax[key].set(xlim3d=tuple(rDist[1]), xlabel="roll")
+                ax[key].set(ylim3d=tuple(rDist[2]), ylabel="pitch")
+                ax[key].set(zlim3d=tuple(rDist[0]), zlabel="z")
+                ax[key].view_init(azim=orient["azim"], elev=orient["elev"])
+            else:
+                ax[key].axis("equal")
+                ax[key].set_xlabel("roll")
+                ax[key].set_ylabel("pitch")
+                ax[key].set_xlim(rDist[1])
+                ax[key].set_ylim(rDist[2])
+                ax[key].title.set_text(f"{key} {op2_settings['zPick']['value']}")
+            ax[key].grid(True)
+    
+        print(" -scatter plotting")
+
+        plotCbs["full"] = [
+                ax["full"].scatter(fullValues["Roll"], \
+                                fullValues["Pitch"], \
+                                fullValues["Z"], \
+                                c=fullValues["Area"], \
+                                s=2, \
+                                cmap="magma"),
+                "full"
+            ]
+        plotCbs["slice"] = [
+                ax["slice2d"].scatter(ordVal[op2_settings["zPick"]["value"]][0], \
+                                    ordVal[op2_settings["zPick"]["value"]][1], \
+                                    c=ordVal[op2_settings["zPick"]["value"]][2],
+                                    s=2, \
+                                    cmap="magma"),
+                "slice2d"
+            ]
+
+        ghostZ=[op2_settings["zPick"]["value"]]*len(ghostX)        
+        plotCbs["ghost"] = [
+            ax["full"].scatter(ghostX,ghostY,ghostZ,s=3,alpha=0.1),
+            "full"
+        ]
+
+
+        print(" -creating colorbars")
+        for key,items in plotCbs.items():
+            fig.colorbar(items[0], ax=ax[items[1]], location="left")
+        
+        print(" -saving figure")
+        validSaveFig(fig, "slice_"+str(numPoints)+"_z"+f'{op2_settings["zPick"]["value"]:03d}',dirPath["media"]["slices"]["path"],imgDpi=300,saveCopies=False)
+        
+        # exit()
+
+        print(" -showing plot:")
+        plt.show()
+
+    return
 
 def main():
     while True:
@@ -1589,6 +1731,7 @@ def main():
         print("2. Display dataSets from profiles File")
         print("3. Load regr model and plot")
         print("4. Create slice of 3d dataset from models")
+        print("5. Animate each slice (auto ver. of opt.4)")
 
         inp = input("input: ")
         if inp=="exit": break
