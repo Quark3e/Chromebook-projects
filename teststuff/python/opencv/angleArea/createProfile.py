@@ -23,7 +23,7 @@ import openCV_addon as ad
 import math
 import matplotlib.pyplot as plt
 from matplotlib import cm
-from matplotlib.animation import FuncAnimation
+from matplotlib.animation import FuncAnimation, PillowWriter
 import sys
 import socket
 import pandas
@@ -1499,12 +1499,12 @@ def opt4():
     ]
 
     print("Generating slice ghost:")
-    ghostX,ghostY,ghostZ = [],[],[]
+    ghost = [[],[],[]]
     for x in range(-90,91,1):
         for y in range(-90,91,1):
             print(f"[{x:>3}:{y:>3}]",end="\r")
-            ghostX.append(x)
-            ghostY.append(y)
+            ghost[0].append(x)
+            ghost[1].append(y)
     print("")
 
     while True:
@@ -1558,9 +1558,9 @@ def opt4():
                 "slice2d"
             ]
 
-        ghostZ=[op2_settings["zPick"]["value"]]*len(ghostX)        
+        ghost[2]=[op2_settings["zPick"]["value"]]*len(ghost[0])        
         plotCbs["ghost"] = [
-            ax["full"].scatter(ghostX,ghostY,ghostZ,s=3,alpha=0.1),
+            ax["full"].scatter(ghost[0],ghost[1],ghost[2],s=3,alpha=0.1),
             "full"
         ]
 
@@ -1642,46 +1642,47 @@ def opt5():
     ]
 
     print("Generating slice ghost:")
-    ghostX,ghostY,ghostZ = [],[],[]
+    ghost = [[],[],[]]
     for x in range(-90,91,1):
         for y in range(-90,91,1):
             print(f"[{x:>3}:{y:>3}]",end="\r")
-            ghostX.append(x)
-            ghostY.append(y)
+            ghost[0].append(x)
+            ghost[1].append(y)
     print("")
 
-    while True:
-        inp = input("\nEnter zPick: ")
-        if inp=="exit": exit()
-        elif inp=="back": break
-        op2_settings["zPick"]["value"]=int(inp)
-        print("\nPreparing plot miscellanious")
-        fig = plt.figure(figsize=(22, 8), dpi=100)
-        ax = {
-            "full": None,
-            "slice2d": None,
-        }
-        plotCbs = {"full":[], "slice":[], "ghost":[]}
-        ax["full"] = fig.add_subplot(1, 2, 1, projection="3d")
-        ax["slice2d"] = fig.add_subplot(1, 2, 2)
 
-        for key in ax:
-            ax[key].title.set_text(key)
-            if key[-2:] != "2d":
-                ax[key].set(xlim3d=tuple(rDist[1]), xlabel="roll")
-                ax[key].set(ylim3d=tuple(rDist[2]), ylabel="pitch")
-                ax[key].set(zlim3d=tuple(rDist[0]), zlabel="z")
-                ax[key].view_init(azim=orient["azim"], elev=orient["elev"])
-            else:
-                ax[key].axis("equal")
-                ax[key].set_xlabel("roll")
-                ax[key].set_ylabel("pitch")
-                ax[key].set_xlim(rDist[1])
-                ax[key].set_ylim(rDist[2])
-                ax[key].title.set_text(f"{key} {op2_settings['zPick']['value']}")
-            ax[key].grid(True)
-    
-        print(" -scatter plotting")
+    print("\nPreparing plot miscellanious")
+    fig = plt.figure(figsize=(22, 8), dpi=100)
+    ax = {
+        "full": None,
+        "slice2d": None,
+    }
+    plotCbs = {"full":[], "slice":[], "ghost":[]}
+    ax["full"] = fig.add_subplot(1, 2, 1, projection="3d")
+    ax["slice2d"] = fig.add_subplot(1, 2, 2)
+
+    for key in ax:
+        ax[key].title.set_text(key)
+        if key[-2:] != "2d":
+            ax[key].set(xlim3d=tuple(rDist[1]), xlabel="roll")
+            ax[key].set(ylim3d=tuple(rDist[2]), ylabel="pitch")
+            ax[key].set(zlim3d=tuple(rDist[0]), zlabel="z")
+            ax[key].view_init(azim=orient["azim"], elev=orient["elev"])
+        else:
+            ax[key].axis("equal")
+            ax[key].set_xlabel("roll")
+            ax[key].set_ylabel("pitch")
+            ax[key].set_xlim(rDist[1])
+            ax[key].set_ylim(rDist[2])
+            ax[key].title.set_text(f"{key} {op2_settings['zPick']['value']}")
+        ax[key].grid(True)
+
+    print(" -scatter plotting")
+
+
+    def anim_setup():
+        op2_settings["zPick"]["value"]=0
+
 
         plotCbs["full"] = [
                 ax["full"].scatter(fullValues["Roll"], \
@@ -1701,9 +1702,9 @@ def opt5():
                 "slice2d"
             ]
 
-        ghostZ=[op2_settings["zPick"]["value"]]*len(ghostX)        
+        ghost[2]=[op2_settings["zPick"]["value"]]*len(ghost[0])
         plotCbs["ghost"] = [
-            ax["full"].scatter(ghostX,ghostY,ghostZ,s=3,alpha=0.1),
+            ax["full"].scatter(ghost[0],ghost[1],ghost[2],s=3,alpha=0.1),
             "full"
         ]
 
@@ -1711,14 +1712,32 @@ def opt5():
         print(" -creating colorbars")
         for key,items in plotCbs.items():
             fig.colorbar(items[0], ax=ax[items[1]], location="left")
-        
-        print(" -saving figure")
-        validSaveFig(fig, "slice_"+str(numPoints)+"_z"+f'{op2_settings["zPick"]["value"]:03d}',dirPath["media"]["slices"]["path"],imgDpi=300,saveCopies=False)
-        
-        # exit()
+        return plotCbs["full"][0], plotCbs["slice"][0], plotCbs["ghost"][0] 
 
-        print(" -showing plot:")
-        plt.show()
+    def anim_update(i):
+        op2_settings["zPick"]["value"]=i
+        ghost[2]=[op2_settings["zPick"]["value"]]*len(ghost[0])
+        plotCbs["ghost"][0]._offsets3d=(ghost[0],ghost[1],ghost[2])
+        plotCbs["slice"][0].set_offsets([ \
+            ordVal[op2_settings["zPick"]["value"][0]], \
+            ordVal[op2_settings["zPick"]["value"][1]] \
+                   ])
+        plotCbs["slice"][0].set_array(ordVal[op2_settings["zPick"]["value"][1]])
+        validSaveFig(fig, "slice_"+str(numPoints)+"_z"+f'{op2_settings["zPick"]["value"]:03d}',dirPath["media"]["slices"]["path"],imgDpi=300,saveCopies=False)
+    
+
+    # exit()
+    print("Starting funcanim.")
+    ani = FuncAnimation(fig, anim_update, interval=1, init_func=anim_setup, frames=400)
+
+    # To save the animation using Pillow as a gif
+    writer = PillowWriter(fps=30,
+                            metadata=dict(artist='Me'),
+                            bitrate=1800)
+    ani.save(dirPath["media"]["main"]["path"]+"scatter.gif", writer=writer)
+
+    print(" -showing plot:")
+    plt.show()
 
     return
 
@@ -1740,6 +1759,7 @@ def main():
         elif inp=="2": opt2()
         elif inp=="3": opt3()
         elif inp=="4": opt4()
+        elif inp=="5": opt5()
 
 if __name__=="__main__":
     main()
