@@ -1568,12 +1568,13 @@ def opt4():
         print(" -creating colorbars")
         for key,items in plotCbs.items():
             fig.colorbar(items[0], ax=ax[items[1]], location="left")
+        
         print(" -saving figure")
         validSaveFig(fig, "slice_"+str(numPoints)+"_z"+f'{op2_settings["zPick"]["value"]:03d}',dirPath["media"]["slices"]["path"],imgDpi=300,saveCopies=False)
-        print(" -showing plot:")
         
         exit()
 
+        print(" -showing plot:")
         plt.show()
 
     return
