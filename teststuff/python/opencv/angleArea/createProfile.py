@@ -1735,7 +1735,7 @@ def opt5():
     writer = PillowWriter(fps=18,
                             metadata=dict(artist='Me'),
                             bitrate=1800)
-    ani.save(dirPath["media"]["main"]["path"]+"scatter.gif", writer=writer)
+    ani.save(dirPath["media"]["main"]["path"]+"Layers.gif", writer=writer)
 
     print(" -showing plot:")
     plt.show()
