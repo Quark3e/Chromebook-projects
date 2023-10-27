@@ -1712,7 +1712,7 @@ def opt5():
         print(" -creating colorbars")
         for key,items in plotCbs.items():
             fig.colorbar(items[0], ax=ax[items[1]], location="left")
-        return plotCbs["full"][0], plotCbs["slice"][0]
+        return plotCbs["ghost"][0], plotCbs["slice"][0]
 
     def anim_update(i):
         print(i)
@@ -1725,7 +1725,7 @@ def opt5():
                    ])
         plotCbs["slice"][0].set_array(ordVal[op2_settings["zPick"]["value"]][1])
         #validSaveFig(fig, "slice_"+str(numPoints)+"_z"+f'{op2_settings["zPick"]["value"]:03d}',dirPath["media"]["slices"]["path"],imgDpi=300,saveCopies=False)
-        return plotCbs["full"][0], plotCbs["slice"][0]
+        return plotCbs["ghost"][0], plotCbs["slice"][0]
 
     # exit()
     print("Starting funcanim.")
