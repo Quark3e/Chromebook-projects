@@ -1729,7 +1729,7 @@ def opt5():
 
     # exit()
     print("Starting funcanim.")
-    ani = FuncAnimation(fig, anim_update, interval=1, init_func=anim_setup, frames=[0,50,100,150,200,250,300,350,400])
+    ani = FuncAnimation(fig, anim_update, interval=1, init_func=anim_setup, frames=[0,100,200,300,400])
 
     # To save the animation using Pillow as a gif
     writer = PillowWriter(fps=18,
