@@ -1723,7 +1723,7 @@ def opt5():
             ordVal[op2_settings["zPick"]["value"]][0], \
             ordVal[op2_settings["zPick"]["value"]][1] \
                    ])
-        plotCbs["slice"][0].set_array(ordVal[op2_settings["zPick"]["value"]][1])
+        plotCbs["slice"][0].set_array(ordVal[op2_settings["zPick"]["value"]][2])
         #validSaveFig(fig, "slice_"+str(numPoints)+"_z"+f'{op2_settings["zPick"]["value"]:03d}',dirPath["media"]["slices"]["path"],imgDpi=300,saveCopies=False)
         return plotCbs["ghost"][0], plotCbs["slice"][0]
 
