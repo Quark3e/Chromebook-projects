@@ -6,7 +6,9 @@ import cv2 #type: ignore
 import numpy as np
 import random as rng
 import os
+import os.path
 from time import sleep, perf_counter
+
 
 displayToTFT = False
 
@@ -39,7 +41,7 @@ if displayToTFT:
 displayToOpenCV = True
 
 # mediaDir = "/home/pi/Chromebook-projects/teststuff/test_media"
-mediaDir = ""
+mediaDir = str(os.path.realpath(__file__))[:len(str(os.path.realpath(__file__)))-len("python/opencv/basic/HSV_w_canny.py")]+"test_media/"
 
 output_dir = mediaDir
 # os.chdir(output_dir)
@@ -60,6 +62,7 @@ def convert_avi_to_mp4(avi_file_path, output_name):
 mp4Src = mediaDir+ "VID_20230511_173648.mp4"
 cap = cv2.VideoCapture(mp4Src)
 
+cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
 
 prefRes = (640, 480)
 
@@ -83,8 +86,8 @@ if displayToOpenCV:
     cv2.createTrackbar("U - H", srcWindow, u_pos[0], 179, nothing)
     cv2.createTrackbar("U - S", srcWindow, u_pos[1], 255, nothing)
     cv2.createTrackbar("U - V", srcWindow, u_pos[2], 255, nothing)
-    cv2.createTrackbar("dilate1_iter", srcWindow, 10, 20, nothing)
-    cv2.createTrackbar("erode1_iter", srcWindow, 0, 20, nothing)
+    cv2.createTrackbar("erode1_iter", srcWindow, 1, 20, nothing)
+    cv2.createTrackbar("dilate1_iter", srcWindow, 6, 20, nothing)
 
     cannyThresh_val = 100
     cannyThresh_val_max = 255
@@ -133,7 +136,7 @@ loopPaused = False
 imgTemp = None
 
 if not framesAreLoaded:
-    print("Loading frames for replay...", end='')
+    print("Loading frames for replay... ", end='')
 
 
 ret, imgTemp = cap.read()
@@ -179,11 +182,11 @@ while True:
 
     morphImg = cv2.erode(mask_3, kernel, iterations=0)
     if displayToOpenCV:
-        morphImg = cv2.dilate(morphImg, kernel, iterations=cv2.getTrackbarPos("dilate1_iter", srcWindow))
         morphImg = cv2.erode(morphImg, kernel, iterations=cv2.getTrackbarPos("erode1_iter", srcWindow))
+        morphImg = cv2.dilate(morphImg, kernel, iterations=cv2.getTrackbarPos("dilate1_iter", srcWindow))
     else:
-        morphImg = cv2.dilate(morphImg, kernel, iterations=10)
-        morphImg = cv2.erode(morphImg, kernel, iterations=0)
+        morphImg = cv2.erode(morphImg, kernel, iterations=1)
+        morphImg = cv2.dilate(morphImg, kernel, iterations=6)
 
 
     if displayToOpenCV: cannyImg = cannyThresh(cv2.getTrackbarPos('Canny Thresh', srcWindow),morphImg)
@@ -255,5 +258,5 @@ capOut.release()
 if displayToOpenCV:
     cap.release()
     cv2.destroyAllWindows()
-
+    print("\n")
 
