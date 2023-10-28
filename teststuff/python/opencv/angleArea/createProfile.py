@@ -1725,6 +1725,7 @@ def opt5():
         #validSaveFig(fig, "slice_"+str(numPoints)+"_z"+f'{op2_settings["zPick"]["value"]:03d}',dirPath["media"]["slices"]["path"],imgDpi=300,saveCopies=False)
         return plotCbs["ghost"][0] #, plotCbs["slice"][0]
 
+
     # exit()
     print("Starting funcanim.")
     ani = FuncAnimation(fig, anim_update, interval=1, init_func=anim_setup, frames=[0,100,200,300,400])
