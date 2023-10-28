@@ -41,7 +41,7 @@ import pickle
 
 
 dirPath = {
-    "script": str(os.path.realpath(__file__)),
+    "script": str(os.path.realpath(__file__))[:len(str(os.path.realpath(__file__)))-len("createProfile.py")],
     "media": {
         "main":  {"path": "media/", "description": "main folder dir for media"},
         "errors":   {"path": "media/errors/", "description": "progress and failures"},
