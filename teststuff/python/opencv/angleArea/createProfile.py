@@ -1586,7 +1586,8 @@ def opt5():
     else: op2_settings["zPick"]["value"]=int(op2_settings["zPick"]["value"])
 
     parts = 4
-    numPoints = 6568781
+    #numPoints = 6568781
+    numPoints = 1660541
     fileNom = [f"csv_{numPoints}_p" ,"_completeRender.csv"]
     fileContent = parts*[None]
 
