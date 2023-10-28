@@ -59,9 +59,9 @@ def convert_avi_to_mp4(avi_file_path, output_name):
     os.popen("ffmpeg -i '{input}' -ac 2 -b:v 2000k -c:a aac -c:v libx264 -b:a 160k -vprofile high -bf 0 -strict experimental -f mp4 '{output}.mp4'".format(input = avi_file_path, output = output_name))
     return True
 
-
-mp4Src = mediaDir+ "VID_20230511_173648.mp4"
-if useVideo: src = mp4Src
+if useVideo:
+    mp4Src = mediaDir+ "VID_20230511_173648.mp4"
+    src = mp4Src
 else: src = 2
 cap = cv2.VideoCapture(src)
 
@@ -156,7 +156,7 @@ while True:
     frame = cv2.resize(imgTemp, prefRes) #type: ignore
     frame = cv2.flip( frame, 1 )
 
-    if not framesAreLoaded:
+    if useVideo and not framesAreLoaded:
         prevFrames.append(imgTemp)
         loadedFrames+=1
         if loadedFrames >= frameLim: 
@@ -256,7 +256,7 @@ while True:
 
 capOut.release()
 
-# convert_avi_to_mp4(outFileName, outFileName)
+if not useVideo: convert_avi_to_mp4(outFileName, outFileName)
 
 if displayToOpenCV:
     cap.release()
