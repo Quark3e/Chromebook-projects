@@ -72,7 +72,7 @@ prefRes = (640, 480)
 outFileName = "output.avi"
 capSize = (int(cap.get(3)), int(cap.get(4)))
 # fourcc = cv2.CV_FOURCC(*'XVID')
-capOut = cv2.VideoWriter(outFileName,cv2.VideoWriter_fourcc(*'MJPG'), 20, (2*prefRes[0], 2*prefRes[1]))
+capOut = cv2.VideoWriter(outFileName,cv2.VideoWriter_fourcc(*'MJPG'), 24, (2*prefRes[0], 2*prefRes[1]))
 # capOut = cv2.VideoWriter('output.mp4',fourcc, 10, (capSize[0],capSize[1]))
 
 
