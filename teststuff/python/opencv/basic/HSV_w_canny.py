@@ -9,6 +9,7 @@ import os
 import os.path
 from time import sleep, perf_counter
 
+useVideo = False
 
 displayToTFT = False
 
@@ -60,7 +61,9 @@ def convert_avi_to_mp4(avi_file_path, output_name):
 
 
 mp4Src = mediaDir+ "VID_20230511_173648.mp4"
-cap = cv2.VideoCapture(mp4Src)
+if useVideo: src = mp4Src
+else: src = 2
+cap = cv2.VideoCapture(src)
 
 cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
 
