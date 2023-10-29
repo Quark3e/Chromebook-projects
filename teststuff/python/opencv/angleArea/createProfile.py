@@ -48,7 +48,7 @@ dirPath = {
         "2ax_poly": {"path": "media/raw/2ax_polyfit/", "description": "images of roll-pitch axis based 2d polyfit"},
         "baseSlice":{"path": "media/raw/slice/", "description": "img0 of opt2"},
         "slices":   {"path": "media/slices/", "description": "slices from full regr. model"},
-        "read":     {"path": "media/read/", "description": "img created when new datasets are generated"}
+        "read":     {"path": "media/raw/read/", "description": "img created when new datasets are generated"}
     
     },
     "data": {
@@ -1244,11 +1244,20 @@ def opt3():
         [-90, 90],
         [-90, 90]
     ]
+
     spac = [
         1,
         2,
         2
     ]
+
+    print("Spacs:", spac)
+
+    inp = input("enter: ")
+    if inp=="exit": exit()
+    elif inp=="back": return
+    elif len(inp)>0 and inp[0]=="[": spac = eval(inp)
+
 
     totNumPoints = 0
     for z in range(rDist[0][0], rDist[0][1]+spac[0], spac[0]):
@@ -1339,7 +1348,7 @@ def opt3():
     csv_fields = ["Roll","Pitch","Z","Area"]
     for i in range(4):
         nLen = len(tempGroup)/4
-        with open(dirPath["data"]["total"]["path"]+"csv_"+str(totNumPoints)+f"_p{i}"+"_completeRender"+".csv", "w") as f:
+        with open(dirPath["data"]["total"]["path"]+"csv_"+f'{str(spac).replace(" ", "")}_{totNumPoints}'+f"_p{i}"+"_completeRender"+".csv", "w") as f:
             write = csv.writer(f)
             write.writerow(csv_fields)
             write.writerows(tempGroup[round(i*nLen):round((i+1)*nLen)])
@@ -1429,7 +1438,7 @@ def opt3():
     for key,items in plotCbs.items():
         fig.colorbar(items[0], ax=ax[items[1]], location="right")
 
-    validSaveFig(fig, "img0"+str(totNumPoints), dirPath["media"]["main"]["path"], imgDpi=300, saveCopies=False)
+    validSaveFig(fig, f'{str(spac).replace(" ", "")}_{totNumPoints}', dirPath["media"]["read"]["path"], imgDpi=300, saveCopies=False)
     # validSaveFig(fig, "img1"+str(totNumPoints), dirPath["script"], imgDpi=100, saveCopies=False)
 
     plt.show()
@@ -1719,7 +1728,7 @@ def opt5():
         print(i)
         op2_settings["zPick"]["value"]=i
         ghost[2]=[op2_settings["zPick"]["value"]]*len(ghost[0])
-        plotCbs["ghost"][0]._offsets3d=(ghost[0],ghost[1],ghost[2])
+        plotCbs["ghost"][0]._offsets3d=(gh                                                          ,ghost[1],ghost[2])
         #print(len([ ordVal[op2_settings["zPick"]["value"]][0] ]), len([ ordVal[op2_settings["zPick"]["value"]][1] ]), sep="\n\n")
         plotCbs["slice"][0].set_offsets([ ordVal[op2_settings["zPick"]["value"]][0], ordVal[op2_settings["zPick"]["value"]][1] ])
         plotCbs["slice"][0].set_array(ordVal[op2_settings["zPick"]["value"]][2])
