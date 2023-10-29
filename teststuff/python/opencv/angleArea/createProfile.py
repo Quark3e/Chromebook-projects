@@ -1631,10 +1631,18 @@ def opt5():
     
     #"csv_"+f'{str(spac).replace(" ", "")}_{totNumPoints}'+f"_p{i}"+"_completeRender"+".csv"
     spac = [
-        2,
+        50,
         2,
         2
     ]
+
+    print("Spacs:", spac)
+
+    inp = input("enter: ")
+    if inp=="exit": exit()
+    elif inp=="back": return
+    elif len(inp)>0 and inp[0]=="[": spac = eval(inp)
+
     sDiv = lambda var: var/abs(var)
     rDist = [
         [0, 400],
