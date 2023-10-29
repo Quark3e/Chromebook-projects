@@ -1808,7 +1808,7 @@ def opt5():
     def anim_update(i):
         print(i, end="\r")
         op2_settings["zPick"]["value"]=i
-        ax["slice"].title.set_text(f"{slice} {op2_settings['zPick']['value']}")
+        ax["slice2d"].title.set_text(f"z:{op2_settings['zPick']['value']}")
 
         ghost[2]=[op2_settings["zPick"]["value"]]*len(ghost[0])
         # print(len(ordVal[i][0]), len(ordVal[i][1]), len(ordVal[i][2]))
