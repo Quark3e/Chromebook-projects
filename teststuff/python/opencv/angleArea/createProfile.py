@@ -1832,7 +1832,7 @@ def opt5():
     # To save the animation using Pillow as a gif
     writer = PillowWriter(fps=18, metadata=dict(artist='Me'),bitrate=1800)
 
-    ani.save(dirPath["media"]["main"]["path"]+f'Layers_{str(spac).replace(" ", "")}_{str(pickedFrames).replace(" ", "")}.gif', writer=writer)
+    ani.save(dirPath["media"]["main"]["path"]+f'Layers_{str(spac).replace(" ", "")}_{str(spac[0]).gif', writer=writer)
 
     print(" -showing plot:")
     plt.show()
