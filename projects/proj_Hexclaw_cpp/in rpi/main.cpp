@@ -375,6 +375,8 @@ void updateOrients(bool printResult) {
 }
 
 
+/// @brief Create trackbar
+/// @param win_name pointer to opencv window name
 void createTrackbars(const char* win_name) {
 	cv::createTrackbar("LowH", win_name, &l_HSV[0], 179);
 	cv::createTrackbar("HighH", win_name, &u_HSV[0], 179);
@@ -384,6 +386,8 @@ void createTrackbars(const char* win_name) {
 	cv::createTrackbar("HighV", win_name, &u_HSV[2], 255);
 }
 
+/// @brief set trackbar pos/value
+/// @param win_name pointer to opencv window name
 void updateTrackbarPos(const char* win_name) {
 	cv::setTrackbarPos("LowH", win_name, l_HSV[0]);
 	cv::setTrackbarPos("LowS", win_name, l_HSV[1]);
@@ -537,7 +541,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 		
 		//delay: 2-3ms
 		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
-		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 4); 
+		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 6); 
 
 		// cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1); 
 		// cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
@@ -694,7 +698,7 @@ int main(int argc, char** argv) {
 			cout << "error: Cannot open web cam." << endl;
 			return -1;
 		}
-		cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0);
+		cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 1); //change to 0 if output is not same as createProfile.py
 		hsv_settingsRead("",5,"hsv_settings.dat",false);
 
 		if(calibrateHSV) { if(displayFunc(&cap, 0, &pca)==-1) { return 0; } }
