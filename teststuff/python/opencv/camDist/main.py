@@ -3,21 +3,24 @@
 import cv2 #type: ignore
 import numpy as np
 import os
+import os.path
 from time import sleep
 import openCV_addon as ad
 import math
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import sys
+from datetime import datetime
+
 
 def nothing(x):
     pass
 
-cam0 = cv2.VideoCapture(0)
-cam1 = cv2.VideoCapture(2)
+cam0 = cv2.VideoCapture(2)
+cam1 = cv2.VideoCapture(0)
 
-#cam0.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
-#cam1.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
+cam0.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
+cam1.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
 
 displayToOpenCV = True
 
@@ -85,12 +88,34 @@ def processFrame(img, flag, winName):
     # morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=0)
 
     morphImg[flag] = cv2.erode(cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR), kernel, 1)
-    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=4)
+    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=6)
     #morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=1)
     #morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=1)
 
     _, thresh[flag] = cv2.threshold(morphImg[flag], 127, 255, cv2.THRESH_BINARY)
     contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(thresh[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+
+def solveContours(allContours, areaThreshold):
+    allPositions = [[], []]
+    totArea = 0
+    if len(allContours)==0: return [[0,0], 0]
+    # print(" len():", len(allContours), end=" ")
+    for cnt in allContours:
+        CntMoments = cv2.moments(cnt)
+        if CntMoments["m00"] != 0:
+            area = cv2.contourArea(cnt)
+            # print(area, end=" ")
+            if area>=areaThreshold:
+                allPositions[0].append(CntMoments["m10"]/CntMoments["m00"])
+                allPositions[1].append(CntMoments["m01"]/CntMoments["m00"])
+                totArea+=area
+    avgPos = [
+        int(round(sum(allPositions[0])/len(allPositions[0]))),
+        int(round(sum(allPositions[1])/len(allPositions[1])))
+    ]
+    return [avgPos, int(totArea)]
+
 
 def configure_settings():
     if not displayToOpenCV:
@@ -110,7 +135,7 @@ def configure_settings():
                         if cntMoments['m00'] != 0:
                             if flag==0:
                                 cntPos_xy = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                                cntArea = cv2.contourArea(contours[flag][0])
+                                _,cntArea = solveContours(contours[flag],0)
                                 if displayToOpenCV:
                                     morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(cntPos_xy[0],cntPos_xy[1]),font,1,(255,0,0),2)
                             elif flag==1:
@@ -164,9 +189,10 @@ ln, = plt.plot([], [], 'ro')
 
 def plt_init():
     print("check init start")
-    ax.set_xlim(0, 5000)
-    ax.set_ylim(0, 500)
+    #ax.set_xlim(0, 5000)
+    #ax.set_ylim(0, 500)
     print("check init end")
+
 
 def plt_update(n):
     # print("check update")
@@ -184,7 +210,7 @@ def plt_update(n):
                 if cntMoments['m00'] != 0:
                     if flag==0:
                         cntPos_xy = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
-                        cntArea = cv2.contourArea(contours[flag][0])
+                        _, cntArea = solveContours(contours[flag],0)
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(cntPos_xy[0],cntPos_xy[1]),font,1,(255,0,0),2)
                     elif flag==1:
@@ -225,10 +251,12 @@ def plt_update(n):
     return True
 
 # if __name__=="__main__":
+print("Configuring settings:")
 configure_settings()
 
 # ani = FuncAnimation(fig, plt_update, 10, init_func=plt_init(), blit=True)
 
+print("Running main loop:")
 while True:
     if plt_update(0):
         pass
@@ -238,5 +266,18 @@ while True:
 print("plotting..")
 
 plt.plot(xData, yData)
+
+def validSaveFig(figToSave, fileName, filePath, imgDpi=300, saveCopies=True, fileExt=".png"):
+    if saveCopies:
+        for i in range(10000):
+            if not os.path.isfile(filePath+fileName+str(i)+fileExt):
+                figToSave.savefig(filePath+fileName+str(i)+fileExt, dpi=imgDpi)
+                break
+    elif not saveCopies:
+        figToSave.savefig(filePath+fileName+fileExt, dpi=imgDpi)
+
+currPath = str(os.path.realpath(__file__))[:len(str(os.path.realpath(__file__)))-len("main.py")]+"media/"
+
+validSaveFig(fig, "RawFig"+str(datetime.now()),currPath,imgDpi=300,saveCopies=True)
 
 plt.show()
