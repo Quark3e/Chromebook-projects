@@ -1631,7 +1631,7 @@ def opt5():
     
     #"csv_"+f'{str(spac).replace(" ", "")}_{totNumPoints}'+f"_p{i}"+"_completeRender"+".csv"
     spac = [
-        50,
+        2,
         2,
         2
     ]
