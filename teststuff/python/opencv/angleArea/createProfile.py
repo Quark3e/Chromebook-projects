@@ -1707,7 +1707,7 @@ def opt5():
     print("tempIdx:", tempIdx)
     for key,val in ordVal.items():
         # if key==0 or key==50: print(val[0])
-        print(f"key:{key}: val:{len(val[0])}, {len(val[1])}, {len(val[2])}:")
+        print(f"key:{key}: val:{len(val[0])}, {len(val[1])}, {len(val[2])}   ", end="\r")
     # print([i for i in ordVal[0][0]+ordVal[50][0] if not (i in ordVal[0][0] and i in ordVal[50][0])])
 
     fullValues = {"Roll":[], "Pitch":[], "Z":[], "Area":[]}
@@ -1809,6 +1809,8 @@ def opt5():
     def anim_update(i):
         print(i)
         op2_settings["zPick"]["value"]=i
+        ax["slice"].title.set_text(f"{slice} {op2_settings['zPick']['value']}")
+
         ghost[2]=[op2_settings["zPick"]["value"]]*len(ghost[0])
         # print(len(ordVal[i][0]), len(ordVal[i][1]), len(ordVal[i][2]))
         plotCbs["ghost"][0]._offsets3d=(ghost[0],ghost[1],ghost[2])
