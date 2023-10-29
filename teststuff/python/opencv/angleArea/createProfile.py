@@ -1319,6 +1319,7 @@ def opt3():
     duration = endDate-startDate
     print(f" {'Total time':<10}:", duration)
 
+
     print("\n Solving z values:")
     for z in range(rDist[0][0], rDist[0][1]+spac[0], spac[0]):
         print(" z:", z, end='\r')
@@ -1331,6 +1332,7 @@ def opt3():
 
     print("")
 
+
     for z in values_ord:
         #idx_max = values_ord[z][2].index(max(values_ord[z][2]))
         #print(f"z:{z:>3}: maxArea:{max(values_ord[z][2]):>5}")
@@ -1341,6 +1343,14 @@ def opt3():
             values["area"].append(values_ord[z][2][i])
             values["z"].append(z)
     print("")
+
+    # print("temp Checkpoint")
+    # tempIdx = [[], []]
+    # for i in range(len(values["roll"])):
+    #     if values["z"][i]==0: tempIdx[0].append(i)
+    #     if values["z"][i]==50: tempIdx[1].append(i)
+    # print(len(tempIdx[0]), len(tempIdx[1]))
+
 
     tempGroup = [[values["roll"][i],values["pitch"][i],values["z"][i],values["area"][i]] for i in range(len(values["roll"]))]
 
@@ -1441,6 +1451,8 @@ def opt3():
     validSaveFig(fig, f'{str(spac).replace(" ", "")}_{totNumPoints}', dirPath["media"]["read"]["path"], imgDpi=300, saveCopies=False)
     # validSaveFig(fig, "img1"+str(totNumPoints), dirPath["script"], imgDpi=100, saveCopies=False)
 
+    print("Showing plots:")
+
     plt.show()
 
     # input("paused")
@@ -1452,8 +1464,28 @@ def opt4():
     else: op2_settings["zPick"]["value"]=int(op2_settings["zPick"]["value"])
 
     parts = 4
-    numPoints = 6568781
-    fileNom = [f"csv_{numPoints}_p" ,"_completeRender.csv"]
+    numPoints = 0
+    
+    #"csv_"+f'{str(spac).replace(" ", "")}_{totNumPoints}'+f"_p{i}"+"_completeRender"+".csv"
+    spac = [
+        10                                                                          ,
+        2,
+        2
+    ]
+    sDiv = lambda var: var/abs(var)
+    rDist = [
+        [0, 400],
+        [-90, 90],
+        [-90, 90]
+    ]
+    for z in range(rDist[0][0], rDist[0][1]+spac[0], spac[0]):
+        for y in range(rDist[1][0], rDist[1][1]+spac[1], spac[1]):
+            for x in range(round(sDiv(rDist[2][0])*(abs(rDist[2][0])-abs(y))), round(sDiv(rDist[2][1])*(abs(rDist[2][1])-abs(y)))+spac[2], spac[2]):
+                numPoints+=1
+
+    fileNom = [f"csv_"+f'{str(spac).replace(" ", "")}_{numPoints}'+f"_p" ,"_completeRender.csv"]
+    print(f" Total number of points: {numPoints:_}: filename:{fileNom[0]}[]{fileNom[1]}")
+    
     fileContent = parts*[None]
 
     print("")
@@ -1507,7 +1539,7 @@ def opt4():
         [-90, 90]
     ]
 
-    print("Generating slice ghost:")
+    print("\nGenerating slice ghost:")
     ghost = [[],[],[]]
     for x in range(-90,91,1):
         for y in range(-90,91,1):
@@ -1595,9 +1627,27 @@ def opt5():
     else: op2_settings["zPick"]["value"]=int(op2_settings["zPick"]["value"])
 
     parts = 4
-    #numPoints = 6568781
-    numPoints = 1660541
-    fileNom = [f"csv_{numPoints}_p" ,"_completeRender.csv"]
+    numPoints = 0
+    
+    #"csv_"+f'{str(spac).replace(" ", "")}_{totNumPoints}'+f"_p{i}"+"_completeRender"+".csv"
+    spac = [
+        50,
+        2,
+        2
+    ]
+    sDiv = lambda var: var/abs(var)
+    rDist = [
+        [0, 400],
+        [-90, 90],
+        [-90, 90]
+    ]
+    for z in range(rDist[0][0], rDist[0][1]+spac[0], spac[0]):
+        for y in range(rDist[1][0], rDist[1][1]+spac[1], spac[1]):
+            for x in range(round(sDiv(rDist[2][0])*(abs(rDist[2][0])-abs(y))), round(sDiv(rDist[2][1])*(abs(rDist[2][1])-abs(y)))+spac[2], spac[2]):
+                numPoints+=1
+
+    fileNom = [f"csv_"+f'{str(spac).replace(" ", "")}_{numPoints}'+f"_p" ,"_completeRender.csv"]
+    print(f" Total number of points: {numPoints:_}: filename:{fileNom[0]}[]{fileNom[1]}")
     fileContent = parts*[None]
 
     print("")
@@ -1623,16 +1673,34 @@ def opt5():
         contents[i][2]=float(contents[i][2])
         contents[i][3]=float(contents[i][3])
 
+
+    # print("\ntemp Checkpoint")
+    # tempIdx = [[], []]
+    # for i in range(len(contents)):
+    #     if contents[i][2]==0: tempIdx[0].append(i)
+    #     if contents[i][2]==50: tempIdx[1].append(i)
+    # print(len(tempIdx[0]), len(tempIdx[1]))
+
     print("\nFilling up ordVal{}:")
+    tempIdx = [0, 0]
     ordVal = {}
     for el in contents:
-        print(f"[{el[0]:>5}, {el[1]:>5}, {el[2]:>5}, {el[3]:>15}]     ", end="\r")
+        if el[2]==0: tempIdx[0]+=1
+        elif el[2]==50: tempIdx[1]+=1
+        print(f"{el[0]:>5}, {el[1]:>5}, {el[2]:>5}, {el[3]:>18}]     ", end="\r") #change to \r
         if el[2] in ordVal:
             ordVal[el[2]][0].append(el[0])
             ordVal[el[2]][1].append(el[1])
             ordVal[el[2]][2].append(el[3])
-        elif el[0] not in ordVal:
+        elif el[2] not in ordVal:
             ordVal.update({el[2]: [[el[0]], [el[1]], [el[3]]]})
+    
+    print("\n")
+    print("tempIdx:", tempIdx)
+    for key,val in ordVal.items():
+        # if key==0 or key==50: print(val[0])
+        print(f"key:{key}: val:{len(val[0])}, {len(val[1])}, {len(val[2])}:")
+    # print([i for i in ordVal[0][0]+ordVal[50][0] if not (i in ordVal[0][0] and i in ordVal[50][0])])
 
     fullValues = {"Roll":[], "Pitch":[], "Z":[], "Area":[]}
     print("\nCreating values for full scatterplot values")
@@ -1644,12 +1712,6 @@ def opt5():
             fullValues["Pitch"].append(val[1])
             fullValues["Z"].append(val[2])
             fullValues["Area"].append(val[3])
-
-    rDist = [
-        [0, 400],
-        [-90, 90],
-        [-90, 90]
-    ]
 
     print("Generating slice ghost:")
     ghost = [[],[],[]]
@@ -1665,13 +1727,16 @@ def opt5():
     fig = plt.figure(figsize=(22, 8), dpi=100)
     ax = {
         "full": None,
+        "slice": None,
         "slice2d": None,
     }
-    plotCbs = {"full":[], "slice":[], "ghost":[]}
-    ax["full"] = fig.add_subplot(1, 2, 1, projection="3d")
-    ax["slice2d"] = fig.add_subplot(1, 2, 2)
+    plotCbs = {"full":[], "slice":[], "ghost":[], "slice2":[]}
+    ax["full"] = fig.add_subplot(1, 3, 1, projection="3d")
+    ax["slice"] = fig.add_subplot(1, 3, 3, projection="3d")
+    ax["slice2d"] = fig.add_subplot(1, 3, 2)
 
     for key in ax:
+        if key=="slice": continue
         ax[key].title.set_text(key)
         if key[-2:] != "2d":
             ax[key].set(xlim3d=tuple(rDist[1]), xlabel="roll")
@@ -1695,22 +1760,31 @@ def opt5():
 
 
         plotCbs["full"] = [
-                ax["full"].scatter(fullValues["Roll"], \
-                                fullValues["Pitch"], \
-                                fullValues["Z"], \
-                                c=fullValues["Area"], \
+            ax["full"].scatter(fullValues["Roll"], \
+                            fullValues["Pitch"], \
+                            fullValues["Z"], \
+                            c=fullValues["Area"], \
+                            s=2, \
+                            cmap="magma"),
+            "full"
+        ]
+        plotCbs["slice"] = [
+            ax["slice2d"].scatter(ordVal[op2_settings["zPick"]["value"]][0], \
+                                ordVal[op2_settings["zPick"]["value"]][1], \
+                                c=ordVal[op2_settings["zPick"]["value"]][2],
                                 s=2, \
                                 cmap="magma"),
-                "full"
-            ]
-        plotCbs["slice"] = [
-                ax["slice2d"].scatter(ordVal[op2_settings["zPick"]["value"]][0], \
-                                    ordVal[op2_settings["zPick"]["value"]][1], \
-                                    c=ordVal[op2_settings["zPick"]["value"]][2],
-                                    s=2, \
-                                    cmap="magma"),
-                "slice2d"
-            ]
+            "slice2d"
+        ]
+        plotCbs["slice2"] = [
+            ax["slice"].scatter(ordVal[op2_settings["zPick"]["value"]][0], \
+                                ordVal[op2_settings["zPick"]["value"]][1], \
+                                ordVal[op2_settings["zPick"]["value"]][2], \
+                                c=ordVal[op2_settings["zPick"]["value"]][2], \
+                                s=2, \
+                                cmap="magma"),
+            "slice"
+        ]
 
         ghost[2]=[op2_settings["zPick"]["value"]]*len(ghost[0])
         plotCbs["ghost"] = [
@@ -1722,29 +1796,34 @@ def opt5():
         print(" -creating colorbars")
         for key,items in plotCbs.items():
             if key!="ghost": fig.colorbar(items[0], ax=ax[items[1]], location="right")
-        return plotCbs["slice"][0], plotCbs["ghost"][0]
+        return plotCbs["slice2"][0], plotCbs["ghost"][0]#, plotCbs["slice"][0]
 
     def anim_update(i):
         print(i)
         op2_settings["zPick"]["value"]=i
         ghost[2]=[op2_settings["zPick"]["value"]]*len(ghost[0])
-        plotCbs["ghost"][0]._offsets3d=(gh                                                          ,ghost[1],ghost[2])
+        # print(len(ordVal[i][0]), len(ordVal[i][1]), len(ordVal[i][2]))
+        plotCbs["ghost"][0]._offsets3d=(ghost[0],ghost[1],ghost[2])
+        plotCbs["slice2"][0]._offsets3d=(ordVal[i][0],ordVal[i][1],ordVal[i][2])
         #print(len([ ordVal[op2_settings["zPick"]["value"]][0] ]), len([ ordVal[op2_settings["zPick"]["value"]][1] ]), sep="\n\n")
-        plotCbs["slice"][0].set_offsets([ ordVal[op2_settings["zPick"]["value"]][0], ordVal[op2_settings["zPick"]["value"]][1] ])
-        plotCbs["slice"][0].set_array(ordVal[op2_settings["zPick"]["value"]][2])
+        
+        # plotCbs["slice"][0].set_offsets([ ordVal[i][0], ordVal[i][1] ])
+        plotCbs["slice"][0].set_array(ordVal[i][2])
+        
         #validSaveFig(fig, "slice_"+str(numPoints)+"_z"+f'{op2_settings["zPick"]["value"]:03d}',dirPath["media"]["slices"]["path"],imgDpi=300,saveCopies=False)
-        return plotCbs["slice"][0], plotCbs["ghost"][0]
+        return plotCbs["slice2"][0], plotCbs["ghost"][0]#, plotCbs["slice"][0], 
 
 
     # exit()
     print("Starting funcanim.")
-    ani = FuncAnimation(fig, anim_update, interval=1, init_func=anim_setup, frames=[150,250])
+    pickedFrames = [i for i in range(0, 400+spac[0], spac[0])]
+    anim_setup()
+    ani = FuncAnimation(fig, anim_update, interval=1, frames=pickedFrames)
 
     # To save the animation using Pillow as a gif
-    writer = PillowWriter(fps=18,
-                            metadata=dict(artist='Me'),
-                            bitrate=1800)
-    ani.save(dirPath["media"]["main"]["path"]+"Layers.gif", writer=writer)
+    writer = PillowWriter(fps=18, metadata=dict(artist='Me'),bitrate=1800)
+
+    ani.save(dirPath["media"]["main"]["path"]+f'Layers_{str(spac).replace(" ", "")}_{str(pickedFrames).replace(" ", "")}.gif', writer=writer)
 
     print(" -showing plot:")
     plt.show()
