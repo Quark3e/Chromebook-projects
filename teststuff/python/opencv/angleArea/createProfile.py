@@ -1766,7 +1766,6 @@ def opt5():
     def anim_setup():
         op2_settings["zPick"]["value"]=0
 
-
         plotCbs["full"] = [
             ax["full"].scatter(fullValues["Roll"], \
                             fullValues["Pitch"], \
@@ -1807,7 +1806,7 @@ def opt5():
         return plotCbs["slice2"][0], plotCbs["ghost"][0]#, plotCbs["slice"][0]
 
     def anim_update(i):
-        print(i)
+        print(i, end="\r")
         op2_settings["zPick"]["value"]=i
         ax["slice"].title.set_text(f"{slice} {op2_settings['zPick']['value']}")
 

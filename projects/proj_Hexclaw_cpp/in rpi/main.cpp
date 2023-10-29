@@ -185,18 +185,33 @@ float zAxisFunc(float area, float posX, float posY) {
 	// ans = 0.003306*pow(val, 2)-4.537*val+1580;
     // area = round(area/10)*10;
 	
+	//Old
+    // float c[11] = {
+	// 	 1.11616931 * pow(10, -39),
+	// 	-2.07682935 * pow(10, -34),
+	// 	 1.68556962 * pow(10, -29),
+	// 	-7.83319285 * pow(10, -25),
+	// 	 2.30122730 * pow(10, -20),
+	// 	-4.45491855 * pow(10, -16),
+	// 	 5.75203827 * pow(10, -12),
+	// 	-4.90909892 * pow(10, -8),
+	// 	 2.68701764 * pow(10, -4),
+	// 	-8.89666871 * pow(10, -1),
+	// 	 1.61255736 * pow(10, 3)
+	// 		 };
+
     float c[11] = {
-		 1.11616931 * pow(10, -39),
-		-2.07682935 * pow(10, -34),
-		 1.68556962 * pow(10, -29),
-		-7.83319285 * pow(10, -25),
-		 2.30122730 * pow(10, -20),
-		-4.45491855 * pow(10, -16),
-		 5.75203827 * pow(10, -12),
-		-4.90909892 * pow(10, -8),
-		 2.68701764 * pow(10, -4),
-		-8.89666871 * pow(10, -1),
-		 1.61255736 * pow(10, 3)
+		 1.41350147 * pow(10, -32),
+		-7.39588055 * pow(10, -28),
+		 1.70543946 * pow(10, -23),
+		-2.27903757 * pow(10, -19),
+		 1.95152915 * pow(10, -15),
+		-1.11701396 * pow(10, -11),
+		 4.32049796 * pow(10, -8),
+		-1.11313493 * pow(10, -4),
+		 1.82568080 * pow(10, -1),
+		-1.72185711 * pow(10, 2),
+		 7.15691211 * pow(10, 4)
 			 };
 	for(int i=0; i<11; i++) { val+=c[i]*pow(area, 10-i); }
 	/*
@@ -375,6 +390,8 @@ void updateOrients(bool printResult) {
 }
 
 
+/// @brief Create trackbar
+/// @param win_name pointer to opencv window name
 void createTrackbars(const char* win_name) {
 	cv::createTrackbar("LowH", win_name, &l_HSV[0], 179);
 	cv::createTrackbar("HighH", win_name, &u_HSV[0], 179);
@@ -384,6 +401,8 @@ void createTrackbars(const char* win_name) {
 	cv::createTrackbar("HighV", win_name, &u_HSV[2], 255);
 }
 
+/// @brief set trackbar pos/value
+/// @param win_name pointer to opencv window name
 void updateTrackbarPos(const char* win_name) {
 	cv::setTrackbarPos("LowH", win_name, l_HSV[0]);
 	cv::setTrackbarPos("LowS", win_name, l_HSV[1]);
@@ -537,7 +556,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 		
 		//delay: 2-3ms
 		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
-		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 4); 
+		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 6); 
 
 		// cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1); 
 		// cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
@@ -694,7 +713,7 @@ int main(int argc, char** argv) {
 			cout << "error: Cannot open web cam." << endl;
 			return -1;
 		}
-		cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0);
+		cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 1); //change to 0 if output is not same as createProfile.py
 		hsv_settingsRead("",5,"hsv_settings.dat",false);
 
 		if(calibrateHSV) { if(displayFunc(&cap, 0, &pca)==-1) { return 0; } }
