@@ -39,6 +39,8 @@ else:
     sys.exit(0)
 
 # Create TFT LCD display class.
+
+
 disp = ST7735.ST7735(
     port=0,
     cs=ST7735.BG_SPI_CS_FRONT,  # BG_SPI_CSB_BACK or BG_SPI_CS_FRONT
