@@ -1854,6 +1854,13 @@ def opt6():
     numPoints=0
     spac = [1, 1, 1]
 
+    print("Spacs:", spac)
+
+    inp = input("enter: ")
+    if inp=="exit": exit()
+    elif inp=="back": return
+    elif len(inp)>0 and inp[0]=="[": spac = eval(inp)
+
     sDiv = lambda var: var/abs(var)
     rDist = [
         [0, 400],
