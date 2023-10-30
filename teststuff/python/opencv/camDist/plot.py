@@ -73,10 +73,12 @@ funcFile = open("data/solved_func.dat", "a")
 
 for i in range(2, 10+1, 2):
     tempFunc = testFits(i)
-    # funcFile.write(f"\n----------deg: {i}\n")
-    # funcFile.write(str(tempFunc.c)+"\n")
-    # funcFile.write(str(tempFunc))
-    # funcFile.write("\n")
+
+    funcFile.write(f"\n----------deg: {i}\n")
+    funcFile.write(str(tempFunc.c)+"\n")
+    funcFile.write(str(tempFunc))
+    funcFile.write("\n")
+
     ax.plot(xData, tempFunc(xData), label="fit polyDeg: "+str(i)+" deg", alpha=0.95, linewidth=3)
 
 # ax.plot(xData, polyTest(xData), label='check plot', alpha=1, linewidth=2)
