@@ -52,10 +52,11 @@ dirPath = {
     
     },
     "data": {
-        "total":    {"path": "data/totalSet/", "description": "complete XYZCoef renders of points"},
-        "datRaw":   {"path": "data/dat_raw/", "description": "coef. dataset in .dat format"},
-        "csvRaw":   {"path": "data/csv_raw/", "description": "raw dataset in .csv format"},
-        "csvCoef":  {"path": "data/csv_coef/","description": "coef. dataset in .csv format"}
+        "total":    {"path": "data/totalSet/",  "description": "complete XYZCoef renders of points"},
+        "datRaw":   {"path": "data/dat_raw/",   "description": "coef. dataset in .dat format"},
+        "csvRaw":   {"path": "data/csv_raw/",   "description": "raw dataset in .csv format"},
+        "csvCoef":  {"path": "data/csv_coef/",  "description": "coef. dataset in .csv format"},
+        "csvArtif": {"path": "data/csv_artif/", "description": "artificial area csv dataset"}
     },
     "models": "regrModels/",
 }
@@ -1217,7 +1218,6 @@ def opt2():
         print("showing plot(s)...")
         plt.show()
 
-
 def opt3():
     print("opt 3: plotting regrmodel data")
 
@@ -1620,7 +1620,6 @@ def opt4():
 
     return
 
-
 def opt5():
     
     if op2_settings["zPick"]["value"]=="auto": op2_settings["zPick"]["value"]=200
@@ -1839,6 +1838,87 @@ def opt5():
 
     return
 
+def opt6():
+    def checkfunc(x):
+        c = [1.41350147*10**-32, -7.39588055*10**-28, 1.70543946*10**-23, -2.27903757*10**-19, \
+            1.95152915*10**-15, -1.11701396*10**-11, 4.32049796*10**-8, -1.11313493*10**-4, \
+            1.82568080*10**-1, -1.72185711*10**2, 7.15691211*10**4]
+        
+        return sum([c[n]*(x**(10-n)) for n in range(len(c))])
+
+    def polyTest(xData):
+        return [checkfunc(x) for x in xData]
+
+    
+    parts=4
+    numPoints=0
+    spac = [1, 1, 1]
+
+    sDiv = lambda var: var/abs(var)
+    rDist = [
+        [0, 400],
+        [-90, 90],
+        [-90, 90]
+    ]
+    for z in range(rDist[0][0], rDist[0][1]+spac[0], spac[0]):
+        for y in range(rDist[1][0], rDist[1][1]+spac[1], spac[1]):
+            for x in range(round(sDiv(rDist[2][0])*(abs(rDist[2][0])-abs(y))), round(sDiv(rDist[2][1])*(abs(rDist[2][1])-abs(y)))+spac[2], spac[2]):
+                numPoints+=1
+
+
+    fileNom = [f"csv_"+f'{str(spac).replace(" ", "")}_{numPoints}'+f"_p" ,"_completeRender.csv"]
+    print(f" Total number of points: {numPoints:_}: filename:{fileNom[0]}[]{fileNom[1]}")
+    fileContent = parts*[None]
+    print("")
+    print("Reading parts:")
+    for i in range(parts):
+        print(f" reading part: p{i}")
+        with open(dirPath["data"]["total"]["path"]+fileNom[0]+str(i)+fileNom[1], "r") as f:
+            read = csv.reader(f)
+            next(read, None)
+            fileContent[i] = [row for row in read if len(row)!=0]
+    print("Saving parts into one big list:")
+    contents = []
+    for i in range(parts):
+        contents+=fileContent[i]
+    print(f" len():\n -contents      :{len(contents):_}\n -contents[0]   :{len(contents[0]):_}\n")
+
+    print("Typecasting all values into float() and converting it")
+    for i in range(len(contents)):
+        temp = f"{i:_}"
+        print(f" n:{temp:>10}", end="\r")
+        contents[i][0]=float(contents[i][0])
+        contents[i][1]=float(contents[i][1])
+        contents[i][2]=float(contents[i][2])
+        contents[i][3]=checkfunc(float(contents[i][3]))
+
+    # print("\nFilling up ordVal{}:")
+    # tempIdx = [0, 0]
+    # ordVal = {}
+    # for el in contents:
+    #     if el[2]==0: tempIdx[0]+=1
+    #     elif el[2]==50: tempIdx[1]+=1
+    #     print(f"{el[0]:>5}, {el[1]:>5}, {el[2]:>5}, {el[3]:>18}]     ", end="\r") #change to \r
+    #     if el[2] in ordVal:
+    #         ordVal[el[2]][0].append(el[0])
+    #         ordVal[el[2]][1].append(el[1])
+    #         ordVal[el[2]][2].append(el[3])
+    #     elif el[2] not in ordVal:
+    #         ordVal.update({el[2]: [[el[0]], [el[1]], [el[3]]]})
+
+    print("\ncreating csv file(s)....")
+    csv_fields = ["Roll","Pitch","Z","Area"]
+    for i in range(parts):
+        print(f"i:{i}")
+        nLen = len(contents)/parts
+        with open(dirPath["data"]["csvArtif"]["path"]+"csv_"+f'{str(spac).replace(" ", "")}_{numPoints}'+f"_p{i}"+"artificial"+".csv", "w") as f:
+            write = csv.writer(f)
+            write.writerow(csv_fields)
+            write.writerows(contents[round(i*nLen):round((i+1)*nLen)])
+
+
+    return
+
 def main():
     while True:
         os.system("clear")
@@ -1849,6 +1929,7 @@ def main():
         print("3. Load regr model and plot")
         print("4. Create slice of 3d dataset from models")
         print("5. Animate each slice (auto ver. of opt.4)")
+        print("6. Generate Artifical area values from coef")
 
         inp = input("input: ")
         if inp=="exit": break
@@ -1858,6 +1939,7 @@ def main():
         elif inp=="3": opt3()
         elif inp=="4": opt4()
         elif inp=="5": opt5()
+        elif inp=="6": opt6()
 
 if __name__=="__main__":
     main()
