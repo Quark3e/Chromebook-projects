@@ -11,7 +11,9 @@ from time import sleep, perf_counter
 
 useVideo = False
 
-displayToTFT = False
+saveVideo = False
+
+displayToTFT = True
 
 if displayToTFT:
     import digitalio #type: ignore
@@ -72,7 +74,7 @@ prefRes = (640, 480)
 outFileName = "output.avi"
 capSize = (int(cap.get(3)), int(cap.get(4)))
 # fourcc = cv2.CV_FOURCC(*'XVID')
-capOut = cv2.VideoWriter(outFileName,cv2.VideoWriter_fourcc(*'MJPG'), 24, (2*prefRes[0], 2*prefRes[1]))
+if saveVideo: capOut = cv2.VideoWriter(outFileName,cv2.VideoWriter_fourcc(*'MJPG'), 24, (2*prefRes[0], 2*prefRes[1]))
 # capOut = cv2.VideoWriter('output.mp4',fourcc, 10, (capSize[0],capSize[1]))
 
 
@@ -217,7 +219,7 @@ while True:
         disp.image(PIL_img)
 
     # print([stacked.shape[1], stacked.shape[0]])
-    capOut.write(stacked)
+    if saveVideo: capOut.write(stacked)
 
     # If the user presses ESC then exit the program
     if displayToOpenCV:
@@ -254,9 +256,9 @@ while True:
             print("frame +")
     # sleep(0.0002)
 
-capOut.release()
+if saveVideo: capOut.release()
 
-if not useVideo: convert_avi_to_mp4(outFileName, outFileName)
+if saveVideo: convert_avi_to_mp4(outFileName, outFileName)
 
 if displayToOpenCV:
     cap.release()

@@ -1711,7 +1711,7 @@ def opt5():
 
     fullValues = {"Roll":[], "Pitch":[], "Z":[], "Area":[]}
     print("\nCreating values for full scatterplot values")
-    filtVal = 4
+    filtVal = 10
     for val in contents:
         if val[0]%filtVal==0 and val[1]%filtVal==0:
             print(f"[{val[0]:>5}, {val[1]:>5}, {val[2]:>5}, {val[3]:>15}]     ", end="\r")
@@ -1918,7 +1918,7 @@ def opt6():
     for i in range(parts):
         print(f"i:{i}")
         nLen = len(contents)/parts
-        with open(dirPath["data"]["csvArtif"]["path"]+"csv_"+f'{str(spac).replace(" ", "")}_{numPoints}'+f"_p{i}"+"artificial"+".csv", "w") as f:
+        with open(dirPath["data"]["csvArtif"]["path"]+"csv_"+f'{str(spac).replace(" ", "")}_{numPoints}'+f"_p{i}"+"_artificial"+".csv", "w") as f:
             write = csv.writer(f)
             write.writerow(csv_fields)
             write.writerows(contents[round(i*nLen):round((i+1)*nLen)])
