@@ -14,7 +14,7 @@ from adafruit_rgb_display import st7735 #type: ignore
 BAUDRATE = 24_000_000
 
 BORDER = 20
-FONTSIZE = 24
+FONTSIZE = 12
 
 cs_pin = digitalio.DigitalInOut(board.CE0)
 dc_pin = digitalio.DigitalInOut(board.D25)
@@ -46,12 +46,12 @@ connection_string = ngrok.connect("2223", "tcp").public_url
 ssh_url, port = connection_string.strip("tcp://").split(":")
 print(f"\n * ngrok tunnel available, access with `ssh pi@{ssh_url} -p{port}`")
 
+text = f"ssh pi@{ssh_url}\n -p{port}"#\n{ssh_url}:{port}"
 
-text = f"ssh pi@{ssh_url} -p{port}\n{ssh_url}:{port}"
+#text= "`ssh pi@168 -p{port}`"
 (font_width, font_height) = font.getsize(text)
-
 draw.text(
-    (width // 2 - font_width // 2, height // 2 - font_height // 2),
+    (0, 0),#(width // 2 - font_width // 2, height // 2 - font_height // 2),
     text,
     font=font,
     fill=(255, 255, 255),
