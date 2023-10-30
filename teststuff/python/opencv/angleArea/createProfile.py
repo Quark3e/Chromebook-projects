@@ -1714,7 +1714,7 @@ def opt5():
     filtVal = 10
     for val in contents:
         if val[0]%filtVal==0 and val[1]%filtVal==0:
-            print(f"[{val[0]:>5}, {val[1]:>5}, {val[2]:>5}, {val[3]:>15}]     ", end="\r")
+            print(f"Gen. fullplot Scat val:[{val[0]:>5}, {val[1]:>5}, {val[2]:>5}, {val[3]:>15}]     ", end="\r")
             fullValues["Roll"].append(val[0])
             fullValues["Pitch"].append(val[1])
             fullValues["Z"].append(val[2])
@@ -1925,6 +1925,7 @@ def opt6():
 
 
     return
+
 
 def main():
     while True:
