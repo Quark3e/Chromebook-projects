@@ -51,7 +51,7 @@ text = f"ssh pi@{ssh_url} -p{port}\n{ssh_url}:{port}"
 (font_width, font_height) = font.getsize(text)
 
 draw.text(
-    (width // 2- font_width // 2, height // 2 - font_height // 2),
+    (width // 2 - font_width // 2, height // 2 - font_height // 2),
     text,
     font=font,
     fill=(255, 255, 255),
