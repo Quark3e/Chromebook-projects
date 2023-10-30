@@ -1713,14 +1713,14 @@ def opt5():
     print("\nCreating values for full scatterplot values")
     filtVal = 10
     for val in contents:
-        if val[0]%filtVal==0 and val[1]%filtVal==0:
+        if val[0]%filtVal==0 and val[1]%filtVal==0 and val[2]%filtVal==0:
             print(f"Gen. fullplot Scat val:[{val[0]:>5}, {val[1]:>5}, {val[2]:>5}, {val[3]:>15}]     ", end="\r")
             fullValues["Roll"].append(val[0])
             fullValues["Pitch"].append(val[1])
             fullValues["Z"].append(val[2])
             fullValues["Area"].append(val[3])
 
-    print("Generating slice ghost:")
+    print("\nGenerating slice ghost:")
     ghost = [[],[],[]]
     for x in range(-90,91,1):
         for y in range(-90,91,1):
@@ -1831,7 +1831,7 @@ def opt5():
     # To save the animation using Pillow as a gif
     writer = PillowWriter(fps=18, metadata=dict(artist='Me'),bitrate=1800)
 
-    ani.save(dirPath["media"]["main"]["path"]+f'Layers_{str(spac)}_{numPoints}.gif', writer=writer)
+    ani.save(dirPath["media"]["main"]["path"]+f'Layers_{str(spac).replace(" ", "")}_{numPoints}_[{orient["azim"]},{orient["elev"]}].gif', writer=writer)
 
     print(" -showing plot:")
     plt.show()
