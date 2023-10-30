@@ -43,8 +43,8 @@ if dataIndex >= len(values):
     print("dataIndex bigger than available data sets.\n exiting..")
     sys.exit()
 
-xData = values[dataIndex][0]
-yData = values[dataIndex][1]
+xData = values[dataIndex][1]
+yData = values[dataIndex][0]
 
 
 xData2, yData2 = xData.copy(), yData.copy()
