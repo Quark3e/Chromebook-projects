@@ -22,8 +22,8 @@ void splitString(string line, string delimiter, float returnArr[4], int numVar=4
 }
 
 
-void loadData(string filename="csv_[1,1,1]_6568781_p3_artificial.csv", bool printVar=true) {
-    
+void loadData(bool printVar=true, string filename="csv_[1,1,1]_6568781_p3_artificial.csv") {
+
     cout << "starting to load the data\n";
 
     int columns=4;
@@ -41,7 +41,7 @@ void loadData(string filename="csv_[1,1,1]_6568781_p3_artificial.csv", bool prin
     getline(csvFile, line);
     while(getline(csvFile, line)) {
         int idx=0;
-        char temp[16]={"0123456789;,.- "};
+        char temp[16]="0123456789;,.- ";
         bool fullbreak = false;
         for(int n=0; n<100; n++) {
             for(int i=0; i<16; i++) {
@@ -64,7 +64,7 @@ void loadData(string filename="csv_[1,1,1]_6568781_p3_artificial.csv", bool prin
 }
 
 int main() {
-    loadData(false);
+    loadData(true);
 
     return 0;
 }
