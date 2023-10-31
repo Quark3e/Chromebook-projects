@@ -4,25 +4,31 @@
 #include <math.h>
 #include <string>
 #include <vector>
+#include <locale>
 
 using namespace std;
 
 
-void splitString(string line, char delimiter, float returnArr[4], int numVar=4) {
-    cout << line << "      \n";
-    for(int i=0; i<numVar-1; i++) {
-        returnArr[i] = stof(line.substr(0, line.find(delimiter)));
-        line.erase(line.find(delimiter)+1);
+void splitString(string line, string delimiter, float returnArr[4], int numVar=4, bool printVar=true) {
+    if(printVar) cout << "--- \"" << line << "\"\n";
+    size_t pos = 0;
+    for(int i=0; i<numVar; i++) {
+        if(i<(numVar-1)) pos = line.find(delimiter);
+        if(printVar) cout << "- pos:" << pos << " :" << line.substr(0, pos) << "\n";
+        returnArr[i] = stof(line.substr(0, pos));
+        line.erase(0, pos + delimiter.length());
     }
-    returnArr[numVar-1] = stof(line);
+    if(printVar) cout << "---";
 }
 
-void loadData() {
+
+void loadData(bool printVar=true) {
+    cout << "starting to load the data\n";
 
     int columns=4;
 
     fstream csvFile;
-    csvFile.open("csv_[1,1,1]_6568781_p2_artificial.csv", ios::in);
+    csvFile.open("csv_[1,1,1]_6568781_p3_artificial.csv", ios::in);
 
     int rowCount=0;
 
@@ -32,19 +38,32 @@ void loadData() {
     string strArr[4];
 
     getline(csvFile, line);
-
     while(getline(csvFile, line)) {
-        // printf("\"%s\n\"test", line.c_str());
-        cout << "\"" << line.c_str() << "\"      \n";
+        int idx=0;
+        char temp[16]={"0123456789;,.- "};
+        bool fullbreak = false;
+        for(int n=0; n<100; n++) {
+            for(int i=0; i<16; i++) {
+                if(line[n] == temp[i]) { break; }
+                else if (i>=15) {
+                    idx=n;
+                    fullbreak = true;
+                    break;
+                }
+            }
+            if(fullbreak) break;
+        }
+
+        if(printVar) printf("%7d |%36s|", rowCount, line.substr(0, idx).c_str());
+        splitString(line.substr(0, idx), ",", tempArr, columns, false);
+        if(printVar) printf(" x:%3d y:%3d z:%4d area:%0.4f\n", int(tempArr[0]),int(tempArr[1]),int(tempArr[2]),tempArr[3]);
         rowCount++;
-        // splitString(line, ',', tempArr, columns);
-        // printf("- %2d: x:%3d y:%3d z:%4d area:%0.4f\n", rowCount, int(tempArr[0]),int(tempArr[1]),int(tempArr[2]),tempArr[3]);
-        // for(int i=0; i<4; i++) cout << strArr[i] << " ";
     }
+    cout << "Finished loading the data: Total rows:" << rowCount << endl;
 }
 
 int main() {
-    loadData();
+    loadData(false);
 
     return 0;
 }
