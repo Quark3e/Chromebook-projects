@@ -22,9 +22,13 @@ def toDegrees(radians):
 
 
 def checkfunc(x):
-    c = [1.11616931*10**-39, -2.07682935*10**-34, 1.68556962*10**-29, -7.83319285*10**-25,
-             2.30122730*10**-20, -4.45491855*10**-16, 5.75203827*10**-12, -4.90909892*10**-8,
-             2.68701764*10**-4, -8.89666871*10**-1, 1.61255736*10**3]
+    # c = [1.11616931*10**-39, -2.07682935*10**-34, 1.68556962*10**-29, -7.83319285*10**-25,
+    #          2.30122730*10**-20, -4.45491855*10**-16, 5.75203827*10**-12, -4.90909892*10**-8,
+    #          2.68701764*10**-4, -8.89666871*10**-1, 1.61255736*10**3]
+
+    c = [ 1.41350147*10**-32, -7.39588055*10**-28, 1.70543946*10**-23, -2.27903757*10**-19,
+        1.95152915*10**-15, -1.11701396*10**-11, 4.32049796*10**-8, -1.11313493*10**-4,
+        1.82568080*10**-1, -1.72185711*10**2, 7.15691211*10**4]
 
     return sum([c[n]*(x**(10-n)) for n in range(len(c))])
 
@@ -88,8 +92,8 @@ readAccelerometer()
 cam = [cv2.VideoCapture(2), cv2.VideoCapture(0)]
 prefRes = (640, 480)
 
-#cam[0].set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
-#cam[1].set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
+cam[0].set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
+cam[1].set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
 
 #lower, upper values
 hsvCam0 = [[0, 0, 255], [179, 9, 255]] #area
@@ -152,12 +156,34 @@ def processFrame(img, flag, winName):
     # morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=0)
 
     morphImg[flag] = cv2.erode(cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR), kernel, iterations=1)
-    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=4)
+    morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=6)
     # morphImg[flag] = cv2.dilate(morphImg[flag], kernel, iterations=1)
     # morphImg[flag] = cv2.erode(morphImg[flag], kernel, iterations=1)
 
     _, thresh[flag] = cv2.threshold(morphImg[flag], 127, 255, cv2.THRESH_BINARY)
     contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(thresh[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+
+def solveContours(allContours, areaThreshold=0):
+    allPositions = [[], []]
+    totArea = 0
+    if len(allContours)==0: return [[0,0], 0]
+    # print(" len():", len(allContours), end=" ")
+    for cnt in allContours:
+        CntMoments = cv2.moments(cnt)
+        if CntMoments["m00"] != 0:
+            area = cv2.contourArea(cnt)
+            # print(area, end=" ")
+            if area>=areaThreshold:
+                allPositions[0].append(CntMoments["m10"]/CntMoments["m00"])
+                allPositions[1].append(CntMoments["m01"]/CntMoments["m00"])
+                totArea+=area
+    avgPos = [
+        int(round(sum(allPositions[0])/len(allPositions[0]))),
+        int(round(sum(allPositions[1])/len(allPositions[1])))
+    ]
+    return [avgPos, int(totArea)]
+
 
 def camPos_update():
     global imgTemp, ret, contours, cntArea, cntMoments, cntPos, cntPos_z, raw_read
@@ -180,7 +206,7 @@ def camPos_update():
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
                         cntPos[0] = round(tempPos[0]-prefRes[0]/2)
                         cntPos[1] = round(prefRes[1]/2-tempPos[1])
-                        cntArea = cv2.contourArea(contours[flag][0])
+                        _, cntArea = solveContours(contours[flag])
                         cntPos_z = checkfunc(cntArea)
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1, (255,0,0),2)
