@@ -22,7 +22,8 @@ void splitString(string line, string delimiter, float returnArr[4], int numVar=4
 }
 
 
-void loadData(bool printVar=true) {
+void loadData(string filename="csv_[1,1,1]_6568781_p3_artificial.csv", bool printVar=true) {
+    
     cout << "starting to load the data\n";
 
     int columns=4;
