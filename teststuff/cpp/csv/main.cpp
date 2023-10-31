@@ -22,9 +22,11 @@ void splitString(string line, string delimiter, float returnArr[4], int numVar=4
 }
 
 
+float artifVal[401][181][181]; //x = [0, 90, 181] = [-90, 0, 01]
+
 void loadData(bool printVar=true, string filename="csv_[1,1,1]_6568781_p3_artificial.csv") {
 
-    cout << "starting to load the data\n";
+    cout << "Starting to load the data\n";
 
     int columns=4;
 
@@ -32,21 +34,20 @@ void loadData(bool printVar=true, string filename="csv_[1,1,1]_6568781_p3_artifi
     csvFile.open("csv_[1,1,1]_6568781_p3_artificial.csv", ios::in);
 
     int rowCount=0;
+    char temp[16]="0123456789;,.- ";
 
-    vector<string> row;
     string line;
-    float var[4], tempArr[4];
+    float tempArr[4];
     string strArr[4];
 
     getline(csvFile, line);
     while(getline(csvFile, line)) {
         int idx=0;
-        char temp[16]="0123456789;,.- ";
         bool fullbreak = false;
         for(int n=0; n<100; n++) {
-            for(int i=0; i<16; i++) {
-                if(line[n] == temp[i]) { break; }
-                else if (i>=15) {
+            for(int i=0; i<sizeof(temp)/sizeof(temp[0]); i++) {
+                if(line[n] == temp[i]) break;
+                else if (i>=sizeof(temp)/sizeof(temp[0])-1) {
                     idx=n;
                     fullbreak = true;
                     break;
@@ -58,13 +59,14 @@ void loadData(bool printVar=true, string filename="csv_[1,1,1]_6568781_p3_artifi
         if(printVar) printf("%7d |%36s|", rowCount, line.substr(0, idx).c_str());
         splitString(line.substr(0, idx), ",", tempArr, columns, false);
         if(printVar) printf(" x:%3d y:%3d z:%4d area:%0.4f\n", int(tempArr[0]),int(tempArr[1]),int(tempArr[2]),tempArr[3]);
+        artifVal[int(tempArr[2])][int(tempArr[0])+90][int(tempArr[1])+90] = tempArr[3];
         rowCount++;
     }
     cout << "Finished loading the data: Total rows:" << rowCount << endl;
 }
 
 int main() {
-    loadData(true);
+    loadData(false);
 
     return 0;
 }

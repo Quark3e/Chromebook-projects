@@ -38,6 +38,12 @@
 #include <stdint.h>
 #include <vector>
 
+// path related headers
+#include <cstring>
+#include <unistd.h>
+#include <libgen.h>
+#include <linux/limits.h>
+
 // opencv/image tracking
 #include <opencv4/opencv2/opencv.hpp>
 #include <opencv4/opencv2/highgui/highgui.hpp>
@@ -663,6 +669,63 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 }
 
 
+void splitString(string line, string delimiter, float returnArr[4], int numVar=4, bool printVar=false) {
+    if(printVar) cout << "--- \"" << line << "\"\n";
+    size_t pos = 0;
+    for(int i=0; i<numVar; i++) {
+        if(i<(numVar-1)) pos = line.find(delimiter);
+        if(printVar) cout << "- pos:" << pos << " :" << line.substr(0, pos) << "\n";
+        returnArr[i] = stof(line.substr(0, pos));
+        line.erase(0, pos + delimiter.length());
+    }
+    if(printVar) cout << "---";
+}
+
+float artifVal[401][181][181]; //x = [0, 90, 181] = [-90, 0, 01]
+
+void loadData_csvArtif(string filename, bool printVar=false) {
+	if (printVar) cout << "Starting to load the data\n";
+
+	int columns=4;
+	char temp[16]="0123456789;,.- ";
+	int rowCount=0;
+	float tempArr[4];
+	bool fullBreak;
+
+	fstream csvFile;
+	csvFile.open(filename, ios::in);
+	
+	getline(csvFile, line);
+
+	while(getline(csvFile, line)) {
+		int idx=0;
+		fullBreak=false;
+		for(int n=0; n<100; n++) {
+			for(int i=0; i<sizof(temp)/sizeof(temp[0]); i++) {
+				if(line[n] == temp[i]) break;
+				else if(i>=sizof(temp)/sizeof(temp[0])-1) {
+					idx=n;
+					fullBreak=true;
+					break;
+				}
+			}
+			if(fullBreak) break;
+		}
+        if(printVar) printf("%7d |%36s|", rowCount, line.substr(0, idx).c_str());
+        splitString(line.substr(0, idx), ",", tempArr, columns, false);
+        if(printVar) {
+			printf(
+				" x:%3d y:%3d z:%4d area:%0.4f\n",
+				int(tempArr[0]), int(tempArr[1]), int(tempArr[2]), tempArr[3]
+			);
+		}
+        artifVal[int(tempArr[2])][int(tempArr[0])+90][int(tempArr[1])+90] = tempArr[3];
+        rowCount++;
+	}
+	if(printVar) cout << "Finished loading the data: Total rows:" << rowCount << endl;
+}
+
+
 int main(int argc, char** argv) {
 	/*
 	argv codes:
@@ -679,6 +742,9 @@ int main(int argc, char** argv) {
 	//nodemcu udp communication setup/initialization
 	nodemcu_udp_setup();
 	load_csvFile();
+
+	
+	loadData_csvArtif();
 
 	if(gpioInitialise()<0) {
 		cout << "pigpio \"gpioInitialise()\" failed\n";
