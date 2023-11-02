@@ -775,6 +775,7 @@ void loadData_csvArtif(bool printVar=true) {
 		csvFile.close();
 	}
 	if(printVar) cout << "Finished loading the data: Total rows:" << rowCount << endl;
+	system("pause");
 }
 
 
