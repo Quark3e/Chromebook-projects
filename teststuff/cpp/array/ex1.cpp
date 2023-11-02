@@ -7,8 +7,23 @@
 using namespace std;
 
 /// @brief Find index to closest value in arr
-void test() {
+int findVal(int arr[6], int len, int pick=74) {
+    int minArr[sizeof(arr)/sizeof(arr[0])];
+    int minVar[2];
 
+    for(int i=0; i<n; i++) { minArr[i] = abs(arr[i]-pick); }
+    
+    int minVar[2] = {0, minArr[0]};
+    cout << "0|" <<  minVar[1] << "|" << minArr[0] << " ";
+    for(int i=1; i<n; i++) {
+        cout << i << "|" << minVar[1] << "|" << minArr[i] << " ";
+        if(minVar[1]>minArr[i]) {
+            minVar[0]=i;
+            minVar[1]=minArr[i];
+        }
+    }
+    printf("\nClosest value to %d: index:%d element:%d", pick, minVar[0], arr[minVar[0]]);
+    return minVar[0];
 }
 
 int main()
@@ -26,23 +41,7 @@ int main()
 		cout << arr[i] << " ";
     cout << "\nLength of array: " << n << endl;
 
-
-    // Get desired/closest element
-    int pick = 74;
-
-    int minArr[sizeof(arr)/sizeof(arr[0])];
-    for(int i=0; i<n; i++) { minArr[i] = abs(arr[i]-pick); }
-    
-    int minVar[2] = {0, minArr[0]};
-    cout << "0|" <<  minVar[1] << "|" << minArr[0] << " ";
-    for(int i=1; i<n; i++) {
-        cout << i << "|" << minVar[1] << "|" << minArr[i] << " ";
-        if(minVar[1]>minArr[i]) {
-            minVar[0]=i;
-            minVar[1]=minArr[i];
-        }
-    }
-    printf("\nClosest value to %d: index:%d element:%d", pick, minVar[0], arr[minVar[0]]);
+    findVal(arr, n);
 
 
 	// Find the minimum element
