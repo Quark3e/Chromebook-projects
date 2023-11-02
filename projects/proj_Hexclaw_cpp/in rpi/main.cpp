@@ -737,12 +737,13 @@ void loadData_csvArtif(bool printVar=false) {
 	int rowCount=0;
 	float tempArr[4];
 	bool fullBreak;
+	string line;
 
 	for(int part=0; part<parts; part++) {
 		rowCount=0;
 		fstream csvFile;
 
-		filename = filenom[0]+to_string(part)+filenome[1];
+		filename = filenom[0]+to_string(part)+filenom[1];
 		csvFile.open(filename, ios::in);
 		
 		getline(csvFile, line);
@@ -750,9 +751,9 @@ void loadData_csvArtif(bool printVar=false) {
 			int idx=0;
 			fullBreak=false;
 			for(int n=0; n<100; n++) {
-				for(int i=0; i<sizof(temp)/sizeof(temp[0]); i++) {
+				for(int i=0; i<sizeof(temp)/sizeof(temp[0]); i++) {
 					if(line[n] == temp[i]) break;
-					else if(i>=sizof(temp)/sizeof(temp[0])-1) {
+					else if(i>=sizeof(temp)/sizeof(temp[0])-1) {
 						idx=n;
 						fullBreak=true;
 						break;
@@ -793,7 +794,7 @@ int main(int argc, char** argv) {
 	//nodemcu udp communication setup/initialization
 	nodemcu_udp_setup();
 	load_csvFile();
-	initPath();
+	initPaths();
 	
 	loadData_csvArtif();
 
