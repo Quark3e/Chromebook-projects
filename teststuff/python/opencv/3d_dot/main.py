@@ -76,7 +76,7 @@ def readAccelerometer(printText=True):
         msgTuple = eval(tempMsg[1:-5])
         X_out, Y_out, Z_out = msgTuple
     
-    if printText: print(f" accel: x:{X_out} y:{Y_out} z:{Z_out} roll:{roll} pitch:{pitch}", end='\r')
+    # if printText: print(f" accel: x:{X_out} y:{Y_out} z:{Z_out} roll:{roll} pitch:{pitch}", end='\r')
     
     if X_out > 1: X_out = 1
     if Y_out > 1: Y_out = 1
@@ -93,7 +93,7 @@ def readAccelerometer(printText=True):
     #filter
     Roll = (1-tiltFilter) * Roll + tiltFilter * roll
     Pitch = (1-tiltFilter) * Pitch + tiltFilter * pitch
-    if printText: print(f" x:{round(X_out,2):>5}  y:{round(Y_out,2):>5}  z:{round(Z_out,2):>5}  roll:{round(roll,2):>5} pitch:{round(pitch,2):>5}", end='\r')
+    if printText: print(f" x:{round(X_out,2):>5}  y:{round(Y_out,2):>5}  z:{round(Z_out,2):>5}  roll:{round(roll,2):>5} pitch:{round(pitch,2):>5}           ", end='\r')
 
 
 
@@ -109,6 +109,7 @@ def checkfunc(x):
     l_temp = [csvFileChart[int(Roll+90)][int(Pitch+90)][i] for i in range(401)]
 
     if None in l_temp:
+        print(" z error: solved from normal func")
         return sum([c[n]*(x**(10-n)) for n in range(len(c))])
     # print(l_temp)
     return l_temp.index(min(l_temp, key=lambda r: abs(r-x)))
