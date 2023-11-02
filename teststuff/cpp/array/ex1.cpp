@@ -7,12 +7,12 @@
 using namespace std;
 
 /// @brief Find index to closest value in arr
-int findVal(int arr[6], int len, int pick=74) {
+int findVal(int arr, int n, int pick=74) {
     int minArr[sizeof(arr)/sizeof(arr[0])];
-    int minVar[2];
 
     for(int i=0; i<n; i++) { minArr[i] = abs(arr[i]-pick); }
     
+
     int minVar[2] = {0, minArr[0]};
     cout << "0|" <<  minVar[1] << "|" << minArr[0] << " ";
     for(int i=1; i<n; i++) {
@@ -22,8 +22,14 @@ int findVal(int arr[6], int len, int pick=74) {
             minVar[1]=minArr[i];
         }
     }
-    printf("\nClosest value to %d: index:%d element:%d", pick, minVar[0], arr[minVar[0]]);
-    return minVar[0];
+    printf("\nClosest value to %d: \n", pick);
+    printf("index:%d \n", minVar[0]);
+    // cout << sizeof(arr)/sizeof(arr[0]) << endl;
+    // printf("element:%d", arr);
+
+    // return minVar[0];
+    cout << "test" << endl;
+    return 0;
 }
 
 int main()
@@ -41,23 +47,39 @@ int main()
 		cout << arr[i] << " ";
     cout << "\nLength of array: " << n << endl;
 
-    findVal(arr, n);
+    int pick = 74;
+    findVal(arr, n, pick);
+    
+    // int minArr[sizeof(arr)/sizeof(arr[0])];
 
+    // for(int i=0; i<n; i++) { minArr[i] = abs(arr[i]-pick); }
+    
 
-	// Find the minimum element
-	cout << "\nMin Element = "
-		<< *min_element(arr, arr + n);
+    // int minVar[2] = {0, minArr[0]};
+    // cout << "0|" <<  minVar[1] << "|" << minArr[0] << " ";
+    // for(int i=1; i<n; i++) {
+    //     cout << i << "|" << minVar[1] << "|" << minArr[i] << " ";
+    //     if(minVar[1]>minArr[i]) {
+    //         minVar[0]=i;
+    //         minVar[1]=minArr[i];
+    //     }
+    // }
+    // printf("\nClosest value to %d: index:%d element:%d\n", pick, minVar[0], arr[minVar[0]]);
 
-	// Find the maximum element
-	cout << "\nMax Element = "
-		<< *max_element(arr, arr + n);
-	// Storing the pointer in an address
-	int &min = *min_element(arr,arr+n );
-	int &max = *max_element(arr,arr+n );
-	cout<<"\nFinding the Element using address variable";
-	cout<<"\nMin Element = "<<min;
-	cout<<"\nMax Element = "<<max;
+	// // Find the minimum element
+	// cout << "\nMin Element = "
+	// 	<< *min_element(arr, arr + n);
 
-    cout << endl;
+	// // Find the maximum element
+	// cout << "\nMax Element = "
+	// 	<< *max_element(arr, arr + n);
+	// // Storing the pointer in an address
+	// int &min = *min_element(arr,arr+n );
+	// int &max = *max_element(arr,arr+n );
+	// cout<<"\nFinding the Element using address variable";
+	// cout<<"\nMin Element = "<<min;
+	// cout<<"\nMax Element = "<<max;
+
+    // cout << endl;
 	return 0;
 }
