@@ -263,7 +263,7 @@ float zAxisFunc(float area, float posX, float posY) {
 
 	int chosenIdx=0;
 	chosenIdx = getClosestValIdx(artifVal[int(Roll)+90][int(Pitch)+90],int(area));
-
+	cout << chosenIdx;
 	return chosenIdx;
 }
 
@@ -638,7 +638,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 					PP[2] = axisFilter[2] * float(axisScal[2]*zAxisFunc(totCnt_area, camPos[0], camPos[1]) + axisOffset[2]) + (1-axisFilter[2])*PP[2];
 					printf("num. cnt:%2d total dArea:%6d", validCnt_index, int(totCnt_area));
 					printf(" x:%3d y:%3d z:%3d",int(PP[0]),int(PP[1]), int(PP[2]));
-					updateOrients(true);
+					updateOrients(false);
 					if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
 						sendToServo(pcaSrc,new_q,current_q,false);
 					}
