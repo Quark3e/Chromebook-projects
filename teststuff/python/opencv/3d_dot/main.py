@@ -108,6 +108,7 @@ def checkfunc(x):
     # return sum([c[n]*(x**(10-n)) for n in range(len(c))])
 
     l_temp = [csvFileChart[int(Roll)][int(Pitch)][i] for i in range(401)]
+    print(x)
     return l_temp.index(min(l_temp, key=lambda r: abs(r-x)))
 
 def polyTest(xData):
