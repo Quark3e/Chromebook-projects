@@ -772,7 +772,7 @@ void loadData_csvArtif(bool printVar=false) {
 			artifVal[int(tempArr[0])+90][int(tempArr[1])+90][int(tempArr[2])] = tempArr[3];
 			rowCount++;
 		}
-		csvFile.close()
+		csvFile.close();
 	}
 	if(printVar) cout << "Finished loading the data: Total rows:" << rowCount << endl;
 }
