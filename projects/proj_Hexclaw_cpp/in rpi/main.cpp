@@ -717,7 +717,7 @@ void splitString(string line, string delimiter, float returnArr[4], int numVar=4
 }
 
 
-void loadData_csvArtif(bool printVar=false) {
+void loadData_csvArtif(bool printVar=true) {
 	if (printVar) cout << "Starting to load the data\n";
 
 	for(int x=0; x<181; x++) {
