@@ -21,20 +21,6 @@ def toDegrees(radians):
     return (radians*180)/np.pi
 
 
-def checkfunc(x):
-    # c = [1.11616931*10**-39, -2.07682935*10**-34, 1.68556962*10**-29, -7.83319285*10**-25,
-    #          2.30122730*10**-20, -4.45491855*10**-16, 5.75203827*10**-12, -4.90909892*10**-8,
-    #          2.68701764*10**-4, -8.89666871*10**-1, 1.61255736*10**3]
-
-    c = [ 1.41350147*10**-32, -7.39588055*10**-28, 1.70543946*10**-23, -2.27903757*10**-19,
-        1.95152915*10**-15, -1.11701396*10**-11, 4.32049796*10**-8, -1.11313493*10**-4,
-        1.82568080*10**-1, -1.72185711*10**2, 7.15691211*10**4]
-
-    return sum([c[n]*(x**(10-n)) for n in range(len(c))])
-
-def polyTest(xData):
-    return [checkfunc(x) for x in xData]
-
 
 #float cppVersion[181][181][401] = #[roll][pitch][z] = area (solve z by going through each z for closest area)
 csvFileChart = [[[None for z in range(401)] for y in range(181)] for x in range(181)] #[180][180][400]=area
@@ -53,9 +39,11 @@ def csv_loadData():
             next(f, None)
             for line in f:
                 roll, pitch, z, area = [float(var) for var in line.split(",")]
-                csvFileChart[roll+90][pitch+90][z] = area
+                csvFileChart[round(roll+90)][round(pitch+90)][round(z)] = area
+    print("Finished loading.")
 
     return
+
 
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -106,6 +94,25 @@ def readAccelerometer(printText=True):
     Roll = (1-tiltFilter) * Roll + tiltFilter * roll
     Pitch = (1-tiltFilter) * Pitch + tiltFilter * pitch
     if printText: print(f" accel: x:{X_out} y:{Y_out} z:{Z_out} roll:{round(roll,2)} pitch:{round(pitch,2)}", end='\r')
+
+
+
+def checkfunc(x):
+    # c = [1.11616931*10**-39, -2.07682935*10**-34, 1.68556962*10**-29, -7.83319285*10**-25,
+    #          2.30122730*10**-20, -4.45491855*10**-16, 5.75203827*10**-12, -4.90909892*10**-8,
+    #          2.68701764*10**-4, -8.89666871*10**-1, 1.61255736*10**3]
+
+    # c = [ 1.41350147*10**-32, -7.39588055*10**-28, 1.70543946*10**-23, -2.27903757*10**-19,
+    #     1.95152915*10**-15, -1.11701396*10**-11, 4.32049796*10**-8, -1.11313493*10**-4,
+    #     1.82568080*10**-1, -1.72185711*10**2, 7.15691211*10**4]
+    # return sum([c[n]*(x**(10-n)) for n in range(len(c))])
+
+    l_temp = [csvFileChart[int(Roll)][int(Pitch)][i] for i in range(401)]
+    return l_temp.index(min(l_temp, key=lambda r: abs(r-x)))
+
+def polyTest(xData):
+    return [checkfunc(x) for x in xData]
+
 
 reqToServer()
 readAccelerometer()
