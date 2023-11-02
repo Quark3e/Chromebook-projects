@@ -36,6 +36,27 @@ def polyTest(xData):
     return [checkfunc(x) for x in xData]
 
 
+#float cppVersion[181][181][401] = #[roll][pitch][z] = area (solve z by going through each z for closest area)
+csvFileChart = [[[None for z in range(401)] for y in range(181)] for x in range(181)] #[180][180][400]=area
+
+
+def csv_loadData():
+    global csvFileChart
+    parts = 4
+    filePath = str(os.path.realpath(__file__))[:len(str(os.path.realpath(__file__)))-len("3d_dot/main.py")]+"angleArea/data/csv_artif/"
+    fileNom = ["csv_[1,1,1]_6568781_p", "_artificial.csv"]
+
+    print("Loading datasets from file(s) to 4d list:")
+    for i in range(parts):
+        print(f"- p{i}")
+        with open(filePath+fileNom[0]+str(i)+fileNom[1], "r") as f:
+            next(f, None)
+            for line in f:
+                roll, pitch, z, area = [float(var) for var in line.split(",")]
+                csvFileChart[roll+90][pitch+90][z] = area
+
+    return
+
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client_socket.settimeout(0.5)
@@ -89,7 +110,7 @@ def readAccelerometer(printText=True):
 reqToServer()
 readAccelerometer()
 
-cam = [cv2.VideoCapture(2), cv2.VideoCapture(0)]
+cam = [cv2.VideoCapture(2), cv2.VideoCapture(0)] # [area/xy, z]
 prefRes = (640, 480)
 
 cam[0].set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
@@ -106,8 +127,8 @@ if displayToOpenCV:
     cv2.namedWindow(dispWin[1]) #z
     ad.hsv_trackbars(dispWin[0], hsvCam0)
     ad.hsv_trackbars(dispWin[1], hsvCam1)
-    cv2.moveWindow(dispWin[0], 0, 500)
-    cv2.moveWindow(dispWin[1], 640, 500)
+    cv2.moveWindow(dispWin[0], 200, 420)
+    cv2.moveWindow(dispWin[1], 200+512, 420)
 
 kernel = np.ones((5, 5), np.uint8)
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -316,5 +337,7 @@ class AnimatedScatter(object):
 
 
 if __name__=="__main__":
+    csv_loadData()
+
     a = AnimatedScatter()
     plt.show()
