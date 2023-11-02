@@ -263,7 +263,7 @@ float zAxisFunc(float area, float posX, float posY) {
 
 	int chosenIdx=0;
 	chosenIdx = getClosestValIdx(artifVal[int(Roll)+90][int(Pitch)+90],int(area));
-	cout << chosenIdx;
+	cout << chosenIdx << artifVal[int(Roll)+90][int(Pitch)+90][200]<< "\t";
 	return chosenIdx;
 }
 
