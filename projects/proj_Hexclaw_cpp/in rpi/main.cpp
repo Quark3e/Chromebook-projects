@@ -740,6 +740,7 @@ void loadData_csvArtif(bool printVar=true) {
 	string line;
 
 	for(int part=0; part<parts; part++) {
+		if(printVar) cout << "- p" << part << endl;
 		rowCount=0;
 		fstream csvFile;
 
