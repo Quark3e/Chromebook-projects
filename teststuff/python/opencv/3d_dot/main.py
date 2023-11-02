@@ -109,9 +109,10 @@ def checkfunc(x):
     l_temp = [csvFileChart[int(Roll+90)][int(Pitch+90)][i] for i in range(401)]
 
     if None in l_temp:
-        print(" z error: solved from normal func")
+        print(" z error: solved from normal:")
         return sum([c[n]*(x**(10-n)) for n in range(len(c))])
     # print(l_temp)
+    print(" using normal method: ")
     return l_temp.index(min(l_temp, key=lambda r: abs(r-x)))
 
 def polyTest(xData):
