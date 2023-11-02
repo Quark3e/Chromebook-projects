@@ -149,9 +149,6 @@ void matToTFT(cv::Mat threshImg) {
 }
 
 
-
-float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
-
 // IK related: ik calc variable declaration
 float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
@@ -161,6 +158,8 @@ float axisScal[3] = {0.6, 0.6, 0.9};
 float axisOffset[3] = {0, 0, -100};
 float axisFilter[3] = {1, 1, 1};
 
+
+float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
 
 /// @brief 2d coefficients for a single layer
 float angleArea_coef[181][181];
@@ -200,7 +199,6 @@ int prefSize[2] = {640, 480};
 float camFOV[2] = {round(43*(640/480)), 43};
 /// @brief Number of angles for each pixel
 float angPerPix = camFOV[1]/prefSize[1];
-
 
 
 /// @brief Find index to closest value in arr
@@ -264,7 +262,7 @@ float zAxisFunc(float area, float posX, float posY) {
 	// return ans;
 
 	int chosenIdx=0;
-	chosenIdx = getClosestValIdx(int(Roll),int(Pitch),int(area));
+	chosenIdx = getClosestValIdx(artifVal[int(Roll),int(Pitch)],int(area));
 
 	return chosenIdx;
 }
