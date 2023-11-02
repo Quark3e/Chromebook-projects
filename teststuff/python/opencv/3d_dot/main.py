@@ -93,7 +93,7 @@ def readAccelerometer(printText=True):
     #filter
     Roll = (1-tiltFilter) * Roll + tiltFilter * roll
     Pitch = (1-tiltFilter) * Pitch + tiltFilter * pitch
-    if printText: print(f" accel: x:{X_out} y:{Y_out} z:{Z_out} roll:{round(roll,2)} pitch:{round(pitch,2)}", end='\r')
+    if printText: print(f" x:{round(X_out,2):>5}  y:{round(Y_out,2):>5}  z:{round(Z_out,2):>5}  roll:{round(roll,2):>5} pitch:{round(pitch,2):>5}", end='\r')
 
 
 
@@ -106,9 +106,10 @@ def checkfunc(x):
         1.95152915*10**-15, -1.11701396*10**-11, 4.32049796*10**-8, -1.11313493*10**-4,
         1.82568080*10**-1, -1.72185711*10**2, 7.15691211*10**4]
 
-    l_temp = [csvFileChart[int(Roll)][int(Pitch)][i] for i in range(401)]
+    l_temp = [csvFileChart[int(Roll+90)][int(Pitch+90)][i] for i in range(401)]
 
-    if None in l_temp: return sum([c[n]*(x**(10-n)) for n in range(len(c))])
+    if None in l_temp:
+        return sum([c[n]*(x**(10-n)) for n in range(len(c))])
     # print(l_temp)
     return l_temp.index(min(l_temp, key=lambda r: abs(r-x)))
 
