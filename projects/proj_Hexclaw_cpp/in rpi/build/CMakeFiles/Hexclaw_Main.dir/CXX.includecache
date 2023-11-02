@@ -63,6 +63,14 @@ stdint.h
 -
 vector
 -
+cstring
+-
+unistd.h
+-
+libgen.h
+-
+linux/limits.h
+-
 opencv4/opencv2/opencv.hpp
 -
 opencv4/opencv2/highgui/highgui.hpp
