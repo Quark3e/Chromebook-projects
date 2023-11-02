@@ -66,6 +66,9 @@ using namespace std;
 
 string absPath;
 
+/// @brief 0-direct function; 1-use 2d coefs; 2-use arificial
+bool zSol=0;
+
 void initPaths() {
     char result[PATH_MAX];
     ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
@@ -156,7 +159,7 @@ float orient[3] = {0,0,0}; //degrees
 float PP[3] = {0,150,150};
 float axisScal[3] = {0.6, 0.6, 0.9};
 float axisOffset[3] = {0, 0, -100};
-float axisFilter[3] = {1, 1, 1};
+float axisFilter[3] = {1, 1, 0.1};
 
 
 float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
@@ -251,20 +254,23 @@ float zAxisFunc(float area, float posX, float posY) {
 		 7.15691211 * pow(10, 4)
 			 };
 	for(int i=0; i<11; i++) { val+=c[i]*pow(area, 10-i); }
+	if(zSol==0) return val;
 	/*
 	[-x:x] = [alpha:-alpha]
 	[-y:y] = [-beta:beta]
 	*/
-	// ans = val * (1 / angleArea_coef[
-	// 		int(round(/*orient[0]*/-(0-posX*angPerPix)))+90
-	// 	][
-	// 		int(round(/*orient[1]+*/posY*angPerPix))+90
-	// 	]);
-	// return ans;
-
+	if(zSol==1) {
+		ans = val * (1 / angleArea_coef[
+				int(round(/*orient[0]*/-(0-posX*angPerPix)))+90
+			][
+				int(round(/*orient[1]+*/posY*angPerPix))+90
+			]);
+		return ans;
+	}
+	
 	int chosenIdx=0;
 	chosenIdx = getClosestValIdx(artifVal[int(Roll)+90][int(Pitch)+90],int(area));
-	cout << chosenIdx << artifVal[int(Roll)+90][int(Pitch)+90][200]<< "\t";
+	// cout << chosenIdx << artifVal[int(Roll)+90][int(Pitch)+90][200]<< "\t";
 	return chosenIdx;
 }
 
@@ -413,21 +419,23 @@ void updateOrients(bool printResult) {
 		else {
 			Pitch = pitch;
 			Roll = roll;
+			orient[0] = Roll;
+			orient[1] = Pitch;
 		}
-		int bPos = -1;
-    	if(Pitch <= 90 and Pitch >= -90) {
-			if(useFilter) orient[1] = Pitch * accelFilter + orient[1] * (1-accelFilter);
-			else orient[1] = Pitch;
-			if(orient[1] < 0) bPos = -1;
-			if(orient[1] > 0) bPos = 1;
-		}
-    	if(Roll <= 90 and Roll >= -90) {
-			if(useFilter) orient[0] = Roll * accelFilter + orient[0] * (1-accelFilter);
-			else orient[0] = Roll;
-			orient[0] = orient[0] * bPos;
-		}
-		if(printResult) printf("a:%3d b:%3d  Roll:%3d Pitch:%3d", 
-		int(orient[0]), int(orient[1]), int(Roll), int(Pitch));
+		// int bPos = -1;
+    	// if(Pitch <= 90 and Pitch >= -90) {
+		// 	if(useFilter) orient[1] = Pitch * accelFilter + orient[1] * (1-accelFilter);
+		// 	else orient[1] = Pitch;
+		// 	if(orient[1] < 0) bPos = -1;
+		// 	if(orient[1] > 0) bPos = 1;
+		// }
+    	// if(Roll <= 90 and Roll >= -90) {
+		// 	if(useFilter) orient[0] = Roll * accelFilter + orient[0] * (1-accelFilter);
+		// 	else orient[0] = Roll;
+		// 	orient[0] = orient[0] * bPos;
+		// }
+		if(printResult) printf(" Roll:%3d Pitch:%3d", 
+		int(Roll), int(Pitch));
 	}
 }
 
@@ -636,10 +644,10 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
                     float camPos[2] = {totCnt_pos[0]-camSize.width/2, camSize.height-totCnt_pos[1]};
 					PP[0] = axisFilter[0] * float(round(float(totCnt_pos[0] - camSize.width/2)*axisScal[0]) + axisOffset[0]) + (1-axisFilter[0])*PP[0];
 					PP[1] = axisFilter[1] * float(round(float(camSize.height - totCnt_pos[1])*axisScal[1]) + axisOffset[1]) + (1-axisFilter[1])*PP[1];
-					PP[2] = axisFilter[2] * float(axisScal[2]*zAxisFunc(totCnt_area, camPos[0], camPos[1]) + axisOffset[2]) + (1-axisFilter[2])*PP[2];
-					printf("num. cnt:%2d total dArea:%6d", validCnt_index, int(totCnt_area));
+					PP[2] = round((axisFilter[2] * float(axisScal[2]*zAxisFunc(totCnt_area, camPos[0], camPos[1]) + axisOffset[2]) + (1-axisFilter[2])*PP[2])/10)*10;
+					printf("dArea:%6d", validCnt_index, int(totCnt_area));
 					printf(" x:%3d y:%3d z:%3d",int(PP[0]),int(PP[1]), int(PP[2]));
-					updateOrients(false);
+					updateOrients(true);
 					if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
 						sendToServo(pcaSrc,new_q,current_q,false);
 					}
@@ -781,11 +789,11 @@ void loadData_csvArtif(bool printVar=true) {
 	}
 	if(printVar) cout << "\nFinished loading the data: Total rows:" << rowCount << endl;
 	cout << artifVal[90][90][200] << endl;
-	cout << "paused:";
-	string inp;
-	cin >> inp;
-	cin.ignore();
-	cin.clear();
+	// cout << "paused:";
+	// string inp;
+	// cin >> inp;
+	// cin.ignore();
+	// cin.clear();
 }
 
 
@@ -804,10 +812,10 @@ int main(int argc, char** argv) {
 
 	//nodemcu udp communication setup/initialization
 	nodemcu_udp_setup();
-	load_csvFile();
+	if(zSol==1) load_csvFile();
 	initPaths();
 	
-	loadData_csvArtif(false);
+	if(zSol==2) loadData_csvArtif(false);
 
 	if(gpioInitialise()<0) {
 		cout << "pigpio \"gpioInitialise()\" failed\n";
