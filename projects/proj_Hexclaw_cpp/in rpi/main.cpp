@@ -164,7 +164,7 @@ float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
 /// @brief 2d coefficients for a single layer
 float angleArea_coef[181][181];
 /// @brief 3d artifically pre-generated area results
-float artifVal[181][181][401]; //x = [0, 90, 181] = [-90, 0, 01]
+int artifVal[181][181][401]; //x = [0, 90, 181] = [-90, 0, 01]
 
 void load_csvFile(string filePath = "data/csv_dataSet_pf17_fuse-True.csv") {
     printf("Loading csv file:\n");
@@ -769,7 +769,7 @@ void loadData_csvArtif(bool printVar=false) {
 					int(tempArr[0]), int(tempArr[1]), int(tempArr[2]), tempArr[3]
 				);
 			}
-			artifVal[int(tempArr[0])+90][int(tempArr[1])+90][int(tempArr[2])] = tempArr[3];
+			artifVal[int(tempArr[0])+90][int(tempArr[1])+90][int(tempArr[2])] = int(round(tempArr[3]));
 			rowCount++;
 		}
 		csvFile.close();
