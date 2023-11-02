@@ -240,7 +240,7 @@ def camPos_update():
                         cntPos_z = checkfunc(cntArea)
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1, (255,0,0),2)
-                        readAccelerometer(False)
+                        readAccelerometer()
                     elif flag==1:
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
                         if displayToOpenCV:
