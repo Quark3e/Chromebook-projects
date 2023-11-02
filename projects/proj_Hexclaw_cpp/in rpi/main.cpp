@@ -76,7 +76,7 @@ void initPaths() {
 
     char path[100];
     string temp = strcat(strcpy(path, pathP), "/");
-    absPath = temp.substr(0, temp.find("cpp"))+"python/opencv/angleArea/data/csv_artif/";
+    absPath = temp.substr(0, temp.find("/projects"))+"/teststuff/python/opencv/angleArea/data/csv_artif/";
 }
 
 
@@ -185,8 +185,9 @@ void load_csvFile(string filePath = "data/csv_dataSet_pf17_fuse-True.csv") {
         y = int(round(y+90));
         float saveVal = stof(line.substr(0, line.find(",")));
 		angleArea_coef[x][y] = saveVal;
-        printf("- [%d][%d]: %f\n", x, y, saveVal);
+        printf("- [%d][%d]: %f\r", x, y, saveVal);
 	}
+	cout << endl;
 	csvFile.close();
 
 }
@@ -739,13 +740,15 @@ void loadData_csvArtif(bool printVar=true) {
 	bool fullBreak;
 	string line;
 
+
 	for(int part=0; part<parts; part++) {
-		if(printVar) cout << "- p" << part << endl;
+		cout << "- p" << part << endl;
 		rowCount=0;
 		fstream csvFile;
 
-		filename = filenom[0]+to_string(part)+filenom[1];
+		filename = absPath+filenom[0]+to_string(part)+filenom[1];
 		csvFile.open(filename, ios::in);
+		if(!csvFile.is_open()) cout << "error: file \""<< filename <<"\" could not be opened" << endl;
 		
 		getline(csvFile, line);
 		while(getline(csvFile, line)) {
@@ -762,20 +765,22 @@ void loadData_csvArtif(bool printVar=true) {
 				}
 				if(fullBreak) break;
 			}
-			if(printVar) printf("%7d |%36s|", rowCount, line.substr(0, idx).c_str());
 			splitString(line.substr(0, idx), ",", tempArr, columns, false);
 			if(printVar) {
 				printf(
-					" x:%3d y:%3d z:%4d area:%0.4f\n",
+					"- p%d   %7d |%36s| x:%3d y:%3d z:%4d area:%0.4f        \r",
+					part, rowCount, line.substr(0, idx).c_str(),
 					int(tempArr[0]), int(tempArr[1]), int(tempArr[2]), tempArr[3]
 				);
 			}
 			artifVal[int(tempArr[0])+90][int(tempArr[1])+90][int(tempArr[2])] = int(round(tempArr[3]));
 			rowCount++;
+			
 		}
 		csvFile.close();
 	}
-	if(printVar) cout << "Finished loading the data: Total rows:" << rowCount << endl;
+	if(printVar) cout << "\nFinished loading the data: Total rows:" << rowCount << endl;
+	cout << artifVal[90][90][200] << endl;
 	cout << "paused:";
 	string inp;
 	cin >> inp;
@@ -802,7 +807,7 @@ int main(int argc, char** argv) {
 	load_csvFile();
 	initPaths();
 	
-	loadData_csvArtif();
+	loadData_csvArtif(false);
 
 	if(gpioInitialise()<0) {
 		cout << "pigpio \"gpioInitialise()\" failed\n";
