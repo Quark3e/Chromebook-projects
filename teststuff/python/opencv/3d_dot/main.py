@@ -112,7 +112,7 @@ def checkfunc(x):
     lTemp = [csvFileChart[int(Roll+90)][int(Pitch+90)][i] for i in range(401)]
 
     using_lTemp = None in lTemp
-    print(lTemp.index[None])
+    print(lTemp.index(None))
     print(f"{using_lTemp} ", end=" \t")
 
 
