@@ -62,8 +62,23 @@
 
 #include "IK_header.h"
 
-
 using namespace std;
+
+string absPath;
+
+void initPaths() {
+    char result[PATH_MAX];
+    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+    const char *pathP;
+    if (count != -1) {
+        pathP = dirname(result);
+    }
+
+    char path[100];
+    string temp = strcat(strcpy(path, pathP), "/");
+    absPath = temp.substr(0, temp.find("cpp"))+"python/opencv/angleArea/data/csv_artif/";
+}
+
 
 // udp com related: udp communication variable declarations
 int bind_result;
@@ -143,8 +158,11 @@ float axisScal[3] = {0.6, 0.6, 0.9};
 float axisOffset[3] = {0, 0, -100};
 float axisFilter[3] = {1, 1, 1};
 
-float angleArea_coef[181][181];
 
+/// @brief 2d coefficients for a single layer
+float angleArea_coef[181][181];
+/// @brief 3d artifically pre-generated area results
+float artifVal[181][181][401]; //x = [0, 90, 181] = [-90, 0, 01]
 
 void load_csvFile(string filePath = "data/csv_dataSet_pf17_fuse-True.csv") {
     printf("Loading csv file:\n");
@@ -172,11 +190,42 @@ void load_csvFile(string filePath = "data/csv_dataSet_pf17_fuse-True.csv") {
 }
 
 
+/// @brief prefered image size to convert/use for all images
 int prefSize[2] = {640, 480};
 
+/// @brief FOV of webcam in degrees
 float camFOV[2] = {round(43*(640/480)), 43};
+/// @brief Number of angles for each pixel
 float angPerPix = camFOV[1]/prefSize[1];
 
+
+
+/// @brief Find index to closest value in arr
+/// @param arr array to find closest index for
+/// @param pick value to find index of
+/// @param printVar whether to print results
+/// @return index of result (closest value)
+int getClosestValIdx(int arr[401], int pick=2000, bool printVar=false) {
+    int minArr[401];
+
+    for(int i=0; i<401; i++) minArr[i] = abs(arr[i]-pick);
+
+    int minVar[2] = {0, minArr[0]};
+    if(printVar) cout << "Picked: " << pick << endl;
+    if(printVar) printf("\n[%d] %3d|%3d - %3d\n", 0, minVar[1], minArr[0], arr[0]);
+    for(int i=1; i<401; i++) {
+        if(printVar) printf("[%d] %3d|%3d - %3d\n", i, minVar[1], minArr[i], arr[i]);
+        if(minVar[1]>minArr[i]) {
+            minVar[0]=i;
+            minVar[1]=minArr[i];
+        }
+    }
+    if(printVar) printf("\nClosest value to %d: index:%d element:%d\n", pick, minVar[0], arr[minVar[0]]);
+
+    return minVar[0];
+}
+
+bool useCSV=true;
 
 /// @brief solve z-axis/cam-distance from area
 /// @param area [float]: cntArea
@@ -185,26 +234,6 @@ float angPerPix = camFOV[1]/prefSize[1];
 /// @return [float]: assumed z-axis value
 float zAxisFunc(float area, float posX, float posY) {
 	float val=0, ans = 0;
-	// val = pow(area, float(2)/7);
-	// ans = 0.003306*pow(val, 2)-4.537*val+1580-1250;
-	// val = pow(area, float(4)/6);
-	// ans = 0.003306*pow(val, 2)-4.537*val+1580;
-    // area = round(area/10)*10;
-	
-	//Old
-    // float c[11] = {
-	// 	 1.11616931 * pow(10, -39),
-	// 	-2.07682935 * pow(10, -34),
-	// 	 1.68556962 * pow(10, -29),
-	// 	-7.83319285 * pow(10, -25),
-	// 	 2.30122730 * pow(10, -20),
-	// 	-4.45491855 * pow(10, -16),
-	// 	 5.75203827 * pow(10, -12),
-	// 	-4.90909892 * pow(10, -8),
-	// 	 2.68701764 * pow(10, -4),
-	// 	-8.89666871 * pow(10, -1),
-	// 	 1.61255736 * pow(10, 3)
-	// 		 };
 
     float c[11] = {
 		 1.41350147 * pow(10, -32),
@@ -224,17 +253,21 @@ float zAxisFunc(float area, float posX, float posY) {
 	[-x:x] = [alpha:-alpha]
 	[-y:y] = [-beta:beta]
 	*/
-	ans = val
-        * (1 / angleArea_coef[
-			int(round(/*orient[0]*/-(0-posX*angPerPix)))+90
-		][
-			int(round(/*orient[1]+*/posY*angPerPix))+90
-		]);
+	// ans = val * (1 / angleArea_coef[
+	// 		int(round(/*orient[0]*/-(0-posX*angPerPix)))+90
+	// 	][
+	// 		int(round(/*orient[1]+*/posY*angPerPix))+90
+	// 	]);
+	// return ans;
 
-	return ans;
+	int chosenIdx=0;
+	chosenIdx = getClosestValIdx(int(Roll),int(Pitch),int(area));
+
+	return chosenIdx;
 }
 
 
+/// @brief index of webcam
 int webcamIndex = 2;
 
 
@@ -249,6 +282,7 @@ bool mode_intro = false;
 int l_HSV[3] = {0, 0, 255};
 int u_HSV[3] = {179, 9, 255};
 
+/// @brief minimum limit for area to be recognised
 int areaLim = 1000;
 
 float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
@@ -256,6 +290,7 @@ float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
 bool useFilter = false;
 float accelFilter = 0.1;
 
+/// @brief variable for contours
 vector<vector<cv::Point>> contours;
 vector<cv::Vec4i> hierarchy;
 
@@ -681,46 +716,62 @@ void splitString(string line, string delimiter, float returnArr[4], int numVar=4
     if(printVar) cout << "---";
 }
 
-float artifVal[401][181][181]; //x = [0, 90, 181] = [-90, 0, 01]
 
-void loadData_csvArtif(string filename, bool printVar=false) {
+void loadData_csvArtif(bool printVar=false) {
 	if (printVar) cout << "Starting to load the data\n";
 
+	for(int x=0; x<181; x++) {
+		for(int y=0; y<181; y++) {
+			for(int z=0; z<401; z++) {
+				artifVal[x][y][z]=-1;
+			}
+		}
+	}
+
+	string filename;
+	string filenom[2] = {"csv_[1,1,1]_6568781_p", "_artificial.csv"};
+
 	int columns=4;
+	int parts=4;
 	char temp[16]="0123456789;,.- ";
 	int rowCount=0;
 	float tempArr[4];
 	bool fullBreak;
 
-	fstream csvFile;
-	csvFile.open(filename, ios::in);
-	
-	getline(csvFile, line);
+	for(int part=0; part<parts; part++) {
+		rowCount=0;
+		fstream csvFile;
 
-	while(getline(csvFile, line)) {
-		int idx=0;
-		fullBreak=false;
-		for(int n=0; n<100; n++) {
-			for(int i=0; i<sizof(temp)/sizeof(temp[0]); i++) {
-				if(line[n] == temp[i]) break;
-				else if(i>=sizof(temp)/sizeof(temp[0])-1) {
-					idx=n;
-					fullBreak=true;
-					break;
+		filename = filenom[0]+to_string(part)+filenome[1];
+		csvFile.open(filename, ios::in);
+		
+		getline(csvFile, line);
+		while(getline(csvFile, line)) {
+			int idx=0;
+			fullBreak=false;
+			for(int n=0; n<100; n++) {
+				for(int i=0; i<sizof(temp)/sizeof(temp[0]); i++) {
+					if(line[n] == temp[i]) break;
+					else if(i>=sizof(temp)/sizeof(temp[0])-1) {
+						idx=n;
+						fullBreak=true;
+						break;
+					}
 				}
+				if(fullBreak) break;
 			}
-			if(fullBreak) break;
+			if(printVar) printf("%7d |%36s|", rowCount, line.substr(0, idx).c_str());
+			splitString(line.substr(0, idx), ",", tempArr, columns, false);
+			if(printVar) {
+				printf(
+					" x:%3d y:%3d z:%4d area:%0.4f\n",
+					int(tempArr[0]), int(tempArr[1]), int(tempArr[2]), tempArr[3]
+				);
+			}
+			artifVal[int(tempArr[0])+90][int(tempArr[1])+90][int(tempArr[2])] = tempArr[3];
+			rowCount++;
 		}
-        if(printVar) printf("%7d |%36s|", rowCount, line.substr(0, idx).c_str());
-        splitString(line.substr(0, idx), ",", tempArr, columns, false);
-        if(printVar) {
-			printf(
-				" x:%3d y:%3d z:%4d area:%0.4f\n",
-				int(tempArr[0]), int(tempArr[1]), int(tempArr[2]), tempArr[3]
-			);
-		}
-        artifVal[int(tempArr[2])][int(tempArr[0])+90][int(tempArr[1])+90] = tempArr[3];
-        rowCount++;
+		csvFile.close()
 	}
 	if(printVar) cout << "Finished loading the data: Total rows:" << rowCount << endl;
 }
@@ -742,7 +793,7 @@ int main(int argc, char** argv) {
 	//nodemcu udp communication setup/initialization
 	nodemcu_udp_setup();
 	load_csvFile();
-
+	initPath();
 	
 	loadData_csvArtif();
 

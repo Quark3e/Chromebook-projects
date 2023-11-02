@@ -27,13 +27,24 @@ void initPaths() {
     }
 
     char path[100];
-    ex1.path = strcat(strcpy(path, pathP), "/");
+    string temp = strcat(strcpy(path, pathP), "/");
+    ex1.path = temp.substr(0, temp.find("cpp"))+"python/opencv/angleArea/data/csv_artif/";
+    // ex1.path = 
     ex1.desc = "\"example 1\"";
 }
 
 
 int main() {
     initPaths();
+
+    int n=69;
+    cout << to_string(n) << endl << endl;
+    int temp[10];
+    temp[4] = 69;
+    for(int i=0; i<10; i++) {
+        cout << "- " << temp[i] << endl;
+    }
+
 
     cout << ex1.path << ": " << ex1.desc << endl;
 

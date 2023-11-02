@@ -7,14 +7,11 @@
 using namespace std;
 
 /// @brief Find index to closest value in arr
-int findVal(int arr[6], int n, int pick=74) {
+int getValIdx(int arr[6], int n, int pick=74) {
     int minArr[n];
 
     cout << endl;
-    for(int i=0; i<n; i++) {
-        minArr[i] = abs(arr[i]-pick);
-        //printf("[%d] abs(%d-%d) \n",i,arr[i],pick);
-    }
+    for(int i=0; i<n; i++) minArr[i] = abs(arr[i]-pick);
 
     int minVar[2] = {0, minArr[0]};
     cout << "picked: " << pick << endl;
@@ -36,18 +33,12 @@ int main()
 	// Get the array
 	int arr[] = { 1, 45, 54, 71, 76, 12 };
 
-
-	// Compute the sizes
 	int n = sizeof(arr) / sizeof(arr[0]);
 
-	// Print the array
-	//cout << "Array: ";
-	for (int i = 0; i < n; i++)
-		cout << arr[i] << " ";
-    //cout << "\nLength of array: " << n << endl;
+	for (int i = 0; i < n; i++) cout << arr[i] << " ";
 
     int pick = 74;
-    findVal(arr, n, pick);
+    getValIdx(arr, n, pick);
     
     // int minArr[sizeof(arr)/sizeof(arr[0])];
 
