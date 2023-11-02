@@ -64,6 +64,8 @@ def reqToServer():
         print("request timed out")
 
 
+using_lTemp = True
+
 X_out, Y_out, Z_out = 0.1, 0.1, 0.1
 Roll, Pitch, roll, pitch = 0.1, 0.1, 0.1, 0.1
 tiltFilter = 0.1
@@ -93,11 +95,12 @@ def readAccelerometer(printText=True):
     #filter
     Roll = (1-tiltFilter) * Roll + tiltFilter * roll
     Pitch = (1-tiltFilter) * Pitch + tiltFilter * pitch
-    if printText: print(f" x:{round(X_out,2):>5}  y:{round(Y_out,2):>5}  z:{round(Z_out,2):>5}  roll:{round(roll,2):>5} pitch:{round(pitch,2):>5}           ", end='\r')
-
+    if printText:
+        print(f"using_lTemp:{using_lTemp:<5}  x:{round(X_out,2):>5}  y:{round(Y_out,2):>5}  z:{round(Z_out,2):>5}  roll:{round(roll,2):>5} pitch:{round(pitch,2):>5}           ", end='\r')
 
 
 def checkfunc(x):
+    global using_lTemp
     # c = [1.11616931*10**-39, -2.07682935*10**-34, 1.68556962*10**-29, -7.83319285*10**-25,
     #          2.30122730*10**-20, -4.45491855*10**-16, 5.75203827*10**-12, -4.90909892*10**-8,
     #          2.68701764*10**-4, -8.89666871*10**-1, 1.61255736*10**3]
@@ -106,14 +109,13 @@ def checkfunc(x):
         1.95152915*10**-15, -1.11701396*10**-11, 4.32049796*10**-8, -1.11313493*10**-4,
         1.82568080*10**-1, -1.72185711*10**2, 7.15691211*10**4]
 
-    l_temp = [csvFileChart[int(Roll+90)][int(Pitch+90)][i] for i in range(401)]
+    lTemp = [csvFileChart[int(Roll+90)][int(Pitch+90)][i] for i in range(401)]
 
-    if None in l_temp:
-        print(" z error: solved from normal:")
-        return sum([c[n]*(x**(10-n)) for n in range(len(c))])
-    # print(l_temp)
-    print(" using normal method: ")
-    return l_temp.index(min(l_temp, key=lambda r: abs(r-x)))
+    using_lTemp = None in lTemp
+        
+    if using_lTemp: return lTemp.index(min(lTemp, key=lambda r: abs(r-x)))
+    else: return sum([c[n]*(x**(10-n)) for n in range(len(c))])
+
 
 def polyTest(xData):
     return [checkfunc(x) for x in xData]
@@ -219,7 +221,7 @@ def solveContours(allContours, areaThreshold=0):
 
 
 def camPos_update():
-    global imgTemp, ret, contours, cntArea, cntMoments, cntPos, cntPos_z, raw_read
+    global imgTemp, ret, contours, cntArea, cntMoments, cntPos, cntPos_z, raw_read, using_lTemp
     ret[0], imgTemp[0] = cam[0].read()
     ret[1], imgTemp[1] = cam[1].read()
 
@@ -262,6 +264,8 @@ def camPos_update():
         if key==27:
             sys.exit()
         elif key==32: return False
+        elif key==113: using_lTemp=True
+        elif key==119: using_lTemp=False
     return True
 
 
