@@ -149,6 +149,9 @@ void matToTFT(cv::Mat threshImg) {
 }
 
 
+
+float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
+
 // IK related: ik calc variable declaration
 float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
@@ -285,7 +288,6 @@ int u_HSV[3] = {179, 9, 255};
 /// @brief minimum limit for area to be recognised
 int areaLim = 1000;
 
-float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
 
 bool useFilter = false;
 float accelFilter = 0.1;
