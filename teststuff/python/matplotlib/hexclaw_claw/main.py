@@ -20,8 +20,8 @@ class AnimatedScatter(object):
         self.Mu = 0
         self.angle = [None, None] #[a0, a1]
         self.arm = [8, 25]
-        self.startPos = [15, 10]
-        self.endPos = [30, 0]
+        self.startPos = [10, 20]
+        self.endPos = [32, 0]
         self.pos = self.startPos.copy()
 
         self.pos0 = [0, 0]
