@@ -456,8 +456,14 @@ def getAngles(
     else: q[0] = atan(-P5[0] / P5[1]) # type: ignore
     a = 0-a
     try:
-        if posOption == '+': q[2] = acos((pow(P5[0], 2) + pow(P5[1], 2) + pow(P5[2] - link[0], 2) - pow(link[1], 2) - pow(link[2] + link[3], 2)) /(2 * link[1] * (link[2] + link[3]))) # type: ignore
-        elif posOption == '-': q[2] = acos((pow(P5[0], 2) + pow(P5[1], 2) + pow(P5[2] - link[0], 2) - pow(link[1], 2) - pow(link[2] + link[3], 2)) /(2 * link[1] * (link[2] + link[3]))) # type: ignore
+        if posOption == '+': q[2] = acos(
+                (pow(P5[0], 2) + pow(P5[1], 2) + pow(P5[2] - link[0], 2) - pow(link[1], 2) - pow(link[2] + link[3], 2)) / 
+                (2 * link[1] * (link[2] + link[3]))
+            ) # type: ignore
+        elif posOption == '-': q[2] = acos(
+                (pow(P5[0],2) + pow(P5[1],2) + pow(P5[2]-link[0],2) - pow(link[1],2) - pow(link[2]+link[3],2)) /
+                (2 * link[1] * (link[2] + link[3]))
+            ) # type: ignore
     except ValueError: 
         if printErrors: print("domain error triggered")
         positionIsReachable[0] = False
@@ -467,7 +473,10 @@ def getAngles(
     try: lambdaVar = atan((P5[2] - link[0]) / sqrt(pow(P5[0], 2) + pow(P5[1], 2)))
     except ZeroDivisionError: positionIsReachable[0] = False
 
-    muVar = atan(((link[2] + link[3]) * sin(q[2])) /(link[1] + (link[2] + link[3]) * cos(q[2])))
+    muVar = atan( \
+            ((link[2] + link[3]) * sin(q[2])) / 
+            (link[1] + (link[2] + link[3]) * cos(q[2])) \
+        )
     if printText: print(" lambda:",round(toDegrees(lambdaVar))," mu:",round(toDegrees(muVar)),sep='')
     if posOption == '+': q[1] = lambdaVar - muVar # type: ignore
     elif posOption == '-':
