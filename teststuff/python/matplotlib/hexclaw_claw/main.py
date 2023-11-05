@@ -5,6 +5,8 @@ import matplotlib.animation as animation
 import numpy as np
 import math
 
+from matplotlib.patches import Arc
+
 from AngleAnnotation import AngleAnnotation
 
 toRadians = lambda degrees: (degrees*np.pi)/180
@@ -14,15 +16,21 @@ class AnimatedScatter(object):
     def __init__(self):
 
         self.iterLen = 100
-        self.iterSpac=5
+        self.iterSpac=1
         self.Ld = 0
         self.Lambda = 0
         self.Mu = 0
         self.angle = [None, None] #[a0, a1]
         self.arm = [8, 25]
-        self.startPos = [10, 20]
-        self.endPos = [32, 0]
+        self.startPos = [self.arm[1]-self.arm[0], 20]
+        self.endPos = [self.arm[1]-self.arm[0], -20]
         self.pos = self.startPos.copy()
+
+        self.values = [
+            [self.startPos[0]+((self.endPos[0]-self.startPos[0])*n)/self.iterLen, 
+            self.startPos[1]+((self.endPos[1]-self.startPos[1])*n)/self.iterLen] \
+             for n in range(self.iterLen)
+        ]
 
         self.pos0 = [0, 0]
         self.pos1 = [0, 0]
@@ -46,15 +54,15 @@ class AnimatedScatter(object):
             count+=1
 
         self.ax["frame"].set_xlim([-self.graphRanges["frame"][0]*0.5, self.graphRanges["frame"][0]])
-        # self.ax["frame"].set_ylim([0, self.graphRanges["frame"][1]])
+        self.ax["frame"].set_ylim([-self.graphRanges["frame"][1]+0.5, self.graphRanges["frame"][1]])
         # self.ax["frame"].axis("equal")
         self.ax["frame"].set_aspect("equal")
 
         self.ps_stuff = {}
-        self.ps_stuff.update({"frame": 8*[0]})
+        self.ps_stuff.update({"frame": 10*[0]})
         self.ps_stuff.update({"coefs": 1*[0]})
         self.ps_stuff.update({"circle": 2*[0]})
-        
+        self.ps_stuff.update({"arc": 1*[0]})
 
         self.ani = animation.FuncAnimation( \
             self.fig, self.update, interval=1, \
@@ -91,23 +99,22 @@ class AnimatedScatter(object):
         #     if abs(count)>=countRange: countDir = countDir*-1
         #     self.angle = self.getAngles(self.pos)
         #     yield self.pos[1]
-        values = [
-            [self.startPos[0]+((self.endPos[0]-self.startPos[0])*n)/self.iterLen, 
-            self.startPos[1]+((self.endPos[1]-self.startPos[1])*n)/self.iterLen] for n in range(self.iterLen)
-        ]
         findVal = lambda x: x/abs(x)
         # xValues = [self.startPos[0]+x for x in range(self.startPos[0], self.endPos[0], findVal(self.endPos[0]-self.startPos[0]))]
         # yValues = [self.startPos[1]+y for y in range(self.startPos[1], self.endPos[1], findVal(self.endPos[1]-self.startPos[1]))]
         # for n in values: print(n)
         # print(len(values))
+        self.nCount = 0
         while True:
             for n in range(0, self.iterLen, self.iterSpac):
-                self.pos = values[n]
+                self.pos = self.values[n]
                 self.angle = self.getAngles(self.pos)
+                self.nCount = n
                 yield self.pos[1]
             for n in range(self.iterLen-1, -1, -1*self.iterSpac):
-                self.pos = values[n]
+                self.pos = self.values[n]
                 self.angle = self.getAngles(self.pos)
+                self.nCount = n
                 yield self.pos[1]
 
     def setup_plot(self):
@@ -124,6 +131,7 @@ class AnimatedScatter(object):
         #     textposition='outside'
         # )
 
+        self.ax["frame"].plot([el[0] for el in self.values],[el[1] for el in self.values],alpha=0.6,color="r",label="path")
 
         self.ps_stuff["frame"][0] = self.ax["frame"].scatter(self.pos0[0], self.pos0[1], edgecolor="k", label="p0")
         self.ps_stuff["frame"][1] = self.ax["frame"].scatter(self.pos1[0], self.pos1[1], edgecolor="k", label="p1")
@@ -141,16 +149,25 @@ class AnimatedScatter(object):
         
         self.ps_stuff["frame"][7], = self.ax["frame"].plot([0, self.pos1[0][0]], [0, self.pos1[1][0]], label="Ld", alpha=0.2)
 
+        self.ps_stuff["arc"] = [
+            Arc((0,0), 2, 2, toDegrees(self.angle[0]), toDegrees(2*np.pi-self.angle[0]))
+        ]
+        self.ax["frame"].add_patch(self.ps_stuff["arc"][0])
 
         self.ps_stuff["circle"] = [
             plt.Circle((0, 0), self.arm[0], color="b", fill=False),
             plt.Circle((self.arm[0]*math.cos(self.angle[0]), self.arm[0]*math.sin(self.angle[0])), self.arm[1], color="b", fill=False),
         ]
-        self.ax["frame"].add_patch(self.ps_stuff["circle"][0])
-        self.ax["frame"].add_patch(self.ps_stuff["circle"][1])
+        for _ in self.ps_stuff["circle"]: self.ax["frame"].add_patch(_)
 
-        self.xCoefs = [y for y in range(self.endPos[1], self.startPos[1])]
-        self.yCoefs = [self.getAngles([self.startPos[0],y])[1]/self.getAngles([self.startPos[0],y])[0] for y in self.xCoefs]
+
+        #print(self.values)
+        self.xCoefs = [n for n in range(self.iterLen)]
+        self.yCoefs = [] #[self.getAngles(pos)[1]/self.getAngles(pos)[0] for pos in self.values]
+        for pos in self.values:
+            next(self.stream)
+            self.yCoefs.append(self.angle[1]/self.angle[0])
+            #print(pos, [round(toDegrees(self.angle[0])),round(toDegrees(self.angle[1]))], self.angle[1]/self.angle[0])
 
         self.ax["coefs"].scatter(self.xCoefs, self.yCoefs, label="raw")
         self.coefsLim = [min(self.yCoefs)-0.1, max(self.yCoefs)+0.1]
@@ -160,7 +177,8 @@ class AnimatedScatter(object):
         self.ax["coefs"].legend()
 
         self.ps_stuff["coefs"][0], = self.ax["coefs"].plot([0, 0],self.coefsLim)
-        
+
+
         self.checkLen=0
         try:
             self.checkLen = math.sqrt((self.pos1[1][0]-self.pos0[1][0])/(self.pos1[0][0]-self.pos0[0][0]))
@@ -171,7 +189,11 @@ class AnimatedScatter(object):
             "len:"+str(round(self.checkLen))
         )
 
-        self.ax["frame"].legend(loc="lower right")
+        self.ps_stuff["frame"][8] = self.ax["frame"].text(-5, 0, f"{round(toDegrees(self.angle[0]),2)}")
+        self.ps_stuff["frame"][9] = self.ax["frame"].text(self.pos0[0][0]-1, self.pos0[1][0]+2, f"{round(toDegrees(self.angle[1]),2)}")
+
+
+        self.ax["frame"].legend(bbox_to_anchor=(-0.1, 1.05))
 
         retur=[]
         for key,val in self.ps_stuff.items():
@@ -179,7 +201,7 @@ class AnimatedScatter(object):
         return retur
     def update(self, i):
         next(self.stream)
-        
+
         # self.ps_stuff["frame"][6].set_theta(toDegrees(self.angle[0]))
         # self.ps_stuff["frame"][6].update_text()
 
@@ -198,9 +220,15 @@ class AnimatedScatter(object):
         self.ps_stuff["frame"][7].set_data([0, self.pos1[0][0]], [0, self.pos1[1][0]])
 
         self.ps_stuff["frame"][5].set_offsets([self.pos[0], self.pos[1]])
-        self.ps_stuff["frame"][4].set_text("len:"+str(round(self.checkLen ,2)))
+
+        self.ps_stuff["frame"][4].set_text(f"n:{self.nCount}")
         self.ps_stuff["frame"][4].set_x(self.pos1[0][0]-1)
         self.ps_stuff["frame"][4].set_y(self.pos1[1][0]+5)
+
+        self.ps_stuff["frame"][8].set_text(f"{round(toDegrees(self.angle[0]),2)}")
+        self.ps_stuff["frame"][9].set_text(f"{round(toDegrees(self.angle[1]),2)}")
+        self.ps_stuff["frame"][9].set_x(self.pos0[0][0]-1)
+        self.ps_stuff["frame"][9].set_y(self.pos0[1][0]+2)
 
 
         self.ps_stuff["frame"][0].set_offsets([self.pos0[0][0], self.pos0[1][0]])
@@ -210,10 +238,14 @@ class AnimatedScatter(object):
         self.ps_stuff["frame"][3].set_data([self.pos0[0][0], self.pos1[0][0]], \
                                            [self.pos0[1][0], self.pos1[1][0]])
 
-        self.ps_stuff["coefs"][0].set_data([self.pos[1], self.pos[1]],self.coefsLim)
+        self.ps_stuff["coefs"][0].set_data([self.nCount, self.nCount],self.coefsLim)
+
+        self.ps_stuff["arc"][0].set(angle=toDegrees(self.angle[0]))
+            #Arc((0,0), 2, 2, toDegrees(self.angle[0]), toDegrees(2*np.pi-self.angle[0]))
 
         self.ps_stuff["circle"][0].center = (0, 0)
         self.ps_stuff["circle"][1].center = (self.arm[0]*math.cos(self.angle[0]), self.arm[0]*math.sin(self.angle[0]))
+
 
         retur=[]
         for key,val in self.ps_stuff.items():
