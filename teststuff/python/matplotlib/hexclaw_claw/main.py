@@ -21,7 +21,6 @@ def completeList_2d(inpList, inpLen):
     returArr = [None for _ in range(inpLen)]
     for n in range(inpLen):
         returArr[n] = [(nPolys[0](n)),(nPolys[1](n))]
-
     return returArr
 
 
@@ -36,30 +35,29 @@ class AnimatedScatter(object):
         self.angle = [None, None] #[a0, a1]
         self.arm = [8,25]
 
-        self.startPos = [self.arm[1]-self.arm[0], 20]
-        self.endPos = [self.arm[1]-self.arm[0], -20]
+        self.startPos = [self.arm[1]-self.arm[0]-10, 20]
+        self.endPos = [self.arm[1]-self.arm[0]+10, -0]
         self.pos = self.startPos.copy()
+
+        #self.values = []
 
         self.values = [
             [self.startPos[0]+((self.endPos[0]-self.startPos[0])*n)/self.iterLen, 
             self.startPos[1]+((self.endPos[1]-self.startPos[1])*n)/self.iterLen] \
              for n in range(self.iterLen)
         ]
+        self.values = completeList_2d(self.values, 100)
 
-        self.values = [
-            [0,17],
-            [10,17],
-            [20,17],
-            [25,0],
-            [20,-17],
-            [10,-17],
-            [0,-27]
-        ]
-        self.values = []
-        maxAx = math.floor(math.sqrt((sum(self.arm)**2)/2))
-        for x in range(maxAx): self.values.append([x,maxAx])
-        for y in range(maxAx,-maxAx-1,-1): self.values.append([maxAx,y])
-        for x in range(maxAx,-1,-1): self.values.append([x,-maxAx])
+
+        #self.values = []
+        self.maxSquare = math.sqrt((sum(self.arm)**2)/2)
+        self.minCoef = ( abs(self.arm[1]-self.arm[0]) / self.maxSquare)
+        self.maxCoef = sum(self.arm)/self.maxSquare
+
+
+        #self.shape_square(sideCoef=[math.ceil((self.arm[1]-self.arm[0])/sum(self.arm)), 1, math.ceil((self.arm[1]-self.arm[0])/sum(self.arm)), 0])
+        #self.shape_circle(sideCoef=[self.minCoef, self.maxCoef-0.001, self.minCoef, self.maxCoef-0.001])
+        #self.shape_circle(sideCoef=[self.maxCoef-0.001, self.minCoef, self.maxCoef-0.001, self.minCoef])
 
         #for q in range(180):
         #    self.values.append([math.sin(toRadians(q))*25,math.cos(toRadians(q))*25])
@@ -69,11 +67,16 @@ class AnimatedScatter(object):
         self.pos0 = [0, 0]
         self.pos1 = [0, 0]
 
-        self.graphRanges = {
-            "frame": (max([n[0] for n in self.values])+5, max([n[1] for n in self.values])+5),
+
+        #(min([n[0] for n in self.values if n[0]<sum(self.arm)])-min(self.arm)
+        self.graphRange = {
+            "frame": [ \
+                (-min(self.arm), max([n[0] for n in self.values if n[0]<sum(self.arm)])+min(self.arm)), \
+                (min([n[1] for n in self.values if n[1]<sum(self.arm)])-min(self.arm), max([n[1] for n in self.values if n[1]<sum(self.arm)])+min(self.arm)) \
+            ],
             "coefs": [self.iterLen, 10],
         }
-        print(self.graphRanges)
+        print(self.graphRange)
         self.stream = self.data_stream()
         self.fig = plt.figure(figsize=(15,7))
         self.ax = {
@@ -87,8 +90,8 @@ class AnimatedScatter(object):
             self.ax[key].title.set_text(key)
             count+=1
 
-        self.ax["frame"].set_xlim([-self.graphRanges["frame"][0]*0.5, self.graphRanges["frame"][0]])
-        self.ax["frame"].set_ylim([-self.graphRanges["frame"][1]+0.5, self.graphRanges["frame"][1]])
+        self.ax["frame"].set_xlim(self.graphRange["frame"][0])
+        self.ax["frame"].set_ylim(self.graphRange["frame"][1])
         # self.ax["frame"].axis("equal")
         self.ax["frame"].set_aspect("equal")
 
@@ -102,6 +105,26 @@ class AnimatedScatter(object):
             self.fig, self.update, interval=1, \
             init_func=self.setup_plot, blit=False \
         )
+    def shape_square(self, sideCoef=[1,1,1,1]):
+        #bool[-x:x, y:-y, x:-x, -y:y] bool[y, x, y, x]
+        maxAx = math.floor(math.sqrt((sum(self.arm)**2)/2))
+        if sideCoef[0]>0:
+            for x in range(-round(sideCoef[3]*maxAx),round(sideCoef[1]*maxAx)+1, 1): self.values.append([x, round(maxAx*sideCoef[0])])
+        if sideCoef[1]>0:
+            for y in range(round(sideCoef[0]*maxAx),-round(sideCoef[2]*maxAx)-1,-1): self.values.append([round(maxAx*sideCoef[1]), y])
+        if sideCoef[2]>0:
+            for x in range(round(sideCoef[1]*maxAx),-round(sideCoef[3]*maxAx)-1,-1): self.values.append([x,-round(maxAx*sideCoef[0])])
+        if sideCoef[3]>0:
+            for y in range(round(sideCoef[2]*maxAx),-round(sideCoef[0]*maxAx)-1,-1): self.values.append([-round(maxAx*sideCoef[1]),y])
+    def shape_circle(self, sideCoef=[1,1,1,1], check=[1,1,0,0]):
+        #[0:90, 90:180, 180:270, 270:360]
+        maxAx = math.sqrt((sum(self.arm)**2)/2)
+        for q in range(360):
+            if q>=0 and q<90 and check[0]:    self.values.append([math.sin(toRadians(q))*maxAx*sideCoef[1],math.cos(toRadians(q))*maxAx*sideCoef[0]])
+            if q>=90 and q<180 and check[1]:  self.values.append([math.sin(toRadians(q))*maxAx*sideCoef[1],math.cos(toRadians(q))*maxAx*sideCoef[0]])
+            if q>=180 and q<270 and check[2]: self.values.append([math.sin(toRadians(q))*maxAx*sideCoef[3],math.cos(toRadians(q))*maxAx*sideCoef[2]])
+            if q>=270 and q<360 and check[3]: self.values.append([math.sin(toRadians(q))*maxAx*sideCoef[3],math.cos(toRadians(q))*maxAx*sideCoef[2]])
+
     def getAngles(self, pos):
         angles = [0.1, 0.1]
         try:
