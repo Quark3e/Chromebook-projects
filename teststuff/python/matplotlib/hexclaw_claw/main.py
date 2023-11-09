@@ -35,8 +35,10 @@ class AnimatedScatter(object):
         self.angle = [None, None] #[a0, a1]
         self.arm = [8,25]
 
-        self.startPos = [self.arm[1]-self.arm[0]-10, 20]
-        self.endPos = [self.arm[1]-self.arm[0]+10, -0]
+        simpleOff = [[3,3], [0,0]]
+
+        self.startPos = [self.arm[1]-self.arm[0]+simpleOff[0][0], 20+simpleOff[1][0]]
+        self.endPos = [self.arm[1]-self.arm[0]+simpleOff[0][1], 0+simpleOff[1][1]]
         self.pos = self.startPos.copy()
 
         #self.values = []
@@ -46,7 +48,7 @@ class AnimatedScatter(object):
             self.startPos[1]+((self.endPos[1]-self.startPos[1])*n)/self.iterLen] \
              for n in range(self.iterLen)
         ]
-        self.values = completeList_2d(self.values, 100)
+        self.values = completeList_2d(self.values, 60)
 
 
         #self.values = []
@@ -98,7 +100,7 @@ class AnimatedScatter(object):
         self.ps_stuff = {}
         self.ps_stuff.update({"frame": 10*[0]})
         self.ps_stuff.update({"coefs": 2*[0]})
-        self.ps_stuff.update({"circle": 2*[0]})
+        self.ps_stuff.update({"circle": 4*[0]})
         self.ps_stuff.update({"arc": 1*[0]})
 
         self.ani = animation.FuncAnimation( \
@@ -129,20 +131,20 @@ class AnimatedScatter(object):
         angles = [0.1, 0.1]
         try:
             self.Ld = math.sqrt(pos[0]**2+pos[1]**2)
-            angles[1] = math.acos(
+            angles[1] = -math.acos(
                 (self.Ld**2-self.arm[0]**2-self.arm[1]**2) / \
                 (2*self.arm[0]*self.arm[1])
             )
             # self.Lambda = math.atan(self.pos[1]/self.pos[0])
             self.Lambda = math.asin(pos[1]/self.Ld)
             self.Mu = (math.atan(
-                (self.arm[1]*math.sin(angles[1])) /
-                (self.arm[0] + self.arm[1]*math.cos(angles[1]))
+                (self.arm[1]*math.sin(-angles[1])) /
+                (self.arm[0] + self.arm[1]*math.cos(-angles[1]))
             ))
             if self.Mu<0: self.Mu = np.pi+self.Mu
-            angles[1] = -angles[1]
+            angles[1] = angles[1]
             angles[0] = (self.Lambda + self.Mu)
-            # print(f"[ Ld:{round(self.Ld)} lamb:{round(toDegrees(self.Lambda))} mu:{round(toDegrees(self.Mu))} a0:{round(toDegrees(angles[0]))} a1:{round(toDegrees(angles[1]))} ]", end=" | \n")
+            #print(f"[ Ld:{round(self.Ld)} lamb:{round(toDegrees(self.Lambda))} mu:{round(toDegrees(self.Mu))} a0:{round(toDegrees(angles[0]))} a1:{round(toDegrees(angles[1]))} ]", end=" | \n")
         except ValueError:
             print("ValueError")
         return angles
@@ -199,8 +201,10 @@ class AnimatedScatter(object):
         self.ax["frame"].add_patch(self.ps_stuff["arc"][0])
 
         self.ps_stuff["circle"] = [
-            plt.Circle((0, 0), self.arm[0], color="b", fill=False),
-            plt.Circle((self.arm[0]*math.cos(self.angle[0]), self.arm[0]*math.sin(self.angle[0])), self.arm[1], color="b", fill=False),
+            plt.Circle((0, 0), self.arm[0], color="b", fill=False, alpha=0.5),
+            plt.Circle((self.arm[0]*math.cos(self.angle[0]), self.arm[0]*math.sin(self.angle[0])), self.arm[1], color="b", fill=False, alpha=0.5),
+            plt.Circle((0, 0), sum(self.arm), color="g", fill=False, alpha=0.25),
+            plt.Circle((0, 0), self.arm[1]-self.arm[0], color="g", fill=False, alpha=0.25),
         ]
         for _ in self.ps_stuff["circle"]: self.ax["frame"].add_patch(_)
 
@@ -211,9 +215,9 @@ class AnimatedScatter(object):
         for pos in self.values:
             self.angle = self.getAngles(pos=pos)
             try:
-                coef = toDegrees(self.angle[1])/toDegrees(self.angle[0])
+                coef = toDegrees(self.angle[1])/toDegrees(self.angle[0]+90)
             except ZeroDivisionError:
-                print("zero division error:", toDegrees(self.angle[0]))
+                print("zero division error:", toDegrees(self.angle[0]+90))
                 coef = 0
             if coef>100: coef=0
             self.yCoefs.append(coef)
@@ -226,7 +230,7 @@ class AnimatedScatter(object):
         # temp = np.poly1d(np.polyfit(self.xCoefs, self.yCoefs, 10))
         # self.yCoefs = [temp(n) for n in self.xCoefs]
         self.ps_stuff["coefs"][1] = self.ax["coefs"].scatter(self.xCoefs, self.yCoefs, label="raw")
-        self.coefsLim = [min(self.yCoefs)-0.1, max(self.yCoefs)+0.1]
+        self.coefsLim = [min(self.yCoefs)-0.01, max(self.yCoefs)+0.01]
         for i in [2, 3, 6, 8, 10]:
            polyModel = np.poly1d(np.polyfit(self.xCoefs,self.yCoefs,i))
            self.ax["coefs"].plot(self.xCoefs, [polyModel(x) for x in self.xCoefs], label=f"p{i}")
