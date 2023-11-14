@@ -4,6 +4,9 @@ import numpy as np
 import cv2 as cv
 import glob
 
+
+test = 1
+
 #cv.samples.addSamplesDataSearchPath("home/berkhme/.local/lib/python3.9/site-packages/cv2/samples/")
 #cv.samples.addSamplesDataSearchPath("/home/berkhme/github_repo/Chromebook-projects/teststuff/test_media/data/data/")
 #samplesPath = "/home/berkhme/github_repo/Chromebook-projects/teststuff/test_media/data/data/"
@@ -32,12 +35,37 @@ for fname in images:
     ret, corners = cv.findChessboardCorners(gray, (7,6), None)
     # If found, add object points, image points (after refining them)
     if ret == True:
-        print(fname)
+        print(fname, end=" | ")
         objpoints.append(objp)
         corners2 = cv.cornerSubPix(gray,corners, (11,11), (-1,-1), criteria)
         imgpoints.append(corners2)
         # Draw and display the corners
         cv.drawChessboardCorners(img, (7,6), corners2, ret)
         cv.imshow('img', img)
-        cv.waitKey(500)
+
+        ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+        #print(ret, mtx, dist, rvecs, tvecs)
+        h,  w = img.shape[:2]
+        newcameramtx, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w,h), 1, (w,h))
+
+        if test==0:
+            # undistort
+            dst = cv.undistort(img, mtx, dist, None, newcameramtx)
+            # crop the image
+            x, y, w, h = roi
+            dst = dst[y:y+h, x:x+w]
+            cv.imwrite('calibresult.png', dst)
+        elif test==1:
+            # undistort
+            mapx, mapy = cv.initUndistortRectifyMap(mtx, dist, None, newcameramtx, (w,h), 5)
+            dst = cv.remap(img, mapx, mapy, cv.INTER_LINEAR)
+            # crop the image
+            x, y, w, h = roi
+            dst = dst[y:y+h, x:x+w]
+            #print(dst)
+            cv.imwrite('calibresult.png', dst)
+
+        print("")
+        cv.waitKey(1000)
+
 cv.destroyAllWindows()
