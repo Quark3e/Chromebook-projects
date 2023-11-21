@@ -61,7 +61,7 @@ class quadrilateral(object):
             self.gamma2 = toDegrees(math.acos((self.c**2 + self.e**2 - self.d**2) / (2*self.c*self.e)))
             return self.gamma2
         except ValueError:
-            print("gamma2 ValueError.")
+            print(f"gamma2 ValueError: [{(self.c**2 + self.e**2 - self.d**2) / (2*self.c*self.e)}]")
             return None
     def solve_gamma(self):
         self.solve_gamma2()
@@ -127,9 +127,9 @@ class AnimatedScatter(object):
         self.quad = quadrilateral()
 
         self.l0 = 1
-        self.l1 = 1.3
+        self.l1 = 1.1
         self.gd = 0.5
-        self.td = 0.2
+        self.td = 0.5
 
         self.angle = 90
         
@@ -142,23 +142,26 @@ class AnimatedScatter(object):
         self.pos = [
             [0-self.gd, 0], #alpha
             [0, 0], #beta
-            [self.l0*math.cos(toRadians(self.quad.beta)), self.l0*math.sin(toRadians(self.quad.beta))],  #gamma
+            [self.l0*math.cos(toRadians(180-self.quad.beta)), self.l0*math.sin(toRadians(180-self.quad.beta))],  #gamma
             [self.l1*math.cos(toRadians(self.quad.alpha))-self.gd, self.l1*math.sin(toRadians(self.quad.alpha))] #delta
         ]
 
         self.allPos = []
 
-        for q in range(181):
-            self.quad.set_beta(180-q)
-            if not None in [self.quad.beta, self.quad.alpha, self.quad.area]:
-                self.allPos.append(
-                    [
-                        [0-self.gd, 0], #alpha
-                        [0, 0], #beta
-                        [self.l0*math.cos(toRadians(180-self.quad.beta)), self.l0*math.sin(180-toRadians(self.quad.beta))], #gamma
-                        [self.l1*math.cos(toRadians(self.quad.alpha))-self.gd, self.l1*math.sin(toRadians(self.quad.alpha))] #delta
-                    ]
-                )
+
+        for dir in range(-1, 2, 2):
+            for q in range(45+45*(-dir), 45+45*dir+dir, dir):
+                self.quad.set_beta(180-q)
+                if not None in [self.quad.beta, self.quad.alpha, self.quad.area]:
+                    self.allPos.append(
+                        [
+                            [0-self.gd, 0], #alpha
+                            [0, 0], #beta
+                            [self.l0*math.cos(toRadians(180-self.quad.beta)), self.l0*math.sin(toRadians(180-self.quad.beta))], #gamma
+                            [self.l1*math.cos(toRadians(self.quad.alpha))-self.gd, self.l1*math.sin(toRadians(self.quad.alpha))] #delta
+                        ]
+                    )
+                    # print(self.quad.alpha)
 
         self.graphRange = {
             "frame": [[-2, 2],[-2, 2]],
@@ -190,7 +193,7 @@ class AnimatedScatter(object):
 
         self.ani = animation.FuncAnimation( \
             self.fig, self.update, interval=1, \
-            init_func=self.setup_plot, blit=False \
+            init_func=self.setup_plot, blit=True \
         )
     def data_stream(self):
         while True:
@@ -209,8 +212,8 @@ class AnimatedScatter(object):
         self.ps_stuff["frame"][6], = self.ax["frame"].plot([self.pos[2][0],self.pos[3][0]],[self.pos[2][1],self.pos[3][1]],label="c")
         self.ps_stuff["frame"][7], = self.ax["frame"].plot([self.pos[3][0],self.pos[0][0]],[self.pos[3][1],self.pos[0][1]],label="d")
 
-        self.ax["frame"].legend(loc="lower left")
-        self.ax["coefs"].legend()
+        # self.ax["frame"].legend(loc="lower left")
+        # self.ax["coefs"].legend()
 
         retur=[]
         for key,val in self.ps_stuff.items():
@@ -219,7 +222,7 @@ class AnimatedScatter(object):
     def update(self, i):
         next(self.stream)
 
-        print([self.pos],[self.pos])
+        # print([self.pos],[self.pos])
         self.ps_stuff["frame"][0].set_offsets([[self.pos[0][0],self.pos[0][1]]])
         self.ps_stuff["frame"][1].set_offsets([[self.pos[1][0],self.pos[1][1]]])
         self.ps_stuff["frame"][2].set_offsets([[self.pos[2][0],self.pos[2][1]]])
