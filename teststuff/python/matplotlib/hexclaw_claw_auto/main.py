@@ -29,16 +29,23 @@ class quadrilateral(object):
     b=1     #constant (stays 1)
     c=1
     d=1    
+
     alpha=1
     beta=1
     gamma=1
     delta=1
+
     e=1    
     f=1    
+
     p=1    
     area=1
     gamma1=1
     gamma2=1
+
+    absAng=0 #absolute angle of side c relative to horizontal axis
+
+    isReachable=True
     def __init__(self):
         self.solveVars()
     def solve_e(self):
@@ -50,17 +57,19 @@ class quadrilateral(object):
         return self.f
     def solve_gamma1(self):
         try:
-            self.gamma1 = toDegrees(math.acos((self.b**2 + self.e**2 - self.a**2) / (2*self.b*self.e)))
+            self.gamma1 = toDegrees(math.acos(round((self.b**2 + self.e**2 - self.a**2) / (2*self.b*self.e), 10)))
             return self.gamma1
         except ValueError:
+            self.isReachable = False
             print("gamma1 ValueError.")
             return None
     def solve_gamma2(self):
         self.solve_e()
         try:
-            self.gamma2 = toDegrees(math.acos((self.c**2 + self.e**2 - self.d**2) / (2*self.c*self.e)))
+            self.gamma2 = toDegrees(math.acos(round((self.c**2 + self.e**2 - self.d**2) / (2*self.c*self.e), 10)))
             return self.gamma2
         except ValueError:
+            self.isReachable = False
             print(f"gamma2 ValueError: [{(self.c**2 + self.e**2 - self.d**2) / (2*self.c*self.e)}]")
             return None
     def solve_gamma(self):
@@ -78,6 +87,7 @@ class quadrilateral(object):
             self.alpha = toDegrees(math.acos((self.a**2 + self.d**2 - self.f**2) / (2*self.a*self.d)))
             return self.alpha
         except ValueError:
+            self.isReachable = False
             print("alpha ValueError.")
             return None
     def solve_delta(self):
@@ -93,14 +103,20 @@ class quadrilateral(object):
             self.area = math.sqrt(4*self.e**2*self.f**2 - (self.b**2 + self.d**2 - self.a**2 - self.c**2)**2)/4
             return self.area
         except ValueError:
+            self.isReachable = False
             print("area ValueError")
             return None
+    def solve_absAng(self):
+        self.absAng = -(self.beta + self.gamma - 180)
+
     def solveVars(self):
+        self.isReachable = True
         self.solve_e()
         self.solve_f()
         self.solve_delta()
         self.solve_perimeter()
         self.solve_area()
+        self.solve_absAng()
 
     def set_a(self, a):
         self.a = a
@@ -127,17 +143,24 @@ class AnimatedScatter(object):
         self.quad = quadrilateral()
 
         self.l0 = 1
-        self.l1 = 1.1
-        self.gd = 0.5
-        self.td = 0.5
+        self.l1 = 1.3
+        self.gd = 0.3
+        self.td = 0.3
+        self.end_effecLen = 1.2
+        self.end_effecAng = 0
 
         self.angle = 90
-        
-        self.quad.set_a(self.gd)
-        self.quad.set_b(self.l0)
-        self.quad.set_c(self.td)
-        self.quad.set_d(self.l1)
-        self.quad.set_beta(180-self.angle)
+
+        self.sideIdxLett = ["a","b","c","d"]
+
+        try:    
+            self.quad.set_a(self.gd)
+            self.quad.set_b(self.l0)
+            self.quad.set_c(self.td)
+            self.quad.set_d(self.l1)
+            self.quad.set_beta(180-self.angle)
+        except ValueError:
+            pass
 
         self.pos = [
             [0-self.gd, 0], #alpha
@@ -147,24 +170,35 @@ class AnimatedScatter(object):
         ]
 
         self.allPos = []
-
+        self.allAbsAng = []
+        self.allEndEffec_pos = [[], []]
 
         for dir in range(-1, 2, 2):
-            for q in range(45+45*(-dir), 45+45*dir+dir, dir):
+            for q in range(90+90*(-dir), 90+90*dir+dir, dir):
                 self.quad.set_beta(180-q)
-                if not None in [self.quad.beta, self.quad.alpha, self.quad.area]:
-                    self.allPos.append(
-                        [
+                tempPos = [
                             [0-self.gd, 0], #alpha
                             [0, 0], #beta
                             [self.l0*math.cos(toRadians(180-self.quad.beta)), self.l0*math.sin(toRadians(180-self.quad.beta))], #gamma
                             [self.l1*math.cos(toRadians(self.quad.alpha))-self.gd, self.l1*math.sin(toRadians(self.quad.alpha))] #delta
                         ]
-                    )
-                    # print(self.quad.alpha)
+                #pos = [self.pos[2][0], self.pos[2][1], self.pos[3][0], self.pos[3][1]]
+                #round(math.sqrt((pos[2]-pos[0])**2 + (pos[3]-pos[1])**2), 2)
+                # print(round(math.sqrt((tempPos[3][0]-tempPos[2][0])**2 + (tempPos[3][1]-tempPos[2][1])**2),1))
+                if self.quad.isReachable and \
+                    round(math.sqrt((tempPos[1][0]-tempPos[0][0])**2 + (tempPos[1][1]-tempPos[0][1])**2),1) == self.gd and \
+                    round(math.sqrt((tempPos[2][0]-tempPos[1][0])**2 + (tempPos[2][1]-tempPos[1][1])**2),1) == self.l0 and \
+                    round(math.sqrt((tempPos[3][0]-tempPos[2][0])**2 + (tempPos[3][1]-tempPos[2][1])**2),1) == self.td and \
+                    round(math.sqrt((tempPos[0][0]-tempPos[3][0])**2 + (tempPos[0][1]-tempPos[3][1])**2),1) == self.l1:
+                    self.allPos.append(tempPos)
+                    self.allAbsAng.append(self.quad.absAng)
+
+                    self.allEndEffec_pos[0].append(tempPos[3][0]+self.end_effecLen*math.cos(toRadians(self.quad.absAng)))
+                    self.allEndEffec_pos[1].append(tempPos[3][1]+self.end_effecLen*math.sin(toRadians(self.quad.absAng)))
+
 
         self.graphRange = {
-            "frame": [[-2, 2],[-2, 2]],
+            "frame": [[-(self.l1+self.gd+0.1), 2],[-2, 2]],
             "coefs": [-2, 2],
         }
 
@@ -190,6 +224,8 @@ class AnimatedScatter(object):
         self.ps_stuff.update({"frame": 8*[0]})
         self.ps_stuff.update({"coefs": 0*[0]})
         self.ps_stuff.update({"circle": 0*[0]})
+        self.ps_stuff.update({"text": 4*[0]})
+        self.ps_stuff.update({"eeffec": 1*[0]}) #end-effector
 
         self.ani = animation.FuncAnimation( \
             self.fig, self.update, interval=1, \
@@ -197,11 +233,15 @@ class AnimatedScatter(object):
         )
     def data_stream(self):
         while True:
-            for pos in self.allPos:
-                self.pos=pos
-                yield pos
+            for i in range(len(self.allPos)):
+                self.pos=self.allPos[i]
+                self.end_effecAng=self.allAbsAng[i]
+                yield i
     def setup_plot(self):
         next(self.stream)
+
+        self.ax["frame"].plot(self.allEndEffec_pos[0], self.allEndEffec_pos[1], color="r", alpha=0.6,label="path")
+        self.ax["coefs"].plot([i for i in range(len(self.allAbsAng))], self.allAbsAng, color="g", linewidth=1)
 
         self.ps_stuff["frame"][0] = self.ax["frame"].scatter([self.pos[0][0]],[self.pos[0][1]],edgecolor="k",label="alpha")
         self.ps_stuff["frame"][1] = self.ax["frame"].scatter([self.pos[1][0]],[self.pos[1][1]],edgecolor="k",label="beta")
@@ -212,6 +252,23 @@ class AnimatedScatter(object):
         self.ps_stuff["frame"][6], = self.ax["frame"].plot([self.pos[2][0],self.pos[3][0]],[self.pos[2][1],self.pos[3][1]],label="c")
         self.ps_stuff["frame"][7], = self.ax["frame"].plot([self.pos[3][0],self.pos[0][0]],[self.pos[3][1],self.pos[0][1]],label="d")
 
+        self.ps_stuff["eeffec"][0], = self.ax["frame"].plot(
+            [self.pos[3][0], self.pos[3][0]+self.end_effecLen*math.cos(toRadians(self.end_effecAng))],
+            [self.pos[3][1], self.pos[3][1]+self.end_effecLen*math.sin(toRadians(self.end_effecAng))],
+            linestyle="-",label="end-effector",color="g"
+            )
+
+        def setText(i, plotAx, pos, offset=[0.05, 0.05]):
+            return plotAx.text(
+                (pos[2]+pos[0])/2+offset[0],
+                (pos[3]+pos[1])/2+offset[1],
+                f"{self.sideIdxLett[i]}:{round(math.sqrt((pos[2]-pos[0])**2 + (pos[3]-pos[1])**2), 2)}"
+            )
+        for l in range(3):
+            self.ps_stuff["text"][l] = setText(l, self.ax["frame"], [self.pos[l][0],self.pos[l][1],self.pos[l+1][0],self.pos[l+1][1]])
+        self.ps_stuff["text"][3] = setText(l, self.ax["frame"], [self.pos[3][0],self.pos[3][1],self.pos[0][0],self.pos[0][1]])
+        
+
         # self.ax["frame"].legend(loc="lower left")
         # self.ax["coefs"].legend()
 
@@ -219,18 +276,29 @@ class AnimatedScatter(object):
         for key,val in self.ps_stuff.items():
             for el in val: retur.append(el)
         return retur
+    def ps_updateText(self, idx, pos, offset=[0.05, 0.05]):
+        self.ps_stuff["text"][idx].set_text(f"{self.sideIdxLett[idx]}:{round(math.sqrt((pos[2]-pos[0])**2 + (pos[3]-pos[1])**2), 2)}")
+        self.ps_stuff["text"][idx].set_x((pos[2]+pos[0])/2+offset[0])
+        self.ps_stuff["text"][idx].set_y((pos[3]+pos[1])/2+offset[1])
     def update(self, i):
         next(self.stream)
 
         # print([self.pos],[self.pos])
-        self.ps_stuff["frame"][0].set_offsets([[self.pos[0][0],self.pos[0][1]]])
-        self.ps_stuff["frame"][1].set_offsets([[self.pos[1][0],self.pos[1][1]]])
-        self.ps_stuff["frame"][2].set_offsets([[self.pos[2][0],self.pos[2][1]]])
-        self.ps_stuff["frame"][3].set_offsets([[self.pos[3][0],self.pos[3][1]]])
+        for n in range(4):
+            self.ps_stuff["frame"][n].set_offsets([[self.pos[n][0],self.pos[n][1]]])
         self.ps_stuff["frame"][4].set_data([self.pos[0][0],self.pos[1][0]],[self.pos[0][1],self.pos[1][1]])
         self.ps_stuff["frame"][5].set_data([self.pos[1][0],self.pos[2][0]],[self.pos[1][1],self.pos[2][1]])
         self.ps_stuff["frame"][6].set_data([self.pos[2][0],self.pos[3][0]],[self.pos[2][1],self.pos[3][1]])
         self.ps_stuff["frame"][7].set_data([self.pos[3][0],self.pos[0][0]],[self.pos[3][1],self.pos[0][1]])
+
+        self.ps_stuff["eeffec"][0].set_data(
+            [self.pos[3][0], self.pos[3][0]+self.end_effecLen*math.cos(toRadians(self.end_effecAng))],
+            [self.pos[3][1], self.pos[3][1]+self.end_effecLen*math.sin(toRadians(self.end_effecAng))],
+            )
+
+        for i in range(3):
+            self.ps_updateText(i, [self.pos[i][0],self.pos[i][1],self.pos[i+1][0],self.pos[i+1][1]])
+        self.ps_updateText(3, [self.pos[3][0],self.pos[3][1],self.pos[0][0],self.pos[0][1]])
 
         retur=[]
         for key,val in self.ps_stuff.items():
