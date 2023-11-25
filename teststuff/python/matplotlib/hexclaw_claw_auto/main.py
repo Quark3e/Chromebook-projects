@@ -2,6 +2,7 @@
 
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import matplotlib.patches as mpatches
 import numpy as np
 import math
 import itertools
@@ -23,6 +24,18 @@ def completeList_2d(inpList, inpLen):
     for n in range(inpLen):
         returArr[n] = [(nPolys[0](n)),(nPolys[1](n))]
     return returArr
+
+def arc_patch(center, radius, theta1, theta2, ax=None, resolution=50, **kwargs):
+    if ax is None:
+        ax = plt.gca()
+    
+    theta = np.linspace(toRadians(theta1), np.radians(theta2), resolution)
+    points = np.vstack((radius*np.cos(theta) + center[0],
+                        radius*np.sin(theta) * center[1]))
+    poly = mpatches.Polygon(points.T, closed=True, **kwargs)
+    ax.add_patch(poly)
+    return poly
+
 
 class quadrilateral(object):
     a=1
@@ -143,13 +156,15 @@ class AnimatedScatter(object):
         self.quad = quadrilateral()
 
         self.l0 = 1
-        self.l1 = 1.3
-        self.gd = 0.3
-        self.td = 0.3
-        self.end_effecLen = 1.2
+        self.l1 = 1.1
+        self.gd = 0.1
+        self.td = 0.1
+        self.end_effecLen = 1
         self.end_effecAng = 0
 
-        self.angle = 90
+        self.angle = 45
+
+        self.currentIdx = 0
 
         self.sideIdxLett = ["a","b","c","d"]
 
@@ -185,17 +200,27 @@ class AnimatedScatter(object):
                 #pos = [self.pos[2][0], self.pos[2][1], self.pos[3][0], self.pos[3][1]]
                 #round(math.sqrt((pos[2]-pos[0])**2 + (pos[3]-pos[1])**2), 2)
                 # print(round(math.sqrt((tempPos[3][0]-tempPos[2][0])**2 + (tempPos[3][1]-tempPos[2][1])**2),1))
+                
+                # if round(math.sqrt((tempPos[1][0]-tempPos[0][0])**2 + (tempPos[1][1]-tempPos[0][1])**2),1) == self.gd and \
+                #     round(math.sqrt((tempPos[2][0]-tempPos[1][0])**2 + (tempPos[2][1]-tempPos[1][1])**2),1) == self.l0 and \
+                #     round(math.sqrt((tempPos[3][0]-tempPos[2][0])**2 + (tempPos[3][1]-tempPos[2][1])**2),1) == self.td and \
+                #     round(math.sqrt((tempPos[0][0]-tempPos[3][0])**2 + (tempPos[0][1]-tempPos[3][1])**2),1) == self.l1: print("is reachable:", end=" ")
                 if self.quad.isReachable and \
-                    round(math.sqrt((tempPos[1][0]-tempPos[0][0])**2 + (tempPos[1][1]-tempPos[0][1])**2),1) == self.gd and \
-                    round(math.sqrt((tempPos[2][0]-tempPos[1][0])**2 + (tempPos[2][1]-tempPos[1][1])**2),1) == self.l0 and \
-                    round(math.sqrt((tempPos[3][0]-tempPos[2][0])**2 + (tempPos[3][1]-tempPos[2][1])**2),1) == self.td and \
-                    round(math.sqrt((tempPos[0][0]-tempPos[3][0])**2 + (tempPos[0][1]-tempPos[3][1])**2),1) == self.l1:
+                    round(math.sqrt((tempPos[1][0]-tempPos[0][0])**2 + (tempPos[1][1]-tempPos[0][1])**2),3) == self.gd and \
+                    round(math.sqrt((tempPos[2][0]-tempPos[1][0])**2 + (tempPos[2][1]-tempPos[1][1])**2),3) == self.l0 and \
+                    round(math.sqrt((tempPos[3][0]-tempPos[2][0])**2 + (tempPos[3][1]-tempPos[2][1])**2),3) == self.td and \
+                    round(math.sqrt((tempPos[0][0]-tempPos[3][0])**2 + (tempPos[0][1]-tempPos[3][1])**2),3) == self.l1 and \
+                    not (tempPos[3][0]<(-self.l1*0.9) and tempPos[2][0]<(-self.l1*0.9) and tempPos[3][1]>tempPos[2][1]) and \
+                    tempPos[3][1]+self.end_effecLen*math.sin(toRadians(self.quad.absAng))>=0:
                     self.allPos.append(tempPos)
+                    
                     self.allAbsAng.append(self.quad.absAng)
 
                     self.allEndEffec_pos[0].append(tempPos[3][0]+self.end_effecLen*math.cos(toRadians(self.quad.absAng)))
                     self.allEndEffec_pos[1].append(tempPos[3][1]+self.end_effecLen*math.sin(toRadians(self.quad.absAng)))
 
+        print("number of possible positions:", len(self.allPos))
+        if len(self.allPos)<=0: exit()
 
         self.graphRange = {
             "frame": [[-(self.l1+self.gd+0.1), 2],[-2, 2]],
@@ -225,10 +250,10 @@ class AnimatedScatter(object):
         self.ps_stuff.update({"coefs": 0*[0]})
         self.ps_stuff.update({"circle": 0*[0]})
         self.ps_stuff.update({"text": 4*[0]})
-        self.ps_stuff.update({"eeffec": 1*[0]}) #end-effector
+        self.ps_stuff.update({"eeffec": 3*[0]}) #end-effector
 
         self.ani = animation.FuncAnimation( \
-            self.fig, self.update, interval=1, \
+            self.fig, self.update, interval=2, \
             init_func=self.setup_plot, blit=True \
         )
     def data_stream(self):
@@ -236,12 +261,14 @@ class AnimatedScatter(object):
             for i in range(len(self.allPos)):
                 self.pos=self.allPos[i]
                 self.end_effecAng=self.allAbsAng[i]
+                self.currentIdx = i
                 yield i
     def setup_plot(self):
         next(self.stream)
 
         self.ax["frame"].plot(self.allEndEffec_pos[0], self.allEndEffec_pos[1], color="r", alpha=0.6,label="path")
-        self.ax["coefs"].plot([i for i in range(len(self.allAbsAng))], self.allAbsAng, color="g", linewidth=1)
+        self.ax["coefs"].plot([i for i in range(round(len(self.allAbsAng)/2))], self.allAbsAng[:round(len(self.allAbsAng)/2)], color="r", linewidth=1)
+        self.ps_stuff["eeffec"][1], = self.ax["coefs"].plot(2*[0], [max(self.allAbsAng)+1, min(self.allAbsAng)-1], label="absAngles", color="g", linewidth=2.5, alpha=0.5)
 
         self.ps_stuff["frame"][0] = self.ax["frame"].scatter([self.pos[0][0]],[self.pos[0][1]],edgecolor="k",label="alpha")
         self.ps_stuff["frame"][1] = self.ax["frame"].scatter([self.pos[1][0]],[self.pos[1][1]],edgecolor="k",label="beta")
@@ -257,6 +284,10 @@ class AnimatedScatter(object):
             [self.pos[3][1], self.pos[3][1]+self.end_effecLen*math.sin(toRadians(self.end_effecAng))],
             linestyle="-",label="end-effector",color="g"
             )
+        self.ps_stuff["eeffec"][2], = self.ax["frame"].plot( \
+            [self.pos[3][0], self.pos[3][0]+self.end_effecLen*math.cos(toRadians(self.end_effecAng))], \
+            2*[self.pos[3][1]],\
+            linestyle="dashed",label="absolute angle ref.", color="gray")
 
         def setText(i, plotAx, pos, offset=[0.05, 0.05]):
             return plotAx.text(
@@ -277,7 +308,7 @@ class AnimatedScatter(object):
             for el in val: retur.append(el)
         return retur
     def ps_updateText(self, idx, pos, offset=[0.05, 0.05]):
-        self.ps_stuff["text"][idx].set_text(f"{self.sideIdxLett[idx]}:{round(math.sqrt((pos[2]-pos[0])**2 + (pos[3]-pos[1])**2), 2)}")
+        self.ps_stuff["text"][idx].set_text(f"{self.sideIdxLett[idx]}:{round(math.sqrt((pos[2]-pos[0])**2 + (pos[3]-pos[1])**2), 3)}")
         self.ps_stuff["text"][idx].set_x((pos[2]+pos[0])/2+offset[0])
         self.ps_stuff["text"][idx].set_y((pos[3]+pos[1])/2+offset[1])
     def update(self, i):
@@ -295,10 +326,18 @@ class AnimatedScatter(object):
             [self.pos[3][0], self.pos[3][0]+self.end_effecLen*math.cos(toRadians(self.end_effecAng))],
             [self.pos[3][1], self.pos[3][1]+self.end_effecLen*math.sin(toRadians(self.end_effecAng))],
             )
+        self.ps_stuff["eeffec"][2].set_data( \
+            [self.pos[3][0], self.pos[3][0]+self.end_effecLen*math.cos(toRadians(self.end_effecAng))], \
+            2*[self.pos[3][1]]
+            )
+        
+        if self.currentIdx<round(len(self.allAbsAng)/2): coefsTempX = 2*[self.currentIdx]
+        elif self.currentIdx>=round(len(self.allAbsAng)/2): coefsTempX = 2*[round(len(self.allAbsAng)) - self.currentIdx]
+        self.ps_stuff["eeffec"][1].set_data(coefsTempX, [max(self.allAbsAng)+1, min(self.allAbsAng)-1])
 
         for i in range(3):
             self.ps_updateText(i, [self.pos[i][0],self.pos[i][1],self.pos[i+1][0],self.pos[i+1][1]])
-        self.ps_updateText(3, [self.pos[3][0],self.pos[3][1],self.pos[0][0],self.pos[0][1]])
+        self.ps_updateText(3, [self.pos[3][0],self.pos[3][1],self.pos[0][0],self.pos[0][1]], [0.1, -0.1])
 
         retur=[]
         for key,val in self.ps_stuff.items():
