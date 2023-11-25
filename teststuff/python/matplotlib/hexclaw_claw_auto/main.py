@@ -157,7 +157,7 @@ class AnimatedScatter(object):
 
         self.l0 = 1
         self.l1 = 1.1
-        self.gd = 0.1
+        self.gd = 0.11
         self.td = 0.1
         self.end_effecLen = 1
         self.end_effecAng = 0
