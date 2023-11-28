@@ -152,19 +152,29 @@ class quadrilateral(object):
 
 
 class AnimatedScatter(object):
+    def checkIfReachable(self, pos, absAng, c):
+        beta = 0
+        if pos[0]>0: beta = 180-toDegrees(math.atan(pos[1]/pos[0]))
+        elif pos[0]<0: beta = abs(toDegrees(math.atan(pos[1]/pos[0])))
+        elif pos[0]==0: beta = 90
+        b = math.sqrt(pos[0]**2 + pos[1]**2)
+        f = math.sqrt((2*pos[0]+math.cos(toRadians(absAng))*c)**2 + (2*pos[1]+math.sin(toRadians(absAng))*c)**2)
+        gamma = math.acos((c**2+b**2-f**2)/(2*c*b))
+
     def __init__(self):
         self.quad = quadrilateral()
 
-        self.l0 = 1
-        self.l1 = 1.1
-        self.gd = 0.11
+        self.l0 = 0.9
+        self.l1 = 1
+        self.gd = 0.1
         self.td = 0.1
-        self.end_effecLen = 1
+        self.end_effecLen = 0.6
         self.end_effecAng = 0
 
         self.angle = 45
 
         self.currentIdx = 0
+        self.currentInpAng = 0
 
         self.sideIdxLett = ["a","b","c","d"]
 
@@ -187,6 +197,7 @@ class AnimatedScatter(object):
         self.allPos = []
         self.allAbsAng = []
         self.allEndEffec_pos = [[], []]
+        self.allInpAng = []
 
         for dir in range(-1, 2, 2):
             for q in range(90+90*(-dir), 90+90*dir+dir, dir):
@@ -213,6 +224,7 @@ class AnimatedScatter(object):
                     not (tempPos[3][0]<(-self.l1*0.9) and tempPos[2][0]<(-self.l1*0.9) and tempPos[3][1]>tempPos[2][1]) and \
                     tempPos[3][1]+self.end_effecLen*math.sin(toRadians(self.quad.absAng))>=0:
                     self.allPos.append(tempPos)
+                    self.allInpAng.append(q)
                     
                     self.allAbsAng.append(self.quad.absAng)
 
@@ -262,13 +274,25 @@ class AnimatedScatter(object):
                 self.pos=self.allPos[i]
                 self.end_effecAng=self.allAbsAng[i]
                 self.currentIdx = i
+                self.currentInpAng = self.allInpAng[i]
                 yield i
     def setup_plot(self):
         next(self.stream)
 
         self.ax["frame"].plot(self.allEndEffec_pos[0], self.allEndEffec_pos[1], color="r", alpha=0.6,label="path")
-        self.ax["coefs"].plot([i for i in range(round(len(self.allAbsAng)/2))], self.allAbsAng[:round(len(self.allAbsAng)/2)], color="r", linewidth=1)
-        self.ps_stuff["eeffec"][1], = self.ax["coefs"].plot(2*[0], [max(self.allAbsAng)+1, min(self.allAbsAng)-1], label="absAngles", color="g", linewidth=2.5, alpha=0.5)
+
+        # self.ax["coefs"].plot([i for i in range(round(len(self.allAbsAng)/2))], [self.allAbsAng[i]/self.allInpAng[i] for i in range(round(len(self.allAbsAng)/2))], color="r", linewidth=1)
+        self.coefsX = [i for i in range(round(len(self.allAbsAng)/2))]
+        self.coefsY = [self.allAbsAng[i]/self.allInpAng[i] for i in range(round(len(self.allAbsAng)/2))]
+        self.ax["coefs"].plot(self.coefsX, self.coefsY, color="r", linewidth=1)
+        
+        for n in [6]:
+            xValues = [i for i in range(round(len(self.allAbsAng)/2))]
+            polyModel = np.poly1d(np.polyfit(xValues, self.coefsY, n))
+            self.ax["coefs"].plot([i for i in range(min(xValues), max(xValues))], [polyModel(x) for x in range(min(xValues), max(xValues))], label=f"n({n})")
+
+        self.coefsLineCoef = 0.001
+        self.ps_stuff["eeffec"][1], = self.ax["coefs"].plot(2*[0], [max(self.coefsY)+self.coefsLineCoef*len(self.coefsY), min(self.coefsY)-self.coefsLineCoef*len(self.coefsY)], label="absAngles", color="g", linewidth=2.5, alpha=0.5)
 
         self.ps_stuff["frame"][0] = self.ax["frame"].scatter([self.pos[0][0]],[self.pos[0][1]],edgecolor="k",label="alpha")
         self.ps_stuff["frame"][1] = self.ax["frame"].scatter([self.pos[1][0]],[self.pos[1][1]],edgecolor="k",label="beta")
@@ -333,7 +357,7 @@ class AnimatedScatter(object):
         
         if self.currentIdx<round(len(self.allAbsAng)/2): coefsTempX = 2*[self.currentIdx]
         elif self.currentIdx>=round(len(self.allAbsAng)/2): coefsTempX = 2*[round(len(self.allAbsAng)) - self.currentIdx]
-        self.ps_stuff["eeffec"][1].set_data(coefsTempX, [max(self.allAbsAng)+1, min(self.allAbsAng)-1])
+        self.ps_stuff["eeffec"][1].set_data(coefsTempX, [max(self.coefsY)+self.coefsLineCoef*len(self.coefsY), min(self.coefsY)-self.coefsLineCoef*len(self.coefsY)])
 
         for i in range(3):
             self.ps_updateText(i, [self.pos[i][0],self.pos[i][1],self.pos[i+1][0],self.pos[i+1][1]])
