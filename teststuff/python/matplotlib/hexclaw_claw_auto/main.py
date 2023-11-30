@@ -152,15 +152,39 @@ class quadrilateral(object):
 
 
 class AnimatedScatter(object):
-    def checkIfReachable(self, pos, absAng, c):
-        beta = 0
-        if pos[0]>0: beta = 180-toDegrees(math.atan(pos[1]/pos[0]))
-        elif pos[0]<0: beta = abs(toDegrees(math.atan(pos[1]/pos[0])))
-        elif pos[0]==0: beta = 90
-        b = math.sqrt(pos[0]**2 + pos[1]**2)
-        f = math.sqrt((2*pos[0]+math.cos(toRadians(absAng))*c)**2 + (2*pos[1]+math.sin(toRadians(absAng))*c)**2)
-        gamma = math.acos((c**2+b**2-f**2)/(2*c*b))
-
+    # def checkIfReachable(self, pos, absAng, c):
+    #     beta = 0
+    #     if pos[0]>0: beta = 180-toDegrees(math.atan(pos[1]/pos[0]))
+    #     elif pos[0]<0: beta = abs(toDegrees(math.atan(pos[1]/pos[0])))
+    #     elif pos[0]==0: beta = 90
+    #     b = math.sqrt(pos[0]**2 + pos[1]**2)
+    #     f = math.sqrt((2*pos[0]+math.cos(toRadians(absAng))*c)**2 + (2*pos[1]+math.sin(toRadians(absAng))*c)**2)
+    #     gamma = math.acos((c**2+b**2-f**2)/(2*c*b))
+    def solveQuad(self, quadObj, beta, l0, l1, gd, td, eeffec):
+            try:
+                quadObj.set_a(gd)
+                quadObj.set_b(l0)
+                quadObj.set_c(td)
+                quadObj.set_d(l1)
+                quadObj.set_beta(beta)
+            except ValueError:
+                return None
+            tempPos = [
+                        [0-gd, 0], #alpha
+                        [0, 0], #beta
+                        [l0*math.cos(toRadians(180-quadObj.beta)), l0*math.sin(toRadians(180-quadObj.beta))], #gamma
+                        [l1*math.cos(toRadians(quadObj.alpha))-gd, l1*math.sin(toRadians(quadObj.alpha))] #delta
+                    ]
+            if quadObj.isReachable and \
+                round(math.sqrt((tempPos[1][0]-tempPos[0][0])**2 + (tempPos[1][1]-tempPos[0][1])**2),3) == gd and \
+                round(math.sqrt((tempPos[2][0]-tempPos[1][0])**2 + (tempPos[2][1]-tempPos[1][1])**2),3) == l0 and \
+                round(math.sqrt((tempPos[3][0]-tempPos[2][0])**2 + (tempPos[3][1]-tempPos[2][1])**2),3) == td and \
+                round(math.sqrt((tempPos[0][0]-tempPos[3][0])**2 + (tempPos[0][1]-tempPos[3][1])**2),3) == l1 and \
+                not (tempPos[3][0]<(-l1*0.9) and tempPos[2][0]<(-l1*0.9) and tempPos[3][1]>tempPos[2][1]) and \
+                tempPos[3][1]+eeffec*math.sin(toRadians(quadObj.absAng))>=0:
+                return [tempPos, quadObj.absAng]
+            else:
+                return None
     def __init__(self):
         self.quad = quadrilateral()
 
@@ -201,35 +225,15 @@ class AnimatedScatter(object):
 
         for dir in range(-1, 2, 2):
             for q in range(90+90*(-dir), 90+90*dir+dir, dir):
-                self.quad.set_beta(180-q)
-                tempPos = [
-                            [0-self.gd, 0], #alpha
-                            [0, 0], #beta
-                            [self.l0*math.cos(toRadians(180-self.quad.beta)), self.l0*math.sin(toRadians(180-self.quad.beta))], #gamma
-                            [self.l1*math.cos(toRadians(self.quad.alpha))-self.gd, self.l1*math.sin(toRadians(self.quad.alpha))] #delta
-                        ]
-                #pos = [self.pos[2][0], self.pos[2][1], self.pos[3][0], self.pos[3][1]]
-                #round(math.sqrt((pos[2]-pos[0])**2 + (pos[3]-pos[1])**2), 2)
-                # print(round(math.sqrt((tempPos[3][0]-tempPos[2][0])**2 + (tempPos[3][1]-tempPos[2][1])**2),1))
-                
-                # if round(math.sqrt((tempPos[1][0]-tempPos[0][0])**2 + (tempPos[1][1]-tempPos[0][1])**2),1) == self.gd and \
-                #     round(math.sqrt((tempPos[2][0]-tempPos[1][0])**2 + (tempPos[2][1]-tempPos[1][1])**2),1) == self.l0 and \
-                #     round(math.sqrt((tempPos[3][0]-tempPos[2][0])**2 + (tempPos[3][1]-tempPos[2][1])**2),1) == self.td and \
-                #     round(math.sqrt((tempPos[0][0]-tempPos[3][0])**2 + (tempPos[0][1]-tempPos[3][1])**2),1) == self.l1: print("is reachable:", end=" ")
-                if self.quad.isReachable and \
-                    round(math.sqrt((tempPos[1][0]-tempPos[0][0])**2 + (tempPos[1][1]-tempPos[0][1])**2),3) == self.gd and \
-                    round(math.sqrt((tempPos[2][0]-tempPos[1][0])**2 + (tempPos[2][1]-tempPos[1][1])**2),3) == self.l0 and \
-                    round(math.sqrt((tempPos[3][0]-tempPos[2][0])**2 + (tempPos[3][1]-tempPos[2][1])**2),3) == self.td and \
-                    round(math.sqrt((tempPos[0][0]-tempPos[3][0])**2 + (tempPos[0][1]-tempPos[3][1])**2),3) == self.l1 and \
-                    not (tempPos[3][0]<(-self.l1*0.9) and tempPos[2][0]<(-self.l1*0.9) and tempPos[3][1]>tempPos[2][1]) and \
-                    tempPos[3][1]+self.end_effecLen*math.sin(toRadians(self.quad.absAng))>=0:
-                    self.allPos.append(tempPos)
-                    self.allInpAng.append(q)
-                    
-                    self.allAbsAng.append(self.quad.absAng)
+                    funcRet = self.solveQuad(self.quad, 180-q, self.l0, self.l1, self.gd, self.td, self.end_effecLen)
+                    if funcRet != None:
+                        self.allPos.append(funcRet[0])
+                        self.allInpAng.append(q)
+                        
+                        self.allAbsAng.append(self.quad.absAng)
 
-                    self.allEndEffec_pos[0].append(tempPos[3][0]+self.end_effecLen*math.cos(toRadians(self.quad.absAng)))
-                    self.allEndEffec_pos[1].append(tempPos[3][1]+self.end_effecLen*math.sin(toRadians(self.quad.absAng)))
+                        self.allEndEffec_pos[0].append(funcRet[0][3][0]+self.end_effecLen*math.cos(toRadians(funcRet[1])))
+                        self.allEndEffec_pos[1].append(funcRet[0][3][1]+self.end_effecLen*math.sin(toRadians(funcRet[1])))
 
         print("number of possible positions:", len(self.allPos))
         if len(self.allPos)<=0: exit()
@@ -240,7 +244,7 @@ class AnimatedScatter(object):
         }
 
         self.stream = self.data_stream()
-        self.fig = plt.figure(figsize=(15,7))
+        self.fig = plt.figure(figsize=(9,4))
         self.ax = {
             "frame": 0, #frame view
             "coefs": 0, #a1/a0 view
