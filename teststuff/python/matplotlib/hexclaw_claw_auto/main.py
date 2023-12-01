@@ -76,14 +76,23 @@ class quadrilateral(object):
             self.isReachable = False
             print("gamma1 ValueError.")
             return None
+        except ZeroDivisionError:
+            self.isReachable = False
+            print("gamma1 ZeroDivisionError")
+            return None
     def solve_gamma2(self):
         self.solve_e()
         try:
+            if self.e==0: raise ValueError("\"self.e==0\"")
             self.gamma2 = toDegrees(math.acos(round((self.c**2 + self.e**2 - self.d**2) / (2*self.c*self.e), 10)))
             return self.gamma2
         except ValueError:
             self.isReachable = False
-            print(f"gamma2 ValueError: [{(self.c**2 + self.e**2 - self.d**2) / (2*self.c*self.e)}]")
+            print(f"gamma2 ValueError")
+            return None
+        except ZeroDivisionError:
+            self.isReachable = False
+            print(f"gamma2 ZeroDivisionError")
             return None
     def solve_gamma(self):
         self.solve_gamma2()
@@ -188,10 +197,10 @@ class AnimatedScatter(object):
     def __init__(self):
         self.quad = quadrilateral()
 
-        self.l0 = 0.9
+        self.l0 = 1
         self.l1 = 1
-        self.gd = 0.1
-        self.td = 0.1
+        self.gd = 1
+        self.td = 1
         self.end_effecLen = 0.6
         self.end_effecAng = 0
 
@@ -266,7 +275,7 @@ class AnimatedScatter(object):
         self.ps_stuff.update({"coefs": 0*[0]})
         self.ps_stuff.update({"circle": 0*[0]})
         self.ps_stuff.update({"text": 4*[0]})
-        self.ps_stuff.update({"eeffec": 3*[0]}) #end-effector
+        self.ps_stuff.update({"eeffec": 4*[0]}) #end-effector
 
         self.ani = animation.FuncAnimation( \
             self.fig, self.update, interval=2, \
@@ -287,7 +296,7 @@ class AnimatedScatter(object):
 
         # self.ax["coefs"].plot([i for i in range(round(len(self.allAbsAng)/2))], [self.allAbsAng[i]/self.allInpAng[i] for i in range(round(len(self.allAbsAng)/2))], color="r", linewidth=1)
         self.coefsX = [i for i in range(round(len(self.allAbsAng)/2))]
-        self.coefsY = [self.allAbsAng[i]/self.allInpAng[i] for i in range(round(len(self.allAbsAng)/2))]
+        self.coefsY = [self.allAbsAng[i]/(self.allInpAng[i]+0.0001) for i in range(round(len(self.allAbsAng)/2))]
         self.ax["coefs"].plot(self.coefsX, self.coefsY, color="r", linewidth=1)
         
         for n in [6]:
@@ -316,6 +325,11 @@ class AnimatedScatter(object):
             [self.pos[3][0], self.pos[3][0]+self.end_effecLen*math.cos(toRadians(self.end_effecAng))], \
             2*[self.pos[3][1]],\
             linestyle="dashed",label="absolute angle ref.", color="gray")
+        self.ps_stuff["eeffec"][3] = self.ax["frame"].scatter(
+            [self.pos[3][0]+self.end_effecLen*math.cos(toRadians(self.end_effecAng))], \
+            [self.pos[3][1]],\
+            label="end-effector pos", color="gray"
+        )
 
         def setText(i, plotAx, pos, offset=[0.05, 0.05]):
             return plotAx.text(
@@ -358,6 +372,10 @@ class AnimatedScatter(object):
             [self.pos[3][0], self.pos[3][0]+self.end_effecLen*math.cos(toRadians(self.end_effecAng))], \
             2*[self.pos[3][1]]
             )
+        self.ps_stuff["eeffec"][3].set_offsets(
+            [self.pos[3][0]+self.end_effecLen*math.cos(toRadians(self.end_effecAng)),
+            self.pos[3][1]+self.end_effecLen*math.sin(toRadians(self.end_effecAng))]
+        )
         
         if self.currentIdx<round(len(self.allAbsAng)/2): coefsTempX = 2*[self.currentIdx]
         elif self.currentIdx>=round(len(self.allAbsAng)/2): coefsTempX = 2*[round(len(self.allAbsAng)) - self.currentIdx]
