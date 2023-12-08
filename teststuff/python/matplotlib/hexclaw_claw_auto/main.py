@@ -11,6 +11,11 @@ from matplotlib.patches import Arc
 
 from AngleAnnotation import AngleAnnotation
 
+import os.path
+
+absPath = str(os.path.realpath(__file__)[:len(str(os.path.realpath(__file__)))-len("main.py")])
+dataPath = absPath+"data/0.1/"
+
 toRadians = lambda degrees: (degrees*np.pi)/180
 toDegrees = lambda radians: (radians*180)/np.pi
 
@@ -194,14 +199,18 @@ class AnimatedScatter(object):
                 return [tempPos, quadObj.absAng]
             else:
                 return None
+    def generateDataSet():
+        
     def __init__(self):
         self.quad = quadrilateral()
 
+        self.genAll = True
+
         self.l0 = 1
-        self.l1 = 1
-        self.gd = 1
-        self.td = 1
-        self.end_effecLen = 0.6
+        self.l1 = 1.01
+        self.gd = 0.2
+        self.td = 0.2
+        self.end_effecLen = 1.5
         self.end_effecAng = 0
 
         self.angle = 45
