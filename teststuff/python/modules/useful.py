@@ -22,7 +22,9 @@ def sortList_simple(lst, idx=0):
     tempDict = {}
     print(len(lst))
     for i in range(len(lst)):
+        print("update")
         tempDict.update({lst[i][idx]:lst[i]})
+    print(len(tempDict))
     dictKeys = list(tempDict.keys())
     print("len",len(dictKeys))
     dictKeys.sort()
