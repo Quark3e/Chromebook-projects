@@ -200,7 +200,20 @@ class AnimatedScatter(object):
             else:
                 return None
     def generateDataSet():
+        parts = 500
+        precis = {
+            "l0": range(1, 21, 1),
+            "l1": range(1, 21, 1),
+            "td": range(1, 21, 1),
+            "gd": range(1, 21, 1),
+            "eeffec": range(1, 21, 1),
+            "beta": range(0, 181, 1)
+        }
+        temp = [len([i for i in val]) for key,val in precis.items()]
+        estComb = 1 #estimated number of combinations
+        for i in temp: estComb*=i
         
+
     def __init__(self):
         self.quad = quadrilateral()
 
