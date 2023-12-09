@@ -19,18 +19,16 @@ def sortList_simple(lst, idx=0):
     """
     return list-of-lists parameter "lst" sorted by idx
     """
-    tempDict = {}
-    print(len(lst))
-    for i in range(len(lst)):
-        print("update")
-        tempDict.update({lst[i][idx]:lst[i]})
-    print(len(tempDict))
-    dictKeys = list(tempDict.keys())
-    print("len",len(dictKeys))
-    dictKeys.sort()
-    print("len",len(dictKeys))
-    sortedDict = {i: tempDict[i] for i in dictKeys}
-    return [val for _,val in sortedDict.items()]
+    # tempList = [] #[val, index, fullline]
+    # for i in range(len(lst)):
+    #     print("update")
+    #     tempList.append([lst[i][idx], i, lst[i]])
+    # lstKeys = [tempList[i][0] for i in range(len(tempList))]
+    # lstKeys.sort()
+    # sortedList = [lst[lstKeys[1]] for i in range(len(lstKeys))]
+    sorted = lst.copy()
+    sorted.sort()
+    return sorted
 
 
 def findElIdx(nail, lst, skipIdx=[]):
@@ -77,14 +75,16 @@ if __name__=="__main__":
     test=0
 
     if test==0:
-        testLen = 10
-        temp = [[randrange(2),randrange(2)] for _ in range(testLen)]
+        testLen = 100
+        rrange = [2, 5, 10]
+        
+        temp = [[randrange(rrange[0]),randrange(rrange[1]),randrange(rrange[2])] for _ in range(testLen)]
 
         tempTemp = findRepet_lst(temp, 3)
         for i in tempTemp: print(i)
         print("",end="\n----------\n")
 
-        sortedTemp = sortList_simple(temp, 1)
+        sortedTemp = sortList_simple(temp, 0)
 
         for i in range(len(temp)):
             print(temp[i])
