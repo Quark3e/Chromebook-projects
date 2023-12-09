@@ -1,10 +1,19 @@
 #!/bin/env python3
 
+import time
 
-def test(i):
-    while i<=100:
-        print("test", end=": ")
+def test(start=True):
+    if start: print("start")
+    start=False
+    while i<=101:
+        print("test", i, end="\r")
+        time.sleep(0.02)
         yield i**2
 
-for i in range(101):
-    print(next(test(i**0.5)))
+temp = test()
+
+for i in range(102):
+    next(temp)
+    # print(f"{next(temp(i)):_}")
+
+input("paused")

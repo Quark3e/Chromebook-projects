@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
 
 import time
+import math
 from datetime import datetime, timedelta
 
-def printProgBar(total, current, symbIdx=4):
+progbar_progress = 1
+progbar_total = 1
+
+def printProgBar(symbIdx=4):
     """
     prints a progress bar
 
     Parameters:
     - total: total number for progress to be at 100%
-    - current: current number for progress (progress = [current/total)*100]
-    - symbIdx: indexing integer to list: ['■', '⬛', '▉', '▉', '█']
+    - progress: current number for progress (progress = [current/total)*100]
+    - symbIdx: indexing integer for symbol to use: ['■', '⬛', '▉', '▉', '█']
     """
     oldProg=0
-    progress=0
     percent=0
     speed=0
     count=0
-    checkCount=[0, 3, 0.08]
+    # checkCount=[0, 3, 0.08]
     img = {
         0: "|",
         1: "/",
@@ -27,8 +30,26 @@ def printProgBar(total, current, symbIdx=4):
     symb = ['■', '⬛', '▉', '▉', '█']
     startDate = datetime.now()
     print(f" {'Start time':<10}:", startDate)
-    t0 = time.perf_counter()
-    
+    progBar_t0 = time.perf_counter()
+    time.sleep(0.1)
+    while progbar_progress<=progbar_total:
+        t1 = time.perf_counter()
+        speed = (progbar_progress-oldProg)/(t1-progBar_t0)
+        if speed==0: speed=1
+        print(speed)
+
+        percent = (progbar_progress/progbar_total)*100
+        formatProgress = f"{progbar_progress:_}"
+        if count>=len(img): count=0
+        printStr = f" progress: {formatProgress:>10}: {round(percent,2):<5}% \
+              |{str(math.floor(percent)*symb[symbIdx]+img[count]):<100}|: \
+              {round(speed,1):<6}pt/s: ETA: {timedelta(seconds=(round((progbar_total-oldProg)/speed)))} \
+              "
+        print(printStr, end="\r")
+        count+=1
+        oldProg=progbar_progress
+        progBar_t0=time.perf_counter()
+        yield printStr
 
 
 def sortDict(dict, mode=0):

@@ -6,12 +6,67 @@ import matplotlib.patches as mpatches
 import numpy as np
 import math
 import itertools
+import csv
 
 from matplotlib.patches import Arc
 
 from AngleAnnotation import AngleAnnotation
 
 import os.path
+import sys
+
+import time
+from datetime import datetime, timedelta
+
+# sys.path.append("../..")
+# from modules.useful import printProgBar,progbar_progress,progbar_total
+
+progbar_progress = 1
+progbar_total = 1
+
+def printProgBar(symbIdx=4):
+    """
+    prints a progress bar
+
+    Parameters:
+    - total: total number for progress to be at 100%
+    - progress: current number for progress (progress = [current/total)*100]
+    - symbIdx: indexing integer for symbol to use: ['■', '⬛', '▉', '▉', '█']
+    """
+    oldProg=0
+    percent=0
+    speed=0
+    count=0
+    # checkCount=[0, 3, 0.08]
+    img = {
+        0: "|",
+        1: "/",
+        2: "-",
+        3: "\\",
+    }
+    symb = ['■', '⬛', '▉', '▉', '█']
+    startDate = datetime.now()
+    print(f" {'Start time':<10}:", startDate)
+    progBar_t0 = time.perf_counter()
+    time.sleep(0.1)
+    while progbar_progress<=progbar_total:
+        t1 = time.perf_counter()
+        speed = (progbar_progress-oldProg)/(t1-progBar_t0)
+        if speed==0: speed=1
+
+        percent = (progbar_progress/progbar_total)*100
+        formatProgress = f"{progbar_progress:_}"
+        if count>=len(img): count=0
+        printStr = f" progress: {formatProgress:>10}: {round(percent,2):<5}% \
+              |{str(math.floor(percent)*symb[symbIdx]+img[count]):<100}|: \
+              {round(speed,1):<6}pt/s: ETA: {timedelta(seconds=(round((progbar_total-oldProg)/speed)))} \
+              "
+        print(printStr, end="\r")
+        count+=1
+        oldProg=progbar_progress
+        progBar_t0=time.perf_counter()
+        yield printStr
+
 
 absPath = str(os.path.realpath(__file__)[:len(str(os.path.realpath(__file__)))-len("main.py")])
 dataPath = absPath+"data/0.1/"
@@ -64,6 +119,7 @@ class quadrilateral(object):
     absAng=0 #absolute angle of side c relative to horizontal axis
 
     isReachable=True
+    printErrors=True
     def __init__(self):
         self.solveVars()
     def solve_e(self):
@@ -79,11 +135,11 @@ class quadrilateral(object):
             return self.gamma1
         except ValueError:
             self.isReachable = False
-            print("gamma1 ValueError.")
+            if self.printErrors: print("gamma1 ValueError.")
             return None
         except ZeroDivisionError:
             self.isReachable = False
-            print("gamma1 ZeroDivisionError")
+            if self.printErrors: print("gamma1 ZeroDivisionError")
             return None
     def solve_gamma2(self):
         self.solve_e()
@@ -93,11 +149,11 @@ class quadrilateral(object):
             return self.gamma2
         except ValueError:
             self.isReachable = False
-            print(f"gamma2 ValueError")
+            if self.printErrors: print(f"gamma2 ValueError")
             return None
         except ZeroDivisionError:
             self.isReachable = False
-            print(f"gamma2 ZeroDivisionError")
+            if self.printErrors: print(f"gamma2 ZeroDivisionError")
             return None
     def solve_gamma(self):
         self.solve_gamma2()
@@ -110,12 +166,12 @@ class quadrilateral(object):
         return self.d
     def solve_alpha(self):
         self.solve_f()
-        try:    
+        try:
             self.alpha = toDegrees(math.acos((self.a**2 + self.d**2 - self.f**2) / (2*self.a*self.d)))
             return self.alpha
         except ValueError:
             self.isReachable = False
-            print("alpha ValueError.")
+            if self.printErrors: print("alpha ValueError.")
             return None
     def solve_delta(self):
         self.solve_alpha()
@@ -131,7 +187,7 @@ class quadrilateral(object):
             return self.area
         except ValueError:
             self.isReachable = False
-            print("area ValueError")
+            if self.printErrors: print("area ValueError")
             return None
     def solve_absAng(self):
         self.absAng = -(self.beta + self.gamma - 180)
@@ -175,6 +231,9 @@ class AnimatedScatter(object):
     #     f = math.sqrt((2*pos[0]+math.cos(toRadians(absAng))*c)**2 + (2*pos[1]+math.sin(toRadians(absAng))*c)**2)
     #     gamma = math.acos((c**2+b**2-f**2)/(2*c*b))
     def solveQuad(self, quadObj, beta, l0, l1, gd, td, eeffec):
+            """
+            Solve quadrilateral angles and sides and checks if it's possible
+            """
             try:
                 quadObj.set_a(gd)
                 quadObj.set_b(l0)
@@ -199,8 +258,10 @@ class AnimatedScatter(object):
                 return [tempPos, quadObj.absAng]
             else:
                 return None
-    def generateDataSet():
+    def generateDataSet(self):
+        global progbar_total, progbar_progress
         parts = 500
+        part = 0
         precis = {
             "l0": range(1, 21, 1),
             "l1": range(1, 21, 1),
@@ -210,14 +271,83 @@ class AnimatedScatter(object):
             "beta": range(0, 181, 1)
         }
         temp = [len([i for i in val]) for key,val in precis.items()]
-        estComb = 1 #estimated number of combinations
+        estComb=1 #estimated number of combinations
+        progress=0
+        count=0
+
         for i in temp: estComb*=i
-        
+        progbar_total=estComb
+        nLenLim = round(estComb/parts)
+
+        csv_fields = ["x","y","beta","leeffec","l0","l1","gd","td","abs"]
+        csvResult = []
+
+        checkCount=0
+        checkCount_i=500
+
+        quad = quadrilateral()
+        quad.printErrors = False
+
+        def saveCsv():
+            nonlocal part, csvResult
+            print("-saving data into a csv file: part:", part)
+            with open(dataPath+f"csv_{part:03}_"+f"{estComb:_}.csv", "w") as f:
+                write = csv.writer(f)
+                write.writerow(csv_fields)
+                write.writerows(csvResult)
+            part+=1
+            csvResult=[]
+
+        progFunc = printProgBar()
+
+        for beta in precis["beta"]:
+            for l_e in precis["eeffec"]:
+                l_e/=10
+                for l0 in precis["l0"]:
+                    l0/=10
+                    for l1 in precis["l1"]:
+                        l1/=10
+                        for td in precis["td"]:
+                            td/=10
+                            for gd in precis["gd"]:
+                                gd/=10
+                                try:    
+                                    quad.set_a(gd)
+                                    quad.set_b(l0)
+                                    quad.set_c(td)
+                                    quad.set_d(l1)
+                                    quad.set_beta(180-beta)
+                                except ValueError:
+                                    pass
+
+                                funcRet = self.solveQuad(quad, 180-beta, l0, l1, gd, td, l_e)
+                                if funcRet!=None:
+                                    eePos = [
+                                        funcRet[0][3][0]+l_e*math.cos(toRadians(funcRet[1])),
+                                        funcRet[0][3][1]+l_e*math.sin(toRadians(funcRet[1]))
+                                    ]
+                                    csvResult.append([round(eePos[0],1),round(eePos[1],1),beta,l_e,l0,l1,gd,td,quad.absAng])
+                                    
+                                    if count>=nLenLim:
+                                        saveCsv()
+                                        count=0
+                                    if checkCount>=checkCount_i:
+                                        progbar_progress=progress
+                                        next(progFunc)
+                                        checkCount=0
+                                    progress+=1
+                                    count+=1
+                                    checkCount+=1
+
 
     def __init__(self):
         self.quad = quadrilateral()
 
         self.genAll = True
+        if self.genAll:
+            self.generateDataSet()
+            exit()
+
 
         self.l0 = 1
         self.l1 = 1.01
