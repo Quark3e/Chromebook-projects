@@ -836,6 +836,10 @@ int main(int argc, char* argv[]) {
 		else if(argv[1]=="-c") {calibrateHSV=false; displayImg=false; mode_orients=false; mode_intro=true; printf("running intro sequence\n");}
 	}
 
+	for(int i=0; i<argc; i+=1) {
+		cout << argv[i] << endl;
+	}
+
 	//pca9685 board setup
 	PiPCA9685::PCA9685 pca{};
 	pca.set_pwm_freq(50.0);
