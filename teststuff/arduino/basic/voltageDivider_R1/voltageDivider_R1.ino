@@ -7,7 +7,7 @@ float R1 = 0;
 
 int readSign = 0;
 
-int analPin = A0;
+int analPin = A3;
 
 void setup() {
     Serial.begin(9600);

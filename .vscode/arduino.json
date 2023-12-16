@@ -2,5 +2,5 @@
     "port": "/dev/ttyUSB0",
     "board": "arduino:avr:uno",
     "programmer": "avrisp",
-    "sketch": "teststuff/arduino/basic/voltageDivider_R1/voltageDivider_R1.ino"
+    "sketch": "teststuff/arduino/lightTracker/lightTracker.ino"
 }
