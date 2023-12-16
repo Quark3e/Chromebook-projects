@@ -829,14 +829,13 @@ int main(int argc, char* argv[]) {
 
 	if(argc<=1) {calibrateHSV=false; displayImg=false;}
 	else if(argc>=2) {
-		if(argv[1]=="-0") {calibrateHSV=false; displayImg=true;}
-		else if(argv[1]=="-1") {calibrateHSV=true; displayImg=false;}
-		else if(argv[1]=="-2") {calibrateHSV=true; displayImg=true;printf("argv[1]==\"-2\"\n");}
-		else if(argv[1]=="-k") {calibrateHSV=false; displayImg=false; mode_orients=true; printf("orient mode is set to true. only reading orient commands from nodemcu unit\n");}
-		else if(argv[1]=="-c") {calibrateHSV=false; displayImg=false; mode_orients=false; mode_intro=true; printf("running intro sequence\n");}
+		if(strcmp(argv[1], "-0")==0) {calibrateHSV=false; displayImg=true;}
+		else if(strcmp(argv[1], "-1")==0) {calibrateHSV=true; displayImg=false;}
+		else if(strcmp(argv[1], "-2")==0) {calibrateHSV=true; displayImg=true;printf("argv[1]==\"-2\"\n");}
+		else if(strcmp(argv[1], "-k")==0) {calibrateHSV=false; displayImg=false; mode_orients=true; printf("orient mode is set to true. only reading orient commands from nodemcu unit\n");}
+		else if(strcmp(argv[1], "-c")==0) {calibrateHSV=false; displayImg=false; mode_orients=false; mode_intro=true; printf("running intro sequence\n");}
 	}
 
-    if(strcmp(argv[1],"-c")==0) cout << "is true\n";
 	//pca9685 board setup
 	PiPCA9685::PCA9685 pca{};
 	pca.set_pwm_freq(50.0);
