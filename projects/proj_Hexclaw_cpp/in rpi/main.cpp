@@ -838,7 +838,7 @@ int main(int argc, char* argv[]) {
 
 	cout << argc << endl;
 	for(int i=0; i<argc; i+=1) {
-		cout << argv[i] << endl;
+		cout << argv[1] << endl;
 	}
 
 	//pca9685 board setup
