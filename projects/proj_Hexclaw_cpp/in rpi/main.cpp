@@ -797,7 +797,7 @@ void loadData_csvArtif(bool printVar=true) {
 }
 
 
-int main(int argc, char** argv) {
+int main(int argc, char* argv[]) {
 	/*
 	argv codes:
 	- argc <= 1:		calibrateHSV = false;	displayImg = false; #default
