@@ -48,6 +48,7 @@ mov_Patterns = { #NOTE: There cannot be any space in the keys
 
 def fullAxisTest(servo, diagnostics=[False,[],[[],[],[],[]],None]):
     os.system("clear")
+    t_start=0
     if diagnostics[0]: t_start = time.perf_counter()
     isReachable = [True]
     startPos = [0,0,0]
@@ -363,7 +364,7 @@ def runFromFile(filePath, servo):
             isReachable = [True]
             q = getAngles(coordinate,orientation[0],orientation[1],orientation[2],'-',positionIsReachable=isReachable)
             q = [toDegrees(angle) for angle in q]
-            print(lineCount, ": ", coordinate, ": ", [round(n,2) for n in q], sep="")
+            print(lineCount, ": ", coordinate, ": ", [toDegrees(i) for i in orientation], ": ", [round(n,2) for n in q], sep="")
             if isReachable[0]: sendToServo(servo,q,totTime,mode=servoMode,useDefault=True)
             else:
                 orients = findOrients(coordinate,[orientation[0],orientation[1]])

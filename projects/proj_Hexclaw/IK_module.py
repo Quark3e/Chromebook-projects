@@ -52,8 +52,8 @@ mod_dict = {
     "a1:a1": [True, "a1 = a1 * cos(b)"],
     "q4:default": [False, "q4 = atan(frame1X / frame1Y)"],
     "q4:a1": [False, "q4 = a1"],
-    "q4:a1:b:minus": [False, "if b<0: q4=0-a1; else: q4=a1"],
-    "q4:a1:b1:minus": [True, "if b1<0: q4=0-a1; else: q4=a1"],
+    "q4:a1:b:minus": [True, "if b<0: q4=0-a1; else: q4=a1"],
+    "q4:a1:b1:minus": [False, "if b1<0: q4=0-a1; else: q4=a1"],
     "q5:inPaper": [False, "q5 = atan([...] / ( cos(b1) * cos(a1) )))"],
     "q5:default": [False, "q5 = atan([...] / ( frame1X / tan(a1) ))"],
     "q5:d5": [True, "q5 = atan([...] / ( d5 ))"],
@@ -73,15 +73,30 @@ def debug_mod_menu(mod_dict):
             - keys: mod name
             - value: status for if that key(/mod) is used, True if it is used
     """
+    idxDict = {}
+    idxDict_rev = {}
+    count = 0
+    for key in mod_dict:
+        idxDict.update({count:key})
+        idxDict_rev.update({key:count})
+        count+=1
     while True:
         os.system("clear")
         print("--- Debug: mod keys ---")
         print(" to change the \"state\" of a mod, enter key and \"True\" to activate, \"False\" to turn off\n")
         for key, status in mod_dict.items():
-            print(" - {:15}: status:{:5} description:\"{:}\"".format(key,status[0],status[1]))
+            print(f" -[{idxDict_rev[key]}]{'':3}: {key:15}: status:{status[0]:5} description:\"{status[1]:}\"")
         opt = input("\n input:").split()
+        if len(opt)==0: continue
         if opt[0] == "exit": return
-        mod_dict[opt[0]][0] = eval(opt[1])
+        if opt[0] not in mod_dict and opt[0] not in [str(i) for i in idxDict]:
+            input(f"paused: \"{opt[0]}\" invalid.")
+            continue
+        if len(opt) > 1: mod_dict[opt[0]][0] = eval(opt[1])
+        elif len(opt) == 1:
+            if opt[0] in [str(i) for i in idxDict]:
+                mod_dict[idxDict[int(opt[0])]][0] = not mod_dict[idxDict[int(opt[0])]][0]
+            else: mod_dict[opt[0]][0] = not mod_dict[opt[0]][0]
 
 
 def getNumFromString(string, sepChar):
@@ -453,14 +468,14 @@ def getAngles(
         if P5[0] > 0: q[0] = toRadians(90) # type: ignore
         elif P5[0] < 0: q[0] = toRadians(-90) # type: ignore
         elif P5[0] == 0: q[0] = toRadians(0) # type: ignore
-    else: q[0] = atan(-P5[0] / P5[1]) # type: ignore
+    else: q[0] = atan(P5[0] / P5[1]) # type: ignore
     a = 0-a
     try:
-        if posOption == '+': q[2] = acos(
+        if posOption == '+': q[2] = acos( #type: ignore
                 (pow(P5[0], 2) + pow(P5[1], 2) + pow(P5[2] - link[0], 2) - pow(link[1], 2) - pow(link[2] + link[3], 2)) / 
                 (2 * link[1] * (link[2] + link[3]))
             ) # type: ignore
-        elif posOption == '-': q[2] = acos(
+        elif posOption == '-': q[2] = acos( #type: ignore
                 (pow(P5[0],2) + pow(P5[1],2) + pow(P5[2]-link[0],2) - pow(link[1],2) - pow(link[2]+link[3],2)) /
                 (2 * link[1] * (link[2] + link[3]))
             ) # type: ignore
