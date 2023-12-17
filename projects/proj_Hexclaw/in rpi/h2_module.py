@@ -363,7 +363,7 @@ def runFromFile(filePath, servo):
             isReachable = [True]
             q = getAngles(coordinate,orientation[0],orientation[1],orientation[2],'-',positionIsReachable=isReachable)
             q = [toDegrees(angle) for angle in q]
-            print(lineCount, ": ", [round(n,2) for n in q], sep="")
+            print(lineCount, ": ", coordinate, ": ", [round(n,2) for n in q], sep="")
             if isReachable[0]: sendToServo(servo,q,totTime,mode=servoMode,useDefault=True)
             else:
                 orients = findOrients(coordinate,[orientation[0],orientation[1]])
