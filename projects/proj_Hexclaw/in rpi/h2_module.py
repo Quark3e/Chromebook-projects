@@ -341,10 +341,11 @@ def runFromFile(filePath, servo):
     readType = line1[5:][:5]
     if readType == "angle" and line1[11:][:4] == "True": toUseDefault = True
     if readType == "coord" and line1[11:][:1] == "True": orientGiven = True
+    lineCount=0
     if line2[:5]== "mode:": servoMode = int(line2[5:])
     for line in cmdFile:
         if line[:6]=="sleep:": time.sleep(float(line[6:]))
-        elif readType=="coord" and not orientGiven:
+        elif readType=="coord" and orientGiven:
             coords = line[:line.find(';')]
             orients = line[line.find(';')+1:]
             coordinate = [
@@ -361,7 +362,7 @@ def runFromFile(filePath, servo):
             isReachable = [True]
             q = getAngles(coordinate,orientation[0],orientation[1],orientation[2],'-',positionIsReachable=isReachable)
             q = [toDegrees(angle) for angle in q]
-            print(q)
+            print(lineCount, ": ", [round(n,2) for n in q], sep="")
             if isReachable[0]: sendToServo(servo,q,1,mode=servoMode,useDefault=True)
             else:
                 orients = findOrients(coordinate,[orientation[0],orientation[1]])
@@ -372,7 +373,7 @@ def runFromFile(filePath, servo):
                     q = getAngles(coordinate,orients[0],orients[1],orients[2],'-',positionIsReachable=isReachable)
                     q = [toDegrees(angle) for angle in q]
                     if isReachable[0]: sendToServo(servo,q,1,mode=servoMode,useDefault=True)
-        elif readType=="coord" and orientGiven:
+        elif readType=="coord" and not orientGiven:
             coords = line
             coordinate = [
                 float(coords[:coords.find(':')]),
@@ -390,7 +391,7 @@ def runFromFile(filePath, servo):
         elif readType=="angle":
             angles = getNumFromString(line, ':')
             sendToServo(servo,angles,1,useDefault=toUseDefault,mode=servoMode)
-
+        lineCount+=1
     return
 
 # Permanent modifiers
