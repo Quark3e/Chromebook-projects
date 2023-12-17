@@ -358,12 +358,13 @@ def runFromFile(filePath, servo):
                 float(orients[orients.find(':')+1:][:orients[orients.find(':')+1:].find(':')]),
                 float(orients[orients.find(':')+1:][orients[orients.find(':')+1:].find(':')+1:])
             ]
+            totTime = 0
             orientation = [toRadians(angle) for angle in orientation]
             isReachable = [True]
             q = getAngles(coordinate,orientation[0],orientation[1],orientation[2],'-',positionIsReachable=isReachable)
             q = [toDegrees(angle) for angle in q]
             print(lineCount, ": ", [round(n,2) for n in q], sep="")
-            if isReachable[0]: sendToServo(servo,q,1,mode=servoMode,useDefault=True)
+            if isReachable[0]: sendToServo(servo,q,totTime,mode=servoMode,useDefault=True)
             else:
                 orients = findOrients(coordinate,[orientation[0],orientation[1]])
                 if orients==None:
@@ -372,7 +373,7 @@ def runFromFile(filePath, servo):
                     orients = [toRadians(var) for var in orients]
                     q = getAngles(coordinate,orients[0],orients[1],orients[2],'-',positionIsReachable=isReachable)
                     q = [toDegrees(angle) for angle in q]
-                    if isReachable[0]: sendToServo(servo,q,1,mode=servoMode,useDefault=True)
+                    if isReachable[0]: sendToServo(servo,q,totTime,mode=servoMode,useDefault=True)
         elif readType=="coord" and not orientGiven:
             coords = line
             coordinate = [
