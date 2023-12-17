@@ -245,6 +245,8 @@ def main():
             if backBreak: break
             if mode==1:
                 tempInput_2 = input("Enter orientation values [a b Y] in degrees: ").split()
+                if tempInput_2[0] == "exit": return
+                elif tempInput_2[0] == "back": break
                 a,b,Y = toRadians(float(tempInput_2[0])), toRadians(float(tempInput_2[1])), toRadians(float(tempInput_2[2]))
                 if diagnostics: print("x:", PP[0], " y:", PP[1], " z:", PP[2], " a:", toDegrees(a), " b:", toDegrees(b), " Y:", toDegrees(Y), sep='')
                 q = getAngles(PP,a,b,Y,'-', debug=mod_dict, positionIsReachable=isReachable)
@@ -255,6 +257,8 @@ def main():
                     sendToServo(servo,[toDegrees(joint) for joint in q],0,useDefault=True,mode=2,printResult=True)
             elif mode==2:
                 tempInput_2 = input("Enter orientation values [a b Y] in degrees: ").split()
+                if tempInput_2[0] == "exit": return
+                elif tempInput_2[0] == "back": break
                 a,b,Y = toRadians(float(tempInput_2[0])), toRadians(float(tempInput_2[1])), toRadians(float(tempInput_2[2]))
                 img = np.zeros((windowRes[1],windowRes[0],3), np.uint8)
                 cv2.namedWindow('tracking_window')

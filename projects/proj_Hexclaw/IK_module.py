@@ -48,15 +48,15 @@ constants_q = [{
 
 
 mod_dict = {
-    "a1:frame1X": [False, "frame1X = frame1X * cos(b)"],
+    "a1:frame1X": [True, "frame1X = frame1X * cos(b)"],
     "a1:a1": [True, "a1 = a1 * cos(b)"],
     "q4:default": [False, "q4 = atan(frame1X / frame1Y)"],
-    "q4:a1": [False, "q4 = a1"],
+    "q4:a1": [True, "q4 = a1"],
     "q4:a1:b:minus": [True, "if b<0: q4=0-a1; else: q4=a1"],
     "q4:a1:b1:minus": [False, "if b1<0: q4=0-a1; else: q4=a1"],
     "q5:inPaper": [False, "q5 = atan([...] / ( cos(b1) * cos(a1) )))"],
     "q5:default": [False, "q5 = atan([...] / ( frame1X / tan(a1) ))"],
-    "q5:d5": [True, "q5 = atan([...] / ( d5 ))"],
+    "q5:d5": [False, "q5 = atan([...] / ( d5 ))"],
     "exceedState": [True, "if [...]_exceeded: positionIsReachable[0] = False"],
 }
 """Dictionary of all the modificaitons used, mostly for debugging the IK equations
@@ -468,7 +468,7 @@ def getAngles(
         if P5[0] > 0: q[0] = toRadians(90) # type: ignore
         elif P5[0] < 0: q[0] = toRadians(-90) # type: ignore
         elif P5[0] == 0: q[0] = toRadians(0) # type: ignore
-    else: q[0] = atan(P5[0] / P5[1]) # type: ignore
+    else: q[0] = atan(-P5[0] / P5[1]) # type: ignore
     a = 0-a
     try:
         if posOption == '+': q[2] = acos( #type: ignore
@@ -551,7 +551,7 @@ def getAngles(
     if debug["q4:a1:b1:minus"][0]: #true
         if b1<0: q[3] = 0-a1
         else: q[3] = a1
-    
+    q[3]=-q[3]
 
     try:
         checkVar = asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (link[4]+link[5]))
