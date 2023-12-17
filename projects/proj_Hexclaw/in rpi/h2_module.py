@@ -341,6 +341,7 @@ def runFromFile(filePath, servo):
     readType = line1[5:][:5]
     if readType == "angle" and line1[11:][:4] == "True": toUseDefault = True
     if readType == "coord" and line1[11:][:1] == "True": orientGiven = True
+    print(line1[11:][:1])
     lineCount=0
     if line2[:5]== "mode:": servoMode = int(line2[5:])
     for line in cmdFile:
