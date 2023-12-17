@@ -195,7 +195,8 @@ def main():
                 if tempInput_1 == "exit": return
                 elif tempInput_1[:4] == "mode": mode=int(tempInput_1[5:])
                 else:
-                    movCommPath = tempInput_1
+                    basePath = "movementFiles/HC_2/"
+                    movCommPath = basePath+tempInput_1
                     runFromFile(movCommPath, servo)
                 break
             if mode==1:
