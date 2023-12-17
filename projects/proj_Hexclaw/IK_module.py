@@ -244,7 +244,7 @@ def sendToServo(
     """Sends angles in list \"new_rotation\" to servo motors evenly spaced out
 
     ## Parameters:
-        - sservo (float/int): [no unit specification needed]
+        - servo (float/int): [no unit specification needed]
             - dictionary/list variable that sends to pca board / holds old/current rotation commands
         - new_rotation (float/int): [unit: degrees]
             - dictionary/list variable of new rotation commands in [degrees]
