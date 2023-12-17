@@ -116,6 +116,8 @@ x1,y1,x2,y2 = -1,-1,-1,-1
 windowRes = (600,300)
 
 
+movPath = "movementFiles/HC_6/"
+
 def main():
     global PP, a, b, Y
     while True:
@@ -130,7 +132,7 @@ def main():
             if tempInput_1 == "exit": return
             elif tempInput_1 == "end": break
             elif tempInput_1[:5] == "file:":
-                tempFile = open(tempInput_1[5:], "r")
+                tempFile = open(movPath+    tempInput_1[5:], "r")
                 for coord in tempFile:
                     posSequence.append(getNumFromString(coord, " "))
                 break
