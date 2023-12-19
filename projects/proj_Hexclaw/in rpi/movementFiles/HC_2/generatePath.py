@@ -29,26 +29,28 @@ f.write(comments[4])
 
 f.write(f"sleep:{2}\n")
 
-for i in range(0, 151, 10):
-    f.write(f"{-i}:150:150;0:{-round(90-90*i/150)}:0;tt{0.1};\n")
-    line+=1
-    if i==0: f.write(f"sleep:3\n")
-    f.write(f"sleep:{0.2}\n")
-for i in range(150, -10, -10):
-    f.write(f"{-i}:150:150;0:{-round(90-90*i/150)}:0;tt{0.1};\n")
-    line+=1
-    f.write(f"sleep:{0.2}\n")
+for ax in range(-1, 2, 2):
+    for i in range(0, 151, 10):
+        f.write(f"{ax*i}:150:150;0:{-round(90-90*i/150)}:0;tt{0.1};\n")
+        line+=1
+        if i==0: f.write(f"sleep:3\n")
+        f.write(f"sleep:{0.2}\n")
+    for i in range(150, -10, -10):
+        f.write(f"{ax*i}:150:150;0:{-round(90-90*i/150)}:0;tt{0.1};\n")
+        line+=1
+        f.write(f"sleep:{0.2}\n")
 
-f.write(f"sleep:{2}\n")
+    f.write(f"sleep:{2}\n")
 
-for i in range(0, 151, 10):
-    f.write(f"{-i}:150:150;0:{-round(90-45*i/150)}:0;tt{0.1};\n")
-    line+=1
-    f.write(f"sleep:{0.2}\n")
-for i in range(150, -10, -10):
-    f.write(f"{-i}:150:150;0:{-round(90-45*i/150)}:0;tt{0.1};\n")
-    line+=1
-    f.write(f"sleep:{0.15}\n")
+    for i in range(0, 151, 10):
+        f.write(f"{ax*i}:150:150;0:{-round(90-45*i/150)}:0;tt{0.1};\n")
+        line+=1
+        f.write(f"sleep:{0.2}\n")
+    for i in range(150, -10, -10):
+        f.write(f"{ax*i}:150:150;0:{-round(90-45*i/150)}:0;tt{0.1};\n")
+        line+=1
+        f.write(f"sleep:{0.15}\n")
+    f.write("sleep:5\n")
 
 f.write("\n")
 f.close()

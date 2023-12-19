@@ -346,7 +346,7 @@ def runFromFile(filePath, servo):
     if line2[:5]== "mode:": servoMode = int(line2[5:])
     for line in cmdFile:
         if line[:5]== "mode:": servoMode = int(line[5:])
-        if line[0]=="#": continue
+        if line[0]=="#" or len(line)<=1: continue
         if line[:6]=="sleep:": time.sleep(float(line[6:]))
         elif readType=="coord" and orientGiven:
             coords = line[:line.find(';')]
