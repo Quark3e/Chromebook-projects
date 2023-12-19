@@ -345,6 +345,8 @@ def runFromFile(filePath, servo):
     lineCount=0
     if line2[:5]== "mode:": servoMode = int(line2[5:])
     for line in cmdFile:
+        if line[:5]== "mode:": servoMode = int(line[5:])
+        if line[0]=="#": continue
         if line[:6]=="sleep:": time.sleep(float(line[6:]))
         elif readType=="coord" and orientGiven:
             coords = line[:line.find(';')]
@@ -359,7 +361,11 @@ def runFromFile(filePath, servo):
                 float(orients[orients.find(':')+1:][:orients[orients.find(':')+1:].find(':')]),
                 float(orients[orients.find(':')+1:][orients[orients.find(':')+1:].find(':')+1:])
             ]
-            totTime = 0
+            if ";tt" in line:
+                if ";" in line[line.find(";tt")+3]: totTime = float(line[line.find(";tt")+3:line.find(";", line.find(";tt")+3)])
+                else: totTime = float(line[line.find(";tt")+3:])
+            else: totTime = 0
+
             orientation = [toRadians(angle) for angle in orientation]
             isReachable = [True]
             q = getAngles(coordinate,orientation[0],orientation[1],orientation[2],'-',positionIsReachable=isReachable)
