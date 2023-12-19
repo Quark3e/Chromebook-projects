@@ -889,6 +889,7 @@ int main(int argc, char* argv[]) {
 		new_q[4] = -45;
 		new_q[5] = 0;
 		// printf("running intro...\n");
+        //sendToServo(&pca, current_q, new_q, false, 0, 0);
 		usleep(1'000'000);
 		if(pigpioInitia) {
 			gpioWrite(pin_ledRelay, 0);

@@ -41,7 +41,7 @@ servo = [servo.Servo(pca.channels[0]),
          servo.Servo(pca.channels[1]),
          servo.Servo(pca.channels[2]),
          servo.Servo(pca.channels[3]),
-         servo.Servo(pca.channels[4]),
+         servo.Servo(pca.channels[8]),
          servo.Servo(pca.channels[5]),
          ]
 
@@ -204,7 +204,7 @@ def main():
                 if mode==1:
                     tempInput_1 = input("Enter coordinates [x y z] in mm: ").split()
                     if tempInput_1[0] == "exit": return
-                    elif tempInput_1 == "back":
+                    elif tempInput_1[0] == "back":
                         backBreak=True
                         break
                     elif tempInput_1[0][:4] == "mode": mode=int(tempInput_1[0][5:])
