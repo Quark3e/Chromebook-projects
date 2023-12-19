@@ -53,7 +53,7 @@ mod_dict = {
     "q4:default": [False, "q4 = atan(frame1X / frame1Y)"],
     "q4:a1": [True, "q4 = a1"],
     "q4:a1:b:minus": [True, "if b<0: q4=0-a1; else: q4=a1"],
-    "q4:a1:b1:minus": [False, "if b1<0: q4=0-a1; else: q4=a1"],
+    "q4:a1:b1:minus": [True, "if b1<0: q4=0-a1; else: q4=a1"],
     "q5:inPaper": [False, "q5 = atan([...] / ( cos(b1) * cos(a1) )))"],
     "q5:default": [False, "q5 = atan([...] / ( frame1X / tan(a1) ))"],
     "q5:d5": [False, "q5 = atan([...] / ( d5 ))"],

@@ -345,7 +345,9 @@ def runFromFile(filePath, servo):
     lineCount=0
     if line2[:5]== "mode:": servoMode = int(line2[5:])
     for line in cmdFile:
-        if line[:5]== "mode:": servoMode = int(line[5:])
+        if line[:5]== "mode:":
+            servoMode = int(line[5:])
+            continue
         if line[0]=="#" or len(line)<=1 or line[0]==" ": continue
         if line[:6]=="sleep:": time.sleep(float(line[6:]))
         elif readType=="coord" and orientGiven:
@@ -357,20 +359,20 @@ def runFromFile(filePath, servo):
                 float(coords[coords.find(':')+1:][coords[coords.find(':')+1:].find(':')+1:])
             ]
             orientation = [
-                float(orients[:orients.find(':')]),
-                float(orients[orients.find(':')+1:][:orients[orients.find(':')+1:].find(':')]),
-                float(orients[orients.find(':')+1:][orients[orients.find(':')+1:].find(':')+1:])
+                int(orients[:orients.find(':')]),
+                int(orients[orients.find(':')+1:][:orients[orients.find(':')+1:].find(':')]),
+                int(orients[orients.find(':')+1:][orients[orients.find(':')+1:].find(':')+1:orients[orients.find(':')+1:].find(";")])
             ]
             if ";tt" in line:
                 if ";" in line[line.find(";tt")+3]: totTime = float(line[line.find(";tt")+3:line.find(";", line.find(";tt")+3)])
-                else: totTime = float(line[line.find(";tt")+3:])
+                else: totTime = float(line[line.find(";tt")+3:][:line[line.find(";tt")+3:].find(";")])
             else: totTime = 0
 
             orientation = [toRadians(angle) for angle in orientation]
             isReachable = [True]
             q = getAngles(coordinate,orientation[0],orientation[1],orientation[2],'-',positionIsReachable=isReachable)
             q = [toDegrees(angle) for angle in q]
-            print(lineCount, ": ", coordinate, ": ", [toDegrees(i) for i in orientation], ": ", [round(n,2) for n in q], sep="")
+            print(lineCount, ": ", coordinate, ": ", [round(toDegrees(i)) for i in orientation], ": ", [round(n,1) for n in q], sep="")
             if isReachable[0]: sendToServo(servo,q,totTime,mode=servoMode,useDefault=True)
             else:
                 orients = findOrients(coordinate,[orientation[0],orientation[1]])
