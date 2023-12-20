@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+
+import math
+import os.path
+absPath = str(os.path.realpath(__file__)[:len(str(os.path.realpath(__file__)))-len("main.py")])
+
+absPath = 
+fileName = "coord_3.dat"
+type = "coord"
+opt2 = "True"
+
+comments = {
+    3: [
+        "#if TotalTime (";tt") is used then the line (or atleast the value) has to end with \";\"",
+        "#movement command syntax/structure: #{x}:{y}:{z};{alpha}:{beta}:{gamma};tt{TotalTime};"
+    ]
+}
+
+with open(fileName
+
+for i in range(150):
+    s=f"{-i}:150:150;0:"
