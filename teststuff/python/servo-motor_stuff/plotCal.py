@@ -26,10 +26,9 @@ import math
 import sys
 import os
 import os.path
-absPath = str(os.path.realpath(__file__)[:len(str(os.path.realpath(__file__)))-len("plotCal")])
+absPath = str(os.path.realpath(__file__)[:len(str(os.path.realpath(__file__)))-len("plotCal.py")])
 sys.path.append(absPath[:len(absPath)-len("teststuff/python/servo-motor-stuff/")]+"projects/")
-sys.path.append("/home/berkhme/github_repo/Chromebook-projects/projects/")
-
+# sys.path.append("/home/berkhme/github_repo/Chromebook-projects/projects/")
 import matplotlib.pyplot as plt
 from datetime import datetime
 

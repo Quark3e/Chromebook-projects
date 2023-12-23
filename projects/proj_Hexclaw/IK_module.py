@@ -3,6 +3,7 @@ import time
 import os
 from math import * #type: ignore
 
+import socket
 
 class nodemcuOrient(object):
     elapsedTime = 0
@@ -11,7 +12,6 @@ class nodemcuOrient(object):
     Roll, Pitch, roll, pitch = 0.1, 0.1, 0.1, 0.1
     tiltFilter = 0.1
     def __init__(self):
-        import socket
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.client_socket.settimeout(0.5)
         self.client_msg = b"fromClient"
@@ -66,6 +66,13 @@ class nodemcuOrient(object):
                 ", end='\r')
         return self.Roll, self.Pitch, self.roll, self.pitch
 
+
+import busio #type: ignore
+from board import SCL, SDA #type: ignore
+from adafruit_motor import servo #type: ignore
+from adafruit_servokit import ServoKit #type: ignore
+from adafruit_pca9785 import PCA9685 #type: ignore
+
 class HC_servoControl(object):
     newRot = [0, 0, 0, 0, 0, 0]
     oldRot = [0, 0, 0, 0, 0, 0]
@@ -81,15 +88,8 @@ class HC_servoControl(object):
 
     def __init__(self):
         global i2c
-        try:
-            import busio #type: ignore
-            from board import SCL, SDA #type: ignore
-            from adafruit_motor import servo #type: ignore
-            from adafruit_servokit import ServoKit #type: ignore
-            from adafruit_pca9785 import PCA9685 #type: ignore
-        except ImportError:
-            print("ERROR: \"classHC_servoControl\": Could not import necessary modules.")
-            return
+        print("ERROR: \"classHC_servoControl\": Could not import necessary modules.")
+
         i2c = busio.I2C(SCL, SDA)
         self.pca = PCA9685(i2c)
         self.pca.frequency = 50
