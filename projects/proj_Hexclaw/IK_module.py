@@ -3,18 +3,96 @@ import time
 import os
 from math import * #type: ignore
 
+import socket
+
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+client_socket.settimeout(0.5)
+
+class nodemcuOrient(object):
+    elapsedTime = 0
+    server_msg = ""
+    axis_g  = [0.1, 0.1, 0.1]
+    Roll, Pitch, roll, pitch = 0.1, 0.1, 0.1, 0.1
+    tiltFilter = 0.1
+    def __init__(self):
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.client_socket.settimeout(0.5)
+        self.client_msg = b"fromClient"
+        self.addr = ("192.168.1.117", 53)
+        self.readAccelerometer()
+    def reqToServer(self):
+        self.startTime = time.time()
+        self.client_socket.sendto(self.client_msg, self.addr)
+        try:
+            tempData, server = self.client_socket.recvfrom(1024)
+            self.endTime = time.time()
+            self.elapsedTime = self.endTime - self.startTime
+            self.server_msg = tempData.decode()
+        except socket.timeout:
+            print("- \"nodemcuOrient\" request timed out.")
+    def readAccelerometer(self, printText=True):
+        self.reqToServer()
+        if len(self.server_msg)>=1 and \
+            (self.server_msg[:1]=="{" and \
+             self.server_msg[-5]=="}" and \
+             self.server_msg[-1]==";"):
+            tempMsg = self.server_msg.replace(":", ",")
+            msgTuple = eval(tempMsg[1:-5])
+            self.axis_g[0], self.axis_g[1], self.axis_g[2] = msgTuple
+            if printText:
+                print(f" accel: \
+                    x:{self.axis_g[0]} \
+                    y:{self.axis_g[1]} \
+                    z:{self.axis_g[2]} \
+                    roll:{self.roll} \
+                    pitch:{self.pitch} \
+                    ", end='\r')
+    
+        for i in range(len(self.axis_g)):
+            if self.axis_g[i] > 1: self.axis_g[i] = 1
+            elif self.axis_g[i] < -1: self.axis_g[i] = -1
+            elif self.axis_g[i] == 0: self.axis_g[i] = 0.01
+
+        #x is roll and y is pitch (it's switched so the servo can be fit to the servo robot arm)
+        self.pitch = atan(self.axis_g[1] / sqrt(self.axis_g[0]**2 + self.axis_g[2]**2)) * 180 / pi
+        self.roll = atan(-1 * self.axis_g[0] / sqrt(self.axis_g[1]**2 + self.axis_g[2]**2)) * 180 / pi
+        #filter
+        self.Roll = (1-self.tiltFilter) * self.Roll + self.tiltFilter * self.roll
+        self.Pitch = (1-self.tiltFilter) * self.Pitch + self.tiltFilter * self.pitch
+        if printText:
+            print(f" accel: \
+                x:{self.axis_g[0]} \
+                y:{self.axis_g[1]} \
+                z:{self.axis_g[2]} \
+                roll:{self.roll} \
+                pitch:{self.pitch} \
+                ", end='\r')
+
+class control_PCA9685(object):
+    def __init__(self):
+        global i2c
+        import busio #type: ignore
+        from board import SCL, SDA #type: ignore
+        from adafruit_motor import servo #type: ignore
+        from adafruit_servokit import ServoKit #type: ignore
+        from adafruit_pca9785 import PCA9685 #type: ignore
+
+        i2c = busio.I2C(SCL, SDA)
+        pca = PCA9685(i2c)
+        pca.frequency = 50
+
+        servo = [
+            servo.Servo(pca.channels[0]),
+            
+            ]
+
+
 d1 = 145; #axial "roll"
 d2 = 130; #axial "pitch"
 d3 = 75; #axial "pitch"
 d4 = 50; #axial "roll"
 d5 = 40; #axial "pitch
 d6 = 25; #axial "roll" (?)
-# d1 = 140; #axial "roll"
-# d2 = 135; #axial "pitch"
-# d3 = 70; #axial "pitch"
-# d4 = 80; #axial "roll"
-# d5 = 35; #axial "pitch
-# d6 = 30; #axial "roll" (?)
 
 link = [d1,d2,d3,d4,d5,d6]
 sLoadWeight = [0, 0.130, 0.085, 0, 0, 0] #kg
