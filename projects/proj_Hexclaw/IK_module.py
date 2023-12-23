@@ -68,7 +68,20 @@ class nodemcuOrient(object):
                 pitch:{self.pitch} \
                 ", end='\r')
 
-class control_PCA9685(object):
+
+class HC_servoControl(object):
+    newRot = [0, 0, 0, 0, 0, 0]
+    oldRot = [0, 0, 0, 0, 0, 0]
+    
+    useDefault = False
+    mode = 0
+    servoExceeded = False
+    whichServoExceeded = [False,False,False,False,False,False]
+    typeOfExceeded = ["null","null","null","null","null","null"]
+    
+    printErrors = True
+    printResult = False
+
     def __init__(self):
         global i2c
         import busio #type: ignore
@@ -78,13 +91,142 @@ class control_PCA9685(object):
         from adafruit_pca9785 import PCA9685 #type: ignore
 
         i2c = busio.I2C(SCL, SDA)
-        pca = PCA9685(i2c)
-        pca.frequency = 50
+        self.pca = PCA9685(i2c)
+        self.pca.frequency = 50
 
-        servo = [
-            servo.Servo(pca.channels[0]),
-            
+        pulseWidthRange = (500, 2500)
+
+        self.servo = [
+            servo.Servo(self.pca.channels[0]),
+            servo.Servo(self.pca.channels[1]),
+            servo.Servo(self.pca.channels[2]),
+            servo.Servo(self.pca.channels[3]),
+            servo.Servo(self.pca.channels[8]),
+            servo.Servo(self.pca.channels[5]),
             ]
+        for i in range(len(self.servo)):
+            self.servo[i].set_pulse_width_range(pulseWidthRange[0],pulseWidthRange[1])
+    def toServo(
+        self,
+        new_rotation,
+        total_time,
+        useDefault = False,
+        mode = 0,
+        servoExceeded=False,
+        whichServoExceeded=[False,False,False,False,False,False],
+        typeOfExceeded=["null","null","null","null","null","null"],
+        printErrors=True,
+        printResult=False
+        ):
+        """Sends angles in list \"new_rotation\" to servo motors evenly spaced out
+
+        ## Parameters:
+            - new_rotation (float/int): [unit: degrees]
+                - dictionary/list variable of new rotation commands in [degrees]
+            - total_time (float/int): [unit: seconds]
+                - Total time spent moving the servo from start to finish in seconds
+            - useDefault (bool):
+                - if True, value defaults are used
+            - mode: what type of functions to use for servo movement
+                - 0: Immediate: no split of movement. The new_rotations are sent directly to servo motors
+                - 1: new_rotation diff is sent linearly, evenly
+                - 2: mp1: motion profile 1: second polynomial
+        """
+        self.newRot = new_rotation
+
+        if useDefault: self.add_defaults(new_rotation, True)
+        
+        self.servoSol()
+        
+        servoExceeded = exceedCheck(
+            new_rotation,
+            servoExceeded,whichServoExceeded,typeOfExceeded,
+            printErrors=printErrors
+            )
+        # print(new_rotation)
+        if printResult: print("sent:",self.newRot)
+        if self.servoExceeded: return
+        total_iteration = 135
+        if mode==0:
+            for x in range(6): 
+                self.servo[x].angle = self.newRot[x]
+                # time.sleep(0.001) #for 6 servo commands it should equal ~10 ms delay
+        elif mode>0:
+            s_diff = []
+            s_temp = []
+            for i in range(6): s_diff.append(self.newRot[i]-self.servo[i].angle)
+            for i in range(6): s_temp.append(self.servo[i].angle)
+            total_iteration = round(findVal(s_diff)[0])+45
+            for count in range(total_iteration-1):
+                for i in range(6):
+                    if mode==1:
+                        val = s_diff[i]/total_iteration
+                        if val<180 and val>0: s_temp[i] += val
+                        else: print(f"q[{i}] exceeded:",val)
+                        self.servo[i].angle = s_temp[i]
+                    elif mode==2:
+                        val = s_temp[i] + s_diff[i]*mp1(count/total_iteration)
+                        if val<180 and val>0: self.servo[i].angle = val
+                        else: print(f"q[{i}] exceeded:",val)
+                if total_time > 0.1: time.sleep(total_time/total_iteration)
+        self.oldRot = [i.angle for i in self.servo]
+    def add_defaults(self, useMutable=False):
+        temp=len(self.newRot)*[0]
+        for i in range(len(self.newRot)):
+            if useMutable: self.newRot[i] = self.angDef[i](self.newRot[i])
+            elif not useMutable:
+                temp[i] = self.angDef[i](self.newRot[i])
+        if useMutable: return temp
+    def servoSol(self):
+        """Apply servo error solutions to each element in self.newRot
+        """
+        for i in range(len(self.newRot)):
+            self.newRot[i] = self.sol[i](self.newRot[i])
+    def exceedCheck(self):
+        """
+        ### Parameters:
+            - q: joints 1-6 in unit: NOTE:degrees
+        ### Returns:
+            - True if any joint command exceeded servo limits
+            - else returns False (or similar to servoExceeded parameter)
+        """
+        # print(q)
+        for i in range(6):
+            if self.newRot[i] < 0:
+                self.newRot[i] = 0
+                self.servoExceeded = True
+                self.whichServoExceeded[i] = True
+                self.typeOfExceeded[i] = "under"
+            elif self.newRot[i] > 180: 
+                self.newRot[i] = 180
+                self.servoExceeded = True
+                self.whichServoExceeded[i] = True
+                self.typeOfExceeded[i] = "over"
+
+        if self.servoExceeded and self.printErrors:
+            for i in range(5):
+                if self.whichServoExceeded[i]:
+                    print(f"\tServo motor: q[{i}] exceeded \"{self.typeOfExceeded[i]}\"")
+        return self.servoExceeded
+    sol = [
+        lambda x: x*constants_q[0]["fixed"],
+        lambda x: x*constants_q[1]["fixed"],
+        lambda x: x*constants_q[2]["fixed"],
+        lambda x: x*constants_q[3]["fixed"],
+        lambda x: x*constants_q[4]["fixed"],
+        lambda x: x*constants_q[5]["fixed"],
+    ]
+    angDef = [
+        lambda x: default_q[0]+x,
+        lambda x: default_q[1]+x,
+        lambda x: 180-default_q[2]-x,
+        lambda x: default_q[3]+x,
+        lambda x: 180-default_q[4]-x,
+        lambda x: default_q[5]+x
+    ]
+    """list of error correction lambda functions for real life servo motor rotation errors
+    """
+
 
 
 d1 = 145; #axial "roll"
@@ -334,6 +476,7 @@ def sendToServo(
     printErrors=True,
     printResult=False
     ):
+    print("  --DEPRECATED: TRY TO NOT USE THIS---")
     """Sends angles in list \"new_rotation\" to servo motors evenly spaced out
 
     ## Parameters:
