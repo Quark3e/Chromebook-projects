@@ -3,10 +3,6 @@ import time
 import os
 from math import * #type: ignore
 
-import socket
-
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-client_socket.settimeout(0.5)
 
 class nodemcuOrient(object):
     elapsedTime = 0
@@ -15,6 +11,7 @@ class nodemcuOrient(object):
     Roll, Pitch, roll, pitch = 0.1, 0.1, 0.1, 0.1
     tiltFilter = 0.1
     def __init__(self):
+        import socket
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.client_socket.settimeout(0.5)
         self.client_msg = b"fromClient"
