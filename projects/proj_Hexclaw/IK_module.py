@@ -71,7 +71,7 @@ import busio #type: ignore
 from board import SCL, SDA #type: ignore
 from adafruit_motor import servo #type: ignore
 from adafruit_servokit import ServoKit #type: ignore
-from adafruit_pca9785 import PCA9685 #type: ignore
+from adafruit_pca9685 import PCA9685 #type: ignore
 
 class HC_servoControl(object):
     newRot = [0, 0, 0, 0, 0, 0]
