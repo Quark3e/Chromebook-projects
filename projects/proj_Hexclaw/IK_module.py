@@ -44,6 +44,8 @@ class nodemcuOrient(object):
                     roll:{self.roll} \
                     pitch:{self.pitch} \
                     ", end='\r')
+        else:
+            if printText: print("server_msg length is 0 or smaller")
     
         for i in range(len(self.axis_g)):
             if self.axis_g[i] > 1: self.axis_g[i] = 1
