@@ -11,11 +11,11 @@ class nodemcuOrient(object):
     axis_g  = [0.1, 0.1, 0.1]
     Roll, Pitch, roll, pitch = 0.1, 0.1, 0.1, 0.1
     tiltFilter = 0.1
+    addr = ("192.168.1.117", 53)
     def __init__(self):
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.client_socket.settimeout(0.5)
         self.client_msg = b"fromClient"
-        self.addr = ("192.168.1.117", 53)
         self.readAccelerometer()
     def reqToServer(self):
         self.startTime = time.time()
