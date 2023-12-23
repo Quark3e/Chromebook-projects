@@ -84,12 +84,15 @@ class HC_servoControl(object):
 
     def __init__(self):
         global i2c
-        import busio #type: ignore
-        from board import SCL, SDA #type: ignore
-        from adafruit_motor import servo #type: ignore
-        from adafruit_servokit import ServoKit #type: ignore
-        from adafruit_pca9785 import PCA9685 #type: ignore
-
+        try:
+            import busio #type: ignore
+            from board import SCL, SDA #type: ignore
+            from adafruit_motor import servo #type: ignore
+            from adafruit_servokit import ServoKit #type: ignore
+            from adafruit_pca9785 import PCA9685 #type: ignore
+        except ImportError:
+            print("ERROR: \"classHC_servoControl\": Could not import necessary modules.")
+            return
         i2c = busio.I2C(SCL, SDA)
         self.pca = PCA9685(i2c)
         self.pca.frequency = 50
@@ -168,6 +171,13 @@ class HC_servoControl(object):
                 if total_time > 0.1: time.sleep(total_time/total_iteration)
         self.oldRot = [i.angle for i in self.servo]
     def add_defaults(self, useMutable=False):
+        """Adds default/offset values for servo motors
+        
+        ### Parameters:
+            - useMutable [bool]:
+                - True: re-defines class variable "self.newRot"
+                - False: stores new values in a new list that is returned
+        """
         temp=len(self.newRot)*[0]
         for i in range(len(self.newRot)):
             if useMutable: self.newRot[i] = self.angDef[i](self.newRot[i])
@@ -180,10 +190,10 @@ class HC_servoControl(object):
         for i in range(len(self.newRot)):
             self.newRot[i] = self.sol[i](self.newRot[i])
     def exceedCheck(self):
-        """
+        """Check if any of the rotation commands exceeds servo motors limitations [0:180]
         ### Parameters:
             - q: joints 1-6 in unit: NOTE:degrees
-        ### Returns:
+        ### Return:
             - True if any joint command exceeded servo limits
             - else returns False (or similar to servoExceeded parameter)
         """
@@ -221,7 +231,7 @@ class HC_servoControl(object):
         lambda x: 180-default_q[4]-x,
         lambda x: default_q[5]+x
     ]
-    """list of error correction lambda functions for real life servo motor rotation errors
+    """List of error correction lambda functions for real life servo motor rotation errors
     """
 
 
