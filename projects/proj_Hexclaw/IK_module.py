@@ -137,14 +137,10 @@ class HC_servoControl(object):
         if useDefault: self.add_defaults(new_rotation, True)
         
         self.servoSol()
-        
-        servoExceeded = exceedCheck(
-            new_rotation,
-            servoExceeded,whichServoExceeded,typeOfExceeded,
-            printErrors=printErrors
-            )
+        self.exceedCheck()
         # print(new_rotation)
-        if printResult: print("sent:",self.newRot)
+
+        if self.printResult: print("sent:",self.newRot)
         if self.servoExceeded: return
         total_iteration = 135
         if mode==0:
