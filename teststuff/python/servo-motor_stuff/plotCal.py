@@ -11,10 +11,22 @@ servoToTest = [1, 2] #servo[] index's of the ones to test
 testedServos = [] #index of servos that were actually tested
 plotTitle = None
 
+ifAuto = True
+
+inp = input("enter whether to read angles automatically(nodemcu) or manually input [y/n]: ")
+if inp == "exit": exit()
+elif inp=="y": ifAuto = True
+elif inp=="n": ifAuto = False
+
 inpVar = input("enter servo indexes to test: ").split()
+if inpVar[0] == "exit": exit()
 servoToTest = [int(n) for n in inpVar]
+
 plotTitle = input("enter plot-title/filename [no space]: ")
+if plotTitle == "exit": exit()
+
 useCorr = input("use q_corrections [y/n]?: ")
+if useCorr == "exit": exit()
 
 if useCorr=="y": useCorr = True
 elif useCorr=="n": useCorr = False
@@ -47,13 +59,6 @@ correctionFile = open("corrections.dat", "a")
 
 sDefault = [90,55,180-0,90,180-80,90]
 
-#servo[0].angle = sDefault[0]
-#servo[1].angle = sDefault[1]
-#servo[2].angle = sDefault[2]
-#servo[3].angle = sDefault[3]
-#servo[4].angle = sDefault[4]
-#servo[5].angle = sDefault[5]
-#time.sleep(1)
 
 print(f"testing servos: {servoToTest}")
 
@@ -68,19 +73,19 @@ if runInitia:
     try:
         time.sleep(0.5)
         for n in range(6):
-            servo[n].angle = optAngles[n]
+            sCntrl.servo[n].angle = optAngles[n]
         time.sleep(1)
         for s in servoToTest:
             print(f"- q:[{s}]")
             for a in range(181):
-                servo[s].angle = a
+                sCntrl.servo[s].angle = a
                 time.sleep(0.02)
             time.sleep(1)
             for a in range(180, -1, -1):
-                servo[s].angle = a
+                sCntrl.servo[s].angle = a
                 time.sleep(0.02)
             time.sleep(2)
-            servo[s].angle = optAngles[s]
+            sCntrl.servo[s].angle = optAngles[s]
     except KeyboardInterrupt:
         inp = input("paused. Want to exit [y/n]?:")
         if inp=="y" or inp=="exit":
@@ -121,23 +126,33 @@ def main():
     configure_plots()
     for q in servoToTest:
         print(f"Testing servo q[{q}]")
-        for l in range(6):
-            if l<q: tempUseCorr = True
-            else: tempUseCorr = False
-            servo[l].angle = servoSol(l, sPrep[q][l], tempUseCorr)
+        tempRot=sPrep[q].copy()
+        sCntrl.servoSol([i for i in range(6) if i<q], tempRot)
+        sCntrl.toServo(tempRot, 0, useCorr=False)
         # os.system('clear')
-        inp = input(" calibrate degreeDisk (fixate disk 0 with current servo position)\n press options:\n-space and enter to continue\n-\"end\" to ignore rest and plot\n-\"exit\" to exit script\ninput: ")
+        inp = input(" \
+                    calibrate degreeDisk (fixate disk 0 with current servo position)\n \
+                    press options:\n-\
+                    space and enter to continue\n \
+                    -\"end\" to ignore rest and plot\n \
+                    -\"exit\" to exit script\n \
+                    input: ")
         if inp=="exit":
             return
         elif inp=="end":
             break
         print()
         for x in range(0,19,1):
-            servo[q].angle = servoSol(q, x*10, useCorr)
-            print(" sent angle:", useCorr, ": ",servoSol(q, x*10, useCorr), end='', sep='')
-            readAccelerometer()
+            sCntrl.servo[q].angle = x*10
             time.sleep(1)
-            inpOpt = pitch
+            if ifAuto:
+                wifiOrient.readAccelerometer()
+                inpOpt = wifiOrient.pitch
+            else:
+                inpOpt = input("enter angle: ")
+                if inpOpt == "exit": return
+                inpOpt = int(inpOpt)
+            print(f" - sent:{x} read:{round(inpOpt)}")
             if x<=8: y_q[q][x] = round(inpOpt)
             elif x>8: y_q[q][x] = 180-round(inpOpt)
             x_q[q][x] = x*10

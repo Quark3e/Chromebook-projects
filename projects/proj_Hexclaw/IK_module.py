@@ -106,6 +106,9 @@ class HC_servoControl(object):
             ]
         for i in range(len(self.servo)):
             self.servo[i].set_pulse_width_range(pulseWidthRange[0],pulseWidthRange[1])
+    def oneServo(self, idx, angle):
+        self.oldRot[idx] = angle
+        self.servo[idx].angle = angle
     def toServo(
         self,
         new_rotation,
@@ -113,7 +116,8 @@ class HC_servoControl(object):
         useDefault = False,
         mode = 0,
         printErrors=True,
-        printResult=False
+        printResult=False,
+        useCorr=True,
         ):
         """Sends angles in list \"new_rotation\" to servo motors evenly spaced out
 
@@ -136,8 +140,7 @@ class HC_servoControl(object):
         self.printResult = printResult
 
         if self.useDefault: self.add_defaults(new_rotation, True)
-        
-        self.servoSol()
+        if useCorr: self.servoSol()
         self.exceedCheck()
         # print(new_rotation)
 
@@ -181,11 +184,20 @@ class HC_servoControl(object):
             elif not useMutable:
                 temp[i] = self.angDef[i](self.newRot[i])
         if useMutable: return temp
-    def servoSol(self):
+    def servoSol(self, solveIdx=[-1], solveIdx_lst=[]):
         """Apply servo error solutions to each element in self.newRot
+
+        ### Parameters
+            - solveIdx [int]:
+                - >-1: only apply servo correction/solution to NOT given indexes in solveIdx
+                - ==-1: apply correction to all of newRot local variable
         """
-        for i in range(len(self.newRot)):
-            self.newRot[i] = self.sol[i](self.newRot[i])
+        for i in range(6):
+            if -1 in solveIdx:
+                self.newRot[i] = self.sol[i](self.newRot[i])
+            else:
+                if i in solveIdx: continue
+                else: solveIdx_lst[i] = self.sol[i](solveIdx_lst[i])
     def exceedCheck(self):
         """Check if any of the rotation commands exceeds servo motors limitations [0:180]
         ### Parameters:
