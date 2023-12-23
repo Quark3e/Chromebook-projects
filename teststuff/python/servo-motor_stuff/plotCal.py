@@ -24,6 +24,8 @@ import numpy as np
 import time
 import math
 import os
+import os.path
+absPath = 
 import matplotlib.pyplot as plt
 from datetime import datetime
 import adafruit_adxl34x #type: ignore
@@ -72,11 +74,11 @@ servo = [servo.Servo(pca.channels[0]),
          servo.Servo(pca.channels[1]),
          servo.Servo(pca.channels[2]),
          servo.Servo(pca.channels[3]),
-         servo.Servo(pca.channels[4]),
+         servo.Servo(pca.channels[8]), #7
          servo.Servo(pca.channels[5])]
 for i in range(6): servo[i].set_pulse_width_range(500, 2500)
 
-correctionFile = open("servoCorrections.dat", "a")
+correctionFile = open("corrections.dat", "a")
 
 sDefault = [90,55,180-0,90,180-80,90]
 
