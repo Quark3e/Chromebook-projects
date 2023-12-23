@@ -67,7 +67,7 @@ class nodemcuOrient(object):
                 roll:{self.roll} \
                 pitch:{self.pitch} \
                 ", end='\r')
-
+        return self.Roll, self.Pitch, self.roll, self.pitch
 
 class HC_servoControl(object):
     newRot = [0, 0, 0, 0, 0, 0]
@@ -112,9 +112,6 @@ class HC_servoControl(object):
         total_time,
         useDefault = False,
         mode = 0,
-        servoExceeded=False,
-        whichServoExceeded=[False,False,False,False,False,False],
-        typeOfExceeded=["null","null","null","null","null","null"],
         printErrors=True,
         printResult=False
         ):
@@ -132,9 +129,13 @@ class HC_servoControl(object):
                 - 1: new_rotation diff is sent linearly, evenly
                 - 2: mp1: motion profile 1: second polynomial
         """
+        self.mode = mode
         self.newRot = new_rotation
+        self.useDefault = useDefault
+        self.printErrors = printErrors
+        self.printResult = printResult
 
-        if useDefault: self.add_defaults(new_rotation, True)
+        if self.useDefault: self.add_defaults(new_rotation, True)
         
         self.servoSol()
         self.exceedCheck()
@@ -143,11 +144,11 @@ class HC_servoControl(object):
         if self.printResult: print("sent:",self.newRot)
         if self.servoExceeded: return
         total_iteration = 135
-        if mode==0:
+        if self.mode==0:
             for x in range(6): 
                 self.servo[x].angle = self.newRot[x]
                 # time.sleep(0.001) #for 6 servo commands it should equal ~10 ms delay
-        elif mode>0:
+        elif self.mode>0:
             s_diff = []
             s_temp = []
             for i in range(6): s_diff.append(self.newRot[i]-self.servo[i].angle)
@@ -155,12 +156,12 @@ class HC_servoControl(object):
             total_iteration = round(findVal(s_diff)[0])+45
             for count in range(total_iteration-1):
                 for i in range(6):
-                    if mode==1:
+                    if self.mode==1:
                         val = s_diff[i]/total_iteration
                         if val<180 and val>0: s_temp[i] += val
                         else: print(f"q[{i}] exceeded:",val)
                         self.servo[i].angle = s_temp[i]
-                    elif mode==2:
+                    elif self.mode==2:
                         val = s_temp[i] + s_diff[i]*mp1(count/total_iteration)
                         if val<180 and val>0: self.servo[i].angle = val
                         else: print(f"q[{i}] exceeded:",val)
