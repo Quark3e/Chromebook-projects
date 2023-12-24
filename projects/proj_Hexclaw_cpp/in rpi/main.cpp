@@ -356,7 +356,7 @@ void nodemcu_udp_setup() {
 		exit(1);
 	}
 	addrDest = {};
-	bind_result = resolvehelper("192.168.1.117", AF_INET, PORT, &addrDest);
+	bind_result = resolvehelper("192.168.1.118", AF_INET, PORT, &addrDest);
 	if(bind_result!=0) {
 		int lasterror = errno;
 		cout << "resolvehelper error:" << lasterror;
