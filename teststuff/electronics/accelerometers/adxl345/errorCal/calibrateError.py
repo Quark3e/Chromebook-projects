@@ -43,8 +43,16 @@ def main():
         reading = takeReading(wifiOrient)[val[0]]
         offsets[key][1] = reading-val[2]
     print("finished:", 39*"-")
+    grouped = {}
     for key,val in offsets.items():
-        print()
+        if key[1]=="+": grouped.update({key[0]: [round(val[1], 2), None, None]})
+        else:
+            grouped[key[0]][1] = round(val[1], 2)
+            grouped[key[0]][2] = round((grouped[key[0]][0]+val[1])/2, 4)
+    
+    print(f"Readings:")
+    for key,val in grouped.items():
+        print(f"\t{key:<2}| {val[0]:<4}")
 
 if __name__=="__main__":
     main()
