@@ -49,7 +49,7 @@ def csv_loadData():
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client_socket.settimeout(0.5)
 client_msg = b"fromClient"
-addr = ("192.168.1.117", 53)
+addr = ("192.168.1.118", 53)
 server_msg = ""
 def reqToServer():
     global server_msg, elapsedTime
