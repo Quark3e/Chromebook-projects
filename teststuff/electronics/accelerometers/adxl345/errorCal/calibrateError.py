@@ -33,11 +33,11 @@ def takeReading(wifiOrient):
             readVal = wifiOrient.axis_gRaw.copy()
     except KeyboardInterrupt:
         print(f"\n captured:", readVal)
-        time.sleep(1)
+        time.sleep(0.2)
     return readVal
 def main():
     wifiOrient = IK.nodemcuOrient(emptyTest="pi" not in absPath)
-    
+    wifiOrient.client_socket.settimeout(1)
     print("\nStarting calibration testing:",10*"-")
     for key,val in offsets.items():
         print(20*"-")
@@ -53,7 +53,7 @@ def main():
             grouped[key[0]][1] = round(val[1], 2)
             grouped[key[0]][2] = round((grouped[key[0]][0]+val[1])/2, 4)
     print(f"\nReadings:{31*'-'}")
-    print(f"  axis| ax.+| ax.-| average")
+    print(f"      axis| ax.+| ax.-| average")
     for key,val in grouped.items():
         print(f"\t{key:<2}| {val[0]:<4}| {val[1]:<4}| {val[2]:<6}") #4+2+2+4+2+4+2+6=36
     print("")
