@@ -53,9 +53,9 @@ def main():
             grouped[key[0]][1] = round(val[1], 2)
             grouped[key[0]][2] = round((grouped[key[0]][0]+val[1])/2, 4)
     print(f"\nReadings:{31*'-'}")
-    print(f"      axis| ax.+| ax.-| average")
+    print(f"      axis|  ax.+|  ax.-|  average")
     for key,val in grouped.items():
-        print(f"\t{key:<2}| {val[0]:<4}| {val[1]:<4}| {val[2]:<6}") #4+2+2+4+2+4+2+6=36
+        print(f"\t{key:<2}| {val[0]:<5}| {val[1]:<5}| {val[2]:<7}") #4+2+2+4+2+4+2+6=36
     print("")
 
 if __name__=="__main__":
