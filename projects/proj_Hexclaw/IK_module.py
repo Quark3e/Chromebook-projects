@@ -41,7 +41,6 @@ class nodemcuOrient(object):
     emptyTest = False
     def __init__(self, emptyTest=False):
         self.emptyTest = emptyTest
-        print(self.emptyTest)
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.client_socket.settimeout(0.5)
         self.client_msg = b"fromClient"
