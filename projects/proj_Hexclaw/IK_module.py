@@ -73,7 +73,7 @@ class nodemcuOrient(object):
         else:
             if printText: print("server_msg length is 0 or smaller")
     
-        self.axis_gRaw = self.axis_g
+        self.axis_gRaw = self.axis_g.copy()
         for i in range(len(self.axis_g)):
             if self.axis_g[i] > 1: self.axis_g[i] = 1
             elif self.axis_g[i] < -1: self.axis_g[i] = -1
