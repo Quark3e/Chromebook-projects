@@ -5,6 +5,8 @@ from math import * #type: ignore
 
 import socket
 
+module_absPath = str(os.path.realpath(__file__)[:len(str(os.path.realpath(__file__)))-len("IK_module.py")])
+
 class nodemcuOrient(object):
     elapsedTime = 0
     server_msg = ""
@@ -36,7 +38,10 @@ class nodemcuOrient(object):
     tiltFilter = [0.1, 0.1]
     """Filter coefficient for changing tilt [Roll, Pitch]"""
     addr = ("192.168.1.118", 53)
-    def __init__(self):
+    emptyTest = False
+    def __init__(self, emptyTest=False):
+        self.emptyTest = emptyTest
+        print(self.emptyTest)
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.client_socket.settimeout(0.5)
         self.client_msg = b"fromClient"
@@ -52,7 +57,10 @@ class nodemcuOrient(object):
         except socket.timeout:
             print("- \"nodemcuOrient\" request timed out.")
     def readAccelerometer(self, printText=True):
-        self.reqToServer()
+        if self.emptyTest:
+            from random import randrange
+            self.server_msg = "{"+f"{randrange(-10,11)/10}:{randrange(-10,10)/10}:{randrange(-10,10)/10}"+"}off;"
+        else: self.reqToServer()
         if len(self.server_msg)>=1 and \
             (self.server_msg[:1]=="{" and \
              self.server_msg[-5]=="}" and \
@@ -62,13 +70,7 @@ class nodemcuOrient(object):
             self.axis_g[0], self.axis_g[1], self.axis_g[2] = msgTuple
             self.axis_g = [self.axis_g[i]-self.axis_Err[i] for i in range(len(self.axis_g))]
             if printText:
-                print(f" accel: \
-                    x:{self.axis_g[0]} \
-                    y:{self.axis_g[1]} \
-                    z:{self.axis_g[2]} \
-                    roll:{self.roll} \
-                    pitch:{self.pitch} \
-                    ", end='\r')
+                print(f" accel: x:{round(self.axis_g[0],1):>4} y:{round(self.axis_g[1],1):>4} z:{round(self.axis_g[2],1):>4} roll:{round(self.roll,3):>7} pitch:{round(self.pitch,3):>7}", end='\r')
         else:
             if printText: print("server_msg length is 0 or smaller")
     
@@ -79,7 +81,7 @@ class nodemcuOrient(object):
             elif self.axis_g[i] == 0: self.axis_g[i] = 0.01
         self.axis_gModified = [
             self.axis_g[i]*self.axis_gFilter[i] +
-            self.axis_gModified[i]*(1-self.axis_gFilter) 
+            self.axis_gModified[i]*(1-self.axis_gFilter[i]) 
             for i in range(len(self.axis_gModified))
         ]
 
@@ -89,22 +91,22 @@ class nodemcuOrient(object):
         #filter
         self.Roll = (1-self.tiltFilter[0]) * self.Roll + self.tiltFilter[0] * self.roll
         self.Pitch = (1-self.tiltFilter[1]) * self.Pitch + self.tiltFilter[1] * self.pitch
-        if printText:
-            print(f" accel: \
-                x:{self.axis_g[0]} \
-                y:{self.axis_g[1]} \
-                z:{self.axis_g[2]} \
-                roll:{self.roll} \
-                pitch:{self.pitch} \
-                ", end='\r')
+        # if printText:
+        #     print(f" accel: \
+        #         x:{self.axis_g[0]} \
+        #         y:{self.axis_g[1]} \
+        #         z:{self.axis_g[2]} \
+        #         roll:{self.roll} \
+        #         pitch:{self.pitch} \
+        #         ", end='\r')
         return self.Roll, self.Pitch, self.roll, self.pitch
 
-
-import busio #type: ignore
-from board import SCL, SDA #type: ignore
-from adafruit_motor import servo #type: ignore
-from adafruit_servokit import ServoKit #type: ignore
-from adafruit_pca9685 import PCA9685 #type: ignore
+if "pi" in module_absPath:
+    import busio #type: ignore
+    from board import SCL, SDA #type: ignore
+    from adafruit_motor import servo #type: ignore
+    from adafruit_servokit import ServoKit #type: ignore
+    from adafruit_pca9685 import PCA9685 #type: ignore
 
 class HC_servoControl(object):
     newRot = [0, 0, 0, 0, 0, 0]
