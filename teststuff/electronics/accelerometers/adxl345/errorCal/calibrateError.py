@@ -36,7 +36,7 @@ def takeReading(wifiOrient):
         time.sleep(1)
     return readVal
 def main():
-    wifiOrient = IK.nodemcuOrient(emptyTest="home" in absPath)
+    wifiOrient = IK.nodemcuOrient(emptyTest="pi" not in absPath)
     
     print("\nStarting calibration testing:",10*"-")
     for key,val in offsets.items():
