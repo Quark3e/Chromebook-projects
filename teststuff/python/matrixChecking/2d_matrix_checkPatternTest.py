@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 
 import os
+import os.path
 import time
 import math
-import IK_module as IK
+
+import sys
+absPath = str(os.path.realpath(__file__)[:os.path.realpath(__file__)-len("2d_matrix_checkPatternTest.py")])
+sys.path.append(absPath[:absPath.find("teststuff")]+"projects/proj_Hexclaw/in rpi/")
+import IK_module as IK #type: ignore
 
 fullRange = [18, 18]
 centerPos = [4, 4]
