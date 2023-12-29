@@ -19,7 +19,7 @@ class camTriangle(object):
     """[x2 - x1, y2 -y1]"""
     l_hypotenuse = None
 
-    ang_offset = [90, 90]
+    ang_offset = [90, 200]
     """Ang of which the cam is rotated from its axis. [relative]"""
     ang_d = [None, None]
 
@@ -34,19 +34,23 @@ class camTriangle(object):
 
     solved_pos = [-1, -1, -1]
 
-    def __init__(self, camPos):
+    def __init__(self, camPos, camAngOffset):
         """Initialization of class
 
         Args:
             camPos (float) [[x,y], [x,y]]: list of relative position of both cameras
         """
         self.camPos = camPos
+        self.ang_offset = camAngOffset
         self.l_delta = [camPos[1][0]-camPos[0][0], camPos[1][1]-camPos[0][1]]
         self.l_hypotenuse = math.sqrt(self.l_delta[0]**2+self.l_delta[1]**2)
-        self.ang_d = [
-            toDegrees(math.atan(self.l_delta[1]/self.l_delta[0])),
-            toDegrees(math.atan(self.l_delta[0]/self.l_delta[1]))
-        ]
+        if self.l_delta[1]==0:
+            self.ang_d = [toDegrees(math.atan(self.l_delta[1]/self.l_delta[0])), 90]
+        else:
+            self.ang_d = [
+                toDegrees(math.atan(self.l_delta[1]/self.l_delta[0])),
+                toDegrees(math.atan(self.l_delta[0]/self.l_delta[1]))
+            ]
         self.setCamCoef()
     def setCamCoef(self):
         self.camCoef[0][0] = self.camFOV[0][0]/self.camRes[0][0]
@@ -56,7 +60,8 @@ class camTriangle(object):
     def solveAngL(self):
         self.ang_tri = [
             self.ang_offset[0]-self.ang_d[0]-self.ang_read[0],
-            self.ang_offset[1]-self.ang_d[1]-self.ang_read[1]
+            270-self.ang_d[1]-(self.ang_offset[1]-self.ang_read[1])
+            # self.ang_offset[1]-self.ang_d[1]-self.ang_read[1]
         ]
         self.ang_p = 180 - abs(self.ang_tri[0]) - abs(self.ang_tri[1])
     def solvePos(self, rawPos, useAng=False):
@@ -69,6 +74,7 @@ class camTriangle(object):
             self.read_pix[0][0]*self.camCoef[0][0],
             self.read_pix[1][0]*self.camCoef[1][0]
         ]
+        # print([round(i) for i in rawPos])
         self.solveAngL()
         self.l_tri = [
             (self.l_hypotenuse*math.sin(toRadians(self.ang_tri[1])))/math.sin(toRadians(self.ang_p)),
@@ -95,12 +101,15 @@ if __name__=="__main__":
 
 
 class AnimatedPlot(object):
-    camPos = [[0, 0, 0], [30, 20, 0]]
-    basePos = [10, 25, 0]
+    camPos = [[0, 0, 0], [10, 0, 0]]
+    camAng_offset = [80, 100] #degrees
+    streamAngle = 0 #degree
+    radius = 5
+    basePos = [5, 11, 0]
     testPos = [15, 15, 0]
     solvedPos = [0, 0, 0]
     def __init__(self):
-        self.tri = camTriangle(self.camPos)
+        self.tri = camTriangle(self.camPos, self.camAng_offset)
         self.tri.solvePos(self.testPos[:2])
 
         self.graphRange = {
@@ -110,7 +119,7 @@ class AnimatedPlot(object):
                     max([self.camPos[0][0], self.camPos[1][0]])+15
                 ],
                 [
-                    min([self.camPos[0][1], self.camPos[1][1]])-10,
+                    min([self.camPos[0][1], self.camPos[1][1]])-1,
                     max([self.camPos[0][1], self.camPos[1][1]])+25,
                 ]
             ]
@@ -155,8 +164,6 @@ class AnimatedPlot(object):
             init_func=self.setup_plot, blit=False \
         )
     def data_stream(self):
-        self.streamAngle = 0 #degree
-        self.radius = 10
         i=0
         self.testPos = [
             math.sin(toRadians(i))*self.radius+self.basePos[0],
@@ -173,9 +180,16 @@ class AnimatedPlot(object):
                     math.cos(toRadians(i))*self.radius+self.basePos[1],
                     self.basePos[2]
                 ]
+                toSolveAng = 2*[0]
+                
+                toSolveAng[0] = toDegrees(math.atan((self.testPos[0]-self.camPos[0][0])/(self.testPos[1]-self.camPos[0][1])))-90+self.tri.ang_offset[0]
+                xDiff = self.testPos[0]-self.camPos[1][0]
+                if xDiff<0:      toSolveAng[1] =        toDegrees(-1*math.atan((self.testPos[1]-self.camPos[1][1])/(self.testPos[0]-self.camPos[1][0])))-180+self.tri.ang_offset[1]
+                elif xDiff>0:    toSolveAng[1] =    180+toDegrees(-1*math.atan((self.testPos[1]-self.camPos[1][1])/(self.testPos[0]-self.camPos[1][0])))-180+self.tri.ang_offset[1]
+                elif xDiff==0:   toSolveAng[1] =    0
                 self.tri.solvePos([
-                    toDegrees(math.atan(self.testPos[0]/self.testPos[1]))/self.tri.camCoef[0][0],
-                    toDegrees(math.atan((self.testPos[1]-self.camPos[1][1])/(self.testPos[0]-self.camPos[1][0])))/self.tri.camCoef[1][0]
+                    toSolveAng[0]/self.tri.camCoef[0][0],
+                    toSolveAng[1]/self.tri.camCoef[1][0]
                 ])
                 self.solvedPos = self.tri.solved_pos
                 yield i
@@ -188,8 +202,8 @@ class AnimatedPlot(object):
             linestyle="dashed", color="gray", label="cam0 centerAlign"
         )
         self.ax["frame"].plot(
-            [self.tri.camPos[1][0], self.tri.camPos[1][0]+math.cos(toRadians(90+self.tri.ang_offset[1]))*10],
-            [self.tri.camPos[1][1], self.tri.camPos[1][1]+math.sin(toRadians(90+self.tri.ang_offset[1]))*10],
+            [self.tri.camPos[1][0], self.tri.camPos[1][0]+math.cos(toRadians(self.tri.ang_offset[1]))*10],
+            [self.tri.camPos[1][1], self.tri.camPos[1][1]+math.sin(toRadians(self.tri.ang_offset[1]))*10],
             linestyle="dashed", color="gray", label="cam1 centerAlign"
         )
 
@@ -197,8 +211,8 @@ class AnimatedPlot(object):
             self.ax["frame"].text(self.tri.camPos[0][0]+math.cos(toRadians(self.tri.ang_offset[0]))*10,
                                   self.tri.camPos[0][1]+math.sin(toRadians(self.tri.ang_offset[0]))*10,
                                   f"{round(self.tri.ang_tri[0],2)}"),
-            self.ax["frame"].text(self.tri.camPos[1][0]+math.cos(toRadians(90+self.tri.ang_offset[1]))*10,
-                                  self.tri.camPos[1][1]+math.sin(toRadians(90+self.tri.ang_offset[1]))*10,
+            self.ax["frame"].text(self.tri.camPos[1][0]+math.cos(toRadians(self.tri.ang_offset[1]))*10,
+                                  self.tri.camPos[1][1]+math.sin(toRadians(self.tri.ang_offset[1]))*10,
                                   f"{round(self.tri.ang_tri[1],2)}")
         ]
 
@@ -251,7 +265,7 @@ class AnimatedPlot(object):
         ]
 
 
-        self.ax["frame"].legend()
+        self.ax["frame"].legend(bbox_to_anchor=(1.1, 1.05))
 
         retur=[]
         for key,val in self.ps_stuff.items():
@@ -259,11 +273,11 @@ class AnimatedPlot(object):
         return retur
     def ps_updateText(self):
         self.ps_stuff["camRelativeAngText"][0].set_text(f"{round(self.tri.ang_read[0],2)}")
-        self.ps_stuff["camRelativeAngText"][1].set_text(f"{round(-self.tri.ang_read[1],2)}")
-        self.ps_stuff["PpText"][0].set_text(f"give.[{round(self.solvedPos[0],1)},{round(self.solvedPos[1],1)}]")
+        self.ps_stuff["camRelativeAngText"][1].set_text(f"{round(self.tri.ang_read[1],2)}")
+        self.ps_stuff["PpText"][0].set_text(f"solv..[{round(self.solvedPos[0],1)},{round(self.solvedPos[1],1)}]")
         self.ps_stuff["PpText"][0].set_x(self.solvedPos[0])
         self.ps_stuff["PpText"][0].set_y(self.solvedPos[1]+2)
-        self.ps_stuff["PpText"][1].set_text(f"solv.[{round(self.testPos[0],1)},{round(self.testPos[1],1)}]")
+        self.ps_stuff["PpText"][1].set_text(f"give.[{round(self.testPos[0],1)},{round(self.testPos[1],1)}]")
         self.ps_stuff["PpText"][1].set_x(self.testPos[0])
         self.ps_stuff["PpText"][1].set_y(self.testPos[1]-2)
         self.ps_stuff["triCornerAngleText"][0].set_text(f"{round(self.tri.ang_tri[0],2)}")
