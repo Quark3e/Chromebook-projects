@@ -61,8 +61,8 @@ class camTriangle(object):
         self.ang_p = 180 - self.ang_tri[0] - self.ang_tri[1]
     def solvePos(self, rawPos):
         self.read_pix = [
-            [rawPos[0][0]-self.camPos[0][0]*0.5, self.camPos[0][1]*0.5-rawPos[0][1]],
-            [rawPos[1][0]-self.camPos[1][0]*0.5, self.camPos[1][1]*0.5-rawPos[1][1]]
+            [rawPos[0]-self.camPos[0][0]*0.5, self.camPos[0][1]*0.5-rawPos[0]],
+            [rawPos[1]-self.camPos[1][0]*0.5, self.camPos[1][1]*0.5-rawPos[1]]
         ]
         self.ang_read = [self.read_pix[0][0]*self.camCoef[0][0], self.read_pix[1][0]*self.camCoef[1][0]]
         self.solveAngL()
@@ -93,7 +93,7 @@ class AnimatedPlot(object):
         self.tri = camTriangle(self.camPos)
         self.tri.solvePos(self.testPos[:2])
 
-        self.graphRnage = {
+        self.graphRange = {
             "frame": [
                 [
                     min([self.camPos[0][0], self.camPos[1][0]])-10,
@@ -101,7 +101,7 @@ class AnimatedPlot(object):
                 ],
                 [
                     min([self.camPos[0][1], self.camPos[1][1]])-10,
-                    max([self.camPos[0][1], self.camPos[1][1]])+10,
+                    max([self.camPos[0][1], self.camPos[1][1]])+20,
                 ]
             ]
         }
@@ -138,7 +138,7 @@ class AnimatedPlot(object):
 
         self.ani = animation.FuncAnimation( \
             self.fig, self.update, interval=2, \
-            init_func=self.setup_plot, blit=True \
+            init_func=self.setup_plot, blit=False \
         )
     def data_stream(self):
         self.streamAngle = 0 #degree
@@ -149,7 +149,7 @@ class AnimatedPlot(object):
             math.cos(toRadians(i))*self.radius+self.basePos[1],
             self.basePos[2]
         ]
-        self.tri.solved_pos(self.testPos)
+        self.tri.solvePos(self.testPos)
         self.solvedPos = self.tri.solved_pos
         while True:
             for i in range(360):
@@ -159,7 +159,7 @@ class AnimatedPlot(object):
                     math.cos(toRadians(i))*self.radius+self.basePos[1],
                     self.basePos[2]
                 ]
-                self.tri.solved_pos(self.testPos)
+                self.tri.solvePos(self.testPos)
                 yield i
     def setup_plot(self):
         next(self.stream)
@@ -191,14 +191,15 @@ class AnimatedPlot(object):
                                   self.solvedPos[1],
                                   f"{round(self.tri.ang_p,2)}"),
         ]
-        self.ps_stuff["triSideLength"] = [
-            self.ax["frame"].plot([self.tri.camPos[0][0],self.solvedPos[0]], [self.tri.camPos[0][1],self.solvedPos[1]],
-                                  label="l_tri[0]",linewidth=2,alpha=0.75),
-            self.ax["frame"].plot([self.solvedPos[0],self.tri.camPos[1][0]], [self.solvedPos[1],self.tri.camPos[1][1]], 
-                                  label="l_tri[1]",linewidth=2,alpha=0.75),
-            self.ax["frame"].plot([self.tri.camPos[1][0],self.tri.camPos[0][0]], [self.tri.camPos[1][1],self.tri.camPos[0][1]],
+        self.ps_stuff["triSideLength"] = 3*[0]
+
+        self.ps_stuff["triSideLength"][0], = self.ax["frame"].plot([self.tri.camPos[0][0],self.solvedPos[0]], [self.tri.camPos[0][1],self.solvedPos[1]],
+                                  label="l_tri[0]",linewidth=2,alpha=0.75)
+        self.ps_stuff["triSideLength"][1], = self.ax["frame"].plot([self.solvedPos[0],self.tri.camPos[1][0]], [self.solvedPos[1],self.tri.camPos[1][1]], 
+                                  label="l_tri[1]",linewidth=2,alpha=0.75)
+        self.ps_stuff["triSideLength"][2], = self.ax["frame"].plot([self.tri.camPos[1][0],self.tri.camPos[0][0]], [self.tri.camPos[1][1],self.tri.camPos[0][1]],
                                   label="l_hyp.",linewidth=2,alpha=0.75)
-        ]
+        
         self.ps_stuff["triSideLengthText"] = [
             self.ax["frame"].text((self.tri.camPos[0][0]+self.solvedPos[0])/2+2,
                                   (self.tri.camPos[0][1]+self.solvedPos[1])/2+2,
@@ -244,11 +245,9 @@ class AnimatedPlot(object):
         next(self.stream)
 
         self.ps_stuff["Pp"][0].set_offsets(
-            [self.tri.camPos[0][0],self.tri.camPos[1][0],self.solvedPos[0]],
-            [self.tri.camPos[0][1],self.tri.camPos[1][1],self.solvedPos[1]])
+            [[self.tri.camPos[0][0],self.tri.camPos[0][1]],[self.tri.camPos[1][0],self.tri.camPos[1][1]],[self.solvedPos[0],self.solvedPos[1]]])
         self.ps_stuff["Pp"][1].set_offsets(
-            [self.tri.camPos[0][0],self.tri.camPos[1][0],self.testPos[0]],
-            [self.tri.camPos[0][1],self.tri.camPos[1][1],self.testPos[1]])
+            [[self.tri.camPos[0][0],self.tri.camPos[0][1]],[self.tri.camPos[1][0],self.tri.camPos[1][1]],[self.testPos[0],self.testPos[1]]])
         self.ps_stuff["triSideLength"][0].set_data(
             [self.tri.camPos[0][0],self.solvedPos[0]], [self.tri.camPos[0][1],self.solvedPos[1]])
         self.ps_stuff["triSideLength"][1].set_data(
