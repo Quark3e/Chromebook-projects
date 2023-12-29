@@ -96,7 +96,7 @@ if __name__=="__main__":
 
 class AnimatedPlot(object):
     camPos = [[0, 0, 0], [30, 20, 0]]
-    basePos = [15, 25, 0]
+    basePos = [10, 25, 0]
     testPos = [15, 15, 0]
     solvedPos = [0, 0, 0]
     def __init__(self):
@@ -141,15 +141,17 @@ class AnimatedPlot(object):
             "triSideLengthText" :   [l_tri[0], l_tri[1], l_hypotenuse] {[float, float, float]}
             "Pp"                :   [given_point, solved_point] :   "contains all three points"
             "PpText"            :   [given_point, solved_point] :   "contains text for each point"
+            "camRelativeAngText":   [cam0, cam1] :   "contains relative angle between camCenter and length"
         """
         self.ps_stuff.update({"triCornerAngleText": 3*[0]}) #text
         self.ps_stuff.update({"triSideLength": 3*[0]}) #plotted lengths
         self.ps_stuff.update({"triSideLengthText": 3*[0]})
         self.ps_stuff.update({"Pp": 2*[0]}) #[given, solved]
         self.ps_stuff.update({"PpText": 2*[0]}) #[given, solved]
+        self.ps_stuff.update({"camRelativeAngText": 2*[0]})
 
         self.ani = animation.FuncAnimation( \
-            self.fig, self.update, interval=2, \
+            self.fig, self.update, interval=0, \
             init_func=self.setup_plot, blit=False \
         )
     def data_stream(self):
@@ -179,6 +181,26 @@ class AnimatedPlot(object):
                 yield i
     def setup_plot(self):
         next(self.stream)
+
+        self.ax["frame"].plot(
+            [self.tri.camPos[0][0], self.tri.camPos[0][0]+math.cos(toRadians(self.tri.ang_offset[0]))*10],
+            [self.tri.camPos[0][1], self.tri.camPos[0][1]+math.sin(toRadians(self.tri.ang_offset[0]))*10],
+            linestyle="dashed", color="gray", label="cam0 centerAlign"
+        )
+        self.ax["frame"].plot(
+            [self.tri.camPos[1][0], self.tri.camPos[1][0]+math.cos(toRadians(90+self.tri.ang_offset[1]))*10],
+            [self.tri.camPos[1][1], self.tri.camPos[1][1]+math.sin(toRadians(90+self.tri.ang_offset[1]))*10],
+            linestyle="dashed", color="gray", label="cam1 centerAlign"
+        )
+
+        self.ps_stuff["camRelativeAngText"] = [
+            self.ax["frame"].text(self.tri.camPos[0][0]+math.cos(toRadians(self.tri.ang_offset[0]))*10,
+                                  self.tri.camPos[0][1]+math.sin(toRadians(self.tri.ang_offset[0]))*10,
+                                  f"{round(self.tri.ang_tri[0],2)}"),
+            self.ax["frame"].text(self.tri.camPos[1][0]+math.cos(toRadians(90+self.tri.ang_offset[1]))*10,
+                                  self.tri.camPos[1][1]+math.sin(toRadians(90+self.tri.ang_offset[1]))*10,
+                                  f"{round(self.tri.ang_tri[1],2)}")
+        ]
 
         self.ps_stuff["Pp"][0] = self.ax["frame"].scatter(
             [self.tri.camPos[0][0],self.tri.camPos[1][0],self.solvedPos[0]],
@@ -236,12 +258,14 @@ class AnimatedPlot(object):
             for el in val: retur.append(el)
         return retur
     def ps_updateText(self):
+        self.ps_stuff["camRelativeAngText"][0].set_text(f"{round(self.tri.ang_read[0],2)}")
+        self.ps_stuff["camRelativeAngText"][1].set_text(f"{round(-self.tri.ang_read[1],2)}")
         self.ps_stuff["PpText"][0].set_text(f"give.[{round(self.solvedPos[0],1)},{round(self.solvedPos[1],1)}]")
         self.ps_stuff["PpText"][0].set_x(self.solvedPos[0])
-        self.ps_stuff["PpText"][0].set_y(self.solvedPos[1]+1)
+        self.ps_stuff["PpText"][0].set_y(self.solvedPos[1]+2)
         self.ps_stuff["PpText"][1].set_text(f"solv.[{round(self.testPos[0],1)},{round(self.testPos[1],1)}]")
         self.ps_stuff["PpText"][1].set_x(self.testPos[0])
-        self.ps_stuff["PpText"][1].set_y(self.testPos[1]-1)
+        self.ps_stuff["PpText"][1].set_y(self.testPos[1]-2)
         self.ps_stuff["triCornerAngleText"][0].set_text(f"{round(self.tri.ang_tri[0],2)}")
         self.ps_stuff["triCornerAngleText"][0].set_x(self.tri.camPos[0][0])
         self.ps_stuff["triCornerAngleText"][0].set_y(self.tri.camPos[0][1])
