@@ -36,7 +36,7 @@ class drawArc(object):
     def __init__(
             self,
             ax=plt.Axes,
-            centerPos=float([float(), float()]),
+            centerPos=[float(), float()],
             arcRadius=1.0,
             startAngle=30.0,
             arcOffset=0.0,
@@ -46,7 +46,7 @@ class drawArc(object):
             plotLabel=plotPara["label"],
             plotLinewidth=plotPara["linewidth"],
             plotAlpha=plotPara["alpha"],
-            plotLinestyle=plotPara["linestyle"]"
+            plotLinestyle=plotPara["linestyle"]
         ):
         """Initialization function of class
 
@@ -102,7 +102,7 @@ class drawArc(object):
             self.arc_yValues.append(self.cent[1])
     def setup(self):
         self.solveValues()
-        self.axesPlot = self.ax.plot(
+        self.axesPlot, = self.ax.plot(
             self.arc_xValues, self.arc_yValues,
             label=self.plotPara["label"],
             linewidth=self.plotPara["linewidth"],
@@ -127,14 +127,32 @@ if __name__=="__main__":
     angles = [0, 0] #startAngle, offsetAngle
 
     def dataStream():
+        global angles
         while True:
-            for a in range(360):
+            for a in range(30,360):
+                angles[0] = a
+                print("dataStream called: ")
                 yield a
+    stream = dataStream()
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_aspect("equal")
+    ax.grid("equal")
+    ax.set_xlim((-2, 2))
+    ax.set_ylim((-2, 2))
+    arc = drawArc(ax, centerPos, 1, angles[0], angles[1], True, 0.5)
     def animSetup():
+        print("animSetup called")
         global fig, ax, arc, arcPlot
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
-        arc = drawArc(ax, centerPos, 1, angles[0], angles[1], True, 0.5)
         arcPlot = arc.setup()
-        return arcPlot
-    
+        return [arcPlot]
+    def animUpdate():
+        global fig, ax, arc, arcPlot, stream
+        print("animUpdate called")
+        next(stream)
+        arc.update(angles[0], angles[1])
+        print("animUpdate call end")
+        return [arcPlot]
+    animSetup()
+    ani = animation.FuncAnimation(fig, animUpdate(), interval=0, init_func=animSetup(), blit=False)
+    plt.show()
