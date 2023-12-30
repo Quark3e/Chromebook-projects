@@ -113,6 +113,8 @@ class AnimatedPlot(object):
     basePos = [5, 11, 0]
     testPos = [15, 15, 0]
     solvedPos = [0, 0, 0]
+
+    saveAnim = True
     def __init__(self):
         self.tri = camTriangle(self.camPos, self.camAng_offset)
         self.tri.solvePos(self.testPos[:2])
@@ -174,8 +176,8 @@ class AnimatedPlot(object):
         self.ps_stuff.update({"centerAlignArc": 2*[0]})
 
         self.ani = animation.FuncAnimation( \
-            self.fig, self.update, interval=0, \
-            init_func=self.setup_plot, blit=False \
+            self.fig, self.update, interval=1, \
+            init_func=self.setup_plot, blit=True \
         )
     def data_stream(self):
         i=0
@@ -343,4 +345,11 @@ class AnimatedPlot(object):
 
 if __name__=="__main__":
     a = AnimatedPlot()
+
+    fileName = "cam0.gif"
+    # To save the animation using Pillow as a gif
+    writer = animation.PillowWriter(fps=15,
+                                    metadata=dict(artist='Me'),
+                                    bitrate=1800)
+    a.ani.save(absPath+fileName, writer=writer)
     plt.show()
