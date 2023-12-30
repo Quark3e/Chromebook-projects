@@ -30,7 +30,8 @@ class drawArc(object):
         "label": "",
         "linewidth": 1,
         "alpha": 1,
-        "linestyle": "solid"
+        "linestyle": "solid",
+        "color": "black"
     }
 
     def __init__(
@@ -46,7 +47,8 @@ class drawArc(object):
             plotLabel=plotPara["label"],
             plotLinewidth=plotPara["linewidth"],
             plotAlpha=plotPara["alpha"],
-            plotLinestyle=plotPara["linestyle"]
+            plotLinestyle=plotPara["linestyle"],
+            plotColor=plotPara["color"]
         ):
         """Initialization function of class
 
@@ -63,10 +65,12 @@ class drawArc(object):
             plotLinewidth (int, float): linewdith of plotted arc. Defaults to 1.
             plotAlpha (int, float): alpha value of plotted arc. Defaults to 1.
             plotLinestyle (string,): plot-parameter for linestyle of the plotted arc. Defaults to "solid"
+            plotColor (string,): plot color. Default to "black".
         """
 
         self.ax = ax
         self.arcConvPos = centerPos
+        self.cent = centerPos
         if arcRadius>0: self.radius = arcRadius
         else: self.throwErr("__init__: 'arcRadius' can't be <=0")
         self.arcAngle = startAngle
@@ -78,6 +82,7 @@ class drawArc(object):
         self.plotPara["linewidth"] = plotLinewidth
         self.plotPara["alpha"] = plotAlpha
         self.plotPara["linestyle"] = plotLinestyle
+        self.plotPara["color"] = plotColor
         self.drawRadiusExt = radiusExtended
     def solveValues(self):
         if self.drawRadiuss:
@@ -107,7 +112,8 @@ class drawArc(object):
             label=self.plotPara["label"],
             linewidth=self.plotPara["linewidth"],
             alpha=self.plotPara["alpha"],
-            linestyle=self.plotPara["linestyle"]
+            linestyle=self.plotPara["linestyle"],
+            color=self.plotPara["color"]
         )
         return self.axesPlot
     def update(self, angle: float, offsetAngle=arcOffsetAngle, center=cent):
@@ -124,35 +130,36 @@ class drawArc(object):
 if __name__=="__main__":
     import matplotlib.animation as animation
     centerPos = [0, 0]
-    angles = [0, 0] #startAngle, offsetAngle
+    angles = [0, 90] #startAngle, offsetAngle
+    density = 0.1
 
     def dataStream():
         global angles
         while True:
-            for a in range(30,360):
+            for a in range(0,361):
                 angles[0] = a
-                print("dataStream called: ")
+                angles[1] = 2*a
                 yield a
     stream = dataStream()
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     ax.set_aspect("equal")
     ax.grid("equal")
-    ax.set_xlim((-2, 2))
-    ax.set_ylim((-2, 2))
+    ax.set_xlim((-3, 3))
+    ax.set_ylim((-3, 3))
     arc = drawArc(ax, centerPos, 1, angles[0], angles[1], True, 0.5)
     def animSetup():
         global fig, ax, arc, arcPlot
-        print("animSetup called")
         arcPlot = arc.setup()
-        return arc.axesPlot
-    def animUpdate():
+        return [arcPlot]
+    def animUpdate(i):
         global fig, ax, arc, arcPlot, stream
-        print("animUpdate called")
         next(stream)
-        arc.update(angles[0], angles[1])
-        print("animUpdate call end")
-        return [arc.axesPlot] #problems
+        arc.resolution = round(density*(angles[0]))+1
+        arc.cent = [cos(toRadians(angles[0])),sin(toRadians(angles[0]))]
+        print(f"cent:{str([round(toDegrees(i),2) for i in arc.cent]):<15} res:{arc.resolution}", end="         \r")
+        arc.update(angles[0], angles[1], arc.cent)
+        return [arcPlot]
     animSetup()
-    ani = animation.FuncAnimation(fig, animUpdate(), interval=0, blit=False)
+    ani = animation.FuncAnimation(fig, animUpdate, interval=0, blit=True)
     plt.show()

@@ -98,6 +98,11 @@ if __name__=="__main__":
     import matplotlib.pyplot as plt
     import matplotlib.animation as animation
     import matplotlib.patches as mpatches
+    import sys
+    import os.path
+    absPath = os.path.realpath(__file__)[:-len("two_cam_coordinate.py")]
+    sys.path.append(absPath[:absPath.find("science")])
+    from teststuff.python.matplotlib.basic.nonFilled_arc import drawArc
 
 
 class AnimatedPlot(object):
@@ -129,8 +134,9 @@ class AnimatedPlot(object):
         # self.fig = plt.figure(figsize=(9,4))
         self.fig = plt.figure(figsize=(9,6))
         self.ax = {
-            "frame": 0
+            "frame": plt.Axes
         }
+
         count=1
         for key in self.ax:
             self.ax[key] = self.fig.add_subplot(1, 1, count)
@@ -142,6 +148,12 @@ class AnimatedPlot(object):
             self.ax[key].grid("equal")
             count+=1
 
+
+        self.centAlignArc = [
+            drawArc(self.ax["frame"], self.tri.camPos[0][:2],7,0,self.camAng_offset[0],True,3,plotColor="gray"),
+            drawArc(self.ax["frame"], self.tri.camPos[1][:2],7,0,self.camAng_offset[1],True,3,plotColor="gray"),
+        ]
+
         self.ps_stuff = {}
         """dictionary to hold updating plots/scatter/patches e.t.c.
         {Key: Values}
@@ -150,7 +162,8 @@ class AnimatedPlot(object):
             "triSideLengthText" :   [l_tri[0], l_tri[1], l_hypotenuse] {[float, float, float]}
             "Pp"                :   [given_point, solved_point] :   "contains all three points"
             "PpText"            :   [given_point, solved_point] :   "contains text for each point"
-            "camRelativeAngText":   [cam0, cam1] :   "contains relative angle between camCenter and length"
+            "camRelativeAngText":   [cam0, cam1]    :   "contains relative angle between camCenter and length"
+            "centerAlignArc     :   [cam0, cam1]    :   "contains center aligned angle arc"
         """
         self.ps_stuff.update({"triCornerAngleText": 3*[0]}) #text
         self.ps_stuff.update({"triSideLength": 3*[0]}) #plotted lengths
@@ -158,6 +171,7 @@ class AnimatedPlot(object):
         self.ps_stuff.update({"Pp": 2*[0]}) #[given, solved]
         self.ps_stuff.update({"PpText": 2*[0]}) #[given, solved]
         self.ps_stuff.update({"camRelativeAngText": 2*[0]})
+        self.ps_stuff.update({"centerAlignArc": 2*[0]})
 
         self.ani = animation.FuncAnimation( \
             self.fig, self.update, interval=0, \
@@ -206,6 +220,11 @@ class AnimatedPlot(object):
             [self.tri.camPos[1][1], self.tri.camPos[1][1]+math.sin(toRadians(self.tri.ang_offset[1]))*10],
             linestyle="dashed", color="gray", label="cam1 centerAlign"
         )
+
+        self.ps_stuff["centerAlignArc"] = [
+            self.centAlignArc[0].setup(),
+            self.centAlignArc[1].setup()
+        ]
 
         self.ps_stuff["camRelativeAngText"] = [
             self.ax["frame"].text(self.tri.camPos[0][0]+math.cos(toRadians(self.tri.ang_offset[0]))*10,
@@ -300,7 +319,10 @@ class AnimatedPlot(object):
         self.ps_stuff["triSideLengthText"][2].set_y((self.tri.camPos[1][1]+self.tri.camPos[0][1])/2+2)
     def update(self, i):
         next(self.stream)
-        # print(self.solvedPos)
+        for i in range(2):
+            self.centAlignArc[i].resolution = round(0.1*(self.tri.ang_tri[0]))+1
+            self.centAlignArc[i].update(-self.tri.ang_read[i],self.tri.ang_offset[i],self.tri.camPos[i][:2])
+        # self.centAlignArc[1].update(-self.tri.ang_read[1],self.tri.ang_offset[1],self.tri.camPos[1][:2])
         self.ps_updateText()
         self.ps_stuff["Pp"][0].set_offsets(
             [[self.tri.camPos[0][0],self.tri.camPos[0][1]],[self.tri.camPos[1][0],self.tri.camPos[1][1]],[self.solvedPos[0],self.solvedPos[1]]])
