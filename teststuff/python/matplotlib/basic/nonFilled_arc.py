@@ -26,7 +26,12 @@ class drawArc(object):
     arc_yValues = []
     axesPlot = None
     ax = None
-    label=""
+    plotPara = {
+        "label": "",
+        "linewidth": 1,
+        "alpha": 1,
+        "linestyle": "solid"
+    }
 
     def __init__(
             self,
@@ -36,9 +41,12 @@ class drawArc(object):
             startAngle=30.0,
             arcOffset=0.0,
             drawSides=False,
-            res=10,
-            label="",
             radiusExtended=0.0,
+            res=10,
+            plotLabel=plotPara["label"],
+            plotLinewidth=plotPara["linewidth"],
+            plotAlpha=plotPara["alpha"],
+            plotLinestyle=plotPara["linestyle"]"
         ):
         """Initialization function of class
 
@@ -49,46 +57,84 @@ class drawArc(object):
             startAngle (int, float): Angle of the arc [unit:Degrees]. Defaults to 30.
             arcOffset (int, float): Offset angle from x axis [unit:Degrees]. Defaults to 0.
             drawSides (bool): Whether to plot the side lengths of the arc. Defaults to False.
-            res (int): Resolution of drawn arc: how many points to be used. Defaults to 10.
-            label (string): label of the plotted arc. Defaults to "".
             radiusExtended (int, float): extended length from radius if drawSides==True, Defaults to 0
+            res (int): Resolution of drawn arc: how many points to be used. Defaults to 10.
+            plotLabel (string): label of the plotted arc. Defaults to "".
+            plotLinewidth (int, float): linewdith of plotted arc. Defaults to 1.
+            plotAlpha (int, float): alpha value of plotted arc. Defaults to 1.
+            plotLinestyle (string,): plot-parameter for linestyle of the plotted arc. Defaults to "solid"
         """
 
         self.ax = ax
         self.arcConvPos = centerPos
-        self.radius = arcRadius
+        if arcRadius>0: self.radius = arcRadius
+        else: self.throwErr("__init__: 'arcRadius' can't be <=0")
         self.arcAngle = startAngle
         self.arcOffsetAngle = arcOffset
         self.drawRadiuss = drawSides
-        self.resolution = res
-        self.label = label
+        if res>=1: self.resolution = res
+        else: self.throwErr("__init__: 'res' parameter argument too low")
+        self.plotPara["label"] = plotLabel
+        self.plotPara["linewidth"] = plotLinewidth
+        self.plotPara["alpha"] = plotAlpha
+        self.plotPara["linestyle"] = plotLinestyle
         self.drawRadiusExt = radiusExtended
-        self.setup()
     def solveValues(self):
         if self.drawRadiuss:
             self.arc_xValues = [
                 self.cent[0],
+                self.cent[0]+(self.radius+self.drawRadiusExt)*cos(toRadians(self.arcOffsetAngle)),
                 self.cent[0]+self.radius*cos(toRadians(self.arcOffsetAngle))
             ]
             self.arc_yValues = [
                 self.cent[1],
+                self.cent[1]+(self.radius+self.drawRadiusExt)*sin(toRadians(self.arcOffsetAngle)),
                 self.cent[1]+self.radius*sin(toRadians(self.arcOffsetAngle))
             ]
-            for i in range(self.resolution):
-                tempAng = (self.arcAngle/self.resolution)*i
-                self.arc_xValues.append(self.cent[0]+self.radius*cos(toRadians(self.arcOffsetAngle+tempAng)))
-                self.arc_yValues.append(self.cent[1]+self.radius*sin(toRadians(self.arcOffsetAngle+tempAng)))
-
-
+        for i in range(self.resolution+1):
+            tempAng = (self.arcAngle/self.resolution)*i
+            self.arc_xValues.append(self.cent[0]+self.radius*cos(toRadians(self.arcOffsetAngle+tempAng)))
+            self.arc_yValues.append(self.cent[1]+self.radius*sin(toRadians(self.arcOffsetAngle+tempAng)))
+        if self.drawRadiuss:
+            self.arc_xValues.append(self.cent[0]+(self.radius+self.drawRadiusExt)*cos(toRadians(self.arcOffsetAngle+self.arcAngle)))
+            self.arc_xValues.append(self.cent[0])
+            self.arc_yValues.append(self.cent[1]+(self.radius+self.drawRadiusExt)*sin(toRadians(self.arcOffsetAngle+self.arcAngle)))
+            self.arc_yValues.append(self.cent[1])
     def setup(self):
         self.solveValues()
         self.axesPlot = self.ax.plot(
-            []
+            self.arc_xValues, self.arc_yValues,
+            label=self.plotPara["label"],
+            linewidth=self.plotPara["linewidth"],
+            alpha=self.plotPara["alpha"],
+            linestyle=self.plotPara["linestyle"]
         )
-
-    def update(self, angle, offsetAngle=cent):
+        return self.axesPlot
+    def update(self, angle: float, offsetAngle=arcOffsetAngle, center=cent):
         self.arcAngle = angle
-        self.cent = offsetAngle
+        self.arcOffsetAngle = offsetAngle
+        self.cent = center
         self.solveValues()
+        self.axesPlot.set_data(self.arc_xValues, self.arc_yValues)
+        return self.axesPlot
+    def throwErr(self, text):
+        print("Error:", "drawArc:", text)
 
-        
+
+if __name__=="__main__":
+    import matplotlib.animation as animation
+    centerPos = [0, 0]
+    angles = [0, 0] #startAngle, offsetAngle
+
+    def dataStream():
+        while True:
+            for a in range(360):
+                yield a
+    def animSetup():
+        global fig, ax, arc, arcPlot
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+        arc = drawArc(ax, centerPos, 1, angles[0], angles[1], True, 0.5)
+        arcPlot = arc.setup()
+        return arcPlot
+    
