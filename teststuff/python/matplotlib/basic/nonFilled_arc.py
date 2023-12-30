@@ -142,17 +142,17 @@ if __name__=="__main__":
     ax.set_ylim((-2, 2))
     arc = drawArc(ax, centerPos, 1, angles[0], angles[1], True, 0.5)
     def animSetup():
-        print("animSetup called")
         global fig, ax, arc, arcPlot
+        print("animSetup called")
         arcPlot = arc.setup()
-        return [arcPlot]
+        return arc.axesPlot
     def animUpdate():
         global fig, ax, arc, arcPlot, stream
         print("animUpdate called")
         next(stream)
         arc.update(angles[0], angles[1])
         print("animUpdate call end")
-        return [arcPlot]
+        return [arc.axesPlot] #problems
     animSetup()
-    ani = animation.FuncAnimation(fig, animUpdate(), interval=0, init_func=animSetup(), blit=False)
+    ani = animation.FuncAnimation(fig, animUpdate(), interval=0, blit=False)
     plt.show()
