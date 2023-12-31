@@ -63,6 +63,7 @@ class camTriangle(object):
             270-self.ang_d[1]-(self.ang_offset[1]-self.ang_read[1])
             # self.ang_offset[1]-self.ang_d[1]-self.ang_read[1]
         ]
+        print([round(i,2) for i in self.ang_tri])
         self.ang_p = 180 - abs(self.ang_tri[0]) - abs(self.ang_tri[1])
     def solvePos(self, rawPos, useAng=False):
         print([round(i) for i in rawPos], "    ", end="\r")
@@ -106,11 +107,11 @@ if __name__=="__main__":
 
 
 class AnimatedPlot(object):
-    camPos = [[0, 0, 0], [10, 0, 0]]
-    camAng_offset = [80, 100] #degrees
+    camPos = [[0, 0, 0], [-30, 0, 0]]
+    camAng_offset = [90, 90] #degrees
     streamAngle = 0 #degree
     radius = 5
-    basePos = [5, 11, 0]
+    basePos = [0, 30, 0]
     testPos = [15, 15, 0]
     solvedPos = [0, 0, 0]
 
@@ -348,8 +349,8 @@ if __name__=="__main__":
 
     fileName = "cam0.gif"
     # To save the animation using Pillow as a gif
-    writer = animation.PillowWriter(fps=15,
-                                    metadata=dict(artist='Me'),
-                                    bitrate=1800)
-    a.ani.save(absPath+fileName, writer=writer)
+    # writer = animation.PillowWriter(fps=15,
+    #                                 metadata=dict(artist='Me'),
+    #                                 bitrate=1800)
+    # a.ani.save(absPath+fileName, writer=writer)
     plt.show()
