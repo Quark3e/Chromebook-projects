@@ -107,11 +107,11 @@ if __name__=="__main__":
 
 
 class AnimatedPlot(object):
-    camPos = [[0, 0, 0], [-30, 0, 0]]
+    camPos = [[0, 0, 0], [30, 0, 0]]
     camAng_offset = [90, 90] #degrees
     streamAngle = 0 #degree
     radius = 5
-    basePos = [0, 30, 0]
+    basePos = [15, 30, 0]
     testPos = [15, 15, 0]
     solvedPos = [0, 0, 0]
 
@@ -128,7 +128,7 @@ class AnimatedPlot(object):
                 ],
                 [
                     min([self.camPos[0][1], self.camPos[1][1]])-1,
-                    max([self.camPos[0][1], self.camPos[1][1]])+25,
+                    max([self.camPos[0][1], self.camPos[1][1]])+30,
                 ]
             ]
         }
@@ -349,8 +349,8 @@ if __name__=="__main__":
 
     fileName = "cam0.gif"
     # To save the animation using Pillow as a gif
-    # writer = animation.PillowWriter(fps=15,
-    #                                 metadata=dict(artist='Me'),
-    #                                 bitrate=1800)
-    # a.ani.save(absPath+fileName, writer=writer)
+    writer = animation.PillowWriter(fps=15,
+                                    metadata=dict(artist='Me'),
+                                    bitrate=1800)
+    a.ani.save(absPath+fileName, writer=writer)
     plt.show()
