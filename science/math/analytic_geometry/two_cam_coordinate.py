@@ -178,7 +178,7 @@ class AnimatedPlot(object):
 
         self.ani = animation.FuncAnimation( \
             self.fig, self.update, interval=1, \
-            init_func=self.setup_plot, blit=True \
+            init_func=self.setup_plot, blit=False \
         )
     def data_stream(self):
         i=0
