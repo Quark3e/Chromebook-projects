@@ -177,7 +177,7 @@ class AnimatedPlot(object):
         self.ps_stuff.update({"centerAlignArc": 2*[0]})
 
         self.ani = animation.FuncAnimation( \
-            self.fig, self.update, interval=1, \
+            self.fig, self.update, interval=1, frames=360, \
             init_func=self.setup_plot, blit=False \
         )
     def data_stream(self):
