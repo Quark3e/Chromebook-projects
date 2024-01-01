@@ -17,8 +17,8 @@ from teststuff.python.matplotlib.basic.nonFilled_arc import drawArc
 
 
 class AnimatedPlot(object):
-    camPos = [[0, 0, 0], [16, 0, 0]]
-    camAng_offset = [70, 110] #degrees
+    camPos = [[0, 0, 0], [14, 0, 0]]
+    camAng_offset = [90, 120] #degrees
     streamAngle = 0 #degree
 
     basePos = [0, 0, 0]
@@ -28,8 +28,11 @@ class AnimatedPlot(object):
     saveAnim = True
     def __init__(self):
         self.tri = camTriangle(self.camPos, self.camAng_offset)
-        self.tri.solvePos(self.testPos[:2])
-
+        try:
+            self.tri.solvePos(self.testPos[:2])
+        except ZeroDivisionError:
+            print(f"Error: camTest.py: ZeroDivisionError")
+            self.tri.l_tri = [1, 1]
         self.IRcams = IR_track.IR_camTrack([2, 0])
 
         self.graphRange = {
@@ -105,8 +108,10 @@ class AnimatedPlot(object):
             if self.IRcams.update() == None:
                 print("NOTE: IRcams.update() returned None: Exiting")
                 break
-            print("\t\t",[round(n,2) for n in self.IRcams.tempPos])
-            self.tri.solvePos([self.IRcams.tempPos[0][0], self.IRcams.tempPos[2][0]])
+            try:
+                self.tri.solvePos([self.IRcams.tempPos[0][0], self.IRcams.tempPos[2][0]])
+            except ZeroDivisionError:
+                print("Error: camTest.py: ZeroDivisionError")
             #for i in range(360, 0, -1):
             #    self.streamAngle = i
             #    self.testPos = [
@@ -212,30 +217,30 @@ class AnimatedPlot(object):
             for el in val: retur.append(el)
         return retur
     def ps_updateText(self):
-        self.ps_stuff["camRelativeAngText"][0].set_text(f"{round(self.tri.ang_read[0],2)}")
-        self.ps_stuff["camRelativeAngText"][1].set_text(f"{round(self.tri.ang_read[1],2)}")
+        self.ps_stuff["camRelativeAngText"][0].set_text(f"camRel.{round(self.tri.ang_read[0],2)}")
+        self.ps_stuff["camRelativeAngText"][1].set_text(f"camRel.{round(self.tri.ang_read[1],2)}")
         self.ps_stuff["PpText"][0].set_text(f"solv..[{round(self.solvedPos[0],1)},{round(self.solvedPos[1],1)}]")
         self.ps_stuff["PpText"][0].set_x(self.solvedPos[0])
         self.ps_stuff["PpText"][0].set_y(self.solvedPos[1]+2)
         self.ps_stuff["PpText"][1].set_text(f"give.[{round(self.testPos[0],1)},{round(self.testPos[1],1)}]")
         self.ps_stuff["PpText"][1].set_x(self.testPos[0])
         self.ps_stuff["PpText"][1].set_y(self.testPos[1]-2)
-        self.ps_stuff["triCornerAngleText"][0].set_text(f"{round(self.tri.ang_tri[0],2)}")
+        self.ps_stuff["triCornerAngleText"][0].set_text(f"tAng[0]:{round(self.tri.ang_tri[0],2)}")
         self.ps_stuff["triCornerAngleText"][0].set_x(self.tri.camPos[0][0])
         self.ps_stuff["triCornerAngleText"][0].set_y(self.tri.camPos[0][1])
-        self.ps_stuff["triCornerAngleText"][1].set_text(f"{round(self.tri.ang_tri[1],2)}")
+        self.ps_stuff["triCornerAngleText"][1].set_text(f"tAng[1]:{round(self.tri.ang_tri[1],2)}")
         self.ps_stuff["triCornerAngleText"][1].set_x(self.tri.camPos[1][0])
         self.ps_stuff["triCornerAngleText"][1].set_y(self.tri.camPos[1][1])
-        self.ps_stuff["triCornerAngleText"][2].set_text(f"{round(self.tri.ang_p,2)}")
+        self.ps_stuff["triCornerAngleText"][2].set_text(f"tAng[2]{round(self.tri.ang_p,2)}")
         self.ps_stuff["triCornerAngleText"][2].set_x(self.solvedPos[0])
         self.ps_stuff["triCornerAngleText"][2].set_y(self.solvedPos[1])
-        self.ps_stuff["triSideLengthText"][0].set_text(f"{round(self.tri.l_tri[0],2)}")
+        self.ps_stuff["triSideLengthText"][0].set_text(f"l[0]:{round(self.tri.l_tri[0],2)}")
         self.ps_stuff["triSideLengthText"][0].set_x((self.tri.camPos[0][0]+self.solvedPos[0])/2+2)
         self.ps_stuff["triSideLengthText"][0].set_y((self.tri.camPos[0][1]+self.solvedPos[1])/2+2)
-        self.ps_stuff["triSideLengthText"][1].set_text(f"{round(self.tri.l_tri[1],2)}")
+        self.ps_stuff["triSideLengthText"][1].set_text(f"l[1]:{round(self.tri.l_tri[1],2)}")
         self.ps_stuff["triSideLengthText"][1].set_x((self.solvedPos[0]+self.tri.camPos[1][0])/2+2)
         self.ps_stuff["triSideLengthText"][1].set_y((self.solvedPos[1]+self.tri.camPos[1][1])/2+2)
-        self.ps_stuff["triSideLengthText"][2].set_text(f"{round(self.tri.l_hypotenuse,2)}")
+        self.ps_stuff["triSideLengthText"][2].set_text(f"l[2]:{round(self.tri.l_hypotenuse,2)}")
         self.ps_stuff["triSideLengthText"][2].set_x((self.tri.camPos[1][0]+self.tri.camPos[0][0])/2+2)
         self.ps_stuff["triSideLengthText"][2].set_y((self.tri.camPos[1][1]+self.tri.camPos[0][1])/2+2)
     def update(self, i):
@@ -255,7 +260,7 @@ class AnimatedPlot(object):
             [self.solvedPos[0],self.tri.camPos[1][0]], [self.solvedPos[1],self.tri.camPos[1][1]])
         self.ps_stuff["triSideLength"][2].set_data(
             [self.tri.camPos[1][0],self.tri.camPos[0][0]], [self.tri.camPos[1][1],self.tri.camPos[0][1]])
-
+        print("")
         retur=[]
         for key,val in self.ps_stuff.items():
             for el in val: retur.append(el)

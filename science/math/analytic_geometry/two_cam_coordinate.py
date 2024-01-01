@@ -58,15 +58,19 @@ class camTriangle(object):
         self.camCoef[1][0] = self.camFOV[1][0]/self.camRes[1][0]
         self.camCoef[1][1] = self.camFOV[1][1]/self.camRes[1][1]
     def solveAngL(self):
+        #self.ang_tri = [
+        #    self.ang_offset[0]-self.ang_d[0]-self.ang_read[0],
+        #    270-self.ang_d[1]-(self.ang_offset[1]-self.ang_read[1])
+        #    # self.ang_offset[1]-self.ang_d[1]-self.ang_read[1]
+        #]
         self.ang_tri = [
-            self.ang_offset[0]-self.ang_d[0]-self.ang_read[0],
-            270-self.ang_d[1]-(self.ang_offset[1]-self.ang_read[1])
-            # self.ang_offset[1]-self.ang_d[1]-self.ang_read[1]
+            (90)-self.ang_d[0]-self.ang_read[0],
+            180-self.ang_offset[1]+self.ang_d[0]+self.ang_read[1]
+            #self.ang_d[0] + self.ang_read[1] + 180-self.ang_offset[1]
         ]
-        #print([round(i,2) for i in self.ang_tri])
+        print([round(i,1) for i in self.ang_read], "|", [round(i,2) for i in self.ang_tri], end=" | ")
         self.ang_p = 180 - abs(self.ang_tri[0]) - abs(self.ang_tri[1])
     def solvePos(self, rawPos, useAng=False):
-        print([round(i) for i in rawPos], "    ", end="\r")
         self.read_pix = [
             [rawPos[0]-self.camRes[0][0]*0.5, self.camRes[0][1]*0.5-rawPos[0]],
             [rawPos[1]-self.camRes[1][0]*0.5, self.camRes[1][1]*0.5-rawPos[1]]
@@ -82,13 +86,13 @@ class camTriangle(object):
             (self.l_hypotenuse*math.sin(toRadians(self.ang_tri[0])))/math.sin(toRadians(self.ang_p))
         ]
         self.solved_pos = [
-                self.camPos[0][0]+math.cos(toRadians(self.ang_tri[0]+self.ang_d[0]))*self.l_tri[0],
-                self.camPos[0][1]+math.sin(toRadians(self.ang_tri[0]+self.ang_d[0]))*self.l_tri[0],
+                self.camPos[0][0]+math.cos(toRadians(self.ang_offset[0]+self.ang_read[0]))*self.l_tri[0],
+                self.camPos[0][1]+math.sin(toRadians(self.ang_offset[0]+self.ang_read[0]))*self.l_tri[0],
                 None
         ]
         self.solved_pos = [
-                self.camPos[1][0]+math.sin(toRadians(self.ang_tri[1]+self.ang_d[1]))*(-self.l_tri[1]),
-                self.camPos[1][1]+math.cos(toRadians(self.ang_tri[1]+self.ang_d[1]))*(-self.l_tri[1]),
+                self.camPos[1][0]+math.cos(toRadians(self.ang_offset[1]-self.ang_read[1]))*self.l_tri[1],
+                self.camPos[1][1]+math.sin(toRadians(self.ang_offset[1]-self.ang_read[1]))*self.l_tri[1],
                 None
         ]
 
@@ -337,7 +341,6 @@ class AnimatedPlot(object):
             [self.solvedPos[0],self.tri.camPos[1][0]], [self.solvedPos[1],self.tri.camPos[1][1]])
         self.ps_stuff["triSideLength"][2].set_data(
             [self.tri.camPos[1][0],self.tri.camPos[0][0]], [self.tri.camPos[1][1],self.tri.camPos[0][1]])
-        
         retur=[]
         for key,val in self.ps_stuff.items():
             for el in val: retur.append(el)
