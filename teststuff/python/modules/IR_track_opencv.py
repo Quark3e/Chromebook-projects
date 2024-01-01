@@ -1,7 +1,7 @@
 
 import cv2
 import math
-
+import numpy as np
 
 def nothing(x):
     pass
@@ -47,6 +47,8 @@ class IR_camTrack(object):
             }
         }
     """
+    imgWinScal = [0.4, 0.4]
+
     IR_HSV_Val = [[0, 0, 255], [179, 9, 255]]
 
     kernel = np.ones((5, 5), np.uint8)
@@ -54,7 +56,7 @@ class IR_camTrack(object):
 
     imgTemp = []
     morphImg = []
-    thershImg = []
+    threshImg = []
 
     ret = []
     contours = []
@@ -62,18 +64,27 @@ class IR_camTrack(object):
     cntMoments = []
     frame = []
     tempPos = []
-    #cntPos = []
     def __init__(
             self,
-            camIdx,
-            prefres=[(640, 480)]
+            camIdx: list,
+            prefres=[(int(640), int(480))],
+            displayWindows=True,
         ):
+        """Class initialization
+
+        Args:
+            camIdx (list, int): List of indexes to connected webcam.
+            prefres (list, int): prefered resolution for cv tracking. Lower means faster but less detailed. Defaults to [(int(640), int(480))].
+            displayWindows (bool): Whether to display to a separate window. Defaults to True.
+        """
+        self.toDisplay = displayWindows
         if len(camIdx) != len(prefres): self.prefRes = len(camIdx)*[prefres][0]
         for i in camIdx:
             self.cam.update({i:{"winname": f"cam{int(i)}", "vidcapt":cv2.VideoCapture(i)}})
-            if toDisplay:
+            if self.toDisplay:
                 cv2.namedWindow(self.cam[i]["winname"])
                 hsv_trackbars(self.cam[i]["winname"], self.IR_HSV_Val)
+                cv2.moveWindow(self.cam[i]["winname"], round(i*self.prefRes[0]*imgWinScal[0]), 0)
             self.imgTemp.append(0)
             self.morphImg.append(0)
             self.threshImg.append(0)
@@ -83,14 +94,21 @@ class IR_camTrack(object):
             self.cntMoments.append(0)
             self.frame.append(0)
             self.tempPos.append(0)
+    def testCamWin(self):
+        self.update()
     def update(self):
         for i in range(len(self.cam)):
             self.ret[i], self.imgTemp[i] = self.cam[i]["vidcapt"].read()
         if False in self.ret:
-            print(f"Error: Could not open camera: cam idx{[n for n in range(len(ret)) if ret[n]==False]}")
+            print(f"Error: Could not open camera: cam idx{[n for n in range(len(self.ret)) if self.ret[n]==False]}")
             return None
         for i in range(len(self.cam)):
             self.tempPos[i], self.cntArea[i] = solveContours(self.contours[i], 0)
+            if self.toDisplay:
+                cv2.imshow(self.cam[i]["winname"], cv2.resize(np.vstack((self.morphImg[i],self.frame[i])), None, fx=self.imgWinScal[0], fy=self.imgWinScal[1]))
+                key = cv2.waitKey(5)
+                if key==27: return None
+        return 0
     def processFrame(self, img, flag, winName):
         hsvList = self.IR_HSV_Val
 
@@ -98,7 +116,7 @@ class IR_camTrack(object):
         self.frame[flag] = cv2.flip(self.frame[flag], 1)
         hsv = cv2.cvtColor(self.frame[flag], cv2.COLOR_BGR2HSV)
 
-        if displayToOpenCV:
+        if self.toDisplay:
             hsvList[0][0] = cv2.getTrackbarPos("L - H", self.cam[flag]["winname"])
             hsvList[0][1] = cv2.getTrackbarPos("L - S", self.cam[flag]["winname"])
             hsvList[0][2] = cv2.getTrackbarPos("L - V", self.cam[flag]["winname"])
@@ -114,8 +132,8 @@ class IR_camTrack(object):
         self.morphImg[flag] = cv2.erode(cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR), self.kernel, iterations=1)
         self.morphImg[flag] = cv2.dilate(self.morphImg[flag], self.kernel, iterations=6)
 
-        _, self.thresh[flag] = cv2.threshold(self.morphImg[flag], 127, 255, cv2.THRESH_BINARY)
-        self.contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(thresh[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        _, self.threshImg[flag] = cv2.threshold(self.morphImg[flag], 127, 255, cv2.THRESH_BINARY)
+        self.contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(self.threshImg[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 
 
