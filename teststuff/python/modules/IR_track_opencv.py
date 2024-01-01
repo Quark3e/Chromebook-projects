@@ -100,7 +100,7 @@ class IR_camTrack(object):
         for i in self.cam:
             self.ret[i], self.imgTemp[i] = self.cam[i]["vidcapt"].read()
         if False in self.ret:
-            print(f"Error: Could not open camera: cam idx{[n for n in self.ret if self.ret[n]==False]}")
+            print(f"Error: Could not open camera: cam idx{self.ret}")
             return None
         for i in self.cam:
             self.tempPos[i], self.cntArea[i] = solveContours(self.contours[i], 0)
