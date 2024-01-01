@@ -5,6 +5,7 @@ import os.path
 import cv2
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import math
 
 absPath = os.path.realpath(__file__)[:-len("realTest.py")]
 sys.path.append(absPath[:absPath.find("science")])
@@ -93,15 +94,17 @@ class AnimatedPlot(object):
         )
     def data_stream(self):
         i=0
-        self.testPos = [
-            math.sin(toRadians(i))*self.radius+self.basePos[0],
-            math.cos(toRadians(i))*self.radius+self.basePos[1],
-            self.basePos[2]
-        ]
-        self.tri.solvePos(self.testPos)
-        self.solvedPos = self.tri.solved_pos
+        self.testPos = 3*[0]
+        #    math.sin(toRadians(i))*self.radius+self.basePos[0],
+        #    math.cos(toRadians(i))*self.radius+self.basePos[1],
+        #    self.basePos[2]
+        #]
+        #self.tri.solvePos(self.testPos)
+        #self.solvedPos = self.tri.solved_pos
         while True:
-            if self.IRcams.update() == None: break
+            if self.IRcams.update() == None:
+                print("NOTE: IRcams.update() returned None: Exiting")
+                break
             self.tri.solvePos([self.IRcams.tempPos[0][0], self.IRcams.tempPos[1][0]])
             #for i in range(360, 0, -1):
             #    self.streamAngle = i
@@ -123,7 +126,7 @@ class AnimatedPlot(object):
             #    ])
             #    self.solvedPos = self.tri.solved_pos
             #    yield i
-            yield 0
+            yield self.IRcams.tempPos
     def setup_plot(self):
         next(self.stream)
 
