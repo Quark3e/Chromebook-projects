@@ -102,7 +102,7 @@ class AnimatedPlot(object):
         self.solvedPos = self.tri.solved_pos
         while True:
             if self.IRcams.update() == None: break
-            self.tri.solvePos([self.IRcams.tempPos[0][0], self.IRcams.tempPos[1][0])
+            self.tri.solvePos([self.IRcams.tempPos[0][0], self.IRcams.tempPos[1][0]])
             #for i in range(360, 0, -1):
             #    self.streamAngle = i
             #    self.testPos = [
