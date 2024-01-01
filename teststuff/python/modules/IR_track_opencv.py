@@ -84,7 +84,7 @@ class IR_camTrack(object):
             if self.toDisplay:
                 cv2.namedWindow(self.cam[i]["winname"])
                 hsv_trackbars(self.cam[i]["winname"], self.IR_HSV_Val)
-                cv2.moveWindow(self.cam[i]["winname"], round(i*self.prefRes[0]*self.imgWinScal[0]), 0)
+                cv2.moveWindow(self.cam[i]["winname"], round(i*self.prefRes[0][0]*self.imgWinScal[0]), 0)
             self.imgTemp.append(0)
             self.morphImg.append(0)
             self.threshImg.append(0)
