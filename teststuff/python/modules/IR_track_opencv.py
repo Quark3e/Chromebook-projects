@@ -103,6 +103,7 @@ class IR_camTrack(object):
             print(f"Error: Could not open camera: cam idx{self.ret}")
             return None
         for i in self.cam:
+            self.processFrame(self.imgTemp[i], i, self.cam[i]["winname"])
             self.tempPos[i], self.cntArea[i] = solveContours(self.contours[i], 0)
             if self.toDisplay:
                 cv2.imshow(self.cam[i]["winname"], cv2.resize(np.vstack((self.morphImg[i],self.frame[i])), None, fx=self.imgWinScal[0], fy=self.imgWinScal[1]))
