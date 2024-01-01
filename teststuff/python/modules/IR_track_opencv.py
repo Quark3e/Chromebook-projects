@@ -113,6 +113,7 @@ class IR_camTrack(object):
     def processFrame(self, img, flag, winName):
         hsvList = self.IR_HSV_Val
 
+        print(self.frame, "|", self.prefRes)
         self.frame[flag] = cv2.resize(img, self.prefRes[flag])
         self.frame[flag] = cv2.flip(self.frame[flag], 1)
         hsv = cv2.cvtColor(self.frame[flag], cv2.COLOR_BGR2HSV)
