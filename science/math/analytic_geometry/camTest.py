@@ -21,8 +21,8 @@ class AnimatedPlot(object):
     camAng_offset = [90, 180] #degrees
     streamAngle = 0 #degree
 
-    basePos = [0, 30, 0]
-    testPos = [15, 15, 0]
+    basePos = [0, 0, 0]
+    testPos = [0, 0, 0]
     solvedPos = [0, 0, 0]
 
     saveAnim = True
@@ -30,7 +30,7 @@ class AnimatedPlot(object):
         self.tri = camTriangle(self.camPos, self.camAng_offset)
         self.tri.solvePos(self.testPos[:2])
 
-        self.IRcams = IR_track.IR_camTrack([0,2])
+        self.IRcams = IR_track.IR_camTrack([2, 0])
 
         self.graphRange = {
             "frame": [
@@ -105,7 +105,8 @@ class AnimatedPlot(object):
             if self.IRcams.update() == None:
                 print("NOTE: IRcams.update() returned None: Exiting")
                 break
-            self.tri.solvePos([self.IRcams.tempPos[0][0], self.IRcams.tempPos[1][0]])
+            print("\t\t",[round(n,2) for n in self.IRcams.tempPos])
+            self.tri.solvePos([self.IRcams.tempPos[0][0], self.IRcams.tempPos[2][0]])
             #for i in range(360, 0, -1):
             #    self.streamAngle = i
             #    self.testPos = [
@@ -126,6 +127,7 @@ class AnimatedPlot(object):
             #    ])
             #    self.solvedPos = self.tri.solved_pos
             #    yield i
+            self.solvedPos = self.tri.solved_pos
             yield self.IRcams.tempPos
     def setup_plot(self):
         next(self.stream)
