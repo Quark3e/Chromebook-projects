@@ -54,16 +54,16 @@ class IR_camTrack(object):
     kernel = np.ones((5, 5), np.uint8)
     font = cv2.FONT_HERSHEY_SIMPLEX
 
-    imgTemp = []
-    morphImg = []
-    threshImg = []
+    imgTemp = {}
+    morphImg = {}
+    threshImg = {}
 
-    ret = []
-    contours = []
-    cntArea = []
-    cntMoments = []
-    frame = []
-    tempPos = []
+    ret = {}
+    contours = {}
+    cntArea = {}
+    cntMoments = {}
+    frame = {}
+    tempPos = {}
     def __init__(
             self,
             camIdx: list,
@@ -85,15 +85,15 @@ class IR_camTrack(object):
                 cv2.namedWindow(self.cam[i]["winname"])
                 hsv_trackbars(self.cam[i]["winname"], self.IR_HSV_Val)
                 cv2.moveWindow(self.cam[i]["winname"], round(i*self.prefRes[0][0]*self.imgWinScal[0]), 0)
-            self.imgTemp.append(0)
-            self.morphImg.append(0)
-            self.threshImg.append(0)
-            self.ret.append(0)
-            self.contours.append(0)
-            self.cntArea.append(0)
-            self.cntMoments.append(0)
-            self.frame.append(0)
-            self.tempPos.append(0)
+            self.imgTemp.update({i:0})
+            self.morphImg.update({i:0})
+            self.threshImg.update({i:0})
+            self.ret.update({i:0})
+            self.contours.update({i:0})
+            self.cntArea.update({i:0})
+            self.cntMoments.update({i:0})
+            self.frame.update({i:0})
+            self.tempPos.update({i:0})
     def testCamWin(self):
         self.update()
     def update(self):
@@ -102,7 +102,7 @@ class IR_camTrack(object):
         if False in self.ret:
             print(f"Error: Could not open camera: cam idx{[n for n in range(len(self.ret)) if self.ret[n]==False]}")
             return None
-        for i in range(len(self.cam)):
+        for i in self.cam:
             self.tempPos[i], self.cntArea[i] = solveContours(self.contours[i], 0)
             if self.toDisplay:
                 cv2.imshow(self.cam[i]["winname"], cv2.resize(np.vstack((self.morphImg[i],self.frame[i])), None, fx=self.imgWinScal[0], fy=self.imgWinScal[1]))
