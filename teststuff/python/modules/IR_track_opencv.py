@@ -78,7 +78,7 @@ class IR_camTrack(object):
             displayWindows (bool): Whether to display to a separate window. Defaults to True.
         """
         self.toDisplay = displayWindows
-        if len(camIdx) != len(prefres): self.prefRes = len(camIdx)*[prefres][0]
+        if len(camIdx) != len(prefres): self.prefRes = len(camIdx)*[prefres[0]]
         for i in camIdx:
             self.cam.update({i:{"winname": f"cam{int(i)}", "vidcapt":cv2.VideoCapture(i)}})
             if self.toDisplay:
