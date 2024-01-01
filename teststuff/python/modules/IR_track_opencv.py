@@ -99,7 +99,7 @@ class IR_camTrack(object):
     def update(self):
         for i in self.cam:
             self.ret[i], self.imgTemp[i] = self.cam[i]["vidcapt"].read()
-        if False in self.ret:
+        if False in [val for _,val in self.ret.items()]:
             print(f"Error: Could not open camera: cam idx{self.ret}")
             return None
         for i in self.cam:
