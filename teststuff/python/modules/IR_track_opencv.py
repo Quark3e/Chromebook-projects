@@ -116,7 +116,7 @@ class IR_camTrack(object):
         hsvList = self.IR_HSV_Val
 
         self.frame[flag] = cv2.resize(img, self.prefRes[flag])
-        self.frame[flag] = cv2.flip(self.frame[flag], 1)
+        #self.frame[flag] = cv2.flip(self.frame[flag], 1)
         hsv = cv2.cvtColor(self.frame[flag], cv2.COLOR_BGR2HSV)
 
         if self.toDisplay:
