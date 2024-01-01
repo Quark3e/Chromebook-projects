@@ -68,8 +68,8 @@ class camTriangle(object):
     def solvePos(self, rawPos, useAng=False):
         print([round(i) for i in rawPos], "    ", end="\r")
         self.read_pix = [
-            [rawPos[0]-self.camPos[0][0]*0.5, self.camPos[0][1]*0.5-rawPos[0]],
-            [rawPos[1]-self.camPos[1][0]*0.5, self.camPos[1][1]*0.5-rawPos[1]]
+            [rawPos[0]-self.camRes[0][0]*0.5, self.camRes[0][1]*0.5-rawPos[0]],
+            [rawPos[1]-self.camRes[1][0]*0.5, self.camRes[1][1]*0.5-rawPos[1]]
         ]
         self.ang_read = [
             self.read_pix[0][0]*self.camCoef[0][0],
