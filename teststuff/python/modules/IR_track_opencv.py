@@ -2,8 +2,29 @@
 import cv2
 import math
 
+
 def nothing(x):
     pass
+
+def solveContours(allContours, areaThreshold):
+    allPositions = [[], []]
+    totArea = 0
+    if len(allContours)==0: return [[0,0], 0]
+    # print(" len():", len(allContours), end=" ")
+    for cnt in allContours:
+        CntMoments = cv2.moments(cnt)
+        if CntMoments["m00"] != 0:
+            area = cv2.contourArea(cnt)
+            # print(area, end=" ")
+            if area>=areaThreshold:
+                allPositions[0].append(CntMoments["m10"]/CntMoments["m00"])
+                allPositions[1].append(CntMoments["m01"]/CntMoments["m00"])
+                totArea+=area
+    avgPos = [
+        int(round(sum(allPositions[0])/len(allPositions[0]))),
+        int(round(sum(allPositions[1])/len(allPositions[1])))
+    ]
+    return [avgPos, int(totArea)]
 
 def hsv_trackbars(winName, presetVal):
     cv2.createTrackbar("L - H", winName, presetVal[0][0], 179, nothing)
@@ -41,12 +62,13 @@ class IR_camTrack(object):
     cntMoments = []
     frame = []
     tempPos = []
-    cntPos = []
+    #cntPos = []
     def __init__(
             self,
             camIdx,
-            prefRes=[(640, 480)]
+            prefres=[(640, 480)]
         ):
+        if len(camIdx) != len(prefres): self.prefRes = len(camIdx)*[prefres][0]
         for i in camIdx:
             self.cam.update({i:{"winname": f"cam{int(i)}", "vidcapt":cv2.VideoCapture(i)}})
             if toDisplay:
@@ -61,10 +83,18 @@ class IR_camTrack(object):
             self.cntMoments.append(0)
             self.frame.append(0)
             self.tempPos.append(0)
+    def update(self):
+        for i in range(len(self.cam)):
+            self.ret[i], self.imgTemp[i] = self.cam[i]["vidcapt"].read()
+        if False in self.ret:
+            print(f"Error: Could not open camera: cam idx{[n for n in range(len(ret)) if ret[n]==False]}")
+            return None
+        for i in range(len(self.cam)):
+            self.tempPos[i], self.cntArea[i] = solveContours(self.contours[i], 0)
     def processFrame(self, img, flag, winName):
         hsvList = self.IR_HSV_Val
 
-        self.frame[flag] = cv2.resize(img, prefRes)
+        self.frame[flag] = cv2.resize(img, self.prefRes[flag])
         self.frame[flag] = cv2.flip(self.frame[flag], 1)
         hsv = cv2.cvtColor(self.frame[flag], cv2.COLOR_BGR2HSV)
 
