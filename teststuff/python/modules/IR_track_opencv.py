@@ -97,7 +97,7 @@ class IR_camTrack(object):
     def testCamWin(self):
         self.update()
     def update(self):
-        for i in range(len(self.cam)):
+        for i in self.cam:
             self.ret[i], self.imgTemp[i] = self.cam[i]["vidcapt"].read()
         if False in self.ret:
             print(f"Error: Could not open camera: cam idx{[n for n in range(len(self.ret)) if self.ret[n]==False]}")
