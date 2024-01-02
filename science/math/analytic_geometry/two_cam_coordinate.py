@@ -64,7 +64,7 @@ class camTriangle(object):
         #    # self.ang_offset[1]-self.ang_d[1]-self.ang_read[1]
         #]
         self.ang_tri = [
-            (90)-self.ang_d[0]-self.ang_read[0],
+            90-self.ang_d[0]-self.ang_read[0],
             180-self.ang_offset[1]+self.ang_d[0]+self.ang_read[1]
             #self.ang_d[0] + self.ang_read[1] + 180-self.ang_offset[1]
         ]
