@@ -218,7 +218,7 @@ class AnimatedPlot(object):
                 ])
                 self.solvedPos = self.tri.solved_pos
                 print(
-                    f"solved pos: [{round(self.solvedPos[0],1):>4}:{round(self.solvedPos[1]):>4}]", " | ",
+                    f"ang:{i:>3} | solved pos: [{round(self.solvedPos[0],1):>4}:{round(self.solvedPos[1]):>4}]", " | ",
                     end="\r")
                 yield i
     def setup_plot(self):
