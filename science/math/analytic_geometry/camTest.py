@@ -18,7 +18,7 @@ from teststuff.python.matplotlib.basic.nonFilled_arc import drawArc
 
 
 class AnimatedPlot(object):
-    camPos = [[-7, 0, 0], [7, 0, 0]]
+    camPos = [[-6, 0, 0], [6, 0, 0]]
     camAng_offset = [90, 90] #degrees
     streamAngle = 0 #degree
 
@@ -30,31 +30,60 @@ class AnimatedPlot(object):
 
     timeDelta = 2*[0]
 
+    winToDisp = {
+        "opencv": False,
+        "pyplot": False
+    }
+
     def __init__(self):
         self.timeDelta[0] = time.perf_counter()
-        
+
         self.tri = camTriangle(self.camPos, self.camAng_offset)
         try:
             self.tri.solvePos(self.testPos[:2])
         except ZeroDivisionError:
             print(f"Error: camTest.py: ZeroDivisionError")
             self.tri.l_tri = [1, 1]
-        self.IRcams = IR_track.IR_camTrack([2, 0])
 
-        self.graphRange = {
-            "frame": [
-                [
-                    min([self.camPos[0][0], self.camPos[1][0]])-15,
-                    max([self.camPos[0][0], self.camPos[1][0]])+15
-                ],
-                [
-                    min([self.camPos[0][1], self.camPos[1][1]])-1,
-                    max([self.camPos[0][1], self.camPos[1][1]])+50,
+        self.IRcams = IR_track.IR_camTrack([2, 0], displayWindows=self.winToDisp["opencv"])
+
+        if self.winToDisp["pyplot"]:
+            self.graphRange = {
+                "frame": [
+                    [
+                        min([self.camPos[0][0], self.camPos[1][0]])-15,
+                        max([self.camPos[0][0], self.camPos[1][0]])+15
+                    ],
+                    [
+                        min([self.camPos[0][1], self.camPos[1][1]])-1,
+                        max([self.camPos[0][1], self.camPos[1][1]])+50,
+                    ]
                 ]
-            ]
-        }
+            }
 
         self.stream = self.data_stream()
+
+        if not self.winToDisp["pyplot"]:
+            self.timeDelta[0] = time.perf_counter()
+            try:
+                while True:
+                    self.timeDelta[1] = time.perf_counter()
+                    if self.IRcams.update() == None:
+                        print("NOTE: IRcams.update() returned None: Exiting")
+                        break
+                    try: self.tri.solvePos([self.IRcams.tempPos[0][0], self.IRcams.tempPos[2][0]])
+                    except ZeroDivisionError: print("Error: camTest.py: ZeroDivisionError")
+
+                    self.solvedPos = self.tri.solved_pos
+                    print(
+                        f"solved pos: [{round(self.solvedPos[0],1):>4}:{round(self.solvedPos[1]):>4}]", " | ",
+                        f"fps: {round(1/(self.timeDelta[1]-self.timeDelta[0]),4):>6}",
+                        end="\r")
+                    self.timeDelta[0] = self.timeDelta[1]
+            except KeyboardInterrupt:
+                print("KeyboardInterrupt: Exiting...")
+            return
+
         # self.fig = plt.figure(figsize=(9,4))
         self.fig = plt.figure(figsize=(9,6))
         self.ax = {
@@ -71,7 +100,6 @@ class AnimatedPlot(object):
             self.ax[key].set_aspect("equal")
             self.ax[key].grid("equal")
             count+=1
-
 
         self.centAlignArc = [
             drawArc(self.ax["frame"], self.tri.camPos[0][:2],7,0,self.camAng_offset[0],True,3,plotColor="gray"),
@@ -115,8 +143,9 @@ class AnimatedPlot(object):
             self.solvedPos = self.tri.solved_pos
             print(
                 f"solved pos: [{round(self.solvedPos[0],1):>4}:{round(self.solvedPos[1]):>4}]", " | ",
-                f"fps: {round(self.timeDelta[1]-self.timeDelta[0],4):>6}",
+                f"fps: {round(1/(self.timeDelta[1]-self.timeDelta[0]),4):>6}",
                 end="\r")
+            self.timeDelta[0] = self.timeDelta[1]
             yield self.IRcams.tempPos
     def setup_plot(self):
         next(self.stream)
