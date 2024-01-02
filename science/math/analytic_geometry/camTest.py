@@ -32,7 +32,7 @@ class AnimatedPlot(object):
 
     winToDisp = {
         "opencv": False,
-        "pyplot": False
+        "pyplot": True
     }
 
     def __init__(self):
@@ -149,6 +149,11 @@ class AnimatedPlot(object):
             yield self.IRcams.tempPos
     def setup_plot(self):
         next(self.stream)
+
+        camFov_arc = [
+            drawArc(self.ax["frame"], self.tri.camPos[0][:2],10,self.tri.camFOV[0][0],self.camAng_offset[0]-self.tri.camFOV[0][0]/2,True,20,plotLinestyle="dotted"),
+            drawArc(self.ax["frame"], self.tri.camPos[1][:2],10,self.tri.camFOV[1][0],self.camAng_offset[1]-self.tri.camFOV[1][0]/2,True,20,plotLinestyle="dotted"),
+        ]
 
         self.ax["frame"].plot([self.tri.camPos[0][0], self.tri.camPos[0][0]+math.cos(toRadians(self.tri.ang_offset[0]))*10],
                               [self.tri.camPos[0][1], self.tri.camPos[0][1]+math.sin(toRadians(self.tri.ang_offset[0]))*10],

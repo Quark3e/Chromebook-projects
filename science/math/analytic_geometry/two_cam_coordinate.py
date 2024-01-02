@@ -217,9 +217,20 @@ class AnimatedPlot(object):
                     toSolveAng[1]/self.tri.camCoef[1][0]+self.tri.camRes[1][0]*0.5
                 ])
                 self.solvedPos = self.tri.solved_pos
+                print(
+                    f"solved pos: [{round(self.solvedPos[0],1):>4}:{round(self.solvedPos[1]):>4}]", " | ",
+                    end="\r")
                 yield i
     def setup_plot(self):
         next(self.stream)
+
+
+        camFov_arc = [
+            drawArc(self.ax["frame"], self.tri.camPos[0][:2],10,self.tri.camFOV[0][0],self.camAng_offset[0]-self.tri.camFOV[0][0]/2,True,20,plotLinestyle="dotted",plotAlpha=0.2),
+            drawArc(self.ax["frame"], self.tri.camPos[1][:2],10,self.tri.camFOV[1][0],self.camAng_offset[1]-self.tri.camFOV[1][0]/2,True,20,plotLinestyle="dotted",plotAlpha=0.2),
+        ]
+        camFov_arc[0].setup()
+        camFov_arc[1].setup()
 
         self.ax["frame"].plot(
             [self.tri.camPos[0][0], self.tri.camPos[0][0]+math.cos(toRadians(self.tri.ang_offset[0]))*10],
@@ -347,7 +358,6 @@ class AnimatedPlot(object):
             [self.tri.camPos[1][0],self.tri.camPos[0][0]], [self.tri.camPos[1][1],self.tri.camPos[0][1]])
         retur=[]
 
-        print("")
         for key,val in self.ps_stuff.items():
             for el in val: retur.append(el)
         return retur
@@ -358,8 +368,9 @@ if __name__=="__main__":
 
     fileName = "cam0.gif"
     # To save the animation using Pillow as a gif
-    #writer = animation.PillowWriter(fps=15,
-    #                                metadata=dict(artist='Me'),
-    #                                bitrate=1800)
-    #a.ani.save(absPath+fileName, writer=writer)
+    if AnimatedPlot.saveAnim:
+        writer = animation.PillowWriter(fps=15,
+                                    metadata=dict(artist='Me'),
+                                    bitrate=1800)
+        a.ani.save(absPath+fileName, writer=writer)
     plt.show()
