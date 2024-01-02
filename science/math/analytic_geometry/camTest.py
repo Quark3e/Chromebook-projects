@@ -43,7 +43,7 @@ class AnimatedPlot(object):
                 ],
                 [
                     min([self.camPos[0][1], self.camPos[1][1]])-1,
-                    max([self.camPos[0][1], self.camPos[1][1]])+30,
+                    max([self.camPos[0][1], self.camPos[1][1]])+50,
                 ]
             ]
         }
@@ -133,6 +133,7 @@ class AnimatedPlot(object):
             #    self.solvedPos = self.tri.solved_pos
             #    yield i
             self.solvedPos = self.tri.solved_pos
+            print(f"solved pos: [{round(self.solvedPos[0],1):>4}:{round(self.solvedPos[1]):>4}]", end="\r")
             yield self.IRcams.tempPos
     def setup_plot(self):
         next(self.stream)
@@ -260,7 +261,6 @@ class AnimatedPlot(object):
             [self.solvedPos[0],self.tri.camPos[1][0]], [self.solvedPos[1],self.tri.camPos[1][1]])
         self.ps_stuff["triSideLength"][2].set_data(
             [self.tri.camPos[1][0],self.tri.camPos[0][0]], [self.tri.camPos[1][1],self.tri.camPos[0][1]])
-        print("")
         retur=[]
         for key,val in self.ps_stuff.items():
             for el in val: retur.append(el)

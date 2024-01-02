@@ -68,7 +68,7 @@ class camTriangle(object):
             180-self.ang_offset[1]+self.ang_d[0]+self.ang_read[1]
             #self.ang_d[0] + self.ang_read[1] + 180-self.ang_offset[1]
         ]
-        print([round(i,1) for i in self.ang_read], "|", [round(i,2) for i in self.ang_tri], end=" | ")
+        #print([round(i,1) for i in self.ang_read], "|", [round(i,2) for i in self.ang_tri], end=" | ")
         self.ang_p = 180 - abs(self.ang_tri[0]) - abs(self.ang_tri[1])
     def solvePos(self, rawPos, useAng=False):
         self.read_pix = [
