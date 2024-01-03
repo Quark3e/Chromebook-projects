@@ -31,7 +31,7 @@ class AnimatedPlot(object):
     timeDelta = 2*[0]
 
     winToDisp = {
-        "opencv": False,
+        "opencv": True,
         "pyplot": True
     }
 
