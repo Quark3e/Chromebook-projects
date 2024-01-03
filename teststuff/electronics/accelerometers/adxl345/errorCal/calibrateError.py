@@ -36,7 +36,7 @@ def takeReading(wifiOrient):
         time.sleep(0.2)
     return readVal
 def main():
-    wifiOrient = IK.nodemcuOrient(emptyTest="pi" not in absPath)
+    wifiOrient = IK.espOrient(emptyTest="pi" not in absPath)
     wifiOrient.client_socket.settimeout(1)
     print("\nStarting calibration testing:",10*"-")
     for key,val in offsets.items():

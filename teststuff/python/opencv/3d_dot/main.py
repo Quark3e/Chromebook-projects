@@ -20,9 +20,11 @@ def toRadians(degrees):
 def toDegrees(radians):
     return (radians*180)/np.pi
 
+absPath = os.path.realpath(__file__)[:-len("main.py")]
+sys.path.append(absPath[:absPath.find("teststuff")])
 
 
-#float cppVersion[181][181][401] = #[roll][pitch][z] = area (solve z by going through each z for closest area)
+#float cppVersion[181][181][401] = #[nodeObj.roll][nodeObj.Pitch][z] = area (solve z by going through each z for closest area)
 csvFileChart = [[[None for z in range(401)] for y in range(181)] for x in range(181)] #[180][180][400]=area
 
 
@@ -38,66 +40,16 @@ def csv_loadData():
         with open(filePath+fileNom[0]+str(i)+fileNom[1], "r") as f:
             next(f, None)
             for line in f:
-                roll, pitch, z, area = [float(var) for var in line.split(",")]
-                csvFileChart[round(roll+90)][round(pitch+90)][round(z)] = area
+                nodeObj.roll, nodeObj.Pitch, z, area = [float(var) for var in line.split(",")]
+                csvFileChart[round(nodeObj.roll+90)][round(nodeObj.Pitch+90)][round(z)] = area
     print("Finished loading.")
 
     return
 
 
 
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-client_socket.settimeout(0.5)
-client_msg = b"fromClient"
-addr = ("192.168.1.118", 53)
-server_msg = ""
-def reqToServer():
-    global server_msg, elapsedTime
-    start = time.time()
-    client_socket.sendto(client_msg, addr)
-    try:
-        tempData, server = client_socket.recvfrom(1024)
-        end = time.time()
-        elapsedTime = end - start
-        server_msg = tempData.decode()
-    except socket.timeout:
-        print("request timed out")
-
-
-using_lTemp = True
-
-X_out, Y_out, Z_out = 0.1, 0.1, 0.1
-Roll, Pitch, roll, pitch = 0.1, 0.1, 0.1, 0.1
-tiltFilter = 0.1
-
-def readAccelerometer(printText=True):
-    global X_out, Y_out, Z_out, Roll, Pitch, roll, pitch
-    reqToServer()
-    if len(server_msg)>=1 and (server_msg[:1]=="{" and server_msg[-5]=="}" and server_msg[-1]==";"):
-        tempMsg = server_msg.replace(":", ",")
-        msgTuple = eval(tempMsg[1:-5])
-        X_out, Y_out, Z_out = msgTuple
-    
-    # if printText: print(f" accel: x:{X_out} y:{Y_out} z:{Z_out} roll:{roll} pitch:{pitch}", end='\r')
-    
-    if X_out > 1: X_out = 1
-    if Y_out > 1: Y_out = 1
-    if Z_out > 1: Z_out = 1
-    if X_out < -1: X_out = -1
-    if Y_out < -1: Y_out = -1
-    if Z_out < -1: Z_out = -1
-    if X_out==0: X_out=0.1
-    if Y_out==0: Y_out=0.1
-    if Z_out==0: Z_out=0.1
-    #x is roll and y is pitch (it's switched so the servo can be fit to the servo robot arm)
-    pitch = math.atan(Y_out / math.sqrt(pow(X_out, 2) + pow(Z_out, 2))) * 180 / np.pi
-    roll = math.atan(-1 * X_out / math.sqrt(pow(Y_out, 2) + pow(Z_out, 2))) * 180 / np.pi
-    #filter
-    Roll = (1-tiltFilter) * Roll + tiltFilter * roll
-    Pitch = (1-tiltFilter) * Pitch + tiltFilter * pitch
-    if printText:
-        print(f"{using_lTemp:<5}  x:{round(X_out,2):>5}  y:{round(Y_out,2):>5}  z:{round(Z_out,2):>5}  roll:{round(roll,2):>5} pitch:{round(pitch,2):>5}           ", end='\r')
-
+import teststuff.python.modules.nodemcu.main_h as nodeCl
+nodeObj = nodeCl.espOrient()
 
 def checkfunc(x):
     global using_lTemp
@@ -109,7 +61,7 @@ def checkfunc(x):
         1.95152915*10**-15, -1.11701396*10**-11, 4.32049796*10**-8, -1.11313493*10**-4,
         1.82568080*10**-1, -1.72185711*10**2, 7.15691211*10**4]
 
-    lTemp = [csvFileChart[int(Roll+90)][int(Pitch+90)][i] for i in range(401)]
+    lTemp = [csvFileChart[int(nodeObj.Roll+90)][int(nodeObj.Pitch+90)][i] for i in range(401)]
 
     # using_lTemp = not None in lTemp
     # print(lTemp.index(None))
@@ -119,13 +71,11 @@ def checkfunc(x):
     if using_lTemp: return lTemp.index(min(lTemp, key=lambda r: abs(r-x)))
     else: return sum([c[n]*(x**(10-n)) for n in range(len(c))])
 
-
 def polyTest(xData):
     return [checkfunc(x) for x in xData]
 
 
-reqToServer()
-readAccelerometer()
+nodeObj.readAccelerometer()
 
 cam = [cv2.VideoCapture(2), cv2.VideoCapture(0)] # [area/xy, z]
 prefRes = (640, 480)
@@ -248,7 +198,7 @@ def camPos_update():
                         cntPos_z = checkfunc(cntArea)
                         if displayToOpenCV:
                             morphImg[flag] = cv2.putText(morphImg[flag],str(int(cntArea)),(tempPos[0],tempPos[1]),font,1, (255,0,0),2)
-                        readAccelerometer(True)
+                        nodeObj.readAccelerometer(printText=True)
                     elif flag==1:
                         tempPos = [int(cntMoments['m10']/cntMoments['m00']),int(cntMoments['m01']/cntMoments['m00'])]
                         if displayToOpenCV:

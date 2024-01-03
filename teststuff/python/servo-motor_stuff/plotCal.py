@@ -39,14 +39,14 @@ import sys
 import os
 import os.path
 absPath = str(os.path.realpath(__file__)[:len(str(os.path.realpath(__file__)))-len("plotCal.py")])
-sys.path.append(absPath[:len(absPath)-len("teststuff/python/servo-motor-stuff/")]+"projects/")
-# sys.path.append("/home/berkhme/github_repo/Chromebook-projects/projects/")
+sys.path.append(absPath[:absPath.find("teststuff")])
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-import proj_Hexclaw.IK_module as IK #type: ignore
+import projects.proj_Hexclaw.IK_module as IK #type: ignore
+# import teststuff.python.modules.nodemcu.main_h as nodCl
 
-wifiOrient = IK.nodemcuOrient()
+wifiOrient = IK.espOrient()
 sCntrl = IK.HC_servoControl()
 
 sCntrl.toServo([135,45,180,45,180,90],0,mode=0)
