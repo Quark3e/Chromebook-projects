@@ -64,18 +64,18 @@ class espOrient(object):
     def readAccelerometer(self, printText=True):
         if self.emptyTest:
             from random import randrange
-            self.server_msg = "{"+f"{randrange(-10,11)/10}:{randrange(-10,10)/10}:{randrange(-10,10)/10}"+"}off;"
+            self.espObj.server_msg = "{"+f"{randrange(-10,11)/10}:{randrange(-10,10)/10}:{randrange(-10,10)/10}"+"}off;"
         else: self.espObj.reqToServer()
-        if len(self.server_msg)>=1 and \
-            (self.server_msg[:1]=="{" and \
-             self.server_msg[-5]=="}" and \
-             self.server_msg[-1]==";"):
-            tempMsg = self.server_msg.replace(":", ",")
+        if len(self.espObj.server_msg)>=1 and \
+            (self.espObj.server_msg[:1]=="{" and \
+             self.espObj.server_msg[-5]=="}" and \
+             self.espObj.server_msg[-1]==";"):
+            tempMsg = self.espObj.server_msg.replace(":", ",")
             msgTuple = eval(tempMsg[1:-5])
             self.axis_g[0], self.axis_g[1], self.axis_g[2] = msgTuple
             self.axis_g = [self.axis_g[i]-self.axis_Err[i] for i in range(len(self.axis_g))]
             if printText:
-                print(f"| x:{round(self.axis_g[0],1):>4}| y:{round(self.axis_g[1],1):>4}| z:{round(self.axis_g[2],1):>4}| roll:{round(self.Rolloll,2):>7}| pitch:{round(self.Pitch,2):>7}|", end='\r')
+                print(f"| x:{round(self.axis_g[0],1):>4}| y:{round(self.axis_g[1],1):>4}| z:{round(self.axis_g[2],1):>4}| roll:{round(self.Roll,2):>7}| pitch:{round(self.Pitch,2):>7}|", end='\r')
         else:
             if printText: print("server_msg length is 0 or smaller")
     
