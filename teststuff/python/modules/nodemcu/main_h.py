@@ -84,9 +84,9 @@ class espOrient(object):
             if self.axis_g[i] > 1: self.axis_g[i] = 1
             elif self.axis_g[i] < -1: self.axis_g[i] = -1
             elif self.axis_g[i] == 0: self.axis_g[i] = 0.01
-        self.axis_gModified = [
-            self.axis_g[i]*self.axis_gFilter[i] +
-            self.axis_gModified[i]*(1-self.axis_gFilter[i]) 
+        self.axis_gModified = [(
+            self.axis_g[i]**2*self.axis_gFilter[i] +
+            self.axis_gModified[i]**2*(1-self.axis_gFilter[i]))**(1/2)
             for i in range(len(self.axis_gModified))
         ]
 
