@@ -19,7 +19,7 @@ from teststuff.python.matplotlib.basic.nonFilled_arc import drawArc
 
 class AnimatedPlot(object):
     camPos = [[0, 0, 0], [25, 0, 0]]
-    camAng_offset = [90, 120] #degrees
+    camAng_offset = [90, 123] #degrees
     streamAngle = 0 #degree
 
     basePos = [0, 0, 0]
