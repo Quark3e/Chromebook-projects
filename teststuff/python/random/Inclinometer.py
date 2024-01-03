@@ -13,10 +13,10 @@ from teststuff.python.modules.nodemcu.main_h import *
 
 def main():
     wifiOrient = espOrient()
-    
+    wifiOrient.espObj.client_socket.settimeout(2)
     while True:
         wifiOrient.readAccelerometer()
-        time.sleep(0.01)
+        time.sleep(0.1)
 
 if __name__=="__main__":
     main()
