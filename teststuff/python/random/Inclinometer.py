@@ -20,6 +20,7 @@ def main():
             time.sleep(0.02)
         except KeyboardInterrupt:
             print("\nexiting..")
+            break
 
 if __name__=="__main__":
     main()
