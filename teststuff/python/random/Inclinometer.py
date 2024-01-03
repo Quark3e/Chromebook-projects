@@ -15,8 +15,11 @@ def main():
     wifiOrient = espOrient()
     wifiOrient.espObj.client_socket.settimeout(2)
     while True:
-        wifiOrient.readAccelerometer()
-        time.sleep(0.1)
+        try:    
+            wifiOrient.readAccelerometer()
+            time.sleep(0.02)
+        except KeyboardInterrupt:
+            print("\nexiting..")
 
 if __name__=="__main__":
     main()

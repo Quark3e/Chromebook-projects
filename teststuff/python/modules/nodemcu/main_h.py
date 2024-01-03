@@ -75,7 +75,9 @@ class espOrient(object):
             self.axis_g[0], self.axis_g[1], self.axis_g[2] = msgTuple
             self.axis_g = [self.axis_g[i]-self.axis_Err[i] for i in range(len(self.axis_g))]
             if printText:
-                print(f"| x:{round(self.axis_g[0],1):>4}| y:{round(self.axis_g[1],1):>4}| z:{round(self.axis_g[2],1):>4}| roll:{round(self.Roll,2):>7}| pitch:{round(self.Pitch,2):>7}|", end='\r')
+                print(
+                    f"| x:{round(self.axis_g[0],1):>4}| y:{round(self.axis_g[1],1):>4}| z:{round(self.axis_g[2],1):>4}| roll:{round(self.roll,1):>6}| pitch:{round(self.pitch,1):>6}| Roll:{round(self.Roll,2):>7}| Pitch:{round(self.Pitch,2):>7}|",
+                    end='\r')
         else:
             if printText: print("server_msg length is 0 or smaller")
     
