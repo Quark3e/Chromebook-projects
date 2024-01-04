@@ -322,6 +322,7 @@ bool getAngles(
 
 	float a1 = a - q[0];
 	float b1 = b - (q[1] + q[2]);
+    a1 = a1*cos(b); //debug: True
 	
 	if(true) {a1 = a1*cos(b);}
 
@@ -341,6 +342,7 @@ bool getAngles(
 	}
 
 	frame1X = (arm_link[4]+arm_link[5])*cos(b1)*sin(a1);
+    frame1X*=cos(b); //debug: True
 	//frame1X = frame1X*cos(b);
 	frame1Y = (arm_link[4]+arm_link[5])*cos(b1)*cos(a1);
 	frame1Z = (arm_link[4]+arm_link[5])*sin(b1);
@@ -354,11 +356,13 @@ bool getAngles(
 	}
 	else if(b1<0 || b1>0) q[3]=atan(frame1X/frame1Z);
 
-	if(true) {
-		if(b1>0) q[3]=0-a1;
-		else q[3]=a1;
-	}
-	
+    if(b1>0) q[3]=0-a1;
+    else q[3]=a1;
+
+    if(b<0) q[3] = 0-a1; //debug: True
+    else q[3] = a1; //debug: True
+    if(b1<0) q[3] = 0-a1; //debug: True
+    else q[3] = a1; //debug: True
 
 	if(isnan(asin(sqrt(pow(frame1X, 2) + pow(frame1Z, 2)) / (arm_link[4]+arm_link[5])))) {
 		if(printErrors) printf("q5 error: can't solve it\n");
