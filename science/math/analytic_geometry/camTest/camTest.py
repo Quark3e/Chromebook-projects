@@ -13,7 +13,7 @@ sys.path.append(absPath[:absPath.find("science")])
 
 import teststuff.python.modules.IR_track_opencv as IR_track
 
-from two_cam_coordinate import camTriangle, toRadians, toDegrees
+from science.math.analytic_geometry.two_cam_coordinate import camTriangle, toRadians, toDegrees
 from teststuff.python.matplotlib.basic.nonFilled_arc import drawArc
 
 

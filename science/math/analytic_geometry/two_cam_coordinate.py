@@ -119,7 +119,7 @@ class AnimatedPlot(object):
     testPos = [15, 15, 0]
     solvedPos = [0, 0, 0]
 
-    saveAnim = True
+    saveAnim = False
     def __init__(self):
         self.tri = camTriangle(self.camPos, self.camAng_offset)
         try:
