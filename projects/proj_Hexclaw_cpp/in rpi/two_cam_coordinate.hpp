@@ -7,6 +7,7 @@
 float toDegrees(float radians) { return (radians*pi)/180; }
 float toRadians(float degrees) { return (degrees*180)/pi; }
 
+/// @brief Class to solve object position relative to the position of two webcams via seen pixel positions
 class camTriangle {
     public:
     float camPos[2][2];
