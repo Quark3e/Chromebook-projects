@@ -83,6 +83,8 @@ class IR_camTrack(object):
             for i in camIdx: self.prefRes.update({i:prefres[0]})
         for i in camIdx:
             self.cam.update({i:{"winname": f"cam{int(i)}", "vidcapt":cv2.VideoCapture(i)}})
+            self.cam[i]["vidcapt"].set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode
+            
             if self.toDisplay:
                 cv2.namedWindow(self.cam[i]["winname"])
                 hsv_trackbars(self.cam[i]["winname"], self.IR_HSV_Val)

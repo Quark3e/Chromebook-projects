@@ -200,7 +200,7 @@ void load_csvFile(string filePath = "data/csv_dataSet_pf17_fuse-True.csv") {
 int prefSize[2] = {640, 480};
 
 /// @brief FOV of webcam in degrees
-float camFOV[2] = {round(43*(640/480)), 43};
+float camFOV[2] = {round(45*(640/480)), 45};
 /// @brief Number of angles for each pixel
 float angPerPix = camFOV[1]/prefSize[1];
 
