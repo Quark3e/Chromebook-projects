@@ -30,7 +30,10 @@ class camTriangle {
 
     float solvedPos[2] = {0, 0};
 
-    camTriangle(float camLocation[2], float camAngleOffset[2]) {
+    /// @brief camTriangle class initializor function
+    /// @param camLocation real world location of webcams {{x, y}, {x, y}}
+    /// @param camAngleOffset [unit: degrees] webcam offset angle relative to X-axis plane, perpendicular is 90 degrees
+    camTriangle(float camLocation[2][2], float camAngleOffset[2]) {
         ang_offset[0] = camAngleOffset[0];
         ang_offset[1] = camAngleOffset[1];
 
@@ -56,6 +59,10 @@ class camTriangle {
         ang_tri[1] = 180-ang_offset[1]+ang_d[0]+ang_read[1];
         ang_p = 180 - abs(ang_tri[0]) - abs(ang_tri[1]);
     }
+    /// @brief Solve real world positions from given webcam pixel positions
+    /// @param rawPos Unchanged pixel positions from both webcams NOTE:(x: left->right; y: up->down)
+    /// @param returnArr return array to get solved values
+    /// @param printText whether to print solved positions (in newline)
     void solvePos(float rawPos[2], float returnArr[2], bool printText=false) {
         read_pix[0][0] = rawPos[0]-camRes[0][0]*0.5;
         read_pix[1][0] = rawPos[1]-camRes[1][0]*0.5;
