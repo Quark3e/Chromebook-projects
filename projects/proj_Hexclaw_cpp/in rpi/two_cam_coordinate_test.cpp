@@ -31,7 +31,7 @@ vector<cv::Vec4i> hierarchy1;
 int areaLim = 1000;
 float validCnt_pos[20][2];
 int validCnt_index = 0;
-float totCnt_pos[2];
+float totCnt_pos[2][2];
 float totCnt_area = 0;
 
 /// @brief Get avg xy coordinates from list of coordinates
@@ -70,6 +70,9 @@ void updateTrackbarPos(const char* win_name) {
 	cv::setTrackbarPos("HighV", win_name, u_HSV[2]);
 }
 
+
+
+cv::Mat totImg, imgRaw[2], imgOriginal[2], imgFlipped[2], imgHSV[2], imgThreshold[2];
 
 int processFrame(cv::VideoCapture* cap, int idx) {
     if(!(cap->read(imgRaw[idx]))) {
@@ -127,12 +130,13 @@ int processFrame(cv::VideoCapture* cap, int idx) {
         }
     }
     if(validCnt_index > 0) {
-        getAvg_cntPos(validCnt_pos, validCnt_index, totCnt_pos);
-        cv::circle(imgFlipped[idx],cv::Point(totCnt_pos[0],totCnt_pos[1]),50,cv::Scalar(0,0,0),2);
-        cv::putText(imgFlipped[idx],to_string(int(totCnt_area)),cv::Point(totCnt_pos[0],totCnt_pos[1]),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false);
+        getAvg_cntPos(validCnt_pos, validCnt_index, totCnt_pos[idx]);
+        cv::circle(imgFlipped[idx],cv::Point(totCnt_pos[idx][0],totCnt_pos[idx][1]),50,cv::Scalar(0,0,0),2);
+        cv::putText(imgFlipped[idx],to_string(int(totCnt_area)),cv::Point(totCnt_pos[idx][0],totCnt_pos[idx][1]),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false);
     }
 
-    
+    cv::cvtColor(imgThreshold[idx], imgThreshold[idx], cv::COLOR_GRAY2BGR);
+    cv::vconcat(imgFlipped[idx], imgThreshold[idx], imgFlipped[idx])
 
     return 0;
 }
@@ -152,14 +156,13 @@ int main(int argc, char* argv[]) {
     cv::namedWindow(win_name);
     createTrackbars(win_name);
 
-    cv::Mat imgRaw[2], imgOriginal[2], imgFlipped[2], imgHSV[2], imgThreshold[2];
 
     while(true) {
+        processFrame(&cap0, 0);
+        processFrame(&cap1, 1);
 
-
-
+        cv::hconcat()
     }
-
 
     return 0;
 }
