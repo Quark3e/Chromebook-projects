@@ -131,6 +131,7 @@ int processFrame(cv::VideoCapture* cap, int idx) {
         cv::circle(imgFlipped[idx],cv::Point(totCnt_pos[0],totCnt_pos[1]),50,cv::Scalar(0,0,0),2);
         cv::putText(imgFlipped[idx],to_string(int(totCnt_area)),cv::Point(totCnt_pos[0],totCnt_pos[1]),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false);
     }
+
     
 
     return 0;
