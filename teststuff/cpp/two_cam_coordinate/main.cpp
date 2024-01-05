@@ -75,32 +75,48 @@ void updateTrackbarPos(const char* win_name) {
 cv::Mat imgRaw[2], imgOriginal[2], imgFlipped[2], imgHSV[2], imgThreshold[2];
 
 int processFrame(cv::VideoCapture* cap, int idx) {
+    clock_t t1 = clock();
     bool test = (cap->read(imgRaw[idx]));
     if(!test) {
         printf("error: Cannot read frame from webcam[%d]",idx);
         cv::destroyAllWindows();
         return -1;
     }
+    printf("|read:  %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
 
+    t1 = clock();
     cv::resize(imgRaw[idx], imgOriginal[idx], cv::Size(prefSize[0],prefSize[1]), cv::INTER_LINEAR);
+    printf("|resize:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
+
+    t1 = clock();
     // cv::flip(imgOriginal[idx], imgFlipped[idx], 1); //temporarily disabled
     imgFlipped[idx] = imgOriginal[idx];
     cv::cvtColor(imgFlipped[idx], imgHSV[idx], cv::COLOR_BGR2HSV);
+    printf("|cvtC:  %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
+
+    t1 = clock();
     cv::inRange(
         imgHSV[idx],
         cv::Scalar(l_HSV[0], l_HSV[1], l_HSV[2]),
         cv::Scalar(u_HSV[0], u_HSV[1], u_HSV[2]),
         imgThreshold[idx]
     );
+    printf("|inRan: %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
 
+    t1 = clock();
     cv::erode(imgThreshold[idx], imgThreshold[idx], cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
+    printf("|erode: %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
+    t1 = clock();
     cv::dilate(imgThreshold[idx], imgThreshold[idx], cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 6); 
+    printf("|dilate:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
 
+    t1 = clock();
     cv::Moments imgMoments = cv::moments(imgThreshold[idx]);
     double dM01 = imgMoments.m01;
     double dM10 = imgMoments.m10;
     double dArea = imgMoments.m00;
     if(idx==0) cv::findContours(imgThreshold[idx], contours0, hierarchy0, cv::RETR_TREE,cv::CHAIN_APPROX_NONE);
+    if(idx==1) cv::findContours(imgThreshold[idx], contours1, hierarchy1, cv::RETR_TREE,cv::CHAIN_APPROX_NONE);
     dArea = 0;
     validCnt_index = 0;
     totCnt_area = 0;
@@ -130,23 +146,26 @@ int processFrame(cv::VideoCapture* cap, int idx) {
             }
         }
     }
+    printf("|cntAre:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
+    t1 = clock();
     if(validCnt_index > 0) {
         getAvg_cntPos(validCnt_pos, validCnt_index, totCnt_pos[idx]);
         cv::circle(imgFlipped[idx],cv::Point(totCnt_pos[idx][0],totCnt_pos[idx][1]),50,cv::Scalar(0,0,0),2);
         cv::putText(
-            imgFlipped[idx], "["+to_string(int(totCnt_pos[idx][0]))+","+to_string(int(totCnt_pos[idx][1])),
+            imgFlipped[idx], "["+to_string(int(totCnt_pos[idx][0]))+","+to_string(int(totCnt_pos[idx][1]))+"]",
             cv::Point(totCnt_pos[idx][0],totCnt_pos[idx][1]),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false
         );
     }
-
+    printf("|avgPos:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
+    t1 = clock();
     cv::cvtColor(imgThreshold[idx], imgThreshold[idx], cv::COLOR_GRAY2BGR);
     cv::vconcat(imgFlipped[idx], imgThreshold[idx], imgFlipped[idx]);
+    printf("|vconc: %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
 
     return 0;
 }
 
 int main(int argc, char* argv[]) {
-
     cv::VideoCapture cap0(2);
     cv::VideoCapture cap1(0);
     if(!cap0.isOpened() || !cap1.isOpened()) {
@@ -168,22 +187,47 @@ int main(int argc, char* argv[]) {
 
     float solvedPos[2];
 
-    while(true) {
-        if(processFrame(&cap0, 0)==-1) return 0; 
-        if(processFrame(&cap1, 1)==-1) return 0;
+    int FPS, frames, frameLim=10;
+    double totalIterationTime_ms;
+    clock_t checkTime = clock();
+    float timeFilter = 1;
 
+    while(true) {
+        clock_t checkTime = clock();
+        //  t1
+        printf("cap0\n");
+        if(processFrame(&cap0, 0)==-1) return 0;
+        printf("cap0\n");
+        if(processFrame(&cap1, 1)==-1) return 0;
+        //  71ms
+
+        //  t1
         inpPos[0] = totCnt_pos[0][0];
         inpPos[1] = totCnt_pos[1][0];
         camObj.solvePos(inpPos, solvedPos, true);
+        //  0.030ms
 
+        //  t1
         cv::Mat winImg;
         cv::hconcat(imgFlipped[0], imgFlipped[1], winImg);
+        //  ~10ms
 
+        //  t1
         int keyInp = cv::waitKey(10);
         cv::imshow(win_name, winImg);
+        //  <30ms
 
+        // t1
         if(keyInp==27) return 0;
         else if(keyInp==32) break;
+        //  0.01ms
+
+        // TOTAL: <110ms
+
+        totalIterationTime_ms = 1000.0*(clock()-checkTime)/(double)CLOCKS_PER_SEC*timeFilter+totalIterationTime_ms*(1-timeFilter);
+        FPS = float(1)/(totalIterationTime_ms/1000);
+        printf("loop iteration info: fps:%2d | delay:%6.2fms\n\n\n", FPS, totalIterationTime_ms);
+        checkTime = clock();
     }
 
     return 0;

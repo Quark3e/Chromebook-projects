@@ -6,6 +6,7 @@
 #include <math.h>
 #include <cmath>
 #include <numbers>
+#include <time.h>
 
 float toDegrees(float radians) { return (radians*M_PI)/180; }
 float toRadians(float degrees) { return (degrees*180)/M_PI; }
@@ -34,10 +35,18 @@ class camTriangle {
 
     float solvedPos[2] = {0, 0};
 
+    int fps = 0;
+    int frames = 0;
+    int framesLim = 1;
+    float totalDelay = 0;
+    clock_t t1, t2;
+
     /// @brief camTriangle class initializor function
     /// @param camLocation real world location of webcams {{x, y}, {x, y}}
     /// @param camAngleOffset [unit: degrees] webcam offset angle relative to X-axis plane, perpendicular is 90 degrees
     camTriangle(float camLocation[2][2], float camAngleOffset[2]) {
+        // t1 = clock();
+
         ang_offset[0] = camAngleOffset[0];
         ang_offset[1] = camAngleOffset[1];
 
@@ -68,10 +77,22 @@ class camTriangle {
     /// @param returnArr return array to get solved values
     /// @param printText whether to print solved positions (in newline)
     void solvePos(float rawPos[2], float returnArr[2], bool printText=false) {
+        // if(frames>=framesLim) {
+        //     t2 = clock();
+        //     totalDelay = 1000*((t2-t1)/(double)CLOCKS_PER_SEC);
+        //     fps = totalDelay/frames;
+        //     printf(" fps:%5.2f  totalDelay:%5.2f\n", fps, totalDelay);
+        //     frames=0;
+        //     t1 = clock();
+        // }
+        // else frames++;
+
         read_pix[0][0] = rawPos[0]-camRes[0][0]*0.5;
         read_pix[1][0] = rawPos[1]-camRes[1][0]*0.5;
         read_pix[0][1] = camRes[0][1]*0.5-rawPos[0];
         read_pix[1][1] = camRes[1][1]*0.5-rawPos[1];
+
+        // printf(" {%d, %d} \n", int(read_pix[0][0]), int(read_pix[1][0]));
 
         ang_read[0] = read_pix[0][0]*camCoef[0][0];
         ang_read[1] = read_pix[1][0]*camCoef[1][0];
@@ -89,7 +110,6 @@ class camTriangle {
         returnArr[0] = solvedPos[0];
         returnArr[1] = solvedPos[1];
 
-        if(printText) printf("[%f, %f]     \r", solvedPos[0],solvedPos[1]);
     }
 };
 
