@@ -1,4 +1,7 @@
 #pragma once
+#ifndef H_TWO_CAM_COORDINATE
+#define H_TWO_CAM_COORDINATE
+
 
 #include <math.h>
 #include <cmath>
@@ -90,3 +93,4 @@ class camTriangle {
     }
 };
 
+#endif //H_TWO_CAM_COORDINATE

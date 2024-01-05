@@ -133,7 +133,10 @@ int processFrame(cv::VideoCapture* cap, int idx) {
     if(validCnt_index > 0) {
         getAvg_cntPos(validCnt_pos, validCnt_index, totCnt_pos[idx]);
         cv::circle(imgFlipped[idx],cv::Point(totCnt_pos[idx][0],totCnt_pos[idx][1]),50,cv::Scalar(0,0,0),2);
-        cv::putText(imgFlipped[idx],to_string(int(totCnt_area)),cv::Point(totCnt_pos[idx][0],totCnt_pos[idx][1]),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false);
+        cv::putText(
+            imgFlipped[idx], "["+to_string(int(totCnt_pos[idx][0]))+","+to_string(int(totCnt_pos[idx][1])),
+            cv::Point(totCnt_pos[idx][0],totCnt_pos[idx][1]),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false
+        );
     }
 
     cv::cvtColor(imgThreshold[idx], imgThreshold[idx], cv::COLOR_GRAY2BGR);
@@ -144,8 +147,8 @@ int processFrame(cv::VideoCapture* cap, int idx) {
 
 int main(int argc, char* argv[]) {
 
-    cv::VideoCapture cap0(0);
-    cv::VideoCapture cap1(2);
+    cv::VideoCapture cap0(2);
+    cv::VideoCapture cap1(0);
     if(!cap0.isOpened() || !cap1.isOpened()) {
         cout << "error: Cannot open one- or both of the webcams." << endl;
         return -1;
