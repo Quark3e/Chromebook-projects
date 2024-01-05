@@ -28,6 +28,8 @@ vector<cv::Vec4i> hierarchy0;
 vector<cv::Vec4i> hierarchy1;
 
 
+bool displayToWindow = false;
+
 int areaLim = 1000;
 float validCnt_pos[20][2];
 int validCnt_index = 0;
@@ -74,7 +76,7 @@ void updateTrackbarPos(const char* win_name) {
 
 cv::Mat imgRaw[2], imgOriginal[2], imgFlipped[2], imgHSV[2], imgThreshold[2];
 
-int processFrame(cv::VideoCapture* cap, int idx) {
+int processFrame(cv::VideoCapture* cap, int idx, bool toDisplay) {
     clock_t t1 = clock();
     bool test = (cap->read(imgRaw[idx]));
     if(!test) {
@@ -156,12 +158,17 @@ int processFrame(cv::VideoCapture* cap, int idx) {
             cv::Point(totCnt_pos[idx][0],totCnt_pos[idx][1]),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false
         );
     }
-    printf("|avgPos:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
-    t1 = clock();
-    cv::cvtColor(imgThreshold[idx], imgThreshold[idx], cv::COLOR_GRAY2BGR);
-    cv::vconcat(imgFlipped[idx], imgThreshold[idx], imgFlipped[idx]);
-    printf("|vconc: %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
 
+
+    if(toDisplay) {
+        printf("|avgPos:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
+        t1 = clock();
+        cv::cvtColor(imgThreshold[idx], imgThreshold[idx], cv::COLOR_GRAY2BGR);
+        printf("|cvtCol:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
+        t1 = clock();
+        cv::vconcat(imgFlipped[idx], imgThreshold[idx], imgFlipped[idx]);
+        printf("|vconc: %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
+    }
     return 0;
 }
 
@@ -196,9 +203,9 @@ int main(int argc, char* argv[]) {
         clock_t checkTime = clock();
         //  t1
         printf("cap0\n");
-        if(processFrame(&cap0, 0)==-1) return 0;
+        if(processFrame(&cap0, 0, displayToWindow)==-1) return 0;
         printf("cap0\n");
-        if(processFrame(&cap1, 1)==-1) return 0;
+        if(processFrame(&cap1, 1, displayToWindow)==-1) return 0;
         //  71ms
 
         //  t1
@@ -207,21 +214,23 @@ int main(int argc, char* argv[]) {
         camObj.solvePos(inpPos, solvedPos, true);
         //  0.030ms
 
-        //  t1
-        cv::Mat winImg;
-        cv::hconcat(imgFlipped[0], imgFlipped[1], winImg);
-        //  ~10ms
+        if(displayToWindow) {
+            //  t1
+            cv::Mat winImg;
+            cv::hconcat(imgFlipped[0], imgFlipped[1], winImg);
+            //  ~10ms
 
-        //  t1
-        int keyInp = cv::waitKey(10);
-        cv::imshow(win_name, winImg);
-        //  <30ms
+            //  t1
+            int keyInp = cv::waitKey(10);
+            cv::imshow(win_name, winImg);
+            //  <30ms
 
-        // t1
-        if(keyInp==27) return 0;
-        else if(keyInp==32) break;
-        //  0.01ms
-
+            // t1
+            if(keyInp==27) return 0;
+            else if(keyInp==32) break;
+            //  0.01ms
+        }
+        
         // TOTAL: <110ms
 
         totalIterationTime_ms = 1000.0*(clock()-checkTime)/(double)CLOCKS_PER_SEC*timeFilter+totalIterationTime_ms*(1-timeFilter);
