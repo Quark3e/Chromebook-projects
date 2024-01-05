@@ -10,8 +10,8 @@
 
 using namespace std;
 
-float toDegrees(float radians) { return (radians*M_PI)/float(180); }
-float toRadians(float degrees) { return float(degrees*180)/M_PI; }
+float toDegrees(float radians) { return (radians*180)/M_PI; }
+float toRadians(float degrees) { return float(degrees*M_PI)/180; }
 
 /// @brief Class to solve object position relative to the position of two webcams via seen pixel positions
 class camTriangle {
@@ -103,7 +103,7 @@ class camTriangle {
         l_tri[0] = (l_hypotenuse*sin(toRadians(ang_tri[1])))/sin(toRadians(ang_p));
         l_tri[1] = (l_hypotenuse*sin(toRadians(ang_tri[0])))/sin(toRadians(ang_p));
         
-        cout << toRadians(ang_tri[1]) << ":" << toRadians(ang_tri[0]) << " ";
+        // cout << toRadians(ang_tri[1]) << ":" << toRadians(ang_tri[0]) << " ";
 
         solvedPos[0] = camPos[0][0]+cos(toRadians(ang_offset[0]+ang_read[0]))*l_tri[0];
         solvedPos[1] = camPos[0][1]+sin(toRadians(ang_offset[0]+ang_read[0]))*l_tri[0];
