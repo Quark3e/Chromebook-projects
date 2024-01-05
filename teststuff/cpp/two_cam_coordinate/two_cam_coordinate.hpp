@@ -92,7 +92,7 @@ class camTriangle {
         read_pix[0][1] = camRes[0][1]*0.5-rawPos[0];
         read_pix[1][1] = camRes[1][1]*0.5-rawPos[1];
 
-        // printf(" {%d, %d} \n", int(read_pix[0][0]), int(read_pix[1][0]));
+        printf(" {%d, %d} ", int(read_pix[0][0]), int(read_pix[1][0]));
 
         ang_read[0] = read_pix[0][0]*camCoef[0][0];
         ang_read[1] = read_pix[1][0]*camCoef[1][0];
