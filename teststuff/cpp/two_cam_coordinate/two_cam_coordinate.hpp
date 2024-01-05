@@ -2,11 +2,13 @@
 #ifndef H_TWO_CAM_COORDINATE
 #define H_TWO_CAM_COORDINATE
 
-
 #include <math.h>
 #include <cmath>
 #include <numbers>
 #include <time.h>
+#include <iostream>
+
+using namespace std;
 
 float toDegrees(float radians) { return (radians*M_PI)/float(180); }
 float toRadians(float degrees) { return float(degrees*180)/M_PI; }
