@@ -79,7 +79,7 @@ void updateTrackbarPos(const char* win_name) {
 cv::Mat imgRaw[2], imgOriginal[2], imgFlipped[2], imgHSV[2], imgThreshold[2];
 
 int processFrame(cv::VideoCapture* cap, int idx, bool toDisplay) {
-    if(takePerformance) clock_t t1 = clock();
+    clock_t t1 = clock();
     bool test = (cap->read(imgRaw[idx]));
     if(!test) {
         printf("error: Cannot read frame from webcam[%d]",idx);
