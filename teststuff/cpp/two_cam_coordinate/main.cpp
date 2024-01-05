@@ -75,7 +75,8 @@ void updateTrackbarPos(const char* win_name) {
 cv::Mat imgRaw[2], imgOriginal[2], imgFlipped[2], imgHSV[2], imgThreshold[2];
 
 int processFrame(cv::VideoCapture* cap, int idx) {
-    if(!(cap->read(imgRaw[idx]))) {
+    bool test = (cap->read(imgRaw[idx]));
+    if(!test) {
         printf("error: Cannot read frame from webcam[%d]",idx);
         cv::destroyAllWindows();
         return -1;
@@ -89,7 +90,7 @@ int processFrame(cv::VideoCapture* cap, int idx) {
         imgHSV[idx],
         cv::Scalar(l_HSV[0], l_HSV[1], l_HSV[2]),
         cv::Scalar(u_HSV[0], u_HSV[1], u_HSV[2]),
-        imgThreshold[0]
+        imgThreshold[idx]
     );
 
     cv::erode(imgThreshold[idx], imgThreshold[idx], cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
@@ -157,9 +158,20 @@ int main(int argc, char* argv[]) {
     createTrackbars(win_name);
 
 
+    float camPosition[2][2] = {{0, 0}, {25, 0}};
+    float camAng_offs[2] = {90, 123};
+    float inpPos[2];
+    camTriangle camObj(camPosition, camAng_offs);
+
+    float solvedPos[2];
+
     while(true) {
         if(processFrame(&cap0, 0)==-1) return 0; 
         if(processFrame(&cap1, 1)==-1) return 0;
+
+        inpPos[0] = totCnt_pos[0][0];
+        inpPos[1] = totCnt_pos[1][0];
+        camObj.solvePos(inpPos, solvedPos, true);
 
         cv::Mat winImg;
         cv::hconcat(imgFlipped[0], imgFlipped[1], winImg);
