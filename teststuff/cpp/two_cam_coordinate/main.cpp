@@ -216,7 +216,7 @@ int main(int argc, char* argv[]) {
         camObj.solvePos(inpPos, solvedPos, true);
         //  0.030ms
 
-        printf("[%4d, %4d]\r", int(solvedPos[0][0]), int(solvedPos[1][0]));
+        printf("[%4d, %4d]\r", int(solvedPos[0]), int(solvedPos[1]));
 
         if(displayToWindow) {
             //  t1
