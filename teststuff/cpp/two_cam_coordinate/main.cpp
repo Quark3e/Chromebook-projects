@@ -154,9 +154,9 @@ int main(int argc, char* argv[]) {
     cap1.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);
 
     const char* win_name = "Window";
-    cv::namedWindow(win_name);
-    createTrackbars(win_name);
-
+    cv::namedWindow(win_name, 0);
+    // createTrackbars(win_name);
+    cv::resizeWindow(win_name, 1280, 960);
 
     float camPosition[2][2] = {{0, 0}, {25, 0}};
     float camAng_offs[2] = {90, 123};
