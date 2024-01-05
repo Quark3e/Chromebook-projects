@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <cmath>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -14,7 +15,6 @@
 #include "two_cam_coordinate.hpp"
 
 using namespace std;
-
 
 
 int prefSize[2] = {640, 480};
@@ -72,7 +72,7 @@ void updateTrackbarPos(const char* win_name) {
 
 
 
-cv::Mat totImg, imgRaw[2], imgOriginal[2], imgFlipped[2], imgHSV[2], imgThreshold[2];
+cv::Mat imgRaw[2], imgOriginal[2], imgFlipped[2], imgHSV[2], imgThreshold[2];
 
 int processFrame(cv::VideoCapture* cap, int idx) {
     if(!(cap->read(imgRaw[idx]))) {
@@ -95,7 +95,7 @@ int processFrame(cv::VideoCapture* cap, int idx) {
     cv::erode(imgThreshold[idx], imgThreshold[idx], cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
     cv::dilate(imgThreshold[idx], imgThreshold[idx], cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 6); 
 
-    cv::Moments = imgMoments = cv::moments(imgThreshold[idx]);
+    cv::Moments imgMoments = cv::moments(imgThreshold[idx]);
     double dM01 = imgMoments.m01;
     double dM10 = imgMoments.m10;
     double dArea = imgMoments.m00;
@@ -104,7 +104,7 @@ int processFrame(cv::VideoCapture* cap, int idx) {
     validCnt_index = 0;
     totCnt_area = 0;
     if(idx==0) {
-        for(unsigned int i=0; i<contours0.side(); i++) {
+        for(unsigned int i=0; i<contours0.size(); i++) {
             dArea = cv::contourArea(contours0[i]);
             if(dArea >= areaLim) {
                 cv::RotatedRect minRect = cv::minAreaRect(cv::Mat(contours0[i]));
@@ -117,7 +117,7 @@ int processFrame(cv::VideoCapture* cap, int idx) {
         }
     }
     else if(idx==1) {
-        for(unsigned int i=0; i<contours1.side(); i++) {
+        for(unsigned int i=0; i<contours1.size(); i++) {
             dArea = cv::contourArea(contours1[i]);
             if(dArea >= areaLim) {
                 cv::RotatedRect minRect = cv::minAreaRect(cv::Mat(contours1[i]));
@@ -136,7 +136,7 @@ int processFrame(cv::VideoCapture* cap, int idx) {
     }
 
     cv::cvtColor(imgThreshold[idx], imgThreshold[idx], cv::COLOR_GRAY2BGR);
-    cv::vconcat(imgFlipped[idx], imgThreshold[idx], imgFlipped[idx])
+    cv::vconcat(imgFlipped[idx], imgThreshold[idx], imgFlipped[idx]);
 
     return 0;
 }
@@ -158,10 +158,17 @@ int main(int argc, char* argv[]) {
 
 
     while(true) {
-        processFrame(&cap0, 0);
-        processFrame(&cap1, 1);
+        if(processFrame(&cap0, 0)==-1) return 0; 
+        if(processFrame(&cap1, 1)==-1) return 0;
 
-        cv::hconcat()
+        cv::Mat winImg;
+        cv::hconcat(imgFlipped[0], imgFlipped[1], winImg);
+
+        int keyInp = cv::waitKey(10);
+        cv::imshow(win_name, winImg);
+
+        if(keyInp==27) return 0;
+        else if(keyInp==32) break;
     }
 
     return 0;

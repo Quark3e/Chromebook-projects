@@ -4,8 +4,8 @@
 #include <cmath>
 #include <numbers>
 
-float toDegrees(float radians) { return (radians*pi)/180; }
-float toRadians(float degrees) { return (degrees*180)/pi; }
+float toDegrees(float radians) { return (radians*M_PI)/180; }
+float toRadians(float degrees) { return (degrees*180)/M_PI; }
 
 /// @brief Class to solve object position relative to the position of two webcams via seen pixel positions
 class camTriangle {
@@ -16,7 +16,7 @@ class camTriangle {
     float camCoef[2][2] = {{0, 0}, {0, 0}}; 
 
     float l_delta[2] = {-1, -1};
-    float l_hypotenuse[2] = {-1, -1};
+    float l_hypotenuse = -1;
     float l_tri[2] = {-1, -1};
 
     float ang_offset[2] = {0, 0};
@@ -38,11 +38,11 @@ class camTriangle {
         ang_offset[0] = camAngleOffset[0];
         ang_offset[1] = camAngleOffset[1];
 
-        for(int x=0; x<2; x++) { for(int y=0: y<2; y++) { camPos[x][y] = camLocation[x][y]; } }
+        for(int x=0; x<2; x++) { for(int y=0; y<2; y++) { camPos[x][y] = camLocation[x][y]; } }
         l_delta[0] = camPos[1][0]-camPos[0][0];
         l_delta[1] = camPos[1][1]-camPos[0][1];
     
-        l_hypotenuse = sqrt(pow(l_delta[0],2)+pow(l_delta[1],2));
+        l_hypotenuse = float(sqrt(pow(l_delta[0],2)+pow(l_delta[1],2)));
 
         ang_d[0] = toDegrees(atan(l_delta[1]/l_delta[0]));
         if(l_delta[1]==0) ang_d[1] = 90;

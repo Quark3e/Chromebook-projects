@@ -1,0 +1,40 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/pi/Chromebook-projects/teststuff/cpp/two_cam_coordinate/main.cpp
+iostream
+-
+math.h
+-
+cmath
+-
+stdio.h
+-
+stdlib.h
+-
+string
+-
+vector
+-
+opencv4/opencv2/opencv.hpp
+-
+opencv4/opencv2/highgui/highgui.hpp
+-
+opencv4/opencv2/imgproc/imgproc.hpp
+-
+two_cam_coordinate.hpp
+/home/pi/Chromebook-projects/teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp
+
+/home/pi/Chromebook-projects/teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp
+math.h
+-
+cmath
+-
+numbers
+-
+
