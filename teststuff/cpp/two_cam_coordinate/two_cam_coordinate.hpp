@@ -101,6 +101,8 @@ class camTriangle {
         l_tri[0] = (l_hypotenuse*sin(toRadians(ang_tri[1])))/sin(toRadians(ang_p));
         l_tri[1] = (l_hypotenuse*sin(toRadians(ang_tri[0])))/sin(toRadians(ang_p));
         
+        cout << toRadians(ang_tri[1]) << " " << toRadians(ang_tri[0]) << " ";
+
         solvedPos[0] = camPos[0][0]+cos(toRadians(ang_offset[0]+ang_read[0]))*l_tri[0];
         solvedPos[1] = camPos[0][1]+sin(toRadians(ang_offset[0]+ang_read[0]))*l_tri[0];
 
