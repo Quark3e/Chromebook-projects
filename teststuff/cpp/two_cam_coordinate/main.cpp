@@ -204,9 +204,9 @@ int main(int argc, char* argv[]) {
     while(true) {
         clock_t checkTime = clock();
         //  t1
-        printf("cap0\n");
+        if(takePerformance) printf("cap0\n");
         if(processFrame(&cap0, 0, displayToWindow)==-1) return 0;
-        printf("cap0\n");
+        if(takePerformance) printf("cap0\n");
         if(processFrame(&cap1, 1, displayToWindow)==-1) return 0;
         //  71ms
 
@@ -215,6 +215,8 @@ int main(int argc, char* argv[]) {
         inpPos[1] = totCnt_pos[1][0];
         camObj.solvePos(inpPos, solvedPos, true);
         //  0.030ms
+
+        printf("[%4d, %4d]\r", int(solvedPos[0][0]), int(solvedPos[1][0]));
 
         if(displayToWindow) {
             //  t1
@@ -234,11 +236,12 @@ int main(int argc, char* argv[]) {
         }
         
         // TOTAL: <110ms
-
-        totalIterationTime_ms = 1000.0*(clock()-checkTime)/(double)CLOCKS_PER_SEC*timeFilter+totalIterationTime_ms*(1-timeFilter);
-        FPS = float(1)/(totalIterationTime_ms/1000);
-        printf("loop iteration info: fps:%2d | delay:%6.2fms\n\n\n", FPS, totalIterationTime_ms);
-        checkTime = clock();
+        if(takePerformance) {
+            totalIterationTime_ms = 1000.0*(clock()-checkTime)/(double)CLOCKS_PER_SEC*timeFilter+totalIterationTime_ms*(1-timeFilter);
+            FPS = float(1)/(totalIterationTime_ms/1000);
+            printf("loop iteration info: fps:%2d | delay:%6.2fms\n\n\n", FPS, totalIterationTime_ms);
+            checkTime = clock();
+        }
     }
 
     return 0;
