@@ -100,7 +100,8 @@ class camTriangle {
 
         l_tri[0] = (l_hypotenuse*sin(toRadians(ang_tri[1])))/sin(toRadians(ang_p));
         l_tri[1] = (l_hypotenuse*sin(toRadians(ang_tri[0])))/sin(toRadians(ang_p));
-
+        printf("l_tri{%3d,%3d,%3d} ", int(l_tri[0]),int(l_tri[1]),int(l_hypotenuse));
+        
         solvedPos[0] = camPos[0][0]+cos(toRadians(ang_offset[0]+ang_read[0]))*l_tri[0];
         solvedPos[1] = camPos[0][1]+sin(toRadians(ang_offset[0]+ang_read[0]))*l_tri[0];
 
@@ -113,7 +114,7 @@ class camTriangle {
         printf("angRead{%3d,%3d} ", int(ang_read[0]),int(ang_read[1]));
         printf("angTri{%3d,%3d,%3d} ", int(ang_tri[0]),int(ang_tri[1]),int(ang_p));
         printf("l_tri{%3d,%3d,%3d} ", int(l_tri[0]),int(l_tri[1]),int(l_hypotenuse));
-        
+
 
     }
 };

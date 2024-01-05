@@ -111,8 +111,8 @@ if __name__=="__main__":
 
 
     class AnimatedPlot(object):
-        camPos = [[-7, 0, 0], [7, 0, 0]]
-        camAng_offset = [90, 90] #degrees
+        camPos = [[0, 0, 0], [25, 0, 0]]
+        camAng_offset = [90, 120] #degrees
         streamAngle = 0 #degree
         radius = 5
         basePos = [0, 15, 0]
