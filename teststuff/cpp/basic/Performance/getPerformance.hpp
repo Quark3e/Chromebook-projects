@@ -6,24 +6,154 @@
 #include <time.h>
 #include <math.h>
 #include <vector>
+#include <string>
+#include <algorithm>
+#include <sstream>
+#include <iomanip>
 
 using namespace std;
 
+/// @brief Class to get performance (fps, delays for each checkpoint, totaldelay)
 class getPerf {
+    /*
+    t0
+    -process
+    t1; delay = t1-t([1]-1=0)
+    
+    */
+    private:
+    int strLenMax = 10; //NOTE: if changed, change update_totalInfo printf
+
     public:
-	int currIdx, maxIdx;
-    getPerf(int numCheckpoints) {
-        cout << "class test:" << numCheckpoints << endl;
-    	maxIdx = numCheckpoints;
-    //     static clock_t checkPoint_time[numCheckpoints];
-    //     static string checkPoint_name[numCheckpoints];
+    bool printNames = true;
+    vector<string> names;
+    vector<clock_t> times;
+    /// @brief vector to hold delays in unit:milliseconds
+    vector<float> delays_ms;
+
+    float total_delay;
+    float FPS;
+
+    getPerf() {
+        names.push_back("t0");
+        times.push_back(clock());
     }
-    // void setName(int idx, string check_name) {
-    // 	checkPoint_name[idx] = check_name;
-    // }
-    // void setTime(int check_idx) {
-    // 	checkPoints[idx] = clock();
-    // }
+    void add_checkpoint(string name);
+    void update_totalInfo(bool reset_t0, bool printResult, bool printAll);
+    clock_t getTime(string name);
+    float getDelay(string name);
+    string cutStr(string var, int maxLen);
+    int getIdx(string name);
 };
+
+
+
+/// @brief Function to get clock_t type variable from given checkpoint name
+/// @param name the name of checkpoint to get time from
+/// @return clock_t type variable
+clock_t getPerf::getTime(string name) {
+    int idx=getIdx(name);
+    if(idx==-1) {
+        printf("error: \"%s\" named checkpoint doesn't exist.\n", name.c_str());
+        return clock();
+    }
+    return times.at(idx);
+}
+
+
+
+string getPerf::cutStr(string var, int maxLen=10) {
+	int varLen = var.size();
+    if(varLen>maxLen) {
+        printf(" note: name \"%s\" has been modified to ", var.c_str());
+        var.erase(maxLen);
+        printf("\"%s\".\n", var.c_str());
+    }
+    return var;
+}
+
+
+/// @brief Function to get last read delay from given checkpoint name
+/// @param name name of checkpoint to get delay from
+/// @return float type variable of delay in unit:Milliseconds
+float getPerf::getDelay(string name) {
+    auto idx=getIdx(name);
+    if(idx==-1) {
+        printf("error: \"%s\" named checkpoint doesn't exist.\n", name.c_str());
+        return 0;
+    }
+    return delays_ms.at(idx);
+}
+
+
+/// @brief 
+/// Creates a time measuring point from previous call. NOTE: call class member AFTER what to measure.
+/// if `name` exist then function will not create new element but only update clock_t vector
+/// @param name string name of checkpoint to either create or update
+void getPerf::add_checkpoint(string name) {
+    clock_t tempTime = clock();
+    auto idx=getIdx(name);
+    if(idx != -1) {
+        // If `name` already exist in vector `names
+        times.at(idx) = tempTime;
+        delays_ms.at(idx) = 1000*(tempTime-times.at(idx-1))/(double)CLOCKS_PER_SEC;
+    }
+    else {
+        printNames = true;
+        delays_ms.push_back(1000*(tempTime-times.back())/(double)CLOCKS_PER_SEC);
+        times.push_back(tempTime);
+        names.push_back(cutStr(name));
+    }
+}
+
+/// @brief update total_delay and FPS member variables
+/// @param reset_t0 whether to 
+/// @param printResult whether to print total_delay and FPS
+/// @param printAll whether to print every checkpoint
+void getPerf::update_totalInfo(
+    bool reset_t0,
+    bool printResult=true,
+    bool printAll=true
+) {
+    total_delay = 1000*(times.front()-times.back())/(double)CLOCKS_PER_SEC;
+    FPS = float(1)/(total_delay/1000);
+    if(reset_t0) times.at(0) = clock();
+    if(printAll) {
+        string totalVar = "|", tempS;
+        string totalStr = "|";
+        for(auto i=0; i<times.size(); i++) {
+            if(printNames) {
+                string emptySpace(strLenMax-names.at(i).size(), ' ');
+                totalStr += names.at(i) + emptySpace + "|";
+            }
+            stringstream sstream;
+            sstream << fixed << setprecision(2) << delays_ms.at(i);
+            tempS = sstream.str();
+            string emptySpace2(strLenMax-tempS.size(), ' ');
+            totalVar += emptySpace2 + tempS + "|";
+        }
+        if(printNames) {
+            printf("%s\n", totalStr.c_str());
+            printNames=false;
+        }
+        totalVar += "\r";
+        printf("%s", totalVar.c_str());
+    }
+    if(printResult) {
+        printf("\nloop iteration info: fps:%2d | delay:%6.2fms\n", FPS, total_delay);
+    }
+}
+
+
+int getPerf::getIdx(string name) {
+    auto pos = find(names.begin(), names.end(), name);
+    if(pos == names.end()) {
+        //doesn't exis
+        return -1;
+    }
+    auto idx = distance(names.begin(), pos);
+    return idx;
+}
+
 
 #endif

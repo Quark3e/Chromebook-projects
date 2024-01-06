@@ -1,16 +1,32 @@
 
 #include <iostream>
-#include <unistd.h
+#include <unistd.h>
+#include <string>
 #include "../getPerformance.hpp"
 
 using namespace std;
 
+string test[10] = {
+    "zero"
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine"
+};
 
+// for(int i=0; i<argc; i++) cout << argv[i] << endl;
 int main(int argc, char** argv) {
-    // for(int i=0; i<argc; i++) cout << argv[i] << endl;
-    usleep();
-    getPerf perfObj(stoi(argv[1]));
-    cout << "test" << endl;
+    getPerf perfObj();
+
+
+
+    usleep(1'000'000);
+    
 
     return 0;
 }
