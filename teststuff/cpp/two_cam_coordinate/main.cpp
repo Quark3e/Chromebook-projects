@@ -28,7 +28,8 @@ vector<cv::Vec4i> hierarchy0;
 vector<cv::Vec4i> hierarchy1;
 
 
-bool displayToWindow = false;
+bool useAutoBrightne = true;
+bool displayToWindow = true;
 bool takePerformance = false;
 
 
@@ -181,9 +182,11 @@ int main(int argc, char* argv[]) {
         cout << "error: Cannot open one- or both of the webcams." << endl;
         return -1;
     }
-    cap0.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);
-    cap1.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);
-
+        
+    if(useAutoBrightne) {
+        cap0.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);
+        cap1.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);
+    }
     const char* win_name = "Window";
     cv::namedWindow(win_name, 0);
     // createTrackbars(win_name);
