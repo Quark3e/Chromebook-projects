@@ -96,7 +96,7 @@ int nodemcu_connect::resolvehelper(
     return result;
 }
 
-char nodemcu_connect::receive(bool printResult=true) {
+void nodemcu_connect::receive(bool printResult=true) {
 	size_t msg_length = strlen(toESP_msg);
 	bind_result = sendto(
 		sock, toESP_msg, msg_length, 0,
