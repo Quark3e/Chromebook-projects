@@ -24,8 +24,8 @@ class nodemcu_connect {
     private:
     int bind_result;
     int sock;
-    static const char* PORT = "53";
-    static const char* ADDRESS = "192.168.1.118";
+    const char* PORT = "53";
+    const char* ADDRESS = "192.168.1.118";
     char szIP[100];
     sockaddr_in addrListen;
     sockaddr_storage addrDest;
@@ -36,7 +36,7 @@ class nodemcu_connect {
 
     int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr);
     void nodemcu_udp_setup();
-    nodemcu_connect(const char* board_ip=ADDRESS, const char* board_port=PORT) {
+    nodemcu_connect(const char* board_ip="192.168.1.118", const char* board_port="53") {
         ADDRESS = board_ip;
         PORT = board_port;
 
@@ -62,8 +62,8 @@ class nodemcu_orient {
 
     nodemcu_orient(
         float ptrOrient[3],
-        const char* board_address=ADDRESS,
-        const char* board_port=PORT
+        const char* board_address="192.168.1.118",
+        const char* board_port="53"
         ): connectObj(board_address, board_port) {
             orientPtr = ptrOrient;
             PORT = board_port;
