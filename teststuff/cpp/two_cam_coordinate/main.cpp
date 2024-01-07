@@ -13,6 +13,7 @@
 #include <opencv4/opencv2/imgproc/imgproc.hpp>
 
 #include "two_cam_coordinate.hpp"
+#include "../basic/Performance/getPerformance.hpp"
 
 using namespace std;
 
@@ -175,7 +176,9 @@ int processFrame(cv::VideoCapture* cap, int idx, bool toDisplay) {
     return 0;
 }
 
+
 int main(int argc, char* argv[]) {
+    cout << "checkpoint" << endl;
     cv::VideoCapture cap0(2);
     cv::VideoCapture cap1(0);
     if(!cap0.isOpened() || !cap1.isOpened()) {
