@@ -66,6 +66,8 @@
 
 using namespace std;
 
+
+
 string absPath;
 
 /// @brief 0-direct function; 1-use 2d coefs; 2-use arificial
@@ -163,6 +165,8 @@ float axisScal[3] = {0.6, 0.6, 0.9};
 float axisOffset[3] = {0, 0, -100};
 float axisFilter[3] = {1, 1, 0.1};
 
+
+nodemcu_orient orientObj(orient);
 
 float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
 
@@ -815,7 +819,6 @@ int main(int argc, char* argv[]) {
 	//nodemcu udp communication setup/initialization
 	// nodemcu_udp_setup();
 
-	nodemcu_orient orientObj(orient);
 
 	if(zSol==1) load_csvFile();
 	initPaths();

@@ -10,14 +10,6 @@
 
 using namespace std;
 
-/// @brief Convert radians to degrees
-/// @param radians radians to convert. type: float()
-/// @return return degrees. type: float()
-float toDegrees(float radians) { return (radians*180)/M_PI; }
-/// @brief Convert degrees to radians
-/// @param degrees degrees to convert. type: float()
-/// @return return radians. type: float()
-float toRadians(float degrees) { return float(degrees*M_PI)/180; }
 
 /// @brief Class to solve object position relative to the position of two webcams via seen pixel positions
 class camTriangle {
