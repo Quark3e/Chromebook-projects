@@ -17,6 +17,8 @@
 
 using namespace std;
 
+getPerf perfObj;
+
 
 int prefSize[2] = {640, 480};
 
@@ -31,7 +33,7 @@ vector<cv::Vec4i> hierarchy1;
 
 bool useAutoBrightne = true;
 bool displayToWindow = false;
-bool takePerformance = false;
+bool takePerformance = true;
 
 
 int areaLim = 1000;
@@ -89,6 +91,7 @@ int processFrame(cv::VideoCapture* cap, int idx, bool toDisplay) {
         return -1;
     }
     if(takePerformance) printf("|read:  %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
+
 
     if(takePerformance) t1 = clock();
     cv::resize(imgRaw[idx], imgOriginal[idx], cv::Size(prefSize[0],prefSize[1]), cv::INTER_LINEAR);
