@@ -139,9 +139,10 @@ void nodemcu_connect::nodemcu_udp_setup() {
 
 
 
-// request to nodemcu board, receive {axis}_accel values, solve orient[0,1] variables
+/// @brief update/refresh orient values
+/// @param printResult whether to print the received buffer and orient
 void nodemcu_orient::update(bool printResult=true) {
-    int n = connectObj.receive();
+    int n = connectObj.receive(printResult);
 	// cout << "[n=" << n << " 0:\"" <<buffer[0] << "\" n-1:\"" << buffer[n-1] << "\" ]";
 	string temp = "";
 	if(connectObj.buffer[0]=='{' && connectObj.buffer[n-1]==';') { //{x:y:z}

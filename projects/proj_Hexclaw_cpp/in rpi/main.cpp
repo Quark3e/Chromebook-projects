@@ -55,7 +55,7 @@ using namespace std;
 
 string absPath;
 
-/// @brief 0-direct function; 1-use 2d coefs; 2-use arificial
+/// @brief 0-direct function; 1-use 2d coefs; 2-use arificial; 3-use two_cam_triangle
 bool zSol=0;
 
 void initPaths() {
@@ -250,6 +250,10 @@ float zAxisFunc(float area, float posX, float posY) {
 		return ans;
 	}
 	
+	if(zSol==3) {
+		
+	}
+
 	int chosenIdx=0;
 	chosenIdx = getClosestValIdx(artifVal[int(Roll)+90][int(Pitch)+90],int(area));
 	// cout << chosenIdx << artifVal[int(Roll)+90][int(Pitch)+90][200]<< "\t";
