@@ -189,8 +189,8 @@ int main(int argc, char* argv[]) {
         cap0.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);
         cap1.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);
     }
+    const char* win_name = "Window";
     if(displayToWindow) {
-        const char* win_name = "Window";
         cv::namedWindow(win_name, 0);
         // createTrackbars(win_name);
         cv::resizeWindow(win_name, 1280, 960);
