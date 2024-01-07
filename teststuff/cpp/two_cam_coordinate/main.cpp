@@ -91,17 +91,19 @@ int processFrame(cv::VideoCapture* cap, int idx, bool toDisplay) {
         return -1;
     }
     if(takePerformance) printf("|read:  %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
-
+    perfObj.add_checkpoint("read");
 
     if(takePerformance) t1 = clock();
     cv::resize(imgRaw[idx], imgOriginal[idx], cv::Size(prefSize[0],prefSize[1]), cv::INTER_LINEAR);
     if(takePerformance) printf("|resize:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
+    perfObj.add_checkpoint("resize");
 
     if(takePerformance) t1 = clock();
     // cv::flip(imgOriginal[idx], imgFlipped[idx], 1); //temporarily disabled
     imgFlipped[idx] = imgOriginal[idx];
     cv::cvtColor(imgFlipped[idx], imgHSV[idx], cv::COLOR_BGR2HSV);
     if(takePerformance) printf("|cvtC:  %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
+    perfObj.add_checkpoint("cvtC");
 
     if(takePerformance) t1 = clock();
     cv::inRange(
@@ -111,13 +113,16 @@ int processFrame(cv::VideoCapture* cap, int idx, bool toDisplay) {
         imgThreshold[idx]
     );
     if(takePerformance) printf("|inRan: %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
+    perfObj.add_checkpoint("inRan");
 
     if(takePerformance) t1 = clock();
     cv::erode(imgThreshold[idx], imgThreshold[idx], cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
     if(takePerformance) printf("|erode: %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
+    perfObj.add_checkpoint("erode";)
     if(takePerformance) t1 = clock();
     cv::dilate(imgThreshold[idx], imgThreshold[idx], cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 6); 
     if(takePerformance) printf("|dilate:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
+    perfObj.add_checkpoint("dilate");
 
     if(takePerformance) t1 = clock();
     cv::Moments imgMoments = cv::moments(imgThreshold[idx]);
@@ -156,6 +161,7 @@ int processFrame(cv::VideoCapture* cap, int idx, bool toDisplay) {
         }
     }
     if(takePerformance) printf("|cntAre:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
+    perfObj.add_checkpoint("cntArea");
     if(takePerformance) t1 = clock();
     if(validCnt_index > 0) {
         getAvg_cntPos(validCnt_pos, validCnt_index, totCnt_pos[idx]);
@@ -169,12 +175,15 @@ int processFrame(cv::VideoCapture* cap, int idx, bool toDisplay) {
 
     if(toDisplay) {
         if(takePerformance) printf("|avgPos:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
+        perfObj.add_checkpoint("avgPos");
         if(takePerformance) t1 = clock();
         cv::cvtColor(imgThreshold[idx], imgThreshold[idx], cv::COLOR_GRAY2BGR);
         if(takePerformance) printf("|cvtCol:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
+        perfObj.add_checkpoint("cvtCol");
         if(takePerformance) t1 = clock();
         cv::vconcat(imgFlipped[idx], imgThreshold[idx], imgFlipped[idx]);
         if(takePerformance) printf("|vconc: %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
+        perfObj.add_checkpoint("vconc");
     }
     return 0;
 }
@@ -193,7 +202,6 @@ int main(int argc, char* argv[]) {
         cap1.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);
     }
     const char* win_name = "Window";
-    cout << "checkpoint0" << endl;
     if(displayToWindow) {
         cv::namedWindow(win_name, 0);
         // createTrackbars(win_name);
@@ -252,7 +260,8 @@ int main(int argc, char* argv[]) {
             printf("loop iteration info: fps:%2d | delay:%6.2fms\n", FPS, totalIterationTime_ms);
             checkTime = clock();
         }
-        printf("");
+        perfObj.update_totalInfo(true, true, true, ' ');
+        printf("\n");
     }
 
     return 0;
