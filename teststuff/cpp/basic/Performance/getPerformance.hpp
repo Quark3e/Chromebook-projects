@@ -24,7 +24,7 @@ class getPerf {
     
     */
     private:
-    int strLenMax = 10; //NOTE: if changed, change update_totalInfo printf
+    int strLenMax = 8; //NOTE: if changed, change update_totalInfo printf
 
     public:
     float delayFilter = 1;
@@ -145,14 +145,14 @@ void getPerf::update_totalInfo(
         string totalStr = "|";
         for(auto i=0; i<times.size(); i++) {
             if(printNames) {
-                string emptySpace(strLenMax-names.at(i).size(), ' ');
-                totalStr += names.at(i) + emptySpace + "|";
+                string emptySpace(strLenMax-names.at(i).size()+1, ' ');
+                totalStr += " " + names.at(i) + emptySpace + "|";
             }
             stringstream sstream;
             sstream << fixed << setprecision(2) << delays_ms.at(i);
             tempS = sstream.str();
-            string emptySpace2(strLenMax-tempS.size()-2, ' ');
-            totalVar += emptySpace2 + tempS + "ms" + "|";
+            string emptySpace2(strLenMax-tempS.size()-1, ' ');
+            totalVar += emptySpace2 + tempS + "ms " + "|";
         }
         if(printNames) {
             printf("%s\n", totalStr.c_str());
