@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
     cout << "loop starting\n";
     while(true) {
         for(int i=0; i<sizeof(test)/sizeof(test[0]); i++) {
-            usleep(2000);
+            usleep(420*i+69);
             perfObj.add_checkpoint(test[i]);
         }
         // usleep(420'690);

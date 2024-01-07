@@ -27,6 +27,7 @@ class getPerf {
     int strLenMax = 10; //NOTE: if changed, change update_totalInfo printf
 
     public:
+    float delayFilter = 1;
     bool printNames = true;
     vector<string> names;
 
@@ -102,13 +103,13 @@ void getPerf::add_checkpoint(string name) {
         times.at(idx) = tempTime;
         auto elapsed = chrono::duration_cast<chrono::microseconds>(tempTime-times.at(idx-1));
         // delays_ms.at(idx) = 1000000*(tempTime-times.at(idx-1))/(double)CLOCKS_PER_SEC;
-        delays_ms.at(idx) = elapsed.count()*0.001;
+        delays_ms.at(idx) = (elapsed.count()*0.001)*delayFilter+(1.0-delayFilter)*delays_ms.at(idx);
     }
     else {
         printNames = true;
         auto elapsed = chrono::duration_cast<chrono::microseconds>(tempTime-times.back());
         // delays_ms.push_back(1'000'000*(tempTime-times.back())/(double)CLOCKS_PER_SEC);
-        delays_ms.push_back(elapsed.count()*0.001);
+        delays_ms.push_back((elapsed.count()*0.001));
         times.push_back(tempTime);
         names.push_back(cutStr(name));
     }
@@ -134,7 +135,7 @@ void getPerf::update_totalInfo(
     // total_delay = 1000*(times.back()-times.front())/(double)CLOCKS_PER_SEC;
 
     auto elapsed = chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now()-times.front());
-    total_delay = elapsed.count()*0.001;
+    total_delay = (elapsed.count()*0.001)*delayFilter+(1.0-delayFilter)*total_delay;
     FPS = float(1)/(total_delay/1000);
     if(reset_t0) times.at(0) = chrono::steady_clock::now();
     if(printAll) {
