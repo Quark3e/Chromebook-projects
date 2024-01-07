@@ -6,6 +6,28 @@
 
 #IncludeRegexTransform: 
 
+/home/pi/Chromebook-projects/teststuff/cpp/basic/Performance/getPerformance.hpp
+iostream
+-
+time.h
+-
+chrono
+-
+ctime
+-
+math.h
+-
+vector
+-
+string
+-
+algorithm
+-
+sstream
+-
+iomanip
+-
+
 /home/pi/Chromebook-projects/teststuff/cpp/two_cam_coordinate/main.cpp
 iostream
 -
@@ -29,6 +51,8 @@ opencv4/opencv2/imgproc/imgproc.hpp
 -
 two_cam_coordinate.hpp
 /home/pi/Chromebook-projects/teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp
+../basic/Performance/getPerformance.hpp
+/home/pi/Chromebook-projects/teststuff/cpp/basic/Performance/getPerformance.hpp
 
 /home/pi/Chromebook-projects/teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp
 math.h
