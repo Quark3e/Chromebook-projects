@@ -118,7 +118,7 @@ int processFrame(cv::VideoCapture* cap, int idx, bool toDisplay) {
     if(takePerformance) t1 = clock();
     cv::erode(imgThreshold[idx], imgThreshold[idx], cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
     if(takePerformance) printf("|erode: %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
-    perfObj.add_checkpoint("erode";)
+    perfObj.add_checkpoint("erode");
     if(takePerformance) t1 = clock();
     cv::dilate(imgThreshold[idx], imgThreshold[idx], cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 6); 
     if(takePerformance) printf("|dilate:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
