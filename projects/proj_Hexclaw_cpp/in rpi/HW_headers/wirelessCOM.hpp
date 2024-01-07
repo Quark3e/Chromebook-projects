@@ -42,7 +42,7 @@ class nodemcu_connect {
 
         nodemcu_udp_setup();
     }
-    char receive(bool printResult=true);
+    char receive(bool printResult);
 };
 
 
@@ -69,7 +69,7 @@ class nodemcu_orient {
             PORT = board_port;
             ADDRESS = board_address;
     }
-    void update(bool printResult=true);
+    void update(bool printResult);
 };
 
 
