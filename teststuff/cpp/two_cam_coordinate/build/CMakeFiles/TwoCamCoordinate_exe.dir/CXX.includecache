@@ -49,6 +49,8 @@ opencv4/opencv2/highgui/highgui.hpp
 -
 opencv4/opencv2/imgproc/imgproc.hpp
 -
+../useful/useful.hpp
+/home/pi/Chromebook-projects/teststuff/cpp/useful/useful.hpp
 two_cam_coordinate.hpp
 /home/pi/Chromebook-projects/teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp
 ../basic/Performance/getPerformance.hpp
@@ -65,4 +67,6 @@ time.h
 -
 iostream
 -
+
+/home/pi/Chromebook-projects/teststuff/cpp/useful/useful.hpp
 

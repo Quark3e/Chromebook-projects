@@ -12,6 +12,7 @@
 #include <opencv4/opencv2/highgui/highgui.hpp>
 #include <opencv4/opencv2/imgproc/imgproc.hpp>
 
+#include "../useful/useful.hpp"
 #include "two_cam_coordinate.hpp"
 #include "../basic/Performance/getPerformance.hpp"
 
@@ -30,6 +31,8 @@ vector<vector<cv::Point>> contours1;
 vector<cv::Vec4i> hierarchy0;
 vector<cv::Vec4i> hierarchy1;
 
+vector<vector<cv::Vec4i>> hierarchy;
+vector<vector<vector<cv::Point>>> contours;
 
 bool useAutoBrightne = true;
 bool displayToWindow = false;
@@ -116,35 +119,19 @@ int processFrame(cv::VideoCapture* cap, int idx, bool toDisplay) {
     double dM01 = imgMoments.m01;
     double dM10 = imgMoments.m10;
     double dArea = imgMoments.m00;
-    if(idx==0) cv::findContours(imgThreshold[idx], contours0, hierarchy0, cv::RETR_TREE,cv::CHAIN_APPROX_NONE);
-    if(idx==1) cv::findContours(imgThreshold[idx], contours1, hierarchy1, cv::RETR_TREE,cv::CHAIN_APPROX_NONE);
+    cv::findContours(imgThreshold[idx], contours.at(idx), hierarchy.at(idx), cv::RETR_TREE,cv::CHAIN_APPROX_NONE);
     dArea = 0;
     validCnt_index = 0;
     totCnt_area = 0;
-    if(idx==0) {
-        for(unsigned int i=0; i<contours0.size(); i++) {
-            dArea = cv::contourArea(contours0[i]);
-            if(dArea >= areaLim) {
-                cv::RotatedRect minRect = cv::minAreaRect(cv::Mat(contours0[i]));
-                int posX = contours0[i][0].x, posY = contours0[i][0].y+minRect.size.height/2;
-                validCnt_pos[i][0]=posX;
-                validCnt_pos[i][1]=posY;
-                validCnt_index += 1;
-                totCnt_area += dArea;
-            }
-        }
-    }
-    else if(idx==1) {
-        for(unsigned int i=0; i<contours1.size(); i++) {
-            dArea = cv::contourArea(contours1[i]);
-            if(dArea >= areaLim) {
-                cv::RotatedRect minRect = cv::minAreaRect(cv::Mat(contours1[i]));
-                int posX = contours1[i][0].x, posY = contours1[i][0].y+minRect.size.height/2;
-                validCnt_pos[i][0]=posX;
-                validCnt_pos[i][1]=posY;
-                validCnt_index += 1;
-                totCnt_area += dArea;
-            }
+    for(unsigned int i=0; i<contours.at(idx).size(); i++) {
+        dArea = cv::contourArea(contours.at(idx)[i]);
+        if(dArea >= areaLim) {
+            cv::RotatedRect minRect = cv::minAreaRect(cv::Mat(contours.at(idx)[i]));
+            int posX = contours.at(idx)[i][0].x, posY = contours.at(idx)[i][0].y+minRect.size.height/2;
+            validCnt_pos[i][0]=posX;
+            validCnt_pos[i][1]=posY;
+            validCnt_index += 1;
+            totCnt_area += dArea;
         }
     }
     if(takePerformance) perfObj.add_checkpoint("cntArea");
@@ -194,6 +181,13 @@ int main(int argc, char* argv[]) {
 
     float solvedPos[2];
 
+    vector<vector<cv::Point>> tempP;
+    vector<cv::Vec4i> tempV;
+    contours.push_back(tempP);
+    contours.push_back(tempP);
+    hierarchy.push_back(tempV);
+    hierarchy.push_back(tempV);
+
 
     while(true) {
         //  t1
@@ -204,10 +198,10 @@ int main(int argc, char* argv[]) {
         //  t1
         inpPos[0] = totCnt_pos[0][0];
         inpPos[1] = totCnt_pos[1][0];
-        camObj.solvePos(inpPos, solvedPos, true);
+        camObj.solvePos(inpPos, solvedPos, false);
         //  0.030ms
 
-        // printf("[%4d, %4d]  ", int(solvedPos[0]), int(solvedPos[1]));
+        printf("[%4d, %4d]  ", int(solvedPos[0]), int(solvedPos[1]));
 
         if(displayToWindow) {
             //  t1

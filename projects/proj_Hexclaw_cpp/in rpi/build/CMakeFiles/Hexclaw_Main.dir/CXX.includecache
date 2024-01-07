@@ -89,6 +89,8 @@ ST7735_TFT.h
 -
 pigpio.h
 -
+../../../teststuff/cpp/useful/useful.hpp
+/home/pi/Chromebook-projects/teststuff/cpp/useful/useful.hpp
 IK_header.h
 /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.h
 HW_headers/wirelessCOM.hpp
@@ -107,6 +109,8 @@ time.h
 -
 iostream
 -
+
+/home/pi/Chromebook-projects/teststuff/cpp/useful/useful.hpp
 
 /home/pi/Chromebook-projects/teststuff/electronics/tft_display/ST7735_TFT_RPI_test/ST7735_TFT_RPI-1.5/example/include/Bi_Color_Bitmap.h
 

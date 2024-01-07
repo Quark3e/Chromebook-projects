@@ -45,6 +45,7 @@
 // RPi specific functions
 #include <pigpio.h>
 
+#include "../../../teststuff/cpp/useful/useful.hpp"
 #include "IK_header.h"
 #include "HW_headers/wirelessCOM.hpp"
 #include "../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp"
