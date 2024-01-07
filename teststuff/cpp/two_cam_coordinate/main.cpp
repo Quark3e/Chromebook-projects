@@ -260,7 +260,7 @@ int main(int argc, char* argv[]) {
             printf("loop iteration info: fps:%2d | delay:%6.2fms\n", FPS, totalIterationTime_ms);
             checkTime = clock();
         }
-        perfObj.update_totalInfo(true, true, true, ' ','\r');
+        perfObj.update_totalInfo(true, true, true, ' ','\n');
         // printf("\n");
     }
 
