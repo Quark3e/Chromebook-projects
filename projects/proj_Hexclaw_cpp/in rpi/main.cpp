@@ -674,18 +674,6 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 		
 		}
 		
-		//delay: 0ms
-		// float temp = 1000*(clock()-t1)/CLOCKS_PER_SEC;
-		// if(temp>=1000) {
-		// 	totalDelay=temp/frames;
-		// 	fps=int(frames/(temp/1000));
-		// 	printf(" frames:%d ",frames);
-		// 	frames=0;
-		// 	t1=clock();
-		// }
-		// else frames++;
-
-		// printf("fps:%d totalDelay:%dms\n",fps,totalDelay);
 
 		//delay: 6-11ms
 		if(mode!=3) {
@@ -871,7 +859,7 @@ int main(int argc, char* argv[]) {
 		while(true) {
 			usleep(10'000);
 			// printf("\tx:%d y:%d z:%d a:%d b:%d\n",int(PP[0]),int(PP[1]),int(PP[2]),int(orient[0]),int(orient[1]));
-			orientObj.update(false);
+			orientObj.update(true);
 			if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
 				printf("a:%d\tb:%d", int(orient[0]), int(orient[1]));
 				printf("\tangles:\t%d\t%d\t%d\t%d\t%d\t%d",

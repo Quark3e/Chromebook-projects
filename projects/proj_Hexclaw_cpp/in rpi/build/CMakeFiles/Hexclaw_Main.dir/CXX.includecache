@@ -6,19 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.h
-unistd.h
--
-PiPCA9685/PCA9685.h
--
-iostream
--
-string
--
-math.h
--
-
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/main.cpp
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/wirelessCOM.hpp
 sys/types.h
 -
 sys/socket.h
@@ -43,6 +31,20 @@ poll.h
 -
 csignal
 -
+
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.h
+unistd.h
+-
+PiPCA9685/PCA9685.h
+-
+iostream
+-
+string
+-
+math.h
+-
+
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/main.cpp
 iostream
 -
 math.h
@@ -89,6 +91,22 @@ pigpio.h
 -
 IK_header.h
 /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.h
+HW_headers/wirelessCOM.hpp
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/wirelessCOM.hpp
+../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp
+/home/pi/Chromebook-projects/teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp
+
+/home/pi/Chromebook-projects/teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp
+math.h
+-
+cmath
+-
+numbers
+-
+time.h
+-
+iostream
+-
 
 /home/pi/Chromebook-projects/teststuff/electronics/tft_display/ST7735_TFT_RPI_test/ST7735_TFT_RPI-1.5/example/include/Bi_Color_Bitmap.h
 

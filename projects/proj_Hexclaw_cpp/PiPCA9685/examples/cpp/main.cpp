@@ -8,7 +8,7 @@ using namespace std;
 
 // PCA9685 pca{};
 
-void sendToServo(
+void to_sendToServo(
   PiPCA9685::PCA9685* pcaBoard,
   // float new_rotation[6],
   int servoToMove,
@@ -67,6 +67,6 @@ int main() {
     //   usleep(10'000);
     // }
     usleep(500'000);
-    sendToServo(&pca, sm_pin, 90);
+    to_sendToServo(&pca, sm_pin, 90);
   }
 }

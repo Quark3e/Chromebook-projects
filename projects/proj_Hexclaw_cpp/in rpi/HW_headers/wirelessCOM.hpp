@@ -49,7 +49,7 @@ class nodemcu_connect {
 class nodemcu_orient {
     public:
     
-    float orient[3] = {0,0,0}; //degrees
+    // float orient[3] = {0,0,0}; //degrees
     float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
     bool useFilter = false;
     float accelFilter = 0.1;
@@ -110,7 +110,7 @@ int nodemcu_connect::receive(bool printResult=true) {
 	buffer[n] = '\0';
 	if(printResult) {
 		// printf("\tSent %d bytes\t",bind_result);
-		printf(" Read from server: \"%s\"\t",buffer);
+		printf(" Read from server: \"%s\"  ",buffer);
 	}
     return n;
 }
@@ -145,7 +145,6 @@ void nodemcu_orient::update(bool printResult=true) {
 	// cout << "[n=" << n << " 0:\"" <<buffer[0] << "\" n-1:\"" << buffer[n-1] << "\" ]";
 	string temp = "";
 	if(connectObj.buffer[0]=='{' && connectObj.buffer[n-1]==';') { //{x:y:z}
-		printf("| is in |");
 		// if(printResult) cout << buffer << "\t";
 		for(int i=0; i<n-1; i++) temp+=connectObj.buffer[i];
 		x_accel = stof(temp.substr(1, temp.find(':')));
@@ -176,8 +175,8 @@ void nodemcu_orient::update(bool printResult=true) {
 		else {
 			Pitch = pitch;
 			Roll = roll;
-			orient[0] = Roll;
-			orient[1] = Pitch;
+			orientPtr[0] = Roll;
+			orientPtr[1] = Pitch;
 		}
 		// int bPos = -1;
     	// if(Pitch <= 90 and Pitch >= -90) {
@@ -191,7 +190,7 @@ void nodemcu_orient::update(bool printResult=true) {
 		// 	else orient[0] = Roll;
 		// 	orient[0] = orient[0] * bPos;
 		// }
-		if(printResult) printf(" Roll:%3d Pitch:%3d", 
+		if(printResult) printf(" Roll:%3d Pitch:%3d ", 
 		int(Roll), int(Pitch));
 	}
 }

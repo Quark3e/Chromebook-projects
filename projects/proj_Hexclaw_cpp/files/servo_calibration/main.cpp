@@ -176,7 +176,7 @@ float q_corrections(int q, float angle) {
 }
 
 
-void sendToServo(
+void to_sendToServo(
     PCA9685* pcaBoard,
     int servoToMove,
     int angle
@@ -203,7 +203,7 @@ int main(int argc, char** argv) {
     int servoToMove=0;
     string input;
     while(true) {
-        for(int i=0; i<6; i++) sendToServo(&pca, i, q_corrections(i, angleDefaults[i]));
+        for(int i=0; i<6; i++) to_sendToServo(&pca, i, q_corrections(i, angleDefaults[i]));
         cout << "--- Servo motor calibration ---\n";
         cout << "enter servo to test [0-5]: ";
         cin >> input;
