@@ -4,6 +4,8 @@
 
 #include <iostream>
 #include <time.h>
+#include <chrono>
+#include <ctime>
 #include <math.h>
 #include <vector>
 #include <string>
@@ -27,7 +29,8 @@ class getPerf {
     public:
     bool printNames = true;
     vector<string> names;
-    vector<clock_t> times;
+
+    vector<decltype(chrono::steady_clock::now())> times;
     /// @brief vector to hold delays in unit:milliseconds
     vector<float> delays_ms;
 
@@ -36,13 +39,14 @@ class getPerf {
 
     getPerf() {
         names.push_back("t0");
-        times.push_back(clock());
+        times.push_back(chrono::steady_clock::now());
+        delays_ms.push_back(0);
     }
     void add_checkpoint(string name);
     void update_totalInfo(bool reset_t0, bool printResult, bool printAll);
-    clock_t getTime(string name);
+    auto getTime(string name);
     float getDelay(string name);
-    string cutStr(string var, int maxLen);
+    string cutStr(string& var, int maxLen);
     int getIdx(string name);
 };
 
@@ -51,18 +55,18 @@ class getPerf {
 /// @brief Function to get clock_t type variable from given checkpoint name
 /// @param name the name of checkpoint to get time from
 /// @return clock_t type variable
-clock_t getPerf::getTime(string name) {
+auto getPerf::getTime(string name) {
     int idx=getIdx(name);
     if(idx==-1) {
         printf("error: \"%s\" named checkpoint doesn't exist.\n", name.c_str());
-        return clock();
+        return chrono::steady_clock::now();
     }
     return times.at(idx);
 }
 
 
 
-string getPerf::cutStr(string var, int maxLen=10) {
+string getPerf::cutStr(string& var, int maxLen=10) {
 	int varLen = var.size();
     if(varLen>maxLen) {
         printf(" note: name \"%s\" has been modified to ", var.c_str());
@@ -91,19 +95,24 @@ float getPerf::getDelay(string name) {
 /// if `name` exist then function will not create new element but only update clock_t vector
 /// @param name string name of checkpoint to either create or update
 void getPerf::add_checkpoint(string name) {
-    clock_t tempTime = clock();
-    auto idx=getIdx(name);
+    auto tempTime = chrono::steady_clock::now();
+    int idx=getIdx(name);
     if(idx != -1) {
         // If `name` already exist in vector `names
         times.at(idx) = tempTime;
-        delays_ms.at(idx) = 1000*(tempTime-times.at(idx-1))/(double)CLOCKS_PER_SEC;
+        auto elapsed = chrono::duration_cast<chrono::milliseconds>(tempTime-times.at(idx-1));
+        // delays_ms.at(idx) = 1000000*(tempTime-times.at(idx-1))/(double)CLOCKS_PER_SEC;
+        delays_ms.at(idx) = elapsed.count();
     }
     else {
         printNames = true;
-        delays_ms.push_back(1000*(tempTime-times.back())/(double)CLOCKS_PER_SEC);
+        auto elapsed = chrono::duration_cast<chrono::milliseconds>(tempTime-times.back());
+        // delays_ms.push_back(1'000'000*(tempTime-times.back())/(double)CLOCKS_PER_SEC);
+        delays_ms.push_back(elapsed.count());
         times.push_back(tempTime);
         names.push_back(cutStr(name));
     }
+    // printf("%7.4f", delays_ms.back());
 }
 
 /// @brief update total_delay and FPS member variables
@@ -115,9 +124,17 @@ void getPerf::update_totalInfo(
     bool printResult=true,
     bool printAll=true
 ) {
-    total_delay = 1000*(times.front()-times.back())/(double)CLOCKS_PER_SEC;
+    // for(auto n: names) printf(" %5s ", n.c_str());
+    // cout << endl;
+    // for(auto n: delays_ms) printf(" %5.3f ", n);
+    // cout << endl;
+
+    // total_delay = 1000*(times.back()-times.front())/(double)CLOCKS_PER_SEC;
+
+    auto elapsed = chrono::duration_cast<chrono::milliseconds>(times.back()-times.front());
+    total_delay = elapsed.count();
     FPS = float(1)/(total_delay/1000);
-    if(reset_t0) times.at(0) = clock();
+    if(reset_t0) times.at(0) = chrono::steady_clock::now();
     if(printAll) {
         string totalVar = "|", tempS;
         string totalStr = "|";
@@ -140,7 +157,7 @@ void getPerf::update_totalInfo(
         printf("%s", totalVar.c_str());
     }
     if(printResult) {
-        printf("\nloop iteration info: fps:%2d | delay:%6.2fms\n", FPS, total_delay);
+        printf("loop iteration info: fps:%5.2f | delay:%6.2fms\r", FPS, total_delay);
     }
 }
 

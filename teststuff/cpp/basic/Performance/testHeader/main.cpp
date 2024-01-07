@@ -2,12 +2,13 @@
 #include <iostream>
 #include <unistd.h>
 #include <string>
+#include <math.h>
 #include "../getPerformance.hpp"
 
 using namespace std;
 
 string test[10] = {
-    "zero"
+    "zero",
     "one",
     "two",
     "three",
@@ -21,12 +22,18 @@ string test[10] = {
 
 // for(int i=0; i<argc; i++) cout << argv[i] << endl;
 int main(int argc, char** argv) {
-    getPerf perfObj();
+    getPerf perfObj;
 
 
-
-    usleep(1'000'000);
-    
+    cout << "loop starting\n";
+    while(true) {
+        for(int i=0; i<sizeof(test)/sizeof(test[0]); i++) {
+            usleep(i*100);
+            perfObj.add_checkpoint(test[i]);
+        }
+        // usleep(420'690);
+        perfObj.update_totalInfo(true, true, false);
+    }
 
     return 0;
 }
