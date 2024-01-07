@@ -33,7 +33,7 @@ vector<cv::Vec4i> hierarchy1;
 
 bool useAutoBrightne = true;
 bool displayToWindow = false;
-bool takePerformance = false;
+bool takePerformance = true;
 
 
 int areaLim = 1000;
