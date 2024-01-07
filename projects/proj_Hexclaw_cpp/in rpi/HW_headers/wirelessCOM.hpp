@@ -42,7 +42,7 @@ class nodemcu_connect {
 
         nodemcu_udp_setup();
     }
-    void receive(bool printResult);
+    int receive(bool printResult);
 };
 
 
@@ -96,7 +96,7 @@ int nodemcu_connect::resolvehelper(
     return result;
 }
 
-void nodemcu_connect::receive(bool printResult=true) {
+int nodemcu_connect::receive(bool printResult=true) {
 	size_t msg_length = strlen(toESP_msg);
 	bind_result = sendto(
 		sock, toESP_msg, msg_length, 0,
@@ -112,6 +112,7 @@ void nodemcu_connect::receive(bool printResult=true) {
 		// printf("\tSent %d bytes\t",bind_result);
 		printf("\tRead from server: \"%s\"\t",buffer);
 	}
+    return n;
 }
 
 void nodemcu_connect::nodemcu_udp_setup() {
@@ -140,7 +141,7 @@ void nodemcu_connect::nodemcu_udp_setup() {
 
 // request to nodemcu board, receive {axis}_accel values, solve orient[0,1] variables
 void nodemcu_orient::update(bool printResult=true) {
-    connectObj.receive()
+    int n = connectObj.receive();
 
 	// cout << "[n=" << n << " 0:\"" <<buffer[0] << "\" n-1:\"" << buffer[n-1] << "\" ]";
 	string temp = "";
