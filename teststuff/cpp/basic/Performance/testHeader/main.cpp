@@ -28,11 +28,11 @@ int main(int argc, char** argv) {
     cout << "loop starting\n";
     while(true) {
         for(int i=0; i<sizeof(test)/sizeof(test[0]); i++) {
-            usleep(i*100);
+            usleep(2000);
             perfObj.add_checkpoint(test[i]);
         }
         // usleep(420'690);
-        perfObj.update_totalInfo(true, true, false);
+        perfObj.update_totalInfo(true, true, true, ' ');
     }
 
     return 0;

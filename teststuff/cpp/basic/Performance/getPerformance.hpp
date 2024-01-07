@@ -43,7 +43,7 @@ class getPerf {
         delays_ms.push_back(0);
     }
     void add_checkpoint(string name);
-    void update_totalInfo(bool reset_t0, bool printResult, bool printAll);
+    void update_totalInfo(bool reset_t0,bool printResult,bool printAll,char resultEndSymb0,char resultEndSymb1);
     auto getTime(string name);
     float getDelay(string name);
     string cutStr(string& var, int maxLen);
@@ -100,15 +100,15 @@ void getPerf::add_checkpoint(string name) {
     if(idx != -1) {
         // If `name` already exist in vector `names
         times.at(idx) = tempTime;
-        auto elapsed = chrono::duration_cast<chrono::milliseconds>(tempTime-times.at(idx-1));
+        auto elapsed = chrono::duration_cast<chrono::microseconds>(tempTime-times.at(idx-1));
         // delays_ms.at(idx) = 1000000*(tempTime-times.at(idx-1))/(double)CLOCKS_PER_SEC;
-        delays_ms.at(idx) = elapsed.count();
+        delays_ms.at(idx) = elapsed.count()*0.001;
     }
     else {
         printNames = true;
-        auto elapsed = chrono::duration_cast<chrono::milliseconds>(tempTime-times.back());
+        auto elapsed = chrono::duration_cast<chrono::microseconds>(tempTime-times.back());
         // delays_ms.push_back(1'000'000*(tempTime-times.back())/(double)CLOCKS_PER_SEC);
-        delays_ms.push_back(elapsed.count());
+        delays_ms.push_back(elapsed.count()*0.001);
         times.push_back(tempTime);
         names.push_back(cutStr(name));
     }
@@ -122,7 +122,9 @@ void getPerf::add_checkpoint(string name) {
 void getPerf::update_totalInfo(
     bool reset_t0,
     bool printResult=true,
-    bool printAll=true
+    bool printAll=true,
+    char resultEndSymb0='\n',
+    char resultEndSymb1='\n'
 ) {
     // for(auto n: names) printf(" %5s ", n.c_str());
     // cout << endl;
@@ -131,8 +133,8 @@ void getPerf::update_totalInfo(
 
     // total_delay = 1000*(times.back()-times.front())/(double)CLOCKS_PER_SEC;
 
-    auto elapsed = chrono::duration_cast<chrono::milliseconds>(times.back()-times.front());
-    total_delay = elapsed.count();
+    auto elapsed = chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now()-times.front());
+    total_delay = elapsed.count()*0.001;
     FPS = float(1)/(total_delay/1000);
     if(reset_t0) times.at(0) = chrono::steady_clock::now();
     if(printAll) {
@@ -146,18 +148,24 @@ void getPerf::update_totalInfo(
             stringstream sstream;
             sstream << fixed << setprecision(2) << delays_ms.at(i);
             tempS = sstream.str();
-            string emptySpace2(strLenMax-tempS.size(), ' ');
-            totalVar += emptySpace2 + tempS + "|";
+            string emptySpace2(strLenMax-tempS.size()-2, ' ');
+            totalVar += emptySpace2 + tempS + "ms" + "|";
         }
         if(printNames) {
             printf("%s\n", totalStr.c_str());
             printNames=false;
         }
-        totalVar += "\r";
+        if(printResult) totalVar += resultEndSymb0;
+        else totalVar += "\r";
         printf("%s", totalVar.c_str());
     }
     if(printResult) {
-        printf("loop iteration info: fps:%5.2f | delay:%6.2fms\r", FPS, total_delay);
+        stringstream streamPrint[2];
+        streamPrint[0] << fixed << setprecision(2) << FPS;
+        streamPrint[1] << fixed << setprecision(2) << total_delay;
+        string totStr = "loop iteration info: fps:"+streamPrint[0].str()+" | total_delay:"+streamPrint[1].str()+"ms"+resultEndSymb1; 
+        // printf("loop iteration info: fps:%5.2f | total_delay:%6.2fms\r", FPS, total_delay);
+        printf("%s",totStr.c_str());
     }
 }
 
