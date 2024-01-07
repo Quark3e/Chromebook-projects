@@ -190,15 +190,18 @@ int main(int argc, char* argv[]) {
         cap1.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);
     }
     const char* win_name = "Window";
+    cout << "checkpoint0" << endl;
     if(displayToWindow) {
         cv::namedWindow(win_name, 0);
         // createTrackbars(win_name);
         cv::resizeWindow(win_name, 1280, 960);
     }
+    cout << "checkpoint1" << endl;
     float camPosition[2][2] = {{0, 0}, {25, 0}};
     float camAng_offs[2] = {90, 123};
     float inpPos[2];
     camTriangle camObj(camPosition, camAng_offs);
+    cout << "checkpoint2" << endl;
 
     float solvedPos[2];
 
@@ -206,6 +209,7 @@ int main(int argc, char* argv[]) {
     double totalIterationTime_ms;
     clock_t checkTime = clock();
     float timeFilter = 1;
+    cout << "checkpoint3" << endl;
 
     while(true) {
         clock_t checkTime = clock();
