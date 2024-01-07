@@ -33,7 +33,7 @@ vector<cv::Vec4i> hierarchy1;
 
 bool useAutoBrightne = true;
 bool displayToWindow = false;
-bool takePerformance = true;
+bool takePerformance = false;
 
 
 int areaLim = 1000;
@@ -249,7 +249,7 @@ int main(int argc, char* argv[]) {
         }
         
         // TOTAL: <110ms
-        if(true) {
+        if(takePerformance) {
             totalIterationTime_ms = 1000.0*(clock()-checkTime)/(double)CLOCKS_PER_SEC*timeFilter+totalIterationTime_ms*(1-timeFilter);
             FPS = float(1)/(totalIterationTime_ms/1000);
             printf("loop iteration info: fps:%2d | delay:%6.2fms\n", FPS, totalIterationTime_ms);
