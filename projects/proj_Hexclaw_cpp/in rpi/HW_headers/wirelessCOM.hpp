@@ -110,7 +110,7 @@ int nodemcu_connect::receive(bool printResult=true) {
 	buffer[n] = '\0';
 	if(printResult) {
 		// printf("\tSent %d bytes\t",bind_result);
-		printf("\tRead from server: \"%s\"\t",buffer);
+		printf(" Read from server: \"%s\"\t",buffer);
 	}
     return n;
 }
@@ -145,7 +145,7 @@ void nodemcu_orient::update(bool printResult=true) {
 	// cout << "[n=" << n << " 0:\"" <<buffer[0] << "\" n-1:\"" << buffer[n-1] << "\" ]";
 	string temp = "";
 	if(connectObj.buffer[0]=='{' && connectObj.buffer[n-1]==';') { //{x:y:z}
-		// printf("is in\n");
+		printf("| is in |");
 		// if(printResult) cout << buffer << "\t";
 		for(int i=0; i<n-1; i++) temp+=connectObj.buffer[i];
 		x_accel = stof(temp.substr(1, temp.find(':')));
