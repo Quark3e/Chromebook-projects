@@ -10,21 +10,21 @@
  * URL: 
  */
 
-// nodemcu/esp8266 module udp communication
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <memory.h>
-#include <ifaddrs.h>
-#include <net/if.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <poll.h>
-#include <csignal>
+// // nodemcu/esp8266 module udp communication
+// #include <sys/types.h>
+// #include <sys/socket.h>
+// #include <netinet/in.h>
+// #include <arpa/inet.h>
+// #include <netdb.h>
+// #include <memory.h>
+// #include <ifaddrs.h>
+// #include <net/if.h>
+// #include <errno.h>
+// #include <fcntl.h>
+// #include <poll.h>
+// #include <csignal>
 
-#define MAXLINE 2048
+// #define MAXLINE 2048
 
 // default/basic headers/includes
 #include <iostream>
@@ -61,6 +61,8 @@
 #include <pigpio.h>
 
 #include "IK_header.h"
+#include "HW_headers/wirelessCOM.hpp"
+#include "../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp"
 
 using namespace std;
 
@@ -83,15 +85,15 @@ void initPaths() {
 }
 
 
-// udp com related: udp communication variable declarations
-int bind_result;
-int sock;
-char buffer[MAXLINE];
-const char* PORT;
-char szIP[100];
-sockaddr_in addrListen;
-sockaddr_storage addrDest;
-const char* toESP_msg;
+// // udp com related: udp communication variable declarations
+// int bind_result;
+// int sock;
+// char buffer[MAXLINE];
+// const char* PORT;
+// char szIP[100];
+// sockaddr_in addrListen;
+// sockaddr_storage addrDest;
+// const char* toESP_msg;
 
 // tft display setup
 ST7735_TFT myTFT;
@@ -324,120 +326,120 @@ void getAvg_cntPos(float allCnt[20][2], int cntIndex, float totCntPos_ptr[2]) {
 bool pigpioInitia = false;
 int pin_ledRelay = 23;
 
-int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr) {
-    int result;
-    addrinfo* result_list = NULL;
-    addrinfo hints = {};
-    hints.ai_family = family;
-    hints.ai_socktype = SOCK_DGRAM; // without this flag, getaddrinfo will return 3x the number of addresses (one for each socket type).
-    result = getaddrinfo(hostname, service, &hints, &result_list);
-    if (result == 0)
-    {
-        //ASSERT(result_list->ai_addrlen <= sizeof(sockaddr_in));
-        memcpy(pAddr, result_list->ai_addr, result_list->ai_addrlen);
-        freeaddrinfo(result_list);
-    }
+// int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr) {
+//     int result;
+//     addrinfo* result_list = NULL;
+//     addrinfo hints = {};
+//     hints.ai_family = family;
+//     hints.ai_socktype = SOCK_DGRAM; // without this flag, getaddrinfo will return 3x the number of addresses (one for each socket type).
+//     result = getaddrinfo(hostname, service, &hints, &result_list);
+//     if (result == 0)
+//     {
+//         //ASSERT(result_list->ai_addrlen <= sizeof(sockaddr_in));
+//         memcpy(pAddr, result_list->ai_addr, result_list->ai_addrlen);
+//         freeaddrinfo(result_list);
+//     }
 
-    return result;
-}
+//     return result;
+// }
 
-// initialize udp "settings"
-void nodemcu_udp_setup() {
-	bind_result = 0;
-	sock = socket(AF_INET, SOCK_DGRAM, 0);
-	fcntl(sock, F_SETFL, O_NONBLOCK);
-	PORT = "53";
-	addrListen = {};
-	addrListen.sin_family = AF_INET;
-	bind_result = bind(sock, (sockaddr*)&addrListen, sizeof(addrListen));
-	if(bind_result==-1) {
-		int lasterror = errno;
-		cout << "bind() error:" << lasterror;
-		exit(1);
-	}
-	addrDest = {};
-	bind_result = resolvehelper("192.168.1.118", AF_INET, PORT, &addrDest);
-	if(bind_result!=0) {
-		int lasterror = errno;
-		cout << "resolvehelper error:" << lasterror;
-		exit(1);
-	}
-	toESP_msg = "1";
-}
+// // initialize udp "settings"
+// void nodemcu_udp_setup() {
+// 	bind_result = 0;
+// 	sock = socket(AF_INET, SOCK_DGRAM, 0);
+// 	fcntl(sock, F_SETFL, O_NONBLOCK);
+// 	PORT = "53";
+// 	addrListen = {};
+// 	addrListen.sin_family = AF_INET;
+// 	bind_result = bind(sock, (sockaddr*)&addrListen, sizeof(addrListen));
+// 	if(bind_result==-1) {
+// 		int lasterror = errno;
+// 		cout << "bind() error:" << lasterror;
+// 		exit(1);
+// 	}
+// 	addrDest = {};
+// 	bind_result = resolvehelper("192.168.1.118", AF_INET, PORT, &addrDest);
+// 	if(bind_result!=0) {
+// 		int lasterror = errno;
+// 		cout << "resolvehelper error:" << lasterror;
+// 		exit(1);
+// 	}
+// 	toESP_msg = "1";
+// }
 
 
-// request to nodemcu board, receive {axis}_accel values, solve orient[0,1] variables
-void updateOrients(bool printResult) {
-	size_t msg_length = strlen(toESP_msg);
-	bind_result = sendto(
-		sock, toESP_msg, msg_length, 0,
-		(sockaddr*)&addrDest, sizeof(addrDest)
-		);
-	socklen_t len;
-	int n = recvfrom(
-		sock, (char*)buffer, MAXLINE, MSG_WAITALL,
-		(struct sockaddr*)&addrDest, &len);
+// // request to nodemcu board, receive {axis}_accel values, solve orient[0,1] variables
+// void updateOrients(bool printResult) {
+// 	size_t msg_length = strlen(toESP_msg);
+// 	bind_result = sendto(
+// 		sock, toESP_msg, msg_length, 0,
+// 		(sockaddr*)&addrDest, sizeof(addrDest)
+// 		);
+// 	socklen_t len;
+// 	int n = recvfrom(
+// 		sock, (char*)buffer, MAXLINE, MSG_WAITALL,
+// 		(struct sockaddr*)&addrDest, &len);
 
-	buffer[n] = '\0';
-	if(printResult) {
-		// printf("\tSent %d bytes\t",bind_result);
-		printf("\tRead from server: \"%s\"\t",buffer);
-	}
-	cout /*<< " msg_waitall:" << MSG_WAITALL */<< " errno:" << errno << " ";
+// 	buffer[n] = '\0';
+// 	if(printResult) {
+// 		// printf("\tSent %d bytes\t",bind_result);
+// 		printf("\tRead from server: \"%s\"\t",buffer);
+// 	}
+// 	cout /*<< " msg_waitall:" << MSG_WAITALL */<< " errno:" << errno << " ";
 
-	// cout << "[n=" << n << " 0:\"" <<buffer[0] << "\" n-1:\"" << buffer[n-1] << "\" ]";
-	string temp = "";
-	if(buffer[0]=='{' && buffer[n-1]==';') { //{x:y:z}
-		// printf("is in\n");
-		// if(printResult) cout << buffer << "\t";
-		for(int i=0; i<n-1; i++) temp+=buffer[i];
-		x_accel = stof(temp.substr(1, temp.find(':')));
-		temp.erase(0, temp.find(':')+1);
-		y_accel = stof(temp.substr(0, temp.find(':')));
-		temp.erase(0, temp.find(':')+1);
-		z_accel = stof(temp.substr(0, temp.find('}')));
-		temp.erase(0, temp.find(':')+1);
-		string filtBoolStr = temp.substr(0, temp.find(';'));
-		if(filtBoolStr == "off") useFilter = false;
-		else if(filtBoolStr == "on ") useFilter = true;
+// 	// cout << "[n=" << n << " 0:\"" <<buffer[0] << "\" n-1:\"" << buffer[n-1] << "\" ]";
+// 	string temp = "";
+// 	if(buffer[0]=='{' && buffer[n-1]==';') { //{x:y:z}
+// 		// printf("is in\n");
+// 		// if(printResult) cout << buffer << "\t";
+// 		for(int i=0; i<n-1; i++) temp+=buffer[i];
+// 		x_accel = stof(temp.substr(1, temp.find(':')));
+// 		temp.erase(0, temp.find(':')+1);
+// 		y_accel = stof(temp.substr(0, temp.find(':')));
+// 		temp.erase(0, temp.find(':')+1);
+// 		z_accel = stof(temp.substr(0, temp.find('}')));
+// 		temp.erase(0, temp.find(':')+1);
+// 		string filtBoolStr = temp.substr(0, temp.find(';'));
+// 		if(filtBoolStr == "off") useFilter = false;
+// 		else if(filtBoolStr == "on ") useFilter = true;
 
-		// if(x_accel>1 || y_accel>1 || z_accel>1 || x_accel<-1 || y_accel<-1 || z_accel<-1) return;
-		if(x_accel>1) x_accel = 0.99;
-		if(y_accel>1) y_accel = 0.99;
-		if(z_accel>1) z_accel = 0.99;
-		// if(printResult) printf("x_acc:%d\ty_acc:%d\tz_acc:%d\t",int(x_accel),int(y_accel),int(z_accel));
+// 		// if(x_accel>1 || y_accel>1 || z_accel>1 || x_accel<-1 || y_accel<-1 || z_accel<-1) return;
+// 		if(x_accel>1) x_accel = 0.99;
+// 		if(y_accel>1) y_accel = 0.99;
+// 		if(z_accel>1) z_accel = 0.99;
+// 		// if(printResult) printf("x_acc:%d\ty_acc:%d\tz_acc:%d\t",int(x_accel),int(y_accel),int(z_accel));
 
-		pitch = atan(y_accel / sqrt(pow(x_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
-		roll = atan(-1 * x_accel / sqrt(pow(y_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
-		//pitch = -pitch;
-		//roll = -roll;
+// 		pitch = atan(y_accel / sqrt(pow(x_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
+// 		roll = atan(-1 * x_accel / sqrt(pow(y_accel,2)+pow(z_accel,2))) * 180 / M_PI; //degrees
+// 		//pitch = -pitch;
+// 		//roll = -roll;
 
-		if(useFilter) {
-			Pitch = (1-accelFilter) * Pitch + accelFilter * pitch;
-			Roll = (1-accelFilter) * Roll + accelFilter * roll;
-		}
-		else {
-			Pitch = pitch;
-			Roll = roll;
-			orient[0] = Roll;
-			orient[1] = Pitch;
-		}
-		// int bPos = -1;
-    	// if(Pitch <= 90 and Pitch >= -90) {
-		// 	if(useFilter) orient[1] = Pitch * accelFilter + orient[1] * (1-accelFilter);
-		// 	else orient[1] = Pitch;
-		// 	if(orient[1] < 0) bPos = -1;
-		// 	if(orient[1] > 0) bPos = 1;
-		// }
-    	// if(Roll <= 90 and Roll >= -90) {
-		// 	if(useFilter) orient[0] = Roll * accelFilter + orient[0] * (1-accelFilter);
-		// 	else orient[0] = Roll;
-		// 	orient[0] = orient[0] * bPos;
-		// }
-		if(printResult) printf(" Roll:%3d Pitch:%3d", 
-		int(Roll), int(Pitch));
-	}
-}
+// 		if(useFilter) {
+// 			Pitch = (1-accelFilter) * Pitch + accelFilter * pitch;
+// 			Roll = (1-accelFilter) * Roll + accelFilter * roll;
+// 		}
+// 		else {
+// 			Pitch = pitch;
+// 			Roll = roll;
+// 			orient[0] = Roll;
+// 			orient[1] = Pitch;
+// 		}
+// 		// int bPos = -1;
+//     	// if(Pitch <= 90 and Pitch >= -90) {
+// 		// 	if(useFilter) orient[1] = Pitch * accelFilter + orient[1] * (1-accelFilter);
+// 		// 	else orient[1] = Pitch;
+// 		// 	if(orient[1] < 0) bPos = -1;
+// 		// 	if(orient[1] > 0) bPos = 1;
+// 		// }
+//     	// if(Roll <= 90 and Roll >= -90) {
+// 		// 	if(useFilter) orient[0] = Roll * accelFilter + orient[0] * (1-accelFilter);
+// 		// 	else orient[0] = Roll;
+// 		// 	orient[0] = orient[0] * bPos;
+// 		// }
+// 		if(printResult) printf(" Roll:%3d Pitch:%3d", 
+// 		int(Roll), int(Pitch));
+// 	}
+// }
 
 
 /// @brief Create trackbar
@@ -647,7 +649,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 					PP[2] = round((axisFilter[2] * float(axisScal[2]*zAxisFunc(totCnt_area, camPos[0], camPos[1]) + axisOffset[2]) + (1-axisFilter[2])*PP[2])/10)*10;
 					printf("dArea:%6d", validCnt_index, int(totCnt_area));
 					printf(" x:%3d y:%3d z:%3d",int(PP[0]),int(PP[1]), int(PP[2]));
-					updateOrients(true);
+					orientObj.update(true);
 					if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
 						sendToServo(pcaSrc,new_q,current_q,false);
 					}
@@ -811,7 +813,10 @@ int main(int argc, char* argv[]) {
 	// signal(SIGINT	,signal_handler);
 
 	//nodemcu udp communication setup/initialization
-	nodemcu_udp_setup();
+	// nodemcu_udp_setup();
+
+	nodemcu_orient orientObj(orient);
+
 	if(zSol==1) load_csvFile();
 	initPaths();
 	
@@ -863,7 +868,7 @@ int main(int argc, char* argv[]) {
 		while(true) {
 			usleep(10'000);
 			// printf("\tx:%d y:%d z:%d a:%d b:%d\n",int(PP[0]),int(PP[1]),int(PP[2]),int(orient[0]),int(orient[1]));
-			updateOrients(false);
+			orientObj.update(false);
 			if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
 				printf("a:%d\tb:%d", int(orient[0]), int(orient[1]));
 				printf("\tangles:\t%d\t%d\t%d\t%d\t%d\t%d",

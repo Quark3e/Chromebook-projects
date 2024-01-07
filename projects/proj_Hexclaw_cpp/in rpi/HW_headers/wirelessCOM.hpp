@@ -24,7 +24,6 @@ class nodemcu_connect {
     private:
     int bind_result;
     int sock;
-    char buffer[MAXLINE];
     const char* PORT = "53";
     const char* ADDRESS = "192.168.1.118";
     char szIP[100];
@@ -33,6 +32,7 @@ class nodemcu_connect {
     const char* toESP_msg;
 
     public:
+    char buffer[MAXLINE];
 
     int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr);
     void nodemcu_udp_setup();
@@ -42,8 +42,9 @@ class nodemcu_connect {
 
         nodemcu_udp_setup();
     }
-    char receive(bool printResult);
+    char receive(bool printResult=true);
 };
+
 
 class nodemcu_orient {
     public:
@@ -55,12 +56,23 @@ class nodemcu_orient {
 
     float* orientPtr;
 
-    nodemcu_orient(float ptrOrient[3]) {
-        orientPtr = ptrOrient;
+    nodemcu_connect connectObj;
+    const char* PORT = "53";
+    const char* ADDRESS = "192.168.1.118";
 
+    nodemcu_orient(
+        float ptrOrient[3],
+        const char* board_address=ADDRESS,
+        const char* board_port=PORT
+        ): connectObj(board_address, board_port) {
+            orientPtr = ptrOrient;
+            PORT = board_port;
+            ADDRESS = board_address;
     }
-    void update(bool printResult);
+    void update(bool printResult=true);
 };
+
+
 
 int nodemcu_connect::resolvehelper(
     const char* hostname,
@@ -84,7 +96,7 @@ int nodemcu_connect::resolvehelper(
     return result;
 }
 
-char nodemcu_connect::receive(bool printResult) {
+char nodemcu_connect::receive(bool printResult=true) {
 	size_t msg_length = strlen(toESP_msg);
 	bind_result = sendto(
 		sock, toESP_msg, msg_length, 0,
@@ -128,30 +140,15 @@ void nodemcu_connect::nodemcu_udp_setup() {
 
 
 // request to nodemcu board, receive {axis}_accel values, solve orient[0,1] variables
-void nodemcu_orient::updateOrients(bool printResult) {
-	size_t msg_length = strlen(toESP_msg);
-	bind_result = sendto(
-		sock, toESP_msg, msg_length, 0,
-		(sockaddr*)&addrDest, sizeof(addrDest)
-		);
-	socklen_t len;
-	int n = recvfrom(
-		sock, (char*)buffer, MAXLINE, MSG_WAITALL,
-		(struct sockaddr*)&addrDest, &len);
-
-	buffer[n] = '\0';
-	if(printResult) {
-		// printf("\tSent %d bytes\t",bind_result);
-		printf("\tRead from server: \"%s\"\t",buffer);
-	}
-	// cout /*<< " msg_waitall:" << MSG_WAITALL */<< " errno:" << errno << " ";
+void nodemcu_orient::update(bool printResult=true) {
+    connectObj.receive()
 
 	// cout << "[n=" << n << " 0:\"" <<buffer[0] << "\" n-1:\"" << buffer[n-1] << "\" ]";
 	string temp = "";
-	if(buffer[0]=='{' && buffer[n-1]==';') { //{x:y:z}
+	if(connectObj.buffer[0]=='{' && connectObj.buffer[n-1]==';') { //{x:y:z}
 		// printf("is in\n");
 		// if(printResult) cout << buffer << "\t";
-		for(int i=0; i<n-1; i++) temp+=buffer[i];
+		for(int i=0; i<n-1; i++) temp+=connectObj.buffer[i];
 		x_accel = stof(temp.substr(1, temp.find(':')));
 		temp.erase(0, temp.find(':')+1);
 		y_accel = stof(temp.substr(0, temp.find(':')));

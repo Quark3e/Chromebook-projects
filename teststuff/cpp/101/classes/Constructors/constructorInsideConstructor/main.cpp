@@ -5,9 +5,12 @@
 using namespace std;
 
 class uno {
+    protected:
+    string varProt;
     public:
     uno(string test) {
         cout << "uno:" << test << endl;
+        varProt = "protected:" + test;
     }
     void second() {
         cout << "|uno second|" << endl;
@@ -24,6 +27,7 @@ class dos {
     void test() {
         unoObj.second();
         cout << "|dos second|" << endl;
+        // cout << unoObj.varProt << ": is readable from here\n"; //can't do this
     }
 };
 
