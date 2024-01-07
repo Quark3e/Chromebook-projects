@@ -185,7 +185,8 @@ int main(int argc, char* argv[]) {
         cout << "error: Cannot open one- or both of the webcams." << endl;
         return -1;
     }
-        
+
+    cout << "checkpoint 2" << endl;   
     if(useAutoBrightne) {
         cap0.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);
         cap1.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);
