@@ -92,7 +92,6 @@ int processFrame(cv::VideoCapture* cap, int idx, bool toDisplay) {
     if(takePerformance) perfObj.add_checkpoint("read");
 
     cv::resize(imgRaw[idx], imgOriginal[idx], cv::Size(prefSize[0],prefSize[1]), cv::INTER_LINEAR);
-    if(takePerformance) printf("|resize:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
     if(takePerformance) perfObj.add_checkpoint("resize");
 
     // cv::flip(imgOriginal[idx], imgFlipped[idx], 1); //temporarily disabled
@@ -195,17 +194,10 @@ int main(int argc, char* argv[]) {
 
     float solvedPos[2];
 
-    int FPS, frames, frameLim=10;
-    double totalIterationTime_ms;
-    clock_t checkTime = clock();
-    float timeFilter = 1;
 
     while(true) {
-        clock_t checkTime = clock();
         //  t1
-        if(takePerformance) printf("cap0\n");
         if(processFrame(&cap0, 0, displayToWindow)==-1) return 0;
-        if(takePerformance) printf("cap0\n");
         if(processFrame(&cap1, 1, displayToWindow)==-1) return 0;
         //  71ms
 
@@ -234,14 +226,8 @@ int main(int argc, char* argv[]) {
             //  0.01ms
         }
         
-        // TOTAL: <110ms
-        if(takePerformance) {
-            totalIterationTime_ms = 1000.0*(clock()-checkTime)/(double)CLOCKS_PER_SEC*timeFilter+totalIterationTime_ms*(1-timeFilter);
-            FPS = float(1)/(totalIterationTime_ms/1000);
-            printf("loop iteration info: fps:%2d | delay:%6.2fms\n", FPS, totalIterationTime_ms);
-            checkTime = clock();
-        }
-        perfObj.update_totalInfo(true, true, true, ' ','\r');
+        // TOTAL: <110ms with displayToWindow==true
+        if(takePerformance) perfObj.update_totalInfo(true, true, true, ' ','\r');
         // printf("\n");
     }
 
