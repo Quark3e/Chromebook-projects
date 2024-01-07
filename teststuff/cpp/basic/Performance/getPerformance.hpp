@@ -158,7 +158,7 @@ void getPerf::update_totalInfo(
         }
         if(printResult) totalVar += resultEndSymb0;
         else totalVar += "\r";
-        printf("%s", totalVar.c_str());
+        if(!printResult) printf("%s", totalVar.c_str());
     }
     if(printResult) {
         stringstream streamPrint[2];
@@ -166,7 +166,10 @@ void getPerf::update_totalInfo(
         streamPrint[1] << fixed << setprecision(2) << total_delay;
         string totStr = "loop iteration info: fps:"+streamPrint[0].str()+" | total_delay:"+streamPrint[1].str()+"ms"+resultEndSymb1; 
         // printf("loop iteration info: fps:%5.2f | total_delay:%6.2fms\r", FPS, total_delay);
-        printf("%s",totStr.c_str());
+        if(!printAll) printf("%s",totStr.c_str());
+    }
+    if(printResult && printAll) {
+        printf("%s %s", totalVar.c_str(), totStr.c_str());
     }
 }
 
