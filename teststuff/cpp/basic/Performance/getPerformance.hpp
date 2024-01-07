@@ -137,9 +137,11 @@ void getPerf::update_totalInfo(
     auto elapsed = chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now()-times.front());
     total_delay = (elapsed.count()*0.001)*delayFilter+(1.0-delayFilter)*total_delay;
     FPS = float(1)/(total_delay/1000);
+
+
+    string totalVar = "|", tempS, totStr;
     if(reset_t0) times.at(0) = chrono::steady_clock::now();
     if(printAll) {
-        string totalVar = "|", tempS;
         string totalStr = "|";
         for(auto i=0; i<times.size(); i++) {
             if(printNames) {
@@ -164,7 +166,7 @@ void getPerf::update_totalInfo(
         stringstream streamPrint[2];
         streamPrint[0] << fixed << setprecision(2) << FPS;
         streamPrint[1] << fixed << setprecision(2) << total_delay;
-        string totStr = "loop iteration info: fps:"+streamPrint[0].str()+" | total_delay:"+streamPrint[1].str()+"ms"+resultEndSymb1; 
+        totStr = "loop iteration info: fps:"+streamPrint[0].str()+" | total_delay:"+streamPrint[1].str()+"ms"+resultEndSymb1; 
         // printf("loop iteration info: fps:%5.2f | total_delay:%6.2fms\r", FPS, total_delay);
         if(!printAll) printf("%s",totStr.c_str());
     }
