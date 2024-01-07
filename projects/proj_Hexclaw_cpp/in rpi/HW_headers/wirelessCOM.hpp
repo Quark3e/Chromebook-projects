@@ -24,8 +24,8 @@ class nodemcu_connect {
     private:
     int bind_result;
     int sock;
-    const char* PORT = "53";
-    const char* ADDRESS = "192.168.1.118";
+    static const char* PORT = "53";
+    static const char* ADDRESS = "192.168.1.118";
     char szIP[100];
     sockaddr_in addrListen;
     sockaddr_storage addrDest;
