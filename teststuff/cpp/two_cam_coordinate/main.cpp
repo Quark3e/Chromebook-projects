@@ -83,48 +83,36 @@ void updateTrackbarPos(const char* win_name) {
 cv::Mat imgRaw[2], imgOriginal[2], imgFlipped[2], imgHSV[2], imgThreshold[2];
 
 int processFrame(cv::VideoCapture* cap, int idx, bool toDisplay) {
-    clock_t t1 = clock();
     bool test = (cap->read(imgRaw[idx]));
     if(!test) {
         printf("error: Cannot read frame from webcam[%d]",idx);
         cv::destroyAllWindows();
         return -1;
     }
-    if(takePerformance) printf("|read:  %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
-    perfObj.add_checkpoint("read");
+    if(takePerformance) perfObj.add_checkpoint("read");
 
-    if(takePerformance) t1 = clock();
     cv::resize(imgRaw[idx], imgOriginal[idx], cv::Size(prefSize[0],prefSize[1]), cv::INTER_LINEAR);
     if(takePerformance) printf("|resize:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
-    perfObj.add_checkpoint("resize");
+    if(takePerformance) perfObj.add_checkpoint("resize");
 
-    if(takePerformance) t1 = clock();
     // cv::flip(imgOriginal[idx], imgFlipped[idx], 1); //temporarily disabled
     imgFlipped[idx] = imgOriginal[idx];
     cv::cvtColor(imgFlipped[idx], imgHSV[idx], cv::COLOR_BGR2HSV);
-    if(takePerformance) printf("|cvtC:  %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
-    perfObj.add_checkpoint("cvtC");
+    if(takePerformance) perfObj.add_checkpoint("cvtC");
 
-    if(takePerformance) t1 = clock();
     cv::inRange(
         imgHSV[idx],
         cv::Scalar(l_HSV[0], l_HSV[1], l_HSV[2]),
         cv::Scalar(u_HSV[0], u_HSV[1], u_HSV[2]),
         imgThreshold[idx]
     );
-    if(takePerformance) printf("|inRan: %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
-    perfObj.add_checkpoint("inRan");
+    if(takePerformance) perfObj.add_checkpoint("inRan");
 
-    if(takePerformance) t1 = clock();
     cv::erode(imgThreshold[idx], imgThreshold[idx], cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
-    if(takePerformance) printf("|erode: %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
-    perfObj.add_checkpoint("erode");
-    if(takePerformance) t1 = clock();
+    if(takePerformance) perfObj.add_checkpoint("erodeddsds");
     cv::dilate(imgThreshold[idx], imgThreshold[idx], cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 6); 
-    if(takePerformance) printf("|dilate:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
-    perfObj.add_checkpoint("dilate");
+    if(takePerformance) perfObj.add_checkpoint("dilate");
 
-    if(takePerformance) t1 = clock();
     cv::Moments imgMoments = cv::moments(imgThreshold[idx]);
     double dM01 = imgMoments.m01;
     double dM10 = imgMoments.m10;
@@ -160,9 +148,7 @@ int processFrame(cv::VideoCapture* cap, int idx, bool toDisplay) {
             }
         }
     }
-    if(takePerformance) printf("|cntAre:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
-    perfObj.add_checkpoint("cntArea");
-    if(takePerformance) t1 = clock();
+    if(takePerformance) perfObj.add_checkpoint("cntArea");
     if(validCnt_index > 0) {
         getAvg_cntPos(validCnt_pos, validCnt_index, totCnt_pos[idx]);
         cv::circle(imgFlipped[idx],cv::Point(totCnt_pos[idx][0],totCnt_pos[idx][1]),50,cv::Scalar(0,0,0),2);
@@ -174,16 +160,11 @@ int processFrame(cv::VideoCapture* cap, int idx, bool toDisplay) {
 
 
     if(toDisplay) {
-        if(takePerformance) printf("|avgPos:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
-        perfObj.add_checkpoint("avgPos");
-        if(takePerformance) t1 = clock();
+        if(takePerformance) perfObj.add_checkpoint("avgPos");
         cv::cvtColor(imgThreshold[idx], imgThreshold[idx], cv::COLOR_GRAY2BGR);
-        if(takePerformance) printf("|cvtCol:%7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
-        perfObj.add_checkpoint("cvtCol");
-        if(takePerformance) t1 = clock();
+        if(takePerformance) perfObj.add_checkpoint("cvtCol");
         cv::vconcat(imgFlipped[idx], imgThreshold[idx], imgFlipped[idx]);
-        if(takePerformance) printf("|vconc: %7.2f|\n", 1000*(clock()-t1)/(double)CLOCKS_PER_SEC);
-        perfObj.add_checkpoint("vconc");
+        if(takePerformance) perfObj.add_checkpoint("vconc");
     }
     return 0;
 }
