@@ -42,7 +42,7 @@ class nodemcu_connect {
 
         nodemcu_udp_setup();
     }
-    char receive(bool printResult);
+    void receive(bool printResult);
 };
 
 
@@ -112,7 +112,6 @@ char nodemcu_connect::receive(bool printResult=true) {
 		// printf("\tSent %d bytes\t",bind_result);
 		printf("\tRead from server: \"%s\"\t",buffer);
 	}
-    return buffer;
 }
 
 void nodemcu_connect::nodemcu_udp_setup() {
