@@ -10,7 +10,13 @@
 
 using namespace std;
 
+/// @brief Convert radians to degrees
+/// @param radians radians to convert. type: float()
+/// @return return degrees. type: float()
 float toDegrees(float radians) { return (radians*180)/M_PI; }
+/// @brief Convert degrees to radians
+/// @param degrees degrees to convert. type: float()
+/// @return return radians. type: float()
 float toRadians(float degrees) { return float(degrees*M_PI)/180; }
 
 /// @brief Class to solve object position relative to the position of two webcams via seen pixel positions
@@ -94,7 +100,7 @@ class camTriangle {
         read_pix[0][1] = camRes[0][1]*0.5-rawPos[0];
         read_pix[1][1] = camRes[1][1]*0.5-rawPos[1];
 
-        // printf(" {%4d, %4d} ", int(read_pix[0][0]), int(read_pix[1][0]));
+        if(printText) printf(" {%4d, %4d} ", int(read_pix[0][0]), int(read_pix[1][0]));
 
         ang_read[0] = read_pix[0][0]*camCoef[0][0];
         ang_read[1] = read_pix[1][0]*camCoef[1][0];
@@ -109,15 +115,16 @@ class camTriangle {
         solvedPos[1] = camPos[0][1]+sin(toRadians(ang_offset[0]+ang_read[0]))*l_tri[0];
 
         solvedPos[0] = camPos[1][0]+cos(toRadians(ang_offset[1]-ang_read[1]))*l_tri[1];
-        solvedPos[1] = camPos[1][1]+cos(toRadians(ang_offset[1]-ang_read[1]))*l_tri[1];
+        solvedPos[1] = camPos[1][1]+sin(toRadians(ang_offset[1]-ang_read[1]))*l_tri[1];
         
         returnArr[0] = solvedPos[0];
         returnArr[1] = solvedPos[1];
 
-        // printf("angRead{%3d,%3d} ", int(ang_read[0]),int(ang_read[1]));
-        // printf("angTri{%3d,%3d,%3d} ", int(ang_tri[0]),int(ang_tri[1]),int(ang_p));
-        // printf("l_tri{%3d,%3d,%3d} ", int(l_tri[0]),int(l_tri[1]),int(l_hypotenuse));
-
+        if(printText) {
+        printf("angRead{%3d,%3d} ", int(ang_read[0]),int(ang_read[1]));
+        printf("angTri{%3d,%3d,%3d} ", int(ang_tri[0]),int(ang_tri[1]),int(ang_p));
+        printf("l_tri{%3d,%3d,%3d} ", int(l_tri[0]),int(l_tri[1]),int(l_hypotenuse));
+        }
 
     }
 };

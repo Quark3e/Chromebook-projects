@@ -216,6 +216,10 @@ if __name__=="__main__":
                         toSolveAng[0]/self.tri.camCoef[0][0]+self.tri.camRes[0][0]*0.5,
                         toSolveAng[1]/self.tri.camCoef[1][0]+self.tri.camRes[1][0]*0.5
                     ])
+                    # print([
+                    #     toSolveAng[0]/self.tri.camCoef[0][0]+self.tri.camRes[0][0]*0.5,
+                    #     toSolveAng[1]/self.tri.camCoef[1][0]+self.tri.camRes[1][0]*0.5
+                    # ])
                     self.solvedPos = self.tri.solved_pos
                     print(
                         f"ang:{i:>3} | solved pos: [{round(self.solvedPos[0],1):>4}:{round(self.solvedPos[1]):>4}]", " | ",
