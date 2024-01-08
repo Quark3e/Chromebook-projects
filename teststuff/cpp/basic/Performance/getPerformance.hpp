@@ -40,8 +40,8 @@ class getPerf {
 
     string rawPrintStrings[2];
 
-    getPerf() {
-        names.push_back("t0");
+    getPerf(string nameInitStr="") {
+        names.push_back(nameInitStr+"t0");
         times.push_back(chrono::steady_clock::now());
         delays_ms.push_back(0);
     }
@@ -71,10 +71,10 @@ auto getPerf::getTime(string name) {
 
 string getPerf::cutStr(string& var, int maxLen=10) {
 	int varLen = var.size();
-    if(varLen>maxLen) {
-        printf(" note: name \"%s\" has been modified to ", var.c_str());
+    if(varLen>=maxLen) {
+        // printf(" note: name \"%s\" has been modified to ", var.c_str());
         var.erase(maxLen);
-        printf("\"%s\".\n", var.c_str());
+        // printf("\"%s\".\n", var.c_str());
     }
     return var;
 }
@@ -99,6 +99,7 @@ float getPerf::getDelay(string name) {
 /// @param name string name of checkpoint to either create or update
 void getPerf::add_checkpoint(string name) {
     auto tempTime = chrono::steady_clock::now();
+    if(name.size()>=strLenMax) name = cutStr(name, strLenMax);
     int idx=getIdx(name);
     if(idx != -1) {
         // If `name` already exist in vector `names
@@ -113,7 +114,7 @@ void getPerf::add_checkpoint(string name) {
         // delays_ms.push_back(1'000'000*(tempTime-times.back())/(double)CLOCKS_PER_SEC);
         delays_ms.push_back((elapsed.count()*0.001));
         times.push_back(tempTime);
-        names.push_back(cutStr(name));
+        names.push_back(name);
     }
     // printf("%7.4f", delays_ms.back());
 }
@@ -140,18 +141,19 @@ void getPerf::update_totalInfo(
     total_delay = (elapsed.count()*0.001)*delayFilter+(1.0-delayFilter)*total_delay;
     FPS = float(1)/(total_delay/1000);
 
-
     string totalVar = "|", tempS, totStr;
     if(reset_t0) times.at(0) = chrono::steady_clock::now();
     if(printAll) {
         //prints individual delays
         string totalStr = "|";
+        // printf("%d|%d|%d|\n", times.size(), names.size(), delays_ms.size());
         for(auto i=0; i<times.size(); i++) {
             if(printNames) {
-                string emptySpace(strLenMax-names.at(i).size()+1, ' ');
+                string emptySpace(strLenMax-(names.at(i)).length()+1, ' ');
                 totalStr += " " + names.at(i) + emptySpace + "|";
             }
             stringstream sstream;
+
             sstream << fixed << setprecision(2) << delays_ms.at(i);
             tempS = sstream.str();
             string emptySpace2(strLenMax-tempS.size()-1, ' ');

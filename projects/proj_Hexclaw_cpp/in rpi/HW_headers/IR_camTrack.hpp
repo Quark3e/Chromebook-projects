@@ -29,6 +29,7 @@ using namespace std;
 ///  If false it'll set cv::CAP_PROP_AUTO_EXPOSURE to 0
 /// @param useWindow whether to display everything in a window
 /// @param readDelays whether to take performance of everything with the performance header
+/// @param windowName window name to display img's on
 class IR_camTracking {
 
     int camIdx;
@@ -46,7 +47,7 @@ class IR_camTracking {
     vector<cv::Vec4i> hierarchy;
     vector<vector<cv::Point>> contours;
 
-    cv::mat imgRaw, imgOriginal, imgFlipped, imgHSV, imgThreshold;
+    cv::Mat imgRaw, imgOriginal, imgFlipped, imgHSV, imgThreshold;
 
     bool useAutoBrightness = true;
     bool displayToWindow = false;
@@ -62,10 +63,17 @@ class IR_camTracking {
         int camIndex,
         int prefWidth = 640,
         int prefHeight = 480,
-        bool setAutoBright = true;
-        bool useWindow = false;
-        bool readDelays = true;
-        ): cap(camIndex) {
+        bool setAutoBright = true,
+        bool useWindow = false,
+        bool readDelays = true,
+        const char* windowName = "Window"
+        ): cap(camIndex), perfObj("["+to_string(camIndex)+"]") {
+            if(!cap.isOpened()) {
+                cout << "error: IR_camTracking: cannot open webcam with idx:" << camIndex << endl;
+                return;
+            }
+
+            const char* win_name = windowName;
             camIdx = camIndex;
             prefSize[0] = prefWidth;
             prefSize[1] = prefHeight;
@@ -74,7 +82,7 @@ class IR_camTracking {
             if(!useAutoBrightness) cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);
             if(displayToWindow) {
                 cv::namedWindow(win_name, 0);
-                cv::createTrackbars(win_name);
+                createTrackbars(win_name);
                 cv::resizeWindow(win_name, 1280, 960);
             }
     }
@@ -110,6 +118,8 @@ void IR_camTracking::updateTrackbarPos(const char* win_name) {
 }
 
 
+/// @brief read from Cam, process raw Mat img and get camPos[2]
+/// @return 0 if successful; -1 if errors occured
 int IR_camTracking::processCam() {
     bool test = (cap.read(imgRaw));
     if(!test) {
@@ -146,13 +156,12 @@ int IR_camTracking::processCam() {
     double dArea = imgMoments.m00;
     cv::findContours(imgThreshold, contours, hierarchy, cv::RETR_TREE,cv::CHAIN_APPROX_NONE);
     dArea = 0;
-    validCnt_index = 0;
     totCnt_area = 0;
     for(unsigned int i=0; i<contours.size(); i++) {
         dArea = cv::contourArea(contours[i]);
         if(dArea >= areaLim) {
             cv::RotatedRect minRect = cv::minAreaRect(cv::Mat(contours[i]));            
-            vecor<float> temp;
+            vector<float> temp;
             temp.push_back(contours[i][0].x+minRect.size.width/2); //not sure if minRect addition is needed. Just saw some issue a long time ago during my insomnic season
             temp.push_back(contours[i][0].y+minRect.size.height/2);
             allCnt_pos.push_back(temp);
@@ -160,7 +169,8 @@ int IR_camTracking::processCam() {
         }
     }
     if(takePerformance) perfObj.add_checkpoint("["+to_string(camIdx)+"]"+"cntArea");
-    if(validCnt_index > 0) {
+    if(allCnt_pos.size() > 0) {
+
         getAvg_cntPos();
         if(displayToWindow) {
             cv::circle(imgFlipped,cv::Point(totCnt_pos[0],totCnt_pos[1]),50,cv::Scalar(0,0,0),2);
@@ -171,7 +181,6 @@ int IR_camTracking::processCam() {
         }
     }
 
-
     if(displayToWindow) {
         if(takePerformance) perfObj.add_checkpoint("["+to_string(camIdx)+"]"+"avgPos");
         cv::cvtColor(imgThreshold, imgThreshold, cv::COLOR_GRAY2BGR);
@@ -179,7 +188,6 @@ int IR_camTracking::processCam() {
         cv::vconcat(imgFlipped, imgThreshold, imgFlipped);
         if(takePerformance) perfObj.add_checkpoint("["+to_string(camIdx)+"]"+"vconc");
     }
-    
     if(takePerformance) perfObj.update_totalInfo(true, true, true, ' ','\r');
 
     return 0;
