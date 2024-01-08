@@ -25,7 +25,7 @@ int prefSize[2] = {640, 480};
 
 
 bool useAutoBrightne = true;
-bool displayToWindow = true;
+bool displayToWindow = false;
 bool takePerformance = false;
 
 
@@ -42,6 +42,7 @@ int main(int argc, char* argv[]) {
     float camAng_offs[2] = {90, 123};
     float inpPos[2];
     camTriangle camTri(camPosition, camAng_offs);
+    // camTri.setFilter(0.1, 0.1);
 
     float solvedPos[2];
 
