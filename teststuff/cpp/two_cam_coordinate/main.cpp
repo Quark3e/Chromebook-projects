@@ -26,11 +26,6 @@ int prefSize[2] = {640, 480};
 int l_HSV[3] = {0, 0, 255};
 int u_HSV[3] = {179, 9, 255};
 
-vector<vector<cv::Point>> contours0;
-vector<vector<cv::Point>> contours1;
-vector<cv::Vec4i> hierarchy0;
-vector<cv::Vec4i> hierarchy1;
-
 vector<vector<cv::Vec4i>> hierarchy;
 vector<vector<vector<cv::Point>>> contours;
 
