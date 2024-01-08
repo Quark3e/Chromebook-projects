@@ -45,10 +45,13 @@
 // RPi specific functions
 #include <pigpio.h>
 
+
+// Personal 
 #include "../../../teststuff/cpp/useful/useful.hpp"
 #include "IK_header.h"
 #include "HW_headers/wirelessCOM.hpp"
 #include "../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp"
+#include "HW_headers/IR_camTrack.hpp"
 
 using namespace std;
 
@@ -141,10 +144,30 @@ float axisScal[3] = {0.6, 0.6, 0.9};
 float axisOffset[3] = {0, 0, -100};
 float axisFilter[3] = {1, 1, 0.1};
 
-
+float pitch, roll, Pitch=0, Roll=0;
+// Wireless nodemcu udp COM header class initialization
 nodemcu_orient orientObj(orient);
 
-float x_accel, y_accel, z_accel, pitch, roll, Pitch=0, Roll=0;
+
+/// @brief prefered image size to convert/use for all images
+int prefSize[2] = {640, 480};
+
+
+bool useAutoBrightne = true;
+bool displayToWindow = false;
+bool takePerformance = false;
+// IR camtracking header class initialization
+IR_camTracking camObj[2] {
+	{2, 640, 640, useAutoBrightne, displayToWindow, takePerformance},
+	{0, 480, 480, useAutoBrightne, displayToWindow, takePerformance},
+};
+
+// Two_cam_triangle header class initialisation
+float camPosition[2][2] = {{0, 0}, {25, 0}};
+float camAng_offs[2] = {90, 123};
+float inpPos[2], solvedPos;
+camTriangle camTri(camPosition, camAng_offs);
+
 
 /// @brief 2d coefficients for a single layer
 float angleArea_coef[181][181];
@@ -178,13 +201,10 @@ void load_csvFile(string filePath = "data/csv_dataSet_pf17_fuse-True.csv") {
 }
 
 
-/// @brief prefered image size to convert/use for all images
-int prefSize[2] = {640, 480};
-
-/// @brief FOV of webcam in degrees
-float camFOV[2] = {round(45*(640/480)), 45};
-/// @brief Number of angles for each pixel
-float angPerPix = camFOV[1]/prefSize[1];
+// /// @brief FOV of webcam in degrees
+// float camFOV[2] = {round(45*(640/480)), 45};
+// /// @brief Number of angles for each pixel
+// float angPerPix = camFOV[1]/prefSize[1];
 
 
 /// @brief Find index to closest value in arr
@@ -241,14 +261,14 @@ float zAxisFunc(float area, float posX, float posY) {
 	[-x:x] = [alpha:-alpha]
 	[-y:y] = [-beta:beta]
 	*/
-	if(zSol==1) {
-		ans = val * (1 / angleArea_coef[
-				int(round(/*orient[0]*/-(0-posX*angPerPix)))+90
-			][
-				int(round(/*orient[1]+*/posY*angPerPix))+90
-			]);
-		return ans;
-	}
+	// if(zSol==1) {
+	// 	ans = val * (1 / angleArea_coef[
+	// 			int(round(/*orient[0]*/-(0-posX*angPerPix)))+90
+	// 		][
+	// 			int(round(/*orient[1]+*/posY*angPerPix))+90
+	// 		]);
+	// 	return ans;
+	// }
 	
 	if(zSol==3) {
 		
@@ -273,6 +293,8 @@ bool mode_orients = false;
 bool mode_intro = false;
 
 
+
+
 int l_HSV[3] = {0, 0, 255};
 int u_HSV[3] = {179, 9, 255};
 
@@ -280,8 +302,6 @@ int u_HSV[3] = {179, 9, 255};
 int areaLim = 1000;
 
 
-bool useFilter = false;
-float accelFilter = 0.1;
 
 /// @brief variable for contours
 vector<vector<cv::Point>> contours;
@@ -698,11 +718,13 @@ int main(int argc, char* argv[]) {
 		else if(strcmp(argv[1], "-c")==0) {calibrateHSV=false; displayImg=false; mode_orients=false; mode_intro=true; printf("running intro sequence\n");}
 	}
 
+	printf("\n- section: \"initialisation\"\n");
 	//pca9685 board setup
 	PiPCA9685::PCA9685 pca{};
 	pca.set_pwm_freq(50.0);
-	//initialization command send to pca-board
-	printf("\n- section: \"initialisation\"\n");
+
+
+
 	sendToServo(&pca, new_q, current_q, true);
 
 	if(!mode_orients && !mode_intro) {

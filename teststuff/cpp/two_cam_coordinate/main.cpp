@@ -29,22 +29,22 @@ bool displayToWindow = false;
 bool takePerformance = false;
 
 
+// IR_camTracking camObj(0);
+IR_camTracking camObj[2] {
+    {2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance},
+    {0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance},
+};
+
+float camPosition[2][2] = {{0, 0}, {25, 0}};
+float camAng_offs[2] = {90, 123};
+float inpPos[2];
+camTriangle camTri(camPosition, camAng_offs);
+// camTri.setFilter(0.1, 0.1);
+
+float solvedPos[2];
 
 int main(int argc, char* argv[]) {
 
-    // IR_camTracking camObj(0);
-    IR_camTracking camObj[2] {
-        {2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance},
-        {0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance},
-    };
-
-    float camPosition[2][2] = {{0, 0}, {25, 0}};
-    float camAng_offs[2] = {90, 123};
-    float inpPos[2];
-    camTriangle camTri(camPosition, camAng_offs);
-    // camTri.setFilter(0.1, 0.1);
-
-    float solvedPos[2];
 
 
     while(true) {
