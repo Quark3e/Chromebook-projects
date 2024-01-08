@@ -73,7 +73,6 @@ void initPaths() {
 }
 
 
-
 // tft display setup
 ST7735_TFT myTFT;
 
