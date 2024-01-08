@@ -78,11 +78,14 @@ class IR_camTracking {
             prefSize[0] = prefWidth;
             prefSize[1] = prefHeight;
 
+            useAutoBrightness = setAutoBright;
+            displayToWindow = useWindow;
+            takePerformance = readDelays;
 
             if(!useAutoBrightness) cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);
             if(displayToWindow) {
                 cv::namedWindow(win_name, 0);
-                createTrackbars(win_name);
+                // createTrackbars(win_name);
                 cv::resizeWindow(win_name, 1280, 960);
             }
     }
@@ -163,7 +166,7 @@ int IR_camTracking::processCam() {
             cv::RotatedRect minRect = cv::minAreaRect(cv::Mat(contours[i]));            
             vector<float> temp;
             temp.push_back(contours[i][0].x+minRect.size.width/2); //not sure if minRect addition is needed. Just saw some issue a long time ago during my insomnic season
-            temp.push_back(contours[i][0].y+minRect.size.height/2);
+            temp.push_back(contours[i][0].y); //+minRect.size.height/2);
             allCnt_pos.push_back(temp);
             totCnt_area += dArea;
         }

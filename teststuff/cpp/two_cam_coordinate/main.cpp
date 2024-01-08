@@ -25,8 +25,8 @@ int prefSize[2] = {640, 480};
 
 
 bool useAutoBrightne = true;
-bool displayToWindow = false;
-bool takePerformance = true;
+bool displayToWindow = true;
+bool takePerformance = false;
 
 
 
@@ -58,7 +58,11 @@ int main(int argc, char* argv[]) {
         camTri.solvePos(inpPos, solvedPos, false);
         //  0.030ms
 
-        printf("[%4d, %4d]  ", int(solvedPos[0]), int(solvedPos[1]));
+        printf(
+            "[%6.2f, %6.2f] | [%7.2f, %7.2f]",
+            solvedPos[0], solvedPos[1],
+            inpPos[0], inpPos[1]
+        );
 
         if(displayToWindow) {
             //  t1
@@ -79,7 +83,7 @@ int main(int argc, char* argv[]) {
         
         // TOTAL: <110ms with displayToWindow==true
         // if(takePerformance) perfObj.update_totalInfo(true, true, true, ' ','\r');
-        // printf("\n");
+        printf("\n");
     }
 
     return 0;
