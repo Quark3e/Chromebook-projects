@@ -22,6 +22,7 @@ class dos {
     uno unoObj;
 
     dos(string test): unoObj(test) {
+        // unoObj = uno(test);
         cout << "dos:" << test << endl;
     }
     void test() {

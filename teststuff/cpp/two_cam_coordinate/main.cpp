@@ -36,6 +36,7 @@ bool takePerformance = true;
 
 int areaLim = 1000;
 float validCnt_pos[20][2];
+vector<vector<float>> validCnt_pos
 int validCnt_index = 0;
 float totCnt_pos[2][2];
 float totCnt_area = 0;
@@ -44,12 +45,18 @@ float totCnt_area = 0;
 /// @param allCnt array of coordinates
 /// @param cntIndex number of elements in array
 /// @param totCntPos_ptr "pointer" array to hold "returned" result/xy_coordinate
-void getAvg_cntPos(float allCnt[20][2], int cntIndex, float totCntPos_ptr[2]) {
+
+// void getAvg_cntPos(float allCnt[20][2], int cntIndex, float totCntPos_ptr[2]) {
+void getAvg_cntPos(vector<vector<float>> allCnt, int cntIndex, float totCntPos_ptr[2]) {
 	float xTot=0, yTot = 0;
 	for(int i=0; i<cntIndex; i++) {
 		xTot += allCnt[i][0];
 		yTot += allCnt[i][1];
 	}
+    for(auto vec: allCnt) {
+        xTot += vec.at(0);
+        yTot += vec.at(1);
+    }
 	totCntPos_ptr[0] = xTot / cntIndex;
 	totCntPos_ptr[1] = yTot / cntIndex;
 }
@@ -123,8 +130,12 @@ int processFrame(cv::VideoCapture* cap, int idx, bool toDisplay) {
         if(dArea >= areaLim) {
             cv::RotatedRect minRect = cv::minAreaRect(cv::Mat(contours.at(idx)[i]));
             int posX = contours.at(idx)[i][0].x, posY = contours.at(idx)[i][0].y+minRect.size.height/2;
-            validCnt_pos[i][0]=posX;
-            validCnt_pos[i][1]=posY;
+            vector<float> temp;
+            temp.push_back(posX);
+            temp.push_back(posY);
+            validCnt_pos.push_back(temp)
+            // validCnt_pos[i][0]=posX;
+            // validCnt_pos[i][1]=posY;
             validCnt_index += 1;
             totCnt_area += dArea;
         }
@@ -132,11 +143,13 @@ int processFrame(cv::VideoCapture* cap, int idx, bool toDisplay) {
     if(takePerformance) perfObj.add_checkpoint("cntArea");
     if(validCnt_index > 0) {
         getAvg_cntPos(validCnt_pos, validCnt_index, totCnt_pos[idx]);
-        cv::circle(imgFlipped[idx],cv::Point(totCnt_pos[idx][0],totCnt_pos[idx][1]),50,cv::Scalar(0,0,0),2);
-        cv::putText(
-            imgFlipped[idx], "["+to_string(int(totCnt_pos[idx][0]))+","+to_string(int(totCnt_pos[idx][1]))+"]",
-            cv::Point(totCnt_pos[idx][0],totCnt_pos[idx][1]),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false
-        );
+        if(toDisplay) {
+            cv::circle(imgFlipped[idx],cv::Point(totCnt_pos[idx][0],totCnt_pos[idx][1]),50,cv::Scalar(0,0,0),2);
+            cv::putText(
+                imgFlipped[idx], "["+to_string(int(totCnt_pos[idx][0]))+","+to_string(int(totCnt_pos[idx][1]))+"]",
+                cv::Point(totCnt_pos[idx][0],totCnt_pos[idx][1]),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false
+            );
+        }
     }
 
 
