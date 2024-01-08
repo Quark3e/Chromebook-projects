@@ -28,6 +28,9 @@ int main()
 	for (auto ir = g1.crbegin(); ir != g1.crend(); ++ir)
 		cout << *ir << " ";
 
+	cout << "\nIterate for loop test : ";
+	for (auto v: g1)  cout << v << " ";
+
     cout << endl;
 
 	return 0;

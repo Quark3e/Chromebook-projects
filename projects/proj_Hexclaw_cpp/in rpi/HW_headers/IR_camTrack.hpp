@@ -20,6 +20,12 @@ class IR_camTracking {
     public:
     int prefSize[2];
 
+    int areaLim = 1000;
+    vector<vector<float>> validCnt_pos;
+    vector<vector<float>> totCnt_pos;
+    int validCnt_index = 0;
+    float totCnt_area = 0;
+
     vector<cv::VideoCapture> caps;
     vector<vector<cv::Vec4i>> hierarchy;
     vector<vector<vector<cv::Point>>> contours;
@@ -35,11 +41,12 @@ class IR_camTracking {
             vector<cv::Vec4i> hTemp;
             vector<vector<cv::Point>> cTemp;
             for(auto i: camIndexes) {
-                caps.push_back(cv::VideoCapture(i));
+                caps.emplace_back(cv::VideoCapture(i));
                 contours.push_back(cTemp);
                 hierarchy.push_back(hTemp);
             }
     }
+
 
 };
 
