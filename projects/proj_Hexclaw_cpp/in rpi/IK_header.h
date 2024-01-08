@@ -15,14 +15,7 @@ float sLoadWeight[6] = {0, 0.130, 0.085, 0, 0, 0}; //kg
 float offset_q[6] = {90, 0, 135, 90, 90, 90};
 float startup_q[6] = {0, 115, -90, 0, -25, 00}; //offset not added
 
-/// @brief Convert radians to degrees
-/// @param radians radians to convert. type: float()
-/// @return return degrees. type: float()
-float toDegrees(float radians) { return (radians*180)/M_PI; }
-/// @brief Convert degrees to radians
-/// @param degrees degrees to convert. type: float()
-/// @return return radians. type: float()
-float toRadians(float degrees) { return float(degrees*M_PI)/180; }
+
 
 float get3dDistance(float p1[3], float p2[3]) { return sqrt(pow(p2[0]-p1[0],2) + pow(p2[1]-p1[1],2) + pow(p2[2]-p1[2],2)); }
 
