@@ -49,16 +49,17 @@ float totCnt_area = 0;
 // void getAvg_cntPos(float allCnt[20][2], int cntIndex, float totCntPos_ptr[2]) {
 void getAvg_cntPos(vector<vector<float>> allCnt, int cntIndex, float totCntPos_ptr[2]) {
 	float xTot=0, yTot = 0;
-	for(int i=0; i<cntIndex; i++) {
-		xTot += allCnt[i][0];
-		yTot += allCnt[i][1];
-	}
+	// for(int i=0; i<cntIndex; i++) {
+	// 	xTot += allCnt[i][0];
+	// 	yTot += allCnt[i][1];
+	// }
     for(auto vec: allCnt) {
         xTot += vec.at(0);
         yTot += vec.at(1);
     }
-	totCntPos_ptr[0] = xTot / cntIndex;
-	totCntPos_ptr[1] = yTot / cntIndex;
+	totCntPos_ptr[0] = xTot / allCnt.size();
+	totCntPos_ptr[1] = yTot / allCnt.size();
+    cout << " |" << totCntPos_ptr[0] << ":" << totCntPos_ptr[1] << "| ";
 }
 
 /// @brief Create trackbar
