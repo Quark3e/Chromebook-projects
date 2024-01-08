@@ -160,13 +160,14 @@ int IR_camTracking::processCam() {
     cv::findContours(imgThreshold, contours, hierarchy, cv::RETR_TREE,cv::CHAIN_APPROX_NONE);
     dArea = 0;
     totCnt_area = 0;
+    allCnt_pos.clear();
     for(unsigned int i=0; i<contours.size(); i++) {
         dArea = cv::contourArea(contours[i]);
         if(dArea >= areaLim) {
             cv::RotatedRect minRect = cv::minAreaRect(cv::Mat(contours[i]));            
             vector<float> temp;
-            temp.push_back(contours[i][0].x+minRect.size.width/2); //not sure if minRect addition is needed. Just saw some issue a long time ago during my insomnic season
-            temp.push_back(contours[i][0].y); //+minRect.size.height/2);
+            temp.push_back(contours[i][0].x); //+minRect.size.width/2); //not sure if minRect addition is needed. Just saw some issue a long time ago during my insomnic season
+            temp.push_back(contours[i][0].y+minRect.size.height/2);
             allCnt_pos.push_back(temp);
             totCnt_area += dArea;
         }
