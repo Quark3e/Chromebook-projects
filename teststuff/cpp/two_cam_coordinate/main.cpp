@@ -35,7 +35,7 @@ bool takePerformance = true;
 
 
 int areaLim = 1000;
-float validCnt_pos[20][2];
+// float validCnt_pos[20][2];
 vector<vector<float>> validCnt_pos
 int validCnt_index = 0;
 float totCnt_pos[2][2];
