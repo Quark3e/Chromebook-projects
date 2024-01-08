@@ -133,7 +133,7 @@ int processFrame(cv::VideoCapture* cap, int idx, bool toDisplay) {
             vector<float> temp;
             temp.push_back(posX);
             temp.push_back(posY);
-            validCnt_pos.push_back(temp)
+            validCnt_pos.push_back(temp);
             // validCnt_pos[i][0]=posX;
             // validCnt_pos[i][1]=posY;
             validCnt_index += 1;
