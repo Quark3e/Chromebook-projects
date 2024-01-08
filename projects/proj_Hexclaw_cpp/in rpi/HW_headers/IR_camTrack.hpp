@@ -13,7 +13,11 @@
 #include <opencv4/opencv2/imgproc/imgproc.hpp>
 
 
+#include "../../../../teststuff/cpp/basic/Performance/getPerformance.hpp"
+
 using namespace std;
+
+
 
 /// @brief class for tracking and reading screen pixel coordinate from tracked object
 /// @param camIndex index to camera for cv::VideoCapture to create a object with
@@ -23,16 +27,19 @@ using namespace std;
 /// reducing processing/tracking time
 /// @param setAutoBright whether to use webcams inbuilt automatic brightness adjusting.
 ///  If false it'll set cv::CAP_PROP_AUTO_EXPOSURE to 0
-/// @param 
+/// @param useWindow whether to display everything in a window
+/// @param readDelays whether to take performance of everything with the performance header
 class IR_camTracking {
+
+    int camIdx;
+    getPerf perfObj;
 
     public:
     int prefSize[2];
 
     int areaLim = 1000;
-    vector<vector<float>> validCnt_pos;
-    vector<vector<float>> totCnt_pos;
-    int validCnt_index = 0;
+    vector<vector<float>> allCnt_pos;
+    float totCnt_pos[2];
     float totCnt_area = 0;
 
     cv::VideoCapture cap;
@@ -50,6 +57,7 @@ class IR_camTracking {
 
     const char* win_name = "Window";
 
+
     IR_camTracking(
         int camIndex,
         int prefWidth = 640,
@@ -58,6 +66,7 @@ class IR_camTracking {
         bool useWindow = false;
         bool readDelays = true;
         ): cap(camIndex) {
+            camIdx = camIndex;
             prefSize[0] = prefWidth;
             prefSize[1] = prefHeight;
 
@@ -69,10 +78,12 @@ class IR_camTracking {
                 cv::resizeWindow(win_name, 1280, 960);
             }
     }
-    int processFrame();
+
+    void getAvg_cntPos();
+    int processCam();
     void createTrackbars(const char* win_name);
     void updateTrackbarPos(const char* win_name);
-
+    void update();
 };
 
 
@@ -99,22 +110,22 @@ void IR_camTracking::updateTrackbarPos(const char* win_name) {
 }
 
 
-int IR_camTracking::processFrame() {
+int IR_camTracking::processCam() {
     bool test = (cap.read(imgRaw));
     if(!test) {
-        printf("error: Cannot read frame from webcam[%d]",idx);
+        printf("error: Cannot read frame from webcam[%d]",camIdx);
         cv::destroyAllWindows();
         return -1;
     }
-    if(takePerformance) perfObj.add_checkpoint("read");
+    if(takePerformance) perfObj.add_checkpoint("["+to_string(camIdx)+"]"+"read");
 
     cv::resize(imgRaw, imgOriginal, cv::Size(prefSize[0],prefSize[1]), cv::INTER_LINEAR);
-    if(takePerformance) perfObj.add_checkpoint("resize");
+    if(takePerformance) perfObj.add_checkpoint("["+to_string(camIdx)+"]"+"resize");
 
     // cv::flip(imgOriginal, imgFlipped, 1); //temporarily disabled
     imgFlipped = imgOriginal;
     cv::cvtColor(imgFlipped, imgHSV, cv::COLOR_BGR2HSV);
-    if(takePerformance) perfObj.add_checkpoint("cvtC");
+    if(takePerformance) perfObj.add_checkpoint("["+to_string(camIdx)+"]"+"cvtC");
 
     cv::inRange(
         imgHSV,
@@ -122,66 +133,68 @@ int IR_camTracking::processFrame() {
         cv::Scalar(u_HSV[0], u_HSV[1], u_HSV[2]),
         imgThreshold
     );
-    if(takePerformance) perfObj.add_checkpoint("inRan");
+    if(takePerformance) perfObj.add_checkpoint("["+to_string(camIdx)+"]"+"inRan");
 
     cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
-    if(takePerformance) perfObj.add_checkpoint("erode");
+    if(takePerformance) perfObj.add_checkpoint("["+to_string(camIdx)+"]"+"erode");
     cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 6); 
-    if(takePerformance) perfObj.add_checkpoint("dilate");
+    if(takePerformance) perfObj.add_checkpoint("["+to_string(camIdx)+"]"+"dilate");
 
     cv::Moments imgMoments = cv::moments(imgThreshold);
     double dM01 = imgMoments.m01;
     double dM10 = imgMoments.m10;
     double dArea = imgMoments.m00;
-    cv::findContours(imgThreshold, contours.at(idx), hierarchy.at(idx), cv::RETR_TREE,cv::CHAIN_APPROX_NONE);
+    cv::findContours(imgThreshold, contours, hierarchy, cv::RETR_TREE,cv::CHAIN_APPROX_NONE);
     dArea = 0;
     validCnt_index = 0;
     totCnt_area = 0;
-    for(unsigned int i=0; i<contours.at(idx).size(); i++) {
-        dArea = cv::contourArea(contours.at(idx)[i]);
+    for(unsigned int i=0; i<contours.size(); i++) {
+        dArea = cv::contourArea(contours[i]);
         if(dArea >= areaLim) {
-            cv::RotatedRect minRect = cv::minAreaRect(cv::Mat(contours.at(idx)[i]));
-            int posX = contours.at(idx)[i][0].x, posY = contours.at(idx)[i][0].y+minRect.size.height/2;
-            validCnt_pos[i][0]=posX;
-            validCnt_pos[i][1]=posY;
-            validCnt_index += 1;
+            cv::RotatedRect minRect = cv::minAreaRect(cv::Mat(contours[i]));            
+            vecor<float> temp;
+            temp.push_back(contours[i][0].x+minRect.size.width/2); //not sure if minRect addition is needed. Just saw some issue a long time ago during my insomnic season
+            temp.push_back(contours[i][0].y+minRect.size.height/2);
+            allCnt_pos.push_back(temp);
             totCnt_area += dArea;
         }
     }
-    if(takePerformance) perfObj.add_checkpoint("cntArea");
+    if(takePerformance) perfObj.add_checkpoint("["+to_string(camIdx)+"]"+"cntArea");
     if(validCnt_index > 0) {
-        getAvg_cntPos(validCnt_pos, validCnt_index, totCnt_pos);
-        cv::circle(imgFlipped,cv::Point(totCnt_pos[0],totCnt_pos[1]),50,cv::Scalar(0,0,0),2);
-        cv::putText(
-            imgFlipped, "["+to_string(int(totCnt_pos[0]))+","+to_string(int(totCnt_pos[1]))+"]",
-            cv::Point(totCnt_pos[0],totCnt_pos[1]),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false
-        );
+        getAvg_cntPos();
+        if(displayToWindow) {
+            cv::circle(imgFlipped,cv::Point(totCnt_pos[0],totCnt_pos[1]),50,cv::Scalar(0,0,0),2);
+            cv::putText(
+                imgFlipped, "["+to_string(int(totCnt_pos[0]))+","+to_string(int(totCnt_pos[1]))+"]",
+                cv::Point(totCnt_pos[0],totCnt_pos[1]),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false
+            );
+        }
     }
 
 
-    if(toDisplay) {
-        if(takePerformance) perfObj.add_checkpoint("avgPos");
+    if(displayToWindow) {
+        if(takePerformance) perfObj.add_checkpoint("["+to_string(camIdx)+"]"+"avgPos");
         cv::cvtColor(imgThreshold, imgThreshold, cv::COLOR_GRAY2BGR);
-        if(takePerformance) perfObj.add_checkpoint("cvtCol");
+        if(takePerformance) perfObj.add_checkpoint("["+to_string(camIdx)+"]"+"cvtCol");
         cv::vconcat(imgFlipped, imgThreshold, imgFlipped);
-        if(takePerformance) perfObj.add_checkpoint("vconc");
+        if(takePerformance) perfObj.add_checkpoint("["+to_string(camIdx)+"]"+"vconc");
     }
+    
+    if(takePerformance) perfObj.update_totalInfo(true, true, true, ' ','\r');
+
     return 0;
 }
 
 
-/// @brief Get avg xy coordinates from list of coordinates
-/// @param allCnt array of coordinates
-/// @param cntIndex number of elements in array
-/// @param totCntPos_ptr "pointer" array to hold "returned" result/xy_coordinate
-void IR_camTracking::getAvg_cntPos(float allCnt[20][2], int cntIndex, float totCntPos_ptr[2]) {
+/// @brief Get avg xy coordinates from every contour
+void IR_camTracking::getAvg_cntPos() {
 	float xTot=0, yTot = 0;
-	for(int i=0; i<cntIndex; i++) {
-		xTot += allCnt[i][0];
-		yTot += allCnt[i][1];
-	}
-	totCntPos_ptr[0] = xTot / cntIndex;
-	totCntPos_ptr[1] = yTot / cntIndex;
+    for(auto vec: allCnt_pos) {
+        xTot += vec.at(0);
+        yTot += vec.at(1);
+    }
+	totCnt_pos[0] = xTot / allCnt_pos.size();
+	totCnt_pos[1] = yTot / allCnt_pos.size();
 }
 
 #endif

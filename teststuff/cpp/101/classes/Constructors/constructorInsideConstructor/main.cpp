@@ -12,6 +12,11 @@ class uno {
         cout << "uno:" << test << endl;
         varProt = "protected:" + test;
     }
+    uno() {
+        static string test="meme";
+        cout << "uno:" << test << endl;
+        varProt = "protected:" + test;
+    }
     void second() {
         cout << "|uno second|" << endl;
     }
