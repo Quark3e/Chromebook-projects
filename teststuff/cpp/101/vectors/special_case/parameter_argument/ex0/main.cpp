@@ -15,7 +15,7 @@ void testFunc(vector<string>* vecArg) {
 
 int main(int argc, char** argv) {
     vector<string> inp;
-    for(int i=0; i<10; i++) {
+    for(int i=0; i<20; i++) {
         inp.push_back("idx:"+to_string(i));
     }
     testFunc(&inp);
