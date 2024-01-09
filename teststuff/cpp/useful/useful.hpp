@@ -8,6 +8,9 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <bits/stdc++.h>
+
+using namespace std;
 
 /// @brief Convert radians to degrees
 /// @param radians radians to convert. type: float()
@@ -33,7 +36,7 @@ int PoN(float var) {
 	if(var>0) return 1;
 	else if(var<0) return -1;
 	else {
-		std::cout << "PoN(): \"" << var << "\" is not a number\n";
+		cout << "PoN(): \"" << var << "\" is not a number\n";
 		return 0;
 	}
 }
@@ -44,30 +47,16 @@ int PoN(float var) {
 /// @param needle value to find the closest to in the array
 /// @param printVar whether to print results
 /// @return index of result (closest value)
-int getClosestValIdx(float arr[], float needle, bool printVar=false) {
-    int minArr[401];
-
-    vector<float> dffVec;
+int getClosestValIdx(vector<float> arr, float needle, bool printVar=false) {
+    vector<float> diffVec;
     vector<int> foundIdx;
-    for(auto el: arr) { diffVec.push_back(abs(el-needle)); }
-    float minVar = *min_element(diffVec.begin(), diffVec.end());
-    for(auto vec: diffVec)
+    float minVar;
 
-    for(int i=0; i<401; i++) minArr[i] = abs(arr[i]-pick);
-
-    int minVar[2] = {0, minArr[0]};
-    if(printVar) std::cout << "Picked: " << pick << std::endl;
-    if(printVar) printf("\n[%d] %3d|%3d - %3d\n", 0, minVar[1], minArr[0], arr[0]);
-    for(int i=1; i<401; i++) {
-        if(printVar) printf("[%d] %3d|%3d - %3d\n", i, minVar[1], minArr[i], arr[i]);
-        if(minVar[1]>minArr[i]) {
-            minVar[0]=i;
-            minVar[1]=minArr[i];
-        }
-    }
-    if(printVar) printf("\nClosest value to %d: index:%d element:%d\n", pick, minVar[0], arr[minVar[0]]);
-
-    return minVar//[0];
+    for(int i=0; i<arr.size(); i++) { diffVec.push_back(abs(arr.at(i)-needle)); }
+    minVar = *min_element(diffVec.begin(), diffVec.end());
+    for(int i=0; i<diffVec.size(); i++) { if(diffVec.at(i)==minVar) foundIdx.push_back(i); }
+    if(foundIdx.size()==0) return -1;
+    return foundIdx.at(0);
 }
 
 #endif

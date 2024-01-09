@@ -7,13 +7,11 @@ using namespace std;
 
 int main(int argc, char** argv) {
 
-    int testArr[] = {
-        1, 2, 3, 10, 5, 10
-    };
-    int findVal = 6;
+    vector<float> testArr = {9, 2, 3, 6, 1, 10, 7, 5, 10, 8};
+    int findVal = 4;
 
-    int idx = getClosestValIdx(testArr ,findVal);
-    printf("find value:%d | found: idx:%d; value of found idx:%d\n", findVal, idx, testArr[idx]);
+    int idx = getClosestValIdx(testArr, findVal);
+    printf("find value:%d | found idx:[%d]; value of found idx:%f\n", findVal, idx, testArr.at(idx));
 
 
     return 0;
