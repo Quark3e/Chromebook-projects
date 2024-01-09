@@ -67,27 +67,53 @@ class IR_camTracking {
         bool useWindow = false,
         bool readDelays = true,
         const char* windowName = "Window"
-        ): cap(camIndex), perfObj("["+to_string(camIndex)+"]") {
-            if(!cap.isOpened()) {
-                cout << "error: IR_camTracking: cannot open webcam with idx:" << camIndex << endl;
-                return;
-            }
+    ): cap(camIndex), perfObj("["+to_string(camIndex)+"]") {
+        if(!cap.isOpened()) {
+            cout << "error: IR_camTracking: cannot open webcam with idx:" << camIndex << endl;
+            return;
+        }
 
-            const char* win_name = windowName;
-            camIdx = camIndex;
-            prefSize[0] = prefWidth;
-            prefSize[1] = prefHeight;
+        win_name = windowName;
+        camIdx = camIndex;
+        prefSize[0] = prefWidth;
+        prefSize[1] = prefHeight;
 
-            useAutoBrightness = setAutoBright;
-            displayToWindow = useWindow;
-            takePerformance = readDelays;
+        useAutoBrightness = setAutoBright;
+        displayToWindow = useWindow;
+        takePerformance = readDelays;
 
-            if(!useAutoBrightness) cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);
-            if(displayToWindow) {
-                cv::namedWindow(win_name, 0);
-                // createTrackbars(win_name);
-                cv::resizeWindow(win_name, 1280, 960);
-            }
+        if(!useAutoBrightness) cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);
+        if(displayToWindow) {
+            cv::namedWindow(win_name, 0);
+            // createTrackbars(win_name);
+            cv::resizeWindow(win_name, 1280, 960);
+        }
+    }
+    IR_camTracking(
+        int camIndex,
+        const char* windowName = "Window",
+        int prefWidth = 640,
+        int prefHeight = 480
+    ): cap(camIndex), perfObj("["+to_string(camIndex)+"]") {
+        if(!cap.isOpened()) {
+            cout << "error: IR_camTracking: cannot open webcam with idx:" << camIndex << endl;
+            return;
+        }
+        const char* win_name = windowName;
+        camIdx = camIndex;
+        prefSize[0] = prefWidth;
+        prefSize[1] = prefHeight;
+        displayToWindow = false;
+    }
+
+    void setup_window(const char* windowName = "Window") {
+        win_name = windowName;
+        displayToWindow = true;
+        if(displayToWindow) {
+            cv::namedWindow(win_name, 0);
+            // createTrackbars(win_name);
+            cv::resizeWindow(win_name, 1280, 960);
+        }
     }
 
     void getAvg_cntPos();

@@ -60,7 +60,7 @@ using namespace std;
 string absPath;
 
 /// @brief 0-direct function; 1-use 2d coefs; 2-use arificial; 3-use two_cam_triangle
-bool zSol=0;
+int zSol=3;
 
 void initPaths() {
     char result[PATH_MAX];
@@ -140,9 +140,9 @@ float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
 float orient[3] = {0,0,0}; //degrees
 float PP[3] = {0,150,150};
-float axisScal[3] = {0.6, 0.6, 0.9};
-float axisOffset[3] = {0, 0, -100};
-float axisFilter[3] = {1, 1, 0.1};
+float axisScal[3] = {1, 1, 1};
+float axisOffset[3] = {0, 100, -200};
+float axisFilter[3] = {1, 1, 1};
 
 float pitch, roll, Pitch=0, Roll=0;
 // Wireless nodemcu udp COM header class initialization
@@ -154,18 +154,31 @@ int prefSize[2] = {640, 480};
 
 
 bool useAutoBrightne = true;
-bool displayToWindow = false;
 bool takePerformance = false;
+
+
+/// @brief index of webcam
+int webcamIndex = 2;
+
+
+bool displayToWindow = true;
+bool calibrateHSV = false;
+bool displayTFT = false;
+
+bool mode_orients = false;
+bool mode_intro = false;
+
+const char* window_name = "Window";
 // IR camtracking header class initialization
 IR_camTracking camObj[2] {
-	{2, 640, 640, useAutoBrightne, displayToWindow, takePerformance},
-	{0, 480, 480, useAutoBrightne, displayToWindow, takePerformance},
+	{2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance},
+	{0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance},
 };
 
 // Two_cam_triangle header class initialisation
-float camPosition[2][2] = {{0, 0}, {25, 0}};
+float camPosition[2][2] = {{0, 0}, {250, 0}};
 float camAng_offs[2] = {90, 123};
-float inpPos[2], solvedPos;
+float inpPos[2], solvedPos[2];
 camTriangle camTri(camPosition, camAng_offs);
 
 
@@ -281,80 +294,68 @@ float zAxisFunc(float area, float posX, float posY) {
 }
 
 
-/// @brief index of webcam
-int webcamIndex = 2;
-
-
-bool displayImg = true;
-bool calibrateHSV = false;
-bool displayTFT = false;
-
-bool mode_orients = false;
-bool mode_intro = false;
-
-
 
 
 int l_HSV[3] = {0, 0, 255};
 int u_HSV[3] = {179, 9, 255};
 
-/// @brief minimum limit for area to be recognised
-int areaLim = 1000;
+// /// @brief minimum limit for area to be recognised
+// int areaLim = 1000;
 
 
 
-/// @brief variable for contours
-vector<vector<cv::Point>> contours;
-vector<cv::Vec4i> hierarchy;
+// /// @brief variable for contours
+// vector<vector<cv::Point>> contours;
+// vector<cv::Vec4i> hierarchy;
 
-float validCnt_pos[20][2]; //array of contours above threshold; form [x, y]
-int validCnt_index = 0; //index of biggest validCnt_pos sent (so =1 means there is one elemment)
-float totCnt_pos[2];
-float totCnt_area = 0;
+// float validCnt_pos[20][2]; //array of contours above threshold; form [x, y]
+// int validCnt_index = 0; //index of biggest validCnt_pos sent (so =1 means there is one elemment)
+// float totCnt_pos[2];
+// float totCnt_area = 0;
 
-/// @brief Get avg xy coordinates from list of coordinates
-/// @param allCnt array of coordinates
-/// @param cntIndex number of elements in array
-/// @param totCntPos_ptr "pointer" array to hold "returned" result/xy_coordinate
-void getAvg_cntPos(float allCnt[20][2], int cntIndex, float totCntPos_ptr[2]) {
-	float xTot=0, yTot = 0;
-	for(int i=0; i<cntIndex; i++) {
-		xTot += allCnt[i][0];
-		yTot += allCnt[i][1];
-	}
-	totCntPos_ptr[0] = xTot / cntIndex;
-	totCntPos_ptr[1] = yTot / cntIndex;
-}
+// /// @brief Get avg xy coordinates from list of coordinates
+// /// @param allCnt array of coordinates
+// /// @param cntIndex number of elements in array
+// /// @param totCntPos_ptr "pointer" array to hold "returned" result/xy_coordinate
+// void getAvg_cntPos(float allCnt[20][2], int cntIndex, float totCntPos_ptr[2]) {
+// 	float xTot=0, yTot = 0;
+// 	for(int i=0; i<cntIndex; i++) {
+// 		xTot += allCnt[i][0];
+// 		yTot += allCnt[i][1];
+// 	}
+// 	totCntPos_ptr[0] = xTot / cntIndex;
+// 	totCntPos_ptr[1] = yTot / cntIndex;
+// }
 
 
 bool pigpioInitia = false;
 int pin_ledRelay = 23;
 
 
+// /// @brief Create trackbar
+// /// @param window_name pointer to opencv window name
+// void createTrackbars(const char* window_name) {
+// 	cv::createTrackbar("LowH", window_name, &l_HSV[0], 179);
+// 	cv::createTrackbar("HighH", window_name, &u_HSV[0], 179);
+// 	cv::createTrackbar("LowS", window_name, &l_HSV[1], 255);
+// 	cv::createTrackbar("HighS", window_name, &u_HSV[1], 255);
+// 	cv::createTrackbar("LowV", window_name, &l_HSV[2], 255);
+// 	cv::createTrackbar("HighV", window_name, &u_HSV[2], 255);
+// }
 
-/// @brief Create trackbar
-/// @param win_name pointer to opencv window name
-void createTrackbars(const char* win_name) {
-	cv::createTrackbar("LowH", win_name, &l_HSV[0], 179);
-	cv::createTrackbar("HighH", win_name, &u_HSV[0], 179);
-	cv::createTrackbar("LowS", win_name, &l_HSV[1], 255);
-	cv::createTrackbar("HighS", win_name, &u_HSV[1], 255);
-	cv::createTrackbar("LowV", win_name, &l_HSV[2], 255);
-	cv::createTrackbar("HighV", win_name, &u_HSV[2], 255);
-}
+// /// @brief set trackbar pos/value
+// /// @param window_name pointer to opencv window name
+// void updateTrackbarPos(const char* window_name) {
+// 	cv::setTrackbarPos("LowH", window_name, l_HSV[0]);
+// 	cv::setTrackbarPos("LowS", window_name, l_HSV[1]);
+// 	cv::setTrackbarPos("LowV", window_name, l_HSV[2]);
+// 	cv::setTrackbarPos("HighH", window_name, u_HSV[0]);
+// 	cv::setTrackbarPos("HighS", window_name, u_HSV[1]);
+// 	cv::setTrackbarPos("HighV", window_name, u_HSV[2]);
+// }
 
-/// @brief set trackbar pos/value
-/// @param win_name pointer to opencv window name
-void updateTrackbarPos(const char* win_name) {
-	cv::setTrackbarPos("LowH", win_name, l_HSV[0]);
-	cv::setTrackbarPos("LowS", win_name, l_HSV[1]);
-	cv::setTrackbarPos("LowV", win_name, l_HSV[2]);
-	cv::setTrackbarPos("HighH", win_name, u_HSV[0]);
-	cv::setTrackbarPos("HighS", win_name, u_HSV[1]);
-	cv::setTrackbarPos("HighV", win_name, u_HSV[2]);
-}
 
-void hsv_settingsRead(const char* win_name = "", int indeks=1, string filePath="hsv_settings.dat", bool displayWin=true) {
+void hsv_settingsRead(const char* window_name = "", int indeks=1, string filePath="hsv_settings.dat", bool displayWin=true) {
 	//read HSV values from file with given indeks and change global l_HSV/u_HSV variables
 	ifstream hsvFile(filePath);
 	if(!hsvFile.is_open()) {
@@ -387,7 +388,7 @@ void hsv_settingsRead(const char* win_name = "", int indeks=1, string filePath="
 			u_HSV[0] = tempVal[3];
 			u_HSV[1] = tempVal[4];
 			u_HSV[2] = tempVal[5];
-			if(displayWin) updateTrackbarPos(win_name);
+			if(displayWin) camObj[0].updateTrackbarPos(window_name);
 			hsvFile.close();
 			return;
 		}
@@ -453,7 +454,7 @@ void hsv_settingsWrite(int indeks=0, bool overWrite=false, string filePath="hsv_
 /// @param mode [integer]: -0: setup/calibrate hsv; -1: w. sendToServo; -2: without sendToServo; -3: w. sendToServo without cv disp.
 /// @param pcaSrc [PiPCA9682 object pointer]: for pca9685 board
 /// @return [integer]: 0 - normal function finish; -1 - exit program entirely
-int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
+int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
 	/*
 	mode:
 	- 0: setup/calibrate hsv
@@ -464,100 +465,89 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 
 	cout << "- In \"displayFunc()\"" << endl;
 
-	const char* win_name = "Window";
 	if(mode!=3) {
-		cv::namedWindow(win_name);
-		createTrackbars(win_name);
+		camObj[0].setup_window();
+		camObj[1].setup_window();
 	}
-	cv::Mat imgRaw, imgOriginal, imgFlipped, imgHSV, imgThreshold;
-	// int fps=0, frames=0, totalDelay=0;
-	// clock_t t1 = clock();
 
 	while(true) {
-		//delay: 4-5ms
-		if(!(cap->read(imgRaw))) {
-			printf("error: Cannot read frame");
-			cv::destroyAllWindows();
-			return -1;
-		}
+		if(camObj[0].processCam()==-1) return 0;
+		if(zSol==3 && camObj[1].processCam()==-1) return 0;
+		// //delay: 4-5ms
+		// if(!(cap->read(imgRaw))) {
+		// 	printf("error: Cannot read frame");
+		// 	cv::destroyAllWindows();
+		// 	return -1;
+		// }
 
-		//delay: unknown
-		cv::resize(imgRaw, imgOriginal, cv::Size(prefSize[0], prefSize[1]), cv::INTER_LINEAR);
-		// cout << imgOriginal.cols << "x" << imgOriginal.rows;
+		// //delay: unknown
+		// cv::resize(imgRaw, imgOriginal, cv::Size(prefSize[0], prefSize[1]), cv::INTER_LINEAR);
+		// // cout << imgOriginal.cols << "x" << imgOriginal.rows;
 		
-		//delay: 4-7ms
-		cv::flip(imgOriginal, imgFlipped, 1);
-		//delay: 3-5ms
-		cv::cvtColor(imgFlipped, imgHSV, cv::COLOR_BGR2HSV);
+		// //delay: 4-7ms
+		// cv::flip(imgOriginal, imgFlipped, 1);
+		// //delay: 3-5ms
+		// cv::cvtColor(imgFlipped, imgHSV, cv::COLOR_BGR2HSV);
 
-		//delay: 1-4ms
-		cv::inRange(imgHSV,
-		cv::Scalar(l_HSV[0], l_HSV[1], l_HSV[2]),
-		cv::Scalar(u_HSV[0], u_HSV[1], u_HSV[2]),
-		imgThreshold);
+		// //delay: 1-4ms
+		// cv::inRange(imgHSV,
+		// cv::Scalar(l_HSV[0], l_HSV[1], l_HSV[2]),
+		// cv::Scalar(u_HSV[0], u_HSV[1], u_HSV[2]),
+		// imgThreshold);
 		
-		//delay: 2-3ms
-		cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
-		cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 6); 
-
-		// cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1); 
+		// //delay: 2-3ms
 		// cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
+		// cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 6); 
 
-		//delay: 1-2ms
-		if(mode >= 1) {
-			cv::Moments imgMoments = cv::moments(imgThreshold);
-			double dM01 = imgMoments.m01;
-			double dM10 = imgMoments.m10;
-			double dArea = imgMoments.m00;
-			cv::findContours(imgThreshold, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_NONE);
-			dArea = 0;
-			validCnt_index = 0;
-			totCnt_area = 0;
-			for(unsigned int i=0; i<contours.size(); i++) {
-				dArea = cv::contourArea(contours[i]);
-				// cout << contours[0][0].x << endl;
-				if(dArea >= areaLim) {
-					cv::RotatedRect minRect = cv::minAreaRect(cv::Mat(contours[i]));
-					int posX = contours[i][0].x /*	+ minRect.size.width/4*/, posY = contours[i][0].y + minRect.size.height/2;
-					validCnt_pos[i][0] = posX;
-					validCnt_pos[i][1] = posY;
-					validCnt_index += 1;
-					totCnt_area += dArea;
+		// // cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1); 
+		// // cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
+
+		// //delay: 1-2ms
+		cout << "zSol=" << zSol << ": ";
+		if(mode >= 1 && camObj[0].allCnt_pos.size()>0) {
+			if(mode==1 || mode==3) {
+				cv::Size camSize = camObj[0].imgFlipped.size();
+				float camPos[2][2], inpPos[2], solvedZ;
+				camPos[0][0] = camObj[0].totCnt_pos[0];
+				camPos[0][1] = camObj[0].totCnt_pos[1];
+				if(zSol==3 && camObj[1].allCnt_pos.size()>0) {
+					camPos[1][0] = camObj[1].totCnt_pos[0];
+					camPos[1][1] = camObj[1].totCnt_pos[1];
+					inpPos[0] = camPos[0][0];
+					inpPos[1] = camPos[1][0];
+					camTri.solvePos(inpPos, solvedPos, false);
+					solvedZ = -sin(toRadians((camTri.camRes[0][1]*0.5-camObj[0].totCnt_pos[1])*camTri.camCoef[0][1]))*solvedPos[1];
+					PP[0] = axisFilter[0]*float(round(solvedPos[0]*axisScal[0]+axisOffset[0])) + (1-axisFilter[0])*PP[0];
+					PP[1] = axisFilter[1]*float(solvedZ*axisScal[1]+axisOffset[1]) + (1-axisFilter[1])*PP[1];
+					PP[2] = axisFilter[2]*float(round(solvedPos[1]*axisScal[2]+axisOffset[2])) + (1-axisFilter[2])*PP[2];
 				}
-			}
-			if(validCnt_index > 0) {
-				getAvg_cntPos(validCnt_pos, validCnt_index, totCnt_pos);
-				if(mode != 3) {
-					cv::circle(imgFlipped,cv::Point(totCnt_pos[0],totCnt_pos[1]),50,cv::Scalar(0,0,0),2);
-					cv::putText(imgFlipped,to_string(int(totCnt_area)),cv::Point(totCnt_pos[0],totCnt_pos[1]),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false);
+				else {
+					inpPos[0] = camPos[0][0];
+					inpPos[1] = camPos[0][1];
+					PP[0] = axisFilter[0]*float(round(float(inpPos[0] - camSize.width/2)*axisScal[0]) + axisOffset[0]) + (1-axisFilter[0])*PP[0];
+					PP[1] = axisFilter[1]*float(round(float(camSize.height - inpPos[1])*axisScal[1]) + axisOffset[1]) + (1-axisFilter[1])*PP[1];
+					PP[2] = round((axisFilter[2]*float(axisScal[2]*zAxisFunc(camObj[0].totCnt_area, inpPos[0], inpPos[1]) + axisOffset[2]) + (1-axisFilter[2])*PP[2])/10)*10;
 				}
-				if(mode != 2) {
-					cv::Size camSize = imgFlipped.size();
-                    float camPos[2] = {totCnt_pos[0]-camSize.width/2, camSize.height-totCnt_pos[1]};
-					PP[0] = axisFilter[0] * float(round(float(totCnt_pos[0] - camSize.width/2)*axisScal[0]) + axisOffset[0]) + (1-axisFilter[0])*PP[0];
-					PP[1] = axisFilter[1] * float(round(float(camSize.height - totCnt_pos[1])*axisScal[1]) + axisOffset[1]) + (1-axisFilter[1])*PP[1];
-					PP[2] = round((axisFilter[2] * float(axisScal[2]*zAxisFunc(totCnt_area, camPos[0], camPos[1]) + axisOffset[2]) + (1-axisFilter[2])*PP[2])/10)*10;
-					printf("dArea:%6d", validCnt_index, int(totCnt_area));
-					printf(" x:%3d y:%3d z:%3d",int(PP[0]),int(PP[1]), int(PP[2]));
-					orientObj.update(true);
-					if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
-						sendToServo(pcaSrc,new_q,current_q,false);
-					}
-					else if(findValidOrient(PP, orient, orient, new_q)) {
-						sendToServo(pcaSrc,new_q,current_q,false);
-					}
-					else printf("valid orient for (%d, %d, %d) not found\n", int(PP[0]), int(PP[1]), int(PP[2]));
-				}
+
+				// printf("dArea:%6d", int(totCnt_area));
+				// cout << (camTri.camRes[0][1]*0.5-camObj[0].totCnt_pos[1])*camTri.camCoef[0][1] << "| ";
+				// printf(" %3d %3d %3d", int(solvedPos[0]), int(solvedPos[1]), int(solvedZ));
+				printf(" x:%3d y:%3d z:%3d",int(PP[0]),int(PP[1]), int(PP[2]));
+				orientObj.update(true);
+				if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) { sendToServo(pcaSrc,new_q,current_q,false); }
+				else if(findValidOrient(PP, orient, orient, new_q)) { sendToServo(pcaSrc,new_q,current_q,false); }
+				else printf("valid orient for (%d, %d, %d) not found\n", int(PP[0]), int(PP[1]), int(PP[2]));
 			}
 		}
-		//delay: 9-13ms
+
+
+		cv::Mat fusedImg;
 		if(mode!=3) {
-			cv::cvtColor(imgThreshold,imgThreshold,cv::COLOR_GRAY2BGR);
-			cv::hconcat(imgFlipped,imgThreshold,imgFlipped); //merge imgThreshold and imgFlipped horizontally
+			if(zSol==3) { cv::hconcat(camObj[0].imgFlipped,camObj[1].imgFlipped,fusedImg); }
+			else { fusedImg = camObj[0].imgFlipped; }
 		}
 		if(displayTFT) {
-			matToTFT(imgThreshold);
-		
+			matToTFT(camObj[0].imgThreshold);
 		}
 		
 
@@ -568,7 +558,7 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 			// 	,cv::Point(50,50),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false
 			// 	);
 			int keyInp = cv::waitKey(10);
-			cv::imshow(win_name,imgFlipped);
+			cv::imshow(window_name, fusedImg);
 			// printf(" %d ", keyInp);
 			if(keyInp==27) return -1; //'esc'
 			else if(keyInp==32) break; //'space'
@@ -582,13 +572,13 @@ int displayFunc(cv::VideoCapture* cap, int mode, PiPCA9685::PCA9685* pcaSrc) {
 				indVar = stoi(inputVar);
 				cin.clear();
 				cin.ignore();
-				hsv_settingsRead(win_name, indVar);
+				hsv_settingsRead(window_name, indVar);
 			}
-			else if(keyInp==116 && mode==0) { /*'t'*/ hsv_settingsRead(win_name, 0); }
+			else if(keyInp==116 && mode==0) { /*'t'*/ hsv_settingsRead(window_name, 0); }
 		}
 		printf("\n");
 	}
-	if(mode!=3) cv::destroyWindow(win_name);
+	if(mode!=3) cv::destroyWindow(window_name);
 	return 0;
 }
 
@@ -680,10 +670,10 @@ void loadData_csvArtif(bool printVar=true) {
 int main(int argc, char* argv[]) {
 	/*
 	argv codes:
-	- argc <= 1:		calibrateHSV = false;	displayImg = false; #default
-	- argv[1] == "-0":	calibrateHSV = false;	displayImg = true;
-	- argv[1] == "-1":	calibrateHSV = true;	displayImg = false;
-	- argv[1] == "-2":	calibrateHSV = true;	displayImg = true;
+	- argc <= 1:		calibrateHSV = false;	displayToWindow = false; #default
+	- argv[1] == "-0":	calibrateHSV = false;	displayToWindow = true;
+	- argv[1] == "-1":	calibrateHSV = true;	displayToWindow = false;
+	- argv[1] == "-2":	calibrateHSV = true;	displayToWindow = true;
 	- argv[1] == "-3":	special mode: no display and no tracking or reading of position.
 						where given pos is stationary and only reads orient var from esp
 	*/
@@ -709,13 +699,13 @@ int main(int argc, char* argv[]) {
 		gpioWrite(pin_ledRelay, 1);
 	}
 
-	if(argc<=1) {calibrateHSV=false; displayImg=false;}
+	if(argc<=1) {calibrateHSV=false; displayToWindow=false;}
 	else if(argc>=2) {
-		if(strcmp(argv[1], "-0")==0) {calibrateHSV=false; displayImg=true;}
-		else if(strcmp(argv[1], "-1")==0) {calibrateHSV=true; displayImg=false;}
-		else if(strcmp(argv[1], "-2")==0) {calibrateHSV=true; displayImg=true;printf("argv[1]==\"-2\"\n");}
-		else if(strcmp(argv[1], "-k")==0) {calibrateHSV=false; displayImg=false; mode_orients=true; printf("orient mode is set to true. only reading orient commands from nodemcu unit\n");}
-		else if(strcmp(argv[1], "-c")==0) {calibrateHSV=false; displayImg=false; mode_orients=false; mode_intro=true; printf("running intro sequence\n");}
+		if(strcmp(argv[1], "-0")==0) {calibrateHSV=false; displayToWindow=true;}
+		else if(strcmp(argv[1], "-1")==0) {calibrateHSV=true; displayToWindow=false;}
+		else if(strcmp(argv[1], "-2")==0) {calibrateHSV=true; displayToWindow=true;printf("argv[1]==\"-2\"\n");}
+		else if(strcmp(argv[1], "-k")==0) {calibrateHSV=false; displayToWindow=false; mode_orients=true; printf("orient mode is set to true. only reading orient commands from nodemcu unit\n");}
+		else if(strcmp(argv[1], "-c")==0) {calibrateHSV=false; displayToWindow=false; mode_orients=false; mode_intro=true; printf("running intro sequence\n");}
 	}
 
 	printf("\n- section: \"initialisation\"\n");
@@ -729,18 +719,13 @@ int main(int argc, char* argv[]) {
 
 	if(!mode_orients && !mode_intro) {
 		printf("special mode not on\n");
-		cv::VideoCapture cap(webcamIndex);
-		if(!cap.isOpened()) {
-			cout << "error: Cannot open web cam." << endl;
-			return -1;
-		}
-		cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 1); //change to 0 if output is not same as createProfile.py
+
 		hsv_settingsRead("",5,"hsv_settings.dat",false);
 
-		if(calibrateHSV) { if(displayFunc(&cap, 0, &pca)==-1) { return 0; } }
-		if(displayImg) { if(displayFunc(&cap, 1, &pca)==-1) { return 0; } }
-		if(!calibrateHSV && !displayImg && !mode_intro) {
-			if(displayFunc(&cap, 3, &pca)==-1) { return 0; }
+		if(calibrateHSV) { if(displayFunc(0, &pca)==-1) { return 0; } }
+		if(displayToWindow) { if(displayFunc(1, &pca)==-1) { return 0; } }
+		if(!calibrateHSV && !displayToWindow && !mode_intro) {
+			if(displayFunc(3, &pca)==-1) { return 0; }
 		}
 	}
 	else if(mode_orients){

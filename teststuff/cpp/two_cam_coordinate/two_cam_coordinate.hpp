@@ -131,6 +131,8 @@ void camTriangle::solvePos(float rawPos[2], float returnArr[2], bool printText=f
 
     solvedPos[0] = tempPos[0];
     solvedPos[1] = tempPos[1];
+    // solvedZ = sin(toRadians(read_pix[0][1]*camCoef[0][1]))*solvedPos[1];
+
 
     returnArr[0] = solvedPos[0];
     returnArr[1] = solvedPos[1];
