@@ -120,7 +120,6 @@ class IR_camTracking {
     int processCam();
     void createTrackbars(const char* win_name);
     void updateTrackbarPos(const char* win_name);
-    void update();
 };
 
 
@@ -238,11 +237,12 @@ void IR_camTracking::getAvg_cntPos() {
 
 
 void hsv_settingsRead(
+    IR_camTracking camObject[2],
+    int argHSV[2][3],
     const char* window_name = "",
     int indeks=1,
     string filePath="hsv_settings.dat",
-    bool displayWin=true,
-    int ptrHSV[]
+    bool displayWin=true
 ) {
 	//read HSV values from file with given indeks and change global l_HSV/u_HSV variables
 	ifstream hsvFile(filePath);
@@ -270,13 +270,13 @@ void hsv_settingsRead(
 			tempVal[5]=stoi(line.substr(0,line.find(']')));
 
 			for(int i=0; i<6; i++) { printf(" %d", tempVal[i]); }
-			l_HSV[0] = tempVal[0];
-			l_HSV[1] = tempVal[1];
-			l_HSV[2] = tempVal[2];
-			u_HSV[0] = tempVal[3];
-			u_HSV[1] = tempVal[4];
-			u_HSV[2] = tempVal[5];
-			if(displayWin) camObj[0].updateTrackbarPos(window_name);
+			argHSV[0][0] = tempVal[0];
+			argHSV[0][1] = tempVal[1];
+			argHSV[0][2] = tempVal[2];
+			argHSV[1][0] = tempVal[3];
+			argHSV[1][1] = tempVal[4];
+			argHSV[1][2] = tempVal[5];
+			if(displayWin) camObject[0].updateTrackbarPos(window_name);
 			hsvFile.close();
 			return;
 		}
@@ -284,7 +284,12 @@ void hsv_settingsRead(
 	printf("index not found\n");
 }
 
-void hsv_settingsWrite(int indeks=0, bool overWrite=false, string filePath="hsv_settings.dat") {
+void hsv_settingsWrite(
+    int argHSV[2][3],
+    int indeks=0,
+    bool overWrite=false,
+    string filePath="hsv_settings.dat"
+) {
 	//write global HSV values from l_HSV and u_HSV into the file
 	//overwrite:	if indeks already exists the new one will be written over the old one if overWrite is true,
 	//				otherwise it'll add the values at the end of the files
@@ -311,8 +316,8 @@ void hsv_settingsWrite(int indeks=0, bool overWrite=false, string filePath="hsv_
 		// cout << fileContents.substr(0,fileContents.find('\n')+1) << endl;
 		if(i==rowLen_2-1 && !overWrite) {
 			fileRows[i] = to_string(i-2)+";["+
-			to_string(l_HSV[0])+","+to_string(l_HSV[1])+","+to_string(l_HSV[2])+":"+
-			to_string(u_HSV[0])+","+to_string(u_HSV[1])+","+to_string(u_HSV[2])+"]\n";
+			to_string(argHSV[0][0])+","+to_string(argHSV[0][1])+","+to_string(argHSV[0][2])+":"+
+			to_string(argHSV[1][0])+","+to_string(argHSV[1][1])+","+to_string(argHSV[1][2])+"]\n";
 		}
 		else {
 			fileRows[i] = fileContents.substr(0,fileContents.find('\n')+1);
@@ -320,8 +325,8 @@ void hsv_settingsWrite(int indeks=0, bool overWrite=false, string filePath="hsv_
 			if(fileRows[i].substr(0,1)==to_string(indeks-1) && overWrite) {
 				i++;
 				fileRows[i] = to_string(i)+";["+
-				to_string(l_HSV[0])+","+to_string(l_HSV[1])+","+to_string(l_HSV[2])+":"+
-				to_string(u_HSV[0])+","+to_string(u_HSV[1])+","+to_string(u_HSV[2])+"]\n";
+				to_string(argHSV[0][0])+","+to_string(argHSV[0][1])+","+to_string(argHSV[0][2])+":"+
+				to_string(argHSV[1][0])+","+to_string(argHSV[1][1])+","+to_string(argHSV[1][2])+"]\n";
 				fileContents.erase(0,fileContents.find('\n')+1);
 			}
 		}

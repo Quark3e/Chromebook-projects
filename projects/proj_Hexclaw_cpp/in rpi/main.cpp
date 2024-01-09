@@ -105,6 +105,14 @@ bool displayTFT = false;
 bool mode_orients = false;
 bool mode_intro = false;
 
+
+// int l_HSV[3] = {0, 0, 255};
+// int u_HSV[3] = {179, 9, 255};
+int HW_HSV[2][3] = {
+	{0, 0, 255},
+	{179, 9, 255}
+};
+
 const char* window_name = "Window";
 // IR camtracking header class initialization
 IR_camTracking camObj[2] {
@@ -122,7 +130,7 @@ camTriangle camTri(camPosition, camAng_offs);
 /// @brief 2d coefficients for a single layer
 float angleArea_coef[181][181];
 /// @brief 3d artifically pre-generated area results
-int artifVal[181][181][401]; //x = [0, 90, 181] = [-90, 0, 01]
+float artifVal[181][181][401]; //x = [0, 90, 181] = [-90, 0, 01]
 
 void load_csvFile(string filePath = "data/csv_dataSet_pf17_fuse-True.csv") {
     printf("Loading csv file:\n");
@@ -199,6 +207,7 @@ float zAxisFunc(float area, float posX, float posY) {
 	// cout << chosenIdx << artifVal[int(Roll)+90][int(Pitch)+90][200]<< "\t";
 	return chosenIdx;
 }
+
 
 
 
@@ -285,7 +294,7 @@ int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
 			// printf(" %d ", keyInp);
 			if(keyInp==27) return -1; //'esc'
 			else if(keyInp==32) break; //'space'
-			else if(keyInp==115) { /*'s'*/ if(mode==0) { /*save HSV values*/ hsv_settingsWrite(0); } }
+			else if(keyInp==115) { /*'s'*/ if(mode==0) { /*save HSV values*/ hsv_settingsWrite(HW_HSV, 0); } }
 			else if(keyInp==114) { //'r'
 				string inputVar = "";
 				int indVar = 0;
@@ -295,9 +304,9 @@ int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
 				indVar = stoi(inputVar);
 				cin.clear();
 				cin.ignore();
-				hsv_settingsRead(window_name, indVar);
+				hsv_settingsRead(camObj, HW_HSV, window_name, indVar);
 			}
-			else if(keyInp==116 && mode==0) { /*'t'*/ hsv_settingsRead(window_name, 0); }
+			else if(keyInp==116 && mode==0) { /*'t'*/ hsv_settingsRead(camObj, HW_HSV, window_name, 0); }
 		}
 		printf("\n");
 	}
@@ -364,7 +373,7 @@ void loadData_csvArtif(bool printVar=true) {
 					int(tempArr[0]), int(tempArr[1]), int(tempArr[2]), tempArr[3]
 				);
 			}
-			artifVal[int(tempArr[0])+90][int(tempArr[1])+90][int(tempArr[2])] = int(round(tempArr[3]));
+			artifVal[int(tempArr[0])+90][int(tempArr[1])+90][int(tempArr[2])] = round(tempArr[3]);
 			rowCount++;
 			
 		}
@@ -433,7 +442,7 @@ int main(int argc, char* argv[]) {
 	if(!mode_orients && !mode_intro) {
 		printf("special mode not on\n");
 
-		hsv_settingsRead("",5,"hsv_settings.dat",false);
+		hsv_settingsRead(camObj, HW_HSV, "",5,"hsv_settings.dat",false);
 
 		if(calibrateHSV) { if(displayFunc(0, &pca)==-1) { return 0; } }
 		if(displayToWindow) { if(displayFunc(1, &pca)==-1) { return 0; } }
