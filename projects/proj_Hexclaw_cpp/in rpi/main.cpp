@@ -151,30 +151,6 @@ void load_csvFile(string filePath = "data/csv_dataSet_pf17_fuse-True.csv") {
 }
 
 
-/// @brief Find index to closest value in arr
-/// @param arr array to find closest index for
-/// @param pick value to find index of
-/// @param printVar whether to print results
-/// @return index of result (closest value)
-int getClosestValIdx(int arr[401], int pick=2000, bool printVar=false) {
-    int minArr[401];
-
-    for(int i=0; i<401; i++) minArr[i] = abs(arr[i]-pick);
-
-    int minVar[2] = {0, minArr[0]};
-    if(printVar) cout << "Picked: " << pick << endl;
-    if(printVar) printf("\n[%d] %3d|%3d - %3d\n", 0, minVar[1], minArr[0], arr[0]);
-    for(int i=1; i<401; i++) {
-        if(printVar) printf("[%d] %3d|%3d - %3d\n", i, minVar[1], minArr[i], arr[i]);
-        if(minVar[1]>minArr[i]) {
-            minVar[0]=i;
-            minVar[1]=minArr[i];
-        }
-    }
-    if(printVar) printf("\nClosest value to %d: index:%d element:%d\n", pick, minVar[0], arr[minVar[0]]);
-
-    return minVar[0];
-}
 
 bool useCSV=true;
 
