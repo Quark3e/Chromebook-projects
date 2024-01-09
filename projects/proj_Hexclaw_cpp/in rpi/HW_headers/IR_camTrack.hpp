@@ -235,4 +235,101 @@ void IR_camTracking::getAvg_cntPos() {
 	totCnt_pos[1] = yTot / allCnt_pos.size();
 }
 
+
+
+void hsv_settingsRead(const char* window_name = "", int indeks=1, string filePath="hsv_settings.dat", bool displayWin=true) {
+	//read HSV values from file with given indeks and change global l_HSV/u_HSV variables
+	ifstream hsvFile(filePath);
+	if(!hsvFile.is_open()) {
+		printf("can't open file \"%s\"",filePath);
+		return;
+	}
+	string line;
+	int tempVal[6];
+	while(getline(hsvFile,line)) {
+		if(line.substr(0,1)==to_string(indeks)) {
+			line.erase(0,3);
+			//lower HSV
+			tempVal[0]=stoi(line.substr(0,line.find(',')));
+			line.erase(0,line.find(',')+1);
+			tempVal[1]=stoi(line.substr(0,line.find(',')));
+			line.erase(0,line.find(',')+1);
+			tempVal[2]=stoi(line.substr(0,line.find(':')));
+			line.erase(0,line.find(':')+1);
+			//upper HSV
+			tempVal[3]=stoi(line.substr(0,line.find(',')));
+			line.erase(0,line.find(',')+1);
+			tempVal[4]=stoi(line.substr(0,line.find(',')));
+			line.erase(0,line.find(',')+1);
+			tempVal[5]=stoi(line.substr(0,line.find(']')));
+
+			for(int i=0; i<6; i++) { printf(" %d", tempVal[i]); }
+			l_HSV[0] = tempVal[0];
+			l_HSV[1] = tempVal[1];
+			l_HSV[2] = tempVal[2];
+			u_HSV[0] = tempVal[3];
+			u_HSV[1] = tempVal[4];
+			u_HSV[2] = tempVal[5];
+			if(displayWin) camObj[0].updateTrackbarPos(window_name);
+			hsvFile.close();
+			return;
+		}
+	}
+	printf("index not found\n");
+}
+
+void hsv_settingsWrite(int indeks=0, bool overWrite=false, string filePath="hsv_settings.dat") {
+	//write global HSV values from l_HSV and u_HSV into the file
+	//overwrite:	if indeks already exists the new one will be written over the old one if overWrite is true,
+	//				otherwise it'll add the values at the end of the files
+	ifstream rFile(filePath);
+	if(!rFile.is_open()) {
+		printf("error: Cannot open file\"");
+		cout << filePath << "\"\n";
+	}
+	string fileContents="", line;
+	// printf("rowLen_1: %d\n", rowLen);
+	while(getline(rFile, line)) {
+		fileContents+=line;
+		fileContents+="\n";
+	} //ex: "row1\nrow2\nrow3"
+	rFile.close();
+	ofstream wFile(filePath);
+	int rowLen_2 = count(fileContents.begin(),fileContents.end(),'\n');
+	// printf("total rows:%d\n",rowLen_2);
+	if(!overWrite) {rowLen_2++;}
+	else {}
+	string fileRows[rowLen_2];
+	for(int i=0; i<rowLen_2; i++) {
+		// printf("row %d out of %d rows: ",i,rowLen_2);
+		// cout << fileContents.substr(0,fileContents.find('\n')+1) << endl;
+		if(i==rowLen_2-1 && !overWrite) {
+			fileRows[i] = to_string(i-2)+";["+
+			to_string(l_HSV[0])+","+to_string(l_HSV[1])+","+to_string(l_HSV[2])+":"+
+			to_string(u_HSV[0])+","+to_string(u_HSV[1])+","+to_string(u_HSV[2])+"]\n";
+		}
+		else {
+			fileRows[i] = fileContents.substr(0,fileContents.find('\n')+1);
+			fileContents.erase(0,fileContents.find('\n')+1);
+			if(fileRows[i].substr(0,1)==to_string(indeks-1) && overWrite) {
+				i++;
+				fileRows[i] = to_string(i)+";["+
+				to_string(l_HSV[0])+","+to_string(l_HSV[1])+","+to_string(l_HSV[2])+":"+
+				to_string(u_HSV[0])+","+to_string(u_HSV[1])+","+to_string(u_HSV[2])+"]\n";
+				fileContents.erase(0,fileContents.find('\n')+1);
+			}
+		}
+	}
+	string totText = "";
+	for(int i=0; i<rowLen_2; i++) {
+		// printf("fileRows[%d]: \"", i);
+		// cout << fileRows[i] << "\"" << endl;
+		totText+=fileRows[i];
+		}
+	wFile << totText;
+	printf("File written\n");
+	wFile.close();
+}
+
+
 #endif

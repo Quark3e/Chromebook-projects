@@ -37,11 +37,6 @@
 // PCA9685 communication
 #include <PiPCA9685/PCA9685.h>
 
-// TFT display libraries
-#include <bcm2835.h>
-#include "ST7735_TFT.h"
-#include "/home/pi/Chromebook-projects/teststuff/electronics/tft_display/ST7735_TFT_RPI_test/ST7735_TFT_RPI-1.5/example/include/Bi_Color_Bitmap.h" // Data for test 11 and 12.
-
 // RPi specific functions
 #include <pigpio.h>
 
@@ -52,9 +47,10 @@
 #include "HW_headers/wirelessCOM.hpp"
 #include "../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp"
 #include "HW_headers/IR_camTrack.hpp"
+#include "HW_headers/integ_TFTdisp.hpp"
+#include "HW_headers/motion_control/motion_profiles.hpp"
 
 using namespace std;
-
 
 
 string absPath;
@@ -73,65 +69,6 @@ void initPaths() {
     char path[100];
     string temp = strcat(strcpy(path, pathP), "/");
     absPath = temp.substr(0, temp.find("/projects"))+"/teststuff/python/opencv/angleArea/data/csv_artif/";
-}
-
-
-// tft display setup
-ST7735_TFT myTFT;
-
-int8_t tft_setup(void) {
-
-	cout << "TFT Start!" << endl;
-	if(!bcm2835_init())
-	{
-		cout << "Error : Problem with init bcm2835 library" << endl;
-		return -1;
-	}
-	
-// ** USER OPTION 1 GPIO/SPI TYPE HW OR SW **
-	int8_t RST_TFT = 24;
-	int8_t DC_TFT = 25;
-	int8_t SCLK_TFT = -1; // 5, change to GPIO no for sw spi, -1 hw spi
-	int8_t SDIN_TFT = -1; // 6, change to GPIO no for sw spi, -1 hw spi
-	int8_t CS_TFT = -1 ;  // 8, change to GPIO no for sw spi, -1 hw spi
-	myTFT.TFTSetupGPIO(RST_TFT, DC_TFT, CS_TFT, SCLK_TFT, SDIN_TFT);
-
-
-// ** USER OPTION 2 Screen Setup **
-	uint8_t OFFSET_COL = 0;  // 2, These offsets can be adjusted for any issues->
-	uint8_t OFFSET_ROW = 0; // 3, with manufacture tolerance/defects
-	uint16_t TFT_WIDTH = 128;// Screen width in pixels
-	uint16_t TFT_HEIGHT = 160; // Screen height in pixels
-	myTFT.TFTInitScreenSize(OFFSET_COL, OFFSET_ROW , TFT_WIDTH , TFT_HEIGHT);
-
-
-// ** USER OPTION 3 PCB_TYPE + SPI baud rate + SPI_CE_PIN**
-	uint32_t SCLK_FREQ =  8000000 ; // HW Spi freq in Hertz , MAX 125 Mhz MIN 30Khz
-	uint8_t SPI_CE_PIN = 0; // which HW SPI chip enable pin to use,  0 or 1
-	// pass enum to param1 ,4 choices,see README
-	if(!myTFT.TFTInitPCBType(TFT_ST7735R_Red, SCLK_FREQ, SPI_CE_PIN))return -1;
-	// Note : if using SW SPI you do not have to pass anything for param 2&3, it will do nothing. 
-
-	myTFT.TFTsetRotation(TFT_Degress_90);
-	return 0;
-}
-
-
-void matToTFT(cv::Mat threshImg) {
-	cv::Size imgSize = threshImg.size();
-	cv::resize(threshImg, threshImg, cv::Size(), 128*(imgSize.width/imgSize.height), 128);
-	cv::Mat cropImg = threshImg(cv::Rect(160, 128, 128*(imgSize.width/imgSize.height), 128));
-	
-	size_t pixelSize = 3;
-	uint8_t* bmpBuffer = NULL;
-	bmpBuffer = (uint8_t*)malloc((160 * 128) * pixelSize);
-	if (bmpBuffer == NULL) {
-		std::cout << "Error Test14 : MALLOC could not assign memory " << std::endl;
-		return;
-	}
-
-	//cv::cvtColor(cropImg, bmpBuffer, cv::COLOR_BGR5652RGB);
-	//myTFT.TFTdrawBitmap24(0, 0, bmpBuffer, 160, 128);
 }
 
 
@@ -214,12 +151,6 @@ void load_csvFile(string filePath = "data/csv_dataSet_pf17_fuse-True.csv") {
 }
 
 
-// /// @brief FOV of webcam in degrees
-// float camFOV[2] = {round(45*(640/480)), 45};
-// /// @brief Number of angles for each pixel
-// float angPerPix = camFOV[1]/prefSize[1];
-
-
 /// @brief Find index to closest value in arr
 /// @param arr array to find closest index for
 /// @param pick value to find index of
@@ -294,160 +225,15 @@ float zAxisFunc(float area, float posX, float posY) {
 }
 
 
-
-
 int l_HSV[3] = {0, 0, 255};
 int u_HSV[3] = {179, 9, 255};
-
-// /// @brief minimum limit for area to be recognised
-// int areaLim = 1000;
-
-
-
-// /// @brief variable for contours
-// vector<vector<cv::Point>> contours;
-// vector<cv::Vec4i> hierarchy;
-
-// float validCnt_pos[20][2]; //array of contours above threshold; form [x, y]
-// int validCnt_index = 0; //index of biggest validCnt_pos sent (so =1 means there is one elemment)
-// float totCnt_pos[2];
-// float totCnt_area = 0;
-
-// /// @brief Get avg xy coordinates from list of coordinates
-// /// @param allCnt array of coordinates
-// /// @param cntIndex number of elements in array
-// /// @param totCntPos_ptr "pointer" array to hold "returned" result/xy_coordinate
-// void getAvg_cntPos(float allCnt[20][2], int cntIndex, float totCntPos_ptr[2]) {
-// 	float xTot=0, yTot = 0;
-// 	for(int i=0; i<cntIndex; i++) {
-// 		xTot += allCnt[i][0];
-// 		yTot += allCnt[i][1];
-// 	}
-// 	totCntPos_ptr[0] = xTot / cntIndex;
-// 	totCntPos_ptr[1] = yTot / cntIndex;
-// }
 
 
 bool pigpioInitia = false;
 int pin_ledRelay = 23;
 
 
-// /// @brief Create trackbar
-// /// @param window_name pointer to opencv window name
-// void createTrackbars(const char* window_name) {
-// 	cv::createTrackbar("LowH", window_name, &l_HSV[0], 179);
-// 	cv::createTrackbar("HighH", window_name, &u_HSV[0], 179);
-// 	cv::createTrackbar("LowS", window_name, &l_HSV[1], 255);
-// 	cv::createTrackbar("HighS", window_name, &u_HSV[1], 255);
-// 	cv::createTrackbar("LowV", window_name, &l_HSV[2], 255);
-// 	cv::createTrackbar("HighV", window_name, &u_HSV[2], 255);
-// }
-
-// /// @brief set trackbar pos/value
-// /// @param window_name pointer to opencv window name
-// void updateTrackbarPos(const char* window_name) {
-// 	cv::setTrackbarPos("LowH", window_name, l_HSV[0]);
-// 	cv::setTrackbarPos("LowS", window_name, l_HSV[1]);
-// 	cv::setTrackbarPos("LowV", window_name, l_HSV[2]);
-// 	cv::setTrackbarPos("HighH", window_name, u_HSV[0]);
-// 	cv::setTrackbarPos("HighS", window_name, u_HSV[1]);
-// 	cv::setTrackbarPos("HighV", window_name, u_HSV[2]);
-// }
-
-
-void hsv_settingsRead(const char* window_name = "", int indeks=1, string filePath="hsv_settings.dat", bool displayWin=true) {
-	//read HSV values from file with given indeks and change global l_HSV/u_HSV variables
-	ifstream hsvFile(filePath);
-	if(!hsvFile.is_open()) {
-		printf("can't open file \"%s\"",filePath);
-		return;
-	}
-	string line;
-	int tempVal[6];
-	while(getline(hsvFile,line)) {
-		if(line.substr(0,1)==to_string(indeks)) {
-			line.erase(0,3);
-			//lower HSV
-			tempVal[0]=stoi(line.substr(0,line.find(',')));
-			line.erase(0,line.find(',')+1);
-			tempVal[1]=stoi(line.substr(0,line.find(',')));
-			line.erase(0,line.find(',')+1);
-			tempVal[2]=stoi(line.substr(0,line.find(':')));
-			line.erase(0,line.find(':')+1);
-			//upper HSV
-			tempVal[3]=stoi(line.substr(0,line.find(',')));
-			line.erase(0,line.find(',')+1);
-			tempVal[4]=stoi(line.substr(0,line.find(',')));
-			line.erase(0,line.find(',')+1);
-			tempVal[5]=stoi(line.substr(0,line.find(']')));
-
-			for(int i=0; i<6; i++) { printf(" %d", tempVal[i]); }
-			l_HSV[0] = tempVal[0];
-			l_HSV[1] = tempVal[1];
-			l_HSV[2] = tempVal[2];
-			u_HSV[0] = tempVal[3];
-			u_HSV[1] = tempVal[4];
-			u_HSV[2] = tempVal[5];
-			if(displayWin) camObj[0].updateTrackbarPos(window_name);
-			hsvFile.close();
-			return;
-		}
-	}
-	printf("index not found\n");
-}
-
-void hsv_settingsWrite(int indeks=0, bool overWrite=false, string filePath="hsv_settings.dat") {
-	//write global HSV values from l_HSV and u_HSV into the file
-	//overwrite:	if indeks already exists the new one will be written over the old one if overWrite is true,
-	//				otherwise it'll add the values at the end of the files
-	ifstream rFile(filePath);
-	if(!rFile.is_open()) {
-		printf("error: Cannot open file\"");
-		cout << filePath << "\"\n";
-	}
-	string fileContents="", line;
-	// printf("rowLen_1: %d\n", rowLen);
-	while(getline(rFile, line)) {
-		fileContents+=line;
-		fileContents+="\n";
-	} //ex: "row1\nrow2\nrow3"
-	rFile.close();
-	ofstream wFile(filePath);
-	int rowLen_2 = count(fileContents.begin(),fileContents.end(),'\n');
-	// printf("total rows:%d\n",rowLen_2);
-	if(!overWrite) {rowLen_2++;}
-	else {}
-	string fileRows[rowLen_2];
-	for(int i=0; i<rowLen_2; i++) {
-		// printf("row %d out of %d rows: ",i,rowLen_2);
-		// cout << fileContents.substr(0,fileContents.find('\n')+1) << endl;
-		if(i==rowLen_2-1 && !overWrite) {
-			fileRows[i] = to_string(i-2)+";["+
-			to_string(l_HSV[0])+","+to_string(l_HSV[1])+","+to_string(l_HSV[2])+":"+
-			to_string(u_HSV[0])+","+to_string(u_HSV[1])+","+to_string(u_HSV[2])+"]\n";
-		}
-		else {
-			fileRows[i] = fileContents.substr(0,fileContents.find('\n')+1);
-			fileContents.erase(0,fileContents.find('\n')+1);
-			if(fileRows[i].substr(0,1)==to_string(indeks-1) && overWrite) {
-				i++;
-				fileRows[i] = to_string(i)+";["+
-				to_string(l_HSV[0])+","+to_string(l_HSV[1])+","+to_string(l_HSV[2])+":"+
-				to_string(u_HSV[0])+","+to_string(u_HSV[1])+","+to_string(u_HSV[2])+"]\n";
-				fileContents.erase(0,fileContents.find('\n')+1);
-			}
-		}
-	}
-	string totText = "";
-	for(int i=0; i<rowLen_2; i++) {
-		// printf("fileRows[%d]: \"", i);
-		// cout << fileRows[i] << "\"" << endl;
-		totText+=fileRows[i];
-		}
-	wFile << totText;
-	printf("File written\n");
-	wFile.close();
-}
+#include "HW_headers/mainOptions.hpp"
 
 /// @brief main function to read, display and control the robot
 /// @param cap [cv::VideoCapture object pointer]: for main camera
@@ -473,36 +259,7 @@ int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
 	while(true) {
 		if(camObj[0].processCam()==-1) return 0;
 		if(zSol==3 && camObj[1].processCam()==-1) return 0;
-		// //delay: 4-5ms
-		// if(!(cap->read(imgRaw))) {
-		// 	printf("error: Cannot read frame");
-		// 	cv::destroyAllWindows();
-		// 	return -1;
-		// }
 
-		// //delay: unknown
-		// cv::resize(imgRaw, imgOriginal, cv::Size(prefSize[0], prefSize[1]), cv::INTER_LINEAR);
-		// // cout << imgOriginal.cols << "x" << imgOriginal.rows;
-		
-		// //delay: 4-7ms
-		// cv::flip(imgOriginal, imgFlipped, 1);
-		// //delay: 3-5ms
-		// cv::cvtColor(imgFlipped, imgHSV, cv::COLOR_BGR2HSV);
-
-		// //delay: 1-4ms
-		// cv::inRange(imgHSV,
-		// cv::Scalar(l_HSV[0], l_HSV[1], l_HSV[2]),
-		// cv::Scalar(u_HSV[0], u_HSV[1], u_HSV[2]),
-		// imgThreshold);
-		
-		// //delay: 2-3ms
-		// cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
-		// cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 6); 
-
-		// // cv::dilate(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1); 
-		// // cv::erode(imgThreshold, imgThreshold, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)), cv::Point(-1, -1), 1);
-
-		// //delay: 1-2ms
 		cout << "zSol=" << zSol << ": ";
 		if(mode >= 1 && camObj[0].allCnt_pos.size()>0) {
 			if(mode==1 || mode==3) {
@@ -529,9 +286,6 @@ int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
 					PP[2] = round((axisFilter[2]*float(axisScal[2]*zAxisFunc(camObj[0].totCnt_area, inpPos[0], inpPos[1]) + axisOffset[2]) + (1-axisFilter[2])*PP[2])/10)*10;
 				}
 
-				// printf("dArea:%6d", int(totCnt_area));
-				// cout << (camTri.camRes[0][1]*0.5-camObj[0].totCnt_pos[1])*camTri.camCoef[0][1] << "| ";
-				// printf(" %3d %3d %3d", int(solvedPos[0]), int(solvedPos[1]), int(solvedZ));
 				printf(" x:%3d y:%3d z:%3d",int(PP[0]),int(PP[1]), int(PP[2]));
 				orientObj.update(true);
 				if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) { sendToServo(pcaSrc,new_q,current_q,false); }
@@ -553,10 +307,6 @@ int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
 
 		//delay: 6-11ms
 		if(mode!=3) {
-			// cv::putText(
-			// 	imgFlipped,"fps:"+to_string(fps)+" totalDelay:"+to_string(totalDelay)
-			// 	,cv::Point(50,50),cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,0,0),2,false
-			// 	);
 			int keyInp = cv::waitKey(10);
 			cv::imshow(window_name, fusedImg);
 			// printf(" %d ", keyInp);

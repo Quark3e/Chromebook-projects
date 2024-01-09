@@ -6,6 +6,8 @@
 #include <string>
 #include <math.h>
 
+#include "HW_headers/motion_control/motion_profiles.hpp"
+
 using namespace std;
 using namespace PiPCA9685;
 
@@ -17,18 +19,8 @@ float startup_q[6] = {0, 115, -90, 0, -25, 00}; //offset not added
 
 
 
-float get3dDistance(float p1[3], float p2[3]) { return sqrt(pow(p2[0]-p1[0],2) + pow(p2[1]-p1[1],2) + pow(p2[2]-p1[2],2)); }
-
-
-int PoN(float var) {
-	if(var>0) return 1;
-	else if(var<0) return -1;
-	else {
-		cout << "PoN(): \"" << var << "\" is not a number\n";
-		return 0;
-	}
-}
-
+/// @brief Apply real-world servo motor offsets to input angles
+/// @param angles float()[6] values to add defaults onto: NOTE: original var will be modified
 void add_defaults(float angles[6]) {
     angles[0] = offset_q[0] + angles[0];
     angles[1] = offset_q[1] + angles[1];
@@ -71,6 +63,10 @@ void q_corrections(float angles[6]) {
     angles[5] = angles[5] * error_Consts[5];
 }
 
+/// @brief Check if any angle in {angles} is exceeding servo motors range
+/// @param angles angles to check
+/// @param printErrors whether to print out any exceedings onto the terminal
+/// @return boolean of whether any angles have exceeded
 bool exceedCheck(float angles[6], bool printErrors=true) {
     bool exceeded = false;
     bool whichExceeded[6] = {false, false, false, false, false, false};
@@ -119,21 +115,6 @@ float findVal(float arrToCheck[], int arrLen, int mode=0) {
 }
 
 
-float mp1(float x) {
-    float y=0, V_max=2, t3=1;
-    float Pt1=0.5;
-    float Pt2=Pt1;
-    float t2=t3*Pt2;
-    float t1=t3*Pt1;
-    float a3 = (0-V_max)/(t3-t2);
-    float a1 = (V_max-0)/(t1-0);
-    if(x>0 && x<=t1) y=(a1*pow(x,2))/2;
-    else if(x>t1 && x<t2) y=a1*t1*x-(a1*pow(t1,2))/2;
-    else if(x>=t2 && x<=t3) y=(a3*pow(x-t2,2))/2+V_max*x+a1*(t1*t2-pow(t1,2)/2)-V_max*t2;
-    return y;
-}
-
-
 /// @brief Sends rotation commands to servo motors
 /// @param pcaBoard is a PCA9685 class object pointer
 /// @param new_rotation 6 element float() array of new rotations
@@ -160,12 +141,9 @@ int sendToServo(
         needs to be entered that will be used in *EVERY* call of sendToServo
         */
 
-        if(printResult) {
-            printf("\tNEW SENDTOSERVO()\n");
-        }
-
 	   	int returnCode = 0;
-
+        
+        if(printResult) { printf("\tNEW SENDTOSERVO()\n"); }
         if(servoInitialize) {
             for(int i=0; i<6; i++) {new_rotation[i] = startup_q[i];}
         }
