@@ -195,7 +195,7 @@ float zAxisFunc(float area, float posX, float posY) {
 	}
 
 	int chosenIdx=0;
-	chosenIdx = getClosestValIdx(artifVal[int(Roll)+90][int(Pitch)+90],int(area));
+	chosenIdx = getClosestValIdx(artifVal[int(Roll)+90][int(Pitch)+90],401,int(area));
 	// cout << chosenIdx << artifVal[int(Roll)+90][int(Pitch)+90][200]<< "\t";
 	return chosenIdx;
 }
@@ -309,17 +309,7 @@ int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
 }
 
 
-void splitString(string line, string delimiter, float returnArr[4], int numVar=4, bool printVar=false) {
-    if(printVar) cout << "--- \"" << line << "\"\n";
-    size_t pos = 0;
-    for(int i=0; i<numVar; i++) {
-        if(i<(numVar-1)) pos = line.find(delimiter);
-        if(printVar) cout << "- pos:" << pos << " :" << line.substr(0, pos) << "\n";
-        returnArr[i] = stof(line.substr(0, pos));
-        line.erase(0, pos + delimiter.length());
-    }
-    if(printVar) cout << "---";
-}
+
 
 
 void loadData_csvArtif(bool printVar=true) {
