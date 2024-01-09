@@ -3,6 +3,9 @@
 
 CMakeFiles/Hexclaw_Main.dir/main.cpp.o
  /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp
+ /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/integ_TFTdisp.hpp
+ /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/mainOptions.hpp
+ /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/motion_control/motion_profiles.hpp
  /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/wirelessCOM.hpp
  /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.h
  /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/main.cpp

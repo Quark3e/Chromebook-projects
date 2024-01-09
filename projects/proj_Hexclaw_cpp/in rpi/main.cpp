@@ -201,9 +201,6 @@ float zAxisFunc(float area, float posX, float posY) {
 }
 
 
-int l_HSV[3] = {0, 0, 255};
-int u_HSV[3] = {179, 9, 255};
-
 
 bool pigpioInitia = false;
 int pin_ledRelay = 23;

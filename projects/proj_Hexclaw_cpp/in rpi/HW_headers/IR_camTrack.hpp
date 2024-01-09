@@ -237,7 +237,13 @@ void IR_camTracking::getAvg_cntPos() {
 
 
 
-void hsv_settingsRead(const char* window_name = "", int indeks=1, string filePath="hsv_settings.dat", bool displayWin=true) {
+void hsv_settingsRead(
+    const char* window_name = "",
+    int indeks=1,
+    string filePath="hsv_settings.dat",
+    bool displayWin=true,
+    int ptrHSV[]
+) {
 	//read HSV values from file with given indeks and change global l_HSV/u_HSV variables
 	ifstream hsvFile(filePath);
 	if(!hsvFile.is_open()) {

@@ -22,6 +22,18 @@ opencv4/opencv2/imgproc/imgproc.hpp
 ../../../../teststuff/cpp/basic/Performance/getPerformance.hpp
 /home/pi/Chromebook-projects/teststuff/cpp/basic/Performance/getPerformance.hpp
 
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/integ_TFTdisp.hpp
+bcm2835.h
+-
+ST7735_TFT.h
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/ST7735_TFT.h
+../../../../teststuff/electronics/tft_display/ST7735_TFT_RPI_test/ST7735_TFT_RPI-1.5/example/include/Bi_Color_Bitmap.h
+/home/pi/Chromebook-projects/teststuff/electronics/tft_display/ST7735_TFT_RPI_test/ST7735_TFT_RPI-1.5/example/include/Bi_Color_Bitmap.h
+
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/mainOptions.hpp
+
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/motion_control/motion_profiles.hpp
+
 /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/wirelessCOM.hpp
 sys/types.h
 -
@@ -59,6 +71,8 @@ string
 -
 math.h
 -
+HW_headers/motion_control/motion_profiles.hpp
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/motion_control/motion_profiles.hpp
 
 /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/main.cpp
 iostream
@@ -97,12 +111,6 @@ opencv4/opencv2/imgproc/imgproc.hpp
 -
 PiPCA9685/PCA9685.h
 -
-bcm2835.h
--
-ST7735_TFT.h
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/ST7735_TFT.h
-/home/pi/Chromebook-projects/teststuff/electronics/tft_display/ST7735_TFT_RPI_test/ST7735_TFT_RPI-1.5/example/include/Bi_Color_Bitmap.h
--
 pigpio.h
 -
 ../../../teststuff/cpp/useful/useful.hpp
@@ -115,6 +123,12 @@ HW_headers/wirelessCOM.hpp
 /home/pi/Chromebook-projects/teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp
 HW_headers/IR_camTrack.hpp
 /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp
+HW_headers/integ_TFTdisp.hpp
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/integ_TFTdisp.hpp
+HW_headers/motion_control/motion_profiles.hpp
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/motion_control/motion_profiles.hpp
+HW_headers/mainOptions.hpp
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/mainOptions.hpp
 
 /home/pi/Chromebook-projects/teststuff/cpp/basic/Performance/getPerformance.hpp
 iostream
@@ -151,6 +165,18 @@ iostream
 -
 
 /home/pi/Chromebook-projects/teststuff/cpp/useful/useful.hpp
+math.h
+-
+cmath
+-
+string
+-
+vector
+-
+iostream
+-
+bits/stdc++.h
+-
 
 /home/pi/Chromebook-projects/teststuff/electronics/tft_display/ST7735_TFT_RPI_test/ST7735_TFT_RPI-1.5/example/include/Bi_Color_Bitmap.h
 
