@@ -77,7 +77,7 @@ float current_q[6] = {0,0,0,0,0,0}; //old_rotation
 float new_q[6] = {0,0,0,0,0,0};
 float orient[3] = {0,0,0}; //degrees
 float PP[3] = {0,150,150};
-float axisScal[3] = {1, 1, 1};
+float axisScal[3] = {1, 1, 1};	
 float axisOffset[3] = {0, 100, -200};
 float axisFilter[3] = {1, 1, 1};
 
