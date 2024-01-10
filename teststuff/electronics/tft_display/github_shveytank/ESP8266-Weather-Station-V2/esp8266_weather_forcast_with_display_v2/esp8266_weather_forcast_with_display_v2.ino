@@ -10,6 +10,8 @@
 #include <Fonts/FreeMono12pt7b.h>
 #include <Fonts/FreeSans9pt7b.h>
 
+//USED
+
 // ST7735 TFT module connections
 #define TFT_RST   D4     // TFT RST pin is connected to NodeMCU pin D4 (GPIO2)
 #define TFT_CS    D3     // TFT CS  pin is connected to NodeMCU pin D4 (GPIO0)
