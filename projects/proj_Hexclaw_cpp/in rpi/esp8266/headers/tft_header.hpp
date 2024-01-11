@@ -16,14 +16,16 @@
 // #define TFT_DC      D2
 
 
-class TFT_disp {
+class TFT_obj {
     public:
     TFT_RST = D4;
     TFT_CS  = D3;
     TFT_DC  = D2;
-    Adafruit_ST7735 tft;
-    TFT_disp(); 
-
+    Adafruit_ST7735* tftPtr;
+    // Adafruit_ST7735 tft;
+    TFT_obj(Adafruit_ST7735* tft, bool did_init);
+    void scrSetup();
+    
 };
 
 
