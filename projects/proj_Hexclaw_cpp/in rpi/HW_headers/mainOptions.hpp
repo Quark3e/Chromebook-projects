@@ -4,6 +4,4 @@
 #define H_HEXCLAW_OPTIONS
 
 
-
-
 #endif
