@@ -21,9 +21,9 @@ class TFT_obj {
     TFT_RST = D4;
     TFT_CS  = D3;
     TFT_DC  = D2;
-    Adafruit_ST7735* tftPtr;
+    static Adafruit_ST7735 tft;
     // Adafruit_ST7735 tft;
-    TFT_obj(Adafruit_ST7735* tft, bool did_init);
+    // TFT_obj(Adafruit_ST7735* tft, bool did_init);
     void scrSetup();
     
 };

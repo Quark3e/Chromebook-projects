@@ -6,6 +6,7 @@
 class childClass {
     static ParentClass parentObj;
     public:
+    childClass() {};
     childClass(string var) {
     /*constructor stuff*/
     }
