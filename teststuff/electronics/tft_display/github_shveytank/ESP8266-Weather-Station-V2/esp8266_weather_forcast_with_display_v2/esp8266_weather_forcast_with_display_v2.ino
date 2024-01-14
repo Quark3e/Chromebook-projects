@@ -22,7 +22,7 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 const char* ssid = "Telia-47118D";
 const char* password = "0C94C28B5D";
 String openWeatherMapApiKey = "7c28bdf205051aa2ce610d67d648c55c";
-String city = "Södertälje";
+String city = "Sodertalje";
 String countryCode = "SE";
 String latitude = "59.20";
 String longitude = "17.62";
@@ -211,13 +211,13 @@ void setup(void) {
 		}
 		blinkCount++;
 	}
-    for(int i=0; i<3; i++) {
-        digitalWrite(D8, HIGH);
+    for(inti=0;i<3;i++){
+        digitalWrite(D8,HIGH);
         delay(10);
-        digitalWrite(D8, LOW);
+        digitalWrite(D8,LOW);
         delay(10);
     }
-    digitalWrite(D8, HIGH);
+    digitalWrite(D8,HIGH);
 
 	Serial.println("");
 	Serial.print("Connected to WiFi network with IP Address: ");
