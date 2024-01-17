@@ -1,16 +1,16 @@
 
-#include<ESP8266WiFi.h>
-#include<WiFiUdp.h>
+#include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
 //#include<Adafruit_Sensor.h>
 
-#include<Wire.h>
-#include<Adafruit_ADXL345_U.h>
+#include <Wire.h>
+#include <Adafruit_ADXL345_U.h>
 
  
 /*AssignauniqueIDtothissensoratthesametime*/
 Adafruit_ADXL345_Unifiedaccel=Adafruit_ADXL345_Unified(12345);
 
-voiddisplaySensorDetails(void){
+void displaySensorDetails(void){
     sensor_tsensor;
     accel.getSensor(&sensor);
     Serial.println("------------------------------------");
@@ -25,7 +25,7 @@ voiddisplaySensorDetails(void){
     delay(500);
 } 
 
-voiddisplayDataRate(void){ 
+void displayDataRate(void){ 
     Serial.print("DataRate:");
     switch(accel.getDataRate()){
         caseADXL345_DATARATE_3200_HZ:
@@ -83,7 +83,7 @@ voiddisplayDataRate(void){
     Serial.println("Hz");
 }
 
-voiddisplayRange(void){
+void displayRange(void){
     Serial.print("Range:+/-");
 
     switch(accel.getRange()){ 
@@ -106,25 +106,25 @@ voiddisplayRange(void){
     Serial.println("g");
 }
 
-constchar*ssid="Telia-47118D";
-constchar*password="0C94C28B5D";
+const char*ssid="Telia-47118D";
+const char*password="0C94C28B5D";
 
-WiFiUDPUdp;
-unsignedintlocalUdpPort=53;//localporttolistenon
-charincomingPacket[255];//bufferforincomingpackets
-charreplyPacket[]="Hithere!Gotthemessage:-)";//areplystringtosendback
-
-
-floattoDegrees(floatradians){return(radians*180)/M_PI;}
+WiFiUDP Udp;
+unsigned int localUdpPort=53;//localporttolistenon
+char incomingPacket[255];//bufferforincomingpackets
+char replyPacket[]="Hi there! Got the message:-)";//areplystringtosendback
 
 
-voidsetup(){
+float toDegrees(float radians) { return(radians*180)/M_PI; }
+
+
+void setup() {
     Serial.begin(115200);
     
     pinMode(D8,OUTPUT);
     digitalWrite(D8,LOW);
 
-    if(!accel.begin()){
+    if(!accel.begin()) {
         /*TherewasaproblemdetectingtheADXL345...checkyourconnections*/
         Serial.println("Ooops,noADXL345detected...Checkyourwiring!");
         while(1);
