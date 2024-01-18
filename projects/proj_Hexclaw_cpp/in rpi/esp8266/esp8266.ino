@@ -8,18 +8,18 @@
 
  
 /*AssignauniqueIDtothissensoratthesametime*/
-Adafruit_ADXL345_Unifiedaccel=Adafruit_ADXL345_Unified(12345);
+Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
 
 void displaySensorDetails(void){
-    sensor_tsensor;
+    sensor_t sensor;
     accel.getSensor(&sensor);
     Serial.println("------------------------------------");
-    Serial.print("Sensor:");Serial.println(sensor.name);
-    Serial.print("DriverVer:");Serial.println(sensor.version);
-    Serial.print("UniqueID:");Serial.println(sensor.sensor_id);
-    Serial.print("MaxValue:");Serial.print(sensor.max_value);Serial.println("m/s^2");
-    Serial.print("MinValue:");Serial.print(sensor.min_value);Serial.println("m/s^2");
-    Serial.print("Resolution:");Serial.print(sensor.resolution);Serial.println("m/s^2");
+    Serial.print("Sensor: "); Serial.println(sensor.name);
+    Serial.print("DriverVer: "); Serial.println(sensor.version);
+    Serial.print("UniqueID: "); Serial.println(sensor.sensor_id);
+    Serial.print("MaxValue: "); Serial.print(sensor.max_value); Serial.println("m/s^2");
+    Serial.print("MinValue: "); Serial.print(sensor.min_value); Serial.println("m/s^2");
+    Serial.print("Resolution: "); Serial.print(sensor.resolution); Serial.println("m/s^2");
     Serial.println("------------------------------------"); 
     Serial.println("");
     delay(500);
@@ -27,7 +27,7 @@ void displaySensorDetails(void){
 
 void displayDataRate(void){ 
     Serial.print("DataRate:");
-    switch(accel.getDataRate()){
+    switch(accel.getDataRate()) {
         caseADXL345_DATARATE_3200_HZ:
         Serial.print("3200");
         break;
@@ -86,7 +86,7 @@ void displayDataRate(void){
 void displayRange(void){
     Serial.print("Range:+/-");
 
-    switch(accel.getRange()){ 
+    switch(accel.getRange()) {
         caseADXL345_RANGE_16_G: 
         Serial.print("16");
         break;
@@ -126,7 +126,7 @@ void setup() {
 
     if(!accel.begin()) {
         /*TherewasaproblemdetectingtheADXL345...checkyourconnections*/
-        Serial.println("Ooops,noADXL345detected...Checkyourwiring!");
+        Serial.println("Ooops, no ADXL345 detected...Check your wiring!");
         while(1);
     }
     
@@ -144,10 +144,10 @@ void setup() {
     displayRange();
 
     Serial.println();
-    Serial.printf("Connectingto%s",ssid);
+    Serial.printf("Connecting to %s",ssid);
     WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid,password);
-    intblinkCount=0;
+    WiFi.begin(ssid, password);
+    int blinkCount=0;
     while(WiFi.status()!=WL_CONNECTED){
         if(blinkCount==4)digitalWrite(D8,HIGH);
         delay(500);
@@ -158,7 +158,7 @@ void setup() {
         }
         blinkCount++;
     }
-    for(inti=0;i<3;i++){
+    for(int i=0;i<3;i++){
         digitalWrite(D8,HIGH);
         delay(10);
         digitalWrite(D8,LOW);
@@ -171,31 +171,31 @@ void setup() {
     pinMode(0,INPUT_PULLUP);
 }
 
-floatX_out=0,Y_out=0,Z_out=0;
-StringfilterToggle="on";
+float X_out=0, Y_out=0, Z_out=0;
+String filterToggle="on";
   
-voidloop(){
-    intpacketSize=Udp.parsePacket();
+void loop(){
+    int packetSize=Udp.parsePacket();
     if(packetSize){//receiveincomingUDPpackets
         digitalWrite(D8, LOW);
-        if(digitalRead(0)==HIGH)filterToggle="off;";
-        elsefilterToggle="on ;";
-        intlen=Udp.read(incomingPacket,255);
+        if(digitalRead(0)==HIGH) filterToggle="off;";
+        else filterToggle="on ;";
+        int len = Udp.read(incomingPacket,255);
         if(len>0){incomingPacket[len]=0;}
 
-        sensors_event_tevent;
+        sensors_event_t event;
         accel.getEvent(&event);
 
         X_out = event.acceleration.x/10;
         Y_out = event.acceleration.y/10;
         Z_out = event.acceleration.z/10;
 
-        StringresultStr="{"+
+        String resultStr="{"+
         String(X_out)+":"+
         String(Y_out)+":"+
         String(Z_out)+"}"+filterToggle;//if"off":toggletiltfilteroff
         
-        int newPackLen =resultStr.length()+1;
+        int newPackLen = resultStr.length()+1;
         charnewReplyPack[newPackLen];
         resultStr.toCharArray(newReplyPack,newPackLen);
 
