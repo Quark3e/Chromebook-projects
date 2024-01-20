@@ -19,7 +19,7 @@
         "fstream": "cpp"
     },
     "python.autoComplete.extraPaths": ["/usr/lib/python3/dist-packages"],
-    "python.analysis.typeCheckingMode": "off",
+    "python.analysis.typeCheckingMode": "basic",
     "C_Cpp.default.compilerPath": "/usr/bin/g++-10",
     "python.analysis.extraPaths": [
         "/usr/lib/python3/dist-packages"
