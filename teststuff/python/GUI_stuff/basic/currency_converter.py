@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-
-
 import requests
 import json
 
@@ -55,7 +53,7 @@ white = '#FFFFFF'
 
 
 # the top frame
-top_frame = Frame(window, bg=primary, width=300, height=80)
+top_frame = Frame(window, bg=primary, width=310, height=80)
 top_frame.grid(row=0, column=0)
 # label for the text Currency Converter
 name_label = Label(top_frame, text='Currency Converter', bg=primary, fg=white, pady=30, padx=24, justify=CENTER, font=('Poppins 20 bold'))

@@ -7,6 +7,8 @@
 #include <Adafruit_ADXL345_U.h>
 
  
+/// NOTE: TEMPORARILY DEPRECATED: Using nodemcu
+
 /*AssignauniqueIDtothissensoratthesametime*/
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
 
