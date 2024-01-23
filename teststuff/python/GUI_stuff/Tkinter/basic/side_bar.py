@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 
-from tkinter import *
+import os.path
+import sys
+
+absPath = str(os.path.realpath(__file__)[:-len("side_bar.py")])
+
+
+from tkinter import * #type: ignore
 from PIL import Image, ImageTk
 
 root = Tk()
@@ -44,9 +50,9 @@ def fill():
         ring_b.config(image=ring,font=(0,21))
 
 # Define the icons to be shown and resize it
-home = ImageTk.PhotoImage(Image.open('home.png').resize((30,30),Image.Resampling.LANCZOS))
-settings = ImageTk.PhotoImage(Image.open('settings.png').resize((30,30),Image.Resampling.LANCZOS))
-ring = ImageTk.PhotoImage(Image.open('ring.png').resize((30,30),Image.Resampling.LANCZOS))
+home = ImageTk.PhotoImage(Image.open(absPath+'home.png').resize((30,30),Image.Resampling.LANCZOS))
+settings = ImageTk.PhotoImage(Image.open(absPath+'settings.png').resize((30,30),Image.Resampling.LANCZOS))
+ring = ImageTk.PhotoImage(Image.open(absPath+'ring.png').resize((30,30),Image.Resampling.LANCZOS))
 
 root.update() # For the width to get updated
 frame = Frame(root,bg='orange',width=50,height=root.winfo_height())

@@ -12,6 +12,6 @@ button = ttk.Button(root, text="Button")
 button.pack()
 
 sv_ttk.use_dark_theme()
-sv_ttk.use_light_theme()
+# sv_ttk.use_light_theme()
 
 root.mainloop()
