@@ -98,6 +98,7 @@ class espOrient(object):
         #filter
         self.Roll = (1-self.tiltFilter[0]) * self.Roll + self.tiltFilter[0] * self.roll
         self.Pitch = (1-self.tiltFilter[1]) * self.Pitch + self.tiltFilter[1] * self.pitch
+        if self.axis_g[2]<=0: self.Pitch = 180-self.Pitch
         # if printText:
         #     print(f" accel: \
         #         x:{self.axis_g[0]} \
