@@ -7,7 +7,7 @@ from math import atan, sqrt, pi
 class nodemcuClass(object):
     elapsedTime = 0
     server_msg = ""
-    addr = ("192.168.1.118", 53)
+    addr = ("192.168.1.112", 53)
     def __init__(
             self,
             address = addr[0],
