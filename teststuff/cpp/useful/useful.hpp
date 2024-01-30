@@ -9,6 +9,7 @@
 #include <vector>
 #include <iostream>
 #include <bits/stdc++.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -113,6 +114,105 @@ vector<string> splitString(string &line, string delimiter, vector<string> &retur
     }
     if(printVar) cout << "---";
     return resultStrings;
+}
+
+
+string replaceSubstr(string text, string toReplace, string replaceTo) {
+	size_t count=0;
+    size_t pos = text.find(toReplace);
+    int replaceLen = toReplace.length();
+    
+	while(pos!=string::npos) {
+        text.replace(pos, replaceLen, replaceTo);
+        count+=pos;
+        pos = text.find(toReplace, pos+1);
+    }
+    return text;
+}
+void replaceSubstr(string* text, string toReplace, string replaceTo) {
+	size_t count=0;
+    size_t pos = text->find(toReplace);
+    int replaceLen = toReplace.length();
+    
+	while(pos!=string::npos) {
+        text->replace(pos, replaceLen, replaceTo);
+        count+=pos;
+        pos = text->find(toReplace, pos+1);
+    }
+}
+
+template<class T>
+string FormatWithSymbol(T value, string formatSymbol=" ")
+{
+    std::stringstream ss;
+    ss.imbue(std::locale(""));
+    ss << std::fixed << value;
+    return replaceSubstr(ss.str(), ",", formatSymbol);
+}
+template<class T>
+string formatNumber(T value, int varPrecision=2) {
+	stringstream tempStream;
+    tempStream << fixed << setprecision(varPrecision) << value;
+    return tempStream.str();
+}
+
+
+float progressBar(
+    float progress,
+    float total_val,
+    bool printBar,
+    float interval=0.01
+) {
+    static int symbIdx = 4;
+    static string symb[] = {"■", "⬛", "▉", "▉", "█"};
+    static char intr[] = {'|', '/', '-', '\\'};
+    static int prev_intrCount = 0;
+    static bool func_initd = false;
+    static int total_progLen;
+    static float speed, percent;
+
+    static float prev_progress = 0;
+    static auto prevTime = chrono::steady_clock::now();
+
+    percent = progress/total_val*100;
+
+    auto currTime = chrono::steady_clock::now();
+    auto elapsed = chrono::duration_cast<chrono::microseconds>(currTime-prevTime);
+
+    if(float(elapsed.count()/float(1'000'000))<interval) return percent;
+
+    speed = (progress-prev_progress)/(elapsed.count()/float(1'000'000));
+    prevTime = currTime;
+    prev_progress = progress;
+
+    if(!func_initd) total_progLen = FormatWithSymbol(int(total_val), "'").length();
+    string prog_formatted = FormatWithSymbol(int(progress), "'");
+    string emptSpac(total_progLen-prog_formatted.length(), ' ');
+    string totalStr = " progress: "+emptSpac+prog_formatted+": ";
+
+    string percent_formatted = formatNumber(percent,2);
+    string emptSpac2(5-percent_formatted.length(), ' ');
+    totalStr += emptSpac2+percent_formatted+"% ";
+
+    string progBars="";
+    for(int i=0; i<int(ceil(percent)); i++) {
+        progBars+=symb[symbIdx];
+    }
+
+    string progressStr = progBars+intr[prev_intrCount];
+    prev_intrCount+=1;
+    if(prev_intrCount>=4) prev_intrCount=0;
+
+    string emptSpac3(100-int(percent)-1, ' ');
+    totalStr += "|"+progressStr+emptSpac3+"|: ";
+
+    string speed_formatted = formatNumber(speed, 1);
+    string emptSpac4(6-speed_formatted.length(), ' ');
+    totalStr += emptSpac4+speed_formatted+"pt/s ";
+
+    if(printBar) printf("%s\r", totalStr.c_str());
+
+    return percent;
 }
 
 
