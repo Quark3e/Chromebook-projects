@@ -40,7 +40,10 @@ class IR_camTracking {
 
     int areaLim = 1000;
     vector<vector<float>> allCnt_pos;
+
+    /// @brief final/total/avg contour position
     float totCnt_pos[2];
+    /// @brief total sum of contour areas
     float totCnt_area = 0;
 
     cv::VideoCapture cap;
