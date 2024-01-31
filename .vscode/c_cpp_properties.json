@@ -7,8 +7,7 @@
             "compilerArgs": [],
             "intelliSenseMode": "linux-gcc-x64",
             "includePath": [
-                "${workspaceFolder}/**",
-                "/home/berkhme/arduino-1.8.19"
+                "${workspaceFolder}/**"
             ],
             "forcedInclude": [],
             "cStandard": "gnu17",

@@ -84,7 +84,7 @@ def sortList_simple(lst, idx=0):
 
 
 def findElIdx(nail, lst, skipIdx=[]):
-    finds = [None]
+    finds = [0]
     for i in range(len(lst)):
         if nail==lst[i] and i not in skipIdx:
             if finds[0]==None: finds=[]
