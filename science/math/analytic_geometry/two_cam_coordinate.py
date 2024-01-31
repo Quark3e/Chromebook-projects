@@ -236,7 +236,7 @@ if __name__=="__main__":
             camFov_arc[0].setup()
             camFov_arc[1].setup()
 
-            self.ax["frame"].plot(
+            self.ax["frame"].plot( \
                 [self.tri.camPos[0][0], self.tri.camPos[0][0]+math.cos(toRadians(self.tri.ang_offset[0]))*10],
                 [self.tri.camPos[0][1], self.tri.camPos[0][1]+math.sin(toRadians(self.tri.ang_offset[0]))*10],
                 linestyle="dashed", color="gray", label="cam0 centerAlign"
