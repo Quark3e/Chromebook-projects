@@ -109,7 +109,7 @@ if __name__=="__main__":
     sys.path.append(absPath[:absPath.find("science")])
     from teststuff.python.matplotlib.basic.nonFilled_arc import drawArc
 
-
+    
     class AnimatedPlot(object):
         camPos = [[0, 0, 0], [25, 0, 0]]
         camAng_offset = [90, 120] #degrees
