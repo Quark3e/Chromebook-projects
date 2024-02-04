@@ -100,6 +100,8 @@ class camTriangle(object):
         return self.solved_pos
 
 if __name__=="__main__":
+    useCPP_cam = False
+
     import matplotlib.pyplot as plt
     import matplotlib.animation as animation
     import matplotlib.patches as mpatches

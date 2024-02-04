@@ -210,7 +210,6 @@ float zAxisFunc(float area, float posX, float posY) {
 
 
 
-
 bool pigpioInitia = false;
 int pin_ledRelay = 23;
 
@@ -313,8 +312,6 @@ int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
 	if(mode!=3) cv::destroyWindow(window_name);
 	return 0;
 }
-
-
 
 
 

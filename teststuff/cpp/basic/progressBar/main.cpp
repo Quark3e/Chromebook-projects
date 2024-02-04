@@ -18,11 +18,12 @@ using namespace std;
 int main(int argc, char** argv) {
     srand(time(NULL));
 
-    for(int i=0; i<10000; i++) {
-        progressBar(float(i), 10000, true);
+    for(int i=0; i<10'010; i+=1) {
+        progressBar(int(i), 10'000.0, true, false, 0.1);
         // usleep(1'5000+(rand()%10+1)*1'00);
         usleep(1'500);
     }
+    progressBar(10'000.0, 10'000.0, true, true);
     cout << endl;
 
 }

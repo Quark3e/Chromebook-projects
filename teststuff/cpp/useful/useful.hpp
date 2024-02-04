@@ -10,6 +10,9 @@
 #include <iostream>
 #include <bits/stdc++.h>
 #include <unistd.h>
+#include <chrono>
+#include <ctime>
+
 
 using namespace std;
 
@@ -160,57 +163,93 @@ string formatNumber(T value, int varPrecision=2) {
 float progressBar(
     float progress,
     float total_val,
-    bool printBar,
-    float interval=0.01
+    bool printBar   = true,
+    bool progFin    = false,
+    float interval  = 0.01,
+    int symbolIndex = 3
 ) {
-    static int symbIdx = 4;
+    static int symbIdx = 3;
+    symbIdx = symbolIndex;
     static string symb[] = {"■", "⬛", "▉", "▉", "█"};
     static char intr[] = {'|', '/', '-', '\\'};
     static int prev_intrCount = 0;
     static bool func_initd = false;
+    static bool func_ended = true;
     static int total_progLen;
-    static float speed, percent;
+    static float speed, percent = 0;
 
     static float prev_progress = 0;
     static auto prevTime = chrono::steady_clock::now();
+    static auto start_time = chrono::system_clock::now();
+    static float progressDiff = 0;
+
+    static float filterVal = 0.1;
+
+    static int total_val_sanityCheck = 0;
+
+
+    if(!func_initd) total_val_sanityCheck = int(total_val);
 
     percent = progress/total_val*100;
 
     auto currTime = chrono::steady_clock::now();
     auto elapsed = chrono::duration_cast<chrono::microseconds>(currTime-prevTime);
 
-    if(float(elapsed.count()/float(1'000'000))<interval) return percent;
+    if(!progFin && float(elapsed.count()/float(1'000'000))<interval) return percent;
 
-    speed = (progress-prev_progress)/(elapsed.count()/float(1'000'000));
+    speed = filterVal*(progress-prev_progress)/(elapsed.count()/float(1'000'000)) + (1.0-filterVal)*speed;
+    progressDiff = float(0.5)*(progress-prev_progress)+float(0.5)*progressDiff;
     prevTime = currTime;
     prev_progress = progress;
 
-    if(!func_initd) total_progLen = FormatWithSymbol(int(total_val), "'").length();
+    if(!func_initd) {
+        time_t tStart_time = chrono::system_clock::to_time_t(chrono::system_clock::now());
+        char* startTime_text = ctime(&tStart_time);
+        if (startTime_text[strlen(startTime_text)-1] == '\n') startTime_text[strlen(startTime_text)-1] = '\0';
+        cout << "Start time: [" << startTime_text << "]" << endl << endl;
+        total_progLen = FormatWithSymbol(int(total_val), "'").length();
+        func_initd = true;
+    }
+    if(int(total_val) != total_val_sanityCheck) {
+        func_initd = false;
+    }
+
+
     string prog_formatted = FormatWithSymbol(int(progress), "'");
     string emptSpac(total_progLen-prog_formatted.length(), ' ');
     string totalStr = " progress: "+emptSpac+prog_formatted+": ";
 
     string percent_formatted = formatNumber(percent,2);
-    string emptSpac2(5-percent_formatted.length(), ' ');
+    string emptSpac2(6-percent_formatted.length(), ' ');
     totalStr += emptSpac2+percent_formatted+"% ";
 
     string progBars="";
-    for(int i=0; i<int(ceil(percent)); i++) {
+    for(int i=0; i<=int(floor(percent)); i++) {
         progBars+=symb[symbIdx];
     }
 
-    string progressStr = progBars+intr[prev_intrCount];
+    string progressStr;
+    if(int(floor(percent))<100) progressStr = progBars+intr[prev_intrCount];
+    else progressStr = progBars;
     prev_intrCount+=1;
     if(prev_intrCount>=4) prev_intrCount=0;
 
-    string emptSpac3(100-int(percent)-1, ' ');
+    string emptSpac3(100-int(floor(percent)), ' ');
     totalStr += "|"+progressStr+emptSpac3+"|: ";
 
     string speed_formatted = formatNumber(speed, 1);
     string emptSpac4(6-speed_formatted.length(), ' ');
     totalStr += emptSpac4+speed_formatted+"pt/s ";
 
-    if(printBar) printf("%s\r", totalStr.c_str());
+    if(printBar) printf(" %s\r", totalStr.c_str());
+
+    if(progFin) {
+        auto tEnd_time = chrono::system_clock::to_time_t(chrono::system_clock::now());
+        char* endTime_text = ctime(&tEnd_time);
+
+        if (endTime_text[strlen(endTime_text)-1] == '\n') endTime_text[strlen(endTime_text)-1] = '\0';
+        cout << "\n\nEnd time  : [" << endTime_text << "]";
+    }
 
     return percent;
 }

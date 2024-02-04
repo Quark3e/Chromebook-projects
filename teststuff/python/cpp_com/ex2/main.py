@@ -6,7 +6,13 @@ import sys
 
 absPath = os.path.realpath(__file__)[:-len("main.py")]
 
-p = Popen([absPath+'cppEXE'], shell=True, stdout=PIPE, stdin=PIPE)
+p = Popen(
+    [absPath+'cppEXE'],
+    shell=True,
+    stdout=PIPE,
+    stdin=PIPE
+)
+
 for ii in range(10):
     value = str(ii) + '\n'
     value = value.encode("utf-8")
