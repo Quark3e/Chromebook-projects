@@ -181,6 +181,7 @@ float progressBar(
     static float prev_progress = 0;
     static auto prevTime = chrono::steady_clock::now();
     static auto start_time = chrono::system_clock::now();
+    static auto abs_startTime = chrono::system_clock::now();
     static float progressDiff = 0;
 
     static float filterVal = 0.1;
@@ -203,6 +204,7 @@ float progressBar(
     prev_progress = progress;
 
     if(!func_initd) {
+        abs_startTime = chrono::system_clock::now();
         time_t tStart_time = chrono::system_clock::to_time_t(chrono::system_clock::now());
         char* startTime_text = ctime(&tStart_time);
         if (startTime_text[strlen(startTime_text)-1] == '\n') startTime_text[strlen(startTime_text)-1] = '\0';
@@ -248,7 +250,10 @@ float progressBar(
         char* endTime_text = ctime(&tEnd_time);
 
         if (endTime_text[strlen(endTime_text)-1] == '\n') endTime_text[strlen(endTime_text)-1] = '\0';
-        cout << "\n\nEnd time  : [" << endTime_text << "]";
+        cout << "\n\nEnd time  : [" << endTime_text << "]\n";
+
+        chrono::duration<double> elapsedTime = chrono::system_clock::now()-abs_startTime;
+        cout << "elapsed time: [" << elapsedTime.count() << "]\n";
     }
 
     return percent;
