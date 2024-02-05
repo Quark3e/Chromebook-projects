@@ -160,6 +160,14 @@ string formatNumber(T value, int varPrecision=2) {
 }
 
 
+/// @brief create a progress bar on terminal
+/// @param progress current progress made
+/// @param total_val total progress which reesembles 100&
+/// @param printBar whether to print the progress bar
+/// @param progFin whether the progress is finished (used to get total duration)
+/// @param interval the time interval between each progressBar update
+/// @param symbolIndex what symbol to use {"■", "⬛", "▉", "▉", "█"}
+/// @return percent of the progress made
 float progressBar(
     float progress,
     float total_val,
@@ -168,7 +176,7 @@ float progressBar(
     float interval  = 0.01,
     int symbolIndex = 3
 ) {
-    static int symbIdx = 3;
+    static int symbIdx = 2;
     symbIdx = symbolIndex;
     static string symb[] = {"■", "⬛", "▉", "▉", "█"};
     static char intr[] = {'|', '/', '-', '\\'};
@@ -253,7 +261,16 @@ float progressBar(
         cout << "\n\nEnd time  : [" << endTime_text << "]\n";
 
         chrono::duration<double> elapsedTime = chrono::system_clock::now()-abs_startTime;
-        cout << "elapsed time: [" << elapsedTime.count() << "]\n";
+
+        const auto hrs = chrono::duration_cast<chrono::hours>(elapsedTime);
+        const auto mins = chrono::duration_cast<chrono::minutes>(elapsedTime - hrs);
+        const auto secs = chrono::duration_cast<chrono::seconds>(elapsedTime - hrs - mins);
+        const auto ms = chrono::duration_cast<chrono::milliseconds>(elapsedTime - hrs - mins - secs);
+        cout << "System inactive for [" << hrs.count() <<
+        ":" << mins.count() <<
+        ":" << secs.count() <<
+        "." << ms.count() << "]"<< endl;
+        // cout << "elapsed time: [" << elapsedTime.count() << "s]\n";
     }
 
     return percent;
