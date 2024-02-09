@@ -248,7 +248,7 @@ int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
 				float camPos[2][2], inpPos[2], solvedZ;
 				camPos[0][0] = camObj[0].totCnt_pos[0];
 				camPos[0][1] = camObj[0].totCnt_pos[1];
-				if(zSol==3 && camObj[1].allCnt_pos.size()>0) {
+				if(zSol==3 && camObj[1].allCnt_pos.size()>0 && camObj[0].allnt_pos.size()>0) {
 					camPos[1][0] = camObj[1].totCnt_pos[0];
 					camPos[1][1] = camObj[1].totCnt_pos[1];
 					inpPos[0] = camPos[0][0];
