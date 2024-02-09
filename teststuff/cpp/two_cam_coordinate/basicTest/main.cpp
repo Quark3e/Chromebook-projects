@@ -16,9 +16,6 @@ using namespace std;
 getPerf perfObj;
 
 
-
-
-
 int main(int argc, char* argv[]) {
     float camPosition[2][2] = {{0, 0}, {25, 0}};
     float camAng_offs[2] = {90, 123};
