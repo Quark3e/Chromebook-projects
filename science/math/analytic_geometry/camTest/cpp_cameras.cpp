@@ -3,24 +3,57 @@
 #include <cstring>
 #include <string>
 #include <stdlib.h>
+#include <cmath>
 #include "../../../../../projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp"
 #include "../../../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp"
 
+
+
+void main_fillToSend_1dec(
+    float inpVal,
+    int idx_start,
+    char *toSend_arr,
+    int arrLen=6
+) {
+	char fullTemp[arrLen+3], temp[arrLen], emptSpac[arrLen];
+    
+  	sprintf(temp, "%0.1f", inpVal);
+  	for(int i=0; i<arrLen-(strlen(temp)); i++) { emptSpac[i]=' '; }
+  	emptSpac[arrLen-(strlen(temp))]='\0';
+  
+  	sprintf(fullTemp, "%s%s", emptSpac, temp);
+    
+    for(int i=0; i<strlen(fullTemp); i++) {
+    	toSend_arr[idx_start+i]=fullTemp[i];
+    }
+    //sprintf(toSend_arr, "%s", fullTemp);
+}
 
 int main(int argc, char** argv) {
     bool useCamera = true, useTwoCamClass = true;
 
     /*
     char array sent to stdout:
-        [-100.0,-100.0,-100.0,-100.0:-100.0,-100.0,-100.0]\0
+
+    toSend = "[-100.0,-100.0,-100.0,-100.0:-100.0,-100.0,-100.0]\0"
         [cam1_xy[13],cam2_xy[13]:solvedPos_xyz[20]]\0
-    maximum length of array with null char included: 51
+    maximum length of array incl. null char included: 51
     character array indices/position: 
         - brackets: [0, 49]
         - commas:   [7, 14, 21, 35, 42]
         - colon:    [28]
     */
     char toRecev[255], toSend[255];
+    for(int i=0; i<50; i++) toSend[i] = '0';
+    toSend[0]   = '['
+    toSend[7]   = ',';
+    toSend[14]  = ',';
+    toSend[21]  = ',';
+    toSend[28]  = ':';
+    toSend[35]  = ',';
+    toSend[42]  = ',';
+    toSend[49]  = ']';
+    toSend[50]  = '\0';
 
     if(argc>1) {
         if(strcmp(argv[1], "0")==0) {
@@ -39,6 +72,7 @@ int main(int argc, char** argv) {
             useTwoCamClass = true;
         }
     }
+    
     if(useCamera) {
         int prefSize[2] = {640, 480};
         bool displayToWindow = true;
@@ -89,6 +123,11 @@ int main(int argc, char** argv) {
                 camPos[1][1] = camObj[1].totCnt_pos[1];
                 inpPos[0] = camPos[0][0];
                 inpPos[1] = camPos[1][0];
+
+                main_fillToSend_1dec(camPos[0][0], 1, toSend);
+                main_fillToSend_1dec(camPos[0][1], 8, toSend);
+                main_fillToSend_1dec(camPos[1][0], 15, toSend);
+                main_fillToSend_1dec(camPos[1][1], 22, toSend);
             }
         }
         else if(!useCamera) {
@@ -105,7 +144,10 @@ int main(int argc, char** argv) {
             PP[0] = axisFilter[0]*float(round(solvedPos[0]*axisScal[0]+axisOffset[0])) + (1-axisFilter[0])*PP[0];
             PP[1] = axisFilter[1]*float(solvedZ*axisScal[1]+axisOffset[1]) + (1-axisFilter[1])*PP[1];
             PP[2] = axisFilter[2]*float(round(solvedPos[1]*axisScal[2]+axisOffset[2])) + (1-axisFilter[2])*PP[2];
-        
+
+            main_fillToSend_1dec(PP[0], 29, toSend);
+            main_fillToSend_1dec(PP[0], 36, toSend);
+            main_fillToSend_1dec(PP[0], 43, toSend);
         }
 
     }
