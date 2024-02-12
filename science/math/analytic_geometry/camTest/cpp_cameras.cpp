@@ -150,6 +150,8 @@ int main(int argc, char** argv) {
             main_fillToSend_1dec(PP[0], 43, toSend);
         }
 
+        printf("%s\n", toSend);
+        std::cout.flush();
     }
 
 }
