@@ -192,7 +192,7 @@ void formattedFloat(
     int precision=0,
     bool leftAlign=false
 ) {
-    *strVarPtr = formattedFloat(inpVal, width, prrecision, leftAlign);
+    *strVarPtr = formattedFloat(inpVal, width, precision, leftAlign);
 }
 
 template<class T>
