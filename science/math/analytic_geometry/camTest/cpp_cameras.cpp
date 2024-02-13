@@ -4,30 +4,13 @@
 #include <string>
 #include <stdlib.h>
 #include <cmath>
+
+#include "../../../../../teststuff/cpp/useful/useful.hpp"
 #include "../../../../../projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp"
 #include "../../../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp"
 
 
 
-void main_fillToSend_1dec(
-    float inpVal,
-    int idx_start,
-    char *toSend_arr,
-    int arrLen=6
-) {
-	char fullTemp[arrLen+3], temp[arrLen], emptSpac[arrLen];
-    
-  	sprintf(temp, "%0.1f", inpVal);
-  	for(int i=0; i<arrLen-(strlen(temp)); i++) { emptSpac[i]=' '; }
-  	emptSpac[arrLen-(strlen(temp))]='\0';
-  
-  	sprintf(fullTemp, "%s%s", emptSpac, temp);
-    
-    for(int i=0; i<strlen(fullTemp); i++) {
-    	toSend_arr[idx_start+i]=fullTemp[i];
-    }
-    //sprintf(toSend_arr, "%s", fullTemp);
-}
 
 int main(int argc, char** argv) {
     bool useCamera = true, useTwoCamClass = true;
@@ -43,15 +26,12 @@ int main(int argc, char** argv) {
         - commas:   [7, 14, 21, 35, 42]
         - colon:    [28]
     */
-    char toRecev[255], toSend[255];
+    char toSend[255];
+    char toRecev[255];
+
     for(int i=0; i<50; i++) toSend[i] = '0';
     toSend[0]   = '['
-    toSend[7]   = ',';
-    toSend[14]  = ',';
-    toSend[21]  = ',';
     toSend[28]  = ':';
-    toSend[35]  = ',';
-    toSend[42]  = ',';
     toSend[49]  = ']';
     toSend[50]  = '\0';
 
@@ -107,6 +87,13 @@ int main(int argc, char** argv) {
         */
         scanf("%s", &toRecev);
 
+
+        for(int i=0; i<50; i++) toSend[i] = '0';
+        toSend[0]   = '['
+        toSend[28]  = ':';
+        toSend[49]  = ']';
+        toSend[50]  = '\0';
+
         if(useCamera) {
             if(camObj[0].processCam()==-1 || camObj[1].processCam()==-1) {
                 return 0;
@@ -124,10 +111,10 @@ int main(int argc, char** argv) {
                 inpPos[0] = camPos[0][0];
                 inpPos[1] = camPos[1][0];
 
-                main_fillToSend_1dec(camPos[0][0], 1, toSend);
-                main_fillToSend_1dec(camPos[0][1], 8, toSend);
-                main_fillToSend_1dec(camPos[1][0], 15, toSend);
-                main_fillToSend_1dec(camPos[1][1], 22, toSend);
+                fillcharArray(camPos[0][0], 1, toSend, 6, 1);
+                fillcharArray(camPos[0][1], 8, toSend, 6, 1);
+                fillcharArray(camPos[1][0], 15, toSend, 6, 1);
+                fillcharArray(camPos[1][1], 22, toSend, 6, 1);
             }
         }
         else if(!useCamera) {
@@ -145,11 +132,16 @@ int main(int argc, char** argv) {
             PP[1] = axisFilter[1]*float(solvedZ*axisScal[1]+axisOffset[1]) + (1-axisFilter[1])*PP[1];
             PP[2] = axisFilter[2]*float(round(solvedPos[1]*axisScal[2]+axisOffset[2])) + (1-axisFilter[2])*PP[2];
 
-            main_fillToSend_1dec(PP[0], 29, toSend);
-            main_fillToSend_1dec(PP[0], 36, toSend);
-            main_fillToSend_1dec(PP[0], 43, toSend);
+            fillcharArray(PP[0], 29, toSend, 6, 1);
+            fillcharArray(PP[0], 36, toSend, 6, 1);
+            fillcharArray(PP[0], 43, toSend, 6, 1);
         }
 
+        for(int i=7; i<48; i+=7) {
+            if(i==28) continue;
+            toSend[i] = ',';
+        }
+        
         printf("%s\n", toSend);
         std::cout.flush();
     }

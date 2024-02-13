@@ -13,6 +13,9 @@
 #include <chrono>
 #include <ctime>
 
+#include <cstring>
+#include <stdlib.h>
+
 
 using namespace std;
 
@@ -142,6 +145,54 @@ void replaceSubstr(string* text, string toReplace, string replaceTo) {
         count+=pos;
         pos = text->find(toReplace, pos+1);
     }
+}
+
+
+/// @brief input float value into a char array with set decimal precision, width and start position in said char array
+/// @param inpVal float value to insert into char array
+/// @param idx_start index to start pos where float value is to be inserted; total occupied length is same as width param
+/// @param toSend_arr pointer to char array
+/// @param width width of the total char string including decimal dot and minus sign
+/// @param precision decimal accuracy number: how many numbers of precision after decimal place
+
+void fillcharArray(
+    float inpVal,
+    int idx_start,
+    char *toSend_arr,
+    int width=0,
+    int precision=0,
+    bool leftAlign=false
+) {
+	char fullTemp[width+1];
+    
+    if(leftAlign) sprintf(fullTemp, "%-*.*f", width, precision, inpVal);
+    else sprintf(fullTemp, "%*.*f", width, precision, inpVal);
+    
+    for(int i=0; i<strlen(fullTemp); i++) {
+    	toSend_arr[idx_start+i]=fullTemp[i];
+    }
+}
+string formattedFloat(
+    float inpVal,
+    int width=0,
+    int precision=0,
+    bool leftAlign=false
+) {
+    char temp[width+1];
+    if(leftAlign) sprintf(temp, "%-*.*f", width, precision, inpVal);
+    else sprintf(temp, "%*.*f", width, precision, inpVal);
+
+    string tempStr(temp);
+    return tempStr;
+}
+void formattedFloat(
+    float inpVal,
+    string *strVarPtr,
+    int width=0,
+    int precision=0,
+    bool leftAlign=false
+) {
+    *strVarPtr = formattedFloat(inpVal, width, prrecision, leftAlign);
 }
 
 template<class T>
