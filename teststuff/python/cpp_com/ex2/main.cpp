@@ -3,10 +3,10 @@
 #include <string>
 #include <cstring>
 
-int main() {
+int main(int argc, char** argv) {
     for (int ii=0; ii<10; ++ii ) {
         int input;
-        char receiv[255];
+        char receiv[255], toSend[255];
         std::string output;
         // std::cin >> input;
         // scanf("%d", &input);
@@ -25,7 +25,21 @@ int main() {
         // else
         //     printf("%s\n", (std::to_string(input*ii)).c_str());
 
-        printf("%s\n", receiv);
+
+        printf("{", argc);
+        for(int i=1; i<argc; i++) {
+            if(i>1) printf(", ");
+            // for(int n=0; n<strlen(argv[i]); n++) {
+                
+            // }
+            printf("\"%s\"", argv[i]);
+        }
+        printf("}");
+        // for(int i=0; i<strlen(receiv); i++) {
+            
+        // }
+
+        printf(" %s\n", receiv);
         std::cout.flush();
     }
 }

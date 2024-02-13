@@ -6,9 +6,18 @@ import sys
 
 absPath = os.path.realpath(__file__)[:-len("main.py")]
 
+
+cmdArgsList = [absPath+"cppEXE"]
+
+for i in sys.argv[1:]:
+    print("appended:", i)
+    cmdArgsList.append(i)
+
+print("full cmd arguments:", cmdArgsList)
+
 p = Popen(
-    [absPath+'cppEXE'],
-    shell=True,
+    cmdArgsList,
+    shell=False,
     stdout=PIPE,
     stdin=PIPE
 )

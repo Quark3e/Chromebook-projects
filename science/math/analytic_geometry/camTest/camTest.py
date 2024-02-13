@@ -16,6 +16,8 @@ import teststuff.python.modules.IR_track_opencv as IR_track
 from science.math.analytic_geometry.two_cam_coordinate import camTriangle, toRadians, toDegrees
 from teststuff.python.matplotlib.basic.nonFilled_arc import drawArc
 
+from subprocess import Popen, PIPE
+
 
 class AnimatedPlot(object):
     camPos = [[0, 0, 0], [25, 0, 0]]
@@ -35,7 +37,35 @@ class AnimatedPlot(object):
         "pyplot": True
     }
 
-    def __init__(self):
+    CPP_opts = {
+        "useCPP": False,
+        "useCamera": True,
+        "useTrigClass": True
+    }
+
+    def __init__(
+            self,
+            useCPP_prog     = False,
+            useCPP_useCam   = True,
+            useCPP_trigClass= True,
+        ):
+        if useCPP_prog:
+            self.CPP_opts["useCPP"] = True
+            self.CPP_opts["useCamera"] = useCPP_useCam
+            self.CPP_opts["useTrigClass"] = useCPP_trigClass
+            cmdArgsList = [absPath+"cppEXE"]
+            if self.CPP_opts["useCamera"] and not self.CPP_opts["useTrigClass"]: cmdArgsList.append("1")
+            elif self.CPP_opts["useTrigClass"] and not self.CPP_opts["useCamera"]: cmdArgsList.append("2")
+            elif not self.CPP_opts["useCamera"] and not self.CPP_opts["useTrigClass"] and self.CPP_opts:
+                print("You've got brain damage.")
+                exit()
+            self.cpp_P = Popen(
+                cmdArgsList,
+                shell=False,
+                stdout=PIPE,
+                stdin=PIPE
+            )
+
         self.timeDelta[0] = time.perf_counter()
 
         self.tri = camTriangle(self.camPos, self.camAng_offset)
@@ -269,6 +299,19 @@ class AnimatedPlot(object):
 
 
 if __name__=="__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Optioal app description")
+    parser.add_argument("useCPP", type=bool, nargs="?", const=False,
+                        help="boolean whether to use CPP program's tracking instead")
+    parser.add_argument("CPP_useCamera", type=bool, nargs="?", const=True,
+                        help="boolean of whether to use the cameras on cpp program instead of python's")
+    parser.add_argument("CPP_useClass", type=bool, nargs="?", const=True,
+                        help="boolean of whether to use CPP's trigonometric class instead of pythons")
+
+    args = parser.parse_args()
+
+
     a = AnimatedPlot()
 
     plt.show()

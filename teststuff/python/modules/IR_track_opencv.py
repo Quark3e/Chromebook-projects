@@ -54,16 +54,16 @@ class IR_camTrack(object):
     kernel = np.ones((5, 5), np.uint8)
     font = cv2.FONT_HERSHEY_SIMPLEX
 
-    imgTemp = {}
-    morphImg = {}
+    imgTemp = {cv2.Mat}
+    morphImg = {cv2.Mat}
     threshImg = {}
 
-    ret = {}
+    ret = {bool}
     contours = {}
     cntArea = {}
     cntMoments = {}
-    frame = {}
-    tempPos = {}
+    frame = {cv2.Mat}
+    tempPos = {float}
     def __init__(
             self,
             camIdx: list,
@@ -101,6 +101,14 @@ class IR_camTrack(object):
     def testCamWin(self):
         self.update()
     def update(self):
+        """complete update of class
+            - read new images from self.cam
+            - process captured images
+            - (if self.toDisplay==True) display the images to window
+
+        Args: nothing
+        Return: nothin
+        """
         for i in self.cam:
             self.ret[i], self.imgTemp[i] = self.cam[i]["vidcapt"].read()
         if False in [val for _,val in self.ret.items()]:
@@ -114,7 +122,21 @@ class IR_camTrack(object):
                 key = cv2.waitKey(5)
                 if key==27: return None
         return 0
-    def processFrame(self, img, flag, winName):
+    def processFrame(
+            self,
+            img: cv2.Mat,
+            flag: int,
+            winName, str
+        ):
+        """Process img with preset method for getting contour mask and tracked contours
+
+        Args:
+            img (np.ndarray, cv2.Mat): cv2.Mat image to process
+            flag (int): what frame to process out of the available
+            winName (str): window name [NOTE: not used]
+        Return:
+            nothing.
+        """
         hsvList = self.IR_HSV_Val
 
         self.frame[flag] = cv2.resize(img, self.prefRes[flag])

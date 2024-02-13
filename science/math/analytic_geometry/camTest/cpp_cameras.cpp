@@ -40,6 +40,7 @@ int main(int argc, char** argv) {
             /*
                 NOTE: Should never be the case
             */
+            std::cout << "tf is wrong with you. You passed false on both booleans and still ran the cpp program" << endl;
             useCamera = false;
             useTwoCamClass = false;
         }
