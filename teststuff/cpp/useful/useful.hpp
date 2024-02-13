@@ -155,7 +155,7 @@ void replaceSubstr(string* text, string toReplace, string replaceTo) {
 /// @param width width of the total char string including decimal dot and minus sign
 /// @param precision decimal accuracy number: how many numbers of precision after decimal place
 
-void fillcharArray(
+void fillCharArray(
     float inpVal,
     int idx_start,
     char *toSend_arr,
@@ -165,8 +165,8 @@ void fillcharArray(
 ) {
 	char fullTemp[width+1];
     
-    if(leftAlign) sprintf(fullTemp, "%-*.*f", width, precision, inpVal);
-    else sprintf(fullTemp, "%*.*f", width, precision, inpVal);
+    if(leftAlign) snprintf(fullTemp, width+1, "%-*.*f", width, precision, inpVal);
+    else snprintf(fullTemp, width+1, "%*.*f", width, precision, inpVal);
     
     for(int i=0; i<strlen(fullTemp); i++) {
     	toSend_arr[idx_start+i]=fullTemp[i];

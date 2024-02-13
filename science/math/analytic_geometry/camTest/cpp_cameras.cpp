@@ -10,7 +10,7 @@
 #include "../../../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp"
 
 
-
+/*std::ios::sync_with_stdio(false);*/
 
 int main(int argc, char** argv) {
     bool useCamera = true, useTwoCamClass = true;
@@ -112,10 +112,10 @@ int main(int argc, char** argv) {
                 inpPos[0] = camPos[0][0];
                 inpPos[1] = camPos[1][0];
 
-                fillcharArray(camPos[0][0], 1, toSend, 6, 1);
-                fillcharArray(camPos[0][1], 8, toSend, 6, 1);
-                fillcharArray(camPos[1][0], 15, toSend, 6, 1);
-                fillcharArray(camPos[1][1], 22, toSend, 6, 1);
+                fillCharArray(camPos[0][0], 1, toSend, 6, 1);
+                fillCharArray(camPos[0][1], 8, toSend, 6, 1);
+                fillCharArray(camPos[1][0], 15, toSend, 6, 1);
+                fillCharArray(camPos[1][1], 22, toSend, 6, 1);
             }
         }
         else if(!useCamera) {
@@ -133,9 +133,9 @@ int main(int argc, char** argv) {
             PP[1] = axisFilter[1]*float(solvedZ*axisScal[1]+axisOffset[1]) + (1-axisFilter[1])*PP[1];
             PP[2] = axisFilter[2]*float(round(solvedPos[1]*axisScal[2]+axisOffset[2])) + (1-axisFilter[2])*PP[2];
 
-            fillcharArray(PP[0], 29, toSend, 6, 1);
-            fillcharArray(PP[0], 36, toSend, 6, 1);
-            fillcharArray(PP[0], 43, toSend, 6, 1);
+            fillCharArray(PP[0], 29, toSend, 6, 1);
+            fillCharArray(PP[0], 36, toSend, 6, 1);
+            fillCharArray(PP[0], 43, toSend, 6, 1);
         }
 
         for(int i=7; i<48; i+=7) {
