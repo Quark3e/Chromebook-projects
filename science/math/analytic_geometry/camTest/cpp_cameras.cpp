@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <cmath>
 
-#include "../../../../../teststuff/cpp/useful/useful.hpp"
-#include "../../../../../projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp"
-#include "../../../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp"
+#include "../../../../teststuff/cpp/useful/useful.hpp"
+#include "../../../../projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp"
+#include "../../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp"
 
 
 /*std::ios::sync_with_stdio(false);*/
@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
     char toRecev[255];
 
     for(int i=0; i<50; i++) toSend[i] = '0';
-    toSend[0]   = '['
+    toSend[0]   = '[';
     toSend[28]  = ':';
     toSend[49]  = ']';
     toSend[50]  = '\0';
@@ -61,8 +61,8 @@ int main(int argc, char** argv) {
         bool takePerformance = true;
 
         IR_camTracking camObj[2] {
-            (2, prefSie[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance),
-            (0, prefSie[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance)
+            (2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance),
+            (0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance)
         };
         
         camObj[0].setup_window();
@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
 
 
         for(int i=0; i<50; i++) toSend[i] = '0';
-        toSend[0]   = '['
+        toSend[0]   = '[';
         toSend[28]  = ':';
         toSend[49]  = ']';
         toSend[50]  = '\0';

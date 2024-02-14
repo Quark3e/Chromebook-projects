@@ -1,0 +1,3 @@
+/home/pi/Chromebook-projects/science/math/analytic_geometry/camTest/build/CMakeFiles/rebuild_cache.dir
+/home/pi/Chromebook-projects/science/math/analytic_geometry/camTest/build/CMakeFiles/edit_cache.dir
+/home/pi/Chromebook-projects/science/math/analytic_geometry/camTest/build/CMakeFiles/cppEXE.dir
