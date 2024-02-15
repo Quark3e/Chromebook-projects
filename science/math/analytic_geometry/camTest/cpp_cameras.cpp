@@ -13,7 +13,7 @@
 /*std::ios::sync_with_stdio(false);*/
 
 int main(int argc, char** argv) {
-    bool useCamera = true, useTwoCamClass = true;
+    const bool useCamera = true, useTwoCamClass = true;
 
     /*
     char array sent to stdout:
