@@ -42,6 +42,7 @@ class AnimatedPlot(object):
         "useCamera": True,
         "useTrigClass": True
     }
+    to_cppEXE = "["
 
     def __init__(
             self,
@@ -132,8 +133,26 @@ class AnimatedPlot(object):
             count+=1
 
         self.centAlignArc = [
-            drawArc(self.ax["frame"], self.tri.camPos[0][:2],7,0,self.camAng_offset[0],True,3,plotColor="gray"),
-            drawArc(self.ax["frame"], self.tri.camPos[1][:2],7,0,self.camAng_offset[1],True,3,plotColor="gray"),
+            drawArc(
+                self.ax["frame"],
+                self.tri.camPos[0][:2],
+                7,
+                0,
+                self.camAng_offset[0],
+                True,
+                3,
+                plotColor="gray"
+            ),
+            drawArc(
+                self.ax["frame"],
+                self.tri.camPos[1][:2],
+                7,
+                0,
+                self.camAng_offset[1],
+                True,
+                3,
+                plotColor="gray"
+            ),
         ]
 
         self.ps_stuff = {}
@@ -164,13 +183,21 @@ class AnimatedPlot(object):
 
         while True:
             self.timeDelta[1] = time.perf_counter()
-            if self.IRcams.update() == None:
-                print("NOTE: IRcams.update() returned None: Exiting")
-                break
-            try: self.tri.solvePos([self.IRcams.tempPos[0][0], self.IRcams.tempPos[2][0]])
-            except ZeroDivisionError: print("Error: camTest.py: ZeroDivisionError")
+
+            if self.CPP_opts["useCamera"]:
+                pass
+            else:
+                if self.IRcams.update() == None:
+                    print("NOTE: IRcams.update() returned None: Exiting")
+                    break
+
+            try: 
+                self.tri.solvePos([self.IRcams.tempPos[0][0], self.IRcams.tempPos[2][0]])
+            except ZeroDivisionError: 
+                print("Error: camTest.py: ZeroDivisionError")
 
             self.solvedPos = self.tri.solved_pos
+            
             print(
                 f"solved pos: [{round(self.solvedPos[0],1):>4}:{round(self.solvedPos[1]):>4}]", " | ",
                 f"fps: {round(1/(self.timeDelta[1]-self.timeDelta[0]),4):>6}",
@@ -312,7 +339,11 @@ if __name__=="__main__":
     args = parser.parse_args()
 
 
-    a = AnimatedPlot()
+    a = AnimatedPlot(
+        args.useCPP,
+        args.CPP_useCamera,
+        args.CPP_useClass
+    )
 
     plt.show()
 else:

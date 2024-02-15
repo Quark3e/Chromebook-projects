@@ -54,9 +54,9 @@ class IR_camTrack(object):
     kernel = np.ones((5, 5), np.uint8)
     font = cv2.FONT_HERSHEY_SIMPLEX
 
-    imgTemp = {cv2.Mat}
-    morphImg = {cv2.Mat}
-    threshImg = {}
+    imgTemp = {int: cv2.Mat}
+    morphImg = {int: cv2.Mat}
+    threshImg = {int: cv2.Mat}
 
     ret = {bool}
     contours = {}
