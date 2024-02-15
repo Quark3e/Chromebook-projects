@@ -61,8 +61,8 @@ int main(int argc, char** argv) {
         bool takePerformance = true;
 
         IR_camTracking camObj[2] {
-            (2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance),
-            (0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance)
+            {2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance},
+            {0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance}
         };
         
         camObj[0].setup_window();
