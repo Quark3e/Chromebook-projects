@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
 
     while(true) {
         /*
-            [-100.0,-100.0,-100.0,-100.0]\0
+            recev = "[-100.0,-100.0,-100.0,-100.0]\0"
             [cam0_x, cam0_y, cam1_x, cam1_y]
             len: 30
         */

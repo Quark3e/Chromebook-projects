@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
         //     printf("%s\n", (std::to_string(input*ii)).c_str());
 
 
-        printf("{", argc);
+        printf("%c%d", receiv[0], argc);
         for(int i=1; i<argc; i++) {
             if(i>1) printf(", ");
             // for(int n=0; n<strlen(argv[i]); n++) {
@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
             // }
             printf("\"%s\"", argv[i]);
         }
-        printf("}");
+        printf("%c", receiv[strlen(receiv)-1]);
         // for(int i=0; i<strlen(receiv); i++) {
             
         // }
