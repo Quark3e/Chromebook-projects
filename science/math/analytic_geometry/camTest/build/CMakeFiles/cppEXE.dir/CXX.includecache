@@ -33,6 +33,8 @@ stdlib.h
 -
 cmath
 -
+vector
+-
 ../../../../teststuff/cpp/useful/useful.hpp
 /home/pi/Chromebook-projects/teststuff/cpp/useful/useful.hpp
 ../../../../projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp
