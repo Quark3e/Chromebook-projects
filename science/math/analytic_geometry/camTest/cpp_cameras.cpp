@@ -33,6 +33,7 @@ int main(int argc, char** argv) {
     char toRecev[255];
 
     std::vector<IR_camTracking> camObj;
+    camTriangle* camTri;
 
     for(int i=0; i<50; i++) toSend[i] = '0';
     toSend[0]   = '[';
@@ -78,7 +79,7 @@ int main(int argc, char** argv) {
         float camPosition[2][2] = {{0, 0}, {250, 0}};
         float camAng_offs[2] = {90, 123};
 
-        camTriangle camTri(camPosition, camAng_offs);
+        camTri = new camTriangle(camPosition, camAng_offs);
     }
 
     float PP[3] = {0, 0, 0}, camPos[2][2], solvedPos[2], inpPos[2], solvedZ;
@@ -152,5 +153,6 @@ int main(int argc, char** argv) {
         printf("%s\n", toSend);
         std::cout.flush();
     }
+    
 
 }
