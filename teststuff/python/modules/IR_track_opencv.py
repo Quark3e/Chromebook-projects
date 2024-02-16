@@ -64,13 +64,18 @@ class IR_camTrack(object):
     cntMoments = {}
     frame = {cv2.Mat}
     tempPos = {float}
-    def __init__(
+    def __init__(self):
+        """Empty class initialization. To use class methods, self.setup(...) function must be called. 
+        \n Purpose of empty __init__ func is to be able to use class object as variable holder
+        """
+        pass
+    def setup(
             self,
             camIdx: list,
             prefres=[(int(640), int(480))],
-            displayWindows=True,
+            displayWindows=True
         ):
-        """Class initialization
+        """Class setup
 
         Args:
             camIdx (list, int): List of indexes to connected webcam.

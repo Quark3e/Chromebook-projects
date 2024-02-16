@@ -69,14 +69,19 @@ class AnimatedPlot(object):
 
         self.timeDelta[0] = time.perf_counter()
 
-        self.tri = camTriangle(self.camPos, self.camAng_offset)
+        self.tri = camTriangle()
+        self.IRcams = IR_track.IR_camTrack()
+
+
+
+        self.tri.setup(self.camPos, self.camAng_offset)
         try:
             self.tri.solvePos(self.testPos[:2])
         except ZeroDivisionError:
             print(f"Error: camTest.py: ZeroDivisionError")
             self.tri.l_tri = [1, 1]
 
-        self.IRcams = IR_track.IR_camTrack([2, 0], displayWindows=self.winToDisp["opencv"])
+        self.IRcams.setup([2, 0], displayWindows=self.winToDisp["opencv"])
 
         if self.winToDisp["pyplot"]:
             self.graphRange = {

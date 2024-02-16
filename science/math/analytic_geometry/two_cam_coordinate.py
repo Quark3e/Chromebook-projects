@@ -35,10 +35,13 @@ class camTriangle(object):
     solved_pos = [-1, -1, -1]
 
     def __init__(self, camPos, camAngOffset):
-        """Initialization of class
+        pass
+    def setup(self, camPos: float, camAngOffset: float):
+        """Setup of class
 
         Args:
-            camPos (float) [[x,y], [x,y]]: list of relative position of both cameras
+            camPos (float/int): [2][2] list of xy-position of both cameras
+            camAngOffset (float/int) [degrees]: [2] list of camera angle offsets in related to ground/base/x-axis. Perpendicular occular axis means 90 degrees
         """
         self.camPos = camPos
         self.ang_offset = camAngOffset
@@ -123,7 +126,8 @@ if __name__=="__main__":
 
         saveAnim = False
         def __init__(self):
-            self.tri = camTriangle(self.camPos, self.camAng_offset)
+            self.tri = camTriangle()
+            self.tri.setup(self.camPos, self.camAng_offset)
             try:
                 self.tri.solvePos(self.testPos[:2])
             except ZeroDivisionError:
