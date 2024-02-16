@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
         int prefSize[2] = {640, 480};
         bool displayToWindow = true;
         bool useAutoBrightne = true;
-        bool takePerformance = true;
+        bool takePerformance = false;
 
         // IR_camTracking camObj[2] {
 
