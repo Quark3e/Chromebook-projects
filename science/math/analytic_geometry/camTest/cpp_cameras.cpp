@@ -21,8 +21,10 @@ int main(int argc, char** argv) {
     /*
     char array sent to stdout:
 
-    toSend[] = "[-100.0,-100.0,-100.0,-100.0:-100.0,-100.0,-100.0]\0"
-        [cam1_xy[13],cam2_xy[13]:solvedPos_xyz[20]]\0
+    toSend[] =
+         [  cam1_xy[13],  cam2_xy[13]:   solvedPos_xyz[20]]\0
+        "[-100.0,-100.0,-100.0,-100.0:-100.0,-100.0,-100.0]\0"
+        
     maximum length of array incl. null char included: 51
     character array indices/position: 
         - brackets: [0, 49]

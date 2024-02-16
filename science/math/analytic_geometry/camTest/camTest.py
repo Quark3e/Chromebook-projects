@@ -66,6 +66,7 @@ class AnimatedPlot(object):
                 stdout=PIPE,
                 stdin=PIPE
             )
+            
 
         self.timeDelta[0] = time.perf_counter()
 
