@@ -134,8 +134,8 @@ int main(int argc, char** argv) {
         }
 
         if(useTwoCamClass) {
-            camTri.solvePos(inpPos, solvedPos, false);
-            solvedZ = -sin(toRadians((camTri.camRes[0][1]*0.5-camObj[0].totCnt_pos[1])*camTri.camCoef[0][1]))*solvedPos[1];
+            camTri->solvePos(inpPos, solvedPos, false);
+            solvedZ = -sin(toRadians(((*camTri).camRes[0][1]*0.5-camObj[0].totCnt_pos[1])*(*camTri).camCoef[0][1]))*solvedPos[1];
             PP[0] = axisFilter[0]*float(round(solvedPos[0]*axisScal[0]+axisOffset[0])) + (1-axisFilter[0])*PP[0];
             PP[1] = axisFilter[1]*float(solvedZ*axisScal[1]+axisOffset[1]) + (1-axisFilter[1])*PP[1];
             PP[2] = axisFilter[2]*float(round(solvedPos[1]*axisScal[2]+axisOffset[2])) + (1-axisFilter[2])*PP[2];
@@ -153,6 +153,6 @@ int main(int argc, char** argv) {
         printf("%s\n", toSend);
         std::cout.flush();
     }
-    
+
 
 }
