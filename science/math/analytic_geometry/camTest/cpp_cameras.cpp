@@ -4,6 +4,7 @@
 #include <string>
 #include <stdlib.h>
 #include <cmath>
+#include <vector>
 
 #include "../../../../teststuff/cpp/useful/useful.hpp"
 #include "../../../../projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp"
@@ -11,6 +12,8 @@
 
 
 /*std::ios::sync_with_stdio(false);*/
+
+// using namespace std;
 
 int main(int argc, char** argv) {
     bool useCamera = true, useTwoCamClass = true;
