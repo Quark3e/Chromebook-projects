@@ -70,6 +70,14 @@ class AnimatedPlot(object):
         self.timeDelta[0] = time.perf_counter()
 
         self.tri = camTriangle()
+        #things used from camTri:
+        #   .l_tri[2]       #dynamic
+        #   .solved_pos[2]  #dynamic
+        #   .camPos[2][3]   #static
+        #   .camFOV[2][2]   #static
+        #   .ang_offset[2]  #static
+        #   .ang_tri[2]     #dynamic
+
         self.IRcams = IR_track.IR_camTrack()
 
 
