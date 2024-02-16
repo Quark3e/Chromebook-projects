@@ -29,6 +29,8 @@ int main(int argc, char** argv) {
     char toSend[255];
     char toRecev[255];
 
+    std::vector<IR_camTracking> camObj[2];
+
     for(int i=0; i<50; i++) toSend[i] = '0';
     toSend[0]   = '[';
     toSend[28]  = ':';
@@ -60,10 +62,11 @@ int main(int argc, char** argv) {
         bool useAutoBrightne = true;
         bool takePerformance = true;
 
-        IR_camTracking camObj[2] {
-            {2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance},
-            {0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance}
-        };
+        // IR_camTracking camObj[2] {
+
+        camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance));
+        camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance));
+        
         
         camObj[0].setup_window();
         camObj[1].setup_window();
