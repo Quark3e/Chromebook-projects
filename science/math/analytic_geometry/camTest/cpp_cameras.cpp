@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
     char toSend[255];
     char toRecev[255];
 
-    std::vector<IR_camTracking> camObj[2];
+    std::vector<IR_camTracking> camObj;
 
     for(int i=0; i<50; i++) toSend[i] = '0';
     toSend[0]   = '[';
