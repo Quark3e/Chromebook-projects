@@ -21,15 +21,18 @@ int main(int argc, char** argv) {
     /*
     char array sent to stdout:
 
-    toSend[] =
-         [  cam1_xy[13]:  cam2_xy[13]:   solvedPos_xyz[20]]\0
-        "[-100.0,-100.0:-100.0,-100.0:-100.0,-100.0,-100.0]\0"
+    // toSend[] =
+    //      [  cam1_xy[13]:  cam2_xy[13]:   solvedPos_xyz[20]]\0
+    //     "[-100.0,-100.0:-100.0,-100.0:-100.0,-100.0,-100.0]\0"
         
-    maximum length of array incl. null char included: 51
-    character array indices/position: 
-        - brackets: [0, 49]
-        - commas:   [7, 21, 35, 42]
-        - colon:    [14, 28]
+    // maximum length of array incl. null char included: 51
+    // character array indices/position: 
+    //     - brackets: [0, 49]
+    //     - commas:   [7, 21, 35, 42]
+    //     - colon:    [14, 28]
+
+               "[  cam1_xy[13]:  cam2_xy[13]:     l_tri[2]:   ang_tri[2]:   solvedPos_xyz[20]]\0"
+    toSend[] = "[-100.0,-100.0:-100.0,-100.0:-100.0,-100.0:-100.0,-100.0:-100.0,-100.0,-100.0]\0"
     */
     char toSend[255];
     char toRecev[255];
@@ -41,8 +44,10 @@ int main(int argc, char** argv) {
     toSend[0]   = '[';
     toSend[14]  = ":";
     toSend[28]  = ':';
-    toSend[49]  = ']';
-    toSend[50]  = '\0';
+    toSend[42]  = ":";
+    toSend[56]  = ":";
+    toSend[77]  = ']';
+    toSend[78]  = '\0';
 
     if(argc>1) {
         if(strcmp(argv[1], "0")==0) {
@@ -101,9 +106,12 @@ int main(int argc, char** argv) {
 
         for(int i=0; i<50; i++) toSend[i] = '0';
         toSend[0]   = '[';
+        toSend[14]  = ":";
         toSend[28]  = ':';
-        toSend[49]  = ']';
-        toSend[50]  = '\0';
+        toSend[42]  = ":";
+        toSend[56]  = ":";
+        toSend[77]  = ']';
+        toSend[78]  = '\0';
 
         if(useCamera) {
             if(camObj[0].processCam()==-1 || camObj[1].processCam()==-1) {
@@ -143,13 +151,19 @@ int main(int argc, char** argv) {
             PP[1] = axisFilter[1]*float(solvedZ*axisScal[1]+axisOffset[1]) + (1-axisFilter[1])*PP[1];
             PP[2] = axisFilter[2]*float(round(solvedPos[1]*axisScal[2]+axisOffset[2])) + (1-axisFilter[2])*PP[2];
 
-            fillCharArray(PP[0], 29, toSend, 6, 1);
-            fillCharArray(PP[0], 36, toSend, 6, 1);
-            fillCharArray(PP[0], 43, toSend, 6, 1);
+            fillCharArray((*camTri).l_tri[0], 29, toSend, 6, 1);
+            fillCharArray((*camTri).l_tri[1], 36, toSend, 6, 1);
+
+            fillCharArray((*camTri).ang_tri[0], 43, toSend, 6, 1);
+            fillCharArray((*camTri).ang_tri[1], 50, toSend, 6, 1);
+
+            fillCharArray(PP[0], 57, toSend, 6, 1);
+            fillCharArray(PP[0], 64, toSend, 6, 1);
+            fillCharArray(PP[0], 71, toSend, 6, 1);
         }
 
-        for(int i=7; i<48; i+=7) {
-            if(i==28 || i==14) continue;
+        for(int i=7; i<70; i+=7) {
+            if(i==14 || i==28 || i==42 || i==56) continue;
             toSend[i] = ',';
         }
         

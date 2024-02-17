@@ -1,8 +1,8 @@
 {
     "cpp_to_python": {
         "description":  "cpp_to_python buffer array indices",
-        "example_raw":  "[-100.0,-100.0:-100.0,-100.0:-100.0,-100.0,-100.0]\\0",
-        "example_desc": "[  cam1_xy[13]:  cam2_xy[13]:   solvedPos_xyz[20]]\\0",
+        "example_raw":  "[-100.0,-100.0:-100.0,-100.0:-100.0,-100.0:-100.0,-100.0:-100.0,-100.0,-100.0]\\0",
+        "example_desc": "[  cam1_xy[13]:  cam2_xy[13]:     l_tri[2]:   ang_tri[2]:   solvedPos_xyz[20]]\\0",
         "segment_info": {
             "segment_len": 6,
             "element_desc": [
@@ -18,35 +18,58 @@
             "precision": 1
         },
         "bracket_open": 0,
-        "bracket_close": 49,
-        "buff_sections": [ {
+        "bracket_close": 77,
+        "terminating_null_char": 78,
+        "buff_sections": [
+            {
                 "name": "cam1_xy",
-                "desc": "",
+                "desc": "xy readings of cam1",
                 "num_segments": 2,
                 "total": 13,
                 "length": 6,
                 "segments": [
-                    {"start": 1, "end": 7},
-                    {"start": 8, "end": 14}
+                    {"name": "x-axis", "start": 1, "end": 7},
+                    {"name": "y-axis", "start": 8, "end": 14}
                 ]
             }, {
                 "name": "cam2_xy",
+                "desc": "xy readings of cam2",
                 "num_segments": 2,
                 "total": 13,
                 "length": 6,
                 "segments": [
-                    {"start": 15, "end": 21},
-                    {"start": 22, "end": 28}
+                    {"name": "x-axis", "start": 15, "end": 21},
+                    {"name": "y-axis", "start": 22, "end": 28}
+                ]
+            }, {
+                "name": "l_tri",
+                "desc": "solved l_tri side lengths",
+                "num_segments": 2,
+                "total": 13,
+                "length": 6,
+                "segments": [
+                    {"name": "l_px", "start": 29, "end": 35},
+                    {"name": "l_py", "start": 36, "end": 42}
+                ]
+            }, {
+                "name": "ang_tri",
+                "desc": "solved ang_tri angles",
+                "num_segments": 2,
+                "total": 13,
+                "length": 6,
+                "segments": [
+                    {"name": "v_tx", "start": 43, "end": 49},
+                    {"name": "v_ty", "start": 50, "end": 56}
                 ]
             }, {
                 "name": "solvedPos",
-                "desc": "",
+                "desc": "xyz of position solved from twoCamClass equations",
                 "num_segments": 3,
                 "total": 20,
                 "segments": [
-                    {"start": 29, "end": 35},
-                    {"start": 36, "end": 42},
-                    {"start": 43, "end": 49}
+                    {"name": "x-axis", "start": 57, "end": 63},
+                    {"name": "y-axis", "start": 64, "end": 70},
+                    {"name": "z-axis", "start": 71, "end": 77}
                 ]
             }
         ]
