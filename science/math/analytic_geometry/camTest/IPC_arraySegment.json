@@ -1,0 +1,54 @@
+{
+    "cpp_to_python": {
+        "description":  "cpp_to_python buffer array indices",
+        "example_raw":  "[-100.0,-100.0:-100.0,-100.0:-100.0,-100.0,-100.0]\\0",
+        "example_desc": "[  cam1_xy[13]:  cam2_xy[13]:   solvedPos_xyz[20]]\\0",
+        "segment_info": {
+            "segment_len": 6,
+            "element_desc": [
+                {"idx": 0, "desc": "plus or minus sign element, is number holder otherwise. Contains '-' if negative, space otherwise"},
+                {"idx": 1, "desc": "n*10^2 number holder element: [0-9]"},
+                {"idx": 2, "desc": "n*10^1 number holder element: [0-9]"},
+                {"idx": 3, "desc": "n*10^0 number holder element: [0-9]"},
+                {"idx": 4, "desc": "decimal point element: dot: [.]"},
+                {"idx": 5, "desc": "n*10^(-1) first precision holder element [0-9]"}
+            ],
+            "max": 9999.9,
+            "min": -999.9,
+            "precision": 1
+        },
+        "bracket_open": 0,
+        "bracket_close": 49,
+        "buff_sections": [ {
+                "name": "cam1_xy",
+                "desc": "",
+                "num_segments": 2,
+                "total": 13,
+                "length": 6,
+                "segments": [
+                    {"start": 1, "end": 7},
+                    {"start": 8, "end": 14}
+                ]
+            }, {
+                "name": "cam2_xy",
+                "num_segments": 2,
+                "total": 13,
+                "length": 6,
+                "segments": [
+                    {"start": 15, "end": 21},
+                    {"start": 22, "end": 28}
+                ]
+            }, {
+                "name": "solvedPos",
+                "desc": "",
+                "num_segments": 3,
+                "total": 20,
+                "segments": [
+                    {"start": 29, "end": 35},
+                    {"start": 36, "end": 42},
+                    {"start": 43, "end": 49}
+                ]
+            }
+        ]
+    }
+}

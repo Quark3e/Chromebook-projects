@@ -22,14 +22,14 @@ int main(int argc, char** argv) {
     char array sent to stdout:
 
     toSend[] =
-         [  cam1_xy[13],  cam2_xy[13]:   solvedPos_xyz[20]]\0
-        "[-100.0,-100.0,-100.0,-100.0:-100.0,-100.0,-100.0]\0"
+         [  cam1_xy[13]:  cam2_xy[13]:   solvedPos_xyz[20]]\0
+        "[-100.0,-100.0:-100.0,-100.0:-100.0,-100.0,-100.0]\0"
         
     maximum length of array incl. null char included: 51
     character array indices/position: 
         - brackets: [0, 49]
-        - commas:   [7, 14, 21, 35, 42]
-        - colon:    [28]
+        - commas:   [7, 21, 35, 42]
+        - colon:    [14, 28]
     */
     char toSend[255];
     char toRecev[255];
@@ -39,6 +39,7 @@ int main(int argc, char** argv) {
 
     for(int i=0; i<50; i++) toSend[i] = '0';
     toSend[0]   = '[';
+    toSend[14]  = ":";
     toSend[28]  = ':';
     toSend[49]  = ']';
     toSend[50]  = '\0';
@@ -148,7 +149,7 @@ int main(int argc, char** argv) {
         }
 
         for(int i=7; i<48; i+=7) {
-            if(i==28) continue;
+            if(i==28 || i==14) continue;
             toSend[i] = ',';
         }
         

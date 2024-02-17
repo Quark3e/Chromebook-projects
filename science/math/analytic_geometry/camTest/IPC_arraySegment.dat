@@ -1,6 +1,0 @@
-cpp_to_python buffer array indices:
-example_raw:    "[-100.0,-100.0,-100.0,-100.0:-100.0,-100.0,-100.0]\0"
-example_desc:    [  cam1_xy[13],  cam2_xy[13]:   solvedPos_xyz[20]]\0
-buff_sections:  (cam_xy, solvedPos_xyz)
-bracket_open:   0
-bracket_close:  49
