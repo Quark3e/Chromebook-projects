@@ -43,6 +43,14 @@ class AnimatedPlot(object):
         "useTrigClass": True
     }
     to_cppEXE = "["
+    from_cppEXE = ""
+
+    def cpp_update(self):
+        value = self.to_cppEXE.encode("utf-8")
+        self.cpp_P.stdin.write(value)
+        
+        self.cpp_P.stdin.flush()
+        self.to_cppEXE = self.cpp_P.stdout.readline().decode("utf-8")
 
     def __init__(
             self,
