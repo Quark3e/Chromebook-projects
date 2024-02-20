@@ -7,6 +7,14 @@ from datetime import datetime, timedelta
 progbar_progress = 1
 progbar_total = 1
 
+def replaceSubstr(
+        fullStr,
+        newStr,
+        start_index,
+        upTo_index
+    ):
+    return fullStr[:start_index] + newStr + fullStr[upTo_index:]
+
 def printProgBar(symbIdx=4):
     """
     prints a progress bar

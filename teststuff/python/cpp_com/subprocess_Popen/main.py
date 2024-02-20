@@ -31,4 +31,5 @@ for ii in range(10):
 
     p.stdin.flush()
     result = p.stdout.readline()#.strip()
-    print("recev:", result.decode("utf-8"), end="\n\n")
+    resultStr = result.decode("utf-8")
+    print("type:", type(resultStr), " recev:", resultStr, end="\n\n")

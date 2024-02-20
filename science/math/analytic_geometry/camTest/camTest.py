@@ -12,9 +12,12 @@ absPath = os.path.realpath(__file__)[:-len("realTest.py")]
 sys.path.append(absPath[:absPath.find("science")])
 
 import teststuff.python.modules.IR_track_opencv as IR_track
+import teststuff.python.modules.useful
 
 from science.math.analytic_geometry.two_cam_coordinate import camTriangle, toRadians, toDegrees
 from teststuff.python.matplotlib.basic.nonFilled_arc import drawArc
+
+
 
 from subprocess import Popen, PIPE
 
@@ -42,7 +45,7 @@ class AnimatedPlot(object):
         "useCamera": True,
         "useTrigClass": True
     }
-    to_cppEXE = "["
+    to_cppEXE = "[0000.0,0000.0,0000.0,0000.0]"
     from_cppEXE = ""
 
     def cpp_update(self):
@@ -50,7 +53,7 @@ class AnimatedPlot(object):
         self.cpp_P.stdin.write(value)
         
         self.cpp_P.stdin.flush()
-        self.to_cppEXE = self.cpp_P.stdout.readline().decode("utf-8")
+        self.from_cppEXE = self.cpp_P.stdout.readline().decode("utf-8")
 
     def __init__(
             self,
@@ -68,6 +71,7 @@ class AnimatedPlot(object):
             elif not self.CPP_opts["useCamera"] and not self.CPP_opts["useTrigClass"] and self.CPP_opts:
                 print("You've got brain damage.")
                 exit()
+
             self.cpp_P = Popen(
                 cmdArgsList,
                 shell=False,
@@ -91,14 +95,20 @@ class AnimatedPlot(object):
 
 
 
-        self.tri.setup(self.camPos, self.camAng_offset)
-        try:
-            self.tri.solvePos(self.testPos[:2])
-        except ZeroDivisionError:
-            print(f"Error: camTest.py: ZeroDivisionError")
-            self.tri.l_tri = [1, 1]
+        if not self.CPP_opts["useTrigClass"]:
+            self.tri.setup(self.camPos, self.camAng_offset)
+            try:
+                self.tri.solvePos(self.testPos[:2])
+            except ZeroDivisionError:
+                print(f"Error: camTest.py: ZeroDivisionError")
+                self.tri.l_tri = [1, 1]
+        else:
+            self.tri.camPos = self.camPos
+            self.tri.ang_offset = self.camAng_offset
 
-        self.IRcams.setup([2, 0], displayWindows=self.winToDisp["opencv"])
+        if not self.CPP_opts["useCamera"]:
+            self.IRcams.setup([2, 0], displayWindows=self.winToDisp["opencv"])
+
 
         if self.winToDisp["pyplot"]:
             self.graphRange = {
@@ -114,7 +124,9 @@ class AnimatedPlot(object):
                 ]
             }
 
+
         self.stream = self.data_stream()
+
 
         if not self.winToDisp["pyplot"]:
             self.timeDelta[0] = time.perf_counter()
@@ -206,19 +218,43 @@ class AnimatedPlot(object):
         while True:
             self.timeDelta[1] = time.perf_counter()
 
-            if self.CPP_opts["useCamera"]:
-                pass
-            else:
+            if not self.CPP_opts["useCamera"]:
                 if self.IRcams.update() == None:
                     print("NOTE: IRcams.update() returned None: Exiting")
                     break
+                if self.CPP_opts["useCPP"] and self.CPP_opts["useTrigClass"]:
+                    self.to_cppEXE = ("["+
+                                 f"{self.IRcams.tempPos[0][0]:6.1f},"+
+                                 f"{self.IRcams.tempPos[0][1]:6.1f},"+
+                                 f"{self.IRcams.tempPos[1][0]:6.1f},"+
+                                 f"{self.IRcams.tempPos[1][1]:6.1f}]")
+            if self.CPP_opts["useCPP"]: self.cpp_update()
 
-            try: 
-                self.tri.solvePos([self.IRcams.tempPos[0][0], self.IRcams.tempPos[2][0]])
-            except ZeroDivisionError: 
-                print("Error: camTest.py: ZeroDivisionError")
+            if self.CPP_opts["useCamera"]:
+                self.IRcams.tempPos[0][0] = float(self.from_cppEXE[1:7])
+                self.IRcams.tempPos[0][1] = float(self.from_cppEXE[8:14])
+                self.IRcams.tempPos[1][0] = float(self.from_cppEXE[15:21])
+                self.IRcams.tempPos[1][1] = float(self.from_cppEXE[22:28])
+                
 
-            self.solvedPos = self.tri.solved_pos
+            if not self.CPP_opts["useTrigClass"]:
+                try: 
+                    self.tri.solvePos([self.IRcams.tempPos[0][0], self.IRcams.tempPos[2][0]])
+                except ZeroDivisionError: 
+                    print("Error: camTest.py: ZeroDivisionError")
+
+                self.solvedPos = self.tri.solved_pos
+            else:
+                self.tri.l_tri[0] = float(self.from_cppEXE[29:35])
+                self.tri.l_tri[1] = float(self.from_cppEXE[36:42])
+
+                self.tri.ang_tri[0] = float(self.from_cppEXE[43:49])
+                self.tri.ang_tri[1] = float(self.from_cppEXE[50:56])
+
+                self.tri.solved_pos[0] = float(self.from_cppEXE[57:63])
+                self.tri.solved_pos[1] = float(self.from_cppEXE[64:70])
+                self.tri.solved_pos[2] = float(self.from_cppEXE[71:77])
+                self.solvedPos = self.tri.solved_pos
             
             print(
                 f"solved pos: [{round(self.solvedPos[0],1):>4}:{round(self.solvedPos[1]):>4}]", " | ",
