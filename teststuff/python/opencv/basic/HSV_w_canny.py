@@ -13,7 +13,7 @@ useVideo = False
 
 saveVideo = False
 
-displayToTFT = True
+displayToTFT = False
 
 if displayToTFT:
     import digitalio #type: ignore
