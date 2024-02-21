@@ -71,13 +71,17 @@ class drawArc(object):
         self.ax = ax
         self.arcConvPos = centerPos
         self.cent = centerPos
+        
         if arcRadius>0: self.radius = arcRadius
         else: self.throwErr("__init__: 'arcRadius' can't be <=0")
+
         self.arcAngle = startAngle
         self.arcOffsetAngle = arcOffset
         self.drawRadiuss = drawSides
+        
         if res>=1: self.resolution = res
         else: self.throwErr("__init__: 'res' parameter argument too low")
+
         self.plotPara["label"] = plotLabel
         self.plotPara["linewidth"] = plotLinewidth
         self.plotPara["alpha"] = plotAlpha

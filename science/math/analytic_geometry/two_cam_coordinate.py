@@ -34,7 +34,7 @@ class camTriangle(object):
 
     solved_pos = [-1, -1, -1]
 
-    def __init__(self, camPos, camAngOffset):
+    def __init__(self):
         pass
     def setup(self, camPos: float, camAngOffset: float):
         """Setup of class
@@ -167,8 +167,28 @@ if __name__=="__main__":
 
 
             self.centAlignArc = [
-                drawArc(self.ax["frame"], self.tri.camPos[0][:2],7,0,self.camAng_offset[0],True,3,plotColor="gray"),
-                drawArc(self.ax["frame"], self.tri.camPos[1][:2],7,0,self.camAng_offset[1],True,3,plotColor="gray"),
+                drawArc(
+                    self.ax["frame"],
+                    self.tri.camPos[0][:2],
+                    7,
+                    0,
+                    self.camAng_offset[0],
+                    True,
+                    3,
+                    plotColor="gray",
+                    plotAlpha = 1
+                ),
+                drawArc(
+                    self.ax["frame"],
+                    self.tri.camPos[1][:2],
+                    7,
+                    0,
+                    self.camAng_offset[1],
+                    True,
+                    3,
+                    plotColor="gray",
+                    plotAlpha = 1
+                ),
             ]
 
             self.ps_stuff = {}
