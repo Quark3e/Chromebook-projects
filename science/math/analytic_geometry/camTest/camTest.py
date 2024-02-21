@@ -132,19 +132,20 @@ class AnimatedPlot(object):
             self.timeDelta[0] = time.perf_counter()
             try:
                 while True:
-                    self.timeDelta[1] = time.perf_counter()
-                    if self.IRcams.update() == None:
-                        print("NOTE: IRcams.update() returned None: Exiting")
-                        break
-                    try: self.tri.solvePos([self.IRcams.tempPos[0][0], self.IRcams.tempPos[2][0]])
-                    except ZeroDivisionError: print("Error: camTest.py: ZeroDivisionError")
+                    next(self.stream)
+                    # self.timeDelta[1] = time.perf_counter()
+                    # if self.IRcams.update() == None:
+                    #     print("NOTE: IRcams.update() returned None: Exiting")
+                    #     break
+                    # try: self.tri.solvePos([self.IRcams.tempPos[0][0], self.IRcams.tempPos[2][0]])
+                    # except ZeroDivisionError: print("Error: camTest.py: ZeroDivisionError")
 
-                    self.solvedPos = self.tri.solved_pos
-                    print(
-                        f"solved pos: [{round(self.solvedPos[0],1):>4}:{round(self.solvedPos[1]):>4}]", " | ",
-                        f"fps: {round(1/(self.timeDelta[1]-self.timeDelta[0]),4):>6}",
-                        end="\r")
-                    self.timeDelta[0] = self.timeDelta[1]
+                    # self.solvedPos = self.tri.solved_pos
+                    # print(
+                    #     f"solved pos: [{round(self.solvedPos[0],1):>4}:{round(self.solvedPos[1]):>4}]", " | ",
+                    #     f"fps: {round(1/(self.timeDelta[1]-self.timeDelta[0]),4):>6}",
+                    #     end="\r")
+                    # self.timeDelta[0] = self.timeDelta[1]
             except KeyboardInterrupt:
                 print("KeyboardInterrupt: Exiting...")
             return
