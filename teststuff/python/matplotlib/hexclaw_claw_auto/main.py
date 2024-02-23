@@ -222,15 +222,17 @@ class AnimatedScatter(object):
     def __init__(self):
         self.quad = ql.quadrilateral()
 
-        self.genAll = True
+        self.genAll = False
         if self.genAll:
             self.generateDataSet()
             exit()
 
 
+        #Notable configs: 1:1.01:0.15:0.2
+
         self.l0 = 1
         self.l1 = 1.01
-        self.gd = 0.2
+        self.gd = 0.11
         self.td = 0.2
         self.end_effecLen = 1.5
         self.end_effecAng = 0
