@@ -58,12 +58,12 @@ class IR_camTrack(object):
     morphImg = {int: cv2.Mat}
     threshImg = {int: cv2.Mat}
 
-    ret = {bool}
+    ret = {int: bool}
     contours = {}
     cntArea = {}
     cntMoments = {}
-    frame = {cv2.Mat}
-    tempPos = {float}
+    frame = {int: cv2.Mat}
+    tempPos = {int: float}
     def __init__(self):
         """Empty class initialization. To use class methods, self.setup(...) function must be called. 
         \n Purpose of empty __init__ func is to be able to use class object as variable holder
