@@ -21,7 +21,7 @@ def solveContours(allContours, areaThreshold):
                 allPositions[1].append(CntMoments["m01"]/CntMoments["m00"])
                 totArea+=area
     avgPos = [
-        int(round(sum(allPositions[0])/len(allPositions[0]))),
+        -int(round(sum(allPositions[0])/len(allPositions[0]))),
         int(round(sum(allPositions[1])/len(allPositions[1])))
     ]
     return [avgPos, int(totArea)]
