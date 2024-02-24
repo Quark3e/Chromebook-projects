@@ -233,7 +233,7 @@ class AnimatedPlot(object):
                                  f"{self.IRcams.tempPos[1][1]:6.1f}]")
             if self.CPP_opts["useCPP"]: self.cpp_update()
 
-            if self.CPP_opts["useCamera"]:
+            if self.CPP_opts["useCPP"] and self.CPP_opts["useCamera"]:
                 self.IRcams.tempPos[0][0] = float(self.from_cppEXE[1:7])
                 self.IRcams.tempPos[0][1] = float(self.from_cppEXE[8:14])
                 self.IRcams.tempPos[1][0] = float(self.from_cppEXE[15:21])
