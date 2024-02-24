@@ -109,7 +109,7 @@ class AnimatedPlot(object):
             self.tri.ang_offset = self.camAng_offset
 
         if not self.CPP_opts["useCamera"]:
-            self.IRcams.setup([2, 0], displayWindows=self.winToDisp["opencv"])
+            self.IRcams.setup([0, 2], displayWindows=self.winToDisp["opencv"])
 
 
         if self.winToDisp["pyplot"]:
