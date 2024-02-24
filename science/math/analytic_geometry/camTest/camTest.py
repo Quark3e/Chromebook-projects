@@ -61,6 +61,7 @@ class AnimatedPlot(object):
             useCPP_useCam   = True,
             useCPP_trigClass= True,
         ):
+        print(useCPP_prog, useCPP_useCam, useCPP_trigClass)
         if useCPP_prog:
             self.CPP_opts["useCPP"] = True
             self.CPP_opts["useCamera"] = useCPP_useCam
