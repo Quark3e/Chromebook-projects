@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <cmath>
 #include <vector>
+#include <fstream>
+
+#include <chrono>
+#include <ctime>
 
 #include "../../../../teststuff/cpp/useful/useful.hpp"
 #include "../../../../projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp"
@@ -14,6 +18,8 @@
 /*std::ios::sync_with_stdio(false);*/
 
 // using namespace std;
+
+bool logOutput = true;
 
 int main(int argc, char** argv) {
     bool useCamera = true, useTwoCamClass = true;
@@ -34,11 +40,21 @@ int main(int argc, char** argv) {
                "[  cam1_xy[13]:  cam2_xy[13]:     l_tri[2]:   ang_tri[2]:   solvedPos_xyz[20]]\0"
     toSend[] = "[-100.0,-100.0:-100.0,-100.0:-100.0,-100.0:-100.0,-100.0:-100.0,-100.0,-100.0]\0"
     */
+    std::ofstream outLogFile;
+    
+    if(logOutput) {
+        outLogFile.open("output_cpp_cameras.txt", std::ios::app);
+        std::time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        outLogFile << "start: " << std::ctime(&currentTime);
+    }
+    
     char toSend[255];
     char toRecev[255];
 
     std::vector<IR_camTracking> camObj;
+    if(logOutput) outLogFile << " -created camObj obj vector\n";
     camTriangle* camTri;
+    if(logOutput) outLogFile << " -created camTri obj pointer\n";
 
     for(int i=0; i<78; i++) toSend[i] = '0';
     toSend[0]   = '[';
@@ -48,6 +64,7 @@ int main(int argc, char** argv) {
     toSend[56]  = ':';
     toSend[77]  = ']';
     toSend[78]  = '\0';
+    if(logOutput) outLogFile << " -first definition of toSend[] symbols\n";
 
     if(argc>1) {
         if(strcmp(argv[1], "0")==0) {
@@ -76,18 +93,21 @@ int main(int argc, char** argv) {
 
         // IR_camTracking camObj[2] {
 
-        camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance));
-        camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance));
-        
+        camObj.push_back(IR_camTracking(3, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance));
+        camObj.push_back(IR_camTracking(1, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance));
+        if(logOutput) outLogFile << " -push_back() added both cams onto camObj\n";
         
         camObj[0].setup_window();
+        if(logOutput) outLogFile << " -camObj[0].setup_window()\n";
         camObj[1].setup_window();
+        if(logOutput) outLogFile << " -camObj[1].setup_window()\n";
     }
     if(useTwoCamClass) {
         float camPosition[2][2] = {{0, 0}, {250, 0}};
         float camAng_offs[2] = {90, 123};
 
         camTri = new camTriangle(camPosition, camAng_offs);
+        if(logOutput) outLogFile << " -camTri = new camTriangle(camPosition, camAng_offs)\n";
     }
 
     float PP[3] = {0, 0, 0}, camPos[2][2], solvedPos[2], inpPos[2], solvedZ;
@@ -101,10 +121,11 @@ int main(int argc, char** argv) {
             [cam0_x, cam0_y, cam1_x, cam1_y]
             len: 30
         */
+        if(logOutput) outLogFile << " -while loop iteration\n";
         scanf("%s", &toRecev);
+        if(logOutput) outLogFile << " -scanf();\n";
 
-
-        for(int i=0; i<50; i++) toSend[i] = '0';
+        for(int i=0; i<78; i++) toSend[i] = '0';
         toSend[0]   = '[';
         toSend[14]  = ':';
         toSend[28]  = ':';
@@ -112,11 +133,15 @@ int main(int argc, char** argv) {
         toSend[56]  = ':';
         toSend[77]  = ']';
         toSend[78]  = '\0';
+        if(logOutput) outLogFile << " -while loop definition of toSend[] symbols:" << useCamera << ": "<< useTwoCamClass << "\n";
 
         if(useCamera) {
             if(camObj[0].processCam()==-1 || camObj[1].processCam()==-1) {
+                if(logOutput) outLogFile << " -couldn't processCam: returned -1: \n";
+                if(logOutput) outLogFile.close();
                 return 0;
             }
+            if(logOutput) outLogFile << " -useCamera: processCam\n";
         }
 
         if(useCamera && camObj[0].allCnt_pos.size()>0) {
@@ -134,6 +159,7 @@ int main(int argc, char** argv) {
                 fillCharArray(camPos[0][1], 8, toSend, 6, 1);
                 fillCharArray(camPos[1][0], 15, toSend, 6, 1);
                 fillCharArray(camPos[1][1], 22, toSend, 6, 1);
+                if(logOutput) outLogFile << " -useCamera: -camObj[ ].allCnt_pos.size(): -fillCharArray\n";
             }
         }
         else if(!useCamera) {
@@ -142,10 +168,12 @@ int main(int argc, char** argv) {
             for(int i=0; i<6; i++) { nums[1][i] = toRecev[i+15]; }
             inpPos[0] = atof(nums[0]);
             inpPos[1] = atof(nums[1]);
+            if(logOutput) outLogFile << " -!useCamera: atof()\n";
         }
 
         if(useTwoCamClass) {
             camTri->solvePos(inpPos, solvedPos, false);
+            if(logOutput) outLogFile << " -useTwoCamClass: -camTri->solvePos()\n";
             solvedZ = -sin(toRadians(((*camTri).camRes[0][1]*0.5-camObj[0].totCnt_pos[1])*(*camTri).camCoef[0][1]))*solvedPos[1];
             PP[0] = axisFilter[0]*float(round(solvedPos[0]*axisScal[0]+axisOffset[0])) + (1-axisFilter[0])*PP[0];
             PP[1] = axisFilter[1]*float(solvedZ*axisScal[1]+axisOffset[1]) + (1-axisFilter[1])*PP[1];
@@ -153,23 +181,36 @@ int main(int argc, char** argv) {
 
             fillCharArray((*camTri).l_tri[0], 29, toSend, 6, 1);
             fillCharArray((*camTri).l_tri[1], 36, toSend, 6, 1);
+            if(logOutput) outLogFile << " -useTwoCamClass: -fillCharArray() (*camTri).l_tri[ ]\n";
 
             fillCharArray((*camTri).ang_tri[0], 43, toSend, 6, 1);
             fillCharArray((*camTri).ang_tri[1], 50, toSend, 6, 1);
+            if(logOutput) outLogFile << " -useTwoCamClass: -fillCharArray() (*camTri).ang_tri[ ]\n";
 
             fillCharArray(PP[0], 57, toSend, 6, 1);
             fillCharArray(PP[0], 64, toSend, 6, 1);
             fillCharArray(PP[0], 71, toSend, 6, 1);
+            if(logOutput) outLogFile << " -useTwoCamClass: -fillCharArray() PP[ ]\n";
         }
 
-        for(int i=7; i<70; i+=7) {
+        for(int i=7; i<71; i+=7) {
             if(i==14 || i==28 || i==42 || i==56) continue;
             toSend[i] = ',';
         }
+        if(logOutput) outLogFile << " -toSend[i] = ','; commas added\n";
         
         printf("%s\n", toSend);
+        if(logOutput) outLogFile << " -final printf(\"%s\\n\", toSend);\n";
         std::cout.flush();
+        if(logOutput) outLogFile << " -std::cout.flush();\n";
+        if(logOutput) logOutput = false;
+        if(logOutput) outLogFile.close();
     }
 
+    if(logOutput) {
+        std::time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        outLogFile << "end: " << ctime(&currentTime);
+        outLogFile.close();
+    }
 
 }
