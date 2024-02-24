@@ -61,7 +61,6 @@ class AnimatedPlot(object):
             useCPP_useCam   = True,
             useCPP_trigClass= True,
         ):
-        print(useCPP_prog, useCPP_useCam, useCPP_trigClass)
         if useCPP_prog:
             self.CPP_opts["useCPP"] = True
             self.CPP_opts["useCamera"] = useCPP_useCam
@@ -79,7 +78,9 @@ class AnimatedPlot(object):
                 stdout=PIPE,
                 stdin=PIPE
             )
-            
+
+        print(useCPP_prog, useCPP_useCam, useCPP_trigClass)  
+        print(self.CPP_opts)
 
         self.timeDelta[0] = time.perf_counter()
 
