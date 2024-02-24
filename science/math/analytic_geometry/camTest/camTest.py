@@ -8,7 +8,7 @@ import matplotlib.animation as animation
 import math
 import time
 
-absPath = os.path.realpath(__file__)[:-len("realTest.py")]
+absPath = os.path.realpath(__file__)[:-len("camTest.py")]
 sys.path.append(absPath[:absPath.find("science")])
 
 import teststuff.python.modules.IR_track_opencv as IR_track
