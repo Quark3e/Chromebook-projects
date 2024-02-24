@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
     std::vector<IR_camTracking> camObj;
     camTriangle* camTri;
 
-    for(int i=0; i<50; i++) toSend[i] = '0';
+    for(int i=0; i<78; i++) toSend[i] = '0';
     toSend[0]   = '[';
     toSend[14]  = ':';
     toSend[28]  = ':';
