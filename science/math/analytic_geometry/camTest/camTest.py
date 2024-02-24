@@ -58,8 +58,8 @@ class AnimatedPlot(object):
     def __init__(
             self,
             useCPP_prog     = False,
-            useCPP_useCam   = True,
-            useCPP_trigClass= True,
+            useCPP_useCam   = False,
+            useCPP_trigClass= False,
         ):
         if useCPP_prog:
             self.CPP_opts["useCPP"] = True
