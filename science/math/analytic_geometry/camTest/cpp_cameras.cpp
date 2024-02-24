@@ -20,7 +20,7 @@
 
 // using namespace std;
 
-bool logOutput = true;
+bool logOutput = false;
 
 int main(int argc, char** argv) {
     bool useCamera = true, useTwoCamClass = true;
