@@ -42,10 +42,10 @@ int main(int argc, char** argv) {
 
     for(int i=0; i<50; i++) toSend[i] = '0';
     toSend[0]   = '[';
-    toSend[14]  = ":";
+    toSend[14]  = ':';
     toSend[28]  = ':';
-    toSend[42]  = ":";
-    toSend[56]  = ":";
+    toSend[42]  = ':';
+    toSend[56]  = ':';
     toSend[77]  = ']';
     toSend[78]  = '\0';
 
@@ -106,10 +106,10 @@ int main(int argc, char** argv) {
 
         for(int i=0; i<50; i++) toSend[i] = '0';
         toSend[0]   = '[';
-        toSend[14]  = ":";
+        toSend[14]  = ':';
         toSend[28]  = ':';
-        toSend[42]  = ":";
-        toSend[56]  = ":";
+        toSend[42]  = ':';
+        toSend[56]  = ':';
         toSend[77]  = ']';
         toSend[78]  = '\0';
 
