@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <unistd.h>
 
 int main(int argc, char** argv) {
     for (int ii=0; ii<10; ++ii ) {
@@ -12,6 +13,8 @@ int main(int argc, char** argv) {
         // scanf("%d", &input);
 
         scanf("%s", &receiv); 
+
+        usleep(1'000'000);
         /*
             unless width is specified in format-string, newline char
             must be added to print string in python script
@@ -39,7 +42,9 @@ int main(int argc, char** argv) {
             
         // }
 
+
         printf(" %s\n", receiv);
+
         std::cout.flush();
     }
 }

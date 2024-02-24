@@ -17,7 +17,7 @@ print("full cmd arguments:", cmdArgsList)
 
 p = Popen(
     cmdArgsList,
-    shell=False,
+    shell=True,
     stdout=PIPE,
     stdin=PIPE
 )
