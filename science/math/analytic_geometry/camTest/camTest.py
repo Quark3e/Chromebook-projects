@@ -62,7 +62,7 @@ class AnimatedPlot(object):
             useCPP_trigClass= False,
         ):
         if useCPP_prog:
-            self.CPP_opts["useCPP"] = True
+            self.CPP_opts["useCPP"] = useCPP_prog
             self.CPP_opts["useCamera"] = useCPP_useCam
             self.CPP_opts["useTrigClass"] = useCPP_trigClass
             cmdArgsList = [absPath+"build/cppEXE"]
