@@ -149,6 +149,7 @@ void IR_camTracking::updateTrackbarPos(const char* win_name) {
 	cv::setTrackbarPos("HighV", win_name, u_HSV[2]);
 }
 
+/// @brief release cams videocapture object
 void IR_camTracking::close() {
     cap.release();
 }

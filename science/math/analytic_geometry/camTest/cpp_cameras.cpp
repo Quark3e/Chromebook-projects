@@ -6,6 +6,7 @@
 #include <cmath>
 #include <vector>
 #include <fstream>
+#include <unistd.h>
 
 #include <chrono>
 #include <ctime>
@@ -125,6 +126,14 @@ int main(int argc, char** argv) {
         scanf("%s", &toRecev);
         if(logOutput) outLogFile << " -scanf();\n";
 
+        char nums[2][6];
+        if(useCamera) {
+            for(int i=0; i<6; i++) { nums[0][i] = toRecev[i+1]; }
+            if(atoi(nums[0]) == 6942)  {
+                outLogFile << "--exit called:\n";
+                break;
+            }
+        }
         for(int i=0; i<78; i++) toSend[i] = '0';
         toSend[0]   = '[';
         toSend[14]  = ':';
@@ -163,7 +172,6 @@ int main(int argc, char** argv) {
             }
         }
         else if(!useCamera) {
-            char nums[2][6];
             for(int i=0; i<6; i++) { nums[0][i] = toRecev[i+1]; }
             for(int i=0; i<6; i++) { nums[1][i] = toRecev[i+15]; }
             inpPos[0] = atof(nums[0]);
@@ -204,7 +212,10 @@ int main(int argc, char** argv) {
         std::cout.flush();
         if(logOutput) outLogFile << " -std::cout.flush();\n";
         if(logOutput) logOutput = false;
-        if(logOutput) outLogFile.close();
+    }
+    if(useCamera) {
+        camObj[0].close();
+        camObj[1].close();
     }
 
     if(logOutput) {
