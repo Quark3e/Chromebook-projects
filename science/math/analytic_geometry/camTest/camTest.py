@@ -49,16 +49,16 @@ class AnimatedPlot(object):
     from_cppEXE = ""
 
     def cpp_update(self):
-        print("---check 0---")
+        print("\n---check 0---:", self.to_cppEXE)
         value = self.to_cppEXE.encode("utf-8")
-        print("---check 1---")
+        print("\n---check 1---")
         self.cpp_P.stdin.write(value)
-        print("---check 2---")
+        print("\n---check 2---")
         
         self.cpp_P.stdin.flush()
-        print("---check 3---")
+        print("\n---check 3---")
         self.from_cppEXE = self.cpp_P.stdout.readline().decode("utf-8")
-        print("---check 4---")
+        print("\n---check 4---")
 
     def __init__(
             self,
