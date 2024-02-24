@@ -114,7 +114,6 @@ class IR_camTrack(object):
         Args: nothing
         Return: nothin
         """
-        print(type(self.ret), type(self.imgTemp))
         for i in self.cam:
             self.ret[i], self.imgTemp[i] = self.cam[i]["vidcapt"].read()
         if False in [val for _,val in self.ret.items()]:
