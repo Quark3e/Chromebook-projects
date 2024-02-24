@@ -57,6 +57,8 @@ class AnimatedPlot(object):
         self.cpp_P.stdin.flush()
         self.from_cppEXE = self.cpp_P.stdout.readline().decode("utf-8")
         print("from C++ exe received:", self.from_cppEXE)
+    def cpp_closeCams(self):
+        
 
     def __init__(
             self,
@@ -415,6 +417,8 @@ if __name__=="__main__":
 
     plt.show()
     if not args.useCPP: a.IRcams.close()
+    if args.useCPP and args.CPP_useCamera:
+        a.
 else:
     errMsg = "ERROR: You're running file \"{__file__}\" not as main. Fookin' idiot. check your code"
     print(len(errMsg)*"=")
