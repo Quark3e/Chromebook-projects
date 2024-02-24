@@ -22,7 +22,7 @@ def nothing(x):
 mode = 0
 
 # Initializing the webcam feed.
-if mode==0: cap = cv2.VideoCapture(3)
+if mode==0: cap = cv2.VideoCapture(1)
 elif mode==1:
     mp4Src = '/home/berkhme/Chromebook-projects/teststuff/python/openCV/test_media/VID_20230508_173143.mp4'
     cap = cv2.VideoCapture(mp4Src)

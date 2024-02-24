@@ -63,7 +63,7 @@ class IR_camTrack(object):
     cntArea = {}
     cntMoments = {}
     frame = {int: cv2.Mat}
-    tempPos = {int: float}
+    tempPos = {2:[0, 0], 0:[0, 0]}
     def __init__(self):
         """Empty class initialization. To use class methods, self.setup(...) function must be called. 
         \n Purpose of empty __init__ func is to be able to use class object as variable holder
@@ -86,6 +86,7 @@ class IR_camTrack(object):
         if len(camIdx) != len(prefres):
             self.prefRes = {}
             for i in camIdx: self.prefRes.update({i:prefres[0]})
+        self.tempPos = {}
         for i in camIdx:
             self.cam.update({i:{"winname": f"cam{int(i)}", "vidcapt":cv2.VideoCapture(i)}})
             self.cam[i]["vidcapt"].set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Set exposure to manual mode

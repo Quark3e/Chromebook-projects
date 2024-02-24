@@ -48,18 +48,14 @@ class AnimatedPlot(object):
     to_cppEXE = "[0000.0,0000.0,0000.0,0000.0]"
     from_cppEXE = ""
 
+
     def cpp_update(self):
         self.to_cppEXE+="\n"
-        print("\n---check 0---:", self.to_cppEXE)
         value = self.to_cppEXE.encode("utf-8")
-        print("\n---check 1---: writing to stdin:")
         self.cpp_P.stdin.write(value)
-        print("\n---check 2---: flushing stdin")
         
         self.cpp_P.stdin.flush()
-        print("\n---check 3---")
         self.from_cppEXE = self.cpp_P.stdout.readline().decode("utf-8")
-        print("\n---check 4---")
         print("from C++ exe received:", self.from_cppEXE)
 
     def __init__(
@@ -114,9 +110,10 @@ class AnimatedPlot(object):
         else:
             self.tri.camPos = self.camPos
             self.tri.ang_offset = self.camAng_offset
+            self.tri.get_l_hypotenuse()
 
         if not self.CPP_opts["useCamera"]:
-            self.IRcams.setup([3, 1], displayWindows=self.winToDisp["opencv"])
+            self.IRcams.setup([2, 0], displayWindows=self.winToDisp["opencv"])
 
 
         if self.winToDisp["pyplot"]:
@@ -236,15 +233,15 @@ class AnimatedPlot(object):
                     self.to_cppEXE = ("["+
                                  f"{self.IRcams.tempPos[0][0]:6.1f},"+
                                  f"{self.IRcams.tempPos[0][1]:6.1f},"+
-                                 f"{self.IRcams.tempPos[1][0]:6.1f},"+
-                                 f"{self.IRcams.tempPos[1][1]:6.1f}]")
+                                 f"{self.IRcams.tempPos[2][0]:6.1f},"+
+                                 f"{self.IRcams.tempPos[2][1]:6.1f}]")
             if self.CPP_opts["useCPP"]: self.cpp_update()
 
             if self.CPP_opts["useCPP"] and self.CPP_opts["useCamera"]:
                 self.IRcams.tempPos[0][0] = float(self.from_cppEXE[1:7])
                 self.IRcams.tempPos[0][1] = float(self.from_cppEXE[8:14])
-                self.IRcams.tempPos[1][0] = float(self.from_cppEXE[15:21])
-                self.IRcams.tempPos[1][1] = float(self.from_cppEXE[22:28])
+                self.IRcams.tempPos[2][0] = float(self.from_cppEXE[15:21])
+                self.IRcams.tempPos[2][1] = float(self.from_cppEXE[22:28])
                 
 
             if not self.CPP_opts["useTrigClass"]:

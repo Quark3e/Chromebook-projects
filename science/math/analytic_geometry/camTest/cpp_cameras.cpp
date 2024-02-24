@@ -93,8 +93,8 @@ int main(int argc, char** argv) {
 
         // IR_camTracking camObj[2] {
 
-        camObj.push_back(IR_camTracking(3, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance));
-        camObj.push_back(IR_camTracking(1, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance));
+        camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance));
+        camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance));
         if(logOutput) outLogFile << " -push_back() added both cams onto camObj\n";
         
         camObj[0].setup_window();

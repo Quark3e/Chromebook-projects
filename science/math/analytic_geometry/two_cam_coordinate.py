@@ -34,6 +34,11 @@ class camTriangle(object):
 
     solved_pos = [-1, -1, -1]
 
+    classInit = False
+    def get_l_hypotenuse(self,):
+        self.l_delta = [self.camPos[1][0]-self.camPos[0][0], self.camPos[1][1]-self.camPos[0][1]]
+        self.l_hypotenuse = math.sqrt(self.l_delta[0]**2+self.l_delta[1]**2)
+
     def __init__(self):
         pass
     def setup(self, camPos: float, camAngOffset: float):
@@ -43,6 +48,7 @@ class camTriangle(object):
             camPos (float/int): [2][2] list of xy-position of both cameras
             camAngOffset (float/int) [degrees]: [2] list of camera angle offsets in related to ground/base/x-axis. Perpendicular occular axis means 90 degrees
         """
+        self.classInit = True
         self.camPos = camPos
         self.ang_offset = camAngOffset
         self.l_delta = [camPos[1][0]-camPos[0][0], camPos[1][1]-camPos[0][1]]
