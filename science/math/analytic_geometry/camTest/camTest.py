@@ -398,11 +398,14 @@ if __name__=="__main__":
 
     args = parser.parse_args()
 
-    print(args)
+    toInit_args = [i for i in args]
+    for i in range(len(toInit_args)):
+        if toInit_args[i]==None: toInit_args[i] = False
+        
     a = AnimatedPlot(
-        args.useCPP,
-        args.CPP_useCamera,
-        args.CPP_useClass
+        toInit_args[0],
+        toInit_args[1],
+        toInit_args[2]
     )
 
     plt.show()
