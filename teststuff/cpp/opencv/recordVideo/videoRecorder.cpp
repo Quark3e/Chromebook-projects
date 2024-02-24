@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
     cv::Size frame_size(frame_width, frame_height);
     int frames_per_second = 25;
 
-    string filename = "test.av";
+    std::string filename = "test.av";
     cv::VideoWriter oVideoWriter(
         filename,
         cv::VideoWriter::fourcc('M', 'J', 'P', 'G'),
@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
         std::cin.get();
         return -1;
     }
-    string window_name = "My Camera Feed";
+    std::string window_name = "My Camera Feed";
     cv::namedWindow(window_name);
 
     while(true) {

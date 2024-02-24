@@ -123,6 +123,7 @@ class IR_camTracking {
     int processCam();
     void createTrackbars(const char* win_name);
     void updateTrackbarPos(const char* win_name);
+    void close();
 };
 
 
@@ -148,6 +149,9 @@ void IR_camTracking::updateTrackbarPos(const char* win_name) {
 	cv::setTrackbarPos("HighV", win_name, u_HSV[2]);
 }
 
+void IR_camTracking::close() {
+    cap.release();
+}
 
 /// @brief read from Cam, process raw Mat img and get camPos[2]
 /// @return 0 if successful; -1 if errors occured

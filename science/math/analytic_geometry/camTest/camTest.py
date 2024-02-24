@@ -49,6 +49,7 @@ class AnimatedPlot(object):
     from_cppEXE = ""
 
     def cpp_update(self):
+        self.to_cppEXE+="\n"
         print("\n---check 0---:", self.to_cppEXE)
         value = self.to_cppEXE.encode("utf-8")
         print("\n---check 1---")
@@ -59,6 +60,7 @@ class AnimatedPlot(object):
         print("\n---check 3---")
         self.from_cppEXE = self.cpp_P.stdout.readline().decode("utf-8")
         print("\n---check 4---")
+        print("from C++ exe received:", self.from_cppEXE)
 
     def __init__(
             self,
@@ -114,7 +116,7 @@ class AnimatedPlot(object):
             self.tri.ang_offset = self.camAng_offset
 
         if not self.CPP_opts["useCamera"]:
-            self.IRcams.setup([2, 0], displayWindows=self.winToDisp["opencv"])
+            self.IRcams.setup([3, 1], displayWindows=self.winToDisp["opencv"])
 
 
         if self.winToDisp["pyplot"]:
@@ -228,7 +230,7 @@ class AnimatedPlot(object):
 
             if not self.CPP_opts["useCamera"]:
                 if self.IRcams.update() == None:
-                    print("NOTE: IRcams.update() returned None: Exiting")
+                    print("\nNOTE: IRcams.update() returned None: Exiting..\n")
                     break
                 if self.CPP_opts["useCPP"] and self.CPP_opts["useTrigClass"]:
                     self.to_cppEXE = ("["+
@@ -415,6 +417,7 @@ if __name__=="__main__":
     )
 
     plt.show()
+    if not args.useCPP: a.IRcams.close()
 else:
     errMsg = "ERROR: You're running file \"{__file__}\" not as main. Fookin' idiot. check your code"
     print(len(errMsg)*"=")

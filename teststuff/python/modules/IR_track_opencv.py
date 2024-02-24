@@ -166,7 +166,13 @@ class IR_camTrack(object):
 
         _, self.threshImg[flag] = cv2.threshold(self.morphImg[flag], 127, 255, cv2.THRESH_BINARY)
         self.contours[flag], hierarchy = cv2.findContours(cv2.cvtColor(self.threshImg[flag], cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
+    def close(
+            self
+        ):
+        """Releases all videocapture objects."""
+        print("releasing video captures")
+        for key,val in self.cam.items():
+            self.cam[key]["vidcapt"].release()
 
 
 
