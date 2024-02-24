@@ -42,8 +42,8 @@ class AnimatedPlot(object):
 
     CPP_opts = {
         "useCPP": False,
-        "useCamera": True,
-        "useTrigClass": True
+        "useCamera": False,
+        "useTrigClass": False
     }
     to_cppEXE = "[0000.0,0000.0,0000.0,0000.0]"
     from_cppEXE = ""
