@@ -24,32 +24,24 @@ opencv4/opencv2/imgproc/imgproc.hpp
 ../../../../teststuff/cpp/basic/Performance/getPerformance.hpp
 /home/pi/Chromebook-projects/teststuff/cpp/basic/Performance/getPerformance.hpp
 
-/home/pi/Chromebook-projects/science/math/analytic_geometry/camTest/cpp_cameras.cpp
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/main.cpp
 iostream
--
-cstring
--
-string
--
-stdlib.h
--
-cmath
 -
 vector
 -
-fstream
+cmath
+-
+string
+-
+cstring
 -
 unistd.h
 -
-chrono
--
-ctime
--
-../../../../teststuff/cpp/useful/useful.hpp
-/home/pi/Chromebook-projects/teststuff/cpp/useful/useful.hpp
-../../../../projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp
+../../IR_camTrack.hpp
 /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp
-../../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp
+../../../../../../teststuff/cpp/useful/useful.hpp
+/home/pi/Chromebook-projects/teststuff/cpp/useful/useful.hpp
+../../../../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp
 /home/pi/Chromebook-projects/teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp
 
 /home/pi/Chromebook-projects/teststuff/cpp/basic/Performance/getPerformance.hpp

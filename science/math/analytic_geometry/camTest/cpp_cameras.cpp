@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
         if(logOutput) outLogFile << " -camTri = new camTriangle(camPosition, camAng_offs)\n";
     }
 
-    float PP[3] = {0, 0, 0}, camPos[2][2], solvedPos[2], inpPos[2], solvedZ;
+    float PP[3] = {0, 0, 0}, camPos[2][2], solvedPos[2], inpPos[2], solvedY;
     float axisScal[3] = {1, 1, 1};	
     float axisOffset[3] = {0, 0, 0};
     float axisFilter[3] = {1, 1, 1};
@@ -156,14 +156,14 @@ int main(int argc, char** argv) {
         if(useCamera && camObj[0].allCnt_pos.size()>0) {
             cv::Size camSize = camObj[0].imgFlipped.size();
             
-            camPos[0][0] = float(camObj[0].prefSize[0]) - camObj[0].totCnt_pos[0];
-            camPos[0][1] = float(camObj[0].prefSize[1]) - camObj[0].totCnt_pos[1];
+            camPos[1][0] = float(camObj[0].prefSize[0]) - camObj[0].totCnt_pos[0];
+            camPos[1][1] = float(camObj[0].prefSize[1]) - camObj[0].totCnt_pos[1];
             if(camObj[0].allCnt_pos.size()>0 && camObj[1].allCnt_pos.size()>0) {
 
-                camPos[1][0] = float(camObj[1].prefSize[0]) - camObj[1].totCnt_pos[0];
-                camPos[1][1] = float(camObj[1].prefSize[1]) - camObj[1].totCnt_pos[1];
-                inpPos[0] = camPos[0][0];
-                inpPos[1] = camPos[1][0];
+                camPos[0][0] = float(camObj[1].prefSize[0]) - camObj[1].totCnt_pos[0];
+                camPos[0][1] = float(camObj[1].prefSize[1]) - camObj[1].totCnt_pos[1];
+                inpPos[1] = camPos[0][0];
+                inpPos[0] = camPos[1][0];
 
                 fillCharArray(camPos[0][0], 1, toSend, 6, 1);
                 fillCharArray(camPos[0][1], 8, toSend, 6, 1);
@@ -183,14 +183,14 @@ int main(int argc, char** argv) {
         if(useTwoCamClass) {
             camTri->solvePos(inpPos, solvedPos, false);
             if(logOutput) outLogFile << " -useTwoCamClass: -camTri->solvePos()\n";
-            solvedZ = -sin(toRadians(((*camTri).camRes[0][1]*0.5-camObj[0].totCnt_pos[1])*(*camTri).camCoef[0][1]))*solvedPos[1];
+            solvedY = -sin(toRadians(((*camTri).camRes[0][1]*0.5-camObj[0].totCnt_pos[1])*(*camTri).camCoef[0][1]))*solvedPos[1];
             
             PP[0] = solvedPos[0];
-            PP[1] = solvedPos[1];
-            PP[2] = solvedZ;
+            PP[1] = solvedY;
+            PP[2] = solvedPos[1];
             
             // PP[0] = axisFilter[0]*float(round(solvedPos[0]*axisScal[0]+axisOffset[0])) + (1-axisFilter[0])*PP[0];
-            // PP[1] = axisFilter[1]*float(solvedZ*axisScal[1]+axisOffset[1]) + (1-axisFilter[1])*PP[1];
+            // PP[1] = axisFilter[1]*float(solvedY*axisScal[1]+axisOffset[1]) + (1-axisFilter[1])*PP[1];
             // PP[2] = axisFilter[2]*float(round(solvedPos[1]*axisScal[2]+axisOffset[2])) + (1-axisFilter[2])*PP[2];
 
 
