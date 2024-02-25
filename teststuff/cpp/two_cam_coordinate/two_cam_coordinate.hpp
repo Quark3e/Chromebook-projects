@@ -138,9 +138,9 @@ void camTriangle::solvePos(float rawPos[2], float returnArr[2], bool printText=f
     returnArr[1] = solvedPos[1];
 
     if(printText) {
-    printf("angRead{%3d,%3d} ", int(ang_read[0]),int(ang_read[1]));
-    printf("angTri{%3d,%3d,%3d} ", int(ang_tri[0]),int(ang_tri[1]),int(ang_p));
-    printf("l_tri{%3d,%3d,%3d} ", int(l_tri[0]),int(l_tri[1]),int(l_hypotenuse));
+        printf("angRead{%3d,%3d} ", int(ang_read[0]),int(ang_read[1]));
+        printf("angTri{%3d,%3d,%3d} ", int(ang_tri[0]),int(ang_tri[1]),int(ang_p));
+        printf("l_tri{%3d,%3d,%3d} ", int(l_tri[0]),int(l_tri[1]),int(l_hypotenuse));
     }
 
 }

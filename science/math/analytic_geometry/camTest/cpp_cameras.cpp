@@ -89,7 +89,7 @@ int main(int argc, char** argv) {
     if(useCamera) {
         int prefSize[2] = {640, 480};
         bool displayToWindow = true;
-        bool useAutoBrightne = true;
+        bool useAutoBrightne = false;
         bool takePerformance = false;
 
         // IR_camTracking camObj[2] {
@@ -156,11 +156,12 @@ int main(int argc, char** argv) {
         if(useCamera && camObj[0].allCnt_pos.size()>0) {
             cv::Size camSize = camObj[0].imgFlipped.size();
             
-            camPos[0][0] = camObj[0].totCnt_pos[0];
-            camPos[0][1] = camObj[0].totCnt_pos[1];
+            camPos[0][0] = float(camObj[0].prefSize[0]) - camObj[0].totCnt_pos[0];
+            camPos[0][1] = float(camObj[0].prefSize[1]) - camObj[0].totCnt_pos[1];
             if(camObj[0].allCnt_pos.size()>0 && camObj[1].allCnt_pos.size()>0) {
-                camPos[1][0] = camObj[1].totCnt_pos[0];
-                camPos[1][1] = camObj[1].totCnt_pos[1];
+
+                camPos[1][0] = float(camObj[1].prefSize[0]) - camObj[1].totCnt_pos[0];
+                camPos[1][1] = float(camObj[1].prefSize[1]) - camObj[1].totCnt_pos[1];
                 inpPos[0] = camPos[0][0];
                 inpPos[1] = camPos[1][0];
 
@@ -183,9 +184,15 @@ int main(int argc, char** argv) {
             camTri->solvePos(inpPos, solvedPos, false);
             if(logOutput) outLogFile << " -useTwoCamClass: -camTri->solvePos()\n";
             solvedZ = -sin(toRadians(((*camTri).camRes[0][1]*0.5-camObj[0].totCnt_pos[1])*(*camTri).camCoef[0][1]))*solvedPos[1];
-            PP[0] = axisFilter[0]*float(round(solvedPos[0]*axisScal[0]+axisOffset[0])) + (1-axisFilter[0])*PP[0];
-            PP[1] = axisFilter[1]*float(solvedZ*axisScal[1]+axisOffset[1]) + (1-axisFilter[1])*PP[1];
-            PP[2] = axisFilter[2]*float(round(solvedPos[1]*axisScal[2]+axisOffset[2])) + (1-axisFilter[2])*PP[2];
+            
+            PP[0] = solvedPos[0];
+            PP[1] = solvedPos[1];
+            PP[2] = solvedZ;
+            
+            // PP[0] = axisFilter[0]*float(round(solvedPos[0]*axisScal[0]+axisOffset[0])) + (1-axisFilter[0])*PP[0];
+            // PP[1] = axisFilter[1]*float(solvedZ*axisScal[1]+axisOffset[1]) + (1-axisFilter[1])*PP[1];
+            // PP[2] = axisFilter[2]*float(round(solvedPos[1]*axisScal[2]+axisOffset[2])) + (1-axisFilter[2])*PP[2];
+
 
             fillCharArray((*camTri).l_tri[0], 29, toSend, 6, 1);
             fillCharArray((*camTri).l_tri[1], 36, toSend, 6, 1);
@@ -196,8 +203,8 @@ int main(int argc, char** argv) {
             if(logOutput) outLogFile << " -useTwoCamClass: -fillCharArray() (*camTri).ang_tri[ ]\n";
 
             fillCharArray(PP[0], 57, toSend, 6, 1);
-            fillCharArray(PP[0], 64, toSend, 6, 1);
-            fillCharArray(PP[0], 71, toSend, 6, 1);
+            fillCharArray(PP[1], 64, toSend, 6, 1);
+            fillCharArray(PP[2], 71, toSend, 6, 1);
             if(logOutput) outLogFile << " -useTwoCamClass: -fillCharArray() PP[ ]\n";
         }
 

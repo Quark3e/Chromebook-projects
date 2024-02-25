@@ -238,8 +238,10 @@ void IR_camTracking::getAvg_cntPos() {
         xTot += vec.at(0);
         yTot += vec.at(1);
     }
-	totCnt_pos[0] = float(prefSize[0]) - xTot / allCnt_pos.size();
-	totCnt_pos[1] = float(prefSize[1]) - yTot / allCnt_pos.size();
+	// totCnt_pos[0] = float(prefSize[0]) - xTot / allCnt_pos.size();
+	// totCnt_pos[1] = float(prefSize[1]) - yTot / allCnt_pos.size();
+	totCnt_pos[0] = xTot / allCnt_pos.size();
+	totCnt_pos[1] = yTot / allCnt_pos.size();
 }
 
 
