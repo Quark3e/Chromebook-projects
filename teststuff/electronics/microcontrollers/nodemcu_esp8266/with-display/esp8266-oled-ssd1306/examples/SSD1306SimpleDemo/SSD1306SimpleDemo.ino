@@ -79,6 +79,7 @@ int demoMode = 0;
 int counter = 1;
 
 void setup() {
+  Wire.begin(14, 12);
   Serial.begin(115200);
   Serial.println();
   Serial.println();
