@@ -16,6 +16,8 @@
 using namespace std;
 
 /// @brief Class to get performance (fps, delays for each checkpoint, totaldelay)
+///
+/// 
 class getPerf {
     /*
     t0
@@ -24,20 +26,27 @@ class getPerf {
     
     */
     private:
+    /// @brief max number of chars for each checkpoint name
     int strLenMax = 8; //NOTE: if changed, change update_totalInfo printf
 
     public:
+    /// @brief filter for new delay values: old_val = new_val*delayFilter + old_val*(1-delayFilter)
     float delayFilter = 1;
     bool printNames = true;
+    /// @brief vector to hold names of each checkpoint
     vector<string> names;
 
+    /// @brief vector to hold clock times
     vector<decltype(chrono::steady_clock::now())> times;
     /// @brief vector to hold delays in unit:milliseconds
     vector<float> delays_ms;
 
+    /// @brief total/sum delay in milliseconds of all the checkpoints
     float total_delay;
+    /// @brief total FPS from start-end checkpoint
     float FPS;
 
+    /// @brief [0] final print string (don't remember why i ahve two elements and at this point im too afraid to check)
     string rawPrintStrings[2];
 
     getPerf(string nameInitStr="") {

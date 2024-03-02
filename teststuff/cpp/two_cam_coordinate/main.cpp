@@ -7,6 +7,13 @@
 #include <string>
 #include <vector>
 
+#define useThreads  true
+#define findPerf    true
+
+#if useThreads
+#include <thread>
+#endif
+
 // opencv/image tracking
 #include <opencv4/opencv2/opencv.hpp>
 #include <opencv4/opencv2/highgui/highgui.hpp>
@@ -35,6 +42,19 @@ IR_camTracking camObj[2] {
     {0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance},
 };
 
+#if useThreads
+    getPerf perfObj[3] {
+        {"cam0 process"},
+        {"cam1 process"},
+        {"total thread"}
+    };
+#elif useThreads
+    getPerf perfObj[2] {
+        {"cam0 process"},
+        {"cam1 process"}
+    };
+#endif
+
 float camPosition[2][2] = {{0, 0}, {25, 0}};
 float camAng_offs[2] = {90, 123};
 float inpPos[2];
@@ -49,10 +69,80 @@ int main(int argc, char* argv[]) {
 
     while(true) {
         //  t1
-        if(camObj[0].processCam()==-1) return 0;
-        if(camObj[1].processCam()==-1) return 0;
-        //  71ms
+        #if findPerf 
+            float delay0, delay1, totDelay;
+        #endif
+        #if !useThreads
+            if(findPerf) perfObj[0].add_checkpoint("cam0 process_start");
+            camObj[0].processCam();
+            if(camObj[0].processReturnCode==-1) {
+                cout << "camObj[0] process error" << endl;
+                return 1;
+            }
 
+            if(findPerf) {
+                perfObj[0].add_checkpoint("cam0 process_end");
+                perfObj[0].update_totalInfo(true, false, false);
+            }
+
+            if(findPerf) perfObj[1].add_checkpoint("cam1 process_start");
+
+            camObj[1].processCam();
+            if(camObj[1].processReturnCode==-1) {
+                cout << "camObj[1] process error" << endl;
+                return 1;
+            }
+
+            if(findPerf) {
+                perfObj[1].add_checkpoint("cam1 process_end");
+                perfObj[1].update_totalInfo(true, false, false);
+                delay0  = perfObj[0].delays_ms.at(1);
+                delay1  = perfObj[1].delays_ms.at(1);
+                totDelay= delay0+delay1:
+                printf(
+                    "delays{%0.5fms, %0.5fms}=%0.5f  FPS:%3.0f | ",
+                    delay0,
+                    delay1,
+                    totDelay,
+                    1.0/totDelay
+                );
+            }
+            //  71ms
+        #elif useThreads
+            if(findPerf) {
+                perfObj[0].add_checkpoint("cam0 process_start");
+                perfObj[1].add_checkpoint("cam1 process_start");
+                perfObj[2].add_checkpoint("tot thread start");
+            }
+            
+            thread t_cam0(camObj[0].processCam);
+            thread t_cam1(camObj[1].processCam);
+            t_cam0.join();
+            if(camObj[0].processReturnCode==-1) {
+                cout << "camObj[0] process error" << endl;
+                return 1;
+            }
+            if(findPerf) perfObj[0].add_checkpoint("cam0 process_end");
+            t_cam1.join();
+            if(camObj[1].processReturnCode==-1) {
+                cout << "camObj[1] process error" << endl;
+                return 1;
+            }
+            if(findPerf) {
+                perfObj[1].add_checkpoint("cam1 process_end");
+                perfObj[2].add_checkpoint("tot thread end");
+                delay0  = perfObj[0].delays_ms.at(1);
+                delay1  = perfObj[1].delays_ms.at(1);
+                totDelay= perfObj[2].delays_ms.at(1);
+                printf(
+                    "delays{%0.5fms, %0.5fms}=%0.5f  FPS:%f | ",
+                    delay0,
+                    delay1,
+                    totDelay,
+                    1.0/totDelay
+                );
+            }
+        #endif
         //  t1
         inpPos[0] = camObj[0].totCnt_pos[0];
         inpPos[1] = camObj[1].totCnt_pos[0];

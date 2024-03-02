@@ -62,6 +62,8 @@ class IR_camTracking {
 
     const char* win_name = "Window";
 
+    /// @brief return code holder variable incase processCam() is called without access to return value
+    int processReturnCode = 0;
 
     IR_camTracking(
         int camIndex,
@@ -162,8 +164,10 @@ int IR_camTracking::processCam() {
     if(!test) {
         printf("error: Cannot read frame from webcam[%d]",camIdx);
         cv::destroyAllWindows();
+        processReturnCode = -1;
         return -1;
     }
+    processReturnCode = 0;
     if(takePerformance) perfObj.add_checkpoint("["+to_string(camIdx)+"]"+"read");
 
     cv::resize(imgRaw, imgOriginal, cv::Size(prefSize[0],prefSize[1]), cv::INTER_LINEAR);
