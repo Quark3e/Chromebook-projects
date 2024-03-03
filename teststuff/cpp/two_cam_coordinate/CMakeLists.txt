@@ -3,6 +3,7 @@ project(TwoCamTriangle)
 
 set(CMAKE_CXX_STANDARD 14)
 set(OpenCV "/usr/local/include")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 find_package(OpenCV REQUIRED)
 # include_directories()

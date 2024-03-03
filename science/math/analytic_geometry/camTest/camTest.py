@@ -233,6 +233,7 @@ class AnimatedPlot(object):
                 if self.IRcams.update() == None:
                     print("\nNOTE: IRcams.update() returned None: Exiting..\n")
                     break
+                print(f" inp:[{self.IRcams.tempPos[0][0]},{self.IRcams.tempPos[2][0]}] ", end="")
                 if self.CPP_opts["useCPP"] and self.CPP_opts["useTrigClass"]:
                     self.to_cppEXE = ("["+
                                  f"{self.IRcams.tempPos[0][0]:6.1f},"+
@@ -253,6 +254,9 @@ class AnimatedPlot(object):
                     self.tri.solvePos([self.IRcams.tempPos[0][0], self.IRcams.tempPos[2][0]])
                 except ZeroDivisionError: 
                     print("Error: camTest.py: ZeroDivisionError")
+                print(f" l_hyp:{self.tri.l_hypotenuse} ", end="")
+                print(f" l_tri:[{round(self.tri.l_tri[0],1):>3}, {round(self.tri.l_tri[1],1):>3}] ", end="")
+                print(f" ang_tri:[{round(self.tri.ang_tri[0],1):>3}, {round(self.tri.ang_tri[1],1):>3}] ", end="")
 
                 self.solvedPos = self.tri.solved_pos
             else:

@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -isystem /usr/local/include/opencv4
 
-CXX_FLAGS = -pthread -std=gnu++14
+CXX_FLAGS =  -pthread -pthread -std=gnu++14
 

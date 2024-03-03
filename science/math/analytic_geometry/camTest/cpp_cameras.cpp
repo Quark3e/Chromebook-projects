@@ -20,7 +20,7 @@
 
 // using namespace std;
 
-bool logOutput = false;
+bool logOutput = true;
 
 int main(int argc, char** argv) {
     bool useCamera = true, useTwoCamClass = true;
@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
         if(logOutput) outLogFile << " -camObj[1].setup_window()\n";
     }
     if(useTwoCamClass) {
-        float camPosition[2][2] = {{0, 0}, {250, 0}};
+        float camPosition[2][2] = {{0, 0}, {25, 0}};
         float camAng_offs[2] = {90, 123};
 
         camTri = new camTriangle(camPosition, camAng_offs);
@@ -193,14 +193,15 @@ int main(int argc, char** argv) {
             // PP[1] = axisFilter[1]*float(solvedY*axisScal[1]+axisOffset[1]) + (1-axisFilter[1])*PP[1];
             // PP[2] = axisFilter[2]*float(round(solvedPos[1]*axisScal[2]+axisOffset[2])) + (1-axisFilter[2])*PP[2];
 
+            if(logOutput) outLogFile << " -useTwoCamClass: -l_hypotenuse=" << (*camTri).l_hypotenuse<<"\n";
 
             fillCharArray((*camTri).l_tri[0], 29, toSend, 6, 1);
             fillCharArray((*camTri).l_tri[1], 36, toSend, 6, 1);
-            if(logOutput) outLogFile << " -useTwoCamClass: -fillCharArray() (*camTri).l_tri[ ]\n";
+            if(logOutput) outLogFile << " -useTwoCamClass: -fillCharArray() (*camTri).l_tri["<<(*camTri).l_tri[0]<<", "<<(*camTri).l_tri[1] <<"]\n";
 
             fillCharArray((*camTri).ang_tri[0], 43, toSend, 6, 1);
             fillCharArray((*camTri).ang_tri[1], 50, toSend, 6, 1);
-            if(logOutput) outLogFile << " -useTwoCamClass: -fillCharArray() (*camTri).ang_tri[ ]\n";
+            if(logOutput) outLogFile << " -useTwoCamClass: -fillCharArray() (*camTri).ang_tri["<<(*camTri).ang_tri[0]<<", "<<(*camTri).ang_tri[1] <<"]\n";
 
             fillCharArray(PP[0], 57, toSend, 6, 1);
             fillCharArray(PP[1], 64, toSend, 6, 1);

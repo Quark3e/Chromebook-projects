@@ -48,6 +48,11 @@ IR_camTracking camObj[2] {
         {"cam1 process"},
         {"total thread"}
     };
+
+    void thread_task(IR_camTracking& camRef) {
+        camRef.processCam();
+    }
+
 #elif useThreads
     getPerf perfObj[2] {
         {"cam0 process"},
@@ -63,9 +68,8 @@ camTriangle camTri(camPosition, camAng_offs);
 
 float solvedPos[2];
 
+
 int main(int argc, char* argv[]) {
-
-
 
     while(true) {
         //  t1
@@ -100,11 +104,11 @@ int main(int argc, char* argv[]) {
                 delay1  = perfObj[1].delays_ms.at(1);
                 totDelay= delay0+delay1:
                 printf(
-                    "delays{%0.5fms, %0.5fms}=%0.5f  FPS:%3.0f | ",
+                    "delays{%0.3fms, %0.3fms}=%0.3f  FPS:%3.0f | ",
                     delay0,
                     delay1,
                     totDelay,
-                    1.0/totDelay
+                    1.0/(totDelay/1000)
                 );
             }
             //  71ms
@@ -115,8 +119,8 @@ int main(int argc, char* argv[]) {
                 perfObj[2].add_checkpoint("tot thread start");
             }
             
-            thread t_cam0(camObj[0].processCam);
-            thread t_cam1(camObj[1].processCam);
+            thread t_cam0(thread_task, ref(camObj[0]));
+            thread t_cam1(thread_task, ref(camObj[1]));
             t_cam0.join();
             if(camObj[0].processReturnCode==-1) {
                 cout << "camObj[0] process error" << endl;
@@ -135,11 +139,11 @@ int main(int argc, char* argv[]) {
                 delay1  = perfObj[1].delays_ms.at(1);
                 totDelay= perfObj[2].delays_ms.at(1);
                 printf(
-                    "delays{%0.5fms, %0.5fms}=%0.5f  FPS:%f | ",
+                    "delays{%4.0fms, %4.0fms}=%4.0f  FPS:%f | ",
                     delay0,
                     delay1,
                     totDelay,
-                    1.0/totDelay
+                    1.0/(totDelay/1000)
                 );
             }
         #endif
@@ -150,7 +154,7 @@ int main(int argc, char* argv[]) {
         //  0.030ms
 
         printf(
-            "[%6.2f, %6.2f] | [%7.2f, %7.2f]",
+            "solvPos.[%6.2f, %6.2f] | inpCam.[%7.2f, %7.2f]",
             solvedPos[0], solvedPos[1],
             inpPos[0], inpPos[1]
         );
