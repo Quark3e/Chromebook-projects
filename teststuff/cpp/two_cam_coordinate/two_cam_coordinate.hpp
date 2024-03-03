@@ -115,8 +115,8 @@ void camTriangle::solvePos(float rawPos[2], float returnArr[2], bool printText=f
 
     l_tri[0] = (l_hypotenuse * sin(toRadians(ang_tri[1])) ) / sin(toRadians(ang_p));
     l_tri[1] = (l_hypotenuse * sin(toRadians(ang_tri[0])) ) / sin(toRadians(ang_p));
-
-    // cout << toRadians(ang_tri[1]) << ":" << toRadians(ang_tri[0]) << " ";
+    
+    if(printText ) cout <<" radi(ang):["<<setw(5)<< setprecision(2) << toRadians(ang_tri[1]) << ":" <<setw(5)<< setprecision(3) << toRadians(ang_tri[0]) << "] ";
 
 
     float tempPos[2];

@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#define useThreads  true
+#define useThreads  false
 #define findPerf    true
 
 #if useThreads
@@ -53,7 +53,7 @@ IR_camTracking camObj[2] {
         camRef.processCam();
     }
 
-#elif useThreads
+#elif !useThreads
     getPerf perfObj[2] {
         {"cam0 process"},
         {"cam1 process"}
@@ -102,9 +102,9 @@ int main(int argc, char* argv[]) {
                 perfObj[1].update_totalInfo(true, false, false);
                 delay0  = perfObj[0].delays_ms.at(1);
                 delay1  = perfObj[1].delays_ms.at(1);
-                totDelay= delay0+delay1:
+                totDelay= delay0+delay1;
                 printf(
-                    "delays{%0.3fms, %0.3fms}=%0.3f  FPS:%3.0f | ",
+                    "delays{%7.3fms, %7.3fms}=%7.3f  FPS:%3.0f | ",
                     delay0,
                     delay1,
                     totDelay,
@@ -139,7 +139,7 @@ int main(int argc, char* argv[]) {
                 delay1  = perfObj[1].delays_ms.at(1);
                 totDelay= perfObj[2].delays_ms.at(1);
                 printf(
-                    "delays{%4.0fms, %4.0fms}=%4.0f  FPS:%f | ",
+                    "delays{%7.3fms, %7.3fms}=%7.3f  FPS:%3.0f | ",
                     delay0,
                     delay1,
                     totDelay,
@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
         //  t1
         inpPos[0] = camObj[0].totCnt_pos[0];
         inpPos[1] = camObj[1].totCnt_pos[0];
-        camTri.solvePos(inpPos, solvedPos, false);
+        camTri.solvePos(inpPos, solvedPos, true);
         //  0.030ms
 
         printf(

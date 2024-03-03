@@ -43,3 +43,93 @@ start: Sun Mar  3 13:59:39 2024
  -final printf("%s\n", toSend);
  -std::cout.flush();
 --exit called:
+start: Sun Mar  3 20:40:47 2024
+ -created camObj obj vector
+ -created camTri obj pointer
+ -first definition of toSend[] symbols
+ -push_back() added both cams onto camObj
+ -camObj[0].setup_window()
+ -camObj[1].setup_window()
+ -camTri = new camTriangle(camPosition, camAng_offs)
+ -while loop iteration
+ -scanf();
+ -while loop definition of toSend[] symbols:1: 1
+ -useCamera: processCam
+ -useCamera: -camObj[ ].allCnt_pos.size(): -fillCharArray
+ -useTwoCamClass: -camTri->solvePos()
+ -useTwoCamClass: -l_hypotenuse=25
+ -useTwoCamClass: -ang_p=17.8125
+ -useTwoCamClass: -fillCharArray() (*camTri).l_tri[75.1936, 81.3824]
+ -useTwoCamClass: -fillCharArray() (*camTri).ang_tri[95.25, 66.9375]
+ -useTwoCamClass: -fillCharArray() PP[ ]
+ -toSend[i] = ','; commas added
+ -final printf("%s\n", toSend);
+ -std::cout.flush();
+--exit called:
+start: Sun Mar  3 20:41:16 2024
+ -created camObj obj vector
+ -created camTri obj pointer
+ -first definition of toSend[] symbols
+ -push_back() added both cams onto camObj
+ -camObj[0].setup_window()
+ -camObj[1].setup_window()
+ -camTri = new camTriangle(camPosition, camAng_offs)
+ -while loop iteration
+ -scanf();
+ -while loop definition of toSend[] symbols:1: 1
+ -useCamera: processCam
+ -useCamera: -camObj[ ].allCnt_pos.size(): -fillCharArray
+ -useTwoCamClass: -camTri->solvePos()
+ -useTwoCamClass: -l_hypotenuse=25
+ -useTwoCamClass: -ang_p=8.25
+ -useTwoCamClass: -fillCharArray() (*camTri).l_tri[171.708, 174.165]
+ -useTwoCamClass: -fillCharArray() (*camTri).ang_tri[91.5, 80.25]
+ -useTwoCamClass: -fillCharArray() PP[ ]
+ -toSend[i] = ','; commas added
+ -final printf("%s\n", toSend);
+ -std::cout.flush();
+--exit called:
+start: Sun Mar  3 20:41:52 2024
+ -created camObj obj vector
+ -created camTri obj pointer
+ -first definition of toSend[] symbols
+ -push_back() added both cams onto camObj
+ -camObj[0].setup_window()
+ -camObj[1].setup_window()
+ -camTri = new camTriangle(camPosition, camAng_offs)
+ -while loop iteration
+ -scanf();
+ -while loop definition of toSend[] symbols:1: 1
+ -useCamera: processCam
+ -useTwoCamClass: -camTri->solvePos()
+ -useTwoCamClass: -l_hypotenuse=25
+ -useTwoCamClass: -ang_p=nan
+ -useTwoCamClass: -fillCharArray() (*camTri).l_tri[-nan, nan]
+ -useTwoCamClass: -fillCharArray() (*camTri).ang_tri[7.96908e+32, -nan]
+ -useTwoCamClass: -fillCharArray() PP[ ]
+ -toSend[i] = ','; commas added
+ -final printf("%s\n", toSend);
+ -std::cout.flush();
+start: Sun Mar  3 20:51:02 2024
+ -created camObj obj vector
+ -created camTri obj pointer
+ -first definition of toSend[] symbols
+ -push_back() added both cams onto camObj
+ -camObj[0].setup_window()
+ -camObj[1].setup_window()
+ -camTri = new camTriangle(camPosition, camAng_offs)
+ -while loop iteration
+ -scanf();
+ -while loop definition of toSend[] symbols:1: 1
+ -useCamera: processCam
+ -useCamera: -camObj[ ].allCnt_pos.size(): -fillCharArray
+ -useTwoCamClass: -camTri->solvePos()
+ -useTwoCamClass: -l_hypotenuse=25
+ -useTwoCamClass: -ang_p=39.375
+ -useTwoCamClass: -fillCharArray() (*camTri).l_tri[34.2563, 38.8385]
+ -useTwoCamClass: -fillCharArray() (*camTri).ang_tri[80.25, 60.375]
+ -useTwoCamClass: -fillCharArray() PP[ ]
+ -toSend[i] = ','; commas added
+ -final printf("%s\n", toSend);
+ -std::cout.flush();
+--exit called:

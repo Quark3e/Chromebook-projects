@@ -162,8 +162,8 @@ int main(int argc, char** argv) {
 
                 camPos[0][0] = float(camObj[1].prefSize[0]) - camObj[1].totCnt_pos[0];
                 camPos[0][1] = float(camObj[1].prefSize[1]) - camObj[1].totCnt_pos[1];
-                inpPos[1] = camPos[0][0];
-                inpPos[0] = camPos[1][0];
+                inpPos[0] = camPos[0][0];
+                inpPos[1] = camPos[1][0];
 
                 fillCharArray(camPos[0][0], 1, toSend, 6, 1);
                 fillCharArray(camPos[0][1], 8, toSend, 6, 1);
