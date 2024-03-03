@@ -91,8 +91,8 @@ class camTriangle(object):
         # print([round(i) for i in rawPos])
         self.solveAngL()
         self.l_tri = [
-            (self.l_hypotenuse*math.sin(toRadians(self.ang_tri[1])))/math.sin(toRadians(self.ang_p)),
-            (self.l_hypotenuse*math.sin(toRadians(self.ang_tri[0])))/math.sin(toRadians(self.ang_p))
+            (self.l_hypotenuse*math.sin(toRadians(self.ang_tri[1]))) / math.sin(toRadians(self.ang_p)),
+            (self.l_hypotenuse*math.sin(toRadians(self.ang_tri[0]))) / math.sin(toRadians(self.ang_p))
         ]
         self.solved_pos = [
                 self.camPos[0][0]+math.cos(toRadians(self.ang_offset[0]+self.ang_read[0]))*self.l_tri[0],

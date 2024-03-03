@@ -113,9 +113,9 @@ void camTriangle::solvePos(float rawPos[2], float returnArr[2], bool printText=f
     ang_read[1] = read_pix[1][0]*camCoef[1][0];
     solveAngles();
 
-    l_tri[0] = (l_hypotenuse*sin(toRadians(ang_tri[1])))/sin(toRadians(ang_p));
-    l_tri[1] = (l_hypotenuse*sin(toRadians(ang_tri[0])))/sin(toRadians(ang_p));
-    
+    l_tri[0] = (l_hypotenuse * sin(toRadians(ang_tri[1])) ) / sin(toRadians(ang_p));
+    l_tri[1] = (l_hypotenuse * sin(toRadians(ang_tri[0])) ) / sin(toRadians(ang_p));
+
     // cout << toRadians(ang_tri[1]) << ":" << toRadians(ang_tri[0]) << " ";
 
 

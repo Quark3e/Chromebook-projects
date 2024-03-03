@@ -193,8 +193,10 @@ int main(int argc, char** argv) {
             // PP[1] = axisFilter[1]*float(solvedY*axisScal[1]+axisOffset[1]) + (1-axisFilter[1])*PP[1];
             // PP[2] = axisFilter[2]*float(round(solvedPos[1]*axisScal[2]+axisOffset[2])) + (1-axisFilter[2])*PP[2];
 
-            if(logOutput) outLogFile << " -useTwoCamClass: -l_hypotenuse=" << (*camTri).l_hypotenuse<<"\n";
-
+            if(logOutput) {
+                outLogFile << " -useTwoCamClass: -l_hypotenuse=" << (*camTri).l_hypotenuse << "\n"
+                           << " -useTwoCamClass: -ang_p=" << (*camTri).ang_p << "\n";
+            }
             fillCharArray((*camTri).l_tri[0], 29, toSend, 6, 1);
             fillCharArray((*camTri).l_tri[1], 36, toSend, 6, 1);
             if(logOutput) outLogFile << " -useTwoCamClass: -fillCharArray() (*camTri).l_tri["<<(*camTri).l_tri[0]<<", "<<(*camTri).l_tri[1] <<"]\n";
