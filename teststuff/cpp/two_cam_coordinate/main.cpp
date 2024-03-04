@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#define useThreads  false
+#define useThreads  true
 #define findPerf    true
 
 #if useThreads
