@@ -133,8 +133,12 @@ int main(int argc, char* argv[]) {
                 return 1;
             }
             if(findPerf) {
+                perfObj[0].add_checkpoint("cam2 process end");
                 perfObj[1].add_checkpoint("cam1 process_end");
                 perfObj[2].add_checkpoint("tot thread end");
+                perfObj[0].update_totalInfo(true, false, false);
+                perfObj[1].update_totalInfo(true, false, false);
+                perfObj[2].update_totalInfo(true, false, false);
                 delay0  = perfObj[0].delays_ms.at(1);
                 delay1  = perfObj[1].delays_ms.at(1);
                 totDelay= delay0+delay1;
