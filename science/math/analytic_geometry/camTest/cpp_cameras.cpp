@@ -166,7 +166,7 @@ int main(int argc, char** argv) {
                 camObj[0].processCam();
                 camObj[1].processCam();
             #endif
-            if(camObj[0].processReturnCode==-1 || camObj[1].processReturnCode()==-1) {
+            if(camObj[0].processReturnCode==-1 || camObj[1].processReturnCode==-1) {
                 if(logOutput) outLogFile << " -couldn't processCam: returned -1: \n";
                 if(logOutput) outLogFile.close();
                 return 0;
