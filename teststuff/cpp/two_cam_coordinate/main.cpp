@@ -182,7 +182,7 @@ int main(int argc, char* argv[]) {
         
         // TOTAL: <110ms with displayToWindow==true
         // if(takePerformance) perfObj.update_totalInfo(true, true, true, ' ','\r');
-        printf("\r");
+        printf("\n");
     }
 
     return 0;
