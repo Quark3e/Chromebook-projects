@@ -11,6 +11,8 @@
 #include <chrono>
 #include <ctime>
 
+#include <thread>
+
 #include "../../../../teststuff/cpp/useful/useful.hpp"
 #include "../../../../projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp"
 #include "../../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp"
@@ -20,7 +22,17 @@
 
 // using namespace std;
 
-bool logOutput = true;
+#define useThreads true
+
+
+#if useThreads
+    void thread_task(IR_camTracking& camRef) {
+        camRef.processCam();
+    }
+#endif
+
+
+bool logOutput = false;
 
 int main(int argc, char** argv) {
     bool useCamera = true, useTwoCamClass = true;
@@ -145,7 +157,16 @@ int main(int argc, char** argv) {
         if(logOutput) outLogFile << " -while loop definition of toSend[] symbols:" << useCamera << ": "<< useTwoCamClass << "\n";
 
         if(useCamera) {
-            if(camObj[0].processCam()==-1 || camObj[1].processCam()==-1) {
+            #if useThreads
+                std::thread t_cam0(thread_task, std::ref(camObj[0]));
+                std::thread t_cam1(thread_task, std::ref(camObj[1]));
+                t_cam0.join();
+                t_cam1.join();
+            #elif !useThreads
+                camObj[0].processCam();
+                camObj[1].processCam();
+            #endif
+            if(camObj[0].processReturnCode==-1 || camObj[1].processReturnCode()==-1) {
                 if(logOutput) outLogFile << " -couldn't processCam: returned -1: \n";
                 if(logOutput) outLogFile.close();
                 return 0;
