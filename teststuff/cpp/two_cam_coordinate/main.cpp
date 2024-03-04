@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#define useThreads  false
+#define useThreads  true
 #define findPerf    true
 
 #if useThreads
@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
                 perfObj[2].add_checkpoint("tot thread end");
                 delay0  = perfObj[0].delays_ms.at(1);
                 delay1  = perfObj[1].delays_ms.at(1);
-                totDelay= perfObj[2].delays_ms.at(1);
+                totDelay= delay0+delay1;
                 printf(
                     "delays{%7.3fms, %7.3fms}=%7.3f  FPS:%3.0f | ",
                     delay0,
