@@ -34,6 +34,7 @@
 #include <opencv4/opencv2/highgui/highgui.hpp>
 #include <opencv4/opencv2/imgproc/imgproc.hpp>
 
+
 // PCA9685 communication
 #include <PiPCA9685/PCA9685.h>
 
@@ -51,6 +52,23 @@
 #include "HW_headers/motion_control/motion_profiles.hpp"
 
 using namespace std;
+
+
+
+// thread stuff
+#define useThreads true
+
+#if useThreads
+#include <thread>
+
+/// @brief thread intermediary function so class member function is passable to thread object.
+/// Function calls IR_camTracking::processCam() member function
+/// @param camRef reference to IR_camTracking class object
+void cam_thread_task(IR_camTracking& camRef) {
+	camRef.processCam();
+}
+
+#endif
 
 
 string absPath;
@@ -73,13 +91,13 @@ void initPaths() {
 
 
 // IK related: ik calc variable declaration
-float current_q[6] = {0,0,0,0,0,0}; //old_rotation
-float new_q[6] = {0,0,0,0,0,0};
-float orient[3] = {0,0,0}; //degrees
-float PP[3] = {0,150,150};
-float axisScal[3] = {1, 1, 1};	
-float axisOffset[3] = {0, 100, -200};
-float axisFilter[3] = {1, 1, 1};
+float current_q[6]	= {0,0,0,0,0,0}; //old_rotation
+float new_q[6]		= {0,0,0,0,0,0};
+float orient[3]		= {0,0,0}; //degrees
+float PP[3]			= {0,150,150};
+float axisScal[3]	= {1, 1, 1};	
+float axisOffset[3]	= {0, 100, -200};
+float axisFilter[3]	= {1, 1, 1};
 
 float pitch, roll, Pitch=0, Roll=0;
 // Wireless nodemcu udp COM header class initialization
@@ -238,8 +256,23 @@ int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
 	}
 
 	while(true) {
-		if(camObj[0].processCam()==-1) return 0;
-		if(zSol==3 && camObj[1].processCam()==-1) return 0;
+		#if useThreads
+			thread t_cam0(cam_thread_task, ref(camObj[0]));
+			thread t_cam1(cam_thread_task, ref(camObj[1]));
+			t_cam0.join();
+			t_cam1.join();
+		#elif !useThreads
+			if(camObj[0].processCam()==-1) return 0;
+			if(zSol==3 && camObj[1].processCam()==-1) return 0;
+		#endif
+		if(camObj[0].processReturnCode==-1) {
+			cout << "ERROR: displayFunc(): camObj[0].processCam() returned -1." << endl;
+			return 1;
+		}
+		else if(camObj[1].processReturnCode==-1) {
+			cout << "ERROR: displayFunc(): camObj[1].processCam() returned -1." << endl;
+			return 1;
+		}
 
 		cout << "zSol=" << zSol << ": ";
 		if(mode >= 1 && camObj[0].allCnt_pos.size()>0) {

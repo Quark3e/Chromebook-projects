@@ -10,8 +10,14 @@
 #define useThreads  true
 #define findPerf    true
 
+#define useAutoBrightne true
+#define displayToWindow false
+#define takePerformance false
+
+
 #if useThreads
 #include <thread>
+#include <mutex>
 #endif
 
 // opencv/image tracking
@@ -31,10 +37,6 @@ using namespace std;
 int prefSize[2] = {640, 480};
 
 
-bool useAutoBrightne = true;
-bool displayToWindow = false;
-bool takePerformance = false;
-
 
 // IR_camTracking camObj(0);
 IR_camTracking camObj[2] {
@@ -42,14 +44,34 @@ IR_camTracking camObj[2] {
     {0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance},
 };
 
+
+cv::Mat FlippedImg[2];
+float camObjPos[2][2];
+int returCode[2];
+
+void transferCamVars(IR_camTracking& camRef, int t_idx) {
+    if(displayToWindow) {
+        FlippedImg[t_idx] = camRef.imgFlipped;
+    }
+
+    camObjPos[t_idx][0] = camRef.totCnt_pos[0];
+    camObjPos[t_idx][1] = camRef.totCnt_pos[1];
+
+    returCode[t_idx] = camRef.processReturnCode;
+}
+
 #if useThreads
+    mutex mtx[2];
+    bool exit_thread[2] = {false, false};
+
+
     getPerf perfObj[3] {
         {"cam0 process"},
         {"cam1 process"},
         {"total thread"}
     };
 
-    void thread_task(IR_camTracking& camRef) {
+    void thread_task(IR_camTracking& camRef, int t_idx) {
         camRef.processCam();
     }
 
