@@ -45,19 +45,24 @@ IR_camTracking camObj[2] {
 };
 
 
-cv::Mat FlippedImg[2];
-float camObjPos[2][2];
+cv::Mat oldFlippedImg[2], newFlippedImg[2];
+float camObjPos_old[2][2], camObjPos_new[2][2];
 int returCode[2];
 
-void transferCamVars(IR_camTracking& camRef, int t_idx) {
+void transferCamVars(IR_camTracking* camPtr, int t_idx) {
     if(displayToWindow) {
-        FlippedImg[t_idx] = camRef.imgFlipped;
+        newFlippedImg[t_idx] = (*camPtr).imgFlipped;
     }
-
-    camObjPos[t_idx][0] = camRef.totCnt_pos[0];
-    camObjPos[t_idx][1] = camRef.totCnt_pos[1];
-
-    returCode[t_idx] = camRef.processReturnCode;
+    camObjPos_new[t_idx][0] = (*camPtr).totCnt_pos[0];
+    camObjPos_new[t_idx][1] = (*camPtr).totCnt_pos[1];
+    returCode[t_idx] = (*camPtr).processReturnCode;
+}
+void updateCamVars(int t_idx) {
+    if(displayToWindow) {
+        oldFlippedImg[t_idx] = newFlippedImg[t_idx];
+    }
+    camObjPos_old[t_idx][0] = camObjPos_new[t_idx][0];
+    camObjPos_old[t_idx][1] = camObjPos_new[t_idx][1];
 }
 
 #if useThreads
@@ -71,8 +76,15 @@ void transferCamVars(IR_camTracking& camRef, int t_idx) {
         {"total thread"}
     };
 
-    void thread_task(IR_camTracking& camRef, int t_idx) {
-        camRef.processCam();
+    void thread_task(IR_camTracking* camPtr, int t_idx) {
+        unique_lock<mutex> u_lck(mtx[t_idx], defer_lock);
+        while(true) {
+            camPtr->processCam();
+            u_lck.lock();
+            transferCamVars(camPtr, t_idx);
+            u_lck.unlock();
+            if(returCode[t_idx]) break;
+        }
     }
 
 #elif !useThreads
@@ -141,8 +153,8 @@ int main(int argc, char* argv[]) {
                 perfObj[2].add_checkpoint("tot thread start");
             }
             
-            thread t_cam0(thread_task, ref(camObj[0]));
-            thread t_cam1(thread_task, ref(camObj[1]));
+            thread t_cam0(thread_task, &camObj[0]);
+            thread t_cam1(thread_task, &camObj[1]);
             t_cam0.join();
             if(camObj[0].processReturnCode==-1) {
                 cout << "camObj[0] process error" << endl;
