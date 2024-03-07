@@ -17,6 +17,7 @@
 
 #if useThreads
 #include <thread>
+#include <chrono>
 #include <mutex>
 #endif
 
@@ -179,15 +180,16 @@ int main(int argc, char* argv[]) {
             // t_cam0.join();
 
             if(!threadsInit[2]) {
-                cout << "Threads not initialised: initialising.";
+                cout << "\nNOTE: Threads have not been initialised:\n\t-initialising.";
                 while(!threadsInit[2]) {
                     scoped_lock(mtx[0], mtx[1]);
                     updateCamVars(0);
                     updateCamVars(1);
                     if(threadsInit[0] && threadsInit[1]) threadsInit[2] = true;
-                    cout << " .";
+                    cout << ".";
+                    this_thread::sleep_for(500ms);
                 }
-                cout << "Initialised!" << endl;
+                cout << "\nInitialised!" << endl;
             }
             else {
                 if(u_lck0.try_lock()) {
