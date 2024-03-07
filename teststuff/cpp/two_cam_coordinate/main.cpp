@@ -45,10 +45,14 @@ IR_camTracking camObj[2] {
 };
 
 
+bool threadsInit[3] = {false, false, false}; /*{cam0-thread, cam1-thread, main-thread}*/
 cv::Mat oldFlippedImg[2], newFlippedImg[2];
 float camObjPos_old[2][2], camObjPos_new[2][2];
-int returCode[2];
+int oldReturCode[2], returCode[2];
 
+/// @brief save results from camObj[t_idx] in sub-thread to temporary holders in main-thread
+/// @param camPtr pointer to camObj
+/// @param t_idx index to what camObjs variables
 void transferCamVars(IR_camTracking* camPtr, int t_idx) {
     if(displayToWindow) {
         newFlippedImg[t_idx] = (*camPtr).imgFlipped;
@@ -57,22 +61,24 @@ void transferCamVars(IR_camTracking* camPtr, int t_idx) {
     camObjPos_new[t_idx][1] = (*camPtr).totCnt_pos[1];
     returCode[t_idx] = (*camPtr).processReturnCode;
 }
+/// @brief updates "old" vars with "new". Called by main thread whenever it wishes to refresh result values
+/// @param t_idx index to what "cam" objects to refresh
 void updateCamVars(int t_idx) {
     if(displayToWindow) {
         oldFlippedImg[t_idx] = newFlippedImg[t_idx];
     }
     camObjPos_old[t_idx][0] = camObjPos_new[t_idx][0];
     camObjPos_old[t_idx][1] = camObjPos_new[t_idx][1];
+    oldReturCode[t_idx] = returnCode[t_idx];
 }
 
 #if useThreads
     mutex mtx[2];
     bool exit_thread[2] = {false, false};
 
-
-    getPerf perfObj[3] {
-        {"cam0 process"},
-        {"cam1 process"},
+    getPerf perfObj[1] {
+        // {"cam0 process"},
+        // {"cam1 process"},
         {"total thread"}
     };
 
@@ -81,7 +87,10 @@ void updateCamVars(int t_idx) {
         while(true) {
             camPtr->processCam();
             u_lck.lock();
+            
             transferCamVars(camPtr, t_idx);
+            if(!threadsInit[t_idx]) threadsInit[t_idx]=true;
+            
             u_lck.unlock();
             if(returCode[t_idx]) break;
         }
@@ -105,6 +114,14 @@ float solvedPos[2];
 
 int main(int argc, char* argv[]) {
 
+    #if useThreads
+        unique_lock<mutex> u_lck0(mtx[0], defer_lock());
+        unique_lock<mutex> u_lck1(mtx[1], defer_lock());
+
+        thread t_cam0(thread_task, &camObj[0], 0);
+        thread t_cam1(thread_task, &camObj[1], 1);
+    #endif
+
     while(true) {
         //  t1
         #if findPerf 
@@ -113,7 +130,9 @@ int main(int argc, char* argv[]) {
         #if !useThreads
             if(findPerf) perfObj[0].add_checkpoint("cam0 process_start");
             camObj[0].processCam();
-            if(camObj[0].processReturnCode==-1) {
+            transferCamVars(&camObj[0], 0);
+            updateCamVars(0);
+            if(oldReturCode[0]==-1) {
                 cout << "camObj[0] process error" << endl;
                 return 1;
             }
@@ -126,7 +145,9 @@ int main(int argc, char* argv[]) {
             if(findPerf) perfObj[1].add_checkpoint("cam1 process_start");
 
             camObj[1].processCam();
-            if(camObj[1].processReturnCode==-1) {
+            transferCamVars(&camObj[1], 1);
+            updateCamVars(1);
+            if(oldReturCode[1]==-1) {
                 cout << "camObj[1] process error" << endl;
                 return 1;
             }
@@ -148,46 +169,75 @@ int main(int argc, char* argv[]) {
             //  71ms
         #elif useThreads
             if(findPerf) {
-                perfObj[0].add_checkpoint("cam0 process_start");
-                perfObj[1].add_checkpoint("cam1 process_start");
-                perfObj[2].add_checkpoint("tot thread start");
+                // perfObj[0].add_checkpoint("cam0 process_start");
+                // perfObj[1].add_checkpoint("cam1 process_start");
+                perfObj[0].add_checkpoint("tot thread start");
             }
+            // thread t_cam0(thread_task, &camObj[0]);
+            // thread t_cam1(thread_task, &camObj[1]);
             
-            thread t_cam0(thread_task, &camObj[0]);
-            thread t_cam1(thread_task, &camObj[1]);
-            t_cam0.join();
-            if(camObj[0].processReturnCode==-1) {
+            // t_cam0.join();
+
+            if(!threadsInit) {
+                cout << "Threads not initialised: initialising.";
+                while(!threadsInit[2]) {
+                    scoped_lock(mtx[0], mtx[1]);
+                    updateCamVars(0);
+                    updateCamVars(1);
+                    if(threadsInit[0] && threadsInit[1]) threadsInit[2] = true;
+                    cout << " .";
+                }
+                cout << "Initialised!" << endl;
+            }
+            else {
+                if(u_lck0.try_lock()) {
+                    updateCamVars(0);
+                    u_lck0.unlock();
+                }
+                if(u_lck1.try_lock()) {
+                    updateCamVars(1);
+                    u_lck1.unlock();
+                }
+            }
+
+            if(oldReturCode[0]==-1) {
                 cout << "camObj[0] process error" << endl;
                 return 1;
             }
             if(findPerf) perfObj[0].add_checkpoint("cam0 process_end");
-            t_cam1.join();
-            if(camObj[1].processReturnCode==-1) {
+            // t_cam1.join();
+            if(oldReturCode[1]==-1) {
                 cout << "camObj[1] process error" << endl;
                 return 1;
             }
             if(findPerf) {
-                perfObj[0].add_checkpoint("cam2 process end");
-                perfObj[1].add_checkpoint("cam1 process_end");
-                perfObj[2].add_checkpoint("tot thread end");
+                // perfObj[0].add_checkpoint("cam2 process end");
+                // perfObj[1].add_checkpoint("cam1 process_end");
+                perfObj[0].add_checkpoint("tot thread end");
+                // perfObj[0].update_totalInfo(true, false, false);
+                // perfObj[1].update_totalInfo(true, false, false);
                 perfObj[0].update_totalInfo(true, false, false);
-                perfObj[1].update_totalInfo(true, false, false);
-                perfObj[2].update_totalInfo(true, false, false);
-                delay0  = perfObj[0].delays_ms.at(1);
-                delay1  = perfObj[1].delays_ms.at(1);
-                totDelay= delay0+delay1;
+                // delay0  = perfObj[0].delays_ms.at(1);
+                // delay1  = perfObj[1].delays_ms.at(1);
+                // totDelay= perfObj[2].delays_ms.at(1);
+                // printf(
+                //     "delays{%7.3fms, %7.3fms}=%7.3f  FPS:%3.0f | ",
+                //     delay0,
+                //     delay1,
+                //     totDelay,
+                //     1.0/(totDelay/1000)
+                // );
+
+                totDelay = perfObj[0].delays_ms.at(1);
                 printf(
-                    "delays{%7.3fms, %7.3fms}=%7.3f  FPS:%3.0f | ",
-                    delay0,
-                    delay1,
-                    totDelay,
-                    1.0/(totDelay/1000)
+                    "delays{}=%7.3f  FPS:%3.0f | ",
+                    totDelay, 1.0/(totDelay/1000)
                 );
             }
         #endif
         //  t1
-        inpPos[0] = camObj[0].totCnt_pos[0];
-        inpPos[1] = camObj[1].totCnt_pos[0];
+        inpPos[0] = camObjPos_old[0][0];
+        inpPos[1] = camObjPos_old[1][0];
         camTri.solvePos(inpPos, solvedPos, true);
         //  0.030ms
 
@@ -200,12 +250,16 @@ int main(int argc, char* argv[]) {
         if(displayToWindow) {
             //  t1
             cv::Mat winImg;
-            cv::hconcat(camObj[0].imgFlipped, camObj[1].imgFlipped, winImg);
+            cv::hconcat(oldFlippedImg[0], oldFlippedImg[1], winImg);
             //  ~10ms
 
             //  t1
             int keyInp = cv::waitKey(10);
+            #if !useThreads
             cv::imshow(camObj[0].win_name, winImg);
+            #elif useThreads
+            cv::imshow("Main thread window", winImg);
+            #endif
             //  <30ms
 
             // t1
