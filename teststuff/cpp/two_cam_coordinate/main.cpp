@@ -178,7 +178,7 @@ int main(int argc, char* argv[]) {
             
             // t_cam0.join();
 
-            if(!threadsInit) {
+            if(!threadsInit[2]) {
                 cout << "Threads not initialised: initialising.";
                 while(!threadsInit[2]) {
                     scoped_lock(mtx[0], mtx[1]);
