@@ -8,11 +8,12 @@
 #include <vector>
 
 #define useThreads  true
+#define threadDebug false
 #define findPerf    true
 
-#define useAutoBrightne true
-#define displayToWindow false
-#define takePerformance false
+#define useAutoBright   true
+#define dispToWindow    true
+#define takePerf        false
 
 
 #if useThreads
@@ -41,8 +42,8 @@ int prefSize[2] = {640, 480};
 
 // IR_camTracking camObj(0);
 IR_camTracking camObj[2] {
-    {2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance},
-    {0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance},
+    {2, prefSize[0], prefSize[1], useAutoBright, dispToWindow, takePerf},
+    {0, prefSize[0], prefSize[1], useAutoBright, dispToWindow, takePerf},
 };
 
 
@@ -55,7 +56,7 @@ int oldReturCode[2], returCode[2];
 /// @param camPtr pointer to camObj
 /// @param t_idx index to what camObjs variables
 void transferCamVars(IR_camTracking* camPtr, int t_idx) {
-    if(displayToWindow) {
+    if(dispToWindow) {
         newFlippedImg[t_idx] = (*camPtr).imgFlipped;
     }
     camObjPos_new[t_idx][0] = (*camPtr).totCnt_pos[0];
@@ -65,12 +66,12 @@ void transferCamVars(IR_camTracking* camPtr, int t_idx) {
 /// @brief updates "old" vars with "new". Called by main thread whenever it wishes to refresh result values
 /// @param t_idx index to what "cam" objects to refresh
 void updateCamVars(int t_idx) {
-    if(displayToWindow) {
+    if(dispToWindow) {
         oldFlippedImg[t_idx] = newFlippedImg[t_idx];
     }
     camObjPos_old[t_idx][0] = camObjPos_new[t_idx][0];
     camObjPos_old[t_idx][1] = camObjPos_new[t_idx][1];
-    oldReturCode[t_idx] = returnCode[t_idx];
+    oldReturCode[t_idx] = returCode[t_idx];
 }
 
 #if useThreads
@@ -116,8 +117,8 @@ float solvedPos[2];
 int main(int argc, char* argv[]) {
 
     #if useThreads
-        unique_lock<mutex> u_lck0(mtx[0], defer_lock());
-        unique_lock<mutex> u_lck1(mtx[1], defer_lock());
+        unique_lock<mutex> u_lck0(mtx[0], defer_lock);
+        unique_lock<mutex> u_lck1(mtx[1], defer_lock);
 
         thread t_cam0(thread_task, &camObj[0], 0);
         thread t_cam1(thread_task, &camObj[1], 1);
@@ -180,14 +181,30 @@ int main(int argc, char* argv[]) {
             // t_cam0.join();
 
             if(!threadsInit[2]) {
-                cout << "\nNOTE: Threads have not been initialised:\n\t-initialising.";
+                cout << "\nNOTE: Threads have not been initialised:\n -initialising.";
                 while(!threadsInit[2]) {
-                    scoped_lock(mtx[0], mtx[1]);
+                    //// Apparently it's on C++14. Too afraid to update. need to update
+                    //std::scoped_lock scope_lock(mtx[0], mtx[1]);
+                    u_lck0.lock();
+                    if(threadDebug) {
+                        cout << "\n\t -u_lck0 locked." << endl;
+                        this_thread::sleep_for(1000ms);
+                    }
+                    u_lck1.lock();
+                    if(threadDebug) {
+                        cout << "\t -u_lck1 locked." << endl;
+                        this_thread::sleep_for(1000ms);
+                    }
                     updateCamVars(0);
+                    if(threadDebug) cout << "\t -updateCamVars(0)." << endl;
                     updateCamVars(1);
+                    if(threadDebug) cout << "\t -updateCamVars(1)." << endl;
                     if(threadsInit[0] && threadsInit[1]) threadsInit[2] = true;
                     cout << ".";
+                    cout.flush();
                     this_thread::sleep_for(500ms);
+                    u_lck1.unlock();
+                    u_lck0.unlock();
                 }
                 cout << "\nInitialised!" << endl;
             }
@@ -249,7 +266,7 @@ int main(int argc, char* argv[]) {
             inpPos[0], inpPos[1]
         );
 
-        if(displayToWindow) {
+        if(dispToWindow) {
             //  t1
             cv::Mat winImg;
             cv::hconcat(oldFlippedImg[0], oldFlippedImg[1], winImg);
@@ -274,6 +291,12 @@ int main(int argc, char* argv[]) {
         // if(takePerformance) perfObj.update_totalInfo(true, true, true, ' ','\r');
         printf("\n");
     }
+
+    #if useThreads
+    
+    t_cam0.join();
+    t_cam1.join();
+    #endif
 
     return 0;
 }
