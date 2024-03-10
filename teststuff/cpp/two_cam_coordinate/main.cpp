@@ -244,11 +244,13 @@ int main(int argc, char* argv[]) {
                 u_lck_cout.unlock();
             }
             else {
-                if(u_lck0.try_lock()) {
+                if(true/*u_lck0.try_lock()*/) {
+                    u_lck0.lock();
                     updateCamVars(0);
                     u_lck0.unlock();
                 }
-                if(u_lck1.try_lock()) {
+                if(true/*u_lck1.try_lock()*/) {
+                    u_lck1.lock();
                     updateCamVars(1);
                     u_lck1.unlock();
                 }
@@ -343,7 +345,7 @@ int main(int argc, char* argv[]) {
         #if useThreads
         u_lck_cout.unlock();
         #endif
-        this_thread::sleep_for(30ms);
+        this_thread::sleep_for(10ms);
     }
 
     #if useThreads
