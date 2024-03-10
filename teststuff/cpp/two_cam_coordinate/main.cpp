@@ -12,7 +12,7 @@
 #define findPerf    true
 
 #define useAutoBright   true
-#define dispToWindow    true
+#define dispToWindow    false
 #define takePerf        false
 
 
@@ -50,7 +50,8 @@ IR_camTracking camObj[2] {
 bool threadsInit[3] = {false, false, false}; /*{cam0-thread, cam1-thread, main-thread}*/
 cv::Mat oldFlippedImg[2], newFlippedImg[2];
 float camObjPos_old[2][2], camObjPos_new[2][2];
-int oldReturCode[2], returCode[2];
+int oldReturCode[2], returCode[2] = {false, false};
+
 
 /// @brief save results from camObj[t_idx] in sub-thread to temporary holders in main-thread
 /// @param camPtr pointer to camObj
@@ -74,8 +75,10 @@ void updateCamVars(int t_idx) {
     oldReturCode[t_idx] = returCode[t_idx];
 }
 
+
 #if useThreads
-    mutex mtx[2];
+    mutex mtx[2], mtx_cout;
+
     bool exit_thread[2] = {false, false};
 
     getPerf perfObj[1] {
@@ -86,15 +89,28 @@ void updateCamVars(int t_idx) {
 
     void thread_task(IR_camTracking* camPtr, int t_idx) {
         unique_lock<mutex> u_lck(mtx[t_idx], defer_lock);
+        unique_lock<mutex> u_lck_cout(mtx_cout, defer_lock);
+        u_lck_cout.lock();
+        cout << "\nthread " << t_idx << " initialised"<<endl;
+        u_lck_cout.unlock();
         while(true) {
             camPtr->processCam();
             u_lck.lock();
             
             transferCamVars(camPtr, t_idx);
             if(!threadsInit[t_idx]) threadsInit[t_idx]=true;
-            
+            if(threadDebug) {
+                u_lck_cout.lock();
+                cout << "\n    thread:[" << t_idx << "]: transferCamVars called";// << endl;
+                u_lck_cout.unlock();
+            }
             u_lck.unlock();
-            if(returCode[t_idx]) break;
+            if(exit_thread[t_idx]) {
+                u_lck_cout.lock();
+                cout << "\n    thread:[" << t_idx << "] exit called. exiting..";
+                u_lck_cout.unlock();
+                break;
+            }
         }
     }
 
@@ -104,6 +120,7 @@ void updateCamVars(int t_idx) {
         {"cam1 process"}
     };
 #endif
+
 
 float camPosition[2][2] = {{0, 0}, {25, 0}};
 float camAng_offs[2] = {90, 123};
@@ -119,9 +136,11 @@ int main(int argc, char* argv[]) {
     #if useThreads
         unique_lock<mutex> u_lck0(mtx[0], defer_lock);
         unique_lock<mutex> u_lck1(mtx[1], defer_lock);
+        unique_lock<mutex> u_lck_cout(mtx_cout, defer_lock);
 
         thread t_cam0(thread_task, &camObj[0], 0);
         thread t_cam1(thread_task, &camObj[1], 1);
+        this_thread::sleep_for(1000ms);
     #endif
 
     while(true) {
@@ -181,24 +200,38 @@ int main(int argc, char* argv[]) {
             // t_cam0.join();
 
             if(!threadsInit[2]) {
-                cout << "\nNOTE: Threads have not been initialised:\n -initialising.";
+                u_lck_cout.lock();
+                cout << "\nthread:[2]: NOTE: Threads have not been initialised:\n -initialising.";
+                u_lck_cout.unlock();
                 while(!threadsInit[2]) {
                     //// Apparently it's on C++14. Too afraid to update. need to update
                     //std::scoped_lock scope_lock(mtx[0], mtx[1]);
                     u_lck0.lock();
                     if(threadDebug) {
-                        cout << "\n\t -u_lck0 locked." << endl;
-                        this_thread::sleep_for(1000ms);
+                        u_lck_cout.lock();
+                        cout << "\nthread:[2]: -u_lck0 locked.";
+                        u_lck_cout.unlock();
+                        this_thread::sleep_for(100ms);
                     }
                     u_lck1.lock();
                     if(threadDebug) {
-                        cout << "\t -u_lck1 locked." << endl;
-                        this_thread::sleep_for(1000ms);
+                        u_lck_cout.lock();
+                        cout << "\nthread:[2]: -u_lck1 locked.";
+                        u_lck_cout.unlock();
+                        this_thread::sleep_for(100ms);
                     }
                     updateCamVars(0);
-                    if(threadDebug) cout << "\t -updateCamVars(0)." << endl;
+                    if(threadDebug) {
+                        u_lck_cout.lock();
+                        cout << "\nthread:[2]:  -updateCamVars(0).";
+                        u_lck_cout.unlock();
+                    }
                     updateCamVars(1);
-                    if(threadDebug) cout << "\t -updateCamVars(1)." << endl;
+                    if(threadDebug) {
+                        u_lck_cout.lock();
+                        cout << "\nthread:[2]:  -updateCamVars(1).";
+                        u_lck_cout.unlock();
+                    }
                     if(threadsInit[0] && threadsInit[1]) threadsInit[2] = true;
                     cout << ".";
                     cout.flush();
@@ -206,7 +239,9 @@ int main(int argc, char* argv[]) {
                     u_lck1.unlock();
                     u_lck0.unlock();
                 }
-                cout << "\nInitialised!" << endl;
+                u_lck_cout.lock();
+                cout << "\nthread:[2]: Initialised!" << endl;
+                u_lck_cout.unlock();
             }
             else {
                 if(u_lck0.try_lock()) {
@@ -218,15 +253,18 @@ int main(int argc, char* argv[]) {
                     u_lck1.unlock();
                 }
             }
-
             if(oldReturCode[0]==-1) {
+                u_lck_cout.lock();
                 cout << "camObj[0] process error" << endl;
+                u_lck_cout.unlock();
                 return 1;
             }
             if(findPerf) perfObj[0].add_checkpoint("cam0 process_end");
             // t_cam1.join();
             if(oldReturCode[1]==-1) {
+                u_lck_cout.lock();
                 cout << "camObj[1] process error" << endl;
+                u_lck_cout.unlock();
                 return 1;
             }
             if(findPerf) {
@@ -248,10 +286,12 @@ int main(int argc, char* argv[]) {
                 // );
 
                 totDelay = perfObj[0].delays_ms.at(1);
+                u_lck_cout.lock();
                 printf(
                     "delays{}=%7.3f  FPS:%3.0f | ",
                     totDelay, 1.0/(totDelay/1000)
                 );
+                u_lck_cout.unlock();
             }
         #endif
         //  t1
@@ -260,11 +300,18 @@ int main(int argc, char* argv[]) {
         camTri.solvePos(inpPos, solvedPos, true);
         //  0.030ms
 
+        #if useThreads
+        u_lck_cout.lock();
+        #endif
         printf(
             "solvPos.[%6.2f, %6.2f] | inpCam.[%7.2f, %7.2f]",
             solvedPos[0], solvedPos[1],
             inpPos[0], inpPos[1]
         );
+        cout.flush();
+        #if useThreads
+        u_lck_cout.unlock();
+        #endif
 
         if(dispToWindow) {
             //  t1
@@ -289,7 +336,14 @@ int main(int argc, char* argv[]) {
         
         // TOTAL: <110ms with displayToWindow==true
         // if(takePerformance) perfObj.update_totalInfo(true, true, true, ' ','\r');
+        #if useThreads
+        u_lck_cout.lock();
+        #endif
         printf("\n");
+        #if useThreads
+        u_lck_cout.unlock();
+        #endif
+        this_thread::sleep_for(30ms);
     }
 
     #if useThreads
