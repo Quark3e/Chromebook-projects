@@ -23,7 +23,7 @@
 // using namespace std;
 
 #define useThreads true
-
+#define threadDebug false
 
 #if useThreads
     void thread_task(IR_camTracking& camRef) {
