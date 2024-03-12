@@ -50,7 +50,7 @@ IR_camTracking camObj[2] {
 bool threadsInit[3] = {false, false, false}; /*{cam0-thread, cam1-thread, main-thread}*/
 cv::Mat oldFlippedImg[2], newFlippedImg[2];
 float camObjPos_old[2][2], camObjPos_new[2][2];
-int oldReturCode[2], returCode[2] = {false, false};
+int oldReturCode[2], returCode[2] = {0, 0};
 
 
 /// @brief save results from camObj[t_idx] in sub-thread to temporary holders in main-thread

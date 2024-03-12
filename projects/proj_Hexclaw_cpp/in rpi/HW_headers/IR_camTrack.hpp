@@ -62,7 +62,10 @@ class IR_camTracking {
 
     const char* win_name = "Window";
 
-    /// @brief return code holder variable incase processCam() is called without access to return value
+    /** Return code holder variable incase `IR_camTracking::processCam()` is called without access to return value or by some error
+     *  0 = normal/successful
+     * -1 = error
+    */
     int processReturnCode = 0;
 
     IR_camTracking(

@@ -11,7 +11,18 @@
 #include <chrono>
 #include <ctime>
 
+
+#define useThreads true
+#define threadDebug false
+
+#define useAutoBright   false
+#define dispToWindow    true
+#define takePerf        false
+
+#if useThreads
 #include <thread>
+#include <mutex>
+#endif
 
 #include "../../../../teststuff/cpp/useful/useful.hpp"
 #include "../../../../projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp"
@@ -22,12 +33,119 @@
 
 // using namespace std;
 
-#define useThreads true
-#define threadDebug false
+
+int prefSize[2] = {640, 480};
+
+
+/// array to hold initialisation boolean values (true if it's been init, false otherwise)
+/// `[0]` = cam0-thread
+/// `[1]` = cam1-thread
+/// `[2]` = main-thread
+bool threadsInit[3] = {false, false, false};
+
+/// variable/container for cv::Mat display objects/img's that's used in the main thread
+cv::Mat flippedImg_main[2];
+/// @brief variable/container for intermediary cv::Mat images; temporarily holds new values from sub threads
+cv::Mat flippedImg_interm[2];
+
+/** main camera tracked object center position holder/container array;
+ * `[0][0, 1]` = cam/thread 0;
+ * `[1][0, 1]` = cam/thread 1;
+*/
+float camObjPos_main[2][2];
+/**
+ * intermediary container/holder array for tracked-object-center-positions received from sub-threads
+ * `[0][0, 1]` = sub-thread[0]
+ * `[1][0, 1]` = sub-thread[1]
+*/
+float camObjPos_interm[2][2];
+
+/**
+ * main-thread container/holder array for error exit codes from threads
+ * `[0]` = sub-thread[0]
+ * `[1]` = sub-thread[1]
+*/
+int returCodes_main[2];
+/**
+ * sub-thread container/holder array for error exit codes
+ * `[0]` = sub-thread[0]
+ * `[1]` = sub-thread[1]
+*/
+int returCodes_interm[2] = {0, 0};
+
+/**
+ * @brief transfer results from sub thread[`t-idx`] to `[..]_interm[t_idx]` variables
+ * @param camPtr `IR_camTracking` object pointer
+ * @param t_idx `int` value of which thread to use function on
+*/
+void transferCamVars(IR_camTracking* camPtr, int t_idx) {
+    if(dispToWindow) {
+        flippedImg_interm[t_idx] = (*camPtr).imgFlipped;
+    }
+    camObjPos_interm[t_idx][0] = (*camPtr).totCnt_pos[0];
+    camObjPos_interm[t_idx][1] = (*camPtr).totCnt_pos[1];
+    returCodes_interm[t_idx] = (*camPtr).processReturnCode;
+}
+/**
+ * @brief update main-thread `[..]_main[t-idx]` variables with sub-thread `[..]_interm[t_idx]` variables
+ * @param t_idx `int` value of which thread to use function on
+*/
+void updateCamVars(int t_idx) {
+    if(dispToWindow) {
+        flippedImg_main[t_idx] = flippedImg_interm[t_idx];
+    }
+    camObjPos_main[t_idx][0] = camObjPos_interm[t_idx][0];
+    camObjPos_main[t_idx][1] = camObjPos_interm[t_idx][1];
+    returCodes_main[t_idx] = returCodes_interm[t_idx];
+}
 
 #if useThreads
-    void thread_task(IR_camTracking& camRef) {
-        camRef.processCam();
+    /**
+     * general variable mutexes
+     * `[0]` = sub-thread[0]
+     * `[1]` = sub-thread[1]
+    */
+    std::mutex mtx[2];
+    /**
+     * mutex for std::iostream::cout
+    */
+    std::mutex mtx_cout;
+
+    bool exit_thread[2] = {false, false};
+
+    /**
+     * @brief thread function
+     * @param camRef `IR_camTracking` object pointer
+     * @param t_idx `int` value for thread indexing/naming
+    */
+    void thread_task(IR_camTracking* camPtr, int t_idx) {
+        std::unique_lock<std::mutex> u_lck(mtx[t_idx], std::defer_lock);
+        std::unique_lock<std::mutex> u_lck_cout(mtx_cout, std::defer_lock);
+        if(threadDebug) {
+            u_lck_cout.lock();
+            std::cout << "\nthread " << t_idx << " initialised" << std::endl;
+            u_lck_cout.unlock();
+        }
+        while(true) {
+            camPtr->processCam();
+
+            u_lck.lock();
+            transferCamVars(camPtr, t_idx);
+            if(!threadsInit[t_idx]) threadsInit[t_idx] = true;
+            if(threadDebug) {
+                u_lck_cout.lock();
+                std::cout << "\n\tthread:["<<t_idx<<"]: transferCamVars called";
+                u_lck_cout.unlock();
+            }
+            if(exit_thread[t_idx] || returCodes_interm[t_idx]==-1) {
+                u_lck_cout.lock();
+                if(returCodes_interm[t_idx]==-1) std::cout << "\nERROR: IR_camTracking error:";
+                std::cout << "\n\tthread:["<<t_idx<<"]: exit called. exiting...";
+                u_lck_cout.unlock();
+                break;
+            }
+            u_lck.unlock();
+        }
     }
 #endif
 
@@ -35,6 +153,7 @@
 bool logOutput = false;
 
 int main(int argc, char** argv) {
+
     bool useCamera = true, useTwoCamClass = true;
 
     /*
@@ -99,21 +218,28 @@ int main(int argc, char** argv) {
     }
     
     if(useCamera) {
-        int prefSize[2] = {640, 480};
-        bool displayToWindow = true;
-        bool useAutoBrightne = false;
-        bool takePerformance = false;
 
         // IR_camTracking camObj[2] {
 
-        camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance));
-        camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance));
+        camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], useAutoBright, dispToWindow, takePerf));
+        camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], useAutoBright, dispToWindow, takePerf));
         if(logOutput) outLogFile << " -push_back() added both cams onto camObj\n";
         
         camObj[0].setup_window();
         if(logOutput) outLogFile << " -camObj[0].setup_window()\n";
         camObj[1].setup_window();
         if(logOutput) outLogFile << " -camObj[1].setup_window()\n";
+
+
+
+        #if useThreads
+            std::unique_lock<std::mutex> u_lck0(mtx[0], std::defer_lock);
+            std::unique_lock<std::mutex> u_lck1(mtx[1], std::defer_lock);
+            std::unique_lock<std::mutex> u_lck_cout(mutx_cout, std::defer_lock);
+
+            std::thread t_cam0(thread_task, &camObj.at(0), 0);
+            std::thread t_cam1(thread_task, &camObj.at(1), 1);
+        #endif
     }
     if(useTwoCamClass) {
         float camPosition[2][2] = {{0, 0}, {25, 0}};
