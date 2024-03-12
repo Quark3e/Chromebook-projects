@@ -235,7 +235,7 @@ int main(int argc, char** argv) {
         #if useThreads
             std::unique_lock<std::mutex> u_lck0(mtx[0], std::defer_lock);
             std::unique_lock<std::mutex> u_lck1(mtx[1], std::defer_lock);
-            std::unique_lock<std::mutex> u_lck_cout(mutx_cout, std::defer_lock);
+            std::unique_lock<std::mutex> u_lck_cout(mtx_cout, std::defer_lock);
 
             std::thread t_cam0(thread_task, &camObj.at(0), 0);
             std::thread t_cam1(thread_task, &camObj.at(1), 1);
