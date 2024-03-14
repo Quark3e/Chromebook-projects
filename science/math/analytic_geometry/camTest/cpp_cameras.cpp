@@ -174,15 +174,16 @@ void updateCamVars(int t_idx) {
  * `std::mutex::lock()` or the nonblocking `std::mutex::try_lock()`.
 */
 void lock_cout(std::mutex &coutMutex, string toPrint, bool blockingLock = true) {
+    std::unique_lock<std::mutex> u_lck_cout(coutMutex, std::defer_lock);
     if(blockingLock) {
-        coutMutex.lock();
+        u_lck_cout.lock();
         std::cout << toPrint;
-        coutMutex.unlock();
+        u_lck_cout.unlock();
     }
     else {
-        if(coutMutex.try_lock()) {
+        if(u_lck_cout.try_lock()) {
             std::cout << toPrint;
-            coutMutex.unlock();
+            u_lck_cout.unlock();
         }
     }
 }
@@ -254,9 +255,13 @@ int main(int argc, char** argv) {
             useTwoCamClass = true;
         }
     }
-    
-    if(useCamera) {
 
+    #if useThreads
+        std::unique_lock<std::mutex> u_lck0, u_lck1, u_lck_cout;
+        std::thread t_cam0, t_cam1;
+    #endif
+
+    if(useCamera) {
         // IR_camTracking camObj[2] {
 
         /// Create and setup IR_camTracking objects
@@ -269,18 +274,23 @@ int main(int argc, char** argv) {
         camObj[1].setup_window();
         if(logOutput) outLogFile << " -camObj[1].setup_window()\n";
 
-
-
         #if useThreads
-            /// sub-thread [0] mutex
-            std::unique_lock<std::mutex> u_lck0(mtx[0], std::defer_lock);
-            /// sub-thread [1] mutex
-            std::unique_lock<std::mutex> u_lck1(mtx[1], std::defer_lock);
-            /// local cout mutex obj
-            std::unique_lock<std::mutex> u_lck_cout(mtx_cout, std::defer_lock);
+            // /// sub-thread [0] mutex
+            // std::unique_lock<std::mutex> u_lck0(mtx[0], std::defer_lock);
+            // /// sub-thread [1] mutex
+            // std::unique_lock<std::mutex> u_lck1(mtx[1], std::defer_lock);
+            // /// local cout mutex obj
+            // std::unique_lock<std::mutex> u_lck_cout(mtx_cout, std::defer_lock);
 
-            std::thread t_cam0(thread_task, &camObj[0], 0);
-            std::thread t_cam1(thread_task, &camObj[1], 1);
+            // std::thread t_cam0(thread_task, &camObj[0], 0);
+            // std::thread t_cam1(thread_task, &camObj[1], 1);
+
+            u_lck0      = std::unique_lock<std::mutex>(mtx[0], std::defer_lock);
+            u_lck1      = std::unique_lock<std::mutex>(mtx[1], std::defer_lock);
+            u_lck_cout  = std::unique_lock<std::mutex>(mtx_cout, std::defer_lock);
+
+            t_cam0  = std::thread(thread_task, &camObj[0], 0);
+            t_cam1  = std::thread(thread_task, &camObj[1], 1);
         #endif
     }
     if(useTwoCamClass) {
@@ -332,17 +342,17 @@ int main(int argc, char** argv) {
                 // t_cam1.join();
 
                 if(!threadsInit[2]) {
-                    if(threadDebug) { lock_cout(u_lck_cout, "\nthread:[2]: NOTE: Threads have not been initialised:\n -initialising."); }
+                    if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: NOTE: Threads have not been initialised:\n -initialising."); }
 
                     while(!threadsInit[2]) {
                         u_lck0.lock();
-                        if(threadDebug) { lock_cout(u_lck_cout, "\nthread:[2]: -u_lck0 locked."); std::this_thread::sleep_for(100ms); }
+                        if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -u_lck0 locked."); std::this_thread::sleep_for(100ms); }
                         u_lck1.lock();
-                        if(threadDebug) { lock_cout(u_lck_cout, "\nthread:[2]: -u_lck1 locked."); std::this_thread::sleep_for(100ms); }
+                        if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -u_lck1 locked."); std::this_thread::sleep_for(100ms); }
                         updateCamVars(0);
-                        if(threadDebug) { lock_cout(u_lck_cout, "\nthread:[2]: -updateCamVars(0)."); }
+                        if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -updateCamVars(0)."); }
                         updateCamVars(1);
-                        if(threadDebug) { lock_cout(u_lck_cout, "\nthread:[2]: -updateCamVars(1)."); }
+                        if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -updateCamVars(1)."); }
                         if(threadsInit[0] && threadsInit[1]) threadsInit[2] = true;
                         if(threadDebug) { 
                             u_lck_cout.lock();
@@ -409,8 +419,8 @@ int main(int argc, char** argv) {
             camPos[1][1] = float(prefSize[1]) - camObjPos_main[0][1];
             if(numContours_main[0]>0 && numContours_main[1]>0) {
 
-                camPos[0][0] = float(prefSie[0]) - camObjPos_main[1][0];
-                camPos[0][1] = float(prefSie[1]) - camObjPos_main[1][1];
+                camPos[0][0] = float(prefSize[0]) - camObjPos_main[1][0];
+                camPos[0][1] = float(prefSize[1]) - camObjPos_main[1][1];
                 inpPos[0] = camPos[0][0];
                 inpPos[1] = camPos[1][0];
 
