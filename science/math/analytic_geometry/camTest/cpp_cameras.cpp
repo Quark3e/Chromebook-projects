@@ -74,6 +74,19 @@ int returCodes_main[2];
 int returCodes_interm[2] = {0, 0};
 
 /**
+ * container array for number of contours detected, to be used in main thread
+ * `[0]` = sub-thread[0]
+ * `[1]` = sub-thread[1]
+*/
+size_t numContours_main[2] = {0, 0};
+/**
+ * container array for number of contours detected, to be used in sub threads
+ * `[0]` = sub-thread[0]
+ * `[1]` = sub-thread[1]
+*/
+size_t numContours_interm[2] = {0, 0};
+
+/**
  * @brief transfer results from sub thread[`t-idx`] to `[..]_interm[t_idx]` variables
  * @param camPtr `IR_camTracking` object pointer
  * @param t_idx `int` value of which thread to use function on
@@ -82,9 +95,10 @@ void transferCamVars(IR_camTracking* camPtr, int t_idx) {
     if(dispToWindow) {
         flippedImg_interm[t_idx] = (*camPtr).imgFlipped;
     }
-    camObjPos_interm[t_idx][0] = (*camPtr).totCnt_pos[0];
-    camObjPos_interm[t_idx][1] = (*camPtr).totCnt_pos[1];
-    returCodes_interm[t_idx] = (*camPtr).processReturnCode;
+    camObjPos_interm[t_idx][0]  = (*camPtr).totCnt_pos[0];
+    camObjPos_interm[t_idx][1]  = (*camPtr).totCnt_pos[1];
+    returCodes_interm[t_idx]    = (*camPtr).processReturnCode;
+    numContours_interm[t_idx]   = (*camPtr).allCnt_pos.size();
 }
 /**
  * @brief update main-thread `[..]_main[t-idx]` variables with sub-thread `[..]_interm[t_idx]` variables
@@ -94,9 +108,10 @@ void updateCamVars(int t_idx) {
     if(dispToWindow) {
         flippedImg_main[t_idx] = flippedImg_interm[t_idx];
     }
-    camObjPos_main[t_idx][0] = camObjPos_interm[t_idx][0];
-    camObjPos_main[t_idx][1] = camObjPos_interm[t_idx][1];
-    returCodes_main[t_idx] = returCodes_interm[t_idx];
+    camObjPos_main[t_idx][0]    = camObjPos_interm[t_idx][0];
+    camObjPos_main[t_idx][1]    = camObjPos_interm[t_idx][1];
+    returCodes_main[t_idx]      = returCodes_interm[t_idx];
+    numContours_main[t_idx]     = numContours_interm[t_idx];
 }
 
 #if useThreads
@@ -148,6 +163,29 @@ void updateCamVars(int t_idx) {
         }
     }
 #endif
+
+/**
+ * simple function for locking a mutex reference and printing `toPrint` to cout buffer
+ * NOTE: this function will release after locking but before calling the function *make sure* the mutex object is unlocked,
+ * because otherwise it'll give undefined behavious.
+ * @param coutMutex `std::mutex` object reference.
+ * @param toPrint the string object to print to cout.
+ * @param blockingLock whether to use the blocking member function
+ * `std::mutex::lock()` or the nonblocking `std::mutex::try_lock()`.
+*/
+void lock_cout(std::mutex &coutMutex, string toPrint, bool blockingLock = true) {
+    if(blockingLock) {
+        coutMutex.lock();
+        std::cout << toPrint;
+        coutMutex.unlock();
+    }
+    else {
+        if(coutMutex.try_lock()) {
+            std::cout << toPrint;
+            coutMutex.unlock();
+        }
+    }
+}
 
 
 bool logOutput = false;
@@ -221,6 +259,7 @@ int main(int argc, char** argv) {
 
         // IR_camTracking camObj[2] {
 
+        /// Create and setup IR_camTracking objects
         camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], useAutoBright, dispToWindow, takePerf));
         camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], useAutoBright, dispToWindow, takePerf));
         if(logOutput) outLogFile << " -push_back() added both cams onto camObj\n";
@@ -233,12 +272,15 @@ int main(int argc, char** argv) {
 
 
         #if useThreads
+            /// sub-thread [0] mutex
             std::unique_lock<std::mutex> u_lck0(mtx[0], std::defer_lock);
+            /// sub-thread [1] mutex
             std::unique_lock<std::mutex> u_lck1(mtx[1], std::defer_lock);
+            /// local cout mutex obj
             std::unique_lock<std::mutex> u_lck_cout(mtx_cout, std::defer_lock);
 
-            std::thread t_cam0(thread_task, &camObj.at(0), 0);
-            std::thread t_cam1(thread_task, &camObj.at(1), 1);
+            std::thread t_cam0(thread_task, &camObj[0], 0);
+            std::thread t_cam1(thread_task, &camObj[1], 1);
         #endif
     }
     if(useTwoCamClass) {
@@ -284,15 +326,75 @@ int main(int argc, char** argv) {
 
         if(useCamera) {
             #if useThreads
-                std::thread t_cam0(thread_task, std::ref(camObj[0]));
-                std::thread t_cam1(thread_task, std::ref(camObj[1]));
-                t_cam0.join();
-                t_cam1.join();
+                // std::thread t_cam0(thread_task, std::ref(camObj[0]));
+                // std::thread t_cam1(thread_task, std::ref(camObj[1]));
+                // t_cam0.join();
+                // t_cam1.join();
+
+                if(!threadsInit[2]) {
+                    if(threadDebug) { lock_cout(u_lck_cout, "\nthread:[2]: NOTE: Threads have not been initialised:\n -initialising."); }
+
+                    while(!threadsInit[2]) {
+                        u_lck0.lock();
+                        if(threadDebug) { lock_cout(u_lck_cout, "\nthread:[2]: -u_lck0 locked."); std::this_thread::sleep_for(100ms); }
+                        u_lck1.lock();
+                        if(threadDebug) { lock_cout(u_lck_cout, "\nthread:[2]: -u_lck1 locked."); std::this_thread::sleep_for(100ms); }
+                        updateCamVars(0);
+                        if(threadDebug) { lock_cout(u_lck_cout, "\nthread:[2]: -updateCamVars(0)."); }
+                        updateCamVars(1);
+                        if(threadDebug) { lock_cout(u_lck_cout, "\nthread:[2]: -updateCamVars(1)."); }
+                        if(threadsInit[0] && threadsInit[1]) threadsInit[2] = true;
+                        if(threadDebug) { 
+                            u_lck_cout.lock();
+                            std::cout << ".";
+                            cout.flush();
+                            u_lck_cout.unlock();
+                        }
+                        std::this_thread::sleep_for(500ms);
+                        u_lck1.unlock();
+                        u_lck0.unlock();
+                    }
+                    if(threadDebug) {
+                        u_lck_cout.lock();
+                        std::cout << "\nthread:[2]: Initialised!" << std::endl;
+                        u_lck_cout.unlock();
+                    }
+                }
+                else {
+                    u_lck0.lock();
+                    updateCamVars(0);
+                    u_lck0.unlock();
+                    u_lck1.lock();
+                    updateCamVars(1);
+                    u_lck1.unlock();
+                    
+                    if(returCodes_main[0]==-1) {
+                        if(threadDebug) {
+                            u_lck_cout.lock();
+                            std::cout << "\ncamObj[0] process error" << std::endl;
+                            u_lck_cout.unlock();
+                        }
+                        return 1;
+                    }
+                    if(returCodes_main[1]==-1) {
+                        if(threadDebug) {
+                            u_lck_cout.lock();
+                            std::cout << "\ncamObj[1] process error" << std::endl;
+                            u_lck_cout.unlock();
+                        }
+                        return 1;
+                    }
+
+                }
             #elif !useThreads
                 camObj[0].processCam();
                 camObj[1].processCam();
+                transferCamVars(&camObj[0], 0);
+                transferCamVars(&camObj[1], 1);
+                updateCamVars(0);
+                updateCamVars(1);
             #endif
-            if(camObj[0].processReturnCode==-1 || camObj[1].processReturnCode==-1) {
+            if(returCodes_main[0]==-1 || returCodes_main[1]==-1) {
                 if(logOutput) outLogFile << " -couldn't processCam: returned -1: \n";
                 if(logOutput) outLogFile.close();
                 return 0;
@@ -300,15 +402,15 @@ int main(int argc, char** argv) {
             if(logOutput) outLogFile << " -useCamera: processCam\n";
         }
 
-        if(useCamera && camObj[0].allCnt_pos.size()>0) {
-            cv::Size camSize = camObj[0].imgFlipped.size();
+        if(useCamera && numContours_main[0]>0) {
+            // cv::Size camSize = camObj[0].imgFlipped.size();
             
-            camPos[1][0] = float(camObj[0].prefSize[0]) - camObj[0].totCnt_pos[0];
-            camPos[1][1] = float(camObj[0].prefSize[1]) - camObj[0].totCnt_pos[1];
-            if(camObj[0].allCnt_pos.size()>0 && camObj[1].allCnt_pos.size()>0) {
+            camPos[1][0] = float(prefSize[0]) - camObjPos_main[0][0];
+            camPos[1][1] = float(prefSize[1]) - camObjPos_main[0][1];
+            if(numContours_main[0]>0 && numContours_main[1]>0) {
 
-                camPos[0][0] = float(camObj[1].prefSize[0]) - camObj[1].totCnt_pos[0];
-                camPos[0][1] = float(camObj[1].prefSize[1]) - camObj[1].totCnt_pos[1];
+                camPos[0][0] = float(prefSie[0]) - camObjPos_main[1][0];
+                camPos[0][1] = float(prefSie[1]) - camObjPos_main[1][1];
                 inpPos[0] = camPos[0][0];
                 inpPos[1] = camPos[1][0];
 
@@ -330,7 +432,7 @@ int main(int argc, char** argv) {
         if(useTwoCamClass) {
             camTri->solvePos(inpPos, solvedPos, false);
             if(logOutput) outLogFile << " -useTwoCamClass: -camTri->solvePos()\n";
-            solvedY = -sin(toRadians(((*camTri).camRes[0][1]*0.5-camObj[0].totCnt_pos[1])*(*camTri).camCoef[0][1]))*solvedPos[1];
+            solvedY = -sin(toRadians(((*camTri).camRes[0][1]*0.5-camObjPos_main[0][1])*(*camTri).camCoef[0][1]))*solvedPos[1];
             
             PP[0] = solvedPos[0];
             PP[1] = solvedY;
@@ -371,6 +473,11 @@ int main(int argc, char** argv) {
         if(logOutput) logOutput = false;
     }
     if(useCamera) {
+        #if useThreads
+            t_cam0.join();
+            t_cam1.join();
+        #endif
+
         camObj[0].close();
         camObj[1].close();
     }
