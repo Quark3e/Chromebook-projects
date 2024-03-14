@@ -189,7 +189,7 @@ void lock_cout(std::mutex &coutMutex, string toPrint, bool blockingLock = true) 
 }
 
 
-bool logOutput = false;
+bool logOutput = true;
 
 int main(int argc, char** argv) {
 
@@ -258,7 +258,10 @@ int main(int argc, char** argv) {
 
     #if useThreads
         std::unique_lock<std::mutex> u_lck0, u_lck1, u_lck_cout;
+        if(logOutput) outLogFile << " -declared std::unique_lock<std::mutex>> objects\n";
+
         std::thread t_cam0, t_cam1;
+        if(logOutput) outLogFile << " -declared std::thread objects\n";
     #endif
 
     if(useCamera) {
@@ -288,9 +291,12 @@ int main(int argc, char** argv) {
             u_lck0      = std::unique_lock<std::mutex>(mtx[0], std::defer_lock);
             u_lck1      = std::unique_lock<std::mutex>(mtx[1], std::defer_lock);
             u_lck_cout  = std::unique_lock<std::mutex>(mtx_cout, std::defer_lock);
-
+            if(logOutput) outLogFile << " -defined unique_lock()'s\n";
+            
             t_cam0  = std::thread(thread_task, &camObj[0], 0);
             t_cam1  = std::thread(thread_task, &camObj[1], 1);
+            if(logOutput) outLogFile << " -defined std::thread objects\n";
+            std::this_thread::sleep_for(1000ms);
         #endif
     }
     if(useTwoCamClass) {
@@ -321,6 +327,13 @@ int main(int argc, char** argv) {
             for(int i=0; i<6; i++) { nums[0][i] = toRecev[i+1]; }
             if(atoi(nums[0]) == 6942)  {
                 outLogFile << "--exit called:\n";
+                u_lck0.lock();
+                exit_thread[0] = true;
+                u_lck0.unlock();
+                u_lck1.lock();
+                exit_thread[1] = true;
+                u_lck1.unlock();
+                std::cout << "exit called" << std::endl;
                 break;
             }
         }
@@ -344,6 +357,8 @@ int main(int argc, char** argv) {
                 if(!threadsInit[2]) {
                     if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: NOTE: Threads have not been initialised:\n -initialising."); }
 
+                    if(logOutput) outLogFile << " -threads not initialised: initialising\n";
+
                     while(!threadsInit[2]) {
                         u_lck0.lock();
                         if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -u_lck0 locked."); std::this_thread::sleep_for(100ms); }
@@ -364,6 +379,7 @@ int main(int argc, char** argv) {
                         u_lck1.unlock();
                         u_lck0.unlock();
                     }
+                    if(logOutput) outLogFile << " -threads initialised\n";
                     if(threadDebug) {
                         u_lck_cout.lock();
                         std::cout << "\nthread:[2]: Initialised!" << std::endl;
@@ -377,7 +393,7 @@ int main(int argc, char** argv) {
                     u_lck1.lock();
                     updateCamVars(1);
                     u_lck1.unlock();
-                    
+                    if(logOutput) outLogFile << " -thread: initiated loop iteration\n";
                     if(returCodes_main[0]==-1) {
                         if(threadDebug) {
                             u_lck_cout.lock();
