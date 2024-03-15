@@ -189,7 +189,7 @@ void lock_cout(std::mutex &coutMutex, string toPrint, bool blockingLock = true) 
 }
 
 
-bool logOutput = true;
+bool logOutput = false;
 
 int main(int argc, char** argv) {
 
