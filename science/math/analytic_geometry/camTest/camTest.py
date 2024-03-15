@@ -53,6 +53,12 @@ class AnimatedPlot(object):
             "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
             "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
         },
+        "plt_00": {
+            "tA": 0,
+            "tB": 0,
+            "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
+            "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
+        },
         "plt_01": {
             "tA": 0,
             "tB": 0,
@@ -509,11 +515,17 @@ class AnimatedPlot(object):
 
         if measure_perf:
             self.perf["\"plt\"_total"]["tA"] = time.perf_counter()
-            self.perf["plt_01"]["tA"] = time.perf_counter()
+            self.perf["plt_00"]["tA"] = time.perf_counter()
 
-        # for i in range(2):
-        #     self.centAlignArc[i].resolution = round(0.1*(self.tri.ang_tri[0]))+1
-        #     self.centAlignArc[i].update(-self.tri.ang_read[i],self.tri.ang_offset[i],self.tri.camPos[i][:2])
+        for i in range(2):
+            self.centAlignArc[i].resolution = round(0.1*(self.tri.ang_tri[0]))+1
+
+        if measure_perf:
+            self.updatePerf("plt_00")
+            self.perf["plt_01"]["tA"] = time.perf_counter()
+            
+        for i in range(2):
+            self.centAlignArc[i].update(-self.tri.ang_read[i],self.tri.ang_offset[i],self.tri.camPos[i][:2])
         
         if measure_perf:
             self.updatePerf("plt_01")
