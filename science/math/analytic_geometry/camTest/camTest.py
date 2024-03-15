@@ -119,8 +119,9 @@ class AnimatedPlot(object):
             "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
             "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
         }
-
     }
+    perf_deltaFilter = lambda x: 0.5*x
+
     def updatePerf(self, perfName):
         """Updates `self.perf[{perfName}]` values excluding `[tA]` since that is manually input
 
@@ -130,6 +131,8 @@ class AnimatedPlot(object):
 
         self.perf[perfName]["tB"] = time.perf_counter()
         self.perf[perfName]["delay"]["value"]   = self.perf[perfName]["tB"] - self.perf[perfName]["tA"]
+        # self.perf[perfName]["delay"]["value"]   += 0.5*((self.perf[perfName]["tB"] - self.perf[perfName]["tA"])-self.perf[perfName]["delay"]["value"])
+
         self.perf[perfName]["fps"]["value"]     = 1/self.perf[perfName]["delay"]["value"]
 
 
@@ -523,9 +526,9 @@ class AnimatedPlot(object):
         if measure_perf:
             self.updatePerf("plt_00")
             self.perf["plt_01"]["tA"] = time.perf_counter()
-            
-        for i in range(2):
-            self.centAlignArc[i].update(-self.tri.ang_read[i],self.tri.ang_offset[i],self.tri.camPos[i][:2])
+
+        # for i in range(2):
+        #     self.centAlignArc[i].update(-self.tri.ang_read[i],self.tri.ang_offset[i],self.tri.camPos[i][:2])
         
         if measure_perf:
             self.updatePerf("plt_01")
