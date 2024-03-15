@@ -85,3 +85,31 @@ start: Thu Mar 14 23:24:05 2024
  -final printf("%s\n", toSend);
  -std::cout.flush();
 --exit called:
+start: Fri Mar 15 12:35:26 2024
+ -created camObj obj vector
+ -created camTri obj pointer
+ -first definition of toSend[] symbols
+ -declared std::unique_lock<std::mutex>> objects
+ -declared std::thread objects
+ -push_back() added both cams onto camObj
+ -camObj[0].setup_window()
+ -camObj[1].setup_window()
+ -defined unique_lock()'s
+ -defined std::thread objects
+ -camTri = new camTriangle(camPosition, camAng_offs)
+ -while loop iteration
+ -scanf();
+ -while loop definition of toSend[] symbols:1: 1
+ -threads not initialised: initialising
+ -threads initialised
+ -useCamera: processCam
+ -useTwoCamClass: -camTri->solvePos()
+ -useTwoCamClass: -l_hypotenuse=25
+ -useTwoCamClass: -ang_p=-6.06159e+32
+ -useTwoCamClass: -fillCharArray() (*camTri).l_tri[29.3129, -25]
+ -useTwoCamClass: -fillCharArray() (*camTri).ang_tri[6.06159e+32, 27]
+ -useTwoCamClass: -fillCharArray() PP[ ]
+ -toSend[i] = ','; commas added
+ -final printf("%s\n", toSend);
+ -std::cout.flush();
+--exit called:
