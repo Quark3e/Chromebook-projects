@@ -22,7 +22,7 @@ from teststuff.python.matplotlib.basic.nonFilled_arc import drawArc
 from subprocess import Popen, PIPE
 
 
-displayGraph = True
+displayGraph = True # note sure how to exactly integrate this properly into the animate class
 
 
 class AnimatedPlot(object):
