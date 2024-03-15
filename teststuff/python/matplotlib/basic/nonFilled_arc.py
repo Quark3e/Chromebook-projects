@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 from math import sin, cos, tan, asin, acos, atan
 
 toRadians = lambda degrees: (degrees*np.pi)/180
 toDegrees = lambda radians: (radians*180)/np.pi
+
+
+
 
 class drawArc(object):
     """Draw an arc on plot axis/figure

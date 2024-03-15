@@ -523,13 +523,17 @@ class AnimatedPlot(object):
         for i in range(2):
             self.centAlignArc[i].resolution = round(0.1*(self.tri.ang_tri[0]))+1
 
+        self.centAlignArc[1].update(-self.tri.ang_read[1],self.tri.ang_offset[1],self.tri.camPos[1][:2])
+
         if measure_perf:
             self.updatePerf("plt_00")
             self.perf["plt_01"]["tA"] = time.perf_counter()
 
         # for i in range(2):
         #     self.centAlignArc[i].update(-self.tri.ang_read[i],self.tri.ang_offset[i],self.tri.camPos[i][:2])
-        
+        self.centAlignArc[0].update(-self.tri.ang_read[0],self.tri.ang_offset[0],self.tri.camPos[0][:2])
+
+
         if measure_perf:
             self.updatePerf("plt_01")
             self.perf["plt_02"]["tA"] = time.perf_counter()
