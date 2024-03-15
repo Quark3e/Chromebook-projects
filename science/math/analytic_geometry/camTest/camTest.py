@@ -22,6 +22,8 @@ from teststuff.python.matplotlib.basic.nonFilled_arc import drawArc
 from subprocess import Popen, PIPE
 
 
+
+
 class AnimatedPlot(object):
     camPos = [[0, 0, 0], [25, 0, 0]]
     camAng_offset = [90, 123] #degrees
@@ -227,7 +229,8 @@ class AnimatedPlot(object):
         self.testPos = 3*[0]
 
         while True:
-            self.timeDelta[1] = time.perf_counter()
+            #from end of loop iteration to here is ~25ms (~40±10 fps)
+            
 
             if not self.CPP_opts["useCamera"]:
                 if self.IRcams.update() == None:
@@ -271,6 +274,7 @@ class AnimatedPlot(object):
                 self.tri.solved_pos[1] = float(self.from_cppEXE[71:77])
                 self.solvedPos = self.tri.solved_pos
             
+            self.timeDelta[1] = time.perf_counter()
             print(
                 f"solved pos: [{round(self.solvedPos[0],1):>4}:{round(self.solvedPos[1]):>4}]", " | ",
                 f"fps: {round(1/(self.timeDelta[1]-self.timeDelta[0]),4):>6}",
