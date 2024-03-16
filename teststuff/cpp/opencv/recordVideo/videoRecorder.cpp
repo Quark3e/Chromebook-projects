@@ -20,10 +20,11 @@ int main(int argc, char** argv) {
     cv::Size frame_size(frame_width, frame_height);
     int frames_per_second = 25;
 
-    std::string filename = "test.avi";
+    std::string filename = "test.mp4";
     cv::VideoWriter oVideoWriter(
         filename,
-        cv::VideoWriter::fourcc('M', 'J', 'P', 'G'),
+        // cv::VideoWriter::fourcc('M', 'J', 'P', 'G'),
+        cv::VideoWriter::fourcc('a','v','c','1'),
         frames_per_second,
         frame_size,
         true
