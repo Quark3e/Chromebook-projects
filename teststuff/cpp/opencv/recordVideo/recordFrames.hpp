@@ -16,7 +16,7 @@ class opencv_recorder {
     */
     int frameDim[2] = {640, 480};
     int initFPS = 25;
-    std::string filename = "defaultName";
+    std::string filename = "defaultName.mp4";
 
     cv::Size frameSize;
     cv::VideoWriter videoObj;
@@ -60,7 +60,7 @@ int opencv_recorder::setup() {
     frameSize = cv::Size(frameDim[0], frameDim[1]);
     videoObj = cv::VideoWriter(
         filename,
-        cv::VideoWriter::fourcc('M', 'J', 'P', 'G'),
+        cv::VideoWriter::fourcc('a', 'v', 'c', '1'),
         initFPS,
         frameSize,
         true
