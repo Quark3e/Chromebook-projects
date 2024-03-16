@@ -43,7 +43,8 @@ int prefSize[2] = {640, 480};
 opencv_recorder recObj(
     "cpp_cameras_feed.mp4",
     prefSize[0]*2,  //using hconcat
-    prefSize[1]*2   //imgFlipped is by default vconcat
+    prefSize[1]*2,   //imgFlipped is by default vconcat
+    15
 );
 #endif
 
