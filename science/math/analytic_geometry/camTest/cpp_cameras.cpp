@@ -17,7 +17,9 @@
 
 #define useAutoBright   false
 #define dispToWindow    true
+
 #define takePerf        false
+#define recordFrames    true
 
 #if useThreads
 #include <thread>
@@ -27,6 +29,7 @@
 #include "../../../../teststuff/cpp/useful/useful.hpp"
 #include "../../../../projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp"
 #include "../../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp"
+#include "../../../../teststuff/cpp/opencv/recordVideo/recordFrames.hpp"
 
 
 /*std::ios::sync_with_stdio(false);*/
@@ -36,6 +39,13 @@
 
 int prefSize[2] = {640, 480};
 
+#if recordFrames
+opencv_recorder recObj(
+    "cpp_cameras_feed",
+    prefSize[0]*2,  //using hconcat
+    prefSize[1]*2   //imgFlipped is by default vconcat
+);
+#endif
 
 /// array to hold initialisation boolean values (true if it's been init, false otherwise)
 /// `[0]` = cam0-thread
@@ -92,9 +102,9 @@ size_t numContours_interm[2] = {0, 0};
  * @param t_idx `int` value of which thread to use function on
 */
 void transferCamVars(IR_camTracking* camPtr, int t_idx) {
-    if(dispToWindow) {
+    // if(dispToWindow) {
         flippedImg_interm[t_idx] = (*camPtr).imgFlipped;
-    }
+    // }
     camObjPos_interm[t_idx][0]  = (*camPtr).totCnt_pos[0];
     camObjPos_interm[t_idx][1]  = (*camPtr).totCnt_pos[1];
     returCodes_interm[t_idx]    = (*camPtr).processReturnCode;
@@ -105,9 +115,9 @@ void transferCamVars(IR_camTracking* camPtr, int t_idx) {
  * @param t_idx `int` value of which thread to use function on
 */
 void updateCamVars(int t_idx) {
-    if(dispToWindow) {
+    // if(dispToWindow) {
         flippedImg_main[t_idx] = flippedImg_interm[t_idx];
-    }
+    // }
     camObjPos_main[t_idx][0]    = camObjPos_interm[t_idx][0];
     camObjPos_main[t_idx][1]    = camObjPos_interm[t_idx][1];
     returCodes_main[t_idx]      = returCodes_interm[t_idx];
@@ -126,6 +136,9 @@ void updateCamVars(int t_idx) {
     */
     std::mutex mtx_cout;
 
+    // /**mutex for saving frames onto `opencv_recorder` class object*/
+    // std::mutex mtx_vidRec;
+
     bool exit_thread[2] = {false, false};
 
     /**
@@ -136,6 +149,11 @@ void updateCamVars(int t_idx) {
     void thread_task(IR_camTracking* camPtr, int t_idx) {
         std::unique_lock<std::mutex> u_lck(mtx[t_idx], std::defer_lock);
         std::unique_lock<std::mutex> u_lck_cout(mtx_cout, std::defer_lock);
+
+        // #if recordFrames
+        // std::unique_lock<std::mutex> u_lck_rec(mtx_vidRec, std::defer_lock);
+        // #endif
+
         if(threadDebug) {
             u_lck_cout.lock();
             std::cout << "\nthread " << t_idx << " initialised" << std::endl;
@@ -160,6 +178,7 @@ void updateCamVars(int t_idx) {
                 break;
             }
             u_lck.unlock();
+
         }
     }
 #endif
@@ -497,8 +516,19 @@ int main(int argc, char** argv) {
         std::cout.flush();
         if(logOutput) outLogFile << " -std::cout.flush();\n";
         if(logOutput) logOutput = false;
+
+        if(useCamera) {
+            #if recordFrames
+            cv::Mat concatImg;
+            cv::hconcat(flippedImg_main[0], flippedImg_main[1], concatImg);
+            recObj.addFrame(concatImg);
+            #endif
+        }
     }
     if(useCamera) {
+        #if recordFrames
+            recObj.releaseVideo();
+        #endif
         #if useThreads
             t_cam0.join();
             t_cam1.join();

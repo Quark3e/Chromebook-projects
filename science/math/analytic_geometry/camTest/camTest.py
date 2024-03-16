@@ -22,8 +22,10 @@ from teststuff.python.matplotlib.basic.nonFilled_arc import drawArc
 from subprocess import Popen, PIPE
 
 
-display_graph    = True # note sure how to exactly integrate this properly into the animate class
-measure_perf     = True
+display_graph   = True # note sure how to exactly integrate this properly into the animate class
+measure_perf    = True
+
+recordVideo     = True
 
 
 template_perf_ms = {
