@@ -607,10 +607,14 @@ if __name__=="__main__":
     )
 
     if not anim_use:
-        while True:
-            next(a.stream)
-
-    plt.show()
+        try:
+            while True:
+                next(a.stream)
+        except KeyboardInterrupt:
+            print("\nexiting..")
+    else:
+        plt.show()
+    
     if not args.useCPP: a.IRcams.close()
     if args.useCPP and args.CPP_useCamera:
         print("\n Closing\n")
