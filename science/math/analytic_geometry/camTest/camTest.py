@@ -22,6 +22,10 @@ from teststuff.python.matplotlib.basic.nonFilled_arc import drawArc
 from subprocess import Popen, PIPE
 
 
+anim_use        = False
+anim_display    = False
+anim_update     = False
+
 display_graph   = True # note sure how to exactly integrate this properly into the animate class
 measure_perf    = True
 
@@ -327,10 +331,11 @@ class AnimatedPlot(object):
         self.ps_stuff.update({"camRelativeAngText": 2*[0]})
         self.ps_stuff.update({"centerAlignArc": 2*[0]})
 
-        self.ani = animation.FuncAnimation( \
-            self.fig, self.update, interval=1, frames=360, \
-            init_func=self.setup_plot, blit=False,  \
-        )
+        if anim_use:
+            self.ani = animation.FuncAnimation( \
+                self.fig, self.update, interval=1, frames=360, \
+                init_func=self.setup_plot, blit=False,  \
+            )
     def data_stream(self):
         self.testPos = 3*[0]
 
@@ -386,7 +391,7 @@ class AnimatedPlot(object):
                 self.tri.solved_pos[1] = float(self.from_cppEXE[71:77])
                 self.solvedPos = self.tri.solved_pos
             
-            if measure_perf: self.updatePerf("get_camPos")
+            if measure_perf: self.updatePerf("get_realPos")
 
             toPrintString = (
                 f"solved pos: [{round(self.solvedPos[0],1):>4}: {round(self.solvedPos[1],1):>4}]" + " | ")
@@ -522,6 +527,7 @@ class AnimatedPlot(object):
 
         next(self.stream)
 
+
         if measure_perf:
             self.updatePerf("\"stream\"_total")
             self.perf["\"plt\"_total"]["tA"] = time.perf_counter()
@@ -561,11 +567,11 @@ class AnimatedPlot(object):
             self.updatePerf("plt_1")
             self.perf["plt_2"]["tA"] = time.perf_counter()
 
-
-        retur=[]
-        for key,val in self.ps_stuff.items():
-            for el in val: retur.append(el)
-        
+        if anim_display:
+            retur=[]
+            for key,val in self.ps_stuff.items():
+                for el in val: retur.append(el)
+            
         if measure_perf:
             self.updatePerf("plt_2")
             self.updatePerf("\"plt\"_total")
@@ -573,7 +579,8 @@ class AnimatedPlot(object):
             self.perf["pltAnim"]["tA"] = time.perf_counter()
             self.perf["\"update\"_total"]["tA"] = time.perf_counter()
 
-        return retur
+        if anim_display:
+            return retur
 
 
 if __name__=="__main__":
@@ -598,6 +605,10 @@ if __name__=="__main__":
         args.CPP_useCamera,
         args.CPP_useClass
     )
+
+    if not anim_use:
+        while True:
+            next(a.stream)
 
     plt.show()
     if not args.useCPP: a.IRcams.close()
