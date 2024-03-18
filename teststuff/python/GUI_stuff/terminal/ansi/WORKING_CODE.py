@@ -11,9 +11,9 @@ print(termSize)
 
 try:
     while True:
-        print(f"\x1B[{random.randint(0,termSize[1])};{random.randint(0,termSize[0])}H*", flush=True, end="")
+        print(f"\x1B[2J\x1B[{random.randint(0,termSize[1])};{random.randint(0,termSize[0])}H*", flush=True, end="")
         #print('\x1B[4;50H*')
-        time.sleep(0.1)
+        #time.sleep(0.001)
 except KeyboardInterrupt:
     print("exiting..")
 
