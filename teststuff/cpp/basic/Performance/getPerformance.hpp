@@ -190,7 +190,11 @@ void getPerf::update_totalInfo(
     }
 }
 
-
+/**
+ * @brief get vector index of name
+ * @param name string of the `{name}` to find index of
+ * @return index of `{name}`
+*/
 int getPerf::getIdx(string name) {
     auto pos = find(names.begin(), names.end(), name);
     if(pos == names.end()) {
