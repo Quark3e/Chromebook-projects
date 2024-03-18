@@ -12,7 +12,7 @@ absPath = os.path.realpath(__file__)[:-len("camTest.py")]
 sys.path.append(absPath[:absPath.find("science")])
 
 import teststuff.python.modules.IR_track_opencv as IR_track
-import teststuff.python.modules.useful
+import teststuff.python.modules.useful as useful
 
 from science.math.analytic_geometry.two_cam_coordinate import camTriangle, toRadians, toDegrees
 from teststuff.python.matplotlib.basic.nonFilled_arc import drawArc
@@ -126,20 +126,34 @@ class AnimatedPlot(object):
             "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
         }
     }
+    perfObj = useful.basic_perf([
+        "plt_total",
+        "plt_00",
+        "plt_01",
+        "plt_02",
+        "plt_1",
+        "plt_2",
+        "cpp_total",
+        "get_camPos",
+        "get_realPos",
+        "pltAnim",
+        "stream_total",
+        "update_total"
+    ])
     perf_deltaFilter = lambda x: 0.5*x
 
-    def updatePerf(self, perfName):
-        """Updates `self.perf[{perfName}]` values excluding `[tA]` since that is manually input
+    # def updatePerf(self, perfName):
+    #     """Updates `self.perfObj.tA({perfName}]` values excluding `[tA]` since that is manually input
 
-        ### Args:
-            perfName (string): name of perf key to update
-        """
+    #     ### Args:
+    #         perfName (string): name of perf key to update
+    #     """
 
-        self.perf[perfName]["tB"] = time.perf_counter()
-        self.perf[perfName]["delay"]["value"]   = self.perf[perfName]["tB"] - self.perf[perfName]["tA"]
-        # self.perf[perfName]["delay"]["value"]   += 0.5*((self.perf[perfName]["tB"] - self.perf[perfName]["tA"])-self.perf[perfName]["delay"]["value"])
+    #     self.perfObj.tA(perfName]["tB"] = time.perf_counter()
+    #     self.perfObj.tA(perfName]["delay"]["value"]   = self.perfObj.tA(perfName]["tB"] - self.perfObj.tA(perfName]["tA"]
+    #     # self.perfObj.tA(perfName]["delay"]["value"]   += 0.5*((self.perfObj.tA(perfName]["tB"] - self.perfObj.tA(perfName]["tA"])-self.perfObj.tA(perfName]["delay"]["value"])
 
-        self.perf[perfName]["fps"]["value"]     = 1/self.perf[perfName]["delay"]["value"]
+    #     self.perfObj.tA(perfName]["fps"]["value"]     = 1/self.perfObj.tA(perfName]["delay"]["value"]
 
 
     winToDisp = {
@@ -157,7 +171,7 @@ class AnimatedPlot(object):
 
 
     def cpp_update(self):
-        if measure_perf: self.perf["\"cpp\"_total"]["tA"] = time.perf_counter()
+        if measure_perf: self.perfObj.tA("cpp_total")
 
         self.to_cppEXE+="\n"
         value = self.to_cppEXE.encode("utf-8")
@@ -166,7 +180,7 @@ class AnimatedPlot(object):
         self.cpp_P.stdin.flush()
         self.from_cppEXE = self.cpp_P.stdout.readline().decode("utf-8")
 
-        if measure_perf: self.updatePerf("\"cpp\"_total")
+        if measure_perf: self.perfObj.tB("cpp_total")
 
         print("from C++ exe received:", self.from_cppEXE)
     def cpp_closeCams(self):
@@ -198,6 +212,7 @@ class AnimatedPlot(object):
                 stdin=PIPE
             )
 
+        sys.stdout.write("\x1B[2J")
         print(useCPP_prog, useCPP_useCam, useCPP_trigClass)  
         print(self.CPP_opts)
 
@@ -343,8 +358,8 @@ class AnimatedPlot(object):
             #from end of loop iteration to here is ~25ms (~40±10 fps)
             
             if measure_perf:
-                self.perf["get_camPos"]["tA"] = time.perf_counter()
-                # self.perf["\"stream\"_total"]["tA"] = time.perf_counter()
+                self.perfObj.tA("get_camPos")
+                # self.perfObj.tA("\"stream\"_total")
 
             if not self.CPP_opts["useCamera"]:
                 if self.IRcams.update() == None:
@@ -366,8 +381,8 @@ class AnimatedPlot(object):
                 self.IRcams.tempPos[2][1] = float(self.from_cppEXE[22:28])
                 
             if measure_perf:
-                self.updatePerf("get_camPos")
-                self.perf["get_realPos"]["tA"] = time.perf_counter()
+                self.perfObj.tB("get_camPos")
+                self.perfObj.tA("get_realPos")
 
             if not self.CPP_opts["useTrigClass"]:
                 try:
@@ -391,29 +406,30 @@ class AnimatedPlot(object):
                 self.tri.solved_pos[1] = float(self.from_cppEXE[71:77])
                 self.solvedPos = self.tri.solved_pos
             
-            if measure_perf: self.updatePerf("get_realPos")
+            if measure_perf: self.perfObj.tB("get_realPos")
 
             toPrintString = (
-                f"solved pos: [{round(self.solvedPos[0],1):>4}: {round(self.solvedPos[1],1):>4}]" + " | ")
+                f"solved pos: [{round(self.solvedPos[0],1):>4}: {round(self.solvedPos[1],1):>4}]" + " | \n")
 
 
             if measure_perf:
-                # self.updatePerf("\"stream\"_total")
+                # self.perfObj.tB("\"stream\"_total")
+                toPrintString+=self.perfObj.print(["total"])
+            #     toPrintString += "\nperf:\n"
+            #     sumDelay = 0
+            #     for key,value in self.perf.items():
+            #         toPrintString += f"  -{key:<16}: {round(value['delay']['value']*1000,2):>6}ms\n"
 
-                toPrintString += "\nperf:\n"
-                sumDelay = 0
-                for key,value in self.perf.items():
-                    toPrintString += f"  -{key:<16}: {round(value['delay']['value']*1000,2):>6}ms\n"
-
-                    if key[-5:]!="total":
-                        sumDelay += value["delay"]["value"]
-                toPrintString += f"total: [{round(sumDelay*1000,2):>6}ms] [fps:{round(1/sumDelay,1):>6}]\n"
+            #         if key[-5:]!="total":
+            #             sumDelay += value["delay"]["value"]
+            #     toPrintString += f"total: [{round(sumDelay*1000,2):>6}ms] [fps:{round(1/sumDelay,1):>6}]\n"
             
-            # print(toPrintString)
+            # # print(toPrintString)
             sys.stdout.write(
-                "\x1B[2J\x1B[H"+
+            # "\x1B[2J\x1B[H"+
+                "\x1B[5;0H"+
                 toPrintString
-                )
+            )
 
             # self.timeDelta[1] = time.perf_counter()
             # print(
@@ -526,16 +542,16 @@ class AnimatedPlot(object):
         self.ps_stuff["triSideLengthText"][2].set_y((self.tri.camPos[1][1]+self.tri.camPos[0][1])/2+2)
     def update(self, i):
         if measure_perf:
-            self.updatePerf("pltAnim")
-            self.perf["\"stream\"_total"]["tA"] = time.perf_counter()
+            self.perfObj.tB("pltAnim")
+            self.perfObj.tA("stream_total")
 
         next(self.stream)
 
 
         if measure_perf:
-            self.updatePerf("\"stream\"_total")
-            self.perf["\"plt\"_total"]["tA"] = time.perf_counter()
-            self.perf["plt_00"]["tA"] = time.perf_counter()
+            self.perfObj.tB("stream_total")
+            self.perfObj.tA("plt_total")
+            self.perfObj.tA("plt_00")
 
         for i in range(2):
             self.centAlignArc[i].resolution = round(0.1*(self.tri.ang_tri[0]))+1
@@ -543,8 +559,8 @@ class AnimatedPlot(object):
         # self.centAlignArc[1].update(-self.tri.ang_read[1],self.tri.ang_offset[1],self.tri.camPos[1][:2])
 
         if measure_perf:
-            self.updatePerf("plt_00")
-            self.perf["plt_01"]["tA"] = time.perf_counter()
+            self.perfObj.tB("plt_00")
+            self.perfObj.tA("plt_01")
 
         # for i in range(2):
         #     self.centAlignArc[i].update(-self.tri.ang_read[i],self.tri.ang_offset[i],self.tri.camPos[i][:2])
@@ -552,14 +568,14 @@ class AnimatedPlot(object):
 
 
         if measure_perf:
-            self.updatePerf("plt_01")
-            self.perf["plt_02"]["tA"] = time.perf_counter()
+            self.perfObj.tB("plt_01")
+            self.perfObj.tA("plt_02")
 
         self.ps_updateText()
 
         if measure_perf:
-            self.updatePerf("plt_02")
-            self.perf["plt_1"]["tA"] = time.perf_counter()
+            self.perfObj.tB("plt_02")
+            self.perfObj.tA("plt_1")
 
         self.ps_stuff["Pp"][0].set_offsets([[self.tri.camPos[0][0],self.tri.camPos[0][1]],[self.tri.camPos[1][0],self.tri.camPos[1][1]],[self.solvedPos[0],self.solvedPos[1]]])
         self.ps_stuff["Pp"][1].set_offsets([[self.tri.camPos[0][0],self.tri.camPos[0][1]],[self.tri.camPos[1][0],self.tri.camPos[1][1]],[self.testPos[0],self.testPos[1]]])
@@ -568,8 +584,8 @@ class AnimatedPlot(object):
         self.ps_stuff["triSideLength"][2].set_data([self.tri.camPos[1][0],self.tri.camPos[0][0]], [self.tri.camPos[1][1],self.tri.camPos[0][1]])
         
         if measure_perf:
-            self.updatePerf("plt_1")
-            self.perf["plt_2"]["tA"] = time.perf_counter()
+            self.perfObj.tB("plt_1")
+            self.perfObj.tA("plt_2")
 
         if anim_display:
             retur=[]
@@ -577,11 +593,11 @@ class AnimatedPlot(object):
                 for el in val: retur.append(el)
             
         if measure_perf:
-            self.updatePerf("plt_2")
-            self.updatePerf("\"plt\"_total")
-            self.updatePerf("\"update\"_total")
-            self.perf["pltAnim"]["tA"] = time.perf_counter()
-            self.perf["\"update\"_total"]["tA"] = time.perf_counter()
+            self.perfObj.tB("plt_2")
+            self.perfObj.tB("plt_total")
+            self.perfObj.tB("update_total")
+            self.perfObj.tA("pltAnim")
+            self.perfObj.tA("update_total")
 
         if anim_display:
             return retur
@@ -603,6 +619,8 @@ if __name__=="__main__":
                         help="boolean of whether to use the matplotlib.animation")
 
     args = parser.parse_args()
+
+    print("\x1B[2J\x1B[H")
 
     print(args)
 
@@ -639,7 +657,7 @@ if __name__=="__main__":
             print("\nexiting..")
     else:
         plt.show()
-    
+    # print("\x1B[2J")
     if not args.useCPP: a.IRcams.close()
     if args.useCPP and args.CPP_useCamera:
         print("\n Closing\n")

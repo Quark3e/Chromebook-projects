@@ -3,6 +3,139 @@
 import time
 import math
 from datetime import datetime, timedelta
+import sys
+from copy import deepcopy
+
+def getLongestStrInList(lst: list):
+    """Find the string in list with the most number of characters
+
+    ### Args:
+        lst (list: str): list to check
+
+    ### Returns:
+        str: the longest string
+    """
+    # printing original list 
+    # print("The original list : " + str(test_list))
+    
+    # Longest String in list
+    # using loop
+    max_len = -1
+    for ele in lst:
+        if len(ele) > max_len:
+            max_len = len(ele)
+            res = ele
+    
+    # printing result
+    # print("Maximum length string is : " + res)
+    return res
+
+class basic_perf(object):
+
+    delay_unit  = "seconds"
+    delay_prefix= "sec"
+    
+    fps_unit    = "frames per second"
+    fps_prefix  = "fps"
+
+    templateDict = {
+        "tA":   0,
+        "tB":   0,
+        "intervCount": 0,
+        "delay": {
+            "value": 0,
+            "unit": delay_unit,
+            "prefix": delay_prefix
+        },
+        "fps": {
+            "value": 0,
+            "unit": fps_unit,
+            "prefix": fps_prefix
+        }
+    }
+
+    perfDict = {}
+    """Full dictionary that holds every variable for each name as base-key
+    """
+    baseInterVal = 1
+
+    longest_name_len = 0
+    print_precision_delay = 2
+    print_precision_fps = 1
+    print_unit_delay_ms = True
+    print_delay_padding_default = 6
+
+    def __init__(
+            self,
+            nameList: list,
+            interval = 1,
+            ):
+        self.baseInterVal = interval
+        self.longest_name_len = len(getLongestStrInList(nameList))
+
+        for name in nameList:
+            self.perfDict.update( {name: deepcopy(self.templateDict)} )
+
+        self.perfDict["get_camPos"]["delay"]["value"]=69
+
+        # for key,value in self.perfDict.items():
+        #     print(f" -{key:<12}:", value)
+
+        # input("paused..")
+
+    def tA(self, name):
+        if name not in self.perfDict:
+            print(f"\nERROR: basic_perf: tA() {name} not in dict")
+            return
+        if self.perfDict[name]["intervCount"]<self.baseInterVal:
+            self.perfDict[name]["tA"] = time.perf_counter()
+    def tB(self, name):
+        if name not in self.perfDict:
+            print(f"\nERROR: basic_perf: tB() {name} not in dict")
+            return
+        self.perfDict[name]["tB"] = time.perf_counter()
+        if self.perfDict[name]["intervCount"]>=self.baseInterVal:
+            self.perfDict[name]["delay"]["value"] = (self.perfDict[name]["tB"] - self.perfDict[name]["tA"])/self.baseInterVal
+            self.perfDict[name]["fps"]["value"] = 1/self.perfDict[name]["delay"]["value"]
+            self.perfDict[name]["intervCount"] = 0
+        else:
+            self.perfDict[name]["intervCount"] +=1
+    def print(self,
+              ignoreStr=[]
+              ):
+        toPrintString = ""
+        sumDelay = 0
+        winDim = [1+2+self.longest_name_len+2+7+2+1, 1+len(self.perfDict)+1]
+        
+        toPrintString += winDim[0]*"-"+"\n"
+        toPrintString += "|{temp:<{pad}}|\n".format(temp="Performance:",pad=winDim[0]-1)
+        for key,value in self.perfDict.items():
+            temp = ""
+            temp += "| -{nomKey:<{pad}}: ".format(nomKey=key, pad=self.longest_name_len)
+            if self.print_unit_delay_ms:
+                temp += "{delay:>{pad}}ms".format(
+                    delay=round(value["delay"]["value"]*1000,self.print_precision_delay),
+                    pad=self.print_delay_padding_default
+                )
+            else:
+                temp += "{delay:>{pad}}s".format(
+                    delay=round(value["delay"]["value"],self.print_precision_delay),
+                    pad=self.print_delay_padding_default-2
+                )
+            toPrintString += "{tempStr:<{pad}}|\n".format(tempStr=temp, pad=winDim[0])
+            if not all([s in key for s in ignoreStr]):
+                sumDelay += value["delay"]["value"]
+        sumDelay+=0.01
+        temp = f"|total: [{round(sumDelay*1000,2):>6}ms] [fps:{round(1/sumDelay,1):>6}]"
+        toPrintString += "{tempStr:<{pad}}\n".format(tempStr=temp, pad=winDim[0])
+
+        # sys.stdout.write(
+        #     "\x1B[2J\x1B[H"+
+        #     toPrintString
+        # )
+        return toPrintString
+
+
 
 progbar_progress = 1
 progbar_total = 1
