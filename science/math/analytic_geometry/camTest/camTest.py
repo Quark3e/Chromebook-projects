@@ -22,7 +22,7 @@ from teststuff.python.matplotlib.basic.nonFilled_arc import drawArc
 from subprocess import Popen, PIPE
 
 
-anim_use        = False
+anim_use        = True
 anim_display    = False
 anim_update     = False
 
@@ -89,7 +89,7 @@ class AnimatedPlot(object):
             "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
             "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
         },
-        "cpp_update": {
+        "\"cpp\"_total": {
             "tA": 0,
             "tB": 0,
             "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
@@ -157,7 +157,7 @@ class AnimatedPlot(object):
 
 
     def cpp_update(self):
-        if measure_perf: self.perf["cpp_update"]["tA"] = time.perf_counter()
+        if measure_perf: self.perf["\"cpp\"_total"]["tA"] = time.perf_counter()
 
         self.to_cppEXE+="\n"
         value = self.to_cppEXE.encode("utf-8")
@@ -166,13 +166,13 @@ class AnimatedPlot(object):
         self.cpp_P.stdin.flush()
         self.from_cppEXE = self.cpp_P.stdout.readline().decode("utf-8")
 
-        if measure_perf: self.updatePerf("cpp_update")
+        if measure_perf: self.updatePerf("\"cpp\"_total")
 
         print("from C++ exe received:", self.from_cppEXE)
     def cpp_closeCams(self):
         self.to_cppEXE = "[6942.0,6942.0,6942.0,6942.0]"
         self.cpp_update()
-        time.sleep(1)
+        time.sleep(2)
 
     def __init__(
             self,
@@ -409,7 +409,11 @@ class AnimatedPlot(object):
                         sumDelay += value["delay"]["value"]
                 toPrintString += f"total: [{round(sumDelay*1000,2):>6}ms] [fps:{round(1/sumDelay,1):>6}]\n"
             
-            print(toPrintString)
+            # print(toPrintString)
+            sys.stdout.write(
+                "\x1B[2J\x1B[H"+
+                toPrintString
+                )
 
             # self.timeDelta[1] = time.perf_counter()
             # print(
@@ -587,18 +591,39 @@ if __name__=="__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Optioal app description")
-    parser.add_argument("useCPP", type=bool, nargs="?", const=False,
+    parser.add_argument("-m", "--masterCPP", type=int, choices=[0, 1],
+                        help="\"master key\" for whether to use cpp or not:\n  0-turn off\n  1-turn on")
+    parser.add_argument("-1", "--useCPP", action="store_true", #type=bool, nargs="?", const=False,
                         help="boolean whether to use CPP program's tracking instead")
-    parser.add_argument("CPP_useCamera", type=bool, nargs="?", const=False,
+    parser.add_argument("-2", "--CPP_useCamera", action="store_true", #type=bool, nargs="?", const=False,
                         help="boolean of whether to use the cameras on cpp program instead of python's")
-    parser.add_argument("CPP_useClass", type=bool, nargs="?", const=False,
+    parser.add_argument("-3", "--CPP_useClass", action="store_true", #type=bool, nargs="?", const=False,
                         help="boolean of whether to use CPP's trigonometric class instead of pythons")
+    parser.add_argument("-4", "--useAnim", action="store_false",# type=bool, nargs="?", const=True,
+                        help="boolean of whether to use the matplotlib.animation")
 
     args = parser.parse_args()
 
-    if args.useCPP==None: args.useCPP = False
-    if args.CPP_useCamera==None: args.CPP_useCamera = False
-    if args.CPP_useClass==None: args.CPP_useClass = False
+    print(args)
+
+
+    if args.masterCPP==0:
+        args.useCPP = False
+        args.CPP_useCamera  = False
+        args.CPP_useClass   = False
+    elif args.masterCPP==1:
+        args.useCPP = True
+        args.CPP_useCamera  = True
+        args.CPP_useClass   = True
+
+    # exit()
+
+    # if args.useCPP==None: args.useCPP = False
+    # if args.CPP_useCamera==None: args.CPP_useCamera = False
+    # if args.CPP_useClass==None: args.CPP_useClass = False
+
+
+    anim_use = args.useAnim
 
     a = AnimatedPlot(
         args.useCPP,
