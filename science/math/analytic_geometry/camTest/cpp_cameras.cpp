@@ -212,12 +212,12 @@ void lock_cout(std::mutex &coutMutex, string toPrint, bool blockingLock = true) 
 
 bool logOutput = false;
 
-getPerf perfObj;
+getPerf perfObj {"start"};
 
 int main(int argc, char** argv) {
     if(takePerf) {
-        perfObj = getPerf("[start]");
-        perfObj.csv_setup(getFileCWD()+"cpp_camera_csv");
+        // perfObj = getPerf("[start]");
+        perfObj.csv_setup(getFileCWD()+"csv_files/cpp_camera_csv", true);
     }
 
 
