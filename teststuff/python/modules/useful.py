@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import sys
 from copy import deepcopy
 
+
 def getLongestStrInList(lst: list):
     """Find the string in list with the most number of characters
 
@@ -134,7 +135,6 @@ class basic_perf(object):
         #     toPrintString
         # )
         return toPrintString
-
 
 
 progbar_progress = 1

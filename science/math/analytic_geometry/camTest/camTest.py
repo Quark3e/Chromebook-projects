@@ -52,80 +52,80 @@ class AnimatedPlot(object):
 
     timeDelta = 2*[0]
 
-    perf = {
-        "\"plt\"_total": {
-            "tA": 0,
-            "tB": 0,
-            "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-            "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-        },
-        "plt_00": {
-            "tA": 0,
-            "tB": 0,
-            "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-            "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-        },
-        "plt_01": {
-            "tA": 0,
-            "tB": 0,
-            "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-            "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-        },
-        "plt_02": {
-            "tA": 0,
-            "tB": 0,
-            "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-            "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-        },
-        "plt_1": {
-            "tA": 0,
-            "tB": 0,
-            "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-            "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-        },
-        "plt_2": {
-            "tA": 0,
-            "tB": 0,
-            "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-            "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-        },
-        "\"cpp\"_total": {
-            "tA": 0,
-            "tB": 0,
-            "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-            "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-        },
-        "get_camPos": {
-            "tA": 0,
-            "tB": 0,
-            "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-            "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-        },
-        "get_realPos": {
-            "tA": 0,
-            "tB": 0,
-            "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-            "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-        },
-        "pltAnim": {
-            "tA": 0,
-            "tB": 0,
-            "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-            "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-        },
-        "\"stream\"_total": {
-            "tA": 0,
-            "tB": 0,
-            "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-            "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-        },
-        "\"update\"_total": {
-            "tA": 0,
-            "tB": 0,
-            "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-            "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-        }
-    }
+    # perf = {
+    #     "\"plt\"_total": {
+    #         "tA": 0,
+    #         "tB": 0,
+    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
+    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
+    #     },
+    #     "plt_00": {
+    #         "tA": 0,
+    #         "tB": 0,
+    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
+    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
+    #     },
+    #     "plt_01": {
+    #         "tA": 0,
+    #         "tB": 0,
+    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
+    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
+    #     },
+    #     "plt_02": {
+    #         "tA": 0,
+    #         "tB": 0,
+    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
+    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
+    #     },
+    #     "plt_1": {
+    #         "tA": 0,
+    #         "tB": 0,
+    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
+    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
+    #     },
+    #     "plt_2": {
+    #         "tA": 0,
+    #         "tB": 0,
+    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
+    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
+    #     },
+    #     "\"cpp\"_total": {
+    #         "tA": 0,
+    #         "tB": 0,
+    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
+    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
+    #     },
+    #     "get_camPos": {
+    #         "tA": 0,
+    #         "tB": 0,
+    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
+    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
+    #     },
+    #     "get_realPos": {
+    #         "tA": 0,
+    #         "tB": 0,
+    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
+    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
+    #     },
+    #     "pltAnim": {
+    #         "tA": 0,
+    #         "tB": 0,
+    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
+    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
+    #     },
+    #     "\"stream\"_total": {
+    #         "tA": 0,
+    #         "tB": 0,
+    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
+    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
+    #     },
+    #     "\"update\"_total": {
+    #         "tA": 0,
+    #         "tB": 0,
+    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
+    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
+    #     }
+    # }
     perfObj = useful.basic_perf([
                     "plt_total",
                     "plt_00",
@@ -139,7 +139,7 @@ class AnimatedPlot(object):
                     "pltAnim",
                     "stream_total",
                     "update_total"
-                ], 3)
+                ], 1)
     perf_deltaFilter = lambda x: 0.5*x
 
     # def updatePerf(self, perfName):

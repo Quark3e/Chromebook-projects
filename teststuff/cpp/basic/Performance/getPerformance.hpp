@@ -12,12 +12,14 @@
 #include <algorithm>
 #include <sstream>
 #include <iomanip>
+#include <fstream>
+#include "../../useful/useful.hpp"
 
 using namespace std;
 
-/// @brief Class to get performance (fps, delays for each checkpoint, totaldelay)
-///
-/// 
+// / @brief Class to get performance (fps, delays for each checkpoint, totaldelay)
+// /
+// / 
 class getPerf {
     /*
     t0
@@ -28,6 +30,20 @@ class getPerf {
     private:
     /// @brief max number of chars for each checkpoint name
     int strLenMax = 8; //NOTE: if changed, change update_totalInfo printf
+
+
+    /// @brief whether to save the data into csv file
+    bool CSV_save = false;
+
+    /// @brief filename of csv file with path included
+    string CSV_filename;
+
+    /// @brief csv file object
+    fstream csvFile;
+
+    int CSV_lineCount = 0;
+
+    bool CSV_init = true;
 
     public:
     /// @brief filter for new delay values: old_val = new_val*delayFilter + old_val*(1-delayFilter)
@@ -54,19 +70,59 @@ class getPerf {
         times.push_back(chrono::steady_clock::now());
         delays_ms.push_back(0);
     }
+
+    /**
+     * @brief setup csv related
+     * @param filename name of csvfile to create: NOTE: DO NOT ADD `.csv` EXTENSION
+     * @param overwrite whether to overwrite `{filename}.csv` if that filename'd file already exists
+    */
+    void csv_setup(
+        string filename,
+        bool overwrite
+    );
+    /**
+     * @brief
+     * Creates a time measuring point from previous call. NOTE: call class member AFTER what to measure.
+     * if `name` exist then function will not create new element but only update clock_t vector
+     * @param name string name of checkpoint to either create or update
+    */
     void add_checkpoint(string name);
-    void update_totalInfo(bool reset_t0,bool printResult,bool printAll,char resultEndSymb0,char resultEndSymb1);
+    /**
+     * @brief update total_delay and FPS member variables
+     * @param reset_t0 whether to 
+     * @param printResult whether to print total_delay and FPS
+     * @param printAll whether to print every checkpoint
+    */
+    void update_totalInfo(
+        bool reset_t0,
+        bool printResult,
+        bool printAll,
+        char resultEndSymb0,
+        char resultEndSymb1
+    );
+    /**
+     * @brief Function to get clock_t type variable from given checkpoint name
+     * @param name the name of checkpoint to get time from
+     * @return clock_t type variable
+    */
     auto getTime(string name);
+    /**
+     * @brief Function to get last read delay from given checkpoint name
+     * @param name name of checkpoint to get delay from
+     * @return float type variable of delay in unit:Milliseconds
+    */
     float getDelay(string name);
     string cutStr(string& var, int maxLen);
+    /**
+     * @brief get vector index of name
+     * @param name string of the `{name}` to find index of
+     * @return index of `{name}`
+    */
     int getIdx(string name);
 };
 
 
 
-/// @brief Function to get clock_t type variable from given checkpoint name
-/// @param name the name of checkpoint to get time from
-/// @return clock_t type variable
 auto getPerf::getTime(string name) {
     int idx=getIdx(name);
     if(idx==-1) {
@@ -75,8 +131,6 @@ auto getPerf::getTime(string name) {
     }
     return times.at(idx);
 }
-
-
 
 string getPerf::cutStr(string& var, int maxLen=10) {
 	int varLen = var.size();
@@ -88,10 +142,6 @@ string getPerf::cutStr(string& var, int maxLen=10) {
     return var;
 }
 
-
-/// @brief Function to get last read delay from given checkpoint name
-/// @param name name of checkpoint to get delay from
-/// @return float type variable of delay in unit:Milliseconds
 float getPerf::getDelay(string name) {
     auto idx=getIdx(name);
     if(idx==-1) {
@@ -102,10 +152,32 @@ float getPerf::getDelay(string name) {
 }
 
 
-/// @brief 
-/// Creates a time measuring point from previous call. NOTE: call class member AFTER what to measure.
-/// if `name` exist then function will not create new element but only update clock_t vector
-/// @param name string name of checkpoint to either create or update
+void getPerf::csv_setup(
+    string filename,
+    bool overwrite=false
+) {
+    CSV_save = true;
+    if(overwrite) {
+        csvFile.open(filename+".csv", ios::trunc);
+        CSV_filename = filename;
+    }
+    else {
+        int i = 0;
+        if(isFile(filename+".csv")) {
+            while(true) {
+                if(!isFile(filename+"_"+to_string(i)+".csv")) { break; }
+                i++;
+            }
+        }
+        csvFile.open(filename+"_"+to_string(i)+".csv");
+        CSV_filename = filename+"_"+to_string(i);
+    }
+    time_t currDate = chrono::system_clock::to_time_t(chrono::system_clock::now());
+    csvFile << "# " << ctime(&currDate) << "\n";
+    csvFile.close();
+    CSV_save = false;
+}
+
 void getPerf::add_checkpoint(string name) {
     auto tempTime = chrono::steady_clock::now();
     if(name.size()>=strLenMax) name = cutStr(name, strLenMax);
@@ -128,10 +200,6 @@ void getPerf::add_checkpoint(string name) {
     // printf("%7.4f", delays_ms.back());
 }
 
-/// @brief update total_delay and FPS member variables
-/// @param reset_t0 whether to 
-/// @param printResult whether to print total_delay and FPS
-/// @param printAll whether to print every checkpoint
 void getPerf::update_totalInfo(
     bool reset_t0,
     bool printResult=true,
@@ -188,13 +256,27 @@ void getPerf::update_totalInfo(
     if(printResult && printAll) {
         printf("%s %s", totalVar.c_str(), totStr.c_str());
     }
+
+    if(CSV_save) {
+        if(CSV_init) {
+            csvFile << "# ";
+            for(auto i=0; i<names.size(); i++) {
+                csvFile << names.at(i);
+                if(i<names.size()) csvFile << ",";
+            }
+            csvFile << "\n";
+            CSV_init = false;
+        }
+        csvFile << CSV_lineCount << ",";
+        for(auto i=0; i<times.size(); i++) {
+            csvFile << fixed << setprecision(2) << delays_ms.at(i);
+            if(i<times.size()) csvFile << ",";
+        }
+        csvFile << "\n";
+        CSV_lineCount+=1;
+    }
 }
 
-/**
- * @brief get vector index of name
- * @param name string of the `{name}` to find index of
- * @return index of `{name}`
-*/
 int getPerf::getIdx(string name) {
     auto pos = find(names.begin(), names.end(), name);
     if(pos == names.end()) {

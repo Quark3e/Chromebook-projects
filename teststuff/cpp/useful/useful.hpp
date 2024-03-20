@@ -16,8 +16,12 @@
 #include <cstring>
 #include <stdlib.h>
 
+#include <sys/stat.h>
+#include <stdio.h>
+#include <linux/limits.h>
 
 using namespace std;
+
 
 /// @brief Convert radians to degrees
 /// @param radians radians to convert. type: float()
@@ -27,6 +31,54 @@ float toDegrees(float radians) { return (radians*180)/M_PI; }
 /// @param degrees degrees to convert. type: float()
 /// @return return radians. type: float()
 float toRadians(float degrees) { return float(degrees*M_PI)/180; }
+
+/**
+ * @brief Get the absolute path of the current directory
+ * @param inclEndSlash whether to include `/` at the end of return path string
+ * @return string of path:
+*/
+string getFileCWD(bool inclEndSlash=true) {
+    char cwd[PATH_MAX];
+    string returStr = cwd;
+    if(getcwd(cwd, sizeof(cwd)) != NULL) {
+        if(inclEndSlash) return returStr+"/";
+        else return returStr;
+    }
+    else {
+        cout << "getcwd() error." << endl;
+        return "";
+    }
+}
+
+/**
+ * @brief check if `filename` file exists
+ * @param filename name(with or without path) of file to check
+ * @return boolean for if it exists
+*/
+bool isFile(string filename) {
+    struct stat sb;
+    if(stat(filename.c_str(), &sb)==0 && !(sb.st_mode & S_IFDIR)) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+/**
+ * @brief check if `dirname` directive exists
+ * @param dirname name of directive (with or without path) to check
+ * @return boolean for if it exists
+*/
+bool isDir(string dirname) {
+    struct stat sb;
+    if(stat(dirname.c_str(), &sb)==0) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
 
 
 /// @brief Solve distance value between two coordinates in a 3D spacec
@@ -123,6 +175,7 @@ vector<string> splitString(string &line, string delimiter, vector<string> &retur
 }
 
 
+
 string replaceSubstr(string text, string toReplace, string replaceTo) {
 	size_t count=0;
     size_t pos = text.find(toReplace);
@@ -154,7 +207,7 @@ void replaceSubstr(string* text, string toReplace, string replaceTo) {
 /// @param toSend_arr pointer to char array
 /// @param width width of the total char string including decimal dot and minus sign
 /// @param precision decimal accuracy number: how many numbers of precision after decimal place
-
+/// @param leftAlign whether to align the float to the left in the array
 void fillCharArray(
     float inpVal,
     int idx_start,

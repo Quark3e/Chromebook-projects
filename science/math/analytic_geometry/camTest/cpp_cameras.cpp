@@ -18,7 +18,7 @@
 #define useAutoBright   false
 #define dispToWindow    true
 
-#define takePerf        false
+#define takePerf        true
 #define recordFrames    true
 
 #if useThreads
@@ -29,6 +29,7 @@
 #include "../../../../teststuff/cpp/useful/useful.hpp"
 #include "../../../../projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp"
 #include "../../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp"
+#include "../../../../teststuff/cpp/basic/Performance/getPerformance.hpp"
 #include "../../../../teststuff/cpp/opencv/recordVideo/recordFrames.hpp"
 
 
@@ -211,7 +212,14 @@ void lock_cout(std::mutex &coutMutex, string toPrint, bool blockingLock = true) 
 
 bool logOutput = false;
 
+getPerf perfObj;
+
 int main(int argc, char** argv) {
+    if(takePerf) {
+        perfObj = getPerf("[start]");
+        perfObj.csv_setup(getFileCWD()+"cpp_camera_csv");
+    }
+
 
     bool useCamera = true, useTwoCamClass = true;
 
@@ -288,8 +296,8 @@ int main(int argc, char** argv) {
         // IR_camTracking camObj[2] {
 
         /// Create and setup IR_camTracking objects
-        camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], useAutoBright, dispToWindow, takePerf));
-        camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], useAutoBright, dispToWindow, takePerf));
+        camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], useAutoBright, dispToWindow, false));
+        camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], useAutoBright, dispToWindow, false));
         if(logOutput) outLogFile << " -push_back() added both cams onto camObj\n";
         
         camObj[0].setup_window();
@@ -341,6 +349,7 @@ int main(int argc, char** argv) {
         if(logOutput) outLogFile << " -while loop iteration\n";
         scanf("%s", &toRecev);
         if(logOutput) outLogFile << " -scanf();\n";
+        if(takePerf) { perfObj.add_checkpoint("iter._start"); }
 
         char nums[2][6];
         if(useCamera) {
@@ -357,6 +366,7 @@ int main(int argc, char** argv) {
                 break;
             }
         }
+        if(takePerf) { perfObj.add_checkpoint("after_check_exit_thread"); }
         for(int i=0; i<78; i++) toSend[i] = '0';
         toSend[0]   = '[';
         toSend[14]  = ':';
@@ -407,6 +417,7 @@ int main(int argc, char** argv) {
                     }
                 }
                 else {
+                    if(takePerf) { perfObj.add_checkpoint("start_thread_useCamera"); }
                     u_lck0.lock();
                     updateCamVars(0);
                     u_lck0.unlock();
@@ -430,7 +441,7 @@ int main(int argc, char** argv) {
                         }
                         return 1;
                     }
-
+                    if(takePerf) { perfObj.add_checkpoint("end_thread_useCamera"); }
                 }
             #elif !useThreads
                 camObj[0].processCam();
@@ -447,6 +458,7 @@ int main(int argc, char** argv) {
             }
             if(logOutput) outLogFile << " -useCamera: processCam\n";
         }
+
 
         if(useCamera && numContours_main[0]>0) {
             // cv::Size camSize = camObj[0].imgFlipped.size();
@@ -474,12 +486,12 @@ int main(int argc, char** argv) {
             inpPos[1] = atof(nums[1]);
             if(logOutput) outLogFile << " -!useCamera: atof()\n";
         }
-
+        if(takePerf) { perfObj.add_checkpoint("start_useTwoCamClass"); }
         if(useTwoCamClass) {
             camTri->solvePos(inpPos, solvedPos, false);
             if(logOutput) outLogFile << " -useTwoCamClass: -camTri->solvePos()\n";
             solvedY = -sin(toRadians(((*camTri).camRes[0][1]*0.5-camObjPos_main[0][1])*(*camTri).camCoef[0][1]))*solvedPos[1];
-            
+            if(takePerf) { perfObj.add_checkpoint("after_solvedPos"); }
             PP[0] = solvedPos[0];
             PP[1] = solvedY;
             PP[2] = solvedPos[1];
@@ -505,6 +517,7 @@ int main(int argc, char** argv) {
             fillCharArray(PP[2], 71, toSend, 6, 1);
             if(logOutput) outLogFile << " -useTwoCamClass: -fillCharArray() PP[ ]\n";
         }
+        if(takePerf) { perfObj.add_checkpoint("end_useTwoCamClass"); }
 
         for(int i=7; i<71; i+=7) {
             if(i==14 || i==28 || i==42 || i==56) continue;
@@ -513,10 +526,12 @@ int main(int argc, char** argv) {
         if(logOutput) outLogFile << " -toSend[i] = ','; commas added\n";
         
         printf("%s\n", toSend);
+        if(takePerf) { perfObj.add_checkpoint("sent_fromCPP"); }
         if(logOutput) outLogFile << " -final printf(\"%s\\n\", toSend);\n";
         std::cout.flush();
         if(logOutput) outLogFile << " -std::cout.flush();\n";
         if(logOutput) logOutput = false;
+        if(takePerf) { perfObj.add_checkpoint("after_flush"); }
 
         if(useCamera) {
             #if recordFrames
@@ -525,6 +540,7 @@ int main(int argc, char** argv) {
             recObj.addFrame(concatImg);
             #endif
         }
+        if(takePerf) { perfObj.update_totalInfo(true,false,false); }
     }
     if(useCamera) {
         #if recordFrames
