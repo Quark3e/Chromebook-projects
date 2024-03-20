@@ -127,19 +127,19 @@ class AnimatedPlot(object):
         }
     }
     perfObj = useful.basic_perf([
-        "plt_total",
-        "plt_00",
-        "plt_01",
-        "plt_02",
-        "plt_1",
-        "plt_2",
-        "cpp_total",
-        "get_camPos",
-        "get_realPos",
-        "pltAnim",
-        "stream_total",
-        "update_total"
-    ])
+                    "plt_total",
+                    "plt_00",
+                    "plt_01",
+                    "plt_02",
+                    "plt_1",
+                    "plt_2",
+                    "cpp_total",
+                    "get_camPos",
+                    "get_realPos",
+                    "pltAnim",
+                    "stream_total",
+                    "update_total"
+                ], 3)
     perf_deltaFilter = lambda x: 0.5*x
 
     # def updatePerf(self, perfName):
