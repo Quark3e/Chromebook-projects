@@ -59,6 +59,7 @@ class AnimatedPlot(object):
                     "plt_02",
                     "plt_1",
                     "plt_2",
+                    "camPos.from.py",
                     "cpp_total",
                     "cpp_enc",
                     "cpp_write",
@@ -295,6 +296,9 @@ class AnimatedPlot(object):
             
                 # self.perfObj.tA("\"stream\"_total")
 
+            if measure_perf:
+                self.perfObj.tA("camPos.from.py")
+                
             if not self.CPP_opts["useCamera"]:
                 if self.IRcams.update() == None:
                     print("\nNOTE: IRcams.update() returned None: Exiting..\n")
@@ -306,6 +310,9 @@ class AnimatedPlot(object):
                                  f"{self.IRcams.tempPos[0][1]:6.1f},"+
                                  f"{self.IRcams.tempPos[2][0]:6.1f},"+
                                  f"{self.IRcams.tempPos[2][1]:6.1f}]")
+            if measure_perf:
+                self.perfObj.tB("camPos.from.py")
+                
             if self.CPP_opts["useCPP"]: self.cpp_update()
 
             if measure_perf:

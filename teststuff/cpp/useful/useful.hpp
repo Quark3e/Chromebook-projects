@@ -22,6 +22,11 @@
 
 using namespace std;
 
+string getDate() {
+    time_t currDate = chrono::system_clock::to_time_t(chrono::system_clock::now());
+    return ctime(&currDate);
+}
+
 
 /// @brief Convert radians to degrees
 /// @param radians radians to convert. type: float()

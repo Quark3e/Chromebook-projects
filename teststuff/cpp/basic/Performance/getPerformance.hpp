@@ -124,6 +124,9 @@ class getPerf {
 
 void getPerf::close() {
     if(CSV_save) {
+        csvFile << "# " << getDate();
+    
+
         csvFile.close();
     }
 }
@@ -178,8 +181,7 @@ void getPerf::csv_setup(
         csvFile.open(filename+"_"+to_string(i)+".csv");
         CSV_filename = filename+"_"+to_string(i);
     }
-    time_t currDate = chrono::system_clock::to_time_t(chrono::system_clock::now());
-    csvFile << "# " << ctime(&currDate);
+    csvFile << "# " << getDate();
 }
 
 void getPerf::add_checkpoint(string name) {
