@@ -448,7 +448,7 @@ class AnimatedPlot(object):
             
             # # print(toPrintString)
             sys.stdout.write(
-            # "\x1B[2J\x1B[H"+
+            "\x1B[2J"+#\x1B[H"+
                 "\x1B[5;0H"+
                 toPrintString
             )
