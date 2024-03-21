@@ -88,17 +88,18 @@ class basic_perf(object):
         if name not in self.perfDict:
             print(f"\nERROR: basic_perf: tA() {name} not in dict")
             return
-        if self.perfDict[name]["intervCount"]<self.baseInterVal:
+        if self.perfDict[name]["intervCount"]==0:
             self.perfDict[name]["tA"] = time.perf_counter()
     def tB(self, name):
         if name not in self.perfDict:
             print(f"\nERROR: basic_perf: tB() {name} not in dict")
             return
         self.perfDict[name]["tB"] = time.perf_counter()
-        if self.perfDict[name]["intervCount"]>=self.baseInterVal:
+        if self.perfDict[name]["intervCount"]>=self.baseInterVal-1:
             self.perfDict[name]["delay"]["value"] = (self.perfDict[name]["tB"] - self.perfDict[name]["tA"])/self.baseInterVal
             self.perfDict[name]["fps"]["value"] = 1/self.perfDict[name]["delay"]["value"]
             self.perfDict[name]["intervCount"] = 0
+            # print(self.perfDict[name]["delay"]["value"])
         else:
             self.perfDict[name]["intervCount"] +=1
     def print(self,

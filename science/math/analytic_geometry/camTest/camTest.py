@@ -52,80 +52,6 @@ class AnimatedPlot(object):
 
     timeDelta = 2*[0]
 
-    # perf = {
-    #     "\"plt\"_total": {
-    #         "tA": 0,
-    #         "tB": 0,
-    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-    #     },
-    #     "plt_00": {
-    #         "tA": 0,
-    #         "tB": 0,
-    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-    #     },
-    #     "plt_01": {
-    #         "tA": 0,
-    #         "tB": 0,
-    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-    #     },
-    #     "plt_02": {
-    #         "tA": 0,
-    #         "tB": 0,
-    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-    #     },
-    #     "plt_1": {
-    #         "tA": 0,
-    #         "tB": 0,
-    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-    #     },
-    #     "plt_2": {
-    #         "tA": 0,
-    #         "tB": 0,
-    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-    #     },
-    #     "\"cpp\"_total": {
-    #         "tA": 0,
-    #         "tB": 0,
-    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-    #     },
-    #     "get_camPos": {
-    #         "tA": 0,
-    #         "tB": 0,
-    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-    #     },
-    #     "get_realPos": {
-    #         "tA": 0,
-    #         "tB": 0,
-    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-    #     },
-    #     "pltAnim": {
-    #         "tA": 0,
-    #         "tB": 0,
-    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-    #     },
-    #     "\"stream\"_total": {
-    #         "tA": 0,
-    #         "tB": 0,
-    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-    #     },
-    #     "\"update\"_total": {
-    #         "tA": 0,
-    #         "tB": 0,
-    #         "delay" : {"value": 0, "unit": "seconds", "prefix": "sec"},
-    #         "fps"   : {"value": 0, "unit": "frames per second", "prefix": "fps"}
-    #     }
-    # }
     perfObj = useful.basic_perf([
                     "plt_total",
                     "plt_00",
@@ -146,19 +72,8 @@ class AnimatedPlot(object):
                 ], 1)
     perf_deltaFilter = lambda x: 0.5*x
 
-    # def updatePerf(self, perfName):
-    #     """Updates `self.perfObj.tA({perfName}]` values excluding `[tA]` since that is manually input
-
-    #     ### Args:
-    #         perfName (string): name of perf key to update
-    #     """
-
-    #     self.perfObj.tA(perfName]["tB"] = time.perf_counter()
-    #     self.perfObj.tA(perfName]["delay"]["value"]   = self.perfObj.tA(perfName]["tB"] - self.perfObj.tA(perfName]["tA"]
-    #     # self.perfObj.tA(perfName]["delay"]["value"]   += 0.5*((self.perfObj.tA(perfName]["tB"] - self.perfObj.tA(perfName]["tA"])-self.perfObj.tA(perfName]["delay"]["value"])
-
-    #     self.perfObj.tA(perfName]["fps"]["value"]     = 1/self.perfObj.tA(perfName]["delay"]["value"]
-
+    
+    tempCount = 0
 
     winToDisp = {
         "opencv": True,
@@ -453,12 +368,13 @@ class AnimatedPlot(object):
                 toPrintString
             )
 
-            # self.timeDelta[1] = time.perf_counter()
-            # print(
-            #     f"solved pos: [{round(self.solvedPos[0],1):>4}:{round(self.solvedPos[1]):>4}]", " | ",
-            #     f"fps: {round(1/(self.timeDelta[1]-self.timeDelta[0]),4):>6}",
-            #     end="\r")
-            # self.timeDelta[0] = self.timeDelta[1]
+            # if self.tempCount>10:
+            #     for key,val in self.perfObj.perfDict.items():
+            #         print(f" -{key:<20}: {val}")
+            #     input("paused")
+            #     self.tempCount=0
+            # self.tempCount+=1
+
             yield self.IRcams.tempPos
     def setup_plot(self):
         next(self.stream)
