@@ -257,10 +257,10 @@ void getPerf::update_totalInfo(
 
     if(CSV_save) {
         if(CSV_init) {
-            csvFile << "# ";
+            csvFile << "#iter,";
             for(auto i=0; i<names.size(); i++) {
                 csvFile << names.at(i);
-                if(i<names.size()) csvFile << ",";
+                if(i<names.size()-1) csvFile << ",";
             }
             csvFile << "\n";
             CSV_init = false;
@@ -268,7 +268,7 @@ void getPerf::update_totalInfo(
         csvFile << CSV_lineCount << ",";
         for(auto i=0; i<times.size(); i++) {
             csvFile << fixed << setprecision(2) << delays_ms.at(i);
-            if(i<times.size()) csvFile << ",";
+            if(i<times.size()-1) csvFile << ",";
         }
         csvFile << "\n";
         CSV_lineCount+=1;

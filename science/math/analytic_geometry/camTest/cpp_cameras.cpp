@@ -217,7 +217,7 @@ getPerf perfObj {"start"};
 int main(int argc, char** argv) {
     if(takePerf) {
         // perfObj = getPerf("[start]");
-        perfObj.csv_setup("csv_files/cpp_camera_csv", true);
+        perfObj.csv_setup("cpp_camera_csv", true);
     }
 
 
