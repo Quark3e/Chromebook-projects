@@ -39,7 +39,7 @@ class getPerf {
     string CSV_filename;
 
     /// @brief csv file object
-    fstream csvFile;
+    ofstream csvFile;
 
     int CSV_lineCount = 0;
 
@@ -173,9 +173,7 @@ void getPerf::csv_setup(
         CSV_filename = filename+"_"+to_string(i);
     }
     time_t currDate = chrono::system_clock::to_time_t(chrono::system_clock::now());
-    csvFile << "# " << ctime(&currDate) << "\n";
-    csvFile.close();
-    CSV_save = false;
+    csvFile << "# " << ctime(&currDate);
 }
 
 void getPerf::add_checkpoint(string name) {

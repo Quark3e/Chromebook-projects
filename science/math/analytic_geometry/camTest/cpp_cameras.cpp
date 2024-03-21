@@ -217,7 +217,7 @@ getPerf perfObj {"start"};
 int main(int argc, char** argv) {
     if(takePerf) {
         // perfObj = getPerf("[start]");
-        perfObj.csv_setup(getFileCWD()+"csv_files/cpp_camera_csv", true);
+        perfObj.csv_setup("csv_files/cpp_camera_csv", true);
     }
 
 
@@ -239,6 +239,7 @@ int main(int argc, char** argv) {
                "[  cam1_xy[13]:  cam2_xy[13]:     l_tri[2]:   ang_tri[2]:   solvedPos_xyz[20]]\0"
     toSend[] = "[-100.0,-100.0:-100.0,-100.0:-100.0,-100.0:-100.0,-100.0:-100.0,-100.0,-100.0]\0"
     */
+
     std::ofstream outLogFile;
     
     if(logOutput) {
