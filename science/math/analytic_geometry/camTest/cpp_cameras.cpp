@@ -212,12 +212,12 @@ void lock_cout(std::mutex &coutMutex, string toPrint, bool blockingLock = true) 
 
 bool logOutput = false;
 
-getPerf perfObj {"start"};
+getPerf localPerfObj {"start"};
 
 int main(int argc, char** argv) {
     if(takePerf) {
-        // perfObj = getPerf("[start]");
-        perfObj.csv_setup("cpp_camera_csv", true);
+        // localPerfObj = getPerf("[start]");
+        localPerfObj.csv_setup("csv_files/cpp_camera_csv", false);
     }
 
 
@@ -350,7 +350,7 @@ int main(int argc, char** argv) {
         if(logOutput) outLogFile << " -while loop iteration\n";
         scanf("%s", &toRecev);
         if(logOutput) outLogFile << " -scanf();\n";
-        if(takePerf) { perfObj.add_checkpoint("iter._start"); }
+        if(takePerf) { localPerfObj.add_checkpoint("scanf()"); }
 
         char nums[2][6];
         if(useCamera) {
@@ -367,7 +367,7 @@ int main(int argc, char** argv) {
                 break;
             }
         }
-        if(takePerf) { perfObj.add_checkpoint("after_check_exit_thread"); }
+        if(takePerf) { localPerfObj.add_checkpoint("checkExit"); }
         for(int i=0; i<78; i++) toSend[i] = '0';
         toSend[0]   = '[';
         toSend[14]  = ':';
@@ -418,7 +418,6 @@ int main(int argc, char** argv) {
                     }
                 }
                 else {
-                    if(takePerf) { perfObj.add_checkpoint("start_thread_useCamera"); }
                     u_lck0.lock();
                     updateCamVars(0);
                     u_lck0.unlock();
@@ -442,7 +441,6 @@ int main(int argc, char** argv) {
                         }
                         return 1;
                     }
-                    if(takePerf) { perfObj.add_checkpoint("end_thread_useCamera"); }
                 }
             #elif !useThreads
                 camObj[0].processCam();
@@ -459,6 +457,7 @@ int main(int argc, char** argv) {
             }
             if(logOutput) outLogFile << " -useCamera: processCam\n";
         }
+        if(takePerf) { localPerfObj.add_checkpoint("loopIter"); }
 
 
         if(useCamera && numContours_main[0]>0) {
@@ -487,12 +486,12 @@ int main(int argc, char** argv) {
             inpPos[1] = atof(nums[1]);
             if(logOutput) outLogFile << " -!useCamera: atof()\n";
         }
-        if(takePerf) { perfObj.add_checkpoint("start_useTwoCamClass"); }
+        if(takePerf) { localPerfObj.add_checkpoint("fillChar"); }
         if(useTwoCamClass) {
             camTri->solvePos(inpPos, solvedPos, false);
             if(logOutput) outLogFile << " -useTwoCamClass: -camTri->solvePos()\n";
             solvedY = -sin(toRadians(((*camTri).camRes[0][1]*0.5-camObjPos_main[0][1])*(*camTri).camCoef[0][1]))*solvedPos[1];
-            if(takePerf) { perfObj.add_checkpoint("after_solvedPos"); }
+            if(takePerf) { localPerfObj.add_checkpoint("solvePos"); }
             PP[0] = solvedPos[0];
             PP[1] = solvedY;
             PP[2] = solvedPos[1];
@@ -518,7 +517,7 @@ int main(int argc, char** argv) {
             fillCharArray(PP[2], 71, toSend, 6, 1);
             if(logOutput) outLogFile << " -useTwoCamClass: -fillCharArray() PP[ ]\n";
         }
-        if(takePerf) { perfObj.add_checkpoint("end_useTwoCamClass"); }
+        if(takePerf) { localPerfObj.add_checkpoint("filltoSend"); }
 
         for(int i=7; i<71; i+=7) {
             if(i==14 || i==28 || i==42 || i==56) continue;
@@ -527,12 +526,12 @@ int main(int argc, char** argv) {
         if(logOutput) outLogFile << " -toSend[i] = ','; commas added\n";
         
         printf("%s\n", toSend);
-        if(takePerf) { perfObj.add_checkpoint("sent_fromCPP"); }
+        if(takePerf) { localPerfObj.add_checkpoint("sent"); }
         if(logOutput) outLogFile << " -final printf(\"%s\\n\", toSend);\n";
         std::cout.flush();
         if(logOutput) outLogFile << " -std::cout.flush();\n";
         if(logOutput) logOutput = false;
-        if(takePerf) { perfObj.add_checkpoint("after_flush"); }
+        // if(takePerf) { localPerfObj.add_checkpoint("after_flush"); }
 
         if(useCamera) {
             #if recordFrames
@@ -541,7 +540,7 @@ int main(int argc, char** argv) {
             recObj.addFrame(concatImg);
             #endif
         }
-        if(takePerf) { perfObj.update_totalInfo(true,false,false); }
+        if(takePerf) { localPerfObj.update_totalInfo(true,false,false); }
     }
     if(useCamera) {
         #if recordFrames
@@ -554,6 +553,9 @@ int main(int argc, char** argv) {
 
         camObj[0].close();
         camObj[1].close();
+    }
+    if(takePerf) {
+        localPerfObj.close();
     }
 
     if(logOutput) {

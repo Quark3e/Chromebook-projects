@@ -134,6 +134,10 @@ class AnimatedPlot(object):
                     "plt_1",
                     "plt_2",
                     "cpp_total",
+                    "cpp_enc",
+                    "cpp_write",
+                    "cpp_flush",
+                    "cpp_read",
                     "get_camPos",
                     "get_realPos",
                     "pltAnim",
@@ -171,16 +175,33 @@ class AnimatedPlot(object):
 
 
     def cpp_update(self):
-        if measure_perf: self.perfObj.tA("cpp_total")
+        if measure_perf:
+            self.perfObj.tA("cpp_total")
+            self.perfObj.tA("cpp_enc")
 
         self.to_cppEXE+="\n"
         value = self.to_cppEXE.encode("utf-8")
+        if measure_perf:
+            self.perfObj.tB("cpp_enc")
+            self.perfObj.tA("cpp_write")
+
         self.cpp_P.stdin.write(value)
         
+        if measure_perf:
+            self.perfObj.tB("cpp_write")
+            self.perfObj.tA("cpp_flush")
+
         self.cpp_P.stdin.flush()
+
+        if measure_perf:
+            self.perfObj.tB("cpp_flush")
+            self.perfObj.tA("cpp_read")
+
         self.from_cppEXE = self.cpp_P.stdout.readline().decode("utf-8")
 
-        if measure_perf: self.perfObj.tB("cpp_total")
+        if measure_perf:
+            self.perfObj.tB("cpp_read")
+            self.perfObj.tB("cpp_total")
 
         print("from C++ exe received:", self.from_cppEXE)
     def cpp_closeCams(self):
@@ -357,8 +378,6 @@ class AnimatedPlot(object):
         while True:
             #from end of loop iteration to here is ~25ms (~40±10 fps)
             
-            if measure_perf:
-                self.perfObj.tA("get_camPos")
                 # self.perfObj.tA("\"stream\"_total")
 
             if not self.CPP_opts["useCamera"]:
@@ -373,6 +392,9 @@ class AnimatedPlot(object):
                                  f"{self.IRcams.tempPos[2][0]:6.1f},"+
                                  f"{self.IRcams.tempPos[2][1]:6.1f}]")
             if self.CPP_opts["useCPP"]: self.cpp_update()
+
+            if measure_perf:
+                self.perfObj.tA("get_camPos")
 
             if self.CPP_opts["useCPP"] and self.CPP_opts["useCamera"]:
                 self.IRcams.tempPos[0][0] = float(self.from_cppEXE[1:7])

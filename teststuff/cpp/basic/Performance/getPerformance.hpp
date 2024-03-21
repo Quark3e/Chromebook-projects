@@ -66,7 +66,7 @@ class getPerf {
     string rawPrintStrings[2];
 
     getPerf(string nameInitStr="") {
-        names.push_back(nameInitStr+"t0");
+        names.push_back(nameInitStr+"_t0");
         times.push_back(chrono::steady_clock::now());
         delays_ms.push_back(0);
     }
@@ -119,8 +119,14 @@ class getPerf {
      * @return index of `{name}`
     */
     int getIdx(string name);
+    void close();
 };
 
+void getPerf::close() {
+    if(CSV_save) {
+        csvFile.close();
+    }
+}
 
 
 auto getPerf::getTime(string name) {
@@ -174,7 +180,6 @@ void getPerf::csv_setup(
     }
     time_t currDate = chrono::system_clock::to_time_t(chrono::system_clock::now());
     csvFile << "# " << ctime(&currDate);
-
 }
 
 void getPerf::add_checkpoint(string name) {
@@ -258,20 +263,22 @@ void getPerf::update_totalInfo(
 
     if(CSV_save) {
         if(CSV_init) {
-            csvFile << "#iter, ";
+            csvFile << "#iter,";
             for(auto i=0; i<names.size(); i++) {
                 csvFile << names.at(i);
-                if(i<names.size()) csvFile << ",";
+                if(i<names.size()-1) csvFile << ",";
             }
-            csvFile << "\n";
+            csvFile << ",total\n";
             CSV_init = false;
         }
         csvFile << CSV_lineCount << ",";
         for(auto i=0; i<times.size(); i++) {
             csvFile << fixed << setprecision(2) << delays_ms.at(i);
-            if(i<times.size()) csvFile << ",";
+            if(i<times.size()-1) csvFile << ",";
         }
-        csvFile << "\n";
+        float sumDelay = 0;
+        for(float& n : delays_ms)  sumDelay+=n;
+        csvFile << "," << fixed<<setprecision(2)<< sumDelay << "\n";
         CSV_lineCount+=1;
     }
 }
