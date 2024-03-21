@@ -29,7 +29,7 @@ class getPerf {
     */
     private:
     /// @brief max number of chars for each checkpoint name
-    int strLenMax = 8; //NOTE: if changed, change update_totalInfo printf
+    int strLenMax = 25; //NOTE: if changed, change update_totalInfo printf
 
 
     /// @brief whether to save the data into csv file
@@ -174,6 +174,7 @@ void getPerf::csv_setup(
     }
     time_t currDate = chrono::system_clock::to_time_t(chrono::system_clock::now());
     csvFile << "# " << ctime(&currDate);
+
 }
 
 void getPerf::add_checkpoint(string name) {
