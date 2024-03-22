@@ -45,6 +45,10 @@ sstream
 -
 iomanip
 -
+fstream
+-
+../../useful/useful.hpp
+/home/pi/Chromebook-projects/teststuff/cpp/useful/useful.hpp
 
 /home/pi/Chromebook-projects/teststuff/cpp/two_cam_coordinate/main.cpp
 iostream
@@ -116,5 +120,13 @@ ctime
 cstring
 -
 stdlib.h
+-
+sys/stat.h
+-
+sys/ioctl.h
+-
+stdio.h
+-
+linux/limits.h
 -
 

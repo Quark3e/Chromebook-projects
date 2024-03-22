@@ -288,12 +288,12 @@ int main(int argc, char* argv[]) {
                 // );
 
                 totDelay = perfObj[0].delays_ms.at(1);
-                u_lck_cout.lock();
-                printf(
-                    "delays{}=%7.3f  FPS:%3.0f | ",
-                    totDelay, 1.0/(totDelay/1000)
-                );
-                u_lck_cout.unlock();
+                // u_lck_cout.lock();
+                // printf(
+                //     "delays{}=%7.3fms  FPS:%3.0f | ",
+                //     totDelay, 1.0/(totDelay/1000)
+                // );
+                // u_lck_cout.unlock();
             }
         #endif
         //  t1
@@ -310,6 +310,7 @@ int main(int argc, char* argv[]) {
             solvedPos[0], solvedPos[1],
             inpPos[0], inpPos[1]
         );
+        // ansiPrint()
         cout.flush();
         #if useThreads
         u_lck_cout.unlock();
@@ -338,13 +339,14 @@ int main(int argc, char* argv[]) {
         
         // TOTAL: <110ms with displayToWindow==true
         // if(takePerformance) perfObj.update_totalInfo(true, true, true, ' ','\r');
-        #if useThreads
-        u_lck_cout.lock();
-        #endif
-        printf("\n");
-        #if useThreads
-        u_lck_cout.unlock();
-        #endif
+        
+        // #if useThreads
+        // u_lck_cout.lock();
+        // #endif
+        // printf("\n");
+        // #if useThreads
+        // u_lck_cout.unlock();
+        // #endif
         this_thread::sleep_for(10ms);
     }
 

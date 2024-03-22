@@ -17,16 +17,217 @@
 #include <stdlib.h>
 
 #include <sys/stat.h>
+#include <sys/ioctl.h>
 #include <stdio.h>
 #include <linux/limits.h>
 
 using namespace std;
+
+static string dummyRef_stringOfVector_resultStrRef;
+/**
+ * @brief find specific string from `std::vector<std::string>` parameter
+ * @param stringVec `std::vector<std::string>` find find specific string from
+ * @param id id for what to look for:
+ * `0` - find shortest string;
+ * `1` - find longest string;
+ * @return index of the string in the vector
+*/
+int stringOfVector(
+    vector<string> stringVec,
+    int id,
+    string& resultStrRef = dummyRef_stringOfVector_resultStrRef
+) {
+    int idx;
+    vector<string>::iterator leWord;
+
+    if(id == 0) {
+        leWord = min_element(
+            stringVec.begin(), stringVec.end(),
+            [](const auto& a, const auto& b) {
+                return a.size() < b.size();
+            });
+    }
+    else if(id == 1) {
+        leWord = max_element(
+            stringVec.begin(), stringVec.end(),
+            [](const auto& a, const auto& b) {
+                return a.size() < b.size();
+            });
+    }
+    else {
+        cout << "ERROR: stringOfVector: wrong id selected. Exiting.." << endl;
+        return -1;
+    }
+    resultStrRef = *leWord;
+    return distance(stringVec.begin(), leWord);
+}
+
+void splitString(string line, string delimiter, float returnArr[], int numVar, bool printVar);
+
+/**
+ * @brief Split and return `line` string by each `delimiter`
+ * @param line string to split.
+ * @param delimiter string for where to split the string `line` by.
+ * @param printVar whether to print each delimiter and substring
+*/
+vector<string> splitString(string line, string delimiter, bool printVar);
+/**
+ * @brief Split `line` string by each `delimiter` and pass the result to reference parameter `returnVec`
+ * @param line string to split.
+ * @param delimiter string for where to split the string `line` by.
+ * @param returnVec reference to a `vector<string>` for which to pass result to
+ * @param printVar whether to print each delimiter and substring
+*/
+void splitString(string line, string delimiter, vector<string> &returnVec, bool printVar);
+/**
+ * @brief Split `line` string by each `delimiter` and pass the result to a pointer parameter `returnPtr`
+ * @param line string to split.
+ * @param delimiter string for where to split the string `line` by.
+ * @param returnPtr pointer to a `vector<string>` for which to pass result to
+ * @param printVar whether to print each delimiter and substring
+*/
+void splitString(string line, string delimiter, vector<string> *returnPtr, bool printVar);
+
+/***
+ * @brief Get size of terminal window
+ * @param width reference to integer variable for width
+ * @param height reference to integer variable for height
+ * @return `0`-successful; `-1`-error
+*/
+int getTermSize(int &width, int &height) {
+    struct winsize winDim;
+    if(ioctl(STDOUT_FILENO,TIOCGWINSZ,&winDim)==-1) {
+        return -1;
+    }
+    width   = winDim.ws_col;
+    height  = winDim.ws_row;
+    return 0;
+}
 
 string getDate() {
     time_t currDate = chrono::system_clock::to_time_t(chrono::system_clock::now());
     return ctime(&currDate);
 }
 
+
+void baseAnsiPrint(
+    vector<string> textVec,
+    int posX,
+    int posY,
+    bool flushEnd = true,
+    bool clearScr = false,
+    string end = "\n"
+) {
+    string ansiCode = "\x1B[";
+
+    if(clearScr) cout << ansiCode+"2J";
+    for(int i=0; i<static_cast<int>(textVec.size()); i++) {
+        cout << ansiCode+to_string(posY+i)+";"+to_string(posX)+"H"+textVec[i];
+    }
+    cout << end;
+    if(flushEnd) cout.flush();
+}
+
+/**
+ * @brief ANSI print with terminal side percentage placement
+ * @param text text/paragraph to print on terminal
+ * @param posX x-axis cursor position
+ * @param posY y-axis cursor position
+ * @param flushEnd whether to flush `std::cout` after printing
+ * @param clearScr whether to clear screen before printing to terminal
+ * @param textDelim delimiter string to indicate where to split `text` into separate lines/rows
+ * @param end string to print at the end
+*/
+void ansiPrint(
+    string text,
+    int posX = 0,
+    int posY = 0,
+    bool flushEnd = true,
+    bool clearScr = false,
+    string textDelim = "\n",
+    string endSymb = "\n"
+) {
+    static bool funcInit = false;
+    int printPos[2] = {0, 0};
+    int maxRowLen = 0;
+
+    /// @brief vector to hold each line of `text`
+    vector<string> lines = splitString(text,textDelim,false);
+    
+}
+/**
+ * @brief ANSI print with terminal side percentage placement
+ * @param text text/paragraph to print on terminal
+ * @param xAlign percentage of terminal x-axis side length to place text
+ * @param yAlign percentage of terminal y-axis side length to place text
+ * @param flushEnd whether to flush `std::cout` after printing
+ * @param clearScr whether to clear screen before printing to terminal
+ * @param textDelim delimiter string to indicate where to split `text` into separate lines/rows
+ * @param end string to print at the end
+*/
+void ansiPrint(
+    string text,
+    float scalX = 0,
+    float scalY = 0,
+    bool flushEnd = true,
+    bool clearScr = false,
+    string textDelim = "\n",
+    string endSymb = "\n"
+) {
+    static bool funcInit = false;
+    int terminalDim[2] = {0, 0};
+    int printPos[2] = {0, 0};
+    int textDim[2] = {0, 0};
+
+    /// @brief vector to hold each line of `text`
+    vector<string> lines = splitString(text,textDelim,false);
+    getTermSize(terminalDim[0], terminalDim[1]);
+    textDim[0] = lines[stringOfVector(lines,1)].length();
+    textDim[1] = static_cast<int>(lines.size());
+    printPos[0] = static_cast<int>(round(static_cast<float>(terminalDim[0])*scalX));
+    printPos[1] = static_cast<int>(round(static_cast<float>(terminalDim[1])*scalY));
+    if(printPos[0]+textDim[0]>terminalDim[0]) printPos[0]+=(terminalDim[0]-(printPos[0]+textDim[0]));
+    if(printPos[1]+textDim[1]>terminalDim[1]) printPos[1]+=(terminalDim[1]-(printPos[1]+textDim[1]));
+    
+    baseAnsiPrint(lines,printPos[0],printPos[1],flushEnd,clearScr,endSymb);
+}
+
+/**
+ * @brief ANSI print with side alignment
+ * @param text text/paragraph to print on terminal
+ * @param xAlign x-axis side alignment:
+ * options: {`"left"`, `"right"`}
+ * @param yAlign y-axis side alignment:
+ * options: {`"top"`, `"bottom"`}
+ * @param flushEnd whether to flush `std::cout` after printing
+ * @param clearScr whether to clear screen before printing to terminal
+ * @param textDelim delimiter string to indicate where to split `text` into separate lines/rows
+ * @param end string to print at the end
+*/
+void ansiPrint(
+    string text,
+    string xAlign,
+    string yAlign,
+    bool flushEnd = true,
+    bool clearScr = false,
+    string textDelim = "\n",
+    string end = "\n"
+) {
+    float axisScal[2] = {0, 0};
+    if(xAlign=="left") axisScal[0] = 0;
+    else if(xAlign=="right") axisScal[0] = 1;
+    else {
+        cout << "ERROR: ansiPrint(): wrong xAlign parameter input. Exiting.."<<endl;
+        return;
+    }
+    if(yAlign=="top") axisScal[1] = 0;
+    else if(yAlign=="bottom") axisScal[1] = 1;
+    else {
+        cout << "ERROR: ansiPrint(): wrong yAlign parameter input. Exiting.."<<endl;
+        return;
+    }
+    ansiPrint(text,axisScal[0],axisScal[1],flushEnd,clearScr,textDelim, end);
+}
 
 /// @brief Convert radians to degrees
 /// @param radians radians to convert. type: float()
@@ -141,7 +342,13 @@ int getClosestValIdx(float arr[], int arrLen, float needle, bool printVar=false)
 }
 
 
-void splitString(string line, string delimiter, float returnArr[], int numVar=4, bool printVar=false) {
+void splitString(
+    string line,
+    string delimiter,
+    float returnArr[],
+    int numVar=4,
+    bool printVar=false
+) {
     if(printVar) cout << "--- \"" << line << "\"\n";
     size_t pos = 0;
     for(int i=0; i<numVar; i++) {
@@ -152,14 +359,17 @@ void splitString(string line, string delimiter, float returnArr[], int numVar=4,
     }
     if(printVar) cout << "---";
 }
-vector<string> splitString(string &line, string delimiter, vector<string> &returnVec, bool printVar=false) {
+
+vector<string> splitString(
+    string line,
+    string delimiter,
+    bool printVar=false
+) {
     if(printVar) cout << "--- \"" << line << "\"\n";
     size_t pos = 0;
     vector<string> resultStrings;
-    returnVec.clear();
     if(line.find(delimiter)==string::npos) {
         resultStrings.push_back(line);
-        returnVec.push_back(line);
         cout << "error: splitString: no delimiter \"" << delimiter << "\" found. Returning empty vector\n";
         return resultStrings;
     }
@@ -167,18 +377,33 @@ vector<string> splitString(string &line, string delimiter, vector<string> &retur
         pos = line.find(delimiter);
         if(printVar) cout << "- pos:" << pos << " :" << line.substr(0, pos) << "\n";
         resultStrings.push_back(line.substr(0, pos));
-        returnVec.push_back(resultStrings.back());
         line.erase(0, pos + delimiter.length());
         if(line.find(delimiter)==string::npos) {
             resultStrings.push_back(line);
-            returnVec.push_back(line);
             break;
         }
     }
     if(printVar) cout << "---";
     return resultStrings;
 }
-
+void splitString(
+    string line,
+    string delimiter,
+    vector<string> &returnVec,
+    bool printVar=false
+) {
+    returnVec.clear();
+    returnVec = splitString(line,delimiter,printVar);
+}
+void splitString(
+    string line,
+    string delimiter,
+    vector<string> *returnPtr,
+    bool printVar=false
+) {
+    returnPtr->clear();
+    (*returnPtr) = splitString(line,delimiter,printVar);
+}
 
 
 string replaceSubstr(string text, string toReplace, string replaceTo) {

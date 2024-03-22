@@ -93,7 +93,7 @@ class getPerf {
      * @param printResult whether to print total_delay and FPS
      * @param printAll whether to print every checkpoint
     */
-    void update_totalInfo(
+    string update_totalInfo(
         bool reset_t0,
         bool printResult,
         bool printAll,
@@ -206,7 +206,7 @@ void getPerf::add_checkpoint(string name) {
     // printf("%7.4f", delays_ms.back());
 }
 
-void getPerf::update_totalInfo(
+string getPerf::update_totalInfo(
     bool reset_t0,
     bool printResult=true,
     bool printAll=true,
@@ -283,6 +283,7 @@ void getPerf::update_totalInfo(
         csvFile << "," << fixed<<setprecision(2)<< sumDelay << "\n";
         CSV_lineCount+=1;
     }
+    return "";
 }
 
 int getPerf::getIdx(string name) {

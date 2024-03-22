@@ -139,6 +139,7 @@ class basic_perf(object):
         return toPrintString
 
 
+simpleANSIwrite_init = False
 def simpleANSIWrite(
     text: str,
     textPos     = [0,0],
@@ -147,6 +148,7 @@ def simpleANSIWrite(
     textDelim   = "\n",
     endSymb     = "\n"
 ):
+    global simpleANSIwrite_init
     """Write text/paragraph on terminal at `textPos`
 
     Args:
@@ -165,10 +167,13 @@ def simpleANSIWrite(
     tempLst = text.split(textDelim)
 
     termSize = [os.get_terminal_size().columns, os.get_terminal_size().lines]
-
     printPos = [0, 0]
-
     maxRowLen = max([len(row) for row in tempLst])
+
+    if not simpleANSIwrite_init:
+        sys.stdout.write(ansiCode+"2J")
+        simpleANSIwrite_init = True
+
     if type(textPos)==list:
         if type(textPos[0])==str:
             if textPos[0]=="left":
