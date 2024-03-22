@@ -4,6 +4,7 @@ import time
 import math
 from datetime import datetime, timedelta
 import sys
+import os
 from copy import deepcopy
 
 
@@ -137,6 +138,84 @@ class basic_perf(object):
         # )
         return toPrintString
 
+
+def simpleANSIWrite(
+    text: str,
+    textPos     = [0,0],
+    doFlush     = True,
+    clearScr    = False,
+    textDelim   = "\n",
+    endSymb     = "\n"
+):
+    """Write text/paragraph on terminal at `textPos`
+
+    Args:
+        - text (str): text to print on terminal
+        - textPos (list, str): Where to print the text.
+            If type==str then either `\"left\"` align or `\"right\"` align on the terminal.
+            If type==list then place the text at that [x, y] coordinate
+            Defaults to [0,0].
+        - doFlush (bool): Whether to flush the terminal after printing text. Defaults to True.
+        - clearScr (bool): Whether to clear the screen before every print. Defaults to False.
+        - textDelim (str): Delimiter to separate full string by. Defaults to `"\\n"`.
+        - endSymb (str): What to print after printing `text`. Defaults to "\\n".
+    """
+    ansiCode = "\x1B["
+    if clearScr: sys.stdout.write(ansiCode+"2J")
+    tempLst = text.split(textDelim)
+
+    termSize = [os.get_terminal_size().columns, os.get_terminal_size().lines]
+
+    printPos = [0, 0]
+
+    maxRowLen = max([len(row) for row in tempLst])
+    if type(textPos)==list:
+        if type(textPos[0])==str:
+            if textPos[0]=="left":
+                printPos[0] = 0
+            elif textPos[0]=="right":
+                printPos[0] = termSize[0]-maxRowLen
+        elif type(textPos[0])==int:
+            printPos[0] = textPos[0]
+        if type(textPos[1])==str:
+            if textPos[1]=="top":
+                printPos[1] = 0
+            elif textPos[1]=="bottom":
+                printPos[1] = termSize[1]-len(tempLst)
+        elif type(textPos[1])==int:
+            printPos[1] = textPos[1]
+        for i in range(len(tempLst)):
+            sys.stdout.write(
+                ansiCode + f"{printPos[1]+i};{printPos[0]}H" + tempLst[i]
+            )
+    elif type(textPos)==str:
+        if textPos=="left":
+            for i in range(len(tempLst)):
+                sys.stdout.write(
+                    ansiCode + f"0;0H" + tempLst[i]
+                )
+        elif textPos=="right":
+            for i in range(len(tempLst)):
+                sys.stdout.write(
+                    ansiCode + f"{i};{termSize[0]-maxRowLen}H" + tempLst[i]
+                )
+    sys.stdout.write(endSymb)
+    if doFlush: sys.stdout.flush()
+def simpleANSIWrite2(
+    text: list,
+    textPos     = [0, 0],
+    doFlush     = True,
+    clearScr    = False,
+    endSymb     = "\n"
+):
+    ansiCode = "\x1B["
+    if clearScr: sys.stdout.write(ansiCode+"2J")
+    for i in range(len(text)):
+        sys.stdout.write(
+            ansiCode + f"{textPos[1]+i};{textPos[0]}H" + text[i]
+        )
+    sys.stdout.write(endSymb)
+    if doFlush: sys.stdout.flush()
 
 progbar_progress = 1
 progbar_total = 1

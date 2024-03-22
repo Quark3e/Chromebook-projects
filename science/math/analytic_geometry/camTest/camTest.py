@@ -369,11 +369,12 @@ class AnimatedPlot(object):
             #     toPrintString += f"total: [{round(sumDelay*1000,2):>6}ms] [fps:{round(1/sumDelay,1):>6}]\n"
             
             # # print(toPrintString)
-            sys.stdout.write(
-            "\x1B[2J"+#\x1B[H"+
-                "\x1B[5;0H"+
-                toPrintString
-            )
+            useful.simpleANSIWrite(toPrintString, ["right", 5])
+            # sys.stdout.write(
+            # "\x1B[2J"+#\x1B[H"+
+            #     "\x1B[5;0H"+
+            #     toPrintString
+            # )
 
             # if self.tempCount>10:
             #     for key,val in self.perfObj.perfDict.items():
