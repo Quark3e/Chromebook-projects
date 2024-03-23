@@ -144,8 +144,13 @@ int main(int argc, char* argv[]) {
         this_thread::sleep_for(1000ms);
     #endif
 
-    createTable printTable(2, 2);
-    printTable.add_row(1);
+    createTable printTable(3, 2);
+    printTable.insertText("solvedPos", 0, 0);
+    printTable.insertText("camPos", 0, 1);
+    if(findPerf) {
+        printTable.add_row();
+        printTable.insertText("perf:", 0, 2);
+    }
 
     while(true) {
         //  t1
@@ -292,6 +297,10 @@ int main(int argc, char* argv[]) {
                 // );
 
                 totDelay = perfObj[0].delays_ms.at(1);
+
+                printTable.insertNum(totDelay, 1, 2);
+                printTable.insertNum(static_cast<float>(1.0/(totDelay/1000)), 2, 2);
+                printTable.add_to_cell("ms", 1, 2);
                 // u_lck_cout.lock();
                 // printf(
                 //     "delays{}=%7.3fms  FPS:%3.0f | ",
@@ -309,12 +318,22 @@ int main(int argc, char* argv[]) {
         #if useThreads
         u_lck_cout.lock();
         #endif
-        printf(
-            "solvPos.[%6.2f, %6.2f] | inpCam.[%7.2f, %7.2f]",
-            solvedPos[0], solvedPos[1],
-            inpPos[0], inpPos[1]
+        printTable.insertNum(solvedPos[0],1,0,6,2);
+        printTable.insertNum(solvedPos[1],2,0,6,2);
+
+        printTable.insertNum(inpPos[0],1,1,6,2);
+        printTable.insertNum(inpPos[1],2,1,6,2);
+        // printf(
+        //     "solvPos.[%6.2f, %6.2f] | inpCam.[%7.2f, %7.2f]",
+        //     solvedPos[0], solvedPos[1],
+        //     inpPos[0], inpPos[1]
+        // );
+        printTable.strExport();
+        ansiPrint(
+            printTable.exportStr,
+            static_cast<float>(1.0),
+            static_cast<float>(0.1)
         );
-        // ansiPrint()
         cout.flush();
         #if useThreads
         u_lck_cout.unlock();

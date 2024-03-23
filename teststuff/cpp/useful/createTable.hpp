@@ -174,6 +174,7 @@ void createTable::insertNum(int num, int column, int row, int cellWidth=0) {
     table[row][column] = ss.str();
     cellType[row][column] = "number";
 }
+
 /**
  * @brief Insert float number onto a cell in `table`.
  * @param num float number to insert.

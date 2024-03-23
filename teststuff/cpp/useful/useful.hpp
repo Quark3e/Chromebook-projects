@@ -122,8 +122,13 @@ void baseAnsiPrint(
     bool clearScr = false,
     string end = "\n"
 ) {
+    static bool funcInit = false;
     string ansiCode = "\x1B[";
 
+    if(!funcInit) {
+        cout << ansiCode+"2J";
+        funcInit = true;
+    }
     if(clearScr) cout << ansiCode+"2J";
     for(int i=0; i<static_cast<int>(textVec.size()); i++) {
         cout << ansiCode+to_string(posY+i)+";"+to_string(posX)+"H"+textVec[i];
@@ -133,7 +138,7 @@ void baseAnsiPrint(
 }
 
 /**
- * @brief ANSI print with terminal side percentage placement
+ * @brief ANSI print with terminal cursor coordinates
  * @param text text/paragraph to print on terminal
  * @param posX x-axis cursor position
  * @param posY y-axis cursor position
@@ -149,15 +154,15 @@ void ansiPrint(
     bool flushEnd = true,
     bool clearScr = false,
     string textDelim = "\n",
-    string endSymb = "\n"
+    string end = "\n"
 ) {
-    static bool funcInit = false;
     int printPos[2] = {0, 0};
     int maxRowLen = 0;
 
     /// @brief vector to hold each line of `text`
     vector<string> lines = splitString(text,textDelim,false);
     
+    baseAnsiPrint(lines,posX,posY,flushEnd,clearScr,end);
 }
 /**
  * @brief ANSI print with terminal side percentage placement
@@ -176,9 +181,8 @@ void ansiPrint(
     bool flushEnd = true,
     bool clearScr = false,
     string textDelim = "\n",
-    string endSymb = "\n"
+    string end = "\n"
 ) {
-    static bool funcInit = false;
     int terminalDim[2] = {0, 0};
     int printPos[2] = {0, 0};
     int textDim[2] = {0, 0};
@@ -193,7 +197,7 @@ void ansiPrint(
     if(printPos[0]+textDim[0]>terminalDim[0]) printPos[0]+=(terminalDim[0]-(printPos[0]+textDim[0]));
     if(printPos[1]+textDim[1]>terminalDim[1]) printPos[1]+=(terminalDim[1]-(printPos[1]+textDim[1]));
     
-    baseAnsiPrint(lines,printPos[0],printPos[1],flushEnd,clearScr,endSymb);
+    baseAnsiPrint(lines,printPos[0],printPos[1],flushEnd,clearScr,end);
 }
 
 /**
