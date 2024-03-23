@@ -17,6 +17,7 @@ class createTable {
 
     public:
     bool create_border = true;
+    int maxWordLen = 0;
 
     std::vector<std::vector<std::string>> table;
 
@@ -24,6 +25,8 @@ class createTable {
     createTable(int columns, int rows);
 
     void add_row(string label, int columns);
+
+    string strExport();
 };
 
 
@@ -46,6 +49,14 @@ void createTable::add_row(string label, int columns) {
     }
     table.push_back(std::vector<std::string>(columns));
     table.back()[0] = label;
+}
+
+string createTable::strExport() {
+    std::vector<std::string> maxWords;
+    for(std::vector<std::string> &row: table) {
+        maxWords.push_back(row[stringOfVector(row,1)]);
+    }
+    maxWordLen = 
 }
 
 
