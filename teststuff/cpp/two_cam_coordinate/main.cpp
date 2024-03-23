@@ -28,6 +28,7 @@
 #include <opencv4/opencv2/imgproc/imgproc.hpp>
 
 #include "../useful/useful.hpp"
+#include "../useful/createTable.hpp"
 #include "two_cam_coordinate.hpp"
 #include "../basic/Performance/getPerformance.hpp"
 #include "../../../projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp"
@@ -142,6 +143,9 @@ int main(int argc, char* argv[]) {
         thread t_cam1(thread_task, &camObj[1], 1);
         this_thread::sleep_for(1000ms);
     #endif
+
+    createTable printTable(2, 2);
+    printTable.add_row(1);
 
     while(true) {
         //  t1
