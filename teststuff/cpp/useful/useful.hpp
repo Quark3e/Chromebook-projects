@@ -23,6 +23,10 @@
 
 using namespace std;
 
+
+// #include "createTable.hpp"
+
+
 static string dummyRef_stringOfVector_resultStrRef;
 /**
  * @brief find specific string from `std::vector<std::string>` parameter
@@ -406,6 +410,11 @@ void splitString(
 }
 
 
+/// @brief replace every `{toReplace}` string in `{text}` with `{replaceTo}`
+/// @param text string to replace parts of
+/// @param toReplace old string that is to be removed/replaced
+/// @param replaceTo new string that will be inserted
+/// @return original `{text}` string but with `{toReplace}` replaced
 string replaceSubstr(string text, string toReplace, string replaceTo) {
 	size_t count=0;
     size_t pos = text.find(toReplace);
@@ -455,7 +464,15 @@ void fillCharArray(
     	toSend_arr[idx_start+i]=fullTemp[i];
     }
 }
-string formattedFloat(
+
+/// @brief Convert float value to string with `width` 
+/// number of chars where everything not the number is filled with space
+/// @param inpVal decimal number to convert to string
+/// @param width number of char for the string
+/// @param precision number of decimals for the decimal number in string
+/// @param leftAlign whether for the number to align left side
+/// @return string of number
+string formattedFloat_c(
     float inpVal,
     int width=0,
     int precision=0,
@@ -468,14 +485,14 @@ string formattedFloat(
     string tempStr(temp);
     return tempStr;
 }
-void formattedFloat(
+void formattedFloat_c(
     float inpVal,
     string *strVarPtr,
     int width=0,
     int precision=0,
     bool leftAlign=false
 ) {
-    *strVarPtr = formattedFloat(inpVal, width, precision, leftAlign);
+    *strVarPtr = formattedFloat_c(inpVal, width, precision, leftAlign);
 }
 
 template<class T>
@@ -486,6 +503,11 @@ string FormatWithSymbol(T value, string formatSymbol=" ")
     ss << std::fixed << value;
     return replaceSubstr(ss.str(), ",", formatSymbol);
 }
+/// @brief Convert decimal number to string with set preicision
+/// @tparam T 
+/// @param value decimal number to convert/type-cast
+/// @param varPrecision number of decimals
+/// @return string of `value` with `varPrecision` number of decimal numbers
 template<class T>
 string formatNumber(T value, int varPrecision=2) {
 	stringstream tempStream;
