@@ -22,10 +22,15 @@ class createTable {
     void updateTableInfo();
     void checkMaxLen(int whichRow);
 
+    /// @brief whether to use column labels
     bool use_label_column = false;
 
     public:
+    /// @brief length of longest string in that column
     std::vector<int> maxColumnLen;
+    /// @brief extra padding beside maxColumnLen
+    std::vector<int> columnPadding;
+    /// @brief label for each column
     std::vector<std::string> columnLabel;
 
     /**
@@ -41,6 +46,9 @@ class createTable {
      * options: {`"text"`, `"number"`}
     */
     std::vector<std::vector<std::string>> cellType;
+
+
+    /// @brief complete string that's generated with `strExport()`
     std::string exportStr;
 
     createTable();
@@ -51,9 +59,12 @@ class createTable {
 
     void add_to_cell(std::string text, int column, int row);
 
-    void insertText(std::string newText, int column, int row, int cellWidth);
-    void insertNum(int num, int column, int row, int cellWidth);
-    void insertNum(float num, int column, int row, int cellWidth, int precision);
+    void insertText(std::string newText, int column, int row);
+    void insertNum(int num, int column, int row);
+    void insertNum(float num, int column, int row, int precision);
+
+    void setColPadding(vector<int> paddings);
+
 
     std::string strExport(
         std::string startRow,
@@ -64,6 +75,21 @@ class createTable {
 };
 
 void createTable::updateTableInfo() {}
+
+/**
+ * @brief set extra column padding to each cell in each column according to 
+ * that columns longest string + this funcions input padding
+ * @param paddings `std::vector<int>` of new padding values
+*/
+void createTable::setColPadding(vector<int> paddings) {
+    if(paddings.size() != columnPadding.size()) {
+        std::cout << "\nERROR: createTable::setColPadding: input padding vector is not same size as createTable.columnPadding var size."<<std::endl;
+        return;
+    }
+    for(size_t i=0; i<columnPadding.size(); i++) {
+        columnPadding[i] = paddings[i];
+    }
+}
 
 /**
  * @brief check `maxColumnLen` vectors accuracy with table vector
@@ -99,10 +125,11 @@ createTable::createTable(
     int columns,
     int rows
 ) {
-    table       = std::vector<std::vector<std::string>>(rows, std::vector<std::string>(columns, ""));
-    cellType    = std::vector<std::vector<std::string>>(rows, std::vector<std::string>(columns, "text"));
-    columnLabel = std::vector<std::string>(columns, "");
-    maxColumnLen= std::vector<int>(columns, 0);
+    table           = std::vector<std::vector<std::string>>(rows, std::vector<std::string>(columns, ""));
+    cellType        = std::vector<std::vector<std::string>>(rows, std::vector<std::string>(columns, "text"));
+    columnLabel     = std::vector<std::string>(columns, "");
+    columnPadding   = std::vector<int>(columns, 1);
+    maxColumnLen    = std::vector<int>(columns, 0);
 }
 
 /**
@@ -133,6 +160,7 @@ void createTable::add_col(int numCols=1, std::string defaultStr="") {
 
     for(int n=0; n<numCols; n++) {
         maxColumnLen.push_back(0);
+        columnPadding.push_back(1);
         columnLabel.push_back("");
     }
     // table_rowcol[1] += numCols;
@@ -153,25 +181,20 @@ void createTable::add_to_cell(std::string text, int column, int row) {
  * @param newText string to place in cell `table[{row}][{column}]`
  * @param column column index
  * @param row row index
- * @param cellWidth minimum number of characters to fill cell with
 */
-void createTable::insertText(std::string newText, int column, int row, int cellWidth=0) {
-    std::stringstream ss;
-    ss << std::left << std::fixed << std::setw(cellWidth) << newText;
-    table[row][column] = ss.str();
+void createTable::insertText(std::string newText, int column, int row) {
+    table[row][column] = newText;
     cellType[row][column] = "text";
 }
+
 /**
  * @brief Insert int number onto a cell in `table`.
  * @param num integer number to insert.
  * @param column index to which column to insert number in.
  * @param row index to which row to insert number in.
- * @param cellWidth minimum number of characters to fill cell with
 */
-void createTable::insertNum(int num, int column, int row, int cellWidth=0) {
-    std::stringstream ss;
-    ss << std::right << std::fixed << std::setw(cellWidth) << num;
-    table[row][column] = ss.str();
+void createTable::insertNum(int num, int column, int row=0) {
+    table[row][column] = to_string(num);
     cellType[row][column] = "number";
 }
 
@@ -180,15 +203,15 @@ void createTable::insertNum(int num, int column, int row, int cellWidth=0) {
  * @param num float number to insert.
  * @param column index to which column to insert number in.
  * @param row index to which row to insert number in.
- * @param cellWidth minimum number of characters to fill cell with
  * @param precision decimal precision for how many decimal numbers to use in string.
 */
-void createTable::insertNum(float num, int column, int row, int cellWidth=0, int precision=2) {
+void createTable::insertNum(float num, int column, int row=0, int precision=2) {
     std::stringstream ss;
-    ss << std::right << std::fixed << std::setw(cellWidth) << std::setprecision(precision) << num;
+    ss << std::fixed << std::setprecision(precision) << num;
     table[row][column] = ss.str();
     cellType[row][column] = "number";
 }
+
 
 
 std::string createTable::strExport(
@@ -198,11 +221,12 @@ std::string createTable::strExport(
     std::string colSep = "|"
 ) {
     checkMaxLen();
-    stringstream ss;
     exportStr = "";
     table_dim[0] = 0;
     table_dim[1] = static_cast<int>(table.size());
-    for(int& var: maxColumnLen) table_dim[0]+=var;
+    for(size_t i=0; i<maxColumnLen.size(); i++) {
+        table_dim[0]+=maxColumnLen[i]+columnPadding[i];
+    }
 
     table_dim[0] += (static_cast<int>(table[0].size()) - 1)*colSep.length();
     if(createBorder) {
@@ -211,13 +235,17 @@ std::string createTable::strExport(
         exportStr += std::string(table_dim[0], '-') + rowEnd;
     }
 
+    std::stringstream ss;
 
     for(size_t row=0; row<table.size(); row++) {
         if(createBorder) exportStr += "|";
         for(size_t col=0; col<table[row].size(); col++) {
-            // if(cellType[row][col]=="text") exportStr += table[row][col];
-            // else if(cellType[row][col]=="number") {}
-            exportStr += table[row][col];
+            ss.str(std::string());
+            ss.clear();
+            if(cellType[row][col]=="text") ss<<std::left;
+            else if(cellType[row][col]=="number") ss<<std::right;
+            ss<<std::setw(maxColumnLen[col]+columnPadding[col])<<table[row][col];
+            exportStr += ss.str();
             if(col<table[row].size()-1) exportStr += colSep;
         }
         if(createBorder) exportStr += "|";

@@ -315,20 +315,21 @@ int main(int argc, char* argv[]) {
         camTri.solvePos(inpPos, solvedPos, true);
         //  0.030ms
 
+        printTable.insertNum(solvedPos[0],1,0,2);
+        printTable.insertNum(solvedPos[1],2,0,2);
+
+        printTable.insertNum(inpPos[0],1,1,2);
+        printTable.insertNum(inpPos[1],2,1,2);
+        printTable.strExport();
+
         #if useThreads
         u_lck_cout.lock();
         #endif
-        printTable.insertNum(solvedPos[0],1,0,6,2);
-        printTable.insertNum(solvedPos[1],2,0,6,2);
-
-        printTable.insertNum(inpPos[0],1,1,6,2);
-        printTable.insertNum(inpPos[1],2,1,6,2);
         // printf(
         //     "solvPos.[%6.2f, %6.2f] | inpCam.[%7.2f, %7.2f]",
         //     solvedPos[0], solvedPos[1],
         //     inpPos[0], inpPos[1]
         // );
-        printTable.strExport();
         ansiPrint(
             printTable.exportStr,
             static_cast<float>(1.0),

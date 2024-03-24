@@ -122,13 +122,25 @@ void baseAnsiPrint(
     bool clearScr = false,
     string end = "\n"
 ) {
+    int terminalDim[2];
+    static int oldTermDim[2];
     static bool funcInit = false;
     string ansiCode = "\x1B[";
 
+    getTermSize(terminalDim[0], terminalDim[1]);
+
     if(!funcInit) {
+        oldTermDim[0] = terminalDim[0];
+        oldTermDim[1] = terminalDim[1];
         cout << ansiCode+"2J";
         funcInit = true;
     }
+    if(terminalDim[0]!=oldTermDim[0] || terminalDim[1]!=oldTermDim[1]) {
+        cout << ansiCode+"2J";
+        oldTermDim[0] = terminalDim[0];
+        oldTermDim[1] = terminalDim[1];
+    }
+
     if(clearScr) cout << ansiCode+"2J";
     for(int i=0; i<static_cast<int>(textVec.size()); i++) {
         cout << ansiCode+to_string(posY+i)+";"+to_string(posX)+"H"+textVec[i];
