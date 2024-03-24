@@ -43,23 +43,23 @@
 
 
 // Personal 
-#include "../../../teststuff/cpp/useful/useful.hpp"
-#include "IK_header.h"
-#include "HW_headers/wirelessCOM.hpp"
-#include "../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp"
-#include "HW_headers/IR_camTrack.hpp"
-#include "HW_headers/integ_TFTdisp.hpp"
-#include "HW_headers/motion_control/motion_profiles.hpp"
+#include "hexclaw_includes.hpp"
+
 
 using namespace std;
-
 
 
 // thread stuff
 #define useThreads true
 
+
+
 #if useThreads
 #include <thread>
+#include <mutex>
+
+
+
 
 /// @brief thread intermediary function so class member function is passable to thread object.
 /// Function calls IR_camTracking::processCam() member function

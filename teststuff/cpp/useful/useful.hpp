@@ -13,6 +13,8 @@
 #include <chrono>
 #include <ctime>
 
+#include <algorithm>
+
 #include <cstring>
 #include <stdlib.h>
 
@@ -26,6 +28,22 @@ using namespace std;
 
 // #include "createTable.hpp"
 
+/**
+ * @brief search and find index in string vector to given string to find
+ * @param vec `std::vector<std::string>` vector search through
+ * @param toFind `std::string` var to find in vector
+ * @return index in vector, or `-1` if not found
+*/
+int findVectorIndex(vector<string> vec, string toFind) {
+    vector<string>::iterator idx = find(vec.begin(), vec.end(), toFind);
+
+    if(idx != vec.end()) {
+        return idx-vec.begin();
+    }
+    else {
+        return -1;
+    }
+}
 
 static string dummyRef_stringOfVector_resultStrRef;
 /**
