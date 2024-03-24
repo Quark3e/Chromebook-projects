@@ -301,12 +301,6 @@ int main(int argc, char* argv[]) {
                 printTable.insertNum(totDelay, 1, 2);
                 printTable.insertNum(static_cast<float>(1.0/(totDelay/1000)), 2, 2);
                 printTable.add_to_cell("ms", 1, 2);
-                // u_lck_cout.lock();
-                // printf(
-                //     "delays{}=%7.3fms  FPS:%3.0f | ",
-                //     totDelay, 1.0/(totDelay/1000)
-                // );
-                // u_lck_cout.unlock();
             }
         #endif
         //  t1
@@ -325,11 +319,6 @@ int main(int argc, char* argv[]) {
         #if useThreads
         u_lck_cout.lock();
         #endif
-        // printf(
-        //     "solvPos.[%6.2f, %6.2f] | inpCam.[%7.2f, %7.2f]",
-        //     solvedPos[0], solvedPos[1],
-        //     inpPos[0], inpPos[1]
-        // );
         ansiPrint(
             printTable.exportStr,
             static_cast<float>(1.0),

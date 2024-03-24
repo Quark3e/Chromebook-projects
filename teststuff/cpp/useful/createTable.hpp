@@ -221,6 +221,7 @@ std::string createTable::strExport(
     std::string colSep = "|"
 ) {
     checkMaxLen();
+    std::stringstream ss;
     exportStr = "";
     table_dim[0] = 0;
     table_dim[1] = static_cast<int>(table.size());
@@ -235,7 +236,6 @@ std::string createTable::strExport(
         exportStr += std::string(table_dim[0], '-') + rowEnd;
     }
 
-    std::stringstream ss;
 
     for(size_t row=0; row<table.size(); row++) {
         if(createBorder) exportStr += "|";
