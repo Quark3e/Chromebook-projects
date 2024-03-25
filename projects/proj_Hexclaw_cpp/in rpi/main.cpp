@@ -232,7 +232,7 @@ bool pigpioInitia = false;
 int pin_ledRelay = 23;
 
 
-#include "HW_headers/mainOptions.hpp"
+#include "HW_options/mainOptions.hpp"
 
 /// @brief main function to read, display and control the robot
 /// @param cap [cv::VideoCapture object pointer]: for main camera

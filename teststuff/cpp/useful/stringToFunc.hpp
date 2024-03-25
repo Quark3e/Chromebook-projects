@@ -36,13 +36,19 @@ class StringToFunction {
 
 
     /// @brief container each name respective to function
-    std::vector<std::string> names;
+    vector<std::vector<std::string>> names;
     /// @brief container for what type of vector
     std::vector<std::string> funcType;
+    /// @brief container for descriptions of each function
+    std::vector<std::string> descriptions;
     /// @brief container for index of name in their respective function pointer vector
     std::vector<size_t> indices;
 
     public:
+    std::vector<std::vector<std::string>> getNames() { return names; }
+    std::vector<std::string> getFuncTypes() { return funcType; }
+    std::vector<std::string> getDescriptions() { return descriptions; }
+
     StringToFunction();
 
     int call_func(std::string name);
@@ -50,29 +56,35 @@ class StringToFunction {
     /// @brief print available printTypes
     void availableTypes();
 
+    std::string exportString(
+        bool clearScr,
+        bool useLabel,
+        std::string lineEnd,
+        std::string lineSep
+    );
 
-    int add_func(std::string name, TDEF_void__ func);
-    int add_func(std::string name, TDEF_int__ func);
+    int add_func(std::string name, TDEF_void__ func, std::string name2, std::string description);
+    int add_func(std::string name, TDEF_int__ func, std::string name2, std::string description);
 };
 
 void StringToFunction::call_void__(std::string name) {
-    funcVec_TDEF_void__[indices[findVectorIndex(names, name)]]();
+    funcVec_TDEF_void__[indices[findVectorIndex(names, name)[1]]]();
 }
 int StringToFunction::call_int__(std::string name) {
-    funcVec_TDEF_int__[indices[findVectorIndex(names, name)]]();
+    funcVec_TDEF_int__[indices[findVectorIndex(names, name)[1]]]();
 }
 
 /// @brief default constructor
 StringToFunction::StringToFunction() {}
 
 int StringToFunction::call_func(std::string name) {
-    if(findVectorIndex(names, name) == -1) {
+    if(findVectorIndex(names, name)[1] == -1) {
         std::cout << "ERROR: StringToFunction::add_func: name \""<<name<<"\" doesn't exists. Pick a new one"<<endl;
         return 1;
     }
 
-    if(funcType[findVectorIndex(names,name)]==allFuncTypes[0]) call_void__(name);
-    else if(funcType[findVectorIndex(names,name)]==allFuncTypes[1]) call_int__(name);
+    if(funcType[findVectorIndex(names,name)[1]]==allFuncTypes[0]) call_void__(name);
+    else if(funcType[findVectorIndex(names,name)[1]]==allFuncTypes[1]) call_int__(name);
 
     return 0;
 }
@@ -86,32 +98,57 @@ void StringToFunction::availableTypes() {
 
 int StringToFunction::add_func(
     std::string name,
-    TDEF_void__ func
+    TDEF_void__ func,
+    std::string name2 = "",
+    std::string description = ""
 ) {
-    if(findVectorIndex(names, name) != -1) {
+    if(findVectorIndex(names, name)[1] != -1) {
         std::cout << "ERROR: StringToFunction::add_func: name \""<<name<<"\" already exists. Pick a new one"<<endl;
         return 1;
     }
+    names.push_back(std::vector<std::string>(2, ""));
+    names[names.size()-1][0] = name;
+    names[names.size()-1][1] = name2;
+    
     indices.push_back(funcVec_TDEF_void__.size());
     funcVec_TDEF_void__.push_back(func);
     funcType.push_back(allFuncTypes[0]);
+    descriptions.push_back(description);
 
     return 0;
 }
 int StringToFunction::add_func(
     std::string name,
-    TDEF_int__ func
+    TDEF_int__ func,
+    std::string name2 = "",
+    std::string description = ""
 ) {
-    if(findVectorIndex(names, name) != -1) {
+    if(findVectorIndex(names, name)[1] != -1) {
         std::cout << "ERROR: StringToFunction::add_func: name \""<<name<<"\" already exists. Pick a new one"<<endl;
         return 1;
     }
+
+    names.push_back(std::vector<std::string>(2, ""));
+    names[names.size()-1][0] = name;
+    names[names.size()-1][1] = name2;
+
     indices.push_back(funcVec_TDEF_int__.size());
     funcVec_TDEF_int__.push_back(func);
     funcType.push_back(allFuncTypes[0]);
+    descriptions.push_back(description);
 
     return 0;
 }
 
+
+std::string StringToFunction::exportString(
+    bool clearScr,
+    bool useLabel = true,
+    std::string lineEnd = "\n",
+    std::string lineSep = " "
+) {
+    std::string exportStr;
+
+}
 
 #endif

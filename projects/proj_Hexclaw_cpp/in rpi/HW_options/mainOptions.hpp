@@ -5,5 +5,19 @@
 
 
 
+#include "../../../../teststuff/cpp/useful/stringToFunc.hpp"
+
+StringToFunction hexclaw_cmdArgs{};
+
+
+
+void HW_setup_options() {
+
+
+}
+
+
+
+
 
 #endif

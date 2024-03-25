@@ -44,6 +44,30 @@ int findVectorIndex(vector<string> vec, string toFind) {
         return -1;
     }
 }
+/**
+ * @brief search and find index in string vector to given string to find
+ * @param vecvec `std::vector<std::vector<std::string>>` vector with vector search through
+ * @param toFind `std::string` var to find in vector
+ * @return 2d `std::vector<int>` of position/coordinates
+*/
+vector<int> findVectorIndex(vector<vector<string>> vecvec, string toFind) {
+    vector<int> indices(vecvec.size(), -1);
+
+    for(size_t i=0; i<vecvec.size(); i++) {
+
+        vector<string>::iterator idx = find(vecvec[i].begin(), vecvec[i].end(), toFind);
+        if(idx != vecvec[i].end()) {
+            indices[0] = i;
+            indices[1] = idx-vecvec[i].begin();
+            break;
+        }
+        else {
+            break;
+        }
+    }
+
+}
+
 
 static string dummyRef_stringOfVector_resultStrRef;
 /**
