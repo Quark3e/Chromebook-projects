@@ -77,6 +77,9 @@ int StringToFunction::call_int__(std::string name) {
 /// @brief default constructor
 StringToFunction::StringToFunction() {}
 
+/// @brief call stored function relative to name
+/// @param name the string variable to find appropriate function of
+/// @return `0`- function succesfully called; `1`- `name` related function not found
 int StringToFunction::call_func(std::string name) {
     if(findVectorIndex(names, name)[1] == -1) {
         std::cout << "ERROR: StringToFunction::add_func: name \""<<name<<"\" doesn't exists. Pick a new one"<<endl;

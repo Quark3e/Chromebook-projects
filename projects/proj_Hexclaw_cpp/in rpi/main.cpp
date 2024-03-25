@@ -11,67 +11,18 @@
  */
 
 
-// default/basic headers/includes
-#include <iostream>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
-#include <fstream> //read and write to file (hsv_settings.dat)
-#include <algorithm> //ex. find() and erase()
-#include <time.h>
-#include <stdint.h>
-#include <vector>
 
-// path related headers
-#include <cstring>
-#include <unistd.h>
-#include <libgen.h>
-#include <linux/limits.h>
-
-// opencv/image tracking
-#include <opencv4/opencv2/opencv.hpp>
-#include <opencv4/opencv2/highgui/highgui.hpp>
-#include <opencv4/opencv2/imgproc/imgproc.hpp>
-
-
-// PCA9685 communication
-#include <PiPCA9685/PCA9685.h>
-
-// RPi specific functions
-#include <pigpio.h>
-
-
-// Personal 
+#include "hexclaw_constants.hpp"
 #include "hexclaw_includes.hpp"
+#include "hexclaw_global.hpp"
 
 
-using namespace std;
-
-
-// thread stuff
-#define useThreads true
-
-
-
-#if useThreads
-#include <thread>
-#include <mutex>
+// using namespace std;
 
 
 
 
-/// @brief thread intermediary function so class member function is passable to thread object.
-/// Function calls IR_camTracking::processCam() member function
-/// @param camRef reference to IR_camTracking class object
-void cam_thread_task(IR_camTracking& camRef) {
-	camRef.processCam();
-}
 
-#endif
-
-
-string absPath;
 
 /// @brief 0-direct function; 1-use 2d coefs; 2-use arificial; 3-use two_cam_triangle
 int zSol=3;
@@ -90,59 +41,6 @@ void initPaths() {
 }
 
 
-// IK related: ik calc variable declaration
-float current_q[6]	= {0,0,0,0,0,0}; //old_rotation
-float new_q[6]		= {0,0,0,0,0,0};
-float orient[3]		= {0,0,0}; //degrees
-float PP[3]			= {0,150,150};
-float axisScal[3]	= {1, 1, 1};	
-float axisOffset[3]	= {0, 100, -200};
-float axisFilter[3]	= {1, 1, 1};
-
-float pitch, roll, Pitch=0, Roll=0;
-// Wireless nodemcu udp COM header class initialization
-nodemcu_orient orientObj(orient);
-
-
-/// @brief prefered image size to convert/use for all images
-int prefSize[2] = {640, 480};
-
-
-bool useAutoBrightne = true;
-bool takePerformance = false;
-
-
-/// @brief index of webcam
-int webcamIndex = 2;
-
-
-bool displayToWindow = true;
-bool calibrateHSV = false;
-bool displayTFT = false;
-
-bool mode_orients = false;
-bool mode_intro = false;
-
-
-// int l_HSV[3] = {0, 0, 255};
-// int u_HSV[3] = {179, 9, 255};
-int HW_HSV[2][3] = {
-	{0, 0, 255},
-	{179, 9, 255}
-};
-
-const char* window_name = "Window";
-// IR camtracking header class initialization
-IR_camTracking camObj[2] {
-	{2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance},
-	{0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takePerformance},
-};
-
-// Two_cam_triangle header class initialisation
-float camPosition[2][2] = {{0, 0}, {250, 0}};
-float camAng_offs[2] = {90, 123};
-float inpPos[2], solvedPos[2];
-camTriangle camTri(camPosition, camAng_offs);
 
 
 /// @brief 2d coefficients for a single layer
@@ -176,9 +74,6 @@ void load_csvFile(string filePath = "data/csv_dataSet_pf17_fuse-True.csv") {
 
 }
 
-
-
-bool useCSV=true;
 
 /// @brief solve z-axis/cam-distance from area
 /// @param area [float]: cntArea
@@ -227,9 +122,6 @@ float zAxisFunc(float area, float posX, float posY) {
 }
 
 
-
-bool pigpioInitia = false;
-int pin_ledRelay = 23;
 
 
 #include "HW_options/mainOptions.hpp"
@@ -347,7 +239,6 @@ int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
 }
 
 
-
 void loadData_csvArtif(bool printVar=true) {
 	if (printVar) cout << "Starting to load the data\n";
 
@@ -436,6 +327,28 @@ int main(int argc, char* argv[]) {
 	// nodemcu_udp_setup();
 
 
+	std::cout<<"\n- section: \"initialisation\"\n"<<endl;;
+	//pca9685 board setup
+	pca.set_pwm_freq(50.0);
+
+
+	recObj = opencv_recorder(
+		"cpp_cameras_feed.mp4",
+		prefSize[0]*2,  //using hconcat
+		prefSize[1]*2,  //imgFlipped is by default vconcat
+		15
+	);
+
+
+	HW_setup_options();
+	if(argc==2) {
+		if(hexclaw_cmdArgs.call_func(argv[1])==1) {
+			std::cout << "ERROR: no matching flag or argument input"<<std::endl;
+			return 1;
+		}
+	}
+
+
 	if(zSol==1) load_csvFile();
 	initPaths();
 	
@@ -460,10 +373,6 @@ int main(int argc, char* argv[]) {
 		else if(strcmp(argv[1], "-c")==0) {calibrateHSV=false; displayToWindow=false; mode_orients=false; mode_intro=true; printf("running intro sequence\n");}
 	}
 
-	printf("\n- section: \"initialisation\"\n");
-	//pca9685 board setup
-	PiPCA9685::PCA9685 pca{};
-	pca.set_pwm_freq(50.0);
 
 
 
@@ -496,62 +405,6 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	else if(mode_intro) {
-		current_q[0] = -45;
-		current_q[1] = 25;
-		current_q[2] = -115;
-		current_q[3] = -45;
-		current_q[4] = -90;
-		current_q[5] = 90;
-		add_defaults(current_q);
-		new_q[0] = 0;
-		new_q[1] = 135;
-		new_q[2] = -90;
-		new_q[3] = 0;
-		new_q[4] = -45;
-		new_q[5] = 0;
-		// printf("running intro...\n");
-        //sendToServo(&pca, current_q, new_q, false, 0, 0);
-		usleep(1'000'000);
-		if(pigpioInitia) {
-			gpioWrite(pin_ledRelay, 0);
-			gpioWrite(pin_ledRelay, 1);
-		}
-		usleep(750'000);
-		printf("\n- section: \"slow start\"\n");
-		sendToServo(&pca, new_q, current_q, false, 2, 10);
-
-		printf("intro finished\n");
-		usleep(3'000'000);
-		if(pigpioInitia) {
-			for(int i=0; i<4; i++) {
-				gpioWrite(pin_ledRelay, 0);
-				usleep(30'000);
-				gpioWrite(pin_ledRelay, 1);
-				usleep(30'000);
-			}
-			usleep(1'500'000);
-			gpioWrite(pin_ledRelay, 0);
-			usleep(250'000);
-			gpioWrite(pin_ledRelay, 1);
-			usleep(500'000);
-			gpioWrite(pin_ledRelay, 0);
-			usleep(100'000);
-			gpioWrite(pin_ledRelay, 1);
-			usleep(2'000'000);
-			gpioWrite(pin_ledRelay, 0);
-		}
-		usleep(2'000'000);
-
-		if(pigpioInitia) gpioWrite(pin_ledRelay, 1);
-		new_q[0] = 45;
-		new_q[1] = 0;
-		new_q[2] = -45;
-		new_q[3] = 89;
-		new_q[4] = 89;
-		new_q[5] = 0;
-		printf("\n- section: \"crash\"\n");
-		sendToServo(&pca,new_q,current_q, false);
-		usleep(2'000'000);
 	}
 
 	for(int n=0; n<6; n++) new_q[n] = startup_q[n];
