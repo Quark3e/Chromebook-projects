@@ -213,7 +213,12 @@ void createTable::insertNum(float num, int column, int row=0, int precision=2) {
 }
 
 
-
+/// @brief export/finalise a complete string of the complete table
+/// @param startRow a string before the table.
+/// @param createBorder whether to create an outer border around the table(does not include `startRow`)
+/// @param rowEnd row separator string
+/// @param colSep column separator string
+/// @return full string, same as `exportStr`
 std::string createTable::strExport(
     std::string startRow = "",
     bool createBorder = true,
@@ -222,7 +227,7 @@ std::string createTable::strExport(
 ) {
     checkMaxLen();
     std::stringstream ss;
-    exportStr = "";
+    exportStr = startRow;
     table_dim[0] = 0;
     table_dim[1] = static_cast<int>(table.size());
     for(size_t i=0; i<maxColumnLen.size(); i++) {
