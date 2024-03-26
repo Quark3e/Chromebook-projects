@@ -7,6 +7,7 @@
 #include <math.h>
 
 #include "HW_headers/motion_control/motion_profiles.hpp"
+#include "hexclaw_global.hpp"
 
 using namespace std;
 using namespace PiPCA9685;
@@ -95,24 +96,6 @@ bool exceedCheck(float angles[6], bool printErrors=true) {
     else return false;   
 }
 
-float findVal(float arrToCheck[], int arrLen, int mode=0) {
-    /*
-    mode:
-    - 0 - biggest, value
-    - 1 - smallest, value
-    - 2 - biggest, index
-    - 3 - smallest, index
-    */
-    float val = arrToCheck[0];
-    int index = 0;
-    for(int i=0; i<arrLen; i++) {
-        if(mode==0 || mode==2) if(arrToCheck[i]>val) { val=arrToCheck[i]; index=i; }
-        else if(mode==1 || mode==3) if(arrToCheck[i]<val) {val=arrToCheck[i]; index=i; }
-    }
-    if(mode==0 || mode==1) return val;
-    else if(mode==2 || mode==3) return index;
-    else return -1;
-}
 
 
 /// @brief Sends rotation commands to servo motors
@@ -125,7 +108,7 @@ float findVal(float arrToCheck[], int arrLen, int mode=0) {
 /// @param useDefault *true*-include IK-offsets in angles BEFORE writing to servo motors; *false*-do not include IK-offsets
 /// @param printErrors whether to print any errors
 /// @param printResult whether to print any results/checkpoints/non-essential-info
-/// @return *0* if successful, *-1* otherwise
+/// @return `0`- if successful; `-1` otherwise
 int sendToServo(
     PCA9685* pcaBoard,
     float new_rotation[6],
@@ -374,7 +357,12 @@ bool getAngles(
 	return isReachable;
 }
 
-
+/// @brief find a valid yaw/pitch orient for given 3-axis coordinate values
+/// @param PP 3-axis coordinate values. {`x`, `y`, `z`}
+/// @param currOrient current tilt orient
+/// @param retOrient pointer to array container for result orients.
+/// @param qAngles servo motor angles to find valid orient for
+/// @return whether the function managed to find a valid orient
 bool findValidOrient(float PP[3], float currOrient[3], float retOrient[2], float qAngles[6]) {
     int B_dir = 0;
     int orientAcc[2] = {10, 10};
@@ -416,5 +404,35 @@ bool findValidOrient(float PP[3], float currOrient[3], float retOrient[2], float
     return false;
 }
 
+/**
+ * @brief solve/get the three axis coordinates
+ * @param mode 
+ * different modes/alternatives for how to get the three coordinate values
+ * `0` - {cam0.x, cam0.y, cam0.cntArea*scal}
+ * `1` - {cam0.x, cam0.y, cam1.y}
+ * `2` - {camTri.x, camTri.solvedZ, camTri.y}
+ * @return `0`- if successful; `1`- if an error occured
+*/
+int getCoordinates(
+    int mode
+) {
+    if(mode==0) {
 
+    }
+    else if(mode==1) {
 
+    }
+    else if(mode==2) {
+        inpPos[0] = camObjPos_main[0][0];
+        inpPos[1] = camObjPos_main[1][0];
+        camTri.solvePos(inpPos, solvedPos, false);
+	    float solvedZ = -sin(toRadians((camTri.camRes[0][1]*0.5-camObj[0].totCnt_pos[1])*camTri.camCoef[0][1]))*solvedPos[1];
+        
+        PP[0] = axisFilter[0]*float(round(solvedPos[0]*axisScal[0]+axisOffset[0])) + (1-axisFilter[0])*PP[0];
+        PP[1] = axisFilter[1]*float(solvedZ*axisScal[1]+axisOffset[1]) + (1-axisFilter[1])*PP[1];
+        PP[2] = axisFilter[2]*float(round(solvedPos[1]*axisScal[2]+axisOffset[2])) + (1-axisFilter[2])*PP[2];
+        
+    }
+
+    return 0;
+}

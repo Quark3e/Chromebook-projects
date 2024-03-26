@@ -124,14 +124,14 @@ void nodemcu_connect::nodemcu_udp_setup() {
 	bind_result = bind(sock, (sockaddr*)&addrListen, sizeof(addrListen));
 	if(bind_result==-1) {
 		int lasterror = errno;
-		cout << "bind() error:" << lasterror;
+		std::cout << "bind() error:" << lasterror;
 		exit(1);
 	}
 	addrDest = {};
 	bind_result = resolvehelper(ADDRESS, AF_INET, PORT, &addrDest);
 	if(bind_result!=0) {
 		int lasterror = errno;
-		cout << "resolvehelper error:" << lasterror;
+		std::cout << "resolvehelper error:" << lasterror;
 		exit(1);
 	}
 	toESP_msg = "1";
@@ -144,7 +144,7 @@ void nodemcu_connect::nodemcu_udp_setup() {
 void nodemcu_orient::update(bool printResult=true) {
     int n = connectObj.receive(printResult);
 	// cout << "[n=" << n << " 0:\"" <<buffer[0] << "\" n-1:\"" << buffer[n-1] << "\" ]";
-	string temp = "";
+	std::string temp = "";
 	if(connectObj.buffer[0]=='{' && connectObj.buffer[n-1]==';') { //{x:y:z}
 		// if(printResult) cout << buffer << "\t";
 		for(int i=0; i<n-1; i++) temp+=connectObj.buffer[i];
@@ -154,7 +154,7 @@ void nodemcu_orient::update(bool printResult=true) {
 		temp.erase(0, temp.find(':')+1);
 		z_accel = stof(temp.substr(0, temp.find('}')));
 		temp.erase(0, temp.find(':')+1);
-		string filtBoolStr = temp.substr(0, temp.find(';'));
+		std::string filtBoolStr = temp.substr(0, temp.find(';'));
 		if(filtBoolStr == "off") useFilter = false;
 		else if(filtBoolStr == "on ") useFilter = true;
 

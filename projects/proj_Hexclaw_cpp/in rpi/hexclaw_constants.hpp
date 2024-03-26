@@ -18,7 +18,7 @@
 */
 #define takePerf		true
 /// Whether to record opencv frame/image/`cv::Mat` variables received from `cv::VideoCapture` object(s)
-#define recordFrames	true
+#define recordFrames	false
 
 
 

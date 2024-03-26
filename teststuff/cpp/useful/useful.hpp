@@ -68,6 +68,35 @@ vector<int> findVectorIndex(vector<vector<string>> vecvec, string toFind) {
 
 }
 
+/**
+ * @brief find desired value from array
+ * @param arrToCheck the array to look throug
+ * @param arrLen length of the array
+ * @param mode which-mode/what-to-look-for.
+ * `0`- biggest value
+ * `1`- smallest value
+ * `2`- index of biggest value
+ * `3`- index of smallest value
+ * @return return desired value
+*/
+float findVal(float arrToCheck[], int arrLen, int mode=0) {
+    /*
+    mode:
+    - 0 - biggest, value
+    - 1 - smallest, value
+    - 2 - biggest, index
+    - 3 - smallest, index
+    */
+    float val = arrToCheck[0];
+    int index = 0;
+    for(int i=0; i<arrLen; i++) {
+        if(mode==0 || mode==2) if(arrToCheck[i]>val) { val=arrToCheck[i]; index=i; }
+        else if(mode==1 || mode==3) if(arrToCheck[i]<val) {val=arrToCheck[i]; index=i; }
+    }
+    if(mode==0 || mode==1) return val;
+    else if(mode==2 || mode==3) return index;
+    else return -1;
+}
 
 static string dummyRef_stringOfVector_resultStrRef;
 /**
@@ -571,6 +600,27 @@ string formatNumber(T value, int varPrecision=2) {
 	stringstream tempStream;
     tempStream << fixed << setprecision(varPrecision) << value;
     return tempStream.str();
+}
+/// @brief Convert decimal number to string with set decimal numbers and minimum total width
+/// @tparam T 
+/// @param value decimal number to convert
+/// @param strWidth minimum width for the string
+/// @param varPrecision decimal precision
+/// @param align whether to align value with left or right side: {`"left"`, `"right"`},
+/// @return returns formatted string
+template<class T>
+string formatNumber(
+    T value,
+    int strWidth,
+    int varPrecision,
+    string align="right"
+) {
+    stringstream outStream;
+    outStream << std::fixed;
+    if(align=="left") outStream<<left;
+    else if(align=="right") outStream<<right;
+    outStream << std::setw(strWidth) << std::setprecision(varPrecision) << value;
+    return outStream.str();
 }
 
 

@@ -35,20 +35,21 @@
 // RPi specific functions
 #include <pigpio.h>
 
-#if useThreads
+// #if useThreads
 #include <thread>
 #include <mutex>
-#endif
+// #endif
 
 
-#include "../../../teststuff/cpp/useful/useful.hpp"
-#include "../../../teststuff/cpp/useful/createTable.hpp"
-#include "../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp"
-#include "../../../teststuff/cpp/opencv/recordVideo/recordFrames.hpp"
-#include "IK_header.h"
 #include "HW_headers/wirelessCOM.hpp"
 #include "HW_headers/IR_camTrack.hpp"
 #include "HW_headers/integ_TFTdisp.hpp"
 #include "HW_headers/motion_control/motion_profiles.hpp"
 
+#include "../../../teststuff/cpp/useful/useful.hpp"
+#include "../../../teststuff/cpp/useful/createTable.hpp"
+#include "../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp"
+#include "../../../teststuff/cpp/opencv/recordVideo/recordFrames.hpp"
+#include "../../../teststuff/cpp/basic/Performance/getPerformance.hpp"
+#include "IK_header.h"
 #endif

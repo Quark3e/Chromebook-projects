@@ -21,9 +21,6 @@
 
 
 
-
-
-
 /// @brief 0-direct function; 1-use 2d coefs; 2-use arificial; 3-use two_cam_triangle
 int zSol=3;
 
@@ -39,7 +36,6 @@ void initPaths() {
     string temp = strcat(strcpy(path, pathP), "/");
     absPath = temp.substr(0, temp.find("/projects"))+"/teststuff/python/opencv/angleArea/data/csv_artif/";
 }
-
 
 
 
@@ -123,22 +119,22 @@ float zAxisFunc(float area, float posX, float posY) {
 
 
 
-
 #include "HW_options/mainOptions.hpp"
+
 
 /// @brief main function to read, display and control the robot
 /// @param cap [cv::VideoCapture object pointer]: for main camera
 /// @param mode [integer]: -0: setup/calibrate hsv; -1: w. sendToServo; -2: without sendToServo; -3: w. sendToServo without cv disp.
 /// @param pcaSrc [PiPCA9682 object pointer]: for pca9685 board
 /// @return [integer]: 0 - normal function finish; -1 - exit program entirely
+/**
 int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
-	/*
-	mode:
-	- 0: setup/calibrate hsv
-	- 1: main color tracking loop with sendToServo
-	- 2: main color tracking loop without sendToServo
-	- 3: main color tracking loop with sendToServo without display to a window
-	*/
+	
+	//mode:
+	//- 0: setup/calibrate hsv
+	//- 1: main color tracking loop with sendToServo
+	//- 2: main color tracking loop without sendToServo
+	//- 3: main color tracking loop with sendToServo without display to a window
 
 	cout << "- In \"displayFunc()\"" << endl;
 
@@ -218,7 +214,13 @@ int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
 			// printf(" %d ", keyInp);
 			if(keyInp==27) return -1; //'esc'
 			else if(keyInp==32) break; //'space'
-			else if(keyInp==115) { /*'s'*/ if(mode==0) { /*save HSV values*/ hsv_settingsWrite(HW_HSV, 0); } }
+			else if(keyInp==115) {
+				//'s'
+				if(mode==0) {
+					//save HSV values/
+					hsv_settingsWrite(HW_HSV, 0);
+				}
+			}
 			else if(keyInp==114) { //'r'
 				string inputVar = "";
 				int indVar = 0;
@@ -230,14 +232,17 @@ int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
 				cin.ignore();
 				hsv_settingsRead(camObj, HW_HSV, window_name, indVar);
 			}
-			else if(keyInp==116 && mode==0) { /*'t'*/ hsv_settingsRead(camObj, HW_HSV, window_name, 0); }
+			else if(keyInp==116 && mode==0) {
+				//'t'
+				hsv_settingsRead(camObj, HW_HSV, window_name, 0);
+			}
 		}
 		printf("\n");
 	}
 	if(mode!=3) cv::destroyWindow(window_name);
 	return 0;
 }
-
+*/
 
 void loadData_csvArtif(bool printVar=true) {
 	if (printVar) cout << "Starting to load the data\n";
@@ -331,28 +336,19 @@ int main(int argc, char* argv[]) {
 	//pca9685 board setup
 	pca.set_pwm_freq(50.0);
 
-
+	#if recordFrames
 	recObj = opencv_recorder(
 		"cpp_cameras_feed.mp4",
 		prefSize[0]*2,  //using hconcat
 		prefSize[1]*2,  //imgFlipped is by default vconcat
 		15
 	);
+	#endif
 
-
-	HW_setup_options();
-	if(argc==2) {
-		if(hexclaw_cmdArgs.call_func(argv[1])==1) {
-			std::cout << "ERROR: no matching flag or argument input"<<std::endl;
-			return 1;
-		}
-	}
-
-
-	if(zSol==1) load_csvFile();
-	initPaths();
+	// if(zSol==1) load_csvFile();
+	// initPaths();
 	
-	if(zSol==2) loadData_csvArtif(false);
+	// if(zSol==2) loadData_csvArtif(false);
 
 	if(gpioInitialise()<0) {
 		cout << "pigpio \"gpioInitialise()\" failed\n";
@@ -364,48 +360,18 @@ int main(int argc, char* argv[]) {
 		gpioWrite(pin_ledRelay, 1);
 	}
 
-	if(argc<=1) {calibrateHSV=false; displayToWindow=false;}
-	else if(argc>=2) {
-		if(strcmp(argv[1], "-0")==0) {calibrateHSV=false; displayToWindow=true;}
-		else if(strcmp(argv[1], "-1")==0) {calibrateHSV=true; displayToWindow=false;}
-		else if(strcmp(argv[1], "-2")==0) {calibrateHSV=true; displayToWindow=true;printf("argv[1]==\"-2\"\n");}
-		else if(strcmp(argv[1], "-k")==0) {calibrateHSV=false; displayToWindow=false; mode_orients=true; printf("orient mode is set to true. only reading orient commands from nodemcu unit\n");}
-		else if(strcmp(argv[1], "-c")==0) {calibrateHSV=false; displayToWindow=false; mode_orients=false; mode_intro=true; printf("running intro sequence\n");}
-	}
-
-
-
-
 	sendToServo(&pca, new_q, current_q, true);
 
-	if(!mode_orients && !mode_intro) {
-		printf("special mode not on\n");
-
-		hsv_settingsRead(camObj, HW_HSV, "",5,"hsv_settings.dat",false);
-
-		if(calibrateHSV) { if(displayFunc(0, &pca)==-1) { return 0; } }
-		if(displayToWindow) { if(displayFunc(1, &pca)==-1) { return 0; } }
-		if(!calibrateHSV && !displayToWindow && !mode_intro) {
-			if(displayFunc(3, &pca)==-1) { return 0; }
+	cout << "check"<<endl;
+	HW_setup_options();
+	cout << "check2"<<endl;
+	if(argc==2) {
+		if(hexclaw_cmdArgs.call_func(argv[1])==1) {
+			std::cout << "ERROR: no matching flag or argument input"<<std::endl;
+			return 1;
 		}
 	}
-	else if(mode_orients){
-		while(true) {
-			usleep(10'000);
-			// printf("\tx:%d y:%d z:%d a:%d b:%d\n",int(PP[0]),int(PP[1]),int(PP[2]),int(orient[0]),int(orient[1]));
-			orientObj.update(true);
-			if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) {
-				printf("a:%d\tb:%d", int(orient[0]), int(orient[1]));
-				printf("\tangles:\t%d\t%d\t%d\t%d\t%d\t%d",
-				int(new_q[0]),int(new_q[1]),int(new_q[2]),int(new_q[3]),int(new_q[4]),int(new_q[5]));
-				sendToServo(&pca,new_q,current_q,false);
-			}
-			else {printf("\tPP-orient not reachable");}
-			printf("\n");
-		}
-	}
-	else if(mode_intro) {
-	}
+
 
 	for(int n=0; n<6; n++) new_q[n] = startup_q[n];
 	printf("\n- section: \"closing\"\n");

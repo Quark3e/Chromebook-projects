@@ -253,7 +253,13 @@ void IR_camTracking::getAvg_cntPos() {
 }
 
 
-
+/// @brief read hsv settings from a file and store them in array pointer
+/// @param camObject `IR_camTracking` 
+/// @param argHSV 
+/// @param window_name 
+/// @param indeks 
+/// @param filePath 
+/// @param displayWin 
 void hsv_settingsRead(
     IR_camTracking camObject[2],
     int argHSV[2][3],

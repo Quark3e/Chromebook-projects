@@ -32,7 +32,7 @@ float orient[3]		= {0,0,0};
 /// @brief `{x, y, z}` coordinate array container
 float PP[3]			= {0,150,150};
 
-/// @brief new axis value scalar
+/// @brief new axis value scalars
 float axisScal[3]	= {1, 1, 1};
 
 /// @brief new axis value offset
@@ -51,6 +51,7 @@ float Pitch=0, Roll=0;
 nodemcu_orient orientObj(orient);
 
 
+
 /// @brief prefered image size to resize/convert/use for all images
 int prefSize[2] = {640, 480};
 
@@ -62,11 +63,8 @@ bool takeCVTrackPerf = false;
 /// @brief whether to display `IR_camTracking`'s images
 bool displayToWindow = true;
 
-bool calibrateHSV = false;
-bool displayTFT = false;
 
-bool mode_orients = false;
-bool mode_intro = false;
+bool displayTFT = false;
 
 
 
@@ -95,10 +93,15 @@ camTriangle camTri(camPosition, camAng_offs);
 bool pigpioInitia = false;
 int pin_ledRelay = 23;
 
+#if takePerf
+getPerf perfObj[1] {{"main thread"}};
+#endif
 
 #if recordFrames
 opencv_recorder recObj;
 #endif
+
+
 
 #if useThreads
 
@@ -244,17 +247,20 @@ void thread_task(IR_camTracking* camPtr, int t_idx) {
  * @param toPrint the string object to print to cout.
  * @param blockingLock whether to use the blocking member function
  * `std::mutex::lock()` or the nonblocking `std::mutex::try_lock()`.
+ * @param flushOut whether to flush after printing to cout
 */
-void lock_cout(std::mutex &coutMutex, string toPrint, bool blockingLock = true) {
+void lock_cout(std::mutex &coutMutex, string toPrint, bool blockingLock = true, bool flushOut = false) {
     std::unique_lock<std::mutex> u_lck_cout(coutMutex, std::defer_lock);
     if(blockingLock) {
         u_lck_cout.lock();
         std::cout << toPrint;
+		if(flushOut) std::cout.flush();
         u_lck_cout.unlock();
     }
     else {
         if(u_lck_cout.try_lock()) {
             std::cout << toPrint;
+			if(flushOut) std::cout.flush();
             u_lck_cout.unlock();
         }
     }

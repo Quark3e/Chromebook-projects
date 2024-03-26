@@ -3,6 +3,8 @@ project(Hexclaw)
 
 set(CMAKE_CXX_STANDARD 14)
 set(OpenCV "/usr/local/include")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+
 
 find_package(PiPCA9685 REQUIRED)
 find_package(OpenCV REQUIRED)
