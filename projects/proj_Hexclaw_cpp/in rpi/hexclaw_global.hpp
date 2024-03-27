@@ -61,7 +61,7 @@ bool useAutoBrightne = true;
 bool takeCVTrackPerf = false;
 
 /// @brief whether to display `IR_camTracking`'s images
-bool displayToWindow = true;
+bool displayToWindow = false;
 
 
 bool displayTFT = false;

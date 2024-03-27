@@ -139,8 +139,8 @@ void HW_option0() {
 	if(displayToWindow) {
 		camObj[0].setup_window("Main thread window");
 		camObj[1].setup_window("Main thread window");
-	}	
-
+	}
+	cout<<"check0"<<endl;
 	/**
 	 * output print table:
 	 * 
@@ -157,12 +157,13 @@ void HW_option0() {
 	printTable.insertText("orient", 0, 2);
 	printTable.insertText("servo", 0, 3);
 
+	cout<<"check1"<<endl;
 	#if takePerf
 		printTable.add_row();
-		printTable.add_row();
-		printTable.insertText("perf.", 0, 6);
+		printTable.insertText("perf.", 0, 4);
 	#endif
 
+	cout<<"check2"<<endl;
     #if useThreads
 		std::cout << " Initialising local `std::unique_lock<std::mutex>` and variables starting threads"<<endl;
         std::unique_lock<std::mutex> u_lck0(mtx[0], std::defer_lock);
@@ -227,6 +228,11 @@ void HW_option0() {
 			printTable.insertNum(orient[1],2,2,1);
 			printTable.insertNum(orient[2],3,2,1);
 
+			printTable.insertNum(camObjPos_main[0][0],1,0,1);
+			printTable.insertNum(camObjPos_main[0][1],2,0,1);
+			printTable.insertNum(camObjPos_main[1][0],3,0,1);
+			printTable.insertNum(camObjPos_main[1][1],4,0,1);
+
 			if(getAngles(
 				new_q, PP,
 				toRadians(orient[0]),
@@ -236,7 +242,7 @@ void HW_option0() {
 			)) {
 				sendToServo(&pca,new_q,current_q,false);
 				for(int i=0; i<6; i++) printTable.insertNum(new_q[i],1+i,3,1);
-				printTable.strExport("\n");
+				printTable.strExport(std::string(21,' ')+"\n");
 			}
 			else if (findValidOrient(
 				PP, orient, orient, new_q
@@ -246,7 +252,7 @@ void HW_option0() {
 				printTable.insertNum(orient[1],2,2,1);
 				printTable.insertNum(orient[2],3,2,1);
 				for(int i=0; i<6; i++) printTable.insertNum(new_q[i],1+i,3,1);
-				printTable.strExport("\n");
+				printTable.strExport(std::string(21,' ')+"\n");
 			}
 			else {
 				printTable.strExport("ERROR:no valid orient\n");
@@ -265,6 +271,7 @@ void HW_option0() {
 			#endif
 		}
 		#if takePerf
+		perfObj[0].update_totalInfo(true,false,false);
 		totDelay = perfObj[0].delays_ms.at(1);
 		printTable.insertNum(totDelay,1,4,1);
 		printTable.insertNum(static_cast<float>(1/(totDelay/1000)),2,4,2);
