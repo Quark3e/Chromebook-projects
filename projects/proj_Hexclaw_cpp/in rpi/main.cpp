@@ -332,7 +332,7 @@ int main(int argc, char* argv[]) {
 	// nodemcu_udp_setup();
 
 
-	std::cout<<"\n- section: \"initialisation\"\n"<<endl;;
+	// std::cout<<"\n- section: \"initialisation\"\n"<<endl;
 	//pca9685 board setup
 	pca.set_pwm_freq(50.0);
 
@@ -362,16 +362,14 @@ int main(int argc, char* argv[]) {
 
 	sendToServo(&pca, new_q, current_q, true);
 
-	cout << "check"<<endl;
 	HW_setup_options();
-	cout << "check2"<<endl;
 	if(argc==2) {
 		if(hexclaw_cmdArgs.call_func(argv[1])==1) {
 			std::cout << "ERROR: no matching flag or argument input"<<std::endl;
 			return 1;
 		}
 	}
-
+	if(hardExit) return 0;
 
 	for(int n=0; n<6; n++) new_q[n] = startup_q[n];
 	printf("\n- section: \"closing\"\n");

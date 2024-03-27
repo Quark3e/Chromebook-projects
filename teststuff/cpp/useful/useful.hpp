@@ -50,23 +50,40 @@ int findVectorIndex(vector<string> vec, string toFind) {
  * @param toFind `std::string` var to find in vector
  * @return 2d `std::vector<int>` of position/coordinates
 */
-vector<int> findVectorIndex(vector<vector<string>> vecvec, string toFind) {
-    vector<int> indices(vecvec.size(), -1);
-
-    for(size_t i=0; i<vecvec.size(); i++) {
-
-        vector<string>::iterator idx = find(vecvec[i].begin(), vecvec[i].end(), toFind);
-        if(idx != vecvec[i].end()) {
-            indices[0] = i;
-            indices[1] = idx-vecvec[i].begin();
-            break;
+vector<int> findVectorIndex(vector<vector<string>> vecvec, string toFind, bool printChecks=false) {
+    if(printChecks) {
+        cout <<"\"" <<toFind << "\": "<< vecvec.size()<< ": {\n";
+        for(vector<string> vecStr: vecvec) {
+            cout << "\t{ ";
+            for(string strIIng: vecStr) cout << strIIng << " ";
+            cout<<"}" << endl;
         }
-        else {
-            break;
+        cout << "}"<<endl;
+    }
+   
+    if(vecvec.size()==0 || vecvec[0].size()==0) return vector<int>(2, -1);
+
+    vector<int> indices(2, -1);
+    for(size_t i=0; i<vecvec.size(); i++) {
+        for(size_t n=0; n<vecvec[i].size(); n++) {
+            if(vecvec[i][n]==toFind) {
+                indices[0] = i;
+                indices[1] = n;
+                return indices;
+            }
         }
     }
-
+    return indices;
 }
+vector<int> findVectorIndex(vector<vector<string>> vecvec, vector<string> toFind, bool printChecks=false) {
+    vector<int> indices(2, -1);
+    for(string subFind: toFind) {
+        indices = findVectorIndex(vecvec, subFind, printChecks);
+        if(indices[0] != -1) return indices;
+    }
+    return indices;
+}
+
 
 /**
  * @brief find desired value from array

@@ -11,6 +11,13 @@
 #include "../../../../teststuff/cpp/useful/createTable.hpp"
 
 
+void printFuncLabel(std::string functionName) {
+	int termDim[2];
+	getTermSize(termDim[0], termDim[1]);
+	std::cout << std::endl << std::string(termDim[0], '-')<<std::endl;
+	std::cout << functionName << std::endl;
+	std::cout << std::string(termDim[0], '-')<<std::endl;
+}
 
 StringToFunction hexclaw_cmdArgs{};
 createTable cmdArgs_output_table;
@@ -18,13 +25,16 @@ createTable cmdArgs_output_table;
 /// @brief display all the command line argument flags with their descriptions
 void cmdArgs_info() {
     cmdArgs_output_table = createTable(3, hexclaw_cmdArgs.getDescriptions().size());
+
     for(size_t i=0; i<hexclaw_cmdArgs.getDescriptions().size(); i++) {
-        cmdArgs_output_table.insertText(hexclaw_cmdArgs.getNames()[i][0], 0, 0);
-        cmdArgs_output_table.insertText(hexclaw_cmdArgs.getNames()[i][1], 1, 0);
-        cmdArgs_output_table.insertText(hexclaw_cmdArgs.getDescriptions()[i], 2, 0);
+        cmdArgs_output_table.insertText(hexclaw_cmdArgs.names[i][0], 0, i);
+        cmdArgs_output_table.insertText(hexclaw_cmdArgs.names[i][1], 1, i);
+        cmdArgs_output_table.insertText(hexclaw_cmdArgs.getDescriptions()[i], 2, i);
     }
-    cmdArgs_output_table.strExport("",false,"\n","\t ");
-    std::cout << cmdArgs_output_table.exportStr << std::endl;
+
+    cmdArgs_output_table.strExport("\n",false,"\n","  ");
+    std::cout << "\t"<<cmdArgs_output_table.exportStr << std::endl;
+	hardExit = true;
 }
 
 /// @brief run intro servo movement
@@ -39,87 +49,92 @@ void HW_option3();
 /// @brief mode 2: move servo with tracking, don't display in opencv window. just show in terminal
 void HW_option4();
 /// @brief mode 3: orient mode. Only read and send end-effector orientation from nodemcu device
-void HW_option5();
+void HW_option5_orient();
+/// @brief mode terminal: control servo motor with terminal input by the user.
+void HW_option6_terminal();
 
 void HW_setup_options() {
-	std::cout << "setup_options"<<std::endl;
     hexclaw_cmdArgs.add_func("-h", cmdArgs_info, "--help", "show help message with info on flags");
-    std::cout << "opt1"<< std::endl;
     hexclaw_cmdArgs.add_func("-i", HW_option1_intro, "--intro", "run only servo intro movement");
     hexclaw_cmdArgs.add_func("-c", HW_option2, "--cal", "calibrate/setup \"Hue Saturation Value\" -values");
     hexclaw_cmdArgs.add_func("-m", HW_option0, "--main", "run main/default version with servo control, opencv based tracking");
     hexclaw_cmdArgs.add_func("-0", HW_option0, "--mode0");
     hexclaw_cmdArgs.add_func("-1", HW_option3, "--mode1", "track and display with opencv but don't send control movements to robot motors");
     hexclaw_cmdArgs.add_func("-2", HW_option4, "--mode2", "track and control servo motors with opencv, but don't create and display opencv images");
-    hexclaw_cmdArgs.add_func("-3", HW_option5, "--mode3", "only read and send end-effector orientation from nodemcu device to hexclaw robot-arm");
-	std::cout<<"seutp end" << std::endl;
+    hexclaw_cmdArgs.add_func("-3", HW_option5_orient, "--mode3", "only read and send end-effector orientation from nodemcu device to hexclaw robot-arm");
+	hexclaw_cmdArgs.add_func("-t", HW_option6_terminal, "--terminal", "control robot with terminal position inputs");
+
 }
 
 
 void HW_option1_intro() {
-		current_q[0] = -45;
-		current_q[1] = 25;
-		current_q[2] = -115;
-		current_q[3] = -45;
-		current_q[4] = -90;
-		current_q[5] = 90;
-		add_defaults(current_q);
-		new_q[0] = 0;
-		new_q[1] = 135;
-		new_q[2] = -90;
-		new_q[3] = 0;
-		new_q[4] = -45;
-		new_q[5] = 0;
-		// printf("running intro...\n");
-        //sendToServo(&pca, current_q, new_q, false, 0, 0);
-		usleep(1'000'000);
-		if(pigpioInitia) {
-			gpioWrite(pin_ledRelay, 0);
-			gpioWrite(pin_ledRelay, 1);
-		}
-		usleep(750'000);
-		printf("\n- section: \"slow start\"\n");
-		sendToServo(&pca, new_q, current_q, false, 2, 10);
+	printFuncLabel(" Running: Into sequence");
 
-		printf("intro finished\n");
-		usleep(3'000'000);
-		if(pigpioInitia) {
-			for(int i=0; i<4; i++) {
-				gpioWrite(pin_ledRelay, 0);
-				usleep(30'000);
-				gpioWrite(pin_ledRelay, 1);
-				usleep(30'000);
-			}
-			usleep(1'500'000);
-			gpioWrite(pin_ledRelay, 0);
-			usleep(250'000);
-			gpioWrite(pin_ledRelay, 1);
-			usleep(500'000);
-			gpioWrite(pin_ledRelay, 0);
-			usleep(100'000);
-			gpioWrite(pin_ledRelay, 1);
-			usleep(2'000'000);
-			gpioWrite(pin_ledRelay, 0);
-		}
-		usleep(2'000'000);
+	current_q[0] = -45;
+	current_q[1] = 25;
+	current_q[2] = -115;
+	current_q[3] = -45;
+	current_q[4] = -90;
+	current_q[5] = 90;
+	add_defaults(current_q);
+	new_q[0] = 0;
+	new_q[1] = 135;
+	new_q[2] = -90;
+	new_q[3] = 0;
+	new_q[4] = -45;
+	new_q[5] = 0;
+	// printf("running intro...\n");
+	//sendToServo(&pca, current_q, new_q, false, 0, 0);
+	usleep(1'000'000);
+	if(pigpioInitia) {
+		gpioWrite(pin_ledRelay, 0);
+		gpioWrite(pin_ledRelay, 1);
+	}
+	usleep(750'000);
+	printf("\n- section: \"slow start\"\n");
+	sendToServo(&pca, new_q, current_q, false, 2, 10);
 
-		if(pigpioInitia) gpioWrite(pin_ledRelay, 1);
-		new_q[0] = 45;
-		new_q[1] = 0;
-		new_q[2] = -45;
-		new_q[3] = 89;
-		new_q[4] = 89;
-		new_q[5] = 0;
-		printf("\n- section: \"crash\"\n");
-		sendToServo(&pca,new_q,current_q, false);
+	printf("intro finished\n");
+	usleep(3'000'000);
+	if(pigpioInitia) {
+		for(int i=0; i<4; i++) {
+			gpioWrite(pin_ledRelay, 0);
+			usleep(30'000);
+			gpioWrite(pin_ledRelay, 1);
+			usleep(30'000);
+		}
+		usleep(1'500'000);
+		gpioWrite(pin_ledRelay, 0);
+		usleep(250'000);
+		gpioWrite(pin_ledRelay, 1);
+		usleep(500'000);
+		gpioWrite(pin_ledRelay, 0);
+		usleep(100'000);
+		gpioWrite(pin_ledRelay, 1);
 		usleep(2'000'000);
+		gpioWrite(pin_ledRelay, 0);
+	}
+	usleep(2'000'000);
+
+	if(pigpioInitia) gpioWrite(pin_ledRelay, 1);
+	new_q[0] = 45;
+	new_q[1] = 0;
+	new_q[2] = -45;
+	new_q[3] = 89;
+	new_q[4] = 89;
+	new_q[5] = 0;
+	printf("\n- section: \"crash\"\n");
+	sendToServo(&pca,new_q,current_q, false);
+	usleep(2'000'000);
 
 }
 void HW_option2() {
+	printFuncLabel(" Running: opt2: calibrate HSV values");
 
 }
 
 void HW_option0() {
+	printFuncLabel(" Running: opt0: Main loop with opencv and servo control");
 
 	if(displayToWindow) {
 		camObj[0].setup_window("Main thread window");
@@ -297,12 +312,15 @@ void HW_option0() {
 	std::cout << "\nExit called. Exiting." << std::endl;
 }
 void HW_option3() {
-
+	printFuncLabel(" Running: opt3: display opencv but don't move servo");
 }
 void HW_option4() {
+	printFuncLabel(" Running: opt4: move servo but don't display opencv im on window");
 
 }
-void HW_option5() {
+void HW_option5_orient() {
+	printFuncLabel(" Running: opt5: Only orientation movement on servo robot");
+
 	// std::this_thread::sleep_for(1000ms);
 
 	createTable printTable(8, 2);
@@ -352,7 +370,10 @@ void HW_option5() {
 		cout.flush();
 	}
 }
+void HW_option6_terminal() {
+	printFuncLabel(" Running: opt6: running only in terminal mode");
 
+}
 
 
 #endif

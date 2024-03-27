@@ -18,7 +18,7 @@ class StringToFunction {
         "void__",
         "int__"
     };
-
+    public:
     std::vector<TDEF_void__>    funcVec_TDEF_void__;
     std::vector<TDEF_int__>     funcVec_TDEF_int__;
 
@@ -34,7 +34,7 @@ class StringToFunction {
     */
     int call_int__(std::string name);
 
-
+    public:
     /// @brief container each name respective to function
     vector<std::vector<std::string>> names;
     /// @brief container for what type of vector
@@ -44,7 +44,7 @@ class StringToFunction {
     /// @brief container for index of name in their respective function pointer vector
     std::vector<size_t> indices;
 
-    public:
+    // public:
     std::vector<std::vector<std::string>> getNames() { return names; }
     std::vector<std::string> getFuncTypes() { return funcType; }
     std::vector<std::string> getDescriptions() { return descriptions; }
@@ -68,21 +68,24 @@ class StringToFunction {
 };
 
 void StringToFunction::call_void__(std::string name) {
-    funcVec_TDEF_void__[indices[findVectorIndex(names, name)[1]]]();
+    funcVec_TDEF_void__[indices[findVectorIndex(names, name)[0]]]();
 }
 int StringToFunction::call_int__(std::string name) {
-    funcVec_TDEF_int__[indices[findVectorIndex(names, name)[1]]]();
+    return funcVec_TDEF_int__[indices[findVectorIndex(names, name)[0]]]();
 }
 
 /// @brief default constructor
-StringToFunction::StringToFunction() {}
+StringToFunction::StringToFunction() {
+
+}
 
 /// @brief call stored function relative to name
 /// @param name the string variable to find appropriate function of
 /// @return `0`- function succesfully called; `1`- `name` related function not found
 int StringToFunction::call_func(std::string name) {
-    if(findVectorIndex(names, name)[1] == -1) {
-        std::cout << "ERROR: StringToFunction::add_func: name \""<<name<<"\" doesn't exists. Pick a new one"<<endl;
+    std::vector<int> vecIdx = findVectorIndex(names, name);
+    if(findVectorIndex(names, name)[0] == -1) {
+        std::cout << "ERROR: StringToFunction::call_func: name \""<<name<<"\" doesn't exists. Pick a new one"<<endl;
         return 1;
     }
 
@@ -105,14 +108,18 @@ int StringToFunction::add_func(
     std::string name2 = "",
     std::string description = ""
 ) {
-    if(findVectorIndex(names, name)[1] != -1) {
+    std::vector<std::string> nameToFind(2, "");
+    nameToFind[0] = name;
+    nameToFind[1] = name2;
+    if(findVectorIndex(names, nameToFind)[1] != -1) {
         std::cout << "ERROR: StringToFunction::add_func: name \""<<name<<"\" already exists. Pick a new one"<<endl;
         return 1;
     }
+    // cout << "start"<<endl;
     names.push_back(std::vector<std::string>(2, ""));
     names[names.size()-1][0] = name;
     names[names.size()-1][1] = name2;
-    
+   
     indices.push_back(funcVec_TDEF_void__.size());
     funcVec_TDEF_void__.push_back(func);
     funcType.push_back(allFuncTypes[0]);

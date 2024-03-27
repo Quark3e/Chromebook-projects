@@ -13,7 +13,7 @@ std::string absPath;
 /// @brief pca9685-board libraries obbject
 PiPCA9685::PCA9685 pca{};
 
-
+bool hardExit = false;
 
 // IK related: ik calc variable declaration
 
