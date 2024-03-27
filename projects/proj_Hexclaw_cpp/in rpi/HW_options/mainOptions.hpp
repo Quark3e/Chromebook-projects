@@ -42,8 +42,9 @@ void HW_option4();
 void HW_option5();
 
 void HW_setup_options() {
-	std::cout << "setup"<<std::endl;
+	std::cout << "setup_options"<<std::endl;
     hexclaw_cmdArgs.add_func("-h", cmdArgs_info, "--help", "show help message with info on flags");
+    std::cout << "opt1"<< std::endl;
     hexclaw_cmdArgs.add_func("-i", HW_option1_intro, "--intro", "run only servo intro movement");
     hexclaw_cmdArgs.add_func("-c", HW_option2, "--cal", "calibrate/setup \"Hue Saturation Value\" -values");
     hexclaw_cmdArgs.add_func("-m", HW_option0, "--main", "run main/default version with servo control, opencv based tracking");
