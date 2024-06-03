@@ -1,6 +1,5 @@
 
 
-
 date > git_history_sorted.txt
 printf "\n" >> git_history_sorted.txt
 
