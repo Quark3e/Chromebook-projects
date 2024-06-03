@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/pi/Chromebook-projects/teststuff/cpp/gui/ncurses/example0/main.cpp
+iostream
+-
+signal.h
+-
+ncurses.h
+-
+menu.h
+-
+string
+-
+unistd.h
+-
+

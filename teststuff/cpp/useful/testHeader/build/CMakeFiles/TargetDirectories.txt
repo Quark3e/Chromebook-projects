@@ -1,0 +1,3 @@
+/home/pi/Chromebook-projects/teststuff/cpp/useful/testHeader/build/CMakeFiles/rebuild_cache.dir
+/home/pi/Chromebook-projects/teststuff/cpp/useful/testHeader/build/CMakeFiles/edit_cache.dir
+/home/pi/Chromebook-projects/teststuff/cpp/useful/testHeader/build/CMakeFiles/guiTest_exe.dir

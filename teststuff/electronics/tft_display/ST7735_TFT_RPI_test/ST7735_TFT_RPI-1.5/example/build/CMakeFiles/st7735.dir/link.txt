@@ -1,0 +1,1 @@
+/usr/bin/c++ -rdynamic CMakeFiles/st7735.dir/src/main.cpp.o -o ../bin/st7735  -lbcm2835 -lrt -lST7735_TFT_RPI 

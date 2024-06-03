@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/pi/Chromebook-projects/teststuff/cpp/useful/terminalMenu.hpp
+iostream
+-
+ncurses.h
+-
+vector
+-
+algorithm
+-
+HC_useful/createTable.hpp
+-
+HC_useful/useful.hpp
+-
+
+/home/pi/Chromebook-projects/teststuff/cpp/useful/testHeader/main.cpp
+iostream
+-
+string
+-
+vector
+-
+HC_useful/useful.hpp
+-
+../terminalMenu.hpp
+/home/pi/Chromebook-projects/teststuff/cpp/useful/terminalMenu.hpp
+

@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/pi/Chromebook-projects/teststuff/cpp/gui/dyi/example1/main.cpp
+iostream
+-
+thread
+-
+ncurses.h
+-
+HC_useful/createTable.hpp
+-
+HC_useful/useful.hpp
+-
+

@@ -1,0 +1,1 @@
+/usr/bin/c++ -rdynamic CMakeFiles/guiTest_exe.dir/main.cpp.o -o guiTest_exe  -lncurses -lrt -lncursesw 

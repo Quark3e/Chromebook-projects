@@ -1,0 +1,3 @@
+/home/pi/Chromebook-projects/teststuff/cpp/opencv/img_ascii/build/CMakeFiles/rebuild_cache.dir
+/home/pi/Chromebook-projects/teststuff/cpp/opencv/img_ascii/build/CMakeFiles/edit_cache.dir
+/home/pi/Chromebook-projects/teststuff/cpp/opencv/img_ascii/build/CMakeFiles/img_ascii.dir

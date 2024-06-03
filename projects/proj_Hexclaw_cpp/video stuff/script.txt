@@ -1,0 +1,57 @@
+
+"Prototype 1" demonstration
+
+Abstract/Random:
+**robot arm moving slowly, then it has an error and slam-itself-and-break* clip which cuts to intro*
+
+
+Introduction:
+*semi-chaotic entry into camera view*
+    "In this video i'll be presenting and demonstrating the concept and the 1st prototype of a diy articulated
+     robot arm with 6 degrees of freedom. So, in this video we'll go through:"
+*walks out of view from camera*
+*enters in new scene where i enter from the "opposite side" as if im walking into a new room*
+*visuals of the parts of the video*
+    "*serious/professional, points at where visuals are* - What is an articulated robot (in comparison to other types of robots)"
+    "*serious/professional, points slightly lower* - Where are articulated robots used"
+    
+    "*serious/professional* *fades in image of why is gamora meme* *points lower, slight pause*- Why-"
+*cuts in the middle of "why-" to next scene*
+    "The method of moving the robot (The Inverse Kinematics)"
+    "The construction of the prototype (the software, the hardware and the chassis)"
+    "Some accuracy testing of the prototype with said methods"
+    "-and lastly presentation and analysis(/discussion) of the results"
+    
+    "*informing tone*if you wanna jump the individual parts are shown via the "video chapters" on the video progress bar" *points down in an imaginary video bar*
+    
+*Next scene*
+    "Now, before we go through the topics i guess i should present what my knowledge and expertise is, in the field of
+     enginnering and robotics in particular.." *stares at camera*
+     *2-4 second pause*
+     "it's none"
+     *new scene*
+     "in freshman year our class got to use a cady wini toy during an event once, in an attempt to persuade kids pursue engineering.."
+     *shrugs* "--i guess it worked..?"
+     
+
+Explain:
+- types of common robots and their differences:
+- differences in articulated robots and the difficulties that arise with each increase in DOF:
+
+
+Materials and Methods(/Story of how it all went (and went downhill)):
+- (Method: Theory) The "diy" Inverse Kinematic equations
+- (Method: Construction and feedback testing) The process of constructing the 
+- Trial and error "method": where something is changed, it's tested -> results are taken -> repeats changing and testing
+- Made different modes where it can: Be controlled by giving a target coordinate and orientation, Be controlled by real-time
+  tracking(via opencv and accelerometer)
+
+Results:
+    "eeaeueeghhh.....?" *points in the direction of the visuals and shows give-read plot screenshots* 
+
+
+Discussion:
+- What is wrong / went wrong: accuracy (construction of robot arm), flaws(small things like backlash, "recoil", lags/jitteriness in movement)
+- What could be improved: materials(links(flexing("high"(as in the material is really flexible) elasticity)), servo motors(+-1 degree accuracy, low quality(motor commutator brush wear(photo))), construction-of-robot (inaccuracy in the movement along link axis(because of usage of *only* zip-ties and hot-glue))
+- What could probably not be improved
+

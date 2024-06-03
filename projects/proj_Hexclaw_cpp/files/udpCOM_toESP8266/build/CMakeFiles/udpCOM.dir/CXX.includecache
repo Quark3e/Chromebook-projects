@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/udpCOM_toESP8266/udpCOM_2.cpp
+sys/types.h
+-
+unistd.h
+-
+sys/socket.h
+-
+netinet/in.h
+-
+arpa/inet.h
+-
+netdb.h
+-
+memory.h
+-
+ifaddrs.h
+-
+net/if.h
+-
+errno.h
+-
+stdlib.h
+-
+iostream
+-
+fcntl.h
+-
+poll.h
+-
+

@@ -1,0 +1,1 @@
+/usr/bin/c++  -pthread -rdynamic CMakeFiles/guiEXE.dir/main.cpp.o -o guiEXE  -lncurses -lmenu -lrt -lncursesw 

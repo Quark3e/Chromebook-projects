@@ -1,0 +1,3 @@
+/home/pi/Chromebook-projects/teststuff/cpp/gui/ncurses/lib_basics/keyboardInput/build/CMakeFiles/edit_cache.dir
+/home/pi/Chromebook-projects/teststuff/cpp/gui/ncurses/lib_basics/keyboardInput/build/CMakeFiles/rebuild_cache.dir
+/home/pi/Chromebook-projects/teststuff/cpp/gui/ncurses/lib_basics/keyboardInput/build/CMakeFiles/keyEXE.dir

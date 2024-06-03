@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/pi/Chromebook-projects/teststuff/cpp/gui/ncurses/lib_basics/keyboardInput/main.cpp
+iostream
+-
+ncurses.h
+-
+unistd.h
+-
+thread
+-
+

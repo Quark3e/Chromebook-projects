@@ -1,0 +1,662 @@
+champion:Amumu
+SuckYouDry-mu
+Runes:
+- Conqueror
+    -Triumph
+    -Legend: Tenacity
+    -Last Stand
+- Taste of Blood
+    -Ravenous Hunter
+[Adaptive Force, Adaptive Force, Health / Armor / Magic Resistance]
+Items:
+- Riftmaker
+- Demonic Embrace
+- Spirit Visage
+- Boots of Swiftness / Mercury's Treads
+- Cosmic Drive / Abyssal Mask
+- Void Staff / Shadowflame 
+:
+;
+champion:Anivia
+BigEgg
+Runes:
+- Arcane Comet / Phase Rush
+    -Nimbus Cloak
+    -Absolute Focus / Transcendence
+    -Scorch / Gathering Storm
+- Front of Life
+    -Bone Plating / Second Wind / Conditioning / Unflinching / Overgrowth
+or
+- Grasp of Undying / Aftershock
+    -Front of Life
+    -Conditioning / Second Wind / Bone Plating
+    -Unflinching / Overgrowth
+- Nimbus Cloak
+    -Transcendence / Absolute Focus / Gathering Storm
+[Adaptive Force, Adaptive Force, Armor / Magic Resistance]
+Items:
+- Guardian Angel
+- Liandry's Anguish
+- Demonic Embrace
+- Winter's Approach - Fimbulwinter
+- Warmog's Armor / Rabadons Deathcap
+- Sorcerer's Shoes / Ionian Boots / Mercury's Treads / Plated Steelcaps / Boots of Swiftness
+:
+;
+champion:AurelianSol
+TheBestAdc
+Runes:
+- Press the Attack / Lethal Tempo
+    -Triumph
+    -Legend: Alacrity
+    -Coup de Grace
+- Absolute Focus
+    -Gathering Storm
+[Attack Speed, Adaptive Force, Health / Armor / Magic Resistance]
+Items:
+- Trinity Force / Kraken Slayer / Galeforce
+- Blade of the Ruined King
+- Stormrazor / Rapid FIrecannon
+- Boots of Swiftness / Mercury's Treads
+- Infinity Edge
+- Runaan's Hurricane / Ravenous Hydra
+:
+;
+champion:Galio
+BattleMage
+Runes:
+- Dark Harvest
+    -Sudden Impact
+    -Eyeball Collection
+    -Ultimate Hunter
+- Transcendence
+    -Gathering Storm
+[Ability Haste, Adaptive Force, Magic Resistance]
+Items:
+- Night Harvester, Hextech Rocketbelt, Everfrost, Liandry's_Anguish, Luden's Tempest
+- Horizon Focus, Seraph's Embrace
+- Rabadon's Deathcap
+- Void Staff, Banshee's Veil
+- (free choice) Morellonomicon, 
+- Boots: Sorcerer's Boots, Mercury's Treads
+:
+Tank
+Runes:
+- Aftershock
+    -Shield bash
+    -Bone Plating / Conditioning
+    -Unflinching / Overgrowth
+- Nimbus Cloak
+    -Transcendence / Absolute Focus / Gathering Storm
+[Ability Haste, Armor / Magic Resistance, Armor / Magic Resistance]
+Items:
+- Everfrost, Liandry's Anguish, Luden's Tempest
+- Banshee's Veil
+- Abyssal Mask
+- Demonic Embrace, Force of Nature(if they have AP), 
+- (free choice) Morellonomicon, Spirit Visage(if enemy AP heavy), Gargoyle Stoneplate(if your team has damage), Thornmail(if they have absolutely no ap damage)
+- Boots: Mercury's Treads, Sorcerer's Boots
+:
+Demacian_Hybrid
+Runes:
+- Predator / Dark Harvest
+    -Sudden Impact
+    -Eyeball Collection
+    -Relentless Hunter / Ingenious Hunter / Ultimate Hunter
+- Shield Bash
+    -Bone Plating / Overgrowth / Unflinching
+[Adaptive Force, Adaptive Force, Magic Resistance]
+Items:
+- (basically tank-battlemage mix) Hextech Rocketbelt, Liandry's Anguish, Everfrost, Luden's Tempest
+- Banshee's Veil
+- Void Staff/Abyssal Mask
+- Rabadon's Deathcap, Morellonomicon
+- (free choice) Cosmic Drive, Spirit Visage, Gargoyle Stoneplate
+- Boots: Mercury's Treads, Sorcerer's Boots, Plated Steelcaps(only if there are no ap heavy)
+:
+;
+champion:Jarvan
+PoleVaulter
+Runes:
+- Electrocute / Dark Harvest
+    -Cheap Shot / Sudden Impact / Taste of Blood
+    -Eyeball Collection
+    -Ultimate Hunter
+- Transcendence
+    -Gathering Storm
+[Attack Speed, Adaptive Force, Armor / Magic Resistance]
+Items:
+- Sunfire Aegis
+- Youmuu's Ghostblade / The Collector
+- Essence Reaver / Edge of Night
+- Lord Dominik's Regards / Infinity Edge
+- Black Cleaver / Titatic Hydra
+- Ionian Boots / Mobility Boots
+:
+;
+champion:Jhin
+TheVirtuoso
+Runes:
+- Fleet Footwork
+    -Presence of Mind
+    -Legend: Bloodline
+    -Coup de Grace
+- Biscuit Delivery
+    -Time Warp Tonic
+[Adaptive Force, Adaptive Force, Armor]
+Items:
+- Galeforce
+- The Collector
+- Rapid Firecannon
+- Infinity Edge
+- (free choice) Lord Dominik's Regards, Guardian Angel
+- Boots: Boots of Swiftness, Mercury's Treads
+:
+TheFast
+Runes:
+- Lethal Temp
+    -Presence of Mind
+    -Legend: Alacrity
+    -Cut down
+- Nimbus Cloak
+    -Celerity
+[Attack Speed, Adaptive Force, Health]
+Items:
+- Galeforce
+- Rapid Firecannon
+- Stormrazor
+- Infinity Edge
+- Phantom Dancer
+- Runaan's Hurricane
+:
+Assassin
+Runes:
+- Dark Harvest
+    -Taste of Blood
+    -Eyeball Collections
+    -Ravenous Hunter
+- Presence of Mind
+    -Coup de Grace / Legend: Bloodline
+[Adaptive Force, Adaptive Force, Armor]
+Items:
+- Duskblade
+- Essence Reaver
+- Youmuu's Ghostblade, The Collector
+- Lord Dominik's Regards, Infinity Edge (another crit item is a must)
+- (free choice) Edge of Night, Umbral Glaive
+- Boots: Mobility Boots, Boots of Swiftness
+:
+TankKiller
+Runes:
+- Fleet Footwork
+    -Presence of Mind
+    -Legend: Bloodline
+    -Cut Down
+- Biscuit Delivery
+    -Time Warp Tonic
+[Ability Haste, Adaptive Force, Armor]
+Items:
+- Eclipse, Divine Sunderer
+- Black Cleaver
+- Lord Dominik's Regards, Muramana
+- Navori Quickblades, Mortal Reminder
+- Infinity Edge
+- Boots: Boots of Swiftness, Mercury's Treads
+:
+PurebredBruiser
+Runes:
+- Conqueror
+    -Presence of Mind
+    -Legend: Bloodline
+    -Last Stand
+- Bone Plating
+    -Overgrowth
+[Ability Haste, Armor / Magic Resistance, Magic Resistance / Armor]
+Items
+- Divine Sunderer
+- Black Cleaver
+- Ravenous Hydra, Navori_Quickblades / Death's Dance
+- Manamune-Muramana
+- Lord Dominik's Regards / Serylda's Grudge
+- Boots: Mercury's Treads, Plated Steelcaps, Boots of Swiftness
+:
+;
+champion:Katarina
+Tank-arina
+Runes:
+- Conqueror
+    -Triumph
+    -Legend: Tenacity
+    -Coup de Grace
+- Sudden Impact
+    -Ravenous Hunter
+[Adaptive Force, Adaptive Force, Armor / Magic Resistance]
+Items:
+- Sunfire Aegis
+- Titanic Hydra
+- Ravenous Hydra
+- Nashor's Tooth
+- Demonic Embrace
+- Sorcerer's Shoes
+:
+;
+champion:Kog'Maw
+HungoverKogMaw
+Runes:
+- Arcane Comet
+    -Manaflow Band
+    -Absolute Focus
+    -Scorch / Gathering Storm
+- Cheap Shot
+    -Eyeball Collection / Relentless Hunter
+[Adaptive Force, Adaptive Force, Armor / Magic Resistance]
+Items:
+- Spellthiefs Edge - Shard of True Ice
+- Sorcerer's Shoes
+- Luden's Echo
+- Horizon Focus
+- Zhonya's Hourglass
+- Morellonomicon
+:
+;
+champion:Leona
+LeonaTheReductor
+Runes:
+- Aftershock
+    -Front of Life
+    -Second Wind / Bone Plating
+    -Overgrowth / Unflinching
+- Future's Market
+    -Time Warp Tonic
+[Attack Speed, Adaptive Force / Magic Resistance / Armor, Armor / Magic Resistance]
+Items:
+- Plated Steelcaps
+- Frozen Heart / Randuin's Omen
+- Anathema's Chains
+- Force of Nature
+- Sunfire Aegis / Evenshroud
+- Warmog's Armor / Fimbulwinter
+:
+;
+champion:Mordekaiser
+BrazilTheMan
+Runes:
+- Conqueror
+    -Triumph
+    -Legend: Alacrity
+    -Last Stand
+- Taste of Blood
+    -Ultimate Hunter / Relentless Hunter
+[Attack Speed, Adaptive Force, Magic Resistance]
+Items:
+- Nashor's Tooth
+- Riftmaker
+- Demonic Embrace
+- Rylai's Crystal Scepter
+- Sorcerer's Shoes
+- Cosmic Drive
+:
+TheBrazilianJungle
+Runes:
+- Fleet Footwork
+    -Triumph
+    -Legend: Alacrity
+    -Last Stand
+- Conditioning
+    -Revitalize
+[Attack Speed, Adaptive Force, Health / Magic Resistance]
+Items:
+- Nashor's Tooth
+- Evenshroud
+- Rylai's Crystal Scepter
+- Demonic Embrace / Morellonomicon
+- Mercury's Treads / Plated Steelcaps
+- Shadowflame / Zhonya's Hourglass / Cosmic Drive / Gargoyle Stoneplate
+:
+;
+champion:Rakan
+SigmaMale
+Runes:
+- Electrocute
+    -Sudden Impact
+    -Ghost Poro / Eyeball Collection
+    -Ultimate Hunter
+- Transcendence
+    -Gathering Storm
+[Attack Speed, Adaptive Force, Health / Armor]
+Items:
+- Crown of the Shattered Queen
+- Sorcerer's Shoes
+- Shadowflame
+- Rabadon's Deathcap
+- Horizon Focus
+- Lich Bane / Void Staff / Chemtech Putrifier
+:
+;
+champion:Sion
+TheBausffsSpecial
+Runes:
+- Phase Rush
+    -Manaflow Band
+    -Absolute Focus
+    -Gathering Storm
+- Demolish
+    -Conditioning
+[Adaptive Force, Adaptive Force, Armor]
+Items:
+- Hullbreaker
+- Prowler's Claw
+- Plated Steelcaps
+- Youmuu's Ghostblade (/at 20 min buy red jungle item)
+- Serylda's Grudge
+- Serpent's Fang
+:
+;
+champion:TahmKench
+KidnapperKench
+Runes:
+- Phase Rush
+    -Nimbus Cloak
+    -Celerity
+    -Waterwalking / Gathering Storm
+- Shield Bash
+    -Unflinching
+[Attack Speed, Armor / Magic Resistance, Armor / Magic Resistance]
+Items:
+- Sunfire Aegis
+- Boots of Swiftness
+- Dead Man's Plate
+- Force of Nature
+- Silvermere Dawn
+- Blade of Ruined King
+:
+GattlingGunTongue
+Runes:
+- Lethal Tempo
+    -Triumph
+    -Legend: Alacrity
+    -Last Stand / Coup de Grace
+- Shield Bash
+    -Unflinching
+[Attack Speed, Adaptive Force, Armor / Magic Resistance]
+Items:
+- Berserker Grieves
+- Trinity Force / Riftmaker / Frostfire / Kraken Slayer / Galeforce
+- Wit's End / Rapid Firecannon / Stormrazor
+- Guinsoo's Rageblade
+- Titanic Hydra
+- Sterak's Gage
+:
+MrMagic
+Runes:
+- Grasp of Undying
+    -Shield Bash
+    -Conditioning / Second Wind / Bone Plating
+    -Unflinching
+- Magical Footwear
+    -Approach Velocity
+or
+- Phase Rush
+    -Nimbus Cloak
+    -Celerity / Transcendence / Absolute Focus
+    -Gathering Storm / Scorch
+- Shield Bash
+    -Second Wind / Unflinching / Revitalize
+[Attack Speed, Adaptive Force / Armor / Magic Resistance, Armor / Magic Resistance]
+Items:
+- Nashor's Tooth
+- Sorcerer's Shoes
+- Riftmaker
+- Demonic Embrace
+- Abyssal Mask
+- Zhonya's Hourglass / Morellonomicom / Thornmail / Cosmic Drive / Void Staff
+:
+;
+champion:Talon
+TheUsual
+Runes:
+- Electrocute / Dark Harvest
+    -Taste of Blood / Sudden Impact
+    -Eyeball Collection
+    -Relentless Hunter / Treasure Hunter
+- Nimbus Cloak
+    -Absolute Focus / Scorch
+or
+- Electrocute / Dark Harvest
+    -Taste of Blood / Sudden Impact
+    -Eyeball Collection
+    -Relentless Hunter
+- Magical Footwear
+    -Minion Dematerializer
+[Adaptive Force, Adaptive Force, Armor]
+Items:
+- Prowler's Claw / Galeforce
+- Manamune-Muramana
+- Black Cleaver / Serpent's Fang
+- Ionian Boots
+- Serylda's Grudge
+- Youmuu's Ghostblade / Edge of Night
+:
+MrSpeed
+Runes:
+- Predator
+    -Taste of Blood / Sudden Impact
+    -Eyeball Collection
+    -Relentless Hunter
+- Nimbus Cloak
+    -Celerity
+--or--
+- Phase Rush
+    -Nimbus Cloak
+    -Celerity
+    -Waterwalking
+- Magic Footwear
+    -Minion Dematerializer
+[Ability Haste, Adaptive Force, Armor]
+Items:
+- Galeforce (relentless hunter, magical footwear rune; ghost summoner spell)
+- Youmuu's Ghostblade
+- Black Cleaver
+- (free choice) Umbral Glaive, Edge of Night, Serpent's Fang
+- Mortal Reminder
+- Boots: Mobility boots, Boots of Swiftness
+:
+Assassin
+Runes:
+- Electrocute
+    -Sudden Impact / Taste of Blood
+    -Eyeball Collection / Ghost Poro
+    -Ultimate Hunter / Relentless Hunter / Ingenious Hunter
+- Nimbus Cloak / Nullifying Orb / Scorch / Gathering Storm
+    -Absolute Focus
+[Adaptive Force / Ability Haste, Adaptive Force, Armor]
+Items:
+- Prowler's Claw, Galeforce, Duskblade of draktharr, Eclipse
+- Muramana/Manamune
+- Serpent's Fang
+- Youmuu's Ghostblade, Edge of Night
+- (free choice) Serylda's Grudge, Black Cleaver
+- Boots: Ionian Boots, Plated Steelcaps, Mobility Boots
+:
+Bruiser
+Runes:
+- Conqueror
+    -Triumph
+    -Legend: Tenacity / Legend: Bloodline
+    -Last Stand
+- Eyeball Collection / Ghost Poro
+    -Ravenous Hunter
+[Ability Haste / Adaptive Force, Adaptive Force, Armor / Magic Resistance]
+Items:
+- Goredrinker, Eclipse, Divine Sunderer
+- Black Cleaver
+- Muramana, Thornmail, Maw of Malmortius, Sterak's Gage, Serylda's Grudge, Lord Dominic's Regards
+- Ravenous Hydra / Sterak's Gage
+- (free choice) Death's Dance, Silvermore Dawn, Edge of Night
+- Boots: Plated Steelcaps, Mercury's Treads
+:
+CriticalStrike
+Runes:
+- Electrocute
+    -Sudden Impact / Taste of Blood
+    -Eyeball Colllection / Ghost Poro
+    -Ultimate Hunter / Relentless Hunter
+- Nullifying Orb / Scorch
+    -Transcendence / Absolute Focus
+[Ability Haste / Adaptive Force, Adaptive Force, Armor]
+Items:
+- Prowler's Claw (need 3 items with 20% crit incl. IE) / Galeforce
+- The Collector, Navori Quickblades
+- Essence Reaver
+- Infinity Edge
+- (free choice) Lord Dominiks Regards, Muramana
+- Boots: Ionian Boots, Mobility Boots, Boots of Swiftness
+:
+Parkour!
+Runes:
+- Electrocute
+    -Sudden Impact
+    -Eyeball Collection
+    -Relentless Hunter
+- Nimbus Cloak
+    -Celerity
+[Ability Haste, Adaptive Force, Armor]
+Items:
+- Galeforce
+- Manamune-Muramana
+- Black Cleaver
+- Ionian Boots / Boots of Swiftness / Mobility Boots
+- Youmuu's Ghostblade
+- Axiom Arc / Ravenous Hydra / Serylda's Grudge
+:
+TheRoamer
+Runes:
+- Electrocute
+    -Sudden Impact
+    -Zombie Ward
+    -Relentless Hunter
+- Nimbus Cloak
+    -Celerity
+[Adaptive Force, Adaptive Force, Armor]
+Items:
+- Galeforce / Eclipse
+- Umbral Glaive
+- Black Cleaver
+- Ionian Boots / Mobility Boots / Boots of Swiftness
+- Youmuu's Ghostblade / Serylda's Grudge
+- Edge of Night / Ravenous Hydra / Chempunk Chainsword
+:
+WillStarve
+Runes:
+- First Strike
+    -Magical Footwear
+    -Future's Market / Minion Dematerializer / Biscuit Delivery
+    -Cosmic Insight
+- Nimbus Cloak / Celerity
+    -Celerity / Waterwalking
+[Adaptive Force / Ability Haste, Adaptive Force, Armor]
+Items:
+- Galeforce, Eclipse
+- Umbral Glaive
+- Ravenous Hydra
+- Serylda's Grudge, Black Cleaver
+- (free choice) Muramana/Manamune, Youmuu's Ghostblade, Edge of Night
+- Boots: Mobility Boots, Ionian Boots, Mercury's Treads , Mobility Boots
+:
+;
+champion:Tristana
+TheYordleWizard
+Runes:
+- Electrocute
+    -Sudden Impact
+    -Eyeball Collection
+    -Ultimate Hunter
+- Alacrity
+    -Coup de Grace
+[Attack Speed, Adaptive Force, Armor / Magic Resistance]
+Items:
+- Nashor's Tooth
+- Sorcerer's Shoes
+- Luden's Tempest / Everfrost
+- Lich Bane
+- Void Staff / Morellonomicon
+- Rabadons Deathcap
+:
+;
+champion:Tryndamere
+BegoneThot
+Runes:
+- Dark Harvest
+    -Sudden Impact
+    -Eyeball Collection
+    -Ingenious Hunter
+- Nimbus Cloak
+    -Absolute Focus
+[Adaptive Force, Adaptive Force, Armor / Magic Resistance]
+Items:
+- Galeforce
+- Navori's Quickblades
+- Infinity Edge
+- Youmuu's Ghostblade
+- Berserker's Grieves
+- Serylda's Grudge
+:
+;
+champion:Volibear
+MarioVolibear
+Runes:
+- Press the Attack
+    -Triumph
+    -Legend: Alacrity
+    -Coup de Grace
+- Cheap Shot
+    -Ultimate Hunter
+[Attack Speed, Adaptive Force, Health / Armor / Magic Resistance]
+Items:
+- Prowler's Claw / Eclipse
+- Boots of Swiftness / Mercury's Treads / Plated Steelcaps
+- The Collector
+- Youmuu's Ghostblade
+- Lord Dominik's Regards
+- Infinity Edge
+:
+;
+champion:Warwick
+VampireWarwick
+Runes:
+- Lethal Tempo
+    -Overheal
+    -Legend: Tenacity
+    -Last Stand
+- Taste of Blood
+    -Ravenous Hunter
+[Attack Speed, Adaptive Force, Armor]
+Items:
+- Goredrinker / Immortal Shieldbow
+- Ravenous Hydra
+- Blade of the Ruined King
+- Bloodthirster
+- Warmog's Armor
+- Mercury's Treads / Plated Steelcaps / Boots of Swiftness
+:
+;
+champion:Ziggs
+Redacted
+Runes:
+- Arcane Comet
+    -Manaflow Band
+    -Transcendence
+    -Scorch
+- Demolish
+    -Bone Plating / Conditioning
+[Attack Speed, Adaptive Force, Armor / Magic Resistance]
+Items:
+- Crown of the Shattered Queen / Liandry's Anguish / Luden's Tempest
+- Lichbane
+- Hullbreaker
+- Sorcerer's Shoes
+- Shadowflame / Morellonomicon
+- Rabadon's Deathcap
+:
+;
+end
