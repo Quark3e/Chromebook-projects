@@ -31,6 +31,7 @@
 #include <stdint.h>
 
 #include <HC_useful/useful.hpp>
+#include <HC_useful/diy_dictionary.hpp>
 #include "../in rpi/IK_header.h"
 
 
@@ -78,11 +79,11 @@ int main(int argc, char** argv) {
     bool running = true;
     
 
-    while(true) {
+    while(running) {
         ALLEGRO_EVENT al_event;
         while(al_get_next_event(queue, &al_event)) {
             ImGui_ImplAllegro5_ProcessEvent(&al_event);
-            if(al_event.type == ALLEGRO_EVENT_DISPLAY__CLOSE) running = false;
+            if(al_event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) running = false;
             if(al_event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
                 ImGui_ImplAllegro5_InvalidateDeviceObjects();
                 al_acknowledge_resize(display);
@@ -91,7 +92,15 @@ int main(int argc, char** argv) {
         }
         ImGui_ImplAllegro5_NewFrame();
         ImGui::NewFrame();
+        //---------------------
         
+
+
+        //---------------------
+        ImGui::Render();
+        al_clear_to_color(al_map_rgba_f(clear_color.x*clear_color.w,clear_color.y*clear_color.w,clear_color.z*clear_color.w, clear_color.w));
+        ImGui_ImplAllegro5_RenderDrawData(ImGui::GetDrawData());
+        al_flip_display();
     }
     ImGui_ImplAllegro5_Shutdown();
     ImGui::DestroyContext();

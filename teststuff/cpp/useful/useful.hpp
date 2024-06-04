@@ -935,21 +935,5 @@ float progressBar(
 }
 
 
-class dict_bool {
-    private:
-        /* data */
-        std::vector<std::string> keys;
-        std::vector<bool> values;
-    public:
-        useful(/* args */);
-        ~useful();
-};
-
-dict_bool::useful(/* args */) {
-}
-
-dict_bool::~useful() {
-}
-
 
 #endif
