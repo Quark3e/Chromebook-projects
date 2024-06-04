@@ -234,7 +234,7 @@ mod_dict = {
     "q4:a1": [True, "q4 = a1"], #True
     "q4:a1:b:minus": [True, "if b<0: q4=0-a1; else: q4=a1"], #True
     "q4:a1:b1:minus": [True, "if b1<0: q4=0-a1; else: q4=a1"], #True
-    "q5:inPaper": [False, "q5 = atan([...] / ( cos(b1) * cos(a1) )))"], #False
+    "q5:inPaper": [False, "q5 = atan([...] / ( cos(b1) * cos(a1) ))"], #False
     "q5:default": [False, "q5 = atan([...] / ( frame1X / tan(a1) ))"], #False
     "q5:d5": [False, "q5 = atan([...] / ( d5 ))"], #False
     "exceedState": [True, "if [...]_exceeded: positionIsReachable[0] = False"],

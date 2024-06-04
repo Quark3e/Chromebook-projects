@@ -1,7 +1,7 @@
 
 #pragma once
-#ifndef H_USEFUL
-#define H_USEFUL
+#ifndef HPP_USEFUL
+#define HPP_USEFUL
 
 #include <math.h>
 #include <cmath>
@@ -24,6 +24,8 @@
 #include <linux/limits.h>
 
 // using namespace std;
+
+
 
 
 /// @brief return the sum of elements in an array of type `T`
@@ -930,6 +932,23 @@ float progressBar(
     }
 
     return percent;
+}
+
+
+class dict_bool {
+    private:
+        /* data */
+        std::vector<std::string> keys;
+        std::vector<bool> values;
+    public:
+        useful(/* args */);
+        ~useful();
+};
+
+dict_bool::useful(/* args */) {
+}
+
+dict_bool::~useful() {
 }
 
 
