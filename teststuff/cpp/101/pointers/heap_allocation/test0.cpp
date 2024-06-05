@@ -19,7 +19,7 @@
 
 using std::cout, std::endl;
 
-class testClass : public std::enable_shared_from_this<testClass> {
+class testClass {
 private:
 
     std::vector<std::shared_ptr<std::string>> valuesVec;
