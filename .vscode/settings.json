@@ -26,5 +26,5 @@
         "/usr/lib/python3/dist-packages"
     ],
     "python.analysis.autoImportCompletions": true,
-    "C_Cpp.errorSquiggles": "disabled"
+    "C_Cpp.errorSquiggles": "enabled"
 }

@@ -229,6 +229,28 @@ std::vector<int> findVectorIndex(std::vector<std::vector<std::string>> vecvec, s
     return indices;
 }
 
+/**
+ * @brief Search and find the vector index position of a certain value
+ * 
+ * @tparam T -data type of elements to look through
+ * @param vec vector to search through
+ * @param toFind value to find in the vector
+ * @return int index of where on `vec` the given `toFind` value exists.
+ * @note if the value is not found in the vector then the function will return -1
+ */
+template<class T> int searchVec(std::vector<T> vec, T toFind) {
+    int idx = -1;
+    
+    for(size_t i=0; i<vec.size(); i++) {
+    	if(vec.at(i)==toFind) {
+        	idx=i;
+            break;
+        }
+    }
+    
+    return idx;
+}
+
 
 /**
  * @brief find desired value from array
