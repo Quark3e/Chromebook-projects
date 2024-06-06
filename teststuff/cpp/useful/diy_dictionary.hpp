@@ -118,7 +118,7 @@ class diy_dict {
         vec0<int>           idx;        // "local" index of (what index in the correct vector) where the given element is related to
 
         int extend_reg(std::string key, int varType) {
-            if(DIY_SEARCH_MULTITHREAD::multithread_searchVec<std::string>(keys, key, -1 ))
+            if(DIY_SEARCH_MULTITHREAD::multithread_searchVec<std::string>(keys, key, -1, 100, false, 1)[0] != -1) return 1;
             keys.push_back(key);
             datatype.push_back(varType);
 
