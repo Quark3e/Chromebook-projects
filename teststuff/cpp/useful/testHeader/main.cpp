@@ -4,8 +4,9 @@
 #include <vector>
 
 #include <HC_useful/useful.hpp>
-#include <HC_useful/diy_dictionary.hpp>
+// #include <HC_useful/diy_dictionary.hpp>
 // #include "../terminalMenu.hpp"
+#include "../search_multithread.hpp"
 
 using namespace std;
 
@@ -49,7 +50,7 @@ void printInp() {
 
 int main(int argc, char** argv) {
 
-    std::cout<<"hello world"<<std::endl;
+    // std::cout<<"hello world"<<std::endl;
 
     // int termSize[2] = {0, 0};
     // getTermSize(termSize[0], termSize[1]);
@@ -81,6 +82,24 @@ int main(int argc, char** argv) {
     //     }
     //     else if(returPos[1]==2) printInp();
     // }
+
+
+    std::vector<std::string> testVec{"one", "two", "three", "two", "five", "two", "two"};
+    std::string toFind = "two";
+
+    std::vector<int> foundIdx = DIY_SEARCH_MULTITHREAD::multithread_searchVec<std::string>(
+        testVec, toFind, 2, -1, false, 2
+    );
+    
+    std::cout << std::endl;
+    if(foundIdx.at(0)==-1) cout << "toFind not found." << endl;
+    else {
+        cout << "Indices found. Found at:\n";
+        for(size_t i=0; i<foundIdx.size(); i++) {
+            cout << " > [" << foundIdx.at(i) << "]\n";
+        }
+    }
+
 
     return 0;
 }

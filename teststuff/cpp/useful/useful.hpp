@@ -24,6 +24,7 @@
 #include <linux/limits.h>
 
 #include <thread>
+#include <mutex>
 
 // using namespace std;
 
@@ -253,36 +254,6 @@ template<class T> int searchVec(std::vector<T> vec, T toFind) {
     return idx;
 }
 
-namespace DIY_SEARCH_MULTITHREAD
-{
-    /// @brief maximum number of threads allowed to be spawned for `multithread_searchVec` given by 'std::thread::hardware_concurrency 
-    unsigned int maxThreads = 0;
-    
-    /**
-     * @brief Search and find index, in given vector, for a certain value with multithreaded support by dividing
-     * the search to multiple threads running in parallel
-     * 
-     * @tparam T data type of vector and variable to find
-     * @param vec the vector to
-     * @param toFind 
-     * @param numThreads 
-     * @param threadLen 
-     * @return int 
-     */
-    template<class T> int multithread_searchVec(
-        std::vector<T> vec,
-        T toFind,
-        int numThreads = -1,
-        int threadLen = -1
-    ) {
-        DIY_SEARCH_MULTITHREAD::maxThreads = std::thread::hardware_concurrency();
-        int idx = -1;
-
-
-
-        return idx;
-    }
-}
 
 
 /**

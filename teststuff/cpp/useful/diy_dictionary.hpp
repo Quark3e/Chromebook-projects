@@ -31,101 +31,147 @@
  */
 class diy_dict {
     private:
-        template<typename T> using vec0 = std::vector<T>;
-        template<typename T> using vec1 = std::vector<std::vector<T>>;
-        template<typename T> using vec2 = std::vector<std::vector<std::vector<T>>>;
+        template<typename T> using vec0 = std::vector<T>; //vector: `T` value
+        template<typename T> using vec1 = std::vector<std::vector<T>>; //vector: vector of `T` value
+        template<typename T> using vec2 = std::vector<std::vector<std::vector<T>>>; //vector: vector of vector of `T` value
+
+        template<typename T> using vec0p = std::vector<T*>; //vector: pointer: `T`
+        template<typename T> using vec1p = std::vector<std::vector<T>*>; //vector: pointer: vector of `T`
+        template<typename T> using vec2p = std::vector<std::vector<std::vector<T>>*>; //vector: pointer: vector of vector of `T`
+
+        vec0<bool>          values_0_bool;      //code: 0 0 0
+        vec0<int>           values_0_int;       //code: 0 1 0
+        vec0<float>         values_0_float;     //code: 0 2 0
+        vec0<double>        values_0_double;    //code: 0 3 0
+        vec0<char>          values_0_char;      //code: 0 4 0
+        vec0<std::string>   values_0_string;    //code: 0 5 0
+
+        vec0p<bool>         values_0_bool_p;    //code: 0 0 1
+        vec0p<int>          values_0_int_p;     //code: 0 1 1
+        vec0p<float>        values_0_float_p;   //code: 0 2 1
+        vec0p<double>       values_0_double_p;  //code: 0 3 1
+        vec0p<char>         values_0_char_p;    //code: 0 4 1
+        vec0p<std::string>  values_0_string_p;  //code: 0 5 1
 
 
-        vec0<bool>          values_0_bool;
-        vec0<int>           values_0_int;
-        vec0<float>         values_0_float;
-        vec0<double>        values_0_double;
-        vec0<char>          values_0_char;
-        vec0<std::string>   values_0_string;
+        vec1<bool>          values_1_bool;      //code: 1 0 0
+        vec1<int>           values_1_int;       //code: 1 1 0
+        vec1<float>         values_1_float;     //code: 1 2 0
+        vec1<double>        values_1_double;    //code: 1 3 0
+        vec1<char>          values_1_char;      //code: 1 4 0
+        vec1<std::string>   values_1_string;    //code: 1 5 0
 
-        vec0<bool*>         values_0_bool_p;
-        vec0<int*>          values_0_int_p;
-        vec0<float*>        values_0_float_p;
-        vec0<double*>       values_0_double_p;
-        vec0<char*>         values_0_char_p;
-        vec0<std::string*>  values_0_string_p;
-
-
-        vec1<bool>          values_1_bool;
-        vec1<int>           values_1_int;
-        vec1<float>         values_1_float;
-        vec1<double>        values_1_double;
-        vec1<char>          values_1_char;
-        vec1<std::string>   values_1_string;
-
-        vec1<bool*>         values_1_bool_p;
-        vec1<int*>          values_1_int_p;
-        vec1<float*>        values_1_float_p;
-        vec1<double*>       values_1_double_p;
-        vec1<char*>         values_1_char_p;
-        vec1<std::string*>  values_1_string_p;
+        vec1p<bool>         values_1_bool_p;    //code: 1 0 1
+        vec1p<int>          values_1_int_p;     //code: 1 1 1
+        vec1p<float>        values_1_float_p;   //code: 1 2 1
+        vec1p<double>       values_1_double_p;  //code: 1 3 1
+        vec1p<char>         values_1_char_p;    //code: 1 4 1
+        vec1p<std::string>  values_1_string_p;  //code: 1 5 1
 
 
-        vec2<bool>          values_2_bool;
-        vec2<int>           values_2_int;
-        vec2<float>         values_2_float;
-        vec2<double>        values_2_double;
-        vec2<char>          values_2_char;
-        vec2<std::string>   values_2_string;
+        vec2<bool>          values_2_bool;      //code: 2 0 0
+        vec2<int>           values_2_int;       //code: 2 1 0
+        vec2<float>         values_2_float;     //code: 2 2 0
+        vec2<double>        values_2_double;    //code: 2 3 0
+        vec2<char>          values_2_char;      //code: 2 4 0
+        vec2<std::string>   values_2_string;    //code: 2 5 0
 
-        vec2<bool*>         values_2_bool_p;
-        vec2<int*>          values_2_int_p;
-        vec2<float*>        values_2_float_p;
-        vec2<double*>       values_2_double_p;
-        vec2<char*>         values_2_char_p;
-        vec2<std::string*>  values_2_string_p;
+        vec2p<bool>         values_2_bool_p;    //code: 2 0 1
+        vec2p<int>          values_2_int_p;     //code: 2 1 1
+        vec2p<float>        values_2_float_p;   //code: 2 2 1
+        vec2p<double>       values_2_double_p;  //code: 2 3 1
+        vec2p<char>         values_2_char_p;    //code: 2 4 1
+        vec2p<std::string>  values_2_string_p;  //code: 2 5 1
 
 
-
-        const std::string types[100][6] = {
-            {"0_0_", "0_1_", "0_2_", "0_3_", "0_4_", "0_5_"},
-            {"0_0p", "0_1p", "0_2p", "0_3p", "0_4p", "0_5p"},
-            {"1_0_", "1_1_", "1_2_", "1_3_", "1_4_", "1_5_"},
-            {"1_0p", "1_1p", "1_2p", "1_3p", "1_4p", "1_5p"},
-            {"2_0_", "2_1_", "2_2_", "2_3_", "2_4_", "2_5_"},
-            {"2_0p", "2_1p", "2_2p", "2_3p", "2_4p", "2_5p"},
+        /** (function is purely for the sake of being able to see this definiton as the code writer via intellisense popup) 
+         * Type code definition:
+         *  "code: a b c"
+         *  - `a` -avail. range{0:2} - level of vector usage via using typedefinitons: `vec{a}` -> `0` = `vec0` = `std::vector<T>`.
+         *  - `b` -avail. range{0:5} - type of datatype: in order{0:5} = {`bool`, `int`, `float`, `double`, `char`, `std::string`}.
+         *  - `c` -avail. range{0:1} - boolean for if "value" is a pointer: `0`-not a pointer: ex.`vec1`; `1`-is a pointer: ex.`vec1p` 
+         * 
+         * Example: "code: 2 3 1"
+         *      -> `std::vector<std::vector<std::vector<T>>>` `double` `*`
+         *      -> `vec2p<double>`/`std::vector<std::vector<std::vector<double>>*>`
+         *      »» "stores pointers to 2d vectors"
+         * 
+         * NOTE: When a code is set in `datatype` vector, leading 0's must be removed: `code: 0 1 2` -> `(int)12`
+         * 
+         * 
+         * Vector level:[i*2, i*2+1][..]
+         * Data type   :[..]        [i]
+         * Non-pointer :[i*2]       [..]
+         * Pointer:     [i*2+1]     [..]
+         */
+        const int types[6][6] = {
+            {000, 10, 20, 30, 40, 50},
+            {  1, 11, 21, 31, 41, 51},
+            {100,110,120,130,140,150},
+            {101,111,121,131,141,151},
+            {200,210,220,230,240,250},
+            {201,211,221,231,241,251}
         };
         vec0<std::string>   keys;       // Labels/names
-        vec0<std::string>   datatype;   // What type is stored in that index
+        vec0<int>           datatype;   // What type is stored in that index
         vec0<int>           idx;        // "local" index of (what index in the correct vector) where the given element is related to
 
-
-
         void extend_reg(std::string key, std::string varType);
+
     public:
         diy_dict(/* args */);
         ~diy_dict();
 
-        int add(std::string key, int value)
-        int add(std::string key, bool value)
-        int add(std::string key, float value)
-        int add(std::string key, int value)
-        int add(std::string key, int value)
-        int add(std::string key, int value)
-        int add(std::string key, int value)
-        int add(std::string key, int value)
+        int add(std::string key, bool value);
+        int add(std::string key, int value);
+        int add(std::string key, float value);
+        int add(std::string key, double value);
+        int add(std::string key, char value);
+        int add(std::string key, std::string value);
 
-        int set(std::string key, bool value);
-        bool get(std::string key);
+        int add(std::string key, bool* ptr);
+        int add(std::string key, int* ptr);
+        int add(std::string key, float* ptr);
+        int add(std::string key, double* ptr);
+        int add(std::string key, char* ptr);
+        int add(std::string key, std::string* ptr);
+
+
+        int add(std::string key, std::vector<bool> value);
+        int add(std::string key, std::vector<int> value);
+        int add(std::string key, std::vector<float> value);
+        int add(std::string key, std::vector<double> value);
+        int add(std::string key, std::vector<char> value);
+        int add(std::string key, std::vector<std::string> value);
+
+        int add(std::string key, std::vector<bool>* ptr);
+        int add(std::string key, std::vector<int>* ptr);
+        int add(std::string key, std::vector<float>* ptr);
+        int add(std::string key, std::vector<double>* ptr);
+        int add(std::string key, std::vector<char>* ptr);
+        int add(std::string key, std::vector<std::string>* ptr);
+
+
+        int add(std::string key, std::vector<std::vector<bool>> value);
+        int add(std::string key, std::vector<std::vector<int>> value);
+        int add(std::string key, std::vector<std::vector<float>> value);
+        int add(std::string key, std::vector<std::vector<double>> value);
+        int add(std::string key, std::vector<std::vector<char>> value);
+        int add(std::string key, std::vector<std::vector<std::string>> value);
+
+        int add(std::string key, std::vector<std::vector<bool>>* ptr);
+        int add(std::string key, std::vector<std::vector<int>>* ptr);
+        int add(std::string key, std::vector<std::vector<float>>* ptr);
+        int add(std::string key, std::vector<std::vector<double>>* ptr);
+        int add(std::string key, std::vector<std::vector<char>>* ptr);
+        int add(std::string key, std::vector<std::vector<std::string>>* ptr);
 };
 
 diy_dict::diy_dict(/* args */) {
 
-
 }
 
 diy_dict::~diy_dict() {}
-
-
-template<class T>
-int diy_dict::add(std::string key, T value) {
-    if()
-}
 
 
 
