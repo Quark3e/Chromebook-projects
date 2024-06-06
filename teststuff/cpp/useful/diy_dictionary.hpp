@@ -40,6 +40,10 @@ class diy_dict {
         template<typename T> using vec1p = std::vector<std::vector<T>*>; //vector: pointer: vector of `T`
         template<typename T> using vec2p = std::vector<std::vector<std::vector<T>>*>; //vector: pointer: vector of vector of `T`
 
+        template<typename T> using pVec1 = std::vector<T>*; //pointer: vector of `T`
+        template<typename T> using pVec2 = std::vector<std::vector<T>>*; //pointer: vector of vector of `T`
+
+
         vec0<bool>          values_0_bool;      //code: 0 0 0
         vec0<int>           values_0_int;       //code: 0 1 0
         vec0<float>         values_0_float;     //code: 0 2 0
@@ -105,7 +109,7 @@ class diy_dict {
          * Non-pointer :[i*2]       [..]
          * Pointer:     [i*2+1]     [..]
          */
-        const int types[6][6] = {
+        const int dict_types[6][6] = {
             {000, 10, 20, 30, 40, 50},
             {  1, 11, 21, 31, 41, 51},
             {100,110,120,130,140,150},
@@ -117,11 +121,17 @@ class diy_dict {
         vec0<int>           datatype;   // What type is stored in that index
         vec0<int>           idx;        // "local" index of (what index in the correct vector) where the given element is related to
 
+        /**
+         * @brief check if `key` exist and if not then extend `keys` and `datatype` vectors
+         * 
+         * @param key string to check if exists already and if not add this to common vector `keys`
+         * @param varType integer to type of value/ptr to add according to `types` definition
+         * @return int value for success or not: `0`-successfully added `key` and `datatype` to vectors; `1`-unsuccessful. key already exists
+         */
         int extend_reg(std::string key, int varType) {
             if(DIY_SEARCH_MULTITHREAD::multithread_searchVec<std::string>(keys, key, -1, 100, false, 1)[0] != -1) return 1;
             keys.push_back(key);
             datatype.push_back(varType);
-
             return 0;
         }
 
@@ -172,6 +182,52 @@ class diy_dict {
         int add(std::string key, std::vector<std::vector<double>>* ptr);
         int add(std::string key, std::vector<std::vector<char>>* ptr);
         int add(std::string key, std::vector<std::vector<std::string>>* ptr);
+
+
+                
+        bool        get0_bool_  (std::string key);
+        int         get0_int_   (std::string key);
+        float       get0_float_ (std::string key);
+        double      get0_double_(std::string key);
+        char        get0_char_  (std::string key);
+        std::string get0_string_(std::string key);
+
+        bool*       get0_boolP  (std::string key);
+        int*        get0_intP   (std::string key);
+        float*      get0_floatP (std::string key);
+        double*     get0_doubleP(std::string key);
+        char*       get0_charP  (std::string key);
+        std::string* get0_stringP(std::string key);
+
+
+        std::vector<bool>           get1_bool_  (std::string key);
+        std::vector<int>            get1_int_   (std::string key);
+        std::vector<float>          get1_float_ (std::string key);
+        std::vector<double>         get1_double_(std::string key);
+        std::vector<char>           get1_char_  (std::string key);
+        std::vector<std::string>    get1_string_(std::string key);
+
+        std::vector<bool>*          get1_boolP  (std::string key);
+        std::vector<int>*           get1_intP   (std::string key);
+        std::vector<float>*         get1_floatP (std::string key);
+        std::vector<double>*        get1_doubleP(std::string key);
+        std::vector<char>*          get1_charP  (std::string key);
+        std::vector<std::string>*   get1_stringP(std::string key);
+
+
+        std::vector<std::vector<bool>>        get2_bool_  (std::string key);
+        std::vector<std::vector<int>>         get2_int_   (std::string key);
+        std::vector<std::vector<float>>       get2_float_ (std::string key);
+        std::vector<std::vector<double>>      get2_double_(std::string key);
+        std::vector<std::vector<char>>        get2_char_  (std::string key);
+        std::vector<std::vector<std::string>> get2_string_(std::string key);
+
+        std::vector<std::vector<bool>>*        get2_boolP  (std::string key);
+        std::vector<std::vector<int>>*         get2_intP   (std::string key);
+        std::vector<std::vector<float>>*       get2_floatP (std::string key);
+        std::vector<std::vector<double>>*      get2_doubleP(std::string key);
+        std::vector<std::vector<char>>*        get2_charP  (std::string key);
+        std::vector<std::vector<std::string>>* get2_stringP(std::string key);
 };
 
 diy_dict::diy_dict(/* args */) {
@@ -212,11 +268,11 @@ diy_dict::~diy_dict() {}
 // /// @brief get the value of a key
 // /// @param key `std::string` of the key to find the value of
 // /// @return the value of said key; if key doesn't exist then it'll return `NULL`
-// bool diy_dict::get(std::string key) {
+// bool get(std::string key) {
 //     int pos = findVectorIndex(keys, key);
 //     if(pos == -1) {
-//         std::cerr << "diy_dict::get() ERROR: Key doesn't exist" << std::endl;
-//         std::cout << "diy_dict::get() ERROR: Key doesn't exist: returned value is incorrect" << std::endl;
+//         std::cerr << "get() ERROR: Key doesn't exist" << std::endl;
+//         std::cout << "get() ERROR: Key doesn't exist: returned value is incorrect" << std::endl;
 //         return NULL;
 //     }
 //     return values.at(pos);
