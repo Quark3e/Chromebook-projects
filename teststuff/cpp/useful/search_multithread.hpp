@@ -65,6 +65,7 @@ namespace DIY_SEARCH_MULTITHREAD
      * @param threadLen maximum length of elements for each thread to search through. If length of `vec` is bigger than `threadLen` then the search will
      * @param allOccurrence whether to check for every occurence or to just return the first it finds. `true`-find every occurence(NOTE: this will note return the actual first but a random first it find).
      * @param checkSpacing the number each thread will wait before locking mutex and checking if a solution has been found. if
+     * @param verbose whether to print info to `std::cout`
      * be divided into equal parts so each thread search element num <=threadLen (2). If =`-1` then `numThreads` number of threads will spawn. 
      * @return `int` type of index to 
      * @note (1) If `numThreads` is bigger than the max thread hint given by `std::thread::hardware_concurrency()` (stored in `maxThreads`) then it'll cap it at the hint num.
@@ -84,8 +85,10 @@ namespace DIY_SEARCH_MULTITHREAD
         int numThreads = -1,
         int threadLen = -1,
         bool allOccurrence = false,
-        int checkSpacing = 10
+        int checkSpacing = 10,
+        bool verbose = false
     ) {
+        std::string verbose_str = " >> DIY_SEARCH_MULTITHREAD::multithread_searchVec";
         std::vector<int> idx(1, -1);
         maxThreads = std::thread::hardware_concurrency();
         int threadCount = maxThreads; //number of threads to split the search by
@@ -94,10 +97,9 @@ namespace DIY_SEARCH_MULTITHREAD
 
 
         if(numThreads==-1 && threadLen==-1) threadCount = maxThreads;
-        else if(numThreads==-1 && threadLen!=-1) numThreads = maxThreads;
         else if(numThreads!=-1 && threadLen==-1) threadCount = numThreads;
-        else if(numThreads!=-1 && threadLen!=-1) {
-            if(vecSize>threadLen && (vecSize/maxThreads)<threadLen) {
+        else if((numThreads!=-1 && threadLen!=-1) || (numThreads==-1 && threadLen!=-1)) {
+            if((vecSize/maxThreads)<threadLen) {
                 for(int i=1; i<numThreads; i++) {
                     if(static_cast<int>(ceil(static_cast<float>(vecSize)/i)) <= threadLen) {
                         threadCount = i;
@@ -105,9 +107,13 @@ namespace DIY_SEARCH_MULTITHREAD
                     }
                 }
             }
+            else threadCount = maxThreads;
         }
         else if(numThreads<-1 || threadLen<-1) return idx;
         
+        if(verbose) std::cout << verbose_str+" maxThreads  =\t"<<maxThreads<<std::endl;
+        if(verbose) std::cout << verbose_str+" threadCount =\t"<<threadCount<<std::endl;
+
         if(threadCount==0 || threadCount==1) {
             for(int i=0; i<vecSize; i++) {
                 if(vec.at(i)==toFind) {

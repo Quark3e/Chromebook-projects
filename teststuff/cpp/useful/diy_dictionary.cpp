@@ -4,6 +4,10 @@
 
 int diy_dict::add(std::string key, bool value) {
     
+    values_0_bool.push_back(value);
+    idx.push_back(values_0_bool.size()-1);
+
+
 }
 int diy_dict::add(std::string key, int value) {
     

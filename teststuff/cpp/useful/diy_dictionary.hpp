@@ -23,6 +23,7 @@
 // #include <typeinfo>
 
 #include <HC_useful/useful.hpp>
+#include <HC_useful/search_multithread.hpp>
 
 
 /**
@@ -116,7 +117,13 @@ class diy_dict {
         vec0<int>           datatype;   // What type is stored in that index
         vec0<int>           idx;        // "local" index of (what index in the correct vector) where the given element is related to
 
-        void extend_reg(std::string key, std::string varType);
+        int extend_reg(std::string key, int varType) {
+            if(DIY_SEARCH_MULTITHREAD::multithread_searchVec<std::string>(keys, key, -1 ))
+            keys.push_back(key);
+            datatype.push_back(varType);
+
+            return 0;
+        }
 
     public:
         diy_dict(/* args */);

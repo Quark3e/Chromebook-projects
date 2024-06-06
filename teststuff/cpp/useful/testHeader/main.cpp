@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
     std::string toFind = "two";
 
     std::vector<int> foundIdx = DIY_SEARCH_MULTITHREAD::multithread_searchVec<std::string>(
-        testVec, toFind, 2, -1, false, 2
+        testVec, toFind, -1, 6, false, 1, true
     );
     
     std::cout << std::endl;
