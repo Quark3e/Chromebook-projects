@@ -1,16 +1,4 @@
 
-/**
- * @file test0.cpp
- * @author Quark3e (you@domain.com)
- * @brief test heap allocation with smart pointers as a method of valuesVec storage
- * @version 0.1
- * @date 2024-06-05
- * 
- * @copyright Copyright (c) 2024
- * 
- */
-
-
 #include <iostream>
 #include <vector>
 #include <memory>
@@ -73,7 +61,6 @@ int testClass::set(std::string label, std::string newValue) {
     }
     valuesVec[pos].reset(new std::string(newValue));
     typeOfAdd[pos] = 0;
-    // valuesVec[pos] = std::make_shared<std::string>(newValue);
     return 0;
 }
 int testClass::set(std::string label, std::string* newPtr) {

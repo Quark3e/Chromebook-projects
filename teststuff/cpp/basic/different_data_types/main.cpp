@@ -29,7 +29,7 @@ typedef std::vector<Property> property_type;
 
 std::vector<size_t> vecIdx;
 std::vector<std::string> vecNames;
-std::vector<std::string>
+// std::vector<std::string>
 
 property_type testType;
 

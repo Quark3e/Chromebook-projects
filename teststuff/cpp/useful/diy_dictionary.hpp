@@ -19,7 +19,8 @@
 
 #include <iostream>
 #include <string>
-#include <typeinfo>
+#include <memory>
+// #include <typeinfo>
 
 #include <HC_useful/useful.hpp>
 
@@ -30,45 +31,76 @@
  */
 class diy_dict {
     private:
-        const std::string types[] = {
-            "bool", "int", "float", "char", "string",
-            "p_bool", "p_int", "p_float", "p_char", "p_string"
+        template<typename T> using vec0 = std::vector<T>;
+        template<typename T> using vec1 = std::vector<std::vector<T>>;
+        template<typename T> using vec2 = std::vector<std::vector<std::vector<T>>>;
+
+
+        vec0<bool>          values_0_bool;
+        vec0<int>           values_0_int;
+        vec0<float>         values_0_float;
+        vec0<double>        values_0_double;
+        vec0<char>          values_0_char;
+        vec0<std::string>   values_0_string;
+
+        vec0<bool*>         values_0_bool_p;
+        vec0<int*>          values_0_int_p;
+        vec0<float*>        values_0_float_p;
+        vec0<double*>       values_0_double_p;
+        vec0<char*>         values_0_char_p;
+        vec0<std::string*>  values_0_string_p;
+
+
+        vec1<bool>          values_1_bool;
+        vec1<int>           values_1_int;
+        vec1<float>         values_1_float;
+        vec1<double>        values_1_double;
+        vec1<char>          values_1_char;
+        vec1<std::string>   values_1_string;
+
+        vec1<bool*>         values_1_bool_p;
+        vec1<int*>          values_1_int_p;
+        vec1<float*>        values_1_float_p;
+        vec1<double*>       values_1_double_p;
+        vec1<char*>         values_1_char_p;
+        vec1<std::string*>  values_1_string_p;
+
+
+        vec2<bool>          values_2_bool;
+        vec2<int>           values_2_int;
+        vec2<float>         values_2_float;
+        vec2<double>        values_2_double;
+        vec2<char>          values_2_char;
+        vec2<std::string>   values_2_string;
+
+        vec2<bool*>         values_2_bool_p;
+        vec2<int*>          values_2_int_p;
+        vec2<float*>        values_2_float_p;
+        vec2<double*>       values_2_double_p;
+        vec2<char*>         values_2_char_p;
+        vec2<std::string*>  values_2_string_p;
+
+
+
+        const std::string types[100][6] = {
+            {"0_0_", "0_1_", "0_2_", "0_3_", "0_4_", "0_5_"},
+            {"0_0p", "0_1p", "0_2p", "0_3p", "0_4p", "0_5p"},
+            {"1_0_", "1_1_", "1_2_", "1_3_", "1_4_", "1_5_"},
+            {"1_0p", "1_1p", "1_2p", "1_3p", "1_4p", "1_5p"},
+            {"2_0_", "2_1_", "2_2_", "2_3_", "2_4_", "2_5_"},
+            {"2_0p", "2_1p", "2_2p", "2_3p", "2_4p", "2_5p"},
         };
-        std::vector<std::string>    keys;
-        std::vector<std::string>    datatype;
-        std::vector<int>            idx;
-
-        std::vector<bool>           values_bool;
-        std::vector<int>            values_int;
-        std::vector<float>          values_float;
-        std::vector<char>           values_char;
-        std::vector<std::string>    values_string;
-
-        std::vector<bool*>          values_p_bool;
-        std::vector<int*>           values_p_int;
-        std::vector<float*>         values_p_float;
-        std::vector<char*>          values_p_char;
-        std::vector<std::string*>   values_p_string;
+        vec0<std::string>   keys;       // Labels/names
+        vec0<std::string>   datatype;   // What type is stored in that index
+        vec0<int>           idx;        // "local" index of (what index in the correct vector) where the given element is related to
 
 
-        std::vector<std::vector<bool>>      values_vec_bool;
-        std::vector<std::vector<int>>       values_int;
-        std::vector<std::vector<float>>     values_float;
-        std::vector<std::vector<char>>      values_char;
-        std::vector<std::vector<std::string>> values_string;
-
-        std::vector<bool*>          values_p_bool;
-        std::vector<int*>           values_p_int;
-        std::vector<float*>         values_p_float;
-        std::vector<char*>          values_p_char;
-        std::vector<std::string*>   values_p_string;
 
         void extend_reg(std::string key, std::string varType);
     public:
         diy_dict(/* args */);
         ~diy_dict();
 
-        template<class T>
         int add(std::string key, int value)
         int add(std::string key, bool value)
         int add(std::string key, float value)
