@@ -20,7 +20,6 @@
 #include <iostream>
 #include <string>
 #include <memory>
-// #include <typeinfo>
 
 #include <HC_useful/useful.hpp>
 #include <HC_useful/search_multithread.hpp>
@@ -37,20 +36,10 @@ class diy_dict {
         int  arg_searchVec_checkSpacing = 1;
         bool arg_searchVec_verbose      = false;
 
-        /**
-         * @brief common function to check if a `key` exists in `diy_dict::keys` vector/container
-         * 
-         * @param key the `std::string` label/key to check if it exists in the vecot
-         * @param verbose whether to print the output:
-         * `0` = false; `1` = true; `-1` = {use default}/`diy_dict::arg_searchVec_verbose`
-         * @return `int` of idx for where that key exists in `diy_dict::keys` vector; returns `-1` if key doesn't exist.
-         */
-        int check_existence(std::string key, int verbose=-1) {
-            if(verbose==-1) verbose = verbose = arg_searchVec_verbose;
-            std::vector<int> pos = DIY_SEARCH_MULTITHREAD::multithread_searchVec<std::string>(
-                keys, key, arg_searchVec_numThreads, arg_searchVec_threadLen, false, arg_searchVec_checkSpacing, verbose);
-            return pos[0];
-        }
+
+        template<typename T> std::string str_export_v1_subFunc(std::vector<T> vec1_inp);
+        template<typename T> std::string str_export_v2_subFunc(std::vector<std::vector<T>> vec2_inp);
+
 
         template<typename T> using vec0 = std::vector<T>; //vector: `T` value
         template<typename T> using vec1 = std::vector<std::vector<T>>; //vector: vector of `T` value
@@ -141,21 +130,12 @@ class diy_dict {
         vec0<int>           datatype;   // What type is stored in that index
         vec0<int>           idx;        // "local" index of (what index in the correct vector) where the given element is related to
 
-        /**
-         * @brief check if `key` exist and if not then extend `keys` and `datatype` vectors
-         * 
-         * @param key string to check if exists already and if not add this to common vector `keys`
-         * @param varType integer to type of value/ptr to add according to `types` definition
-         * @return int value for success or not: `0`-successfully added `key` and `datatype` to vectors; `1`-unsuccessful. key already exists
-         */
-        int extend_reg(std::string key, int varType) {
-            if(check_existence(key) != -1) return 1;
-            keys.push_back(key);
-            datatype.push_back(varType);
-            return 0;
-        }
+
+        int extend_reg(std::string key, int varType);
 
     public:
+        int check_existence(std::string key, int verbose=-1);
+
         const std::string info_type_definition = (" \
         (function is purely for the sake of being able to see this definiton as the code writer via intellisense popup)\n \
          * Type code definition:\n \
@@ -175,6 +155,9 @@ class diy_dict {
         diy_dict(/* args */);
         ~diy_dict();
 
+        template<class T>
+        std::string formatNumber(T value, int strWidth, int varPrecision, std::string align="right");
+
         std::string str_export(
             std::string key,
             std::string codedInsert,
@@ -183,7 +166,8 @@ class diy_dict {
             int width,
             int padding,
             int prettyPrint,
-            char emptySpace
+            char emptySpace,
+            int left_indent
         );
         int get_type(std::string key);
 

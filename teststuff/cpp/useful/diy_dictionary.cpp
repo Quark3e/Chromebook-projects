@@ -1,5 +1,42 @@
 
 #include "diy_dictionary.hpp"
+#include <HC_useful/useful.hpp>
+
+/**
+ * @brief common function to check if a `key` exists in `diy_dict::keys` vector/container
+ * 
+ * @param key the `std::string` label/key to check if it exists in the vecot
+ * @param verbose whether to print the output:
+ * `0` = false; `1` = true; `-1` = {use default}/`diy_dict::arg_searchVec_verbose`
+ * @return `int` of idx for where that key exists in `diy_dict::keys` vector; returns `-1` if key doesn't exist.
+ */
+int diy_dict::check_existence(std::string key, int verbose=-1) {
+    if(verbose==-1) verbose = verbose = arg_searchVec_verbose;
+    std::vector<int> pos = DIY_SEARCH_MULTITHREAD::multithread_searchVec<std::string>(
+        keys, key, arg_searchVec_numThreads, arg_searchVec_threadLen, false, arg_searchVec_checkSpacing, verbose);
+    return pos[0];
+}
+/**
+ * @brief check if `key` exist and if not then extend `keys` and `datatype` vectors
+ * 
+ * @param key string to check if exists already and if not add this to common vector `keys`
+ * @param varType integer to type of value/ptr to add according to `types` definition
+ * @return int value for success or not: `0`-successfully added `key` and `datatype` to vectors; `1`-unsuccessful. key already exists
+ */
+int diy_dict::extend_reg(std::string key, int varType) {
+    if(check_existence(key) != -1) return 1;
+    keys.push_back(key);
+    datatype.push_back(varType);
+    return 0;
+}
+
+
+template<typename T> std::string diy_dict::str_export_v1_subFunc(std::vector<T> vec1_inp) {
+
+}
+template<typename T> std::string diy_dict::str_export_v2_subFunc(std::vector<std::vector<T>> vec2_inp) {
+
+}
 
 
 /**
@@ -7,20 +44,27 @@
  * 
  * @param key `std::string` identifier to stored value/pointer
  * @param codedInsert string to insert at `i` index, isolated by `$` symbol after: format `"i$text"`. ex:"5$test" will insert string `text` at pos `5` after export string creation.(1)
- * @param align where to align numbers or text relative to "empty" space char's created by format parameters like `width`, `padding`, `prettyPrint`.
+ * @param align where to align numbers or text relative to "empty" space char's created by format parameters `width`, `padding`, `prettyPrint`.
  * {`"left"`, `"center"`, "`right`""}. (2)
  * @param decimals decimal precision: if `key` result contains number with decimals, then `decimals` number of decimals will be rounded to.
- * @param width minimum number of characters to be filled in the exported string. If `key` value converted to string takes up less number of char's than `width`, then the remaining space
- * will be filled with char given in `emptySpace` argument in accordance with `align`, `padding`, `padding` and `prettyPrint`(3)
+ * @param width minimum number of characters to be filled in the exported string.
+ * If `key` value converted to string takes up less number of char's than `width`, then the remaining space
+ * will be filled with char given in `emptySpace` argument in accordance with `align`, `padding`, `padding` and `prettyPrint`(3).
+ * If `width`<=`-1` then width not set.
  * @param padding number of `emptySpace` characters to add on both start and end of `width` defined string (4).
- * @param prettyPrint modes to print non-simple data types like `std::vector`'s: (5)
+ * @param prettyPrint modes to methods for creating a string of non-simple data types ex. `std::vector`:
+ *  `0`-in-line:    every element in a container comes after eachother. 
+ *  `1`-new-line:   newline every element.
+ *  `2`-new-line2:  newline every element except the lowest "level" of container which will be "in-line".
  * @param emptySpace character to fill the "empty" space in accordance with string format parameter arguments
+ * @param left_indent if formatted string of `std::vector` takes up multiple lines('\n') then a left indent / tab will be added with `left_indent` number of `emptySpace` chars
  * @return `std::string` of the exported string
- * @note (1)
- * @note (2)
- * @note (3)
- * @note (4)
- * @note (5)
+ * 
+ * @note (1) if created string take up multiple lines or `left_indent` then the inserted index `i` will ignore `left_indent`/`\n` characters but it will include `padding` and `width`.
+ * @note (2) if value is a `std::vector` then only the elements will be aligned and not the curly braces.
+ * @note (3) if value is a `std::vector` then `width` will be applied to the elements and not the curly braces
+ * @note (4) if value is a `std::vector` then `padding` will be outside the curly braces and not the elements, same goes for if `prettyPrint` is set to include new-lines, 
+ * just now it'll apply to each `container element` if container is multidimensional
  */
 std::string diy_dict::str_export(
     std::string key,
@@ -30,10 +74,45 @@ std::string diy_dict::str_export(
     int width = -1,
     int padding = 0,
     int prettyPrint = 0,
-    char emptySpace = ' '
+    char emptySpace = ' ',
+    int left_indent = 0
 ) {
+    int pos = check_existence(key);
+    if(pos==-1) return "";
     std::string finalStr = "";
+    std::string tempStr = "";
 
+    int type = datatype[pos];
+    int vecType = 0; //level of vec
+    bool isPtr = type % 10;
+    float type_deriv2 = 0;
+    
+    static auto boolLambda = [](bool boolVar) {
+        if(boolVar) return std::string("true");
+        return std::string("true");
+    };
+
+    if(type<100) {}
+    else if(type<200) { type_deriv2 = static_cast<float>(type-100); vecType = 1; }
+    else if(type<300) { type_deriv2 = static_cast<float>(type-200); vecType = 2; }
+    
+
+    switch (static_cast<int>(floor(type_deriv2/10))) {
+    case 0: //bool
+        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + boolLambda(*values_0_bool_p[pos]) + std::string(padding,emptySpace);
+        if(vecType==0 && !isPtr) tempStr = std::string(padding,emptySpace) + boolLambda(values_0_bool[pos]) + std::string(padding,emptySpace);
+        
+        break;
+    case 1: //int
+
+    case 2: //float
+    case 3: //double
+    case 4: //char
+    case 5: //std::string
+    default:
+        break;
+    }
+    
 
     return finalStr;
 }
@@ -460,3 +539,25 @@ std::vector<std::vector<std::string>>* diy_dict::get2_stringP(std::string key) {
     return nullptr;
 }
 
+
+/// @brief Convert decimal number to std::string with set decimal numbers and minimum total width
+/// @tparam T 
+/// @param value decimal number to convert
+/// @param strWidth minimum width for the string
+/// @param varPrecision decimal precision
+/// @param align whether to align value with left or right side: {`"left"`, `"right"`},
+/// @return returns formatted string
+template<class T>
+std::string diy_dict::formatNumber(
+    T value,
+    int strWidth,
+    int varPrecision,
+    std::string align="right"
+) {
+    std::stringstream outStream;
+    outStream << std::fixed;
+    if(align=="left") outStream<<std::left;
+    else if(align=="right") outStream<<std::right;
+    outStream << std::setw(strWidth) << std::setprecision(varPrecision) << value;
+    return outStream.str();
+}
