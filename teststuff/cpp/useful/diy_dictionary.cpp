@@ -2,6 +2,47 @@
 #include "diy_dictionary.hpp"
 
 
+/**
+ * @brief Export the value of the stored value or pointer as a string
+ * 
+ * @param key `std::string` identifier to stored value/pointer
+ * @param codedInsert string to insert at `i` index, isolated by `$` symbol after: format `"i$text"`. ex:"5$test" will insert string `text` at pos `5` after export string creation.(1)
+ * @param align where to align numbers or text relative to "empty" space char's created by format parameters like `width`, `padding`, `prettyPrint`.
+ * {`"left"`, `"center"`, "`right`""}. (2)
+ * @param decimals decimal precision: if `key` result contains number with decimals, then `decimals` number of decimals will be rounded to.
+ * @param width minimum number of characters to be filled in the exported string. If `key` value converted to string takes up less number of char's than `width`, then the remaining space
+ * will be filled with char given in `emptySpace` argument in accordance with `align`, `padding`, `padding` and `prettyPrint`(3)
+ * @param padding number of `emptySpace` characters to add on both start and end of `width` defined string (4).
+ * @param prettyPrint modes to print non-simple data types like `std::vector`'s: (5)
+ * @param emptySpace character to fill the "empty" space in accordance with string format parameter arguments
+ * @return `std::string` of the exported string
+ * @note (1)
+ * @note (2)
+ * @note (3)
+ * @note (4)
+ * @note (5)
+ */
+std::string diy_dict::str_export(
+    std::string key,
+    std::string codedInsert = "",
+    std::string align = "right",
+    int decimals = 2,
+    int width = -1,
+    int padding = 0,
+    int prettyPrint = 0,
+    char emptySpace = ' '
+) {
+    std::string finalStr = "";
+
+
+    return finalStr;
+}
+
+
+int diy_dict::get_type(std::string key) {
+    int pos = check_existence(key);
+    return datatype[pos];
+}
 
 
 int diy_dict::add(std::string key, bool value) {
@@ -230,9 +271,10 @@ int diy_dict::add(std::string key, std::vector<std::vector<std::string>>* ptr) {
 
 
 
+
 bool        diy_dict::get0_bool_  (std::string key) {
     std::vector<int> pos = DIY_SEARCH_MULTITHREAD::multithread_searchVec<std::string>(keys, key, -1, 100, false, 1);
-    if(pos[0]!=-1 && datatype[pos[0]]== 0) return values_0_bool.at(idx[pos[0]]);
+    if(pos[0]!=-1 && datatype[pos[0]]==  0) return values_0_bool.at(idx[pos[0]]);
     return NULL;
 }
 int         diy_dict::get0_int_   (std::string key) {
@@ -417,3 +459,4 @@ std::vector<std::vector<std::string>>* diy_dict::get2_stringP(std::string key) {
     if(pos[0]!=-1 && datatype[pos[0]]==251) return values_2_string_p.at(idx[pos[0]]);
     return nullptr;
 }
+
