@@ -20,6 +20,7 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <iomanip>
 
 #include <HC_useful/useful.hpp>
 #include <HC_useful/search_multithread.hpp>
@@ -36,10 +37,7 @@ class diy_dict {
         int  arg_searchVec_checkSpacing = 1;
         bool arg_searchVec_verbose      = false;
 
-
-        template<typename T> std::string str_export_v1_subFunc(std::vector<T> vec1_inp);
-        template<typename T> std::string str_export_v2_subFunc(std::vector<std::vector<T>> vec2_inp);
-
+        std::string bool_string(bool boolVar);
 
         template<typename T> using vec0 = std::vector<T>; //vector: `T` value
         template<typename T> using vec1 = std::vector<std::vector<T>>; //vector: vector of `T` value
@@ -51,6 +49,10 @@ class diy_dict {
 
         template<typename T> using pVec1 = std::vector<T>*; //pointer: vector of `T`
         template<typename T> using pVec2 = std::vector<std::vector<T>>*; //pointer: vector of vector of `T`
+
+
+        template<typename T> std::string str_export_v1_subFunc(vec0<T> vec1_inp, std::string align, int decimals, int padding, int prettyPrint);
+        template<typename T> std::string str_export_v2_subFunc(vec1<T> vec2_inp, std::string align, int decimals, int padding, int prettyPrint);
 
 
         vec0<bool>          values_0_bool;      //code: 0 0 0

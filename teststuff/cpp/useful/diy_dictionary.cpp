@@ -31,10 +31,18 @@ int diy_dict::extend_reg(std::string key, int varType) {
 }
 
 
-template<typename T> std::string diy_dict::str_export_v1_subFunc(std::vector<T> vec1_inp) {
+std::string diy_dict::bool_string(bool boolVar) {
+    if(boolVar) return "true";
+    return "false";
+}
+
+
+template<typename T>
+std::string diy_dict::str_export_v1_subFunc(vec0<T> vec1_inp, std::string align, int decimals, int padding, int prettyPrint) {
 
 }
-template<typename T> std::string diy_dict::str_export_v2_subFunc(std::vector<std::vector<T>> vec2_inp) {
+template<typename T>
+std::string diy_dict::str_export_v2_subFunc(vec1<T> vec2_inp, std::string align, int decimals, int padding, int prettyPrint) {
 
 }
 
@@ -45,7 +53,7 @@ template<typename T> std::string diy_dict::str_export_v2_subFunc(std::vector<std
  * @param key `std::string` identifier to stored value/pointer
  * @param codedInsert string to insert at `i` index, isolated by `$` symbol after: format `"i$text"`. ex:"5$test" will insert string `text` at pos `5` after export string creation.(1)
  * @param align where to align numbers or text relative to "empty" space char's created by format parameters `width`, `padding`, `prettyPrint`.
- * {`"left"`, `"center"`, "`right`""}. (2)
+ * {`"left"`, "`right`""}. (2)
  * @param decimals decimal precision: if `key` result contains number with decimals, then `decimals` number of decimals will be rounded to.
  * @param width minimum number of characters to be filled in the exported string.
  * If `key` value converted to string takes up less number of char's than `width`, then the remaining space
@@ -87,10 +95,6 @@ std::string diy_dict::str_export(
     bool isPtr = type % 10;
     float type_deriv2 = 0;
     
-    static auto boolLambda = [](bool boolVar) {
-        if(boolVar) return std::string("true");
-        return std::string("true");
-    };
 
     if(type<100) {}
     else if(type<200) { type_deriv2 = static_cast<float>(type-100); vecType = 1; }
@@ -99,16 +103,53 @@ std::string diy_dict::str_export(
 
     switch (static_cast<int>(floor(type_deriv2/10))) {
     case 0: //bool
-        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + boolLambda(*values_0_bool_p[pos]) + std::string(padding,emptySpace);
-        if(vecType==0 && !isPtr) tempStr = std::string(padding,emptySpace) + boolLambda(values_0_bool[pos]) + std::string(padding,emptySpace);
-        
+        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + bool_string(*values_0_bool_p[pos]) + std::string(padding,emptySpace);
+        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + bool_string(values_0_bool[pos]) + std::string(padding,emptySpace);
+        if(vecType==1 && isPtr) tempStr = str_export_v1_subFunc<bool>(*values_1_bool_p[pos],align, decimals, padding, prettyPrint); 
+        if(vecType==1 && !isPtr)tempStr = str_export_v1_subFunc<bool>(values_1_bool[pos],   align, decimals, padding, prettyPrint);
+        if(vecType==2 && isPtr) tempStr = str_export_v2_subFunc<bool>(*values_2_bool_p[pos],align, decimals, padding, prettyPrint);
+        if(vecType==2 && !isPtr)tempStr = str_export_v2_subFunc<bool>(values_2_bool[pos],   align, decimals, padding, prettyPrint);
         break;
     case 1: //int
-
+        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + formatNumber<int>(*values_0_int_p[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + formatNumber<int>(values_0_int[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==1 && isPtr) tempStr = str_export_v1_subFunc<int>(*values_1_int_p[pos],  align, decimals, padding, prettyPrint); 
+        if(vecType==1 && !isPtr)tempStr = str_export_v1_subFunc<int>(values_1_int[pos],     align, decimals, padding, prettyPrint);
+        if(vecType==2 && isPtr) tempStr = str_export_v2_subFunc<int>(*values_2_int_p[pos],  align, decimals, padding, prettyPrint);
+        if(vecType==2 && !isPtr)tempStr = str_export_v2_subFunc<int>(values_2_int[pos],     align, decimals, padding, prettyPrint);
+        break;
     case 2: //float
+        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + formatNumber<float>(*values_0_float_p[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + formatNumber<float>(values_0_float[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==1 && isPtr) tempStr = str_export_v1_subFunc<float>(*values_1_float_p[pos],  align, decimals, padding, prettyPrint); 
+        if(vecType==1 && !isPtr)tempStr = str_export_v1_subFunc<float>(values_1_float[pos],     align, decimals, padding, prettyPrint);
+        if(vecType==2 && isPtr) tempStr = str_export_v2_subFunc<float>(*values_2_float_p[pos],  align, decimals, padding, prettyPrint);
+        if(vecType==2 && !isPtr)tempStr = str_export_v2_subFunc<float>(values_2_float[pos],     align, decimals, padding, prettyPrint);
+        break;
     case 3: //double
+        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + formatNumber<double>(*values_0_double_p[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + formatNumber<double>(values_0_double[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==1 && isPtr) tempStr = str_export_v1_subFunc<double>(*values_1_double_p[pos],align, decimals, padding, prettyPrint); 
+        if(vecType==1 && !isPtr)tempStr = str_export_v1_subFunc<double>(values_1_double[pos],   align, decimals, padding, prettyPrint);
+        if(vecType==2 && isPtr) tempStr = str_export_v2_subFunc<double>(*values_2_double_p[pos],align, decimals, padding, prettyPrint);
+        if(vecType==2 && !isPtr)tempStr = str_export_v2_subFunc<double>(values_2_double[pos],   align, decimals, padding, prettyPrint);
+        break;
     case 4: //char
+        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + formatNumber<char>(*values_0_char_p[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + formatNumber<char>(values_0_char[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==1 && isPtr) tempStr = str_export_v1_subFunc<char>(*values_1_char_p[pos],align, decimals, padding, prettyPrint); 
+        if(vecType==1 && !isPtr)tempStr = str_export_v1_subFunc<char>(values_1_char[pos],   align, decimals, padding, prettyPrint);
+        if(vecType==2 && isPtr) tempStr = str_export_v2_subFunc<char>(*values_2_char_p[pos],align, decimals, padding, prettyPrint);
+        if(vecType==2 && !isPtr)tempStr = str_export_v2_subFunc<char>(values_2_char[pos],   align, decimals, padding, prettyPrint);
+        break;
     case 5: //std::string
+        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + formatNumber<std::string>(*values_0_string_p[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + formatNumber<std::string>(values_0_string[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==1 && isPtr) tempStr = str_export_v1_subFunc<std::string>(*values_1_string_p[pos],align, decimals, padding, prettyPrint); 
+        if(vecType==1 && !isPtr)tempStr = str_export_v1_subFunc<std::string>(values_1_string[pos],   align, decimals, padding, prettyPrint);
+        if(vecType==2 && isPtr) tempStr = str_export_v2_subFunc<std::string>(*values_2_string_p[pos],align, decimals, padding, prettyPrint);
+        if(vecType==2 && !isPtr)tempStr = str_export_v2_subFunc<std::string>(values_2_string[pos],   align, decimals, padding, prettyPrint);
+        break;
     default:
         break;
     }
@@ -117,7 +158,9 @@ std::string diy_dict::str_export(
     return finalStr;
 }
 
-
+/// @brief get the datatype code of `key` defined by `diy_dict::info_type_definition`
+/// @param key to find the stored datatype code of
+/// @return datatype code that's found. If `key` doesnt exist then it'll return `-1`
 int diy_dict::get_type(std::string key) {
     int pos = check_existence(key);
     return datatype[pos];
