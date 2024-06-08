@@ -21,6 +21,7 @@
 #include <string>
 #include <memory>
 #include <iomanip>
+#include <stdexcept>
 
 #include <HC_useful/useful.hpp>
 #include <HC_useful/search_multithread.hpp>
@@ -49,10 +50,6 @@ class diy_dict {
 
         template<typename T> using pVec1 = std::vector<T>*; //pointer: vector of `T`
         template<typename T> using pVec2 = std::vector<std::vector<T>>*; //pointer: vector of vector of `T`
-
-
-        template<typename T> std::string str_export_v1_subFunc(vec0<T> vec1_inp, std::string align, int decimals, int padding, int prettyPrint);
-        template<typename T> std::string str_export_v2_subFunc(vec1<T> vec2_inp, std::string align, int decimals, int padding, int prettyPrint);
 
 
         vec0<bool>          values_0_bool;      //code: 0 0 0
@@ -159,6 +156,10 @@ class diy_dict {
 
         template<class T>
         std::string formatNumber(T value, int strWidth, int varPrecision, std::string align="right");
+
+        template<typename T> std::string prettyPrint_vec1(vec0<T> vec1_inp, std::string align, int decimals, int width, int padding, int prettyPrint, int left_indent);
+        template<typename T> std::string prettyPrint_vec2(vec1<T> vec2_inp, std::string align, int decimals, int width, int padding, int prettyPrint, int left_indent);
+
 
         std::string str_export(
             std::string key,
