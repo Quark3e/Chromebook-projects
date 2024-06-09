@@ -132,6 +132,11 @@ class diy_dict {
 
         int extend_reg(std::string key, int varType);
 
+        template<typename V, typename T>void type_extend(V vecToExtend, T addValue) {
+            vecToExtend.push_back(addValue);
+            idx.push_back(vecToExtend.size()-1);
+        }
+
     public:
         int check_existence(std::string key, int verbose);
 
@@ -154,15 +159,50 @@ class diy_dict {
         diy_dict(/* args */);
         ~diy_dict();
 
-        /// @brief Convert decimal number to std::string with set decimal numbers and minimum total width
-        /// @tparam T 
-        /// @param value decimal number to convert
-        /// @param strWidth minimum width for the string
-        /// @param varPrecision decimal precision
-        /// @param align whether to align value with left or right side: {`"left"`, `"right"`},
-        /// @return returns formatted string
-        template<class T>
-        std::string dict_formatNumber(T value, int strWidth, int varPrecision, std::string align="right") {
+        template<typename T>
+        int get_template_type(T toCheck) {
+            if      (std::is_same<T, bool>::value)      return 0;
+            else if (std::is_same<T, int>::value)       return 10;
+            else if (std::is_same<T, float>::value)     return 20;
+            else if (std::is_same<T, double>::value)    return 30;
+            else if (std::is_same<T, char>::value)      return 40;
+            else if (std::is_same<T, std::string>::value) return 50;
+            else if (std::is_same<T, bool*>::value)      return 1;
+            else if (std::is_same<T, int*>::value)       return 11;
+            else if (std::is_same<T, float*>::value)     return 21;
+            else if (std::is_same<T, double*>::value)    return 31;
+            else if (std::is_same<T, char*>::value)      return 41;
+            else if (std::is_same<T, std::string*>::value) return 51;
+            else if (std::is_same<T, vec0<bool>>::value)      return 100;
+            else if (std::is_same<T, vec0<int>>::value)       return 110;
+            else if (std::is_same<T, vec0<float>>::value)     return 120;
+            else if (std::is_same<T, vec0<double>>::value)    return 130;
+            else if (std::is_same<T, vec0<char>>::value)      return 140;
+            else if (std::is_same<T, vec0<std::string>>::value) return 150;
+            else if (std::is_same<T, pVec1<bool>*>::value)      return 101;
+            else if (std::is_same<T, pVec1<int>*>::value)       return 111;
+            else if (std::is_same<T, pVec1<float>*>::value)     return 121;
+            else if (std::is_same<T, pVec1<double>*>::value)    return 131;
+            else if (std::is_same<T, pVec1<char>*>::value)      return 141;
+            else if (std::is_same<T, pVec1<std::string>*>::value) return 151;
+            else if (std::is_same<T, vec1<bool>>::value)      return 200;
+            else if (std::is_same<T, vec1<int>>::value)       return 210;
+            else if (std::is_same<T, vec1<float>>::value)     return 220;
+            else if (std::is_same<T, vec1<double>>::value)    return 230;
+            else if (std::is_same<T, vec1<char>>::value)      return 240;
+            else if (std::is_same<T, vec1<std::string>>::value) return 250;
+            else if (std::is_same<T, pVec2<bool>*>::value)      return 201;
+            else if (std::is_same<T, pVec2<int>*>::value)       return 211;
+            else if (std::is_same<T, pVec2<float>*>::value)     return 221;
+            else if (std::is_same<T, pVec2<double>*>::value)    return 231;
+            else if (std::is_same<T, pVec2<char>*>::value)      return 241;
+            else if (std::is_same<T, pVec2<std::string>*>::value) return 251;
+
+            return -1;
+        }
+
+        template<typename T>
+        std::string dict_formatNumber(T value, int strWidth, int varPrecision, std::string align) {
             std::stringstream outStream;
             outStream << std::fixed;
             if(align=="left") outStream<<std::left;
@@ -170,8 +210,6 @@ class diy_dict {
             outStream << std::setw(strWidth) << std::setprecision(varPrecision) << value;
             return outStream.str();
         }
-
-
 
         template<typename T>
         std::string prettyPrint_vec1(vec0<T> vec1_inp, std::string align, int decimals, int width, int padding, int prettyPrint, int left_indent) {
@@ -211,19 +249,20 @@ class diy_dict {
             resultString += "}"+std::string(padding, ' ');
             return resultString;
         }
-
+        
         std::string str_export(
             std::string key,
-            std::string codedInsert,
-            std::string align,
-            int decimals,
-            int width,
-            int padding,
-            int prettyPrint,
-            char emptySpace,
-            int left_indent
+            std::string codedInsert = "",
+            std::string align = "right",
+            int decimals = 2,
+            int width = -1,
+            int padding = 0,
+            int prettyPrint = 0,
+            char emptySpace = ' ',
+            int left_indent = 4
         );
         int get_type(std::string key);
+
 
         int add(std::string key, bool value);
         int add(std::string key, int value);
@@ -270,6 +309,50 @@ class diy_dict {
         int add(std::string key, std::vector<std::vector<std::string>>* ptr);
 
 
+        int edit(std::string key, bool value);
+        int edit(std::string key, int value);
+        int edit(std::string key, float value);
+        int edit(std::string key, double value);
+        int edit(std::string key, char value);
+        int edit(std::string key, std::string value);
+
+        int edit(std::string key, bool* ptr);
+        int edit(std::string key, int* ptr);
+        int edit(std::string key, float* ptr);
+        int edit(std::string key, double* ptr);
+        int edit(std::string key, char* ptr);
+        int edit(std::string key, std::string* ptr);
+
+
+        int edit(std::string key, std::vector<bool> value);
+        int edit(std::string key, std::vector<int> value);
+        int edit(std::string key, std::vector<float> value);
+        int edit(std::string key, std::vector<double> value);
+        int edit(std::string key, std::vector<char> value);
+        int edit(std::string key, std::vector<std::string> value);
+
+        int edit(std::string key, std::vector<bool>* ptr);
+        int edit(std::string key, std::vector<int>* ptr);
+        int edit(std::string key, std::vector<float>* ptr);
+        int edit(std::string key, std::vector<double>* ptr);
+        int edit(std::string key, std::vector<char>* ptr);
+        int edit(std::string key, std::vector<std::string>* ptr);
+
+
+        int edit(std::string key, std::vector<std::vector<bool>> value);
+        int edit(std::string key, std::vector<std::vector<int>> value);
+        int edit(std::string key, std::vector<std::vector<float>> value);
+        int edit(std::string key, std::vector<std::vector<double>> value);
+        int edit(std::string key, std::vector<std::vector<char>> value);
+        int edit(std::string key, std::vector<std::vector<std::string>> value);
+
+        int edit(std::string key, std::vector<std::vector<bool>>* ptr);
+        int edit(std::string key, std::vector<std::vector<int>>* ptr);
+        int edit(std::string key, std::vector<std::vector<float>>* ptr);
+        int edit(std::string key, std::vector<std::vector<double>>* ptr);
+        int edit(std::string key, std::vector<std::vector<char>>* ptr);
+        int edit(std::string key, std::vector<std::vector<std::string>>* ptr);
+
                 
         bool        get0_bool_  (std::string key);
         int         get0_int_   (std::string key);
@@ -314,6 +397,9 @@ class diy_dict {
         std::vector<std::vector<double>>*      get2_doubleP(std::string key);
         std::vector<std::vector<char>>*        get2_charP  (std::string key);
         std::vector<std::vector<std::string>>* get2_stringP(std::string key);
+
+
+
 };
 
 #endif

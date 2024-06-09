@@ -57,6 +57,9 @@ int main(int argc, char** argv) {
     
     addToVec<int>(testVec, "int var", 69);
     addToVec<std::string>(testVec, "str var", "cool");
+    for(auto elem: testVec) {
+        elem->getData();
+    }
     // testVec.push_back(std::make_shared<TypedProperty<int>>("int var", 69));
     // testVec.push_back(std::make_shared<TypedProperty<std::string>>("int var", "cool"));
 

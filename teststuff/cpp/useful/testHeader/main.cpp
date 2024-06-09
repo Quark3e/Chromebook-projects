@@ -52,65 +52,37 @@ int main(int argc, char** argv) {
 
     cout << "program called:-----------"<<endl;
 
-    // std::cout<<"hello world"<<std::endl;
-
-    // int termSize[2] = {0, 0};
-    // getTermSize(termSize[0], termSize[1]);
-
-
-    // terminalMenu.addOpt("0:0", 0, 0, -1, func1);
-    // terminalMenu.addOpt("0:1", 0, 1, -1, func1);
-    // terminalMenu.addOpt("0:2", 0, 2, -1, func1);
-
-    // terminalMenu.addOpt("input", 0, 3, 'i', funcInp);
-
-
-    // terminalMenu.setDisplayDim(3, 3, 5, 5, -1);
-
-
-
-    // const int* returPos;
-    // bool loopExit = false;
-    // if(terminalMenu.addOpt("exit", 0, 5, 27, bool_true, &terminalMenu.exitDriver)==1) {
-    //     cerr<<"ERROR STUFF";
-    //     return 1;
-    // }
-
-    // while(true) {
-    //     returPos = terminalMenu.driver(15, 5, 0, false, printInp,false);
-    //     if(returPos[0]==0 && returPos[1]==5) {
-    //         endwin();
-    //         break;
-    //     }
-    //     else if(returPos[1]==2) printInp();
-    // }
 
     diy_dict dictObj;
 
     std::vector<std::string> testVec{"one", "two", "three", "two", "five", "two", "two"};
     std::string toFind = "";
 
-    cout << "check 0"<<endl;
 
     dictObj.add("str vecPtr 0", &testVec);
-    cout << "check 0.5"<<endl;
-    dictObj.add("str var 0", &toFind);
+    dictObj.add("toFind 0", &toFind);
 
-    cout << "check 1"<<endl;
+    dictObj.get1_stringP("str vecPtr 0")->at(0) = "amogus";
+    dictObj.get1_stringP("str vecPtr 0")->at(2) = "pepega";
+    dictObj.get1_stringP("str vecPtr 0")->at(4) = "amogus";
 
-    // cout << dictObj.get1_stringP("str vecPtr 0")->at(0)<<endl;
-    cout << "check 1.5"<<endl;
-    (*dictObj.get0_stringP("str var 0")) = "amogus";
-    cout << "check 2"<<endl;
+    (*dictObj.get0_stringP("toFind 0")) = "pepega";
+
+    if(dictObj.add("toFind 1", std::string("pepega"))==1) return 1;
+
+    dictObj.edit("toFind 1", std::string("kekw"));
+
+    testVec[5] = "kekw";
 
     std::vector<int> foundIdx = DIY_SEARCH_MULTITHREAD::multithread_searchVec<std::string>(
-        testVec, toFind, -1, 6, false, 1, true
+        *dictObj.get1_stringP("str vecPtr 0"), dictObj.get0_string_("toFind 1"), -1, 6, true, 1, true
     );
     
-    std::cout << std::endl;
-    if(foundIdx.at(0)==-1) cout << "toFind not found." << endl;
+    
+    std::string outStr = dictObj.str_export("toFind 1");
+    if(foundIdx.at(0)==-1) cout << "toFind value \""<<outStr<<"\" not found." << endl;
     else {
-        cout << "Indices found. Found \""<<toFind<<"\" at:\n";
+        cout << "Indices found. Found \""<<outStr<<"\" at:\n";
         for(size_t i=0; i<foundIdx.size(); i++) {
             cout << " > [" << foundIdx.at(i) << "]\n";
         }
