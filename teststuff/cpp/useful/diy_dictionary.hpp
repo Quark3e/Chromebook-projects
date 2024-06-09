@@ -23,7 +23,7 @@
 #include <iomanip>
 #include <stdexcept>
 
-#include <HC_useful/useful.hpp>
+// #include <HC_useful/useful.hpp>
 #include <HC_useful/search_multithread.hpp>
 
 
@@ -133,7 +133,7 @@ class diy_dict {
         int extend_reg(std::string key, int varType);
 
     public:
-        int check_existence(std::string key, int verbose=-1);
+        int check_existence(std::string key, int verbose);
 
         const std::string info_type_definition = (" \
         (function is purely for the sake of being able to see this definiton as the code writer via intellisense popup)\n \
@@ -154,12 +154,63 @@ class diy_dict {
         diy_dict(/* args */);
         ~diy_dict();
 
+        /// @brief Convert decimal number to std::string with set decimal numbers and minimum total width
+        /// @tparam T 
+        /// @param value decimal number to convert
+        /// @param strWidth minimum width for the string
+        /// @param varPrecision decimal precision
+        /// @param align whether to align value with left or right side: {`"left"`, `"right"`},
+        /// @return returns formatted string
         template<class T>
-        std::string formatNumber(T value, int strWidth, int varPrecision, std::string align="right");
+        std::string dict_formatNumber(T value, int strWidth, int varPrecision, std::string align="right") {
+            std::stringstream outStream;
+            outStream << std::fixed;
+            if(align=="left") outStream<<std::left;
+            else if(align=="right") outStream<<std::right;
+            outStream << std::setw(strWidth) << std::setprecision(varPrecision) << value;
+            return outStream.str();
+        }
 
-        template<typename T> std::string prettyPrint_vec1(vec0<T> vec1_inp, std::string align, int decimals, int width, int padding, int prettyPrint, int left_indent);
-        template<typename T> std::string prettyPrint_vec2(vec1<T> vec2_inp, std::string align, int decimals, int width, int padding, int prettyPrint, int left_indent);
 
+
+        template<typename T>
+        std::string prettyPrint_vec1(vec0<T> vec1_inp, std::string align, int decimals, int width, int padding, int prettyPrint, int left_indent) {
+            std::string resultString = std::string(padding, ' ')+"{";
+            
+            for(T elem: vec1_inp) {
+                if(prettyPrint==1 || prettyPrint==2) resultString += "\n"+std::string(left_indent, ' ');
+                resultString += dict_formatNumber<T>(elem, width, decimals, align)+",";
+            }
+            if(prettyPrint==1 || prettyPrint==2) resultString += "\n";
+            resultString += "}"+std::string(padding, ' ');
+
+            return resultString;
+        }
+
+        template<typename T>
+        std::string prettyPrint_vec2(vec1<T> vec2_inp, std::string align, int decimals, int width, int padding, int prettyPrint, int left_indent) {
+            std::string resultString = std::string(padding, ' ')+"{";
+
+            bool loopInit0=false, loopInit1=false;
+            for(vec0<T> vecs: vec2_inp) {
+                if(loopInit1) resultString += ",";
+                else { loopInit1=true; }
+                if(prettyPrint==1 || prettyPrint==2) resultString += "\n"+std::string(left_indent, ' ');
+                resultString += "{";
+                loopInit0 = false;
+                for(T elem: vecs) {
+                    if(loopInit0) resultString += ",";
+                    else {loopInit0 = true;}
+                    if(prettyPrint==1) resultString += "\n"+std::string(left_indent*2, ' ');
+                    resultString += dict_formatNumber<T>(elem, width, decimals, align);
+                }
+                if(prettyPrint==1) resultString += "\n"+std::string(left_indent, ' ');
+                resultString += "}";
+            }
+            if(prettyPrint==1 || prettyPrint==2) resultString += "\n";
+            resultString += "}"+std::string(padding, ' ');
+            return resultString;
+        }
 
         std::string str_export(
             std::string key,
@@ -264,53 +315,5 @@ class diy_dict {
         std::vector<std::vector<char>>*        get2_charP  (std::string key);
         std::vector<std::vector<std::string>>* get2_stringP(std::string key);
 };
-
-diy_dict::diy_dict(/* args */) {
-
-}
-
-diy_dict::~diy_dict() {}
-
-
-
-// /// @brief add a new key and value pair
-// /// @param key `std::string` of key
-// /// @param value `bool` value to set to that key
-// /// @return `0` if successfully added; `1` if an error occured.
-// int diy_dict::add(std::string key, bool value) {
-//     int pos = findVectorIndex(keys, key);
-//     if(pos != -1) {
-//         std::cerr << "diy_dict::add() ERROR: Key already exist" << std::endl;;
-//         return 1;
-//     }
-//     keys.push_back(key);
-//     values.push_back(value);
-//     return 0;
-// }
-// /// @brief set the value of a key
-// /// @param key `std::string` of key
-// /// @param value `bool` value to set to that key
-// /// @return `0` if successfully added; `1` if an error occured.
-// int diy_dict::set(std::string key, bool value) {
-//     int pos = findVectorIndex(keys, key);
-//     if(pos == -1) {
-//         std::cerr << "diy_dict::set() ERROR: Key doesn't exist" << std::endl;
-//         return 1;
-//     }
-//     values.at(pos) = value;
-//     return 0;
-// }
-// /// @brief get the value of a key
-// /// @param key `std::string` of the key to find the value of
-// /// @return the value of said key; if key doesn't exist then it'll return `NULL`
-// bool get(std::string key) {
-//     int pos = findVectorIndex(keys, key);
-//     if(pos == -1) {
-//         std::cerr << "get() ERROR: Key doesn't exist" << std::endl;
-//         std::cout << "get() ERROR: Key doesn't exist: returned value is incorrect" << std::endl;
-//         return NULL;
-//     }
-//     return values.at(pos);
-// }
 
 #endif

@@ -16,17 +16,17 @@
 namespace DIY_SEARCH_MULTITHREAD
 {
     /// @brief maximum number of threads allowed to be spawned for `multithread_searchVec` given by 'std::thread::hardware_concurrency 
-    unsigned int maxThreads = 0;
+    inline unsigned int maxThreads = 0;
     
     /// @brief mutex for inter-thread communication
-    std::mutex intercom;
+    inline std::mutex intercom;
 
-    std::atomic<bool> idxFound(false);
+    inline std::atomic<bool> idxFound(false);
 
-    std::vector<std::vector<int>> return_idx;
+    inline std::vector<std::vector<int>> return_idx;
     
     template<class T>
-    void threadFunc(
+    inline void threadFunc(
         std::vector<T>& vec,
         T toFind,
         int id,
@@ -79,7 +79,7 @@ namespace DIY_SEARCH_MULTITHREAD
      * @note - [10, 10] -> threadCount = "num of threads where each threads search length < `threadLen`, capped at `numThreads`, assuming that's < `maxThreads`""
      */
     template<class T>
-    std::vector<int> multithread_searchVec(
+    inline std::vector<int> multithread_searchVec(
         std::vector<T> vec,
         T toFind,
         int numThreads = -1,

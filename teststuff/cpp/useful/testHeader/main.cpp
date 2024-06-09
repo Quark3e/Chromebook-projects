@@ -3,10 +3,10 @@
 #include <string>
 #include <vector>
 
-#include <HC_useful/useful.hpp>
-// #include <HC_useful/diy_dictionary.hpp>
+// #include <HC_useful/useful.hpp>
+#include <HC_useful/diy_dictionary.hpp>
 // #include "../terminalMenu.hpp"
-#include "../search_multithread.hpp"
+#include <HC_useful/search_multithread.hpp>
 
 using namespace std;
 
@@ -43,12 +43,14 @@ bool newStr = false;
 
 void printInp() {
     if(newStr) {
-        ANSI_mvprint(10, 20, globStr);
+        // ANSI_mvprint(10, 20, globStr);
         newStr = false;
     }
 }
 
 int main(int argc, char** argv) {
+
+    cout << "program called:-----------"<<endl;
 
     // std::cout<<"hello world"<<std::endl;
 
@@ -83,9 +85,23 @@ int main(int argc, char** argv) {
     //     else if(returPos[1]==2) printInp();
     // }
 
+    diy_dict dictObj;
 
     std::vector<std::string> testVec{"one", "two", "three", "two", "five", "two", "two"};
-    std::string toFind = "two";
+    std::string toFind = "";
+
+    cout << "check 0"<<endl;
+
+    dictObj.add("str vecPtr 0", &testVec);
+    cout << "check 0.5"<<endl;
+    dictObj.add("str var 0", &toFind);
+
+    cout << "check 1"<<endl;
+
+    // cout << dictObj.get1_stringP("str vecPtr 0")->at(0)<<endl;
+    cout << "check 1.5"<<endl;
+    (*dictObj.get0_stringP("str var 0")) = "amogus";
+    cout << "check 2"<<endl;
 
     std::vector<int> foundIdx = DIY_SEARCH_MULTITHREAD::multithread_searchVec<std::string>(
         testVec, toFind, -1, 6, false, 1, true
@@ -94,7 +110,7 @@ int main(int argc, char** argv) {
     std::cout << std::endl;
     if(foundIdx.at(0)==-1) cout << "toFind not found." << endl;
     else {
-        cout << "Indices found. Found at:\n";
+        cout << "Indices found. Found \""<<toFind<<"\" at:\n";
         for(size_t i=0; i<foundIdx.size(); i++) {
             cout << " > [" << foundIdx.at(i) << "]\n";
         }

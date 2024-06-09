@@ -1,6 +1,14 @@
 
 #include "diy_dictionary.hpp"
-#include <HC_useful/useful.hpp>
+
+
+diy_dict::diy_dict(/* args */) {
+
+}
+
+diy_dict::~diy_dict() {}
+
+
 
 /**
  * @brief common function to check if a `key` exists in `diy_dict::keys` vector/container
@@ -37,45 +45,6 @@ std::string diy_dict::bool_string(bool boolVar) {
 }
 
 
-template<typename T>
-std::string diy_dict::prettyPrint_vec1(vec0<T> vec1_inp, std::string align, int decimals, int width, int padding, int prettyPrint, int left_indent) {
-    std::string resultString = std::string(padding, ' ')+"{";
-    
-    for(T elem: vec1_inp) {
-        if(prettyPrint==1 || prettyPrint==2) resultString += "\n"+std::string(left_indent, ' ');
-        resultString += formatNumber<T>(elem, width, decimals, align)+",";
-    }
-    if(prettyPrint==1 || prettyPrint==2) resultString += "\n";
-    resultString += "}"+std::string(padding, ' ');
-
-    return resultString;
-}
-
-template<typename T>
-std::string diy_dict::prettyPrint_vec2(vec1<T> vec2_inp, std::string align, int decimals, int width, int padding, int prettyPrint, int left_indent) {
-    std::string resultString = std::string(padding, ' ')+"{";
-
-    bool loopInit0=false, loopInit1=false;
-    for(vec0<T> vecs: vec2_inp) {
-    	if(loopInit1) resultString += ",";
-        else { loopInit1=true; }
-        if(prettyPrint==1 || prettyPrint==2) resultString += "\n"+std::string(left_indent, ' ');
-        resultString += "{";
-        loopInit0 = false;
-        for(T elem: vecs) {
-        	if(loopInit0) resultString += ",";
-            else {loopInit0 = true;}
-            if(prettyPrint==1) resultString += "\n"+std::string(left_indent*2, ' ');
-            resultString += formatNumber<T>(elem, width, decimals, align);
-        }
-        if(prettyPrint==1) resultString += "\n"+std::string(left_indent, ' ');
-        resultString += "}";
-    }
-    if(prettyPrint==1 || prettyPrint==2) resultString += "\n";
-    resultString += "}"+std::string(padding, ' ');
-    return resultString;
-}
-
 
 /**
  * @brief Export the value of the stored value or pointer as a string
@@ -97,11 +66,10 @@ std::string diy_dict::prettyPrint_vec2(vec1<T> vec2_inp, std::string align, int 
  * @param emptySpace character to fill the "empty" space in accordance with string format parameter arguments
  * @param left_indent if formatted string of `std::vector` takes up multiple lines('\n') then a left indent / tab will be added with `left_indent` number of `emptySpace` chars for each element
  * @return `std::string` of the exported string
- * 
- * @note (1) if created string take up multiple lines or `left_indent` then the inserted index `i` will include `left_indent`/`\n` characters along with `padding` and `width`.
- * @note (2) if value is a `std::vector` then only the elements will be aligned and not the curly braces.
- * @note (3) if value is a `std::vector` then `width` will be applied to the elements and not the curly braces
- * @note (4) if value is a `std::vector` then `padding` will be outside the curly braces and not the elements, same goes for if `prettyPrint` is set to include new-lines, 
+ * @note - (1) if created string take up multiple lines or `left_indent` then the inserted index `i` will include `left_indent`/`\n` characters along with `padding` and `width`.
+ * @note - (2) if value is a `std::vector` then only the elements will be aligned and not the curly braces.
+ * @note - (3) if value is a `std::vector` then `width` will be applied to the elements and not the curly braces
+ * @note - (4) if value is a `std::vector` then `padding` will be outside the curly braces and not the elements, same goes for if `prettyPrint` is set to include new-lines, 
  * just now it'll apply to each `container element` if container is multidimensional
  */
 std::string diy_dict::str_export(
@@ -152,40 +120,40 @@ std::string diy_dict::str_export(
         if(vecType==2 && !isPtr)tempStr = prettyPrint_vec2<bool>(values_2_bool[pos],   align, decimals, width, padding, prettyPrint, left_indent);
         break;
     case 1: //int
-        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + formatNumber<int>(*values_0_int_p[pos],width,decimals,align) + std::string(padding,emptySpace);
-        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + formatNumber<int>(values_0_int[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + dict_formatNumber<int>(*values_0_int_p[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + dict_formatNumber<int>(values_0_int[pos],width,decimals,align) + std::string(padding,emptySpace);
         if(vecType==1 && isPtr) tempStr = prettyPrint_vec1<int>(*values_1_int_p[pos],  align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==1 && !isPtr)tempStr = prettyPrint_vec1<int>(values_1_int[pos],     align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && isPtr) tempStr = prettyPrint_vec2<int>(*values_2_int_p[pos],  align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && !isPtr)tempStr = prettyPrint_vec2<int>(values_2_int[pos],     align, decimals, width, padding, prettyPrint, left_indent);
         break;
     case 2: //float
-        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + formatNumber<float>(*values_0_float_p[pos],width,decimals,align) + std::string(padding,emptySpace);
-        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + formatNumber<float>(values_0_float[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + dict_formatNumber<float>(*values_0_float_p[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + dict_formatNumber<float>(values_0_float[pos],width,decimals,align) + std::string(padding,emptySpace);
         if(vecType==1 && isPtr) tempStr = prettyPrint_vec1<float>(*values_1_float_p[pos],  align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==1 && !isPtr)tempStr = prettyPrint_vec1<float>(values_1_float[pos],     align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && isPtr) tempStr = prettyPrint_vec2<float>(*values_2_float_p[pos],  align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && !isPtr)tempStr = prettyPrint_vec2<float>(values_2_float[pos],     align, decimals, width, padding, prettyPrint, left_indent);
         break;
     case 3: //double
-        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + formatNumber<double>(*values_0_double_p[pos],width,decimals,align) + std::string(padding,emptySpace);
-        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + formatNumber<double>(values_0_double[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + dict_formatNumber<double>(*values_0_double_p[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + dict_formatNumber<double>(values_0_double[pos],width,decimals,align) + std::string(padding,emptySpace);
         if(vecType==1 && isPtr) tempStr = prettyPrint_vec1<double>(*values_1_double_p[pos],align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==1 && !isPtr)tempStr = prettyPrint_vec1<double>(values_1_double[pos],   align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && isPtr) tempStr = prettyPrint_vec2<double>(*values_2_double_p[pos],align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && !isPtr)tempStr = prettyPrint_vec2<double>(values_2_double[pos],   align, decimals, width, padding, prettyPrint, left_indent);
         break;
     case 4: //char
-        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + formatNumber<char>(*values_0_char_p[pos],width,decimals,align) + std::string(padding,emptySpace);
-        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + formatNumber<char>(values_0_char[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + dict_formatNumber<char>(*values_0_char_p[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + dict_formatNumber<char>(values_0_char[pos],width,decimals,align) + std::string(padding,emptySpace);
         if(vecType==1 && isPtr) tempStr = prettyPrint_vec1<char>(*values_1_char_p[pos],align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==1 && !isPtr)tempStr = prettyPrint_vec1<char>(values_1_char[pos],   align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && isPtr) tempStr = prettyPrint_vec2<char>(*values_2_char_p[pos],align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && !isPtr)tempStr = prettyPrint_vec2<char>(values_2_char[pos],   align, decimals, width, padding, prettyPrint, left_indent);
         break;
     case 5: //std::string
-        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + formatNumber<std::string>(*values_0_string_p[pos],width,decimals,align) + std::string(padding,emptySpace);
-        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + formatNumber<std::string>(values_0_string[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + dict_formatNumber<std::string>(*values_0_string_p[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + dict_formatNumber<std::string>(values_0_string[pos],width,decimals,align) + std::string(padding,emptySpace);
         if(vecType==1 && isPtr) tempStr = prettyPrint_vec1<std::string>(*values_1_string_p[pos],align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==1 && !isPtr)tempStr = prettyPrint_vec1<std::string>(values_1_string[pos],   align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && isPtr) tempStr = prettyPrint_vec2<std::string>(*values_2_string_p[pos],align, decimals, width, padding, prettyPrint, left_indent);
@@ -197,7 +165,7 @@ std::string diy_dict::str_export(
     
     if(insertIdx!=-1) finalStr = tempStr.substr(0,insertIdx)+codedInsert+tempStr.substr(insertIdx);
 
-    
+
     return finalStr;
 }
 
@@ -625,25 +593,3 @@ std::vector<std::vector<std::string>>* diy_dict::get2_stringP(std::string key) {
     return nullptr;
 }
 
-
-/// @brief Convert decimal number to std::string with set decimal numbers and minimum total width
-/// @tparam T 
-/// @param value decimal number to convert
-/// @param strWidth minimum width for the string
-/// @param varPrecision decimal precision
-/// @param align whether to align value with left or right side: {`"left"`, `"right"`},
-/// @return returns formatted string
-template<class T>
-std::string diy_dict::formatNumber(
-    T value,
-    int strWidth,
-    int varPrecision,
-    std::string align="right"
-) {
-    std::stringstream outStream;
-    outStream << std::fixed;
-    if(align=="left") outStream<<std::left;
-    else if(align=="right") outStream<<std::right;
-    outStream << std::setw(strWidth) << std::setprecision(varPrecision) << value;
-    return outStream.str();
-}
