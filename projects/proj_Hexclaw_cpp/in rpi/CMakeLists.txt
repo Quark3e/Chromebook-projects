@@ -23,6 +23,7 @@ include_directories(/usr/local/include/imgui/)
 add_executable(
     Hexclaw_Main
     main.cpp
+    /usr/local/include/HC_useful/diy_dictionary.cpp
     /usr/local/include/imgui/backends/imgui_impl_allegro5.cpp
     /usr/local/include/imgui/imgui_demo.cpp
     /usr/local/include/imgui/imgui_draw.cpp

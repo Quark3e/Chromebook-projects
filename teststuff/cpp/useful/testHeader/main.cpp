@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-// #include <HC_useful/useful.hpp>
+#include <HC_useful/useful.hpp>
 #include <HC_useful/diy_dictionary.hpp>
 // #include "../terminalMenu.hpp"
 #include <HC_useful/search_multithread.hpp>

@@ -67,6 +67,8 @@
 
 #include <HC_useful/getPerformance.hpp>
 
+#include <HC_useful/diy_dictionary.hpp>
+
 #include "../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp"
 #include "../../../teststuff/cpp/opencv/recordVideo/recordFrames.hpp"
 // #include "../../../teststuff/cpp/basic/Performance/getPerformance.hpp"
