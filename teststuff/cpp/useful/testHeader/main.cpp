@@ -66,13 +66,22 @@ int main(int argc, char** argv) {
     dictObj.get1_stringP("str vecPtr 0")->at(2) = "pepega";
     dictObj.get1_stringP("str vecPtr 0")->at(4) = "amogus";
 
-    (*dictObj.get0_stringP("toFind 0")) = "pepega";
+
+    // (*dictObj.get0_stringP("toFind 0")) = "pepega";
+
+
 
     if(dictObj.add("toFind 1", std::string("pepega"))==1) return 1;
 
+
+    dictObj.delete_key("toFind 0");
+
+
     dictObj.edit("toFind 1", std::string("kekw"));
 
-    testVec[5] = "kekw";
+    testVec[2] = "kekw";
+
+
 
     std::vector<int> foundIdx = DIY_SEARCH_MULTITHREAD::multithread_searchVec<std::string>(
         *dictObj.get1_stringP("str vecPtr 0"), dictObj.get0_string_("toFind 1"), -1, 6, true, 1, true
@@ -84,7 +93,7 @@ int main(int argc, char** argv) {
     else {
         cout << "Indices found. Found \""<<outStr<<"\" at:\n";
         for(size_t i=0; i<foundIdx.size(); i++) {
-            cout << " > [" << foundIdx.at(i) << "]\n";
+            cout << " > [" << foundIdx.at(i) << "] -> key of idx:\""<<testVec[foundIdx.at(i)] <<"\" -> "<< dictObj.str_export(dictObj[0]) <<" \n";
         }
     }
 

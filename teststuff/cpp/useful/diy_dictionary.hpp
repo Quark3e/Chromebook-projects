@@ -52,6 +52,7 @@ class diy_dict {
         template<typename T> using pVec2 = std::vector<std::vector<T>>*; //pointer: vector of vector of `T`
 
 
+        //storage vectors
         vec0<bool>          values_0_bool;      //code: 0 0 0
         vec0<int>           values_0_int;       //code: 0 1 0
         vec0<float>         values_0_float;     //code: 0 2 0
@@ -98,7 +99,7 @@ class diy_dict {
 
 
         /** (function is purely for the sake of being able to see this definiton as the code writer via intellisense popup) 
-         * Type code definition:
+         * Type code "ID" definition:
          *  "code: a b c"
          *  - `a` -avail. range{0:2} - level of vector usage via using typedefinitons: `vec{a}` -> `0` = `vec0` = `std::vector<T>`.
          *  - `b` -avail. range{0:5} - type of datatype: in order{0:5} = {`bool`, `int`, `float`, `double`, `char`, `std::string`}.
@@ -125,19 +126,30 @@ class diy_dict {
             {200,210,220,230,240,250},
             {201,211,221,231,241,251}
         };
-        vec0<std::string>   keys;       // Labels/names
-        vec0<int>           datatype;   // What type is stored in that index
-        vec0<int>           idx;        // "local" index of (what index in the correct vector) where the given element is related to
+        const int typeLIM[2] = {0, 251}; //smallest - biggest possible value; NOTE: does not include missing values inbetween
+
+        vec0<std::string>   keys;       // navigator vector: Labels/names
+        vec0<int>           datatype;   // navigator vector: What type is stored in that index
+        vec0<int>           idx;        // navigator vector: "local" index of (what index in the correct vector) where the given element is related to
 
 
-        int extend_reg(std::string key, int varType);
+        int _extend_reg(std::string key, int varType);
 
         template<typename V, typename T>void type_extend(V vecToExtend, T addValue) {
             vecToExtend.push_back(addValue);
             idx.push_back(vecToExtend.size()-1);
         }
 
+        int _erase_idx(int typeID, int idx);
+
     public:
+
+        std::string& operator[] (int i) { return keys.at(i); }
+        std::string operator[] (int i) const { return const_cast<std::string&>(keys.at(i)); }
+
+        int operator[] (std::string key) { return this->check_existence(key, -1); }
+
+
         int check_existence(std::string key, int verbose);
 
         const std::string info_type_definition = (" \
@@ -262,7 +274,13 @@ class diy_dict {
             int left_indent = 4
         );
         int get_type(std::string key);
+        int get_type_size(int typeID);
+        int get_type_size(std::string key);
 
+        int rename_key(std::string key, std::string new_key);
+
+        int delete_key(std::string key);
+        
 
         int add(std::string key, bool value);
         int add(std::string key, int value);

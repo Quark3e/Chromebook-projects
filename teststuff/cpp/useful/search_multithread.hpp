@@ -67,7 +67,8 @@ namespace DIY_SEARCH_MULTITHREAD
      * @param checkSpacing the number each thread will wait before locking mutex and checking if a solution has been found. if
      * @param verbose whether to print info to `std::cout`
      * be divided into equal parts so each thread search element num <=threadLen (2). If =`-1` then `numThreads` number of threads will spawn. 
-     * @return `int` type of index to 
+     * @return `std::vector<int>` of index/indices(depending on `allOccurrence` param) to `toFind` in `vec`
+     * 
      * @note (1) If `numThreads` is bigger than the max thread hint given by `std::thread::hardware_concurrency()` (stored in `maxThreads`) then it'll cap it at the hint num.
      * This is to avoid spawning number of threads more than number of cores recommended by the hint.
      * @note (2) If number of splits ,according to `threadLen` method, is bigger than `numThreads` value then the function will prioritise `numThreads` and unlock `threadLen`.
