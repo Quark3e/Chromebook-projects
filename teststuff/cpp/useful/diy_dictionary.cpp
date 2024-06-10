@@ -23,6 +23,7 @@ int diy_dict::check_existence(std::string key, int verbose=-1) {
         keys, key, arg_searchVec_numThreads, arg_searchVec_threadLen, false, arg_searchVec_checkSpacing, verbose);
     return pos[0];
 }
+
 /**
  * @brief check if `key` exist and if not then extend `keys` and `datatype` vectors
  * 
@@ -34,6 +35,53 @@ int diy_dict::_extend_reg(std::string key, int varType) {
     if(check_existence(key) != -1) return 1;
     keys.push_back(key);
     datatype.push_back(varType);
+    return 0;
+}
+
+int diy_dict::_erase_idx(int typeID, int idx) {
+    if(typeID<this->typeLIM[0] || typeID>this->typeLIM[1]) return -1;
+
+    switch (typeID) {
+        case   0: values_0_bool.erase(this->values_0_bool.begin()       +idx); break;
+        case  10: values_0_int.erase(this->values_0_int.begin()         +idx); break;
+        case  20: values_0_float.erase(this->values_0_float.begin()     +idx); break;
+        case  30: values_0_double.erase(this->values_0_double.begin()   +idx); break;
+        case  40: values_0_char.erase(this->values_0_char.begin()       +idx); break;
+        case  50: values_0_string.erase(this->values_0_string.begin()   +idx); break;
+        case   1: values_0_bool_p.erase(this->values_0_bool_p.begin()       +idx); break;
+        case  11: values_0_int_p.erase(this->values_0_int_p.begin()         +idx); break;
+        case  21: values_0_float_p.erase(this->values_0_float_p.begin()     +idx); break;
+        case  31: values_0_double_p.erase(this->values_0_double_p.begin()   +idx); break;
+        case  41: values_0_char_p.erase(this->values_0_char_p.begin()       +idx); break;
+        case  51: values_0_string_p.erase(this->values_0_string_p.begin()   +idx); break;
+        case 100: values_1_bool.erase(this->values_1_bool.begin()       +idx); break;
+        case 110: values_1_int.erase(this->values_1_int.begin()         +idx); break;
+        case 120: values_1_float.erase(this->values_1_float.begin()     +idx); break;
+        case 130: values_1_double.erase(this->values_1_double.begin()   +idx); break;
+        case 140: values_1_char.erase(this->values_1_char.begin()       +idx); break;
+        case 150: values_1_string.erase(this->values_1_string.begin()   +idx); break;
+        case 101: values_1_bool_p.erase(this->values_1_bool_p.begin()       +idx); break;
+        case 111: values_1_int_p.erase(this->values_1_int_p.begin()         +idx); break;
+        case 121: values_1_float_p.erase(this->values_1_float_p.begin()     +idx); break;
+        case 131: values_1_double_p.erase(this->values_1_double_p.begin()   +idx); break;
+        case 141: values_1_char_p.erase(this->values_1_char_p.begin()       +idx); break;
+        case 151: values_1_string_p.erase(this->values_1_string_p.begin()   +idx); break;
+        case 200: values_2_bool.erase(this->values_2_bool.begin()       +idx); break;
+        case 210: values_2_int.erase(this->values_2_int.begin()         +idx); break;
+        case 220: values_2_float.erase(this->values_2_float.begin()     +idx); break;
+        case 230: values_2_double.erase(this->values_2_double.begin()   +idx); break;
+        case 240: values_2_char.erase(this->values_2_char.begin()       +idx); break;
+        case 250: values_2_string.erase(this->values_2_string.begin()   +idx); break;
+        case 201: values_2_bool_p.erase(this->values_2_bool_p.begin()   +idx); break;
+        case 211: values_2_int_p.erase(this->values_2_int_p.begin()         +idx); break;
+        case 221: values_2_float_p.erase(this->values_2_float_p.begin()     +idx); break;
+        case 231: values_2_double_p.erase(this->values_2_double_p.begin()   +idx); break;
+        case 241: values_2_char_p.erase(this->values_2_char_p.begin()       +idx); break;
+        case 251: values_2_string_p.erase(this->values_2_string_p.begin()   +idx); break;
+        default:
+            return 1;
+        break;
+    }
     return 0;
 }
 
@@ -263,57 +311,11 @@ int diy_dict::rename_key(std::string key, std::string new_key) {
 }
 
 
-int diy_dict::_erase_idx(int typeID, int idx) {
-    if(typeID<this->typeLIM[0] || typeID>this->typeLIM[1]) return -1;
-
-    switch (typeID) {
-        case   0: values_0_bool.erase(this->values_0_bool.begin()       +idx); break;
-        case  10: values_0_int.erase(this->values_0_int.begin()         +idx); break;
-        case  20: values_0_float.erase(this->values_0_float.begin()     +idx); break;
-        case  30: values_0_double.erase(this->values_0_double.begin()   +idx); break;
-        case  40: values_0_char.erase(this->values_0_char.begin()       +idx); break;
-        case  50: values_0_string.erase(this->values_0_string.begin()   +idx); break;
-        case   1: values_0_bool_p.erase(this->values_0_bool_p.begin()       +idx); break;
-        case  11: values_0_int_p.erase(this->values_0_int_p.begin()         +idx); break;
-        case  21: values_0_float_p.erase(this->values_0_float_p.begin()     +idx); break;
-        case  31: values_0_double_p.erase(this->values_0_double_p.begin()   +idx); break;
-        case  41: values_0_char_p.erase(this->values_0_char_p.begin()       +idx); break;
-        case  51: values_0_string_p.erase(this->values_0_string_p.begin()   +idx); break;
-        case 100: values_1_bool.erase(this->values_1_bool.begin()       +idx); break;
-        case 110: values_1_int.erase(this->values_1_int.begin()         +idx); break;
-        case 120: values_1_float.erase(this->values_1_float.begin()     +idx); break;
-        case 130: values_1_double.erase(this->values_1_double.begin()   +idx); break;
-        case 140: values_1_char.erase(this->values_1_char.begin()       +idx); break;
-        case 150: values_1_string.erase(this->values_1_string.begin()   +idx); break;
-        case 101: values_1_bool_p.erase(this->values_1_bool_p.begin()       +idx); break;
-        case 111: values_1_int_p.erase(this->values_1_int_p.begin()         +idx); break;
-        case 121: values_1_float_p.erase(this->values_1_float_p.begin()     +idx); break;
-        case 131: values_1_double_p.erase(this->values_1_double_p.begin()   +idx); break;
-        case 141: values_1_char_p.erase(this->values_1_char_p.begin()       +idx); break;
-        case 151: values_1_string_p.erase(this->values_1_string_p.begin()   +idx); break;
-        case 200: values_2_bool.erase(this->values_2_bool.begin()       +idx); break;
-        case 210: values_2_int.erase(this->values_2_int.begin()         +idx); break;
-        case 220: values_2_float.erase(this->values_2_float.begin()     +idx); break;
-        case 230: values_2_double.erase(this->values_2_double.begin()   +idx); break;
-        case 240: values_2_char.erase(this->values_2_char.begin()       +idx); break;
-        case 250: values_2_string.erase(this->values_2_string.begin()   +idx); break;
-        case 201: values_2_bool_p.erase(this->values_2_bool_p.begin()   +idx); break;
-        case 211: values_2_int_p.erase(this->values_2_int_p.begin()         +idx); break;
-        case 221: values_2_float_p.erase(this->values_2_float_p.begin()     +idx); break;
-        case 231: values_2_double_p.erase(this->values_2_double_p.begin()   +idx); break;
-        case 241: values_2_char_p.erase(this->values_2_char_p.begin()       +idx); break;
-        case 251: values_2_string_p.erase(this->values_2_string_p.begin()   +idx); break;
-        default:
-            return 1;
-        break;
-    }
-    return 0;
-}
 /**
- * @brief Remove/Delete `key` and it's stored value/ptr
+ * @brief Remove/Delete `key` and it's stored value/ptr from the dictionary
  * 
- * @param key 
- * @return int 
+ * @param key the key to delete
+ * @return whether it successfully deleted. `0`-successful; `1`-error occurred.
  */
 int diy_dict::delete_key(std::string key) {
     /**
