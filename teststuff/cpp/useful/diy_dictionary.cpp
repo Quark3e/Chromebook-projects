@@ -86,7 +86,7 @@ int diy_dict::_erase_idx(int typeID, int idx) {
 }
 
 
-std::string diy_dict::bool_string(bool boolVar) {
+std::string diy_dict::_bool_string(bool boolVar) {
     if(boolVar) return "true";
     return "false";
 }
@@ -160,8 +160,8 @@ std::string diy_dict::str_export(
     pos = idx[pos];
     switch (static_cast<int>(floor(type_deriv2/10))) {
     case 0: //bool
-        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + bool_string(*values_0_bool_p[pos]) + std::string(padding,emptySpace);
-        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + bool_string(values_0_bool[pos]) + std::string(padding,emptySpace);
+        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + _bool_string(*values_0_bool_p[pos]) + std::string(padding,emptySpace);
+        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + _bool_string(values_0_bool[pos]) + std::string(padding,emptySpace);
         if(vecType==1 && isPtr) tempStr = prettyPrint_vec1<bool>(*values_1_bool_p[pos],align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==1 && !isPtr)tempStr = prettyPrint_vec1<bool>(values_1_bool[pos],   align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && isPtr) tempStr = prettyPrint_vec2<bool>(*values_2_bool_p[pos],align, decimals, width, padding, prettyPrint, left_indent);
