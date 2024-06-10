@@ -38,7 +38,7 @@ class diy_dict {
         int  arg_searchVec_checkSpacing = 1;
         bool arg_searchVec_verbose      = false;
 
-        std::string bool_string(bool boolVar);
+        std::string _bool_string(bool boolVar);
 
         template<typename T> using vec0 = std::vector<T>; //vector: `T` value
         template<typename T> using vec1 = std::vector<std::vector<T>>; //vector: vector of `T` value
