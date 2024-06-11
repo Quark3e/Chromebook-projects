@@ -75,7 +75,7 @@
 // #include "../../../teststuff/cpp/basic/Performance/getPerformance.hpp"
 
 #include "HW_headers/servo_control.hpp"
-#include "IK_header.h"
+#include "IK_header.hpp"
 
 
 #endif

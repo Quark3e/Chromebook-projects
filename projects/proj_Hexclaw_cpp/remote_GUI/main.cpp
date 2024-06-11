@@ -32,7 +32,7 @@
 
 #include <HC_useful/useful.hpp>
 #include <HC_useful/diy_dictionary.hpp>
-#include "../in rpi/IK_header.h"
+#include "../in rpi/IK_header.hpp"
 
 
 #include <allegro5/allegro.h>

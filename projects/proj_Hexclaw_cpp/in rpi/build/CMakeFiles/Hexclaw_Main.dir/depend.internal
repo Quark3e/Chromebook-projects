@@ -6,7 +6,7 @@ CMakeFiles/Hexclaw_Main.dir/main.cpp.o
  /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/servo_control.hpp
  /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_options/mainOptions.hpp
  /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_options/opt6_terminal.hpp
- /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.h
+ /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.hpp
  /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/hexclaw_constants.hpp
  /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/hexclaw_global.hpp
  /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/hexclaw_includes.hpp

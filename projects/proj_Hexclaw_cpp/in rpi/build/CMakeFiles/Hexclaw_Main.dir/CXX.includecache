@@ -11,8 +11,8 @@
 /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/servo_control.hpp
 ../hexclaw_global.hpp
 /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/hexclaw_global.hpp
-../IK_header.h
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.h
+../IK_header.hpp
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.hpp
 PiPCA9685/PCA9685.h
 -
 
@@ -34,7 +34,7 @@ opt6_terminal.hpp
 ../hexclaw_global.hpp
 /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/hexclaw_global.hpp
 
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.h
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.hpp
 unistd.h
 -
 iostream
@@ -133,8 +133,8 @@ HC_useful/getPerformance.hpp
 /home/pi/Chromebook-projects/teststuff/cpp/opencv/recordVideo/recordFrames.hpp
 HW_headers/servo_control.hpp
 /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/servo_control.hpp
-IK_header.h
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.h
+IK_header.hpp
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.hpp
 
 /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/main.cpp
 hexclaw_constants.hpp

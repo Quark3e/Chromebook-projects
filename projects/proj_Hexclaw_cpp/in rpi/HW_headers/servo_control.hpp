@@ -5,7 +5,7 @@
 
 
 #include "../hexclaw_global.hpp"
-#include "../IK_header.h"
+#include "../IK_header.hpp"
 #include <PiPCA9685/PCA9685.h>
 
 using namespace PiPCA9685;

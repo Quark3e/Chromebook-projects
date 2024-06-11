@@ -5,7 +5,7 @@ CMakeFiles/Hexclaw_Main.dir/main.cpp.o: ../HW_headers/motion_control/motion_prof
 CMakeFiles/Hexclaw_Main.dir/main.cpp.o: ../HW_headers/servo_control.hpp
 CMakeFiles/Hexclaw_Main.dir/main.cpp.o: ../HW_options/mainOptions.hpp
 CMakeFiles/Hexclaw_Main.dir/main.cpp.o: ../HW_options/opt6_terminal.hpp
-CMakeFiles/Hexclaw_Main.dir/main.cpp.o: ../IK_header.h
+CMakeFiles/Hexclaw_Main.dir/main.cpp.o: ../IK_header.hpp
 CMakeFiles/Hexclaw_Main.dir/main.cpp.o: ../hexclaw_constants.hpp
 CMakeFiles/Hexclaw_Main.dir/main.cpp.o: ../hexclaw_global.hpp
 CMakeFiles/Hexclaw_Main.dir/main.cpp.o: ../hexclaw_includes.hpp
