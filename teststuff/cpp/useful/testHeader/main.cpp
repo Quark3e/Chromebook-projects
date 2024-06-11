@@ -110,13 +110,13 @@ int main(int argc, char** argv) {
     }
     
 
-    DIY::typed_dict<char, int> typeInst(
-        std::vector<char>{'a', 'b', 'c', 'd'},
+    DIY::typed_dict<int, int> typeInst(
+        std::vector<int>{'a', 'b', 'c', 'd'},
         std::vector<int>{1, 2, 3, 4}
     );
 
     for(char key: typeInst.keys()) {
-        cout << DIY::formatNumber<char>(key, 3,0,"left") <<": ";
+        cout << DIY::formatNumber<int>(key, 3,0,"left") <<": ";
         // cout << "|" << DIY::formatNumber(int(key),3,0) << "| ";
         cout << typeInst[key]<<endl;
     }
