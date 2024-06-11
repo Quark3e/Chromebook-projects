@@ -90,7 +90,6 @@ namespace HW_KINEMATICS
     float toDegrees(float radians) { return (radians*180)/M_PI; }
 
 
-
     // Inverse Kinematics - specific functions:
     /// @brief Calculate Inverse Kinematic angles from given PP and orientation
     /// @param q 6 element float() array linked via pointers to original source

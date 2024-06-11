@@ -522,9 +522,39 @@ namespace DIY {
             std::vector<std::vector<char>>*        get2_charP  (std::string key);
             std::vector<std::vector<std::string>>* get2_stringP(std::string key);
 
-
-
     };
+
+
+    template<class _key_type, class _store_type>
+    class typed_dict {
+        private:
+        std::vector<_key_type>      _keys;
+        std::vector<_store_type>    _values;
+        std::vector<_store_type*>   _ptr;
+
+        bool _init_container = false;
+        public:
+        typed_dict() {}
+        typed_dict(std::vector<_key_type> keys, std::vector<_store_type> values);
+        typed_dict(std::vector<_key_type> keys, std::vector<_store_type*> pointers);
+        ~typed_dict() {}
+    };
+    
+    template<class _key_type, class _store_type>
+    typed_dict<_key_type, _store_type>::typed_dict(
+        std::vector<_key_type> keys,
+        std::vector<_store_type> values
+    ) {
+
+    }
+    template<class _key_type, class _store_type>
+    typed_dict<_key_type, _store_type>::typed_dict(
+        std::vector<_key_type> keys,
+        std::vector<_store_type*> values
+    ) {
+        if(keys.size()==)
+    }
+
 
 }
 
