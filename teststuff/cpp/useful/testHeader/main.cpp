@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
 
     cout << "program called:-----------"<<endl;
 
-
+    
     DIY::dict dictObj;
 
     std::vector<std::string> testVec{"one", "two", "three", "two", "five", "two", "two"};
@@ -117,7 +117,7 @@ int main(int argc, char** argv) {
 
     for(char key: typeInst.keys()) {
         cout << DIY::formatNumber<char>(key, 3,0,"left") <<": ";
-        cout << "|" << int(key) << "| "; 
+        // cout << "|" << DIY::formatNumber(int(key),3,0) << "| ";
         cout << typeInst[key]<<endl;
     }
 

@@ -132,7 +132,7 @@ namespace DIY {
     ) {
         std::vector<int> pos = DIY_SEARCH_MULTITHREAD::multithread_searchVec<_check>(
             vec, key, numThreads, threadLen, false, checkSpacing, verbose);
-        return pos[0];
+        return pos.at(0);
     }
 
 
@@ -558,13 +558,16 @@ namespace DIY {
 
 
         _store_type& operator[] (_key_type key) {
-            int pos = check_existence<_key_type>(key, this->_keys);
-            if(pos==-1) return _nullValue;
+            std::vector<int> idx = DIY_SEARCH_MULTITHREAD::multithread_searchVec<_key_type>(
+            _keys, key, -1, -1, true, -1, false);
+
+            int pos = check_existence<_key_type>(key, _keys);
+            if(pos==-1) { return _nullValue; }
             return _values.at(pos);
         }
         _store_type  operator[] (_key_type key) const   {
-            int pos = check_existence<_key_type>(key, this->_keys);
-            if(pos==-1) return this->_nullValue;
+            int pos = check_existence<_key_type>(key, _keys);
+            if(pos==-1)  { return _nullValue; }
             return const_cast<_store_type&>(_keys.at(pos));
         }
 

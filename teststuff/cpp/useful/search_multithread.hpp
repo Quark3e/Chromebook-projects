@@ -64,7 +64,7 @@ namespace DIY_SEARCH_MULTITHREAD
      * @param numThreads max number of threads to split the operation into(1), with a new(starting at 1) thread split occuring according to threadLen. If =`-1` then it's set to `std::thread::hardware_concurrency()`.
      * @param threadLen maximum length of elements for each thread to search through. If length of `vec` is bigger than `threadLen` then the search will
      * @param allOccurrence whether to check for every occurence or to just return the first it finds. `true`-find every occurence(NOTE: this will note return the actual first but a random first it find).
-     * @param checkSpacing the number each thread will wait before locking mutex and checking if a solution has been found. if
+     * @param checkSpacing the number each thread will wait before locking mutex and checking if a solution has been found.
      * @param verbose whether to print info to `std::cout`
      * be divided into equal parts so each thread search element num <=threadLen (2). If =`-1` then `numThreads` number of threads will spawn. 
      * @return `std::vector<int>` of index/indices(depending on `allOccurrence` param) to `toFind` in `vec`
@@ -89,13 +89,16 @@ namespace DIY_SEARCH_MULTITHREAD
         int checkSpacing = 10,
         bool verbose = false
     ) {
+        DIY_SEARCH_MULTITHREAD::idxFound = false;
         std::string verbose_str = " >> DIY_SEARCH_MULTITHREAD::multithread_searchVec";
+        if(verbose) std::cout << verbose_str+" FUNC CALLED."<<std::endl;
+
         std::vector<int> idx(1, -1);
         maxThreads = std::thread::hardware_concurrency();
         int threadCount = maxThreads; //number of threads to split the search by
         int vecSize = static_cast<int>(vec.size());
         if(numThreads>maxThreads) numThreads = maxThreads;
-
+        if(checkSpacing<1) checkSpacing = 1;
 
         if(numThreads==-1 && threadLen==-1) threadCount = maxThreads;
         else if(numThreads!=-1 && threadLen==-1) threadCount = numThreads;
@@ -114,7 +117,6 @@ namespace DIY_SEARCH_MULTITHREAD
         
         if(verbose) std::cout << verbose_str+" maxThreads  =\t"<<maxThreads<<std::endl;
         if(verbose) std::cout << verbose_str+" threadCount =\t"<<threadCount<<std::endl;
-
         if(threadCount==0 || threadCount==1) {
             for(int i=0; i<vecSize; i++) {
                 if(vec.at(i)==toFind) {
@@ -125,7 +127,6 @@ namespace DIY_SEARCH_MULTITHREAD
             }
             return idx;
         }
-
         return_idx = std::vector<std::vector<int>>(threadCount, std::vector<int>());
         std::vector<std::thread> threadObjects;
         std::unique_lock<std::mutex> tCOM(intercom, std::defer_lock);
@@ -139,7 +140,6 @@ namespace DIY_SEARCH_MULTITHREAD
         threadObjects.emplace_back(
             [&] {threadFunc(vec, toFind, threadCount-1, spacing*(threadCount-1), vecSize, allOccurrence, checkSpacing);}
         );
-
 
         int checkCount = 0;
         for(int i=0; i<spacing; i++) {
