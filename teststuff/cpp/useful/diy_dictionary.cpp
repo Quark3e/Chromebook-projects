@@ -2,102 +2,53 @@
 #include "diy_dictionary.hpp"
 
 
-diy_dict::diy_dict(/* args */) {
+DIY::dict::dict(/* args */) {
 
 }
 
 
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<bool>           values) {
-    //diy_dict "storage" container constructor
+DIY::dict::dict(std::vector<std::string> keys, std::vector<bool>           values) {
+    //dict "storage" container constructor
     if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
 }
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<int>            values) {
-    //diy_dict "storage" container constructor
+DIY::dict::dict(std::vector<std::string> keys, std::vector<int>            values) {
+    //dict "storage" container constructor
     if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
 }
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<float>          values) {
-    //diy_dict "storage" container constructor
+DIY::dict::dict(std::vector<std::string> keys, std::vector<float>          values) {
+    //dict "storage" container constructor
     if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
 }
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<double>         values) {
-    //diy_dict "storage" container constructor
+DIY::dict::dict(std::vector<std::string> keys, std::vector<double>         values) {
+    //dict "storage" container constructor
     if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
 }
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<char>           values) {
-    //diy_dict "storage" container constructor
+DIY::dict::dict(std::vector<std::string> keys, std::vector<char>           values) {
+    //dict "storage" container constructor
     if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
 }
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::string>    values) {
-    //diy_dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
-        for(size_t i=0; i<keys.size(); i++) {
-            this->add(keys[i], values[i]);
-        }
-    }
-}
-
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<bool*>          values) {
-    //diy_dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
-        for(size_t i=0; i<keys.size(); i++) {
-            this->add(keys[i], values[i]);
-        }
-    }
-}
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<int*>           values) {
-    //diy_dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
-        for(size_t i=0; i<keys.size(); i++) {
-            this->add(keys[i], values[i]);
-        }
-    }
-}
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<float*>         values) {
-    //diy_dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
-        for(size_t i=0; i<keys.size(); i++) {
-            this->add(keys[i], values[i]);
-        }
-    }
-}
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<double*>        values) {
-    //diy_dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
-        for(size_t i=0; i<keys.size(); i++) {
-            this->add(keys[i], values[i]);
-        }
-    }
-}
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<char*>          values) {
-    //diy_dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
-        for(size_t i=0; i<keys.size(); i++) {
-            this->add(keys[i], values[i]);
-        }
-    }
-}
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::string*>   values) {
-    //diy_dict "storage" container constructor
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::string>    values) {
+    //dict "storage" container constructor
     if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
@@ -105,98 +56,48 @@ diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::string*>   va
     }
 }
 
-
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<bool>>           values) {
-    //diy_dict "storage" container constructor
+DIY::dict::dict(std::vector<std::string> keys, std::vector<bool*>          values) {
+    //dict "storage" container constructor
     if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
 }
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<int>>            values) {
-    //diy_dict "storage" container constructor
+DIY::dict::dict(std::vector<std::string> keys, std::vector<int*>           values) {
+    //dict "storage" container constructor
     if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
 }
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<float>>          values) {
-    //diy_dict "storage" container constructor
+DIY::dict::dict(std::vector<std::string> keys, std::vector<float*>         values) {
+    //dict "storage" container constructor
     if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
 }
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<double>>         values) {
-    //diy_dict "storage" container constructor
+DIY::dict::dict(std::vector<std::string> keys, std::vector<double*>        values) {
+    //dict "storage" container constructor
     if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
 }
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<char>>           values) {
-    //diy_dict "storage" container constructor
+DIY::dict::dict(std::vector<std::string> keys, std::vector<char*>          values) {
+    //dict "storage" container constructor
     if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
 }
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::string>>    values) {
-    //diy_dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
-        for(size_t i=0; i<keys.size(); i++) {
-            this->add(keys[i], values[i]);
-        }
-    }
-}
-
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<bool>*>          values) {
-    //diy_dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
-        for(size_t i=0; i<keys.size(); i++) {
-            this->add(keys[i], values[i]);
-        }
-    }
-}
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<int>*>           values) {
-    //diy_dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
-        for(size_t i=0; i<keys.size(); i++) {
-            this->add(keys[i], values[i]);
-        }
-    }
-}
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<float>*>         values) {
-    //diy_dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
-        for(size_t i=0; i<keys.size(); i++) {
-            this->add(keys[i], values[i]);
-        }
-    }
-}
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<double>*>        values) {
-    //diy_dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
-        for(size_t i=0; i<keys.size(); i++) {
-            this->add(keys[i], values[i]);
-        }
-    }
-}
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<char>*>          values) {
-    //diy_dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
-        for(size_t i=0; i<keys.size(); i++) {
-            this->add(keys[i], values[i]);
-        }
-    }
-}
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::string>*>   values) {
-    //diy_dict "storage" container constructor
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::string*>   values) {
+    //dict "storage" container constructor
     if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
@@ -205,97 +106,48 @@ diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::s
 }
 
 
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<bool>>>           values) {
-    //diy_dict "storage" container constructor
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<bool>>           values) {
+    //dict "storage" container constructor
     if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
 }
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<int>>>            values) {
-    //diy_dict "storage" container constructor
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<int>>            values) {
+    //dict "storage" container constructor
     if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
 }
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<float>>>          values) {
-    //diy_dict "storage" container constructor
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<float>>          values) {
+    //dict "storage" container constructor
     if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
 }
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<double>>>         values) {
-    //diy_dict "storage" container constructor
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<double>>         values) {
+    //dict "storage" container constructor
     if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
 }
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<char>>>           values) {
-    //diy_dict "storage" container constructor
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<char>>           values) {
+    //dict "storage" container constructor
     if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
 }
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<std::string>>>    values) {
-    //diy_dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
-        for(size_t i=0; i<keys.size(); i++) {
-            this->add(keys[i], values[i]);
-        }
-    }
-}
-
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<bool>>*>          values) {
-    //diy_dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
-        for(size_t i=0; i<keys.size(); i++) {
-            this->add(keys[i], values[i]);
-        }
-    }
-}
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<int>>*>           values) {
-    //diy_dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
-        for(size_t i=0; i<keys.size(); i++) {
-            this->add(keys[i], values[i]);
-        }
-    }
-}
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<float>>*>         values) {
-    //diy_dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
-        for(size_t i=0; i<keys.size(); i++) {
-            this->add(keys[i], values[i]);
-        }
-    }
-}
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<double>>*>        values) {
-    //diy_dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
-        for(size_t i=0; i<keys.size(); i++) {
-            this->add(keys[i], values[i]);
-        }
-    }
-}
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<char>>*>          values) {
-    //diy_dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
-        for(size_t i=0; i<keys.size(); i++) {
-            this->add(keys[i], values[i]);
-        }
-    }
-}
-diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<std::string>>*>   values) {
-    //diy_dict "storage" container constructor
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::string>>    values) {
+    //dict "storage" container constructor
     if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
@@ -303,18 +155,166 @@ diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::v
     }
 }
 
-diy_dict::~diy_dict() {}
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<bool>*>          values) {
+    //dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
+    }
+}
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<int>*>           values) {
+    //dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
+    }
+}
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<float>*>         values) {
+    //dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
+    }
+}
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<double>*>        values) {
+    //dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
+    }
+}
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<char>*>          values) {
+    //dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
+    }
+}
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::string>*>   values) {
+    //dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
+    }
+}
+
+
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<bool>>>           values) {
+    //dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
+    }
+}
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<int>>>            values) {
+    //dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
+    }
+}
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<float>>>          values) {
+    //dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
+    }
+}
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<double>>>         values) {
+    //dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
+    }
+}
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<char>>>           values) {
+    //dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
+    }
+}
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<std::string>>>    values) {
+    //dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
+    }
+}
+
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<bool>>*>          values) {
+    //dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
+    }
+}
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<int>>*>           values) {
+    //dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
+    }
+}
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<float>>*>         values) {
+    //dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
+    }
+}
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<double>>*>        values) {
+    //dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
+    }
+}
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<char>>*>          values) {
+    //dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
+    }
+}
+DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<std::string>>*>   values) {
+    //dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
+    }
+}
+
+DIY::dict::~dict() {}
 
 
 /**
- * @brief common function to check if a `key` exists in `diy_dict::this->_keys` vector/container
+ * @brief common function to check if a `key` exists in `DIY::dict::this->_keys` vector/container
  * 
  * @param key the `std::string` label/key to check if it exists in the vecot
  * @param verbose whether to print the output:
- * `0` = false; `1` = true; `-1` = {use default}/`diy_dict::arg_searchVec_verbose`
- * @return `int` of idx for where that key exists in `diy_dict::this->_keys` vector; returns `-1` if key doesn't exist.
+ * `0` = false; `1` = true; `-1` = {use default}/`DIY::dict::arg_searchVec_verbose`
+ * @return `int` of idx for where that key exists in `DIY::dict::this->_keys` vector; returns `-1` if key doesn't exist.
  */
-int diy_dict::check_existence(std::string key, int verbose=-1) {
+int DIY::dict::check_existence(std::string key, int verbose=-1) {
     if(verbose==-1) verbose = verbose = arg_searchVec_verbose;
     std::vector<int> pos = DIY_SEARCH_MULTITHREAD::multithread_searchVec<std::string>(
         this->_keys, key, arg_searchVec_numThreads, arg_searchVec_threadLen, false, arg_searchVec_checkSpacing, verbose);
@@ -328,7 +328,7 @@ int diy_dict::check_existence(std::string key, int verbose=-1) {
  * @param varType integer to type of value/ptr to add according to `types` definition
  * @return int value for success or not: `0`-successfully added `key` and `this->_datatype` to vectors; `1`-unsuccessful. key already exists
  */
-int diy_dict::_extend_reg(std::string key, int varType) {
+int DIY::dict::_extend_reg(std::string key, int varType) {
     if(check_existence(key) != -1) return 1;
     this->_keys.push_back(key);
     this->_datatype.push_back(varType);
@@ -336,7 +336,7 @@ int diy_dict::_extend_reg(std::string key, int varType) {
     return 0;
 }
 
-int diy_dict::_erase_idx(int typeID, int idx) {
+int DIY::dict::_erase_idx(int typeID, int idx) {
     if(typeID<this->typeLIM[0] || typeID>this->typeLIM[1]) return -1;
 
     switch (typeID) {
@@ -384,7 +384,7 @@ int diy_dict::_erase_idx(int typeID, int idx) {
 }
 
 
-std::string diy_dict::_bool_string(bool boolVar) {
+std::string DIY::dict::_bool_string(bool boolVar) {
     if(boolVar) return "true";
     return "false";
 }
@@ -416,7 +416,7 @@ std::string diy_dict::_bool_string(bool boolVar) {
  * @note - (4) if value is a `std::vector` then `padding` will be outside the curly braces and not the elements, same goes for if `prettyPrint` is set to include new-lines, 
  * just now it'll apply to each `container element` if container is multidimensional
  */
-std::string diy_dict::str_export(
+std::string DIY::dict::str_export(
     std::string key,
     std::string codedInsert,
     std::string align,
@@ -467,40 +467,40 @@ std::string diy_dict::str_export(
         if(vecType==2 && !isPtr)tempStr = prettyPrint_vec2<bool>(values_2_bool[pos],   align, decimals, width, padding, prettyPrint, left_indent);
         break;
     case 1: //int
-        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + dict_formatNumber<int>(*values_0_int_p[pos],width,decimals,align) + std::string(padding,emptySpace);
-        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + dict_formatNumber<int>(values_0_int[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + DIY::formatNumber<int>(*values_0_int_p[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + DIY::formatNumber<int>(values_0_int[pos],width,decimals,align) + std::string(padding,emptySpace);
         if(vecType==1 && isPtr) tempStr = prettyPrint_vec1<int>(*values_1_int_p[pos],  align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==1 && !isPtr)tempStr = prettyPrint_vec1<int>(values_1_int[pos],     align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && isPtr) tempStr = prettyPrint_vec2<int>(*values_2_int_p[pos],  align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && !isPtr)tempStr = prettyPrint_vec2<int>(values_2_int[pos],     align, decimals, width, padding, prettyPrint, left_indent);
         break;
     case 2: //float
-        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + dict_formatNumber<float>(*values_0_float_p[pos],width,decimals,align) + std::string(padding,emptySpace);
-        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + dict_formatNumber<float>(values_0_float[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + DIY::formatNumber<float>(*values_0_float_p[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + DIY::formatNumber<float>(values_0_float[pos],width,decimals,align) + std::string(padding,emptySpace);
         if(vecType==1 && isPtr) tempStr = prettyPrint_vec1<float>(*values_1_float_p[pos],  align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==1 && !isPtr)tempStr = prettyPrint_vec1<float>(values_1_float[pos],     align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && isPtr) tempStr = prettyPrint_vec2<float>(*values_2_float_p[pos],  align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && !isPtr)tempStr = prettyPrint_vec2<float>(values_2_float[pos],     align, decimals, width, padding, prettyPrint, left_indent);
         break;
     case 3: //double
-        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + dict_formatNumber<double>(*values_0_double_p[pos],width,decimals,align) + std::string(padding,emptySpace);
-        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + dict_formatNumber<double>(values_0_double[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + DIY::formatNumber<double>(*values_0_double_p[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + DIY::formatNumber<double>(values_0_double[pos],width,decimals,align) + std::string(padding,emptySpace);
         if(vecType==1 && isPtr) tempStr = prettyPrint_vec1<double>(*values_1_double_p[pos],align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==1 && !isPtr)tempStr = prettyPrint_vec1<double>(values_1_double[pos],   align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && isPtr) tempStr = prettyPrint_vec2<double>(*values_2_double_p[pos],align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && !isPtr)tempStr = prettyPrint_vec2<double>(values_2_double[pos],   align, decimals, width, padding, prettyPrint, left_indent);
         break;
     case 4: //char
-        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + dict_formatNumber<char>(*values_0_char_p[pos],width,decimals,align) + std::string(padding,emptySpace);
-        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + dict_formatNumber<char>(values_0_char[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + DIY::formatNumber<char>(*values_0_char_p[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + DIY::formatNumber<char>(values_0_char[pos],width,decimals,align) + std::string(padding,emptySpace);
         if(vecType==1 && isPtr) tempStr = prettyPrint_vec1<char>(*values_1_char_p[pos],align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==1 && !isPtr)tempStr = prettyPrint_vec1<char>(values_1_char[pos],   align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && isPtr) tempStr = prettyPrint_vec2<char>(*values_2_char_p[pos],align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && !isPtr)tempStr = prettyPrint_vec2<char>(values_2_char[pos],   align, decimals, width, padding, prettyPrint, left_indent);
         break;
     case 5: //std::string
-        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + dict_formatNumber<std::string>(*values_0_string_p[pos],width,decimals,align) + std::string(padding,emptySpace);
-        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + dict_formatNumber<std::string>(values_0_string[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + DIY::formatNumber<std::string>(*values_0_string_p[pos],width,decimals,align) + std::string(padding,emptySpace);
+        if(vecType==0 && !isPtr)tempStr = std::string(padding,emptySpace) + DIY::formatNumber<std::string>(values_0_string[pos],width,decimals,align) + std::string(padding,emptySpace);
         if(vecType==1 && isPtr) tempStr = prettyPrint_vec1<std::string>(*values_1_string_p[pos],align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==1 && !isPtr)tempStr = prettyPrint_vec1<std::string>(values_1_string[pos],   align, decimals, width, padding, prettyPrint, left_indent);
         if(vecType==2 && isPtr) tempStr = prettyPrint_vec2<std::string>(*values_2_string_p[pos],align, decimals, width, padding, prettyPrint, left_indent);
@@ -517,10 +517,10 @@ std::string diy_dict::str_export(
     return finalStr;
 }
 
-/// @brief get the this->_datatype code of `key` defined by `diy_dict::info_type_definition`
+/// @brief get the this->_datatype code of `key` defined by `DIY::dict::info_type_definition`
 /// @param key to find the stored this->_datatype code of
 /// @return this->_datatype code that's found. If `key` doesnt exist then it'll return `-1`
-int diy_dict::get_type(std::string key) {
+int DIY::dict::get_type(std::string key) {
     int pos = check_existence(key);
     return this->_datatype[pos];
 }
@@ -531,7 +531,7 @@ int diy_dict::get_type(std::string key) {
  * @param typeID the "code"/"ID" of the container to return the size of
  * @return `int` value of size of container if the type code container is successfully found. If the container of `typeID` was not found then `-1` is returned.
  */
-int diy_dict::get_type_size(int typeID) {
+int DIY::dict::get_type_size(int typeID) {
     int vecSize = 0;
     if(typeID<this->typeLIM[0] || typeID>this->typeLIM[1]) return -1;
 
@@ -585,7 +585,7 @@ int diy_dict::get_type_size(int typeID) {
  * @param key the `std::string` key whose container size is to be returned
  * @return `int` value of size of container if the type code container is successfully found. If the container of `key` was not found then `-1` is returned.
  */
-int diy_dict::get_type_size(std::string key) {
+int DIY::dict::get_type_size(std::string key) {
     int pos = this->check_existence(key);
     int typeCode = this->_datatype[pos];
     if(pos==-1) return -1;
@@ -601,7 +601,7 @@ int diy_dict::get_type_size(std::string key) {
  * @param new_key the new key
  * @return `int` of whether a key was successfully renamed. `0` - successful. `-1` - error-occurred/given-`key`-doesn't-exist
  */
-int diy_dict::rename_key(std::string key, std::string new_key) {
+int DIY::dict::rename_key(std::string key, std::string new_key) {
     int pos = this->check_existence(key);
     if(pos==-1) return 1;
     this->_keys[this->_idx[pos]] = new_key;
@@ -616,7 +616,7 @@ int diy_dict::rename_key(std::string key, std::string new_key) {
  * @param key the key to delete
  * @return whether it successfully deleted. `0`-successful; `1`-error occurred.
  */
-int diy_dict::delete_key(std::string key) {
+int DIY::dict::delete_key(std::string key) {
     /**
      * need to change containers:
      * - `this->_keys`     {change: erase(key)}
@@ -658,74 +658,74 @@ int diy_dict::delete_key(std::string key) {
 
 
 
-int diy_dict::add(std::string key, bool value) {
+int DIY::dict::add(std::string key, bool value) {
     if(this->_extend_reg(key, 0)==1) return 1;
     values_0_bool.push_back(value);
     _idx.push_back(values_0_bool.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, int value) {
+int DIY::dict::add(std::string key, int value) {
     if(this->_extend_reg(key, 10)==1) return 1;
     values_0_int.push_back(value);
     _idx.push_back(values_0_int.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, float value) {
+int DIY::dict::add(std::string key, float value) {
     if(this->_extend_reg(key, 20)==1) return 1;
     values_0_float.push_back(value);
     _idx.push_back(values_0_float.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, double value) {
+int DIY::dict::add(std::string key, double value) {
     if(this->_extend_reg(key, 30)==1) return 1;
     values_0_double.push_back(value);
     _idx.push_back(values_0_double.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, char value) {
+int DIY::dict::add(std::string key, char value) {
     if(this->_extend_reg(key, 40)==1) return 1;
     values_0_char.push_back(value);
     _idx.push_back(values_0_char.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::string value) {
+int DIY::dict::add(std::string key, std::string value) {
     if(this->_extend_reg(key, 50)==1) return 1;
     values_0_string.push_back(value);
     _idx.push_back(values_0_string.size()-1);
     return 0;
 }
 
-int diy_dict::add(std::string key, bool* ptr) {
+int DIY::dict::add(std::string key, bool* ptr) {
     if(this->_extend_reg(key, 1)==1) return 1;
     values_0_bool_p.push_back(ptr);
     _idx.push_back(values_0_bool_p.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, int* ptr) {
+int DIY::dict::add(std::string key, int* ptr) {
     if(this->_extend_reg(key, 11)==1) return 1;
     values_0_int_p.push_back(ptr);
     _idx.push_back(values_0_int_p.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, float* ptr) {
+int DIY::dict::add(std::string key, float* ptr) {
     if(this->_extend_reg(key, 21)==1) return 1;
     values_0_float_p.push_back(ptr);
     _idx.push_back(values_0_float_p.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, double* ptr) {
+int DIY::dict::add(std::string key, double* ptr) {
     if(this->_extend_reg(key, 31)==1) return 1;
     values_0_double_p.push_back(ptr);
     _idx.push_back(values_0_double_p.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, char* ptr) {
+int DIY::dict::add(std::string key, char* ptr) {
     if(this->_extend_reg(key, 41)==1) return 1;
     values_0_char_p.push_back(ptr);
     _idx.push_back(values_0_char_p.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::string* ptr) {
+int DIY::dict::add(std::string key, std::string* ptr) {
     if(this->_extend_reg(key, 51)==1) return 1;
     values_0_string_p.push_back(ptr);
     _idx.push_back(values_0_string_p.size()-1);
@@ -733,74 +733,74 @@ int diy_dict::add(std::string key, std::string* ptr) {
 }
 
 
-int diy_dict::add(std::string key, std::vector<bool> value) {
+int DIY::dict::add(std::string key, std::vector<bool> value) {
     if(this->_extend_reg(key, 100)==1) return 1;
     values_1_bool.push_back(value);
     _idx.push_back(values_1_bool.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<int> value) {
+int DIY::dict::add(std::string key, std::vector<int> value) {
     if(this->_extend_reg(key, 110)==1) return 1;
     values_1_int.push_back(value);
     _idx.push_back(values_1_int.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<float> value) {
+int DIY::dict::add(std::string key, std::vector<float> value) {
     if(this->_extend_reg(key, 120)==1) return 1;
     values_1_float.push_back(value);
     _idx.push_back(values_1_float.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<double> value) {
+int DIY::dict::add(std::string key, std::vector<double> value) {
     if(this->_extend_reg(key, 130)==1) return 1;
     values_1_double.push_back(value);
     _idx.push_back(values_1_double.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<char> value) {
+int DIY::dict::add(std::string key, std::vector<char> value) {
     if(this->_extend_reg(key, 140)==1) return 1;
     values_1_char.push_back(value);
     _idx.push_back(values_1_char.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<std::string> value) {
+int DIY::dict::add(std::string key, std::vector<std::string> value) {
     if(this->_extend_reg(key, 150)==1) return 1;
     values_1_string.push_back(value);
     _idx.push_back(values_1_string.size()-1);
     return 0;
 }
 
-int diy_dict::add(std::string key, std::vector<bool>* ptr) {
+int DIY::dict::add(std::string key, std::vector<bool>* ptr) {
     if(this->_extend_reg(key, 101)==1) return 1;
     values_1_bool_p.push_back(ptr);
     _idx.push_back(values_1_bool_p.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<int>* ptr) {
+int DIY::dict::add(std::string key, std::vector<int>* ptr) {
     if(this->_extend_reg(key, 111)==1) return 1;
     values_1_int_p.push_back(ptr);
     _idx.push_back(values_1_int_p.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<float>* ptr) {
+int DIY::dict::add(std::string key, std::vector<float>* ptr) {
     if(this->_extend_reg(key, 121)==1) return 1;
     values_1_float_p.push_back(ptr);
     _idx.push_back(values_1_float_p.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<double>* ptr) {
+int DIY::dict::add(std::string key, std::vector<double>* ptr) {
     if(this->_extend_reg(key, 131)==1) return 1;
     values_1_double_p.push_back(ptr);
     _idx.push_back(values_1_double_p.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<char>* ptr) {
+int DIY::dict::add(std::string key, std::vector<char>* ptr) {
     if(this->_extend_reg(key, 141)==1) return 1;
     values_1_char_p.push_back(ptr);
     _idx.push_back(values_1_char_p.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<std::string>* ptr) {
+int DIY::dict::add(std::string key, std::vector<std::string>* ptr) {
     if(this->_extend_reg(key, 151)==1) return 1;
     values_1_string_p.push_back(ptr);
     _idx.push_back(values_1_string_p.size()-1);
@@ -808,74 +808,74 @@ int diy_dict::add(std::string key, std::vector<std::string>* ptr) {
 }
 
 
-int diy_dict::add(std::string key, std::vector<std::vector<bool>> value) {
+int DIY::dict::add(std::string key, std::vector<std::vector<bool>> value) {
     if(this->_extend_reg(key, 200)==1) return 1;
     values_2_bool.push_back(value);
     _idx.push_back(values_2_bool.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<std::vector<int>> value) {
+int DIY::dict::add(std::string key, std::vector<std::vector<int>> value) {
     if(this->_extend_reg(key, 210)==1) return 1;
     values_2_int.push_back(value);
     _idx.push_back(values_2_int.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<std::vector<float>> value) {
+int DIY::dict::add(std::string key, std::vector<std::vector<float>> value) {
     if(this->_extend_reg(key, 220)==1) return 1;
     values_2_float.push_back(value);
     _idx.push_back(values_2_float.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<std::vector<double>> value) {
+int DIY::dict::add(std::string key, std::vector<std::vector<double>> value) {
     if(this->_extend_reg(key, 230)==1) return 1;
     values_2_double.push_back(value);
     _idx.push_back(values_2_double.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<std::vector<char>> value) {
+int DIY::dict::add(std::string key, std::vector<std::vector<char>> value) {
     if(this->_extend_reg(key, 240)==1) return 1;
     values_2_char.push_back(value);
     _idx.push_back(values_2_char.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<std::vector<std::string>> value) {
+int DIY::dict::add(std::string key, std::vector<std::vector<std::string>> value) {
     if(this->_extend_reg(key, 250)==1) return 1;
     values_2_string.push_back(value);
     _idx.push_back(values_2_string.size()-1);
     return 0;
 }
 
-int diy_dict::add(std::string key, std::vector<std::vector<bool>>* ptr) {
+int DIY::dict::add(std::string key, std::vector<std::vector<bool>>* ptr) {
     if(this->_extend_reg(key, 201)==1) return 1;
     values_2_bool_p.push_back(ptr);
     _idx.push_back(values_2_bool_p.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<std::vector<int>>* ptr) {
+int DIY::dict::add(std::string key, std::vector<std::vector<int>>* ptr) {
     if(this->_extend_reg(key, 211)==1) return 1;
     values_2_int_p.push_back(ptr);
     _idx.push_back(values_2_int_p.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<std::vector<float>>* ptr) {
+int DIY::dict::add(std::string key, std::vector<std::vector<float>>* ptr) {
     if(this->_extend_reg(key, 221)==1) return 1;
     values_2_float_p.push_back(ptr);
     _idx.push_back(values_2_float_p.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<std::vector<double>>* ptr) {
+int DIY::dict::add(std::string key, std::vector<std::vector<double>>* ptr) {
     if(this->_extend_reg(key, 231)==1) return 1;
     values_2_double_p.push_back(ptr);
     _idx.push_back(values_2_double_p.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<std::vector<char>>* ptr) {
+int DIY::dict::add(std::string key, std::vector<std::vector<char>>* ptr) {
     if(this->_extend_reg(key, 241)==1) return 1;
     values_2_char_p.push_back(ptr);
     _idx.push_back(values_2_char_p.size()-1);
     return 0;
 }
-int diy_dict::add(std::string key, std::vector<std::vector<std::string>>* ptr) {
+int DIY::dict::add(std::string key, std::vector<std::vector<std::string>>* ptr) {
     if(this->_extend_reg(key, 251)==1) return 1;
     values_2_string_p.push_back(ptr);
     _idx.push_back(values_2_string_p.size()-1);
@@ -885,7 +885,7 @@ int diy_dict::add(std::string key, std::vector<std::vector<std::string>>* ptr) {
 
 
 
-int diy_dict::edit(std::string key, bool value) {
+int DIY::dict::edit(std::string key, bool value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -894,7 +894,7 @@ int diy_dict::edit(std::string key, bool value) {
     values_0_bool[this->_idx[pos]] = value;
     return 0;
 }
-int diy_dict::edit(std::string key, int value) {
+int DIY::dict::edit(std::string key, int value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -903,7 +903,7 @@ int diy_dict::edit(std::string key, int value) {
     values_0_int[this->_idx[pos]] = value;
     return 0;
 }
-int diy_dict::edit(std::string key, float value) {
+int DIY::dict::edit(std::string key, float value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -912,7 +912,7 @@ int diy_dict::edit(std::string key, float value) {
     values_0_float[this->_idx[pos]] = value;
     return 0;
 }
-int diy_dict::edit(std::string key, double value) {
+int DIY::dict::edit(std::string key, double value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -921,7 +921,7 @@ int diy_dict::edit(std::string key, double value) {
     values_0_double[this->_idx[pos]] = value;
     return 0;
 }
-int diy_dict::edit(std::string key, char value) {
+int DIY::dict::edit(std::string key, char value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -930,7 +930,7 @@ int diy_dict::edit(std::string key, char value) {
     values_0_char[this->_idx[pos]] = value;
     return 0;
 }
-int diy_dict::edit(std::string key, std::string value) {
+int DIY::dict::edit(std::string key, std::string value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -940,7 +940,7 @@ int diy_dict::edit(std::string key, std::string value) {
     return 0;
 }
 
-int diy_dict::edit(std::string key, bool* ptr) {
+int DIY::dict::edit(std::string key, bool* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -949,7 +949,7 @@ int diy_dict::edit(std::string key, bool* ptr) {
     values_0_bool_p[this->_idx[pos]] = ptr;
     return 0;
 }
-int diy_dict::edit(std::string key, int* ptr) {
+int DIY::dict::edit(std::string key, int* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -958,7 +958,7 @@ int diy_dict::edit(std::string key, int* ptr) {
     values_0_int_p[this->_idx[pos]] = ptr;
     return 0;
 }
-int diy_dict::edit(std::string key, float* ptr) {
+int DIY::dict::edit(std::string key, float* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -967,7 +967,7 @@ int diy_dict::edit(std::string key, float* ptr) {
     values_0_float_p[this->_idx[pos]] = ptr;
     return 0;
 }
-int diy_dict::edit(std::string key, double* ptr) {
+int DIY::dict::edit(std::string key, double* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -976,7 +976,7 @@ int diy_dict::edit(std::string key, double* ptr) {
     values_0_double_p[this->_idx[pos]] = ptr;
     return 0;
 }
-int diy_dict::edit(std::string key, char* ptr) {
+int DIY::dict::edit(std::string key, char* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -985,7 +985,7 @@ int diy_dict::edit(std::string key, char* ptr) {
     values_0_char_p[this->_idx[pos]] = ptr;
     return 0;
 }
-int diy_dict::edit(std::string key, std::string* ptr) {
+int DIY::dict::edit(std::string key, std::string* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -996,7 +996,7 @@ int diy_dict::edit(std::string key, std::string* ptr) {
 }
 
 
-int diy_dict::edit(std::string key, std::vector<bool> value) {
+int DIY::dict::edit(std::string key, std::vector<bool> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1005,7 +1005,7 @@ int diy_dict::edit(std::string key, std::vector<bool> value) {
     values_1_bool[this->_idx[pos]] = value;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<int> value) {
+int DIY::dict::edit(std::string key, std::vector<int> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1014,7 +1014,7 @@ int diy_dict::edit(std::string key, std::vector<int> value) {
     values_1_int[this->_idx[pos]] = value;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<float> value) {
+int DIY::dict::edit(std::string key, std::vector<float> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1023,7 +1023,7 @@ int diy_dict::edit(std::string key, std::vector<float> value) {
     values_1_float[this->_idx[pos]] = value;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<double> value) {
+int DIY::dict::edit(std::string key, std::vector<double> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1032,7 +1032,7 @@ int diy_dict::edit(std::string key, std::vector<double> value) {
     values_1_double[this->_idx[pos]] = value;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<char> value) {
+int DIY::dict::edit(std::string key, std::vector<char> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1041,7 +1041,7 @@ int diy_dict::edit(std::string key, std::vector<char> value) {
     values_1_char[this->_idx[pos]] = value;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<std::string> value) {
+int DIY::dict::edit(std::string key, std::vector<std::string> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1051,7 +1051,7 @@ int diy_dict::edit(std::string key, std::vector<std::string> value) {
     return 0;
 }
 
-int diy_dict::edit(std::string key, std::vector<bool>* ptr) {
+int DIY::dict::edit(std::string key, std::vector<bool>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1060,7 +1060,7 @@ int diy_dict::edit(std::string key, std::vector<bool>* ptr) {
     values_1_bool_p[this->_idx[pos]] = ptr;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<int>* ptr) {
+int DIY::dict::edit(std::string key, std::vector<int>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1069,7 +1069,7 @@ int diy_dict::edit(std::string key, std::vector<int>* ptr) {
     values_1_int_p[this->_idx[pos]] = ptr;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<float>* ptr) {
+int DIY::dict::edit(std::string key, std::vector<float>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1078,7 +1078,7 @@ int diy_dict::edit(std::string key, std::vector<float>* ptr) {
     values_1_float_p[this->_idx[pos]] = ptr;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<double>* ptr) {
+int DIY::dict::edit(std::string key, std::vector<double>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1087,7 +1087,7 @@ int diy_dict::edit(std::string key, std::vector<double>* ptr) {
     values_1_double_p[this->_idx[pos]] = ptr;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<char>* ptr) {
+int DIY::dict::edit(std::string key, std::vector<char>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1096,7 +1096,7 @@ int diy_dict::edit(std::string key, std::vector<char>* ptr) {
     values_1_char_p[this->_idx[pos]] = ptr;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<std::string>* ptr) {
+int DIY::dict::edit(std::string key, std::vector<std::string>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1107,7 +1107,7 @@ int diy_dict::edit(std::string key, std::vector<std::string>* ptr) {
 }
 
 
-int diy_dict::edit(std::string key, std::vector<std::vector<bool>> value) {
+int DIY::dict::edit(std::string key, std::vector<std::vector<bool>> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1116,7 +1116,7 @@ int diy_dict::edit(std::string key, std::vector<std::vector<bool>> value) {
     values_2_bool[this->_idx[pos]] = value;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<std::vector<int>> value) {
+int DIY::dict::edit(std::string key, std::vector<std::vector<int>> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1125,7 +1125,7 @@ int diy_dict::edit(std::string key, std::vector<std::vector<int>> value) {
     values_2_int[this->_idx[pos]] = value;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<std::vector<float>> value) {
+int DIY::dict::edit(std::string key, std::vector<std::vector<float>> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1134,7 +1134,7 @@ int diy_dict::edit(std::string key, std::vector<std::vector<float>> value) {
     values_2_float[this->_idx[pos]] = value;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<std::vector<double>> value) {
+int DIY::dict::edit(std::string key, std::vector<std::vector<double>> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1143,7 +1143,7 @@ int diy_dict::edit(std::string key, std::vector<std::vector<double>> value) {
     values_2_double[this->_idx[pos]] = value;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<std::vector<char>> value) {
+int DIY::dict::edit(std::string key, std::vector<std::vector<char>> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1152,7 +1152,7 @@ int diy_dict::edit(std::string key, std::vector<std::vector<char>> value) {
     values_2_char[this->_idx[pos]] = value;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<std::vector<std::string>> value) {
+int DIY::dict::edit(std::string key, std::vector<std::vector<std::string>> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1162,7 +1162,7 @@ int diy_dict::edit(std::string key, std::vector<std::vector<std::string>> value)
     return 0;
 }
 
-int diy_dict::edit(std::string key, std::vector<std::vector<bool>>* ptr) {
+int DIY::dict::edit(std::string key, std::vector<std::vector<bool>>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1171,7 +1171,7 @@ int diy_dict::edit(std::string key, std::vector<std::vector<bool>>* ptr) {
     values_2_bool_p[this->_idx[pos]] = ptr;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<std::vector<int>>* ptr) {
+int DIY::dict::edit(std::string key, std::vector<std::vector<int>>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1180,7 +1180,7 @@ int diy_dict::edit(std::string key, std::vector<std::vector<int>>* ptr) {
     values_2_int_p[this->_idx[pos]] = ptr;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<std::vector<float>>* ptr) {
+int DIY::dict::edit(std::string key, std::vector<std::vector<float>>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1189,7 +1189,7 @@ int diy_dict::edit(std::string key, std::vector<std::vector<float>>* ptr) {
     values_2_float_p[this->_idx[pos]] = ptr;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<std::vector<double>>* ptr) {
+int DIY::dict::edit(std::string key, std::vector<std::vector<double>>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1198,7 +1198,7 @@ int diy_dict::edit(std::string key, std::vector<std::vector<double>>* ptr) {
     values_2_double_p[this->_idx[pos]] = ptr;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<std::vector<char>>* ptr) {
+int DIY::dict::edit(std::string key, std::vector<std::vector<char>>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1207,7 +1207,7 @@ int diy_dict::edit(std::string key, std::vector<std::vector<char>>* ptr) {
     values_2_char_p[this->_idx[pos]] = ptr;
     return 0;
 }
-int diy_dict::edit(std::string key, std::vector<std::vector<std::string>>* ptr) {
+int DIY::dict::edit(std::string key, std::vector<std::vector<std::string>>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
@@ -1220,189 +1220,189 @@ int diy_dict::edit(std::string key, std::vector<std::vector<std::string>>* ptr) 
 
 
 
-bool        diy_dict::get0_bool_  (std::string key) {
+bool        DIY::dict::get0_bool_  (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==  0) return values_0_bool.at(this->_idx[pos]);
     return NULL;
 }
-int         diy_dict::get0_int_   (std::string key) {
+int         DIY::dict::get0_int_   (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]== 10) return values_0_int.at(this->_idx[pos]);
     return NULL;
 }
-float       diy_dict::get0_float_ (std::string key) {
+float       DIY::dict::get0_float_ (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]== 20) return values_0_float.at(this->_idx[pos]);
     return NULL;
 }
-double      diy_dict::get0_double_(std::string key) {
+double      DIY::dict::get0_double_(std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]== 30) return values_0_double.at(this->_idx[pos]);
     return NULL;
 }
-char        diy_dict::get0_char_  (std::string key) {
+char        DIY::dict::get0_char_  (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]== 40) return values_0_char.at(this->_idx[pos]);
     return NULL;
 }
-std::string diy_dict::get0_string_(std::string key) {
+std::string DIY::dict::get0_string_(std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]== 50) return values_0_string.at(this->_idx[pos]);
     return NULL;
 }
 
-bool*        diy_dict::get0_boolP  (std::string key) {
+bool*        DIY::dict::get0_boolP  (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==  1) return values_0_bool_p.at(this->_idx[pos]);
     return NULL;
 }
-int*         diy_dict::get0_intP   (std::string key) {
+int*         DIY::dict::get0_intP   (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]== 11) return values_0_int_p.at(this->_idx[pos]);
     return NULL;
 }
-float*       diy_dict::get0_floatP (std::string key) {
+float*       DIY::dict::get0_floatP (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]== 21) return values_0_float_p.at(this->_idx[pos]);
     return NULL;
 }
-double*      diy_dict::get0_doubleP(std::string key) {
+double*      DIY::dict::get0_doubleP(std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]== 31) return values_0_double_p.at(this->_idx[pos]);
     return NULL;
 }
-char*        diy_dict::get0_charP  (std::string key) {
+char*        DIY::dict::get0_charP  (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]== 41) return values_0_char_p.at(this->_idx[pos]);
     return NULL;
 }
-std::string* diy_dict::get0_stringP(std::string key) {
+std::string* DIY::dict::get0_stringP(std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]== 51) return values_0_string_p.at(this->_idx[pos]);
     return NULL;
 }
 
 
-std::vector<bool>           diy_dict::get1_bool_  (std::string key) {
+std::vector<bool>           DIY::dict::get1_bool_  (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==100) return values_1_bool.at(this->_idx[pos]);
     return std::vector<bool>();
 }
-std::vector<int>            diy_dict::get1_int_   (std::string key) {
+std::vector<int>            DIY::dict::get1_int_   (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==110) return values_1_int.at(this->_idx[pos]);
     return std::vector<int>();
 }
-std::vector<float>          diy_dict::get1_float_ (std::string key) {
+std::vector<float>          DIY::dict::get1_float_ (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==120) return values_1_float.at(this->_idx[pos]);
     return std::vector<float>();
 }
-std::vector<double>         diy_dict::get1_double_(std::string key) {
+std::vector<double>         DIY::dict::get1_double_(std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==130) return values_1_double.at(this->_idx[pos]);
     return std::vector<double>();
 }
-std::vector<char>           diy_dict::get1_char_  (std::string key) {
+std::vector<char>           DIY::dict::get1_char_  (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==140) return values_1_char.at(this->_idx[pos]);
     return std::vector<char>();
 }
-std::vector<std::string>    diy_dict::get1_string_(std::string key) {
+std::vector<std::string>    DIY::dict::get1_string_(std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==150) return values_1_string.at(this->_idx[pos]);
     return std::vector<std::string>();
 }
 
-std::vector<bool>*          diy_dict::get1_boolP  (std::string key) {
+std::vector<bool>*          DIY::dict::get1_boolP  (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==101) return values_1_bool_p.at(this->_idx[pos]);
     return nullptr;
 }
-std::vector<int>*           diy_dict::get1_intP   (std::string key) {
+std::vector<int>*           DIY::dict::get1_intP   (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==111) return values_1_int_p.at(this->_idx[pos]);
     return nullptr;
 }
-std::vector<float>*         diy_dict::get1_floatP (std::string key) {
+std::vector<float>*         DIY::dict::get1_floatP (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==121) return values_1_float_p.at(this->_idx[pos]);
     return nullptr;
 }
-std::vector<double>*        diy_dict::get1_doubleP(std::string key) {
+std::vector<double>*        DIY::dict::get1_doubleP(std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==131) return values_1_double_p.at(this->_idx[pos]);
     return nullptr;
 }
-std::vector<char>*          diy_dict::get1_charP  (std::string key) {
+std::vector<char>*          DIY::dict::get1_charP  (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==141) return values_1_char_p.at(this->_idx[pos]);
     return nullptr;
 }
-std::vector<std::string>*   diy_dict::get1_stringP(std::string key) {
+std::vector<std::string>*   DIY::dict::get1_stringP(std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==151) return values_1_string_p.at(this->_idx[pos]);
     return nullptr;
 }
 
 
-std::vector<std::vector<bool>>        diy_dict::get2_bool_  (std::string key) {
+std::vector<std::vector<bool>>        DIY::dict::get2_bool_  (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==200) return values_2_bool.at(this->_idx[pos]);
     return std::vector<std::vector<bool>>();
 }
-std::vector<std::vector<int>>         diy_dict::get2_int_   (std::string key) {
+std::vector<std::vector<int>>         DIY::dict::get2_int_   (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==210) return values_2_int.at(this->_idx[pos]);
     return std::vector<std::vector<int>>();
 }
-std::vector<std::vector<float>>       diy_dict::get2_float_ (std::string key) {
+std::vector<std::vector<float>>       DIY::dict::get2_float_ (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==220) return values_2_float.at(this->_idx[pos]);
     return std::vector<std::vector<float>>();
 }
-std::vector<std::vector<double>>      diy_dict::get2_double_(std::string key) {
+std::vector<std::vector<double>>      DIY::dict::get2_double_(std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==230) return values_2_double.at(this->_idx[pos]);
     return std::vector<std::vector<double>>();
 }
-std::vector<std::vector<char>>        diy_dict::get2_char_  (std::string key) {
+std::vector<std::vector<char>>        DIY::dict::get2_char_  (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==240) return values_2_char.at(this->_idx[pos]);
     return std::vector<std::vector<char>>();
 }
-std::vector<std::vector<std::string>> diy_dict::get2_string_(std::string key) {
+std::vector<std::vector<std::string>> DIY::dict::get2_string_(std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==250) return values_2_string.at(this->_idx[pos]);
     return std::vector<std::vector<std::string>>();
 }
 
-std::vector<std::vector<bool>>*        diy_dict::get2_boolP  (std::string key) {
+std::vector<std::vector<bool>>*        DIY::dict::get2_boolP  (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==201) return values_2_bool_p.at(this->_idx[pos]);
     return nullptr;
 }
-std::vector<std::vector<int>>*         diy_dict::get2_intP   (std::string key) {
+std::vector<std::vector<int>>*         DIY::dict::get2_intP   (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==211) return values_2_int_p.at(this->_idx[pos]);
     return nullptr;
 }
-std::vector<std::vector<float>>*       diy_dict::get2_floatP (std::string key) {
+std::vector<std::vector<float>>*       DIY::dict::get2_floatP (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==221) return values_2_float_p.at(this->_idx[pos]);
     return nullptr;
 }
-std::vector<std::vector<double>>*      diy_dict::get2_doubleP(std::string key) {
+std::vector<std::vector<double>>*      DIY::dict::get2_doubleP(std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==231) return values_2_double_p.at(this->_idx[pos]);
     return nullptr;
 }
-std::vector<std::vector<char>>*        diy_dict::get2_charP  (std::string key) {
+std::vector<std::vector<char>>*        DIY::dict::get2_charP  (std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==241) return values_2_char_p.at(this->_idx[pos]);
     return nullptr;
 }
-std::vector<std::vector<std::string>>* diy_dict::get2_stringP(std::string key) {
+std::vector<std::vector<std::string>>* DIY::dict::get2_stringP(std::string key) {
     int pos = check_existence(key);
     if(pos!=-1 && this->_datatype[pos]==251) return values_2_string_p.at(this->_idx[pos]);
     return nullptr;

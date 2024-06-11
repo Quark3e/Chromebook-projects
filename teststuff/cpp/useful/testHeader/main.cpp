@@ -48,7 +48,7 @@ void printInp() {
     }
 }
 
-diy_dict dictObj_glob(
+DIY::dict dictObj_glob(
     std::vector<string>{"uno", "dos", "tres"},
     std::vector<bool>{true, true, false}
 );
@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
     cout << "program called:-----------"<<endl;
 
 
-    diy_dict dictObj;
+    DIY::dict dictObj;
 
     std::vector<std::string> testVec{"one", "two", "three", "two", "five", "two", "two"};
     std::string toFind = "";
@@ -103,9 +103,9 @@ int main(int argc, char** argv) {
 
     cout << "---------" << endl;
 
-    cout << prettyPrint_vec1<std::string>(dictObj_glob.keys(),"right",2,0,0,0,4,true) << endl;
+    cout << DIY::prettyPrint_vec1<std::string>(dictObj_glob.keys(),"right",2,0,0,0,4,true) << endl;
     for(std::string key: dictObj_glob.keys()) {
-        cout << dict_formatNumber<std::string>(key,6,0,"left")<<": " << std::boolalpha << dictObj_glob.get0_bool_(key) << endl;
+        cout << DIY::formatNumber<std::string>(key,6,0,"left")<<": " << std::boolalpha << dictObj_glob.get0_bool_(key) << endl;
     }
     
 
