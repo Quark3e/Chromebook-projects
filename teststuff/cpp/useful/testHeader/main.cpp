@@ -115,10 +115,23 @@ int main(int argc, char** argv) {
         std::vector<int>{1, 2, 3, 4}
     );
 
+    DIY::typed_dict<std::string, float> inst0(
+        {"one", "two", "three", "four", "five"},
+        {1, 2, 3, 4, 5}
+    );
+
+
     for(char key: typeInst.keys()) {
         cout << DIY::formatNumber<int>(key, 3,0,"left") <<": ";
         // cout << "|" << DIY::formatNumber(int(key),3,0) << "| ";
         cout << typeInst[key]<<endl;
+    }
+
+    cout << "---------" << endl;
+
+    for(auto key: inst0.keys()) {
+        cout << DIY::formatNumber<std::string>(key,5,0,"left")<<": ";
+        cout << inst0[key] << endl;
     }
 
     return 0;
