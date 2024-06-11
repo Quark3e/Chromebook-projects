@@ -48,6 +48,11 @@ void printInp() {
     }
 }
 
+diy_dict dictObj_glob(
+    std::vector<string>{"uno", "dos", "tres"},
+    std::vector<bool>{true, true, false}
+);
+
 int main(int argc, char** argv) {
 
     cout << "program called:-----------"<<endl;
@@ -68,7 +73,6 @@ int main(int argc, char** argv) {
 
 
     // (*dictObj.get0_stringP("toFind 0")) = "pepega";
-
 
 
     if(dictObj.add("toFind 1", std::string("pepega"))==1) return 1;
@@ -96,6 +100,11 @@ int main(int argc, char** argv) {
             cout << " > [" << foundIdx.at(i) << "] -> key of idx:\""<<testVec[foundIdx.at(i)] <<"\" -> "<< dictObj.str_export(dictObj[0]) <<" \n";
         }
     }
+
+    cout << "---------" << endl;
+
+    cout << prettyPrint_vec1<std::string>(dictObj_glob.keys(),"right",2,0,0,0,4,true) << endl;
+    
 
 
     return 0;

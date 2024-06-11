@@ -13,6 +13,10 @@
 
 using namespace std;
 
+
+
+
+
 namespace HW_KINEMATICS 
 {
 
@@ -36,7 +40,6 @@ namespace HW_KINEMATICS
      */
 
 
-    
 
 
     /**Length of the six arms. unit: [mm]*/
@@ -45,92 +48,14 @@ namespace HW_KINEMATICS
     /**Weight of the load the motor at index [] is carrying. unit: [kg]*/
     inline float sLoadWeight[6] = {0, 0.130, 0.085, 0.051, 0.03, 0.01};
 
-    /**Angle offset to apply to given angles to make sure angle-origo/0 is paralllel along the arm axis*/
-    inline float offset_q[6] = {90, 0, 135, 90, 90, 90};
-
-    /**Angles to send to the servo motors at startup to hold a pose*/
-    inline float startup_q[6] = {0, 115, -90, 0, -25, 00};
-
     /**Namespace scope array of values to store newly solved angles by HW_KINEMATICS::getAngles()*/
     inline float solved_q[6] = {0, 0, 0, 0, 0, 0};
 
 
 
-    /// @brief Apply real-world servo motor offsets to input angles
-    /// @param angles float()[6] values to add defaults onto: NOTE: original var will be modified
-    inline void add_defaults(float angles[6]) {
-        angles[0] = offset_q[0] + angles[0];
-        angles[1] = offset_q[1] + angles[1];
-        angles[2] = 180 - (offset_q[2] + angles[2]);
-        angles[3] = offset_q[3] + angles[3];
-        angles[4] = 180 - (offset_q[4] + angles[4]);
-        angles[5] = offset_q[5] + angles[5];
-    }
+    float toRadians(float degrees) { return (degrees*M_PI)/180; }
+    float toDegrees(float radians) { return (radians*180)/M_PI; }
 
-    /// @brief apply correction function values for each servos error rate
-    /// @param angles float array of rotation values to correct
-    /// @return nothing. Modifies parameter variable
-    inline void q_corrections(float angles[6]) {
-        float error_Consts[6] = {
-            0.802139037433155,
-            0.7538,
-            0.8772,
-            1.0345,
-            1,
-            1
-        };
-        angles[0] = angles[0] * error_Consts[0];
-        // angles[1] = angles[1] * error_Consts[1];
-        angles[1] =
-            1.751 * pow(10, -9) * pow(angles[1], 5)
-            -7.693 * pow(10, -7) * pow(angles[1], 4)
-            +0.000117 * pow(angles[1], 3)
-            -0.006447 * pow(angles[1], 2)
-            +0.71 * angles[1]
-            +25.66;
-        angles[2] = 
-            4.605 * pow(10, -9) * pow(angles[2], 5)
-            -2.178 * pow(10, -6) * pow(angles[2], 4)
-            +0.0003815 * pow(angles[2],3)
-            -0.02938 * pow(angles[2],2)
-            +1.776 * angles[2]
-            +4.114;
-        angles[3] = angles[3] * error_Consts[3];
-        angles[4] = angles[4] * error_Consts[4];
-        angles[5] = angles[5] * error_Consts[5];
-    }
-
-    /// @brief Check if any angle in {angles} is exceeding servo motors range
-    /// @param angles angles to check
-    /// @param printErrors whether to print out any exceedings onto the terminal
-    /// @return boolean of whether any angles have exceeded
-    inline bool exceedCheck(float angles[6], bool printErrors=true) {
-        bool exceeded = false;
-        bool whichExceeded[6] = {false, false, false, false, false, false};
-        string typeOfExceeded[6] = {"null", "null", "null", "null", "null", "null"};
-
-        for(int i=0; i<5; i++) {
-            if(int(angles[i])<0) {
-                exceeded=true;
-                whichExceeded[i]=true;
-                typeOfExceeded[i]="under";
-                angles[i]=0; 
-            }
-            if(int(angles[i])>180) {
-                exceeded=true;
-                whichExceeded[i]=true;
-                typeOfExceeded[i]="over";
-                angles[i]=180;
-            }
-        }
-        if(exceeded && printErrors) {
-            printf("\n");
-            for(int i=0; i<6; i++) { if(whichExceeded[i]) printf("\t-servo q[%d] exceeded: %s\n",i, typeOfExceeded[i].c_str()); }
-        }
-        // printf("\n");
-        if(exceeded) return true;
-        else return false;   
-    }
 
 
     // Inverse Kinematics - specific functions:

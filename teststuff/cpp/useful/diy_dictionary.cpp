@@ -6,35 +6,296 @@ diy_dict::diy_dict(/* args */) {
 
 }
 
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<bool>           values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_0_bool = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<int>            values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_0_int = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<float>          values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_0_float = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<double>         values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_0_double = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<char>           values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_0_char = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::string>    values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_0_string = values;
+        this->_storage_init = true;
+    }
+}
+
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<bool*>          values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_0_bool_p = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<int*>           values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_0_int_p = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<float*>         values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_0_float_p = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<double*>        values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_0_double_p = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<char*>          values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_0_char_p = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::string*>   values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_0_string_p = values;
+        this->_storage_init = true;
+    }
+}
+
+
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<bool>>           values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_1_bool = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<int>>            values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_1_int = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<float>>          values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_1_float = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<double>>         values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_1_double = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<char>>           values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_1_char = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::string>>    values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_1_string = values;
+        this->_storage_init = true;
+    }
+}
+
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<bool>*>          values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_1_bool_p = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<int>*>           values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_1_int_p = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<float>*>         values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_1_float_p = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<double>*>        values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_1_double_p = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<char>*>          values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_1_char_p = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::string>*>   values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_1_string_p = values;
+        this->_storage_init = true;
+    }
+}
+
+
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<bool>>>           values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_2_bool = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<int>>>            values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_2_int = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<float>>>          values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_2_float = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<double>>>         values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_2_double = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<char>>>           values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_2_char = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<std::string>>>    values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_2_string = values;
+        this->_storage_init = true;
+    }
+}
+
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<bool>>*>          values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_2_bool_p = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<int>>*>           values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_2_int_p = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<float>>*>         values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_2_float_p = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<double>>*>        values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_2_double_p = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<char>>*>          values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_2_char_p = values;
+        this->_storage_init = true;
+    }
+}
+diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<std::string>>*>   values) {
+    if(keys.size()==values.size()) {
+        this->_keys = keys;
+        this->values_2_string_p = values;
+        this->_storage_init = true;
+    }
+}
+
 diy_dict::~diy_dict() {}
 
 
 /**
- * @brief common function to check if a `key` exists in `diy_dict::keys` vector/container
+ * @brief common function to check if a `key` exists in `diy_dict::this->_keys` vector/container
  * 
  * @param key the `std::string` label/key to check if it exists in the vecot
  * @param verbose whether to print the output:
  * `0` = false; `1` = true; `-1` = {use default}/`diy_dict::arg_searchVec_verbose`
- * @return `int` of idx for where that key exists in `diy_dict::keys` vector; returns `-1` if key doesn't exist.
+ * @return `int` of idx for where that key exists in `diy_dict::this->_keys` vector; returns `-1` if key doesn't exist.
  */
 int diy_dict::check_existence(std::string key, int verbose=-1) {
     if(verbose==-1) verbose = verbose = arg_searchVec_verbose;
     std::vector<int> pos = DIY_SEARCH_MULTITHREAD::multithread_searchVec<std::string>(
-        keys, key, arg_searchVec_numThreads, arg_searchVec_threadLen, false, arg_searchVec_checkSpacing, verbose);
+        this->_keys, key, arg_searchVec_numThreads, arg_searchVec_threadLen, false, arg_searchVec_checkSpacing, verbose);
     return pos[0];
 }
 
 /**
- * @brief check if `key` exist and if not then extend `keys` and `datatype` vectors
+ * @brief check if `key` exist and if not then extend `this->_keys` and `this->_datatype` vectors
  * 
- * @param key string to check if exists already and if not add this to common vector `keys`
+ * @param key string to check if exists already and if not add this to common vector `this->_keys`
  * @param varType integer to type of value/ptr to add according to `types` definition
- * @return int value for success or not: `0`-successfully added `key` and `datatype` to vectors; `1`-unsuccessful. key already exists
+ * @return int value for success or not: `0`-successfully added `key` and `this->_datatype` to vectors; `1`-unsuccessful. key already exists
  */
 int diy_dict::_extend_reg(std::string key, int varType) {
     if(check_existence(key) != -1) return 1;
-    keys.push_back(key);
-    datatype.push_back(varType);
+    this->_keys.push_back(key);
+    this->_datatype.push_back(varType);
+    this->_storage_init = true;
     return 0;
 }
 
@@ -133,7 +394,7 @@ std::string diy_dict::str_export(
     if(pos==-1) return "";
     std::string tempStr = "";
 
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     int vecType = 0; //level of vec
     bool isPtr = type % 10;
     float type_deriv2 = type;
@@ -147,6 +408,7 @@ std::string diy_dict::str_export(
     }
     catch(const std::exception& e) {
         insertIdx = -1;
+        tempStr = "-1";
     }
     if(insertIdx!=-1) codedInsert = codedInsert.substr(insertSymbPos+1);
     else codedInsert = "";
@@ -157,7 +419,7 @@ std::string diy_dict::str_export(
     else if(type<300) { type_deriv2 = static_cast<float>(type-200); vecType = 2; }
     
 
-    pos = idx[pos];
+    pos = this->_idx[pos];
     switch (static_cast<int>(floor(type_deriv2/10))) {
     case 0: //bool
         if(vecType==0 && isPtr) tempStr = std::string(padding,emptySpace) + _bool_string(*values_0_bool_p[pos]) + std::string(padding,emptySpace);
@@ -218,12 +480,12 @@ std::string diy_dict::str_export(
     return finalStr;
 }
 
-/// @brief get the datatype code of `key` defined by `diy_dict::info_type_definition`
-/// @param key to find the stored datatype code of
-/// @return datatype code that's found. If `key` doesnt exist then it'll return `-1`
+/// @brief get the this->_datatype code of `key` defined by `diy_dict::info_type_definition`
+/// @param key to find the stored this->_datatype code of
+/// @return this->_datatype code that's found. If `key` doesnt exist then it'll return `-1`
 int diy_dict::get_type(std::string key) {
     int pos = check_existence(key);
-    return datatype[pos];
+    return this->_datatype[pos];
 }
 
 /**
@@ -288,7 +550,7 @@ int diy_dict::get_type_size(int typeID) {
  */
 int diy_dict::get_type_size(std::string key) {
     int pos = this->check_existence(key);
-    int typeCode = datatype[pos];
+    int typeCode = this->_datatype[pos];
     if(pos==-1) return -1;
     int vecSize = this->get_type_size(typeCode);
     return vecSize;
@@ -305,7 +567,7 @@ int diy_dict::get_type_size(std::string key) {
 int diy_dict::rename_key(std::string key, std::string new_key) {
     int pos = this->check_existence(key);
     if(pos==-1) return 1;
-    keys[idx[pos]] = new_key;
+    this->_keys[this->_idx[pos]] = new_key;
 
     return 0;
 }
@@ -320,16 +582,16 @@ int diy_dict::rename_key(std::string key, std::string new_key) {
 int diy_dict::delete_key(std::string key) {
     /**
      * need to change containers:
-     * - `keys`     {change: erase(key)}
-     * - `datatype` {change: erase(key)}
+     * - `this->_keys`     {change: erase(key)}
+     * - `this->_datatype` {change: erase(key)}
      * - `{relative}
      * - `idx`      {change: erase(key), {-1 all same-container elements above pos}}
      */
 
     int pos = this->check_existence(key); //position/index in "navigator" vectors
     if(pos==-1) return 1;
-    int local_idx = idx[pos]; //position/index in "storage" vectors
-    int typeID = datatype[pos]; //typeID/type-code to what "storage" vector is related to 'key`
+    int local_idx = this->_idx[pos]; //position/index in "storage" vectors
+    int typeID = this->_datatype[pos]; //typeID/type-code to what "storage" vector is related to 'key`
     int local_size = this->get_type_size(typeID); //size of "storage" vector related to `key`
 
 
@@ -338,20 +600,20 @@ int diy_dict::delete_key(std::string key) {
 
 
     // get all occurrences of typeID
-    std::vector<int> typeOcc = DIY_SEARCH_MULTITHREAD::multithread_searchVec<int>(this->datatype, typeID, 1, -1, true);
+    std::vector<int> typeOcc = DIY_SEARCH_MULTITHREAD::multithread_searchVec<int>(this->_datatype, typeID, 1, -1, true);
     if(typeOcc[0]==-1) return 1;
 
 
-    // subtract -1 of all idx[pos] elements, with same "storage" container type as `key`, that has its value/pointer stored "further from 0" than `key`
+    // subtract -1 of all this->_idx[pos] elements, with same "storage" container type as `key`, that has its value/pointer stored "further from 0" than `key`
     for(int elem_idx: typeOcc) {
-        if(elem_idx>pos) this->idx[elem_idx]--;
+        if(elem_idx>pos) this->_idx[elem_idx]--;
     }
 
 
     // erase all "navigator" elements related to `key`.
-    this->keys.erase(this->keys.begin()+pos);
-    this->datatype.erase(this->datatype.begin()+pos);
-    this->idx.erase(this->idx.begin()+pos);
+    this->_keys.erase(this->_keys.begin()+pos);
+    this->_datatype.erase(this->_datatype.begin()+pos);
+    this->_idx.erase(this->_idx.begin()+pos);
 
 
     return 0;
@@ -362,74 +624,74 @@ int diy_dict::delete_key(std::string key) {
 int diy_dict::add(std::string key, bool value) {
     if(this->_extend_reg(key, 0)==1) return 1;
     values_0_bool.push_back(value);
-    idx.push_back(values_0_bool.size()-1);
+    _idx.push_back(values_0_bool.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, int value) {
     if(this->_extend_reg(key, 10)==1) return 1;
     values_0_int.push_back(value);
-    idx.push_back(values_0_int.size()-1);
+    _idx.push_back(values_0_int.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, float value) {
     if(this->_extend_reg(key, 20)==1) return 1;
     values_0_float.push_back(value);
-    idx.push_back(values_0_float.size()-1);
+    _idx.push_back(values_0_float.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, double value) {
     if(this->_extend_reg(key, 30)==1) return 1;
     values_0_double.push_back(value);
-    idx.push_back(values_0_double.size()-1);
+    _idx.push_back(values_0_double.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, char value) {
     if(this->_extend_reg(key, 40)==1) return 1;
     values_0_char.push_back(value);
-    idx.push_back(values_0_char.size()-1);
+    _idx.push_back(values_0_char.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::string value) {
     if(this->_extend_reg(key, 50)==1) return 1;
     values_0_string.push_back(value);
-    idx.push_back(values_0_string.size()-1);
+    _idx.push_back(values_0_string.size()-1);
     return 0;
 }
 
 int diy_dict::add(std::string key, bool* ptr) {
     if(this->_extend_reg(key, 1)==1) return 1;
     values_0_bool_p.push_back(ptr);
-    idx.push_back(values_0_bool_p.size()-1);
+    _idx.push_back(values_0_bool_p.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, int* ptr) {
     if(this->_extend_reg(key, 11)==1) return 1;
     values_0_int_p.push_back(ptr);
-    idx.push_back(values_0_int_p.size()-1);
+    _idx.push_back(values_0_int_p.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, float* ptr) {
     if(this->_extend_reg(key, 21)==1) return 1;
     values_0_float_p.push_back(ptr);
-    idx.push_back(values_0_float_p.size()-1);
+    _idx.push_back(values_0_float_p.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, double* ptr) {
     if(this->_extend_reg(key, 31)==1) return 1;
     values_0_double_p.push_back(ptr);
-    idx.push_back(values_0_double_p.size()-1);
+    _idx.push_back(values_0_double_p.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, char* ptr) {
     if(this->_extend_reg(key, 41)==1) return 1;
     values_0_char_p.push_back(ptr);
-    idx.push_back(values_0_char_p.size()-1);
+    _idx.push_back(values_0_char_p.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::string* ptr) {
     if(this->_extend_reg(key, 51)==1) return 1;
     values_0_string_p.push_back(ptr);
-    idx.push_back(values_0_string_p.size()-1);
+    _idx.push_back(values_0_string_p.size()-1);
     return 0;
 }
 
@@ -437,74 +699,74 @@ int diy_dict::add(std::string key, std::string* ptr) {
 int diy_dict::add(std::string key, std::vector<bool> value) {
     if(this->_extend_reg(key, 100)==1) return 1;
     values_1_bool.push_back(value);
-    idx.push_back(values_1_bool.size()-1);
+    _idx.push_back(values_1_bool.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<int> value) {
     if(this->_extend_reg(key, 110)==1) return 1;
     values_1_int.push_back(value);
-    idx.push_back(values_1_int.size()-1);
+    _idx.push_back(values_1_int.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<float> value) {
     if(this->_extend_reg(key, 120)==1) return 1;
     values_1_float.push_back(value);
-    idx.push_back(values_1_float.size()-1);
+    _idx.push_back(values_1_float.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<double> value) {
     if(this->_extend_reg(key, 130)==1) return 1;
     values_1_double.push_back(value);
-    idx.push_back(values_1_double.size()-1);
+    _idx.push_back(values_1_double.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<char> value) {
     if(this->_extend_reg(key, 140)==1) return 1;
     values_1_char.push_back(value);
-    idx.push_back(values_1_char.size()-1);
+    _idx.push_back(values_1_char.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<std::string> value) {
     if(this->_extend_reg(key, 150)==1) return 1;
     values_1_string.push_back(value);
-    idx.push_back(values_1_string.size()-1);
+    _idx.push_back(values_1_string.size()-1);
     return 0;
 }
 
 int diy_dict::add(std::string key, std::vector<bool>* ptr) {
     if(this->_extend_reg(key, 101)==1) return 1;
     values_1_bool_p.push_back(ptr);
-    idx.push_back(values_1_bool_p.size()-1);
+    _idx.push_back(values_1_bool_p.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<int>* ptr) {
     if(this->_extend_reg(key, 111)==1) return 1;
     values_1_int_p.push_back(ptr);
-    idx.push_back(values_1_int_p.size()-1);
+    _idx.push_back(values_1_int_p.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<float>* ptr) {
     if(this->_extend_reg(key, 121)==1) return 1;
     values_1_float_p.push_back(ptr);
-    idx.push_back(values_1_float_p.size()-1);
+    _idx.push_back(values_1_float_p.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<double>* ptr) {
     if(this->_extend_reg(key, 131)==1) return 1;
     values_1_double_p.push_back(ptr);
-    idx.push_back(values_1_double_p.size()-1);
+    _idx.push_back(values_1_double_p.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<char>* ptr) {
     if(this->_extend_reg(key, 141)==1) return 1;
     values_1_char_p.push_back(ptr);
-    idx.push_back(values_1_char_p.size()-1);
+    _idx.push_back(values_1_char_p.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<std::string>* ptr) {
     if(this->_extend_reg(key, 151)==1) return 1;
     values_1_string_p.push_back(ptr);
-    idx.push_back(values_1_string_p.size()-1);
+    _idx.push_back(values_1_string_p.size()-1);
     return 0;
 }
 
@@ -512,74 +774,74 @@ int diy_dict::add(std::string key, std::vector<std::string>* ptr) {
 int diy_dict::add(std::string key, std::vector<std::vector<bool>> value) {
     if(this->_extend_reg(key, 200)==1) return 1;
     values_2_bool.push_back(value);
-    idx.push_back(values_2_bool.size()-1);
+    _idx.push_back(values_2_bool.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<std::vector<int>> value) {
     if(this->_extend_reg(key, 210)==1) return 1;
     values_2_int.push_back(value);
-    idx.push_back(values_2_int.size()-1);
+    _idx.push_back(values_2_int.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<std::vector<float>> value) {
     if(this->_extend_reg(key, 220)==1) return 1;
     values_2_float.push_back(value);
-    idx.push_back(values_2_float.size()-1);
+    _idx.push_back(values_2_float.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<std::vector<double>> value) {
     if(this->_extend_reg(key, 230)==1) return 1;
     values_2_double.push_back(value);
-    idx.push_back(values_2_double.size()-1);
+    _idx.push_back(values_2_double.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<std::vector<char>> value) {
     if(this->_extend_reg(key, 240)==1) return 1;
     values_2_char.push_back(value);
-    idx.push_back(values_2_char.size()-1);
+    _idx.push_back(values_2_char.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<std::vector<std::string>> value) {
     if(this->_extend_reg(key, 250)==1) return 1;
     values_2_string.push_back(value);
-    idx.push_back(values_2_string.size()-1);
+    _idx.push_back(values_2_string.size()-1);
     return 0;
 }
 
 int diy_dict::add(std::string key, std::vector<std::vector<bool>>* ptr) {
     if(this->_extend_reg(key, 201)==1) return 1;
     values_2_bool_p.push_back(ptr);
-    idx.push_back(values_2_bool_p.size()-1);
+    _idx.push_back(values_2_bool_p.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<std::vector<int>>* ptr) {
     if(this->_extend_reg(key, 211)==1) return 1;
     values_2_int_p.push_back(ptr);
-    idx.push_back(values_2_int_p.size()-1);
+    _idx.push_back(values_2_int_p.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<std::vector<float>>* ptr) {
     if(this->_extend_reg(key, 221)==1) return 1;
     values_2_float_p.push_back(ptr);
-    idx.push_back(values_2_float_p.size()-1);
+    _idx.push_back(values_2_float_p.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<std::vector<double>>* ptr) {
     if(this->_extend_reg(key, 231)==1) return 1;
     values_2_double_p.push_back(ptr);
-    idx.push_back(values_2_double_p.size()-1);
+    _idx.push_back(values_2_double_p.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<std::vector<char>>* ptr) {
     if(this->_extend_reg(key, 241)==1) return 1;
     values_2_char_p.push_back(ptr);
-    idx.push_back(values_2_char_p.size()-1);
+    _idx.push_back(values_2_char_p.size()-1);
     return 0;
 }
 int diy_dict::add(std::string key, std::vector<std::vector<std::string>>* ptr) {
     if(this->_extend_reg(key, 251)==1) return 1;
     values_2_string_p.push_back(ptr);
-    idx.push_back(values_2_string_p.size()-1);
+    _idx.push_back(values_2_string_p.size()-1);
     return 0;
 }
 
@@ -589,110 +851,110 @@ int diy_dict::add(std::string key, std::vector<std::vector<std::string>>* ptr) {
 int diy_dict::edit(std::string key, bool value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=  0) return 1;
 
-    values_0_bool[idx[pos]] = value;
+    values_0_bool[this->_idx[pos]] = value;
     return 0;
 }
 int diy_dict::edit(std::string key, int value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!= 10) return 1;
 
-    values_0_int[idx[pos]] = value;
+    values_0_int[this->_idx[pos]] = value;
     return 0;
 }
 int diy_dict::edit(std::string key, float value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!= 20) return 1;
 
-    values_0_float[idx[pos]] = value;
+    values_0_float[this->_idx[pos]] = value;
     return 0;
 }
 int diy_dict::edit(std::string key, double value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!= 30) return 1;
 
-    values_0_double[idx[pos]] = value;
+    values_0_double[this->_idx[pos]] = value;
     return 0;
 }
 int diy_dict::edit(std::string key, char value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!= 40) return 1;
 
-    values_0_char[idx[pos]] = value;
+    values_0_char[this->_idx[pos]] = value;
     return 0;
 }
 int diy_dict::edit(std::string key, std::string value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!= 50) return 1;
 
-    values_0_string[idx[pos]] = value;
+    values_0_string[this->_idx[pos]] = value;
     return 0;
 }
 
 int diy_dict::edit(std::string key, bool* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=  1) return 1;
 
-    values_0_bool_p[idx[pos]] = ptr;
+    values_0_bool_p[this->_idx[pos]] = ptr;
     return 0;
 }
 int diy_dict::edit(std::string key, int* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!= 11) return 1;
 
-    values_0_int_p[idx[pos]] = ptr;
+    values_0_int_p[this->_idx[pos]] = ptr;
     return 0;
 }
 int diy_dict::edit(std::string key, float* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!= 21) return 1;
 
-    values_0_float_p[idx[pos]] = ptr;
+    values_0_float_p[this->_idx[pos]] = ptr;
     return 0;
 }
 int diy_dict::edit(std::string key, double* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!= 31) return 1;
 
-    values_0_double_p[idx[pos]] = ptr;
+    values_0_double_p[this->_idx[pos]] = ptr;
     return 0;
 }
 int diy_dict::edit(std::string key, char* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!= 41) return 1;
 
-    values_0_char_p[idx[pos]] = ptr;
+    values_0_char_p[this->_idx[pos]] = ptr;
     return 0;
 }
 int diy_dict::edit(std::string key, std::string* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!= 51) return 1;
 
-    values_0_string_p[idx[pos]] = ptr;
+    values_0_string_p[this->_idx[pos]] = ptr;
     return 0;
 }
 
@@ -700,110 +962,110 @@ int diy_dict::edit(std::string key, std::string* ptr) {
 int diy_dict::edit(std::string key, std::vector<bool> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=100) return 1;
 
-    values_1_bool[idx[pos]] = value;
+    values_1_bool[this->_idx[pos]] = value;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<int> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=110) return 1;
 
-    values_1_int[idx[pos]] = value;
+    values_1_int[this->_idx[pos]] = value;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<float> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=120) return 1;
 
-    values_1_float[idx[pos]] = value;
+    values_1_float[this->_idx[pos]] = value;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<double> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=130) return 1;
 
-    values_1_double[idx[pos]] = value;
+    values_1_double[this->_idx[pos]] = value;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<char> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=140) return 1;
 
-    values_1_char[idx[pos]] = value;
+    values_1_char[this->_idx[pos]] = value;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<std::string> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=150) return 1;
 
-    values_1_string[idx[pos]] = value;
+    values_1_string[this->_idx[pos]] = value;
     return 0;
 }
 
 int diy_dict::edit(std::string key, std::vector<bool>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=101) return 1;
 
-    values_1_bool_p[idx[pos]] = ptr;
+    values_1_bool_p[this->_idx[pos]] = ptr;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<int>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=111) return 1;
 
-    values_1_int_p[idx[pos]] = ptr;
+    values_1_int_p[this->_idx[pos]] = ptr;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<float>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=121) return 1;
 
-    values_1_float_p[idx[pos]] = ptr;
+    values_1_float_p[this->_idx[pos]] = ptr;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<double>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=131) return 1;
 
-    values_1_double_p[idx[pos]] = ptr;
+    values_1_double_p[this->_idx[pos]] = ptr;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<char>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=141) return 1;
 
-    values_1_char_p[idx[pos]] = ptr;
+    values_1_char_p[this->_idx[pos]] = ptr;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<std::string>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=151) return 1;
 
-    values_1_string_p[idx[pos]] = ptr;
+    values_1_string_p[this->_idx[pos]] = ptr;
     return 0;
 }
 
@@ -811,110 +1073,110 @@ int diy_dict::edit(std::string key, std::vector<std::string>* ptr) {
 int diy_dict::edit(std::string key, std::vector<std::vector<bool>> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=200) return 1;
 
-    values_2_bool[idx[pos]] = value;
+    values_2_bool[this->_idx[pos]] = value;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<std::vector<int>> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=210) return 1;
 
-    values_2_int[idx[pos]] = value;
+    values_2_int[this->_idx[pos]] = value;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<std::vector<float>> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=220) return 1;
 
-    values_2_float[idx[pos]] = value;
+    values_2_float[this->_idx[pos]] = value;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<std::vector<double>> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=230) return 1;
 
-    values_2_double[idx[pos]] = value;
+    values_2_double[this->_idx[pos]] = value;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<std::vector<char>> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=240) return 1;
 
-    values_2_char[idx[pos]] = value;
+    values_2_char[this->_idx[pos]] = value;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<std::vector<std::string>> value) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=250) return 1;
     ;
-    values_2_string[idx[pos]] = value;
+    values_2_string[this->_idx[pos]] = value;
     return 0;
 }
 
 int diy_dict::edit(std::string key, std::vector<std::vector<bool>>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=201) return 1;
 
-    values_2_bool_p[idx[pos]] = ptr;
+    values_2_bool_p[this->_idx[pos]] = ptr;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<std::vector<int>>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=211) return 1;
 
-    values_2_int_p[idx[pos]] = ptr;
+    values_2_int_p[this->_idx[pos]] = ptr;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<std::vector<float>>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=221) return 1;
 
-    values_2_float_p[idx[pos]] = ptr;
+    values_2_float_p[this->_idx[pos]] = ptr;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<std::vector<double>>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=231) return 1;
 
-    values_2_double_p[idx[pos]] = ptr;
+    values_2_double_p[this->_idx[pos]] = ptr;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<std::vector<char>>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=241) return 1;
     ;
-    values_2_char_p[idx[pos]] = ptr;
+    values_2_char_p[this->_idx[pos]] = ptr;
     return 0;
 }
 int diy_dict::edit(std::string key, std::vector<std::vector<std::string>>* ptr) {
     int pos = check_existence(key);
     if(pos==-1) return 1;
-    int type = datatype[pos];
+    int type = this->_datatype[pos];
     if(type!=251) return 1;
 
-    values_2_string_p[idx[pos]] = ptr;
+    values_2_string_p[this->_idx[pos]] = ptr;
     return 0;
 }
 
@@ -923,189 +1185,189 @@ int diy_dict::edit(std::string key, std::vector<std::vector<std::string>>* ptr) 
 
 bool        diy_dict::get0_bool_  (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==  0) return values_0_bool.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==  0) return values_0_bool.at(this->_idx[pos]);
     return NULL;
 }
 int         diy_dict::get0_int_   (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]== 10) return values_0_int.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]== 10) return values_0_int.at(this->_idx[pos]);
     return NULL;
 }
 float       diy_dict::get0_float_ (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]== 20) return values_0_float.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]== 20) return values_0_float.at(this->_idx[pos]);
     return NULL;
 }
 double      diy_dict::get0_double_(std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]== 30) return values_0_double.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]== 30) return values_0_double.at(this->_idx[pos]);
     return NULL;
 }
 char        diy_dict::get0_char_  (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]== 40) return values_0_char.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]== 40) return values_0_char.at(this->_idx[pos]);
     return NULL;
 }
 std::string diy_dict::get0_string_(std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]== 50) return values_0_string.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]== 50) return values_0_string.at(this->_idx[pos]);
     return NULL;
 }
 
 bool*        diy_dict::get0_boolP  (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==  1) return values_0_bool_p.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==  1) return values_0_bool_p.at(this->_idx[pos]);
     return NULL;
 }
 int*         diy_dict::get0_intP   (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]== 11) return values_0_int_p.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]== 11) return values_0_int_p.at(this->_idx[pos]);
     return NULL;
 }
 float*       diy_dict::get0_floatP (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]== 21) return values_0_float_p.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]== 21) return values_0_float_p.at(this->_idx[pos]);
     return NULL;
 }
 double*      diy_dict::get0_doubleP(std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]== 31) return values_0_double_p.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]== 31) return values_0_double_p.at(this->_idx[pos]);
     return NULL;
 }
 char*        diy_dict::get0_charP  (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]== 41) return values_0_char_p.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]== 41) return values_0_char_p.at(this->_idx[pos]);
     return NULL;
 }
 std::string* diy_dict::get0_stringP(std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]== 51) return values_0_string_p.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]== 51) return values_0_string_p.at(this->_idx[pos]);
     return NULL;
 }
 
 
 std::vector<bool>           diy_dict::get1_bool_  (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==100) return values_1_bool.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==100) return values_1_bool.at(this->_idx[pos]);
     return std::vector<bool>();
 }
 std::vector<int>            diy_dict::get1_int_   (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==110) return values_1_int.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==110) return values_1_int.at(this->_idx[pos]);
     return std::vector<int>();
 }
 std::vector<float>          diy_dict::get1_float_ (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==120) return values_1_float.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==120) return values_1_float.at(this->_idx[pos]);
     return std::vector<float>();
 }
 std::vector<double>         diy_dict::get1_double_(std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==130) return values_1_double.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==130) return values_1_double.at(this->_idx[pos]);
     return std::vector<double>();
 }
 std::vector<char>           diy_dict::get1_char_  (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==140) return values_1_char.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==140) return values_1_char.at(this->_idx[pos]);
     return std::vector<char>();
 }
 std::vector<std::string>    diy_dict::get1_string_(std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==150) return values_1_string.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==150) return values_1_string.at(this->_idx[pos]);
     return std::vector<std::string>();
 }
 
 std::vector<bool>*          diy_dict::get1_boolP  (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==101) return values_1_bool_p.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==101) return values_1_bool_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<int>*           diy_dict::get1_intP   (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==111) return values_1_int_p.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==111) return values_1_int_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<float>*         diy_dict::get1_floatP (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==121) return values_1_float_p.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==121) return values_1_float_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<double>*        diy_dict::get1_doubleP(std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==131) return values_1_double_p.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==131) return values_1_double_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<char>*          diy_dict::get1_charP  (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==141) return values_1_char_p.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==141) return values_1_char_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<std::string>*   diy_dict::get1_stringP(std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==151) return values_1_string_p.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==151) return values_1_string_p.at(this->_idx[pos]);
     return nullptr;
 }
 
 
 std::vector<std::vector<bool>>        diy_dict::get2_bool_  (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==200) return values_2_bool.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==200) return values_2_bool.at(this->_idx[pos]);
     return std::vector<std::vector<bool>>();
 }
 std::vector<std::vector<int>>         diy_dict::get2_int_   (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==210) return values_2_int.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==210) return values_2_int.at(this->_idx[pos]);
     return std::vector<std::vector<int>>();
 }
 std::vector<std::vector<float>>       diy_dict::get2_float_ (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==220) return values_2_float.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==220) return values_2_float.at(this->_idx[pos]);
     return std::vector<std::vector<float>>();
 }
 std::vector<std::vector<double>>      diy_dict::get2_double_(std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==230) return values_2_double.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==230) return values_2_double.at(this->_idx[pos]);
     return std::vector<std::vector<double>>();
 }
 std::vector<std::vector<char>>        diy_dict::get2_char_  (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==240) return values_2_char.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==240) return values_2_char.at(this->_idx[pos]);
     return std::vector<std::vector<char>>();
 }
 std::vector<std::vector<std::string>> diy_dict::get2_string_(std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==250) return values_2_string.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==250) return values_2_string.at(this->_idx[pos]);
     return std::vector<std::vector<std::string>>();
 }
 
 std::vector<std::vector<bool>>*        diy_dict::get2_boolP  (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==201) return values_2_bool_p.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==201) return values_2_bool_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<std::vector<int>>*         diy_dict::get2_intP   (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==211) return values_2_int_p.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==211) return values_2_int_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<std::vector<float>>*       diy_dict::get2_floatP (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==221) return values_2_float_p.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==221) return values_2_float_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<std::vector<double>>*      diy_dict::get2_doubleP(std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==231) return values_2_double_p.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==231) return values_2_double_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<std::vector<char>>*        diy_dict::get2_charP  (std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==241) return values_2_char_p.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==241) return values_2_char_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<std::vector<std::string>>* diy_dict::get2_stringP(std::string key) {
     int pos = check_existence(key);
-    if(pos!=-1 && datatype[pos]==251) return values_2_string_p.at(idx[pos]);
+    if(pos!=-1 && this->_datatype[pos]==251) return values_2_string_p.at(this->_idx[pos]);
     return nullptr;
 }
 

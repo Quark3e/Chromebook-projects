@@ -19,13 +19,93 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <memory>
 #include <iomanip>
 #include <stdexcept>
+#include <vector>
 
 // #include <HC_useful/useful.hpp>
 #include <HC_useful/search_multithread.hpp>
 
+
+
+template<typename T>
+std::string dict_formatNumber(
+    T value,
+    int strWidth = 0,
+    int varPrecision = 2,
+    std::string align = "right",
+    bool useBoolAlpha = false
+) {
+    std::stringstream outStream;
+    outStream << std::fixed;
+    if(align=="left") outStream<<std::left;
+    else if(align=="right") outStream<<std::right;
+    outStream << std::setw(strWidth) << std::setprecision(varPrecision) << (useBoolAlpha ? std::boolalpha : std::noboolalpha) << value;
+    return outStream.str();
+}
+
+
+template<typename T>
+std::string prettyPrint_vec1(
+    std::vector<T> vec1_inp,
+    std::string align = "right",
+    int decimals = 2,
+    int width = 0,
+    int padding = 0,
+    int prettyPrint = 0,
+    int left_indent = 4,
+    bool useBoolAlpha = false
+) {
+    std::string resultString = std::string(padding, ' ')+"{";
+    
+    bool loopInit=false;
+    for(T elem: vec1_inp) {
+        if(loopInit) resultString += ",";
+        else loopInit = true;
+        if(prettyPrint==1 || prettyPrint==2) resultString += "\n"+std::string(left_indent, ' ');
+        resultString += dict_formatNumber<T>(elem, width, decimals, align, useBoolAlpha);
+    }
+    if(prettyPrint==1 || prettyPrint==2) resultString += "\n";
+    resultString += "}"+std::string(padding, ' ');
+
+    return resultString;
+}
+
+template<typename T>
+std::string prettyPrint_vec2(
+    std::vector<std::vector<T>> vec2_inp,
+    std::string align = "right",
+    int decimals = 2,
+    int width = 0,
+    int padding = 0,
+    int prettyPrint = 0,
+    int left_indent = 4,
+    bool useBoolAlpha = false
+) {
+    std::string resultString = std::string(padding, ' ')+"{";
+
+    bool loopInit0=false, loopInit1=false;
+    for(std::vector<T> vecs: vec2_inp) {
+        if(loopInit1) resultString += ",";
+        else { loopInit1=true; }
+        if(prettyPrint==1 || prettyPrint==2) resultString += "\n"+std::string(left_indent, ' ');
+        resultString += "{";
+        loopInit0 = false;
+        for(T elem: vecs) {
+            if(loopInit0) resultString += ",";
+            else {loopInit0 = true;}
+            if(prettyPrint==1) resultString += "\n"+std::string(left_indent*2, ' ');
+            resultString += dict_formatNumber<T>(elem, width, decimals, align, useBoolAlpha);
+        }
+        if(prettyPrint==1) resultString += "\n"+std::string(left_indent, ' ');
+        resultString += "}";
+    }
+    if(prettyPrint==1 || prettyPrint==2) resultString += "\n";
+    resultString += "}"+std::string(padding, ' ');
+    return resultString;
+}
 
 /**
  * diy dictionary where each key is an std::string
@@ -37,6 +117,8 @@ class diy_dict {
         int  arg_searchVec_numThreads   = -1;
         int  arg_searchVec_checkSpacing = 1;
         bool arg_searchVec_verbose      = false;
+
+        bool _storage_init = false;
 
         std::string _bool_string(bool boolVar);
 
@@ -128,26 +210,34 @@ class diy_dict {
         };
         const int typeLIM[2] = {0, 251}; //smallest - biggest possible value; NOTE: does not include missing values inbetween
 
-        vec0<std::string>   keys;       // navigator vector: Labels/names
-        vec0<int>           datatype;   // navigator vector: What type is stored in that index
-        vec0<int>           idx;        // navigator vector: "local" index of (what index in the correct vector) where the given element is related to
+        vec0<std::string>   _keys;       // navigator vector: Labels/names
+        vec0<int>           _datatype;   // navigator vector: What type is stored in that index
+        vec0<int>           _idx;        // navigator vector: "local" index of (what index in the correct vector) where the given element is related to
 
 
         int _extend_reg(std::string key, int varType);
 
         template<typename V, typename T>void type_extend(V vecToExtend, T addValue) {
             vecToExtend.push_back(addValue);
-            idx.push_back(vecToExtend.size()-1);
+            this->_idx.push_back(vecToExtend.size()-1);
         }
 
-        int _erase_idx(int typeID, int idx);
+        int _erase_idx(int typeID, int _idx);
 
     public:
 
-        std::string& operator[] (int i) { return keys.at(i); }
-        std::string operator[] (int i) const { return const_cast<std::string&>(keys.at(i)); }
+        std::string& operator[] (int i) { return _keys.at(i); }
+        std::string  operator[] (int i) const { return const_cast<std::string&>(_keys.at(i)); }
 
+        /**
+         * @brief check if key exists
+         * 
+         * @param key 
+         * @return int index to in navigation container. 
+         */
         int operator[] (std::string key) { return this->check_existence(key, -1); }
+
+        std::vector<std::string> keys() { return this->_keys; }
 
 
         int check_existence(std::string key, int verbose);
@@ -167,9 +257,6 @@ class diy_dict {
          * \n \
          * NOTE: When a code is set in `datatype` vector, leading 0's must be removed: `code: 0 1 2` -> `(int)12` \
          * ");
-
-        diy_dict(/* args */);
-        ~diy_dict();
 
         template<typename T>
         int get_template_type(T toCheck) {
@@ -213,55 +300,7 @@ class diy_dict {
             return -1;
         }
 
-        template<typename T>
-        std::string dict_formatNumber(T value, int strWidth, int varPrecision, std::string align) {
-            std::stringstream outStream;
-            outStream << std::fixed;
-            if(align=="left") outStream<<std::left;
-            else if(align=="right") outStream<<std::right;
-            outStream << std::setw(strWidth) << std::setprecision(varPrecision) << value;
-            return outStream.str();
-        }
 
-        template<typename T>
-        std::string prettyPrint_vec1(vec0<T> vec1_inp, std::string align, int decimals, int width, int padding, int prettyPrint, int left_indent) {
-            std::string resultString = std::string(padding, ' ')+"{";
-            
-            for(T elem: vec1_inp) {
-                if(prettyPrint==1 || prettyPrint==2) resultString += "\n"+std::string(left_indent, ' ');
-                resultString += dict_formatNumber<T>(elem, width, decimals, align)+",";
-            }
-            if(prettyPrint==1 || prettyPrint==2) resultString += "\n";
-            resultString += "}"+std::string(padding, ' ');
-
-            return resultString;
-        }
-
-        template<typename T>
-        std::string prettyPrint_vec2(vec1<T> vec2_inp, std::string align, int decimals, int width, int padding, int prettyPrint, int left_indent) {
-            std::string resultString = std::string(padding, ' ')+"{";
-
-            bool loopInit0=false, loopInit1=false;
-            for(vec0<T> vecs: vec2_inp) {
-                if(loopInit1) resultString += ",";
-                else { loopInit1=true; }
-                if(prettyPrint==1 || prettyPrint==2) resultString += "\n"+std::string(left_indent, ' ');
-                resultString += "{";
-                loopInit0 = false;
-                for(T elem: vecs) {
-                    if(loopInit0) resultString += ",";
-                    else {loopInit0 = true;}
-                    if(prettyPrint==1) resultString += "\n"+std::string(left_indent*2, ' ');
-                    resultString += dict_formatNumber<T>(elem, width, decimals, align);
-                }
-                if(prettyPrint==1) resultString += "\n"+std::string(left_indent, ' ');
-                resultString += "}";
-            }
-            if(prettyPrint==1 || prettyPrint==2) resultString += "\n";
-            resultString += "}"+std::string(padding, ' ');
-            return resultString;
-        }
-        
         std::string str_export(
             std::string key,
             std::string codedInsert = "",
@@ -281,6 +320,54 @@ class diy_dict {
 
         int delete_key(std::string key);
         
+
+        diy_dict(/* args */);
+        diy_dict(std::vector<std::string> keys, std::vector<bool>           values);
+        diy_dict(std::vector<std::string> keys, std::vector<int>            values);
+        diy_dict(std::vector<std::string> keys, std::vector<float>          values);
+        diy_dict(std::vector<std::string> keys, std::vector<double>         values);
+        diy_dict(std::vector<std::string> keys, std::vector<char>           values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::string>    values);
+
+        diy_dict(std::vector<std::string> keys, std::vector<bool*>          values);
+        diy_dict(std::vector<std::string> keys, std::vector<int*>           values);
+        diy_dict(std::vector<std::string> keys, std::vector<float*>         values);
+        diy_dict(std::vector<std::string> keys, std::vector<double*>        values);
+        diy_dict(std::vector<std::string> keys, std::vector<char*>          values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::string*>   values);
+
+
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<bool>>           values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<int>>            values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<float>>          values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<double>>         values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<char>>           values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::string>>    values);
+
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<bool>*>          values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<int>*>           values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<float>*>         values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<double>*>        values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<char>*>          values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::string>*>   values);
+
+
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<bool>>>           values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<int>>>            values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<float>>>          values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<double>>>         values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<char>>>           values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<std::string>>>    values);
+
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<bool>>*>          values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<int>>*>           values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<float>>*>         values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<double>>*>        values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<char>>*>          values);
+        diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<std::string>>*>   values);
+
+        ~diy_dict();
+
 
         int add(std::string key, bool value);
         int add(std::string key, int value);
@@ -419,5 +506,8 @@ class diy_dict {
 
 
 };
+
+
+
 
 #endif
