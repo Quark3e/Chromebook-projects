@@ -20,13 +20,7 @@ namespace HW_KINEMATICS
 {
 
     /** 
-     * 
-     *  Terminal:   [0] local -> remote/server: solved IK/FK - send to server if connected
-     *  Main    :   [1] local <- remote/server: receive solved IK/FK from main loop on server
-     * 
      * settings:
-     *  link to server: default: true   desc: whether to attempt to connect to Hexclaw Server at intervals
-     *  findOrient    : default: true   desc: Terminal: whether to look for a valid orient for a given pos with invalid `getAngles` result
      *  "a1:frameX"   : default: true   desc: getAngles: "frame1X = frame1X * cos(b)"
      *  "a1:a1"       : default: true   desc: getAngles: "a1 = a1 * cos(b)"
      *  "q4:default"  : default: false  desc: getAngles: "q4 = atan(frame1X / frame1Y)"
@@ -38,10 +32,47 @@ namespace HW_KINEMATICS
      *  "exceedState" : default: true   desc: getAnlges: "if [...]_exceeded: positionIsReachable[0] = False"
      */
 
+    const std::vector<std::string> setting_labels{
+        "al:frameX",
+        "a1:a1",
+        "q4:default",
+        "q4:a1",
+        "q4:a1:b:minus",
+        "q4:a1:b1:minus",
+        "q5:inPaper",
+        "q5:d5",
+        "exceedState"
+    };
 
-    diy_dict settings(
-        std::string
-    )
+    DIY::dict settings(
+        setting_labels,
+        std::vector<bool>{
+            true,
+            true,
+            false,
+            true,
+            true,
+            true,
+            false,
+            false,
+            true
+        }
+    );
+
+    const DIY::dict setting_desc(
+        setting_labels,
+        std::vector<std::string>{
+            "frame1X = frame1X * cos(b)",
+            "a1 = a1 * cos(b)",
+            "q4 = atan(frame1X / frame1Y)",
+            "q4 = a1",
+            "if(b<0) q4 = 0-a1; else q4=a1",
+            "if(b1<0) q4 = 0-a1; else q4=a1",
+            "q5 = atan( [...] / (cos(b1) * cos(a1) ))",
+            "q5 = atan( [...] / (frame1X / tan(a1) ))",
+            "if [...]_exceeded: positionIsReachable[0] = False"
+        }
+    );
 
 
     /**Length of the six arms. unit: [mm]*/
