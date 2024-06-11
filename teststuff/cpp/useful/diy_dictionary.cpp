@@ -307,21 +307,6 @@ DIY::dict::~dict() {}
 
 
 /**
- * @brief common function to check if a `key` exists in `DIY::dict::this->_keys` vector/container
- * 
- * @param key the `std::string` label/key to check if it exists in the vecot
- * @param verbose whether to print the output:
- * `0` = false; `1` = true; `-1` = {use default}/`DIY::dict::arg_searchVec_verbose`
- * @return `int` of idx for where that key exists in `DIY::dict::this->_keys` vector; returns `-1` if key doesn't exist.
- */
-int DIY::dict::check_existence(std::string key, int verbose=-1) {
-    if(verbose==-1) verbose = verbose = arg_searchVec_verbose;
-    std::vector<int> pos = DIY_SEARCH_MULTITHREAD::multithread_searchVec<std::string>(
-        this->_keys, key, arg_searchVec_numThreads, arg_searchVec_threadLen, false, arg_searchVec_checkSpacing, verbose);
-    return pos[0];
-}
-
-/**
  * @brief check if `key` exist and if not then extend `this->_keys` and `this->_datatype` vectors
  * 
  * @param key string to check if exists already and if not add this to common vector `this->_keys`
@@ -329,7 +314,7 @@ int DIY::dict::check_existence(std::string key, int verbose=-1) {
  * @return int value for success or not: `0`-successfully added `key` and `this->_datatype` to vectors; `1`-unsuccessful. key already exists
  */
 int DIY::dict::_extend_reg(std::string key, int varType) {
-    if(check_existence(key) != -1) return 1;
+    if(check_existence<std::string>(key, this->_keys) != -1) return 1;
     this->_keys.push_back(key);
     this->_datatype.push_back(varType);
     this->_storage_init = true;
@@ -427,7 +412,7 @@ std::string DIY::dict::str_export(
     char emptySpace,
     int left_indent
 ) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return "";
     std::string tempStr = "";
 
@@ -521,7 +506,7 @@ std::string DIY::dict::str_export(
 /// @param key to find the stored this->_datatype code of
 /// @return this->_datatype code that's found. If `key` doesnt exist then it'll return `-1`
 int DIY::dict::get_type(std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     return this->_datatype[pos];
 }
 
@@ -586,7 +571,7 @@ int DIY::dict::get_type_size(int typeID) {
  * @return `int` value of size of container if the type code container is successfully found. If the container of `key` was not found then `-1` is returned.
  */
 int DIY::dict::get_type_size(std::string key) {
-    int pos = this->check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     int typeCode = this->_datatype[pos];
     if(pos==-1) return -1;
     int vecSize = this->get_type_size(typeCode);
@@ -602,7 +587,7 @@ int DIY::dict::get_type_size(std::string key) {
  * @return `int` of whether a key was successfully renamed. `0` - successful. `-1` - error-occurred/given-`key`-doesn't-exist
  */
 int DIY::dict::rename_key(std::string key, std::string new_key) {
-    int pos = this->check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     this->_keys[this->_idx[pos]] = new_key;
 
@@ -625,7 +610,7 @@ int DIY::dict::delete_key(std::string key) {
      * - `idx`      {change: erase(key), {-1 all same-container elements above pos}}
      */
 
-    int pos = this->check_existence(key); //position/index in "navigator" vectors
+    int pos = check_existence<std::string>(key, this->_keys); //position/index in "navigator" vectors
     if(pos==-1) return 1;
     int local_idx = this->_idx[pos]; //position/index in "storage" vectors
     int typeID = this->_datatype[pos]; //typeID/type-code to what "storage" vector is related to 'key`
@@ -886,7 +871,7 @@ int DIY::dict::add(std::string key, std::vector<std::vector<std::string>>* ptr) 
 
 
 int DIY::dict::edit(std::string key, bool value) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=  0) return 1;
@@ -895,7 +880,7 @@ int DIY::dict::edit(std::string key, bool value) {
     return 0;
 }
 int DIY::dict::edit(std::string key, int value) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!= 10) return 1;
@@ -904,7 +889,7 @@ int DIY::dict::edit(std::string key, int value) {
     return 0;
 }
 int DIY::dict::edit(std::string key, float value) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!= 20) return 1;
@@ -913,7 +898,7 @@ int DIY::dict::edit(std::string key, float value) {
     return 0;
 }
 int DIY::dict::edit(std::string key, double value) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!= 30) return 1;
@@ -922,7 +907,7 @@ int DIY::dict::edit(std::string key, double value) {
     return 0;
 }
 int DIY::dict::edit(std::string key, char value) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!= 40) return 1;
@@ -931,7 +916,7 @@ int DIY::dict::edit(std::string key, char value) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::string value) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!= 50) return 1;
@@ -941,7 +926,7 @@ int DIY::dict::edit(std::string key, std::string value) {
 }
 
 int DIY::dict::edit(std::string key, bool* ptr) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=  1) return 1;
@@ -950,7 +935,7 @@ int DIY::dict::edit(std::string key, bool* ptr) {
     return 0;
 }
 int DIY::dict::edit(std::string key, int* ptr) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!= 11) return 1;
@@ -959,7 +944,7 @@ int DIY::dict::edit(std::string key, int* ptr) {
     return 0;
 }
 int DIY::dict::edit(std::string key, float* ptr) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!= 21) return 1;
@@ -968,7 +953,7 @@ int DIY::dict::edit(std::string key, float* ptr) {
     return 0;
 }
 int DIY::dict::edit(std::string key, double* ptr) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!= 31) return 1;
@@ -977,7 +962,7 @@ int DIY::dict::edit(std::string key, double* ptr) {
     return 0;
 }
 int DIY::dict::edit(std::string key, char* ptr) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!= 41) return 1;
@@ -986,7 +971,7 @@ int DIY::dict::edit(std::string key, char* ptr) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::string* ptr) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!= 51) return 1;
@@ -997,7 +982,7 @@ int DIY::dict::edit(std::string key, std::string* ptr) {
 
 
 int DIY::dict::edit(std::string key, std::vector<bool> value) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=100) return 1;
@@ -1006,7 +991,7 @@ int DIY::dict::edit(std::string key, std::vector<bool> value) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<int> value) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=110) return 1;
@@ -1015,7 +1000,7 @@ int DIY::dict::edit(std::string key, std::vector<int> value) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<float> value) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=120) return 1;
@@ -1024,7 +1009,7 @@ int DIY::dict::edit(std::string key, std::vector<float> value) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<double> value) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=130) return 1;
@@ -1033,7 +1018,7 @@ int DIY::dict::edit(std::string key, std::vector<double> value) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<char> value) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=140) return 1;
@@ -1042,7 +1027,7 @@ int DIY::dict::edit(std::string key, std::vector<char> value) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<std::string> value) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=150) return 1;
@@ -1052,7 +1037,7 @@ int DIY::dict::edit(std::string key, std::vector<std::string> value) {
 }
 
 int DIY::dict::edit(std::string key, std::vector<bool>* ptr) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=101) return 1;
@@ -1061,7 +1046,7 @@ int DIY::dict::edit(std::string key, std::vector<bool>* ptr) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<int>* ptr) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=111) return 1;
@@ -1070,7 +1055,7 @@ int DIY::dict::edit(std::string key, std::vector<int>* ptr) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<float>* ptr) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=121) return 1;
@@ -1079,7 +1064,7 @@ int DIY::dict::edit(std::string key, std::vector<float>* ptr) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<double>* ptr) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=131) return 1;
@@ -1088,7 +1073,7 @@ int DIY::dict::edit(std::string key, std::vector<double>* ptr) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<char>* ptr) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=141) return 1;
@@ -1097,7 +1082,7 @@ int DIY::dict::edit(std::string key, std::vector<char>* ptr) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<std::string>* ptr) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=151) return 1;
@@ -1108,7 +1093,7 @@ int DIY::dict::edit(std::string key, std::vector<std::string>* ptr) {
 
 
 int DIY::dict::edit(std::string key, std::vector<std::vector<bool>> value) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=200) return 1;
@@ -1117,7 +1102,7 @@ int DIY::dict::edit(std::string key, std::vector<std::vector<bool>> value) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<std::vector<int>> value) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=210) return 1;
@@ -1126,7 +1111,7 @@ int DIY::dict::edit(std::string key, std::vector<std::vector<int>> value) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<std::vector<float>> value) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=220) return 1;
@@ -1135,7 +1120,7 @@ int DIY::dict::edit(std::string key, std::vector<std::vector<float>> value) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<std::vector<double>> value) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=230) return 1;
@@ -1144,7 +1129,7 @@ int DIY::dict::edit(std::string key, std::vector<std::vector<double>> value) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<std::vector<char>> value) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=240) return 1;
@@ -1153,7 +1138,7 @@ int DIY::dict::edit(std::string key, std::vector<std::vector<char>> value) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<std::vector<std::string>> value) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=250) return 1;
@@ -1163,7 +1148,7 @@ int DIY::dict::edit(std::string key, std::vector<std::vector<std::string>> value
 }
 
 int DIY::dict::edit(std::string key, std::vector<std::vector<bool>>* ptr) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=201) return 1;
@@ -1172,7 +1157,7 @@ int DIY::dict::edit(std::string key, std::vector<std::vector<bool>>* ptr) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<std::vector<int>>* ptr) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=211) return 1;
@@ -1181,7 +1166,7 @@ int DIY::dict::edit(std::string key, std::vector<std::vector<int>>* ptr) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<std::vector<float>>* ptr) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=221) return 1;
@@ -1190,7 +1175,7 @@ int DIY::dict::edit(std::string key, std::vector<std::vector<float>>* ptr) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<std::vector<double>>* ptr) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=231) return 1;
@@ -1199,7 +1184,7 @@ int DIY::dict::edit(std::string key, std::vector<std::vector<double>>* ptr) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<std::vector<char>>* ptr) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=241) return 1;
@@ -1208,7 +1193,7 @@ int DIY::dict::edit(std::string key, std::vector<std::vector<char>>* ptr) {
     return 0;
 }
 int DIY::dict::edit(std::string key, std::vector<std::vector<std::string>>* ptr) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos==-1) return 1;
     int type = this->_datatype[pos];
     if(type!=251) return 1;
@@ -1221,189 +1206,189 @@ int DIY::dict::edit(std::string key, std::vector<std::vector<std::string>>* ptr)
 
 
 bool        DIY::dict::get0_bool_  (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==  0) return values_0_bool.at(this->_idx[pos]);
     return NULL;
 }
 int         DIY::dict::get0_int_   (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]== 10) return values_0_int.at(this->_idx[pos]);
     return NULL;
 }
 float       DIY::dict::get0_float_ (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]== 20) return values_0_float.at(this->_idx[pos]);
     return NULL;
 }
 double      DIY::dict::get0_double_(std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]== 30) return values_0_double.at(this->_idx[pos]);
     return NULL;
 }
 char        DIY::dict::get0_char_  (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]== 40) return values_0_char.at(this->_idx[pos]);
     return NULL;
 }
 std::string DIY::dict::get0_string_(std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]== 50) return values_0_string.at(this->_idx[pos]);
     return NULL;
 }
 
 bool*        DIY::dict::get0_boolP  (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==  1) return values_0_bool_p.at(this->_idx[pos]);
     return NULL;
 }
 int*         DIY::dict::get0_intP   (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]== 11) return values_0_int_p.at(this->_idx[pos]);
     return NULL;
 }
 float*       DIY::dict::get0_floatP (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]== 21) return values_0_float_p.at(this->_idx[pos]);
     return NULL;
 }
 double*      DIY::dict::get0_doubleP(std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]== 31) return values_0_double_p.at(this->_idx[pos]);
     return NULL;
 }
 char*        DIY::dict::get0_charP  (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]== 41) return values_0_char_p.at(this->_idx[pos]);
     return NULL;
 }
 std::string* DIY::dict::get0_stringP(std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]== 51) return values_0_string_p.at(this->_idx[pos]);
     return NULL;
 }
 
 
 std::vector<bool>           DIY::dict::get1_bool_  (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==100) return values_1_bool.at(this->_idx[pos]);
     return std::vector<bool>();
 }
 std::vector<int>            DIY::dict::get1_int_   (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==110) return values_1_int.at(this->_idx[pos]);
     return std::vector<int>();
 }
 std::vector<float>          DIY::dict::get1_float_ (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==120) return values_1_float.at(this->_idx[pos]);
     return std::vector<float>();
 }
 std::vector<double>         DIY::dict::get1_double_(std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==130) return values_1_double.at(this->_idx[pos]);
     return std::vector<double>();
 }
 std::vector<char>           DIY::dict::get1_char_  (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==140) return values_1_char.at(this->_idx[pos]);
     return std::vector<char>();
 }
 std::vector<std::string>    DIY::dict::get1_string_(std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==150) return values_1_string.at(this->_idx[pos]);
     return std::vector<std::string>();
 }
 
 std::vector<bool>*          DIY::dict::get1_boolP  (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==101) return values_1_bool_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<int>*           DIY::dict::get1_intP   (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==111) return values_1_int_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<float>*         DIY::dict::get1_floatP (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==121) return values_1_float_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<double>*        DIY::dict::get1_doubleP(std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==131) return values_1_double_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<char>*          DIY::dict::get1_charP  (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==141) return values_1_char_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<std::string>*   DIY::dict::get1_stringP(std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==151) return values_1_string_p.at(this->_idx[pos]);
     return nullptr;
 }
 
 
 std::vector<std::vector<bool>>        DIY::dict::get2_bool_  (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==200) return values_2_bool.at(this->_idx[pos]);
     return std::vector<std::vector<bool>>();
 }
 std::vector<std::vector<int>>         DIY::dict::get2_int_   (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==210) return values_2_int.at(this->_idx[pos]);
     return std::vector<std::vector<int>>();
 }
 std::vector<std::vector<float>>       DIY::dict::get2_float_ (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==220) return values_2_float.at(this->_idx[pos]);
     return std::vector<std::vector<float>>();
 }
 std::vector<std::vector<double>>      DIY::dict::get2_double_(std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==230) return values_2_double.at(this->_idx[pos]);
     return std::vector<std::vector<double>>();
 }
 std::vector<std::vector<char>>        DIY::dict::get2_char_  (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==240) return values_2_char.at(this->_idx[pos]);
     return std::vector<std::vector<char>>();
 }
 std::vector<std::vector<std::string>> DIY::dict::get2_string_(std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==250) return values_2_string.at(this->_idx[pos]);
     return std::vector<std::vector<std::string>>();
 }
 
 std::vector<std::vector<bool>>*        DIY::dict::get2_boolP  (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==201) return values_2_bool_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<std::vector<int>>*         DIY::dict::get2_intP   (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==211) return values_2_int_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<std::vector<float>>*       DIY::dict::get2_floatP (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==221) return values_2_float_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<std::vector<double>>*      DIY::dict::get2_doubleP(std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==231) return values_2_double_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<std::vector<char>>*        DIY::dict::get2_charP  (std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==241) return values_2_char_p.at(this->_idx[pos]);
     return nullptr;
 }
 std::vector<std::vector<std::string>>* DIY::dict::get2_stringP(std::string key) {
-    int pos = check_existence(key);
+    int pos = check_existence<std::string>(key, this->_keys);
     if(pos!=-1 && this->_datatype[pos]==251) return values_2_string_p.at(this->_idx[pos]);
     return nullptr;
 }

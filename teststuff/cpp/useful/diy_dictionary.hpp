@@ -30,6 +30,8 @@
 
 
 namespace DIY {
+
+
     template<typename T>
     std::string formatNumber(
         T value,
@@ -117,6 +119,22 @@ namespace DIY {
         }
         return repeated;
     }
+
+
+    template<typename _check>
+    int check_existence(
+        _check key,
+        std::vector<_check> vec,
+        bool verbose=false,
+        int numThreads=-1,
+        int threadLen=-1,
+        int checkSpacing=1
+    ) {
+        std::vector<int> pos = DIY_SEARCH_MULTITHREAD::multithread_searchVec<_check>(
+            vec, key, numThreads, threadLen, false, checkSpacing, verbose);
+        return pos[0];
+    }
+
 
     /**
      * diy dictionary where each key is an std::string
@@ -254,12 +272,10 @@ namespace DIY {
              * @param key 
              * @return int index to in navigation container. 
              */
-            int operator[] (std::string key) { return this->check_existence(key, -1); }
+            int operator[] (std::string key) { return check_existence<std::string>(key, this->_keys, -1); }
 
             std::vector<std::string> keys() { return this->_keys; }
 
-
-            int check_existence(std::string key, int verbose);
 
             const std::string info_type_definition = (" \
             (function is purely for the sake of being able to see this definiton as the code writer via intellisense popup)\n \
@@ -530,14 +546,28 @@ namespace DIY {
         private:
         std::vector<_key_type>      _keys;
         std::vector<_store_type>    _values;
-        std::vector<_store_type*>   _ptr;
+    
+        _key_type   _nullKey;
+        _store_type _nullValue;
 
         bool _init_container = false;
+
         public:
         typed_dict() {}
         typed_dict(std::vector<_key_type> keys, std::vector<_store_type> values);
-        typed_dict(std::vector<_key_type> keys, std::vector<_store_type*> pointers);
-        ~typed_dict() {}
+
+
+        _store_type& operator[] (_key_type key) { return this->_values.at(check_existence<_key_type>(key, this->_keys)[0]); }
+        _store_type  operator[] (_key_type key) const   { return const_cast<std::string&>(_keys.at(check_existence<_key_type>(key, this->_keys)[0])); }
+
+        _store_type& operator[] (int i)         { return this->_values.at(i); }
+        _store_type  operator[] (int i) const   { return const_cast<std::string&>(_keys.at(i)); }
+
+        size_t size() { return this->_keys.size(); }
+
+
+        int add(_key_type key, _store_type value);
+        int erase(_key_type key);
     };
     
     template<class _key_type, class _store_type>
@@ -545,16 +575,30 @@ namespace DIY {
         std::vector<_key_type> keys,
         std::vector<_store_type> values
     ) {
-
+        if(keys.size()==values.size() && !hasRepetitions<_key_type>(keys)) {
+            this->_keys     = keys;
+            this->_values   = values;
+        }
     }
+
     template<class _key_type, class _store_type>
-    typed_dict<_key_type, _store_type>::typed_dict(
-        std::vector<_key_type> keys,
-        std::vector<_store_type*> values
-    ) {
-        if(keys.size()==)
+    int typed_dict<_key_type, _store_type>::add(_key_type key, _store_type value) {
+        if(check_existence<_key_type>(key, this->_keys)!=-1) return 0;
+        this->_keys.push_back(key);
+        this->_values.push_back(value);
+
+        return 0;
     }
 
+    template<class _key_type, class _store_type>
+    int typed_dict<_key_type, _store_type>::erase(_key_type key) {
+        int pos = check_existence<_key_type>(key, this->_keys);
+        if(pos==-1) return 1;
+        this->_keys.erase(this->_keys.begin()+pos);
+        this->_values.erase(this->_values.begin()+pos);
+
+        return 0;
+    }
 
 }
 

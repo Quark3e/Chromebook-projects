@@ -110,6 +110,7 @@ int main(int argc, char** argv) {
     }
     
 
+    DIY::typed_dict<int, int> typeInst;
 
     return 0;
 }
