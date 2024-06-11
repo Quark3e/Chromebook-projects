@@ -557,14 +557,22 @@ namespace DIY {
         typed_dict(std::vector<_key_type> keys, std::vector<_store_type> values);
 
 
-        _store_type& operator[] (_key_type key) { return this->_values.at(check_existence<_key_type>(key, this->_keys)[0]); }
-        _store_type  operator[] (_key_type key) const   { return const_cast<std::string&>(_keys.at(check_existence<_key_type>(key, this->_keys)[0])); }
+        _store_type& operator[] (_key_type key) {
+            int pos = check_existence<_key_type>(key, this->_keys);
+            if(pos==-1) return _nullValue;
+            return _values.at(pos);
+        }
+        _store_type  operator[] (_key_type key) const   {
+            int pos = check_existence<_key_type>(key, this->_keys);
+            if(pos==-1) return this->_nullValue;
+            return const_cast<_store_type&>(_keys.at(pos));
+        }
 
-        _store_type& operator[] (int i)         { return this->_values.at(i); }
-        _store_type  operator[] (int i) const   { return const_cast<std::string&>(_keys.at(i)); }
+        // _store_type& operator[] (int i)         { return this->_values.at(i); }
+        // _store_type  operator[] (int i) const   { return const_cast<std::string&>(_keys.at(i)); }
 
         size_t size() { return this->_keys.size(); }
-
+        std::vector<_key_type> keys() { return _keys; }
 
         int add(_key_type key, _store_type value);
         int erase(_key_type key);
