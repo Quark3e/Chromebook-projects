@@ -614,20 +614,22 @@ namespace DIY {
 
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::append(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values) {
-        if(hasRepetitions<_key_type>(keys)) return 1;
+        if(keys.size()!=values.size() || hasRepetitions<_key_type>(keys)) return 1;
         for(auto elem: keys) { if(check_existence<_key_type>(elem, keys)!=-1) { return 1; } }
         this->_keys.insert(this->_keys.end(), keys.begin(), keys.end());
         this->_values.insert(this->_values.end(), values.begin(), values.end());
         return 0;
     }
+
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::append(std::vector<_key_type> keys, std::vector<_store_type> values) {
-        if(hasRepetitions<_key_type>(keys)) return 1;
+        if(keys.size()!=values.size() || hasRepetitions<_key_type>(keys)) return 1;
         for(auto elem: keys) { if(check_existence<_key_type>(elem, keys)!=-1) { return 1; } }
         this->_keys.insert(this->_keys.end(), keys.begin(), keys.end());
         this->_values.insert(this->_values.end(), values.begin(), values.end());
         return 0;
     }
+
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::insert(size_t pos, _key_type key, _store_type value) {
         if(check_existence<_key_type>(key, this->_keys)!=-1) return 1;
@@ -635,17 +637,19 @@ namespace DIY {
         this->_values.insert(this->_values.begin()+pos, value);
         return 0;
     }
+
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::insert(size_t pos, std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values) {
-        if(hasRepetitions<_key_type>(keys)) return 1;
+        if(keys.size()!=values.size() || hasRepetitions<_key_type>(keys)) return 1;
         for(auto elem: keys) { if(check_existence<_key_type>(elem, this->_keys)!=-1) { return 1; } }
         this->_keys.insert(this->_keys.begin()+pos, keys.begin(), keys.end());
         this->_values.insert(this->_values.begin()+pos, values.begin(), values.end());
         return 0;
     }
+
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::insert(size_t pos, std::vector<_key_type> keys, std::vector<_store_type> values) {
-        if(hasRepetitions<_key_type>(keys)) return 1;
+        if(keys.size()!=values.size() || hasRepetitions<_key_type>(keys)) return 1;
         for(auto elem: keys) { if(check_existence<_key_type>(elem, this->_keys)!=-1) { return 1; } }
         this->_keys.insert(this->_keys.begin()+pos, keys.begin(), keys.end());
         this->_values.insert(this->_values.begin()+pos, values.begin(), values.end());
