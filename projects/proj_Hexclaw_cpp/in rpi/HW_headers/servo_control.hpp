@@ -3,12 +3,14 @@
 #ifndef HPP_HEXCLAW_SERVO_CONTROL
 #define HPP_HEXCLAW_SERVO_CONTROL
 
-using namespace PiPCA9685;
-
 
 #include "../hexclaw_global.hpp"
 #include "../IK_header.h"
 #include <PiPCA9685/PCA9685.h>
+
+using namespace HW_KINEMATICS;
+using namespace PiPCA9685;
+
 
 /// @brief Sends rotation commands to servo motors
 /// @param pcaBoard is a PCA9685 class object pointer

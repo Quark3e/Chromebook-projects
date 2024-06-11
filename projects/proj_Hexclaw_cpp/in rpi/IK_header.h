@@ -36,6 +36,9 @@ namespace HW_KINEMATICS
      */
 
 
+    
+
+
     /**Length of the six arms. unit: [mm]*/
     inline float arm_link[6] = {145, 130, 75, 50, 25, 25};
 
