@@ -16,7 +16,6 @@ using namespace std;
 
 
 
-
 namespace HW_KINEMATICS 
 {
 
@@ -40,6 +39,9 @@ namespace HW_KINEMATICS
      */
 
 
+    diy_dict settings(
+        std::string
+    )
 
 
     /**Length of the six arms. unit: [mm]*/

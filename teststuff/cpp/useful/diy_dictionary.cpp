@@ -6,263 +6,300 @@ diy_dict::diy_dict(/* args */) {
 
 }
 
+
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<bool>           values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_0_bool = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<int>            values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_0_int = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<float>          values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_0_float = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<double>         values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_0_double = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<char>           values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_0_char = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::string>    values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_0_string = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<bool*>          values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_0_bool_p = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<int*>           values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_0_int_p = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<float*>         values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_0_float_p = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<double*>        values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_0_double_p = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<char*>          values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_0_char_p = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::string*>   values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_0_string_p = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 
 
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<bool>>           values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_1_bool = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<int>>            values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_1_int = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<float>>          values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_1_float = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<double>>         values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_1_double = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<char>>           values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_1_char = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::string>>    values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_1_string = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<bool>*>          values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_1_bool_p = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<int>*>           values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_1_int_p = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<float>*>         values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_1_float_p = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<double>*>        values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_1_double_p = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<char>*>          values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_1_char_p = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::string>*>   values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_1_string_p = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 
 
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<bool>>>           values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_2_bool = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<int>>>            values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_2_int = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<float>>>          values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_2_float = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<double>>>         values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_2_double = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<char>>>           values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_2_char = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<std::string>>>    values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_2_string = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<bool>>*>          values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_2_bool_p = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<int>>*>           values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_2_int_p = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<float>>*>         values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_2_float_p = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<double>>*>        values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_2_double_p = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<char>>*>          values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_2_char_p = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 diy_dict::diy_dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<std::string>>*>   values) {
-    if(keys.size()==values.size()) {
-        this->_keys = keys;
-        this->values_2_string_p = values;
-        this->_storage_init = true;
+    //diy_dict "storage" container constructor
+    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+        for(size_t i=0; i<keys.size(); i++) {
+            this->add(keys[i], values[i]);
+        }
     }
 }
 

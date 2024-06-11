@@ -107,6 +107,17 @@ std::string prettyPrint_vec2(
     return resultString;
 }
 
+
+template<typename T>
+bool hasRepetitions(std::vector<T> vec) {
+    bool repeated = false;
+    for(T elem: vec) {
+        std::vector<int> pos = DIY_SEARCH_MULTITHREAD::multithread_searchVec<T>(vec, elem, -1, -1, true, 0, false);
+        if(pos.size()>1) { repeated=true; break; }
+    }
+    return repeated;
+}
+
 /**
  * diy dictionary where each key is an std::string
  * 
@@ -225,6 +236,14 @@ class diy_dict {
         int _erase_idx(int typeID, int _idx);
 
     public:
+
+        /**
+         * @brief Check whether storage containers has been initialised/added-to and thus if
+         * the navigator vectors/containers has been initialised
+         *
+         * @return boolean of whether containers been initialised.
+         */
+        bool init_storage() { return this->_storage_init; }
 
         std::string& operator[] (int i) { return _keys.at(i); }
         std::string  operator[] (int i) const { return const_cast<std::string&>(_keys.at(i)); }

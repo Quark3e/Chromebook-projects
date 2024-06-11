@@ -104,6 +104,9 @@ int main(int argc, char** argv) {
     cout << "---------" << endl;
 
     cout << prettyPrint_vec1<std::string>(dictObj_glob.keys(),"right",2,0,0,0,4,true) << endl;
+    for(std::string key: dictObj_glob.keys()) {
+        cout << dict_formatNumber<std::string>(key,6,0,"left")<<": " << std::boolalpha << dictObj_glob.get0_bool_(key) << endl;
+    }
     
 
 
