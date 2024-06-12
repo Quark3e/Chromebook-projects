@@ -9,298 +9,442 @@ DIY::dict::dict(/* args */) {
 
 DIY::dict::dict(std::vector<std::string> keys, std::vector<bool>           values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<int>            values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<float>          values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<double>         values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<char>           values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::string>    values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 
 DIY::dict::dict(std::vector<std::string> keys, std::vector<bool*>          values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<int*>           values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<float*>         values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<double*>        values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<char*>          values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::string*>   values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 
 
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<bool>>           values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<int>>            values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<float>>          values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<double>>         values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<char>>           values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::string>>    values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<bool>*>          values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<int>*>           values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<float>*>         values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<double>*>        values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<char>*>          values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::string>*>   values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 
 
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<bool>>>           values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<int>>>            values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<float>>>          values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<double>>>         values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<char>>>           values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<std::string>>>    values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<bool>>*>          values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+        throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+    }
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<int>>*>           values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+    throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+}
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<float>>*>         values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+    throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+}
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<double>>*>        values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+    throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+}
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<char>>*>          values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+    throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+}
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 DIY::dict::dict(std::vector<std::string> keys, std::vector<std::vector<std::vector<std::string>>*>   values) {
     //dict "storage" container constructor
-    if(keys.size()==values.size() && !hasRepetitions<std::string>(keys)) {
+    if(keys.size()!=values.size()) {
+    throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) `keys` and `values` constructor args are not same size.");
+}
+    if(!hasRepetitions<std::string>(keys)) {
         for(size_t i=0; i<keys.size(); i++) {
             this->add(keys[i], values[i]);
         }
     }
+    else throw std::runtime_error("ERROR:"+this->_info_name+"::dict(std::vector<std::string>, std::vector<T>) repetitions of elements in `keys` argument found.");
 }
 
 DIY::dict::~dict() {}
@@ -413,7 +557,7 @@ std::string DIY::dict::str_export(
     int left_indent
 ) {
     int pos = check_existence<std::string>(key, this->_keys);
-    if(pos==-1) return "";
+    if(pos==-1) throw std::runtime_error("ERROR: "+this->_info_name+"::str_export(..) argument for param. `key` does not exist in dict.");
     std::string tempStr = "";
 
     int type = this->_datatype[pos];

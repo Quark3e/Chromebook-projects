@@ -76,6 +76,7 @@ namespace DIY {
         return resultString;
     }
 
+
     template<typename T>
     std::string prettyPrint_vec2(
         std::vector<std::vector<T>> vec2_inp,
@@ -111,6 +112,14 @@ namespace DIY {
     }
 
 
+    /**
+     * @brief check if a `std::vector<T>` has repetitions of its elements (if any element is repeated/"exists in more than one element")
+     * 
+     * @tparam `T` type of the elements and `std::vector<T>`
+     * @param vec `std::vector<T>` to search its element
+     * @return `true` if any element occurs more than once in the vector
+     * @return `false` if otherwise (all elements only occur once in the vector)
+     */
     template<typename T>
     bool hasRepetitions(std::vector<T> vec) {
         bool repeated = false;
@@ -122,6 +131,19 @@ namespace DIY {
     }
 
 
+    /**
+     * @brief Check if a value of type `_check` exists in given `std::vector<_check>` container
+     * 
+     * @tparam _check data type of value and vector of same type to check
+     * @param key the value to check if it exists in `vec`
+     * @param vec the `std::vector<_check>` to search through
+     * @param verbose `DIY_SEARCH_MULTITHREAD::multithread_searchVec`: boolean for whether to print out intermediary statements
+     * @param numThreads `DIY_SEARCH_MULTITHREAD::multithread_searchVec`: number of threads to split the search vector in
+     * @param threadLen `DIY_SEARCH_MULTITHREAD::multithread_searchVec`: maximum number of elements for a single thread to look through in a vector (is overriden if `numThreads` num is bigger than
+     * recommended value by `std::thread::hardware_concurrency();`).
+     * @param checkSpacing `DIY_SEARCH_MULTITHREAD::multithread_searchVec`: number of loop iterations/cycles to wait before checking concurrent threads if they've found the value in vector
+     * @return if `key` found, returns  `int` position/index value for `key` in `vec`. If not found returns `-1`; 
+     */
     template<typename _check>
     int check_existence(
         _check key,
@@ -138,11 +160,14 @@ namespace DIY {
 
 
     /**
-     * diy dictionary where each key is an std::string
+     * Dictionary of pre-defined group of types sorted by `std::string` type "keys".(detailed definition of type and type-code/typeID's can be found in `DIY::dict::dict_types[6][6]` docstring)
      * 
      */
     class dict {
         private:
+            std::string _info_name = "DIY::dict";
+
+
             int  arg_searchVec_threadLen    = 100;
             int  arg_searchVec_numThreads   = -1;
             int  arg_searchVec_checkSpacing = 1;
@@ -264,8 +289,16 @@ namespace DIY {
              */
             bool init_storage() { return this->_storage_init; }
 
-            std::string& operator[] (int i) { return _keys.at(i); }
-            std::string  operator[] (int i) const { return const_cast<std::string&>(_keys.at(i)); }
+            std::string& operator[] (int i) { 
+                if(static_cast<size_t>(abs(i)) >= _keys.size()) throw std::runtime_error(_info_name+": & operator arg too big: \"abs("+std::to_string(i)+")>size()\"");
+                if(i<0) return _keys.at(_keys.size()+static_cast<size_t>(i));
+                return _keys.at(i);
+            }
+            std::string  operator[] (int i) const {
+                if(static_cast<size_t>(abs(i)) >= _keys.size()) throw std::runtime_error(_info_name+": & operator arg too big: \"abs("+std::to_string(i)+")>size()\"");
+                if(i<0) return const_cast<std::string&>(_keys.at(_keys.size()+static_cast<size_t>(i)));
+                return const_cast<std::string&>(_keys.at(i));
+            }
 
             /**
              * @brief check if key exists
@@ -545,6 +578,8 @@ namespace DIY {
     template<class _key_type, class _store_type>
     class typed_dict {
         private:
+        std::string _info_name = "DIY::typed_dict";
+
         std::vector<_key_type>      _keys;
         std::vector<_store_type>    _values;
     
@@ -553,21 +588,23 @@ namespace DIY {
 
         bool _init_container = false;
 
+
         public:
         typed_dict(std::vector<_key_type> keys, std::vector<_store_type> values);
         typed_dict(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values);
 
         _store_type& operator[] (_key_type key) {
+            if(!_init_container) throw std::runtime_error("ERROR: "+this->_info_name+"::` _store_type`& operator[](): class containers hasn't been initialized/(are empty)");
             std::vector<int> idx = DIY_SEARCH_MULTITHREAD::multithread_searchVec<_key_type>(
             _keys, key, -1, -1, true, -1, false);
-
             int pos = check_existence<_key_type>(key, _keys);
-            if(pos==-1 || !_init_container) { return _nullValue; }
+            if(pos==-1) throw std::runtime_error("ERROR: "+this->_info_name+"::` _store_type`& operator[](): argument for `key` was not found in dictionary.");
             return _values.at(pos);
         }
         _store_type  operator[] (_key_type key) const   {
+            if(!_init_container) throw std::runtime_error("ERROR: "+this->_info_name+"::` _store_type`& operator[](): class containers hasn't been initialized/(are empty)");
             int pos = check_existence<_key_type>(key, _keys);
-            if(pos==-1 || !_init_container)  { return _nullValue; }
+            if(pos==-1) throw std::runtime_error("ERROR: "+this->_info_name+"::` _store_type`& operator[](): argument for `key` was not found in dictionary.");
             return const_cast<_store_type&>(_keys.at(pos));
         }
 

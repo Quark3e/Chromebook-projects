@@ -50,7 +50,7 @@ void printInp() {
 
 DIY::dict dictObj_glob(
     std::vector<string>{"uno", "dos", "tres"},
-    std::vector<bool>{true, true, false}
+    std::vector<bool>{true, true}
 );
 
 int main(int argc, char** argv) {
