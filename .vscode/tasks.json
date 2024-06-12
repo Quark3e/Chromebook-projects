@@ -117,11 +117,41 @@
 			"problemMatcher": [
 				"$gcc"
 			],
+			"group": "build",
+			"detail": "compiler: /usr/bin/g++\nadds \"_EXE\" at the end to denote as executable"
+		},
+		{
+			"type": "cppbuild",
+			"label": "HEXCLAW: remote_GUI - IMGUI-allegro5 - C/C++: g++ build active file",
+			"command": "/usr/bin/g++",
+			"args": [
+				"-DIMGUI_USER_CONFIG=\\\"/usr/local/include/imgui/examples/example_allegro5/imconfig_allegro5.h\\\"",
+				"-fdiagnostics-color=always",
+				"-I/usr/local/include/imgui/",
+				"-g",
+				"${file}",
+				"/usr/local/include/HC_useful/diy_dictionary.cpp",
+				"/usr/local/include/imgui/backends/imgui_impl_allegro5.cpp",
+				"/usr/local/include/imgui/imgui*.cpp",
+				"-lallegro",
+				"-lallegro_main",
+				"-lallegro_primitives",
+				"-o",
+				"${fileDirname}/EXE_${fileBasenameNoExtension}",
+				"&&",
+				"${fileDirname}/EXE_${fileBasenameNoExtension}"
+			],
+			"options": {
+				"cwd": "${fileDirname}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
 			"group": {
 				"kind": "build",
 				"isDefault": true
 			},
-			"detail": "compiler: /usr/bin/g++\nadds \"_EXE\" at the end to denote as executable"
+			"detail": "compiler: /usr/bin/g++"
 		}
 	]
 }
