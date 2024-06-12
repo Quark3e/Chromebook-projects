@@ -624,6 +624,7 @@ namespace DIY {
 
     template<class _key_type, class _store_type>
     typed_dict<_key_type, _store_type>::typed_dict(std::vector<_key_type> keys, std::vector<_store_type> values) {
+        if(keys.size()!=values.size()) throw std::runtime_error()
         if(keys.size()==values.size() && !hasRepetitions<_key_type>(keys)) {
             this->_keys = keys;
             this->_values = values;
