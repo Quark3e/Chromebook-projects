@@ -50,7 +50,7 @@ void printInp() {
 
 DIY::dict dictObj_glob(
     std::vector<string>{"uno", "dos", "tres"},
-    std::vector<bool>{true, true}
+    std::vector<bool>{true, true, false}
 );
 
 int main(int argc, char** argv) {
@@ -117,7 +117,7 @@ int main(int argc, char** argv) {
 
     DIY::typed_dict<std::string, float> inst0(
         {"one", "two", "three", "four", "five"},
-        {1, 2, 3, 4, 5}
+        {1, 2, 3, 4}
     );
 
 

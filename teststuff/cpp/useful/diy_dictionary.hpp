@@ -588,6 +588,7 @@ namespace DIY {
 
         bool _init_container = false;
 
+        void _call_error(int code, std::string from_member="", std::string custom_error="");
 
         public:
         typed_dict(std::vector<_key_type> keys, std::vector<_store_type> values);
@@ -607,43 +608,88 @@ namespace DIY {
             if(pos==-1) throw std::runtime_error("ERROR: "+this->_info_name+"::` _store_type`& operator[](): argument for `key` was not found in dictionary.");
             return const_cast<_store_type&>(_keys.at(pos));
         }
-
+        size_t find(_key_type key);
 
         size_t size() { return this->_keys.size(); }
 
         std::vector<_key_type> keys() { return _keys; }
         int add(_key_type key, _store_type value);
+
         int append(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values);
         int append(std::vector<_key_type> keys, std::vector<_store_type> values);
+
         int insert(size_t pos, _key_type key, _store_type value);
         int insert(size_t pos, std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values);
         int insert(size_t pos, std::vector<_key_type> keys, std::vector<_store_type> values);
+
+        int replace(_key_type key, _store_type new_value);
+
+        int rename(_key_type key, _key_type new_key);
+
         int erase(_key_type key);
     };
     
+    /**
+     * @brief private member function for `throw`:ing specific errors
+     *  
+     * @param code designated code to what error has occurred (2). (1)
+     * @param from_member `std::string` with `::`+name of member function the error occurred in
+     * @param custom_error `std::string` with custom error to use instead of pre-defined codes called via `code`
+     * @note (1) if `custom_error.length()!=0` then `code` will be ignored.
+     * @note  
+     * @note (2):
+     * @note  `0`- "input key argument not found in _keys storage"
+     * @note  `1`- "input key argument already exists in _keys storage"
+     */
+    template<class _key_type, class _store_type>
+    void typed_dict<_key_type, _store_type>::_call_error(int code, std::string from_member, std::string custom_error) {
+        std::string callStr = "ERROR: "+this->_info_name+from_member+": ";
+        if(custom_error.length()!=0) callStr+=custom_error;
+        else {
+            switch (code) {
+            case 0: //key not found
+                callStr += " input key argument not found in _keys storage";
+                break;
+            case 1: //key already exists
+                callStr += " input key argument already exists in _keys storage";
+                break;
+            default:
+                break;
+            }
+        }
+        throw std::runtime_error(callStr);
+    }
+
+
 
     template<class _key_type, class _store_type>
     typed_dict<_key_type, _store_type>::typed_dict(std::vector<_key_type> keys, std::vector<_store_type> values) {
-        if(keys.size()!=values.size()) throw std::runtime_error()
-        if(keys.size()==values.size() && !hasRepetitions<_key_type>(keys)) {
-            this->_keys = keys;
-            this->_values = values;
-            this->_init_container = true;
-        }
+        if(keys.size()!=values.size()) this->_call_error(0,"::typed_dict(std::vector<_key_type>, std::vector<_store_type>)","input containers for `keys` and `values` aren't same size.");
+        if(hasRepetitions<_key_type>(keys)) this->_call_error(0,"::typed_dict(std::vector<_key_type>, std::vector<_store_type>)","there are repetitions inside input argument for `keys`");
+        this->_keys = keys;
+        this->_values = values;
+        this->_init_container = true;
     }
     template<class _key_type, class _store_type>
     typed_dict<_key_type, _store_type>::typed_dict(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values) {
-        if(keys.size()==values.size() && !hasRepetitions<_key_type>(keys)) {
-            this->_keys = keys;
-            this->_values = values;
-            this->_init_container = true;
-        }
+        if(keys.size()!=values.size()) this->_call_error(0,"::typed_dict(std::initializer_list<_key_type>, std::initializer_list<_store_type>)","input containers for `keys` and `values` aren't same size.");
+        if(hasRepetitions<_key_type>(keys)) this->_call_error(0,"::typed_dict(std::initializer_list<_key_type>, std::initializer_list<_store_type>)","there are repetitions inside input argument for `keys`");
+        this->_keys = keys;
+        this->_values = values;
+        this->_init_container = true;
     }
 
 
     template<class _key_type, class _store_type>
+    size_t typed_dict<_key_type, _store_type>::find(_key_type key) {
+        int pos = check_existence<_key_type>(key, this->_keys);
+        if(pos<0) this->_call_error(0, "::find(_key_type)");
+        return static_cast<size_t>(pos);
+    }
+
+    template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::add(_key_type key, _store_type value) {
-        if(check_existence<_key_type>(key, this->_keys)!=-1) return 1;
+        if(check_existence<_key_type>(key, this->_keys)!=-1) this->_call_error(1, "::add(_key_type, _store_type)");
         this->_keys.push_back(key);
         this->_values.push_back(value);
         if(this->_init_container) this->_init_container = true;
@@ -652,7 +698,8 @@ namespace DIY {
 
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::append(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values) {
-        if(keys.size()!=values.size() || hasRepetitions<_key_type>(keys)) return 1;
+        if(keys.size()!=values.size()) this->_call_error(0, "::append(std::initializer_list<_key_type>, std::initializer_list<_store_type>)", " arguments aren't the same size");
+        if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::append(std::initializer_list<_key_type>, std::initializer_list<_store_type>)", " input argument for keys has repetitions of elements");
         for(auto elem: keys) { if(check_existence<_key_type>(elem, keys)!=-1) { return 1; } }
         this->_keys.insert(this->_keys.end(), keys.begin(), keys.end());
         this->_values.insert(this->_values.end(), values.begin(), values.end());
@@ -661,7 +708,8 @@ namespace DIY {
 
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::append(std::vector<_key_type> keys, std::vector<_store_type> values) {
-        if(keys.size()!=values.size() || hasRepetitions<_key_type>(keys)) return 1;
+        if(keys.size()!=values.size()) this->_call_error(0, "::append(std::vector<_key_type>, std::vector<_store_type>)", " arguments aren't the same size");
+        if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::append(std::vector<_key_type>, std::vector<_store_type>)", " input argument for keys has repetitions of elements");
         for(auto elem: keys) { if(check_existence<_key_type>(elem, keys)!=-1) { return 1; } }
         this->_keys.insert(this->_keys.end(), keys.begin(), keys.end());
         this->_values.insert(this->_values.end(), values.begin(), values.end());
@@ -670,7 +718,7 @@ namespace DIY {
 
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::insert(size_t pos, _key_type key, _store_type value) {
-        if(check_existence<_key_type>(key, this->_keys)!=-1) return 1;
+        if(check_existence<_key_type>(key, this->_keys)!=-1) this->_call_error(1, "::insert(size_t, _key_type, _store_type)");
         this->_keys.insert(this->_keys.begin()+pos, key);
         this->_values.insert(this->_values.begin()+pos, value);
         return 0;
@@ -678,8 +726,10 @@ namespace DIY {
 
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::insert(size_t pos, std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values) {
-        if(keys.size()!=values.size() || hasRepetitions<_key_type>(keys)) return 1;
-        for(auto elem: keys) { if(check_existence<_key_type>(elem, this->_keys)!=-1) { return 1; } }
+        if(keys.size()!=values.size()) this->_call_error(0, "::insert(std::initializer_list<_key_type>, std::initializer_list<_store_type>)", " arguments aren't the same size");
+        if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::insert(std::initializer_list<_key_type>, std::initializer_list<_store_type>)", " input argument for keys has repetitions of elements");
+        for(auto elem: keys) { if(check_existence<_key_type>(elem, this->_keys)!=-1) { this->_call_error(1,"::insert(std::initializer_list<_key_type>, std::initializer_list<_store_type>)"); } }
+        
         this->_keys.insert(this->_keys.begin()+pos, keys.begin(), keys.end());
         this->_values.insert(this->_values.begin()+pos, values.begin(), values.end());
         return 0;
@@ -687,17 +737,37 @@ namespace DIY {
 
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::insert(size_t pos, std::vector<_key_type> keys, std::vector<_store_type> values) {
-        if(keys.size()!=values.size() || hasRepetitions<_key_type>(keys)) return 1;
-        for(auto elem: keys) { if(check_existence<_key_type>(elem, this->_keys)!=-1) { return 1; } }
+        if(keys.size()!=values.size()) this->_call_error(0, "::insert(std::vector<_key_type>, std::vector<_store_type>)", " arguments aren't the same size");
+        if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::insert(std::vector<_key_type>, std::vector<_store_type>)", " input argument for keys has repetitions of elements");
+        for(auto elem: keys) { if(check_existence<_key_type>(elem, this->_keys)!=-1) { this->_call_error(1,"::insert(std::vector<_key_type>, std::vector<_store_type>)"); } }
+
         this->_keys.insert(this->_keys.begin()+pos, keys.begin(), keys.end());
         this->_values.insert(this->_values.begin()+pos, values.begin(), values.end());
         return 0;
     }
 
     template<class _key_type, class _store_type>
+    int typed_dict<_key_type, _store_type>::replace(_key_type key, _store_type new_value) {
+        int pos = check_existence<_key_type>(key, this->_keys);
+        if(pos<0) this->_call_error(0, "::replace(_key_type, _store_type)");
+        this->_values.at(pos) = new_value;
+        return 0;
+    }
+
+    template<class _key_type, class _store_type>
+    int typed_dict<_key_type, _store_type>::rename(_key_type key, _key_type new_key) {
+        int pos = check_existence<_key_type>(key, this->_keys);
+        if(pos<0) this->_call_error(0, "::rename(_key_type, _key_type)");
+        int pos2= check_existence<_key_type>(new_key, this->_keys);
+        if(pos!=-1) this->_call_error(0, "::rename(_key_type, _key_type)", "second parameter argument for `new_key` already exists in dictionary keys");
+        this->_keys.at(0) = new_key;
+        return 0;
+    }
+
+    template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::erase(_key_type key) {
         int pos = check_existence<_key_type>(key, this->_keys);
-        if(pos==-1) return 1;
+        if(pos==-1) this->_call_error(0, "::erase(_key_type)");
         this->_keys.erase(this->_keys.begin()+pos);
         this->_values.erase(this->_values.begin()+pos);
 
