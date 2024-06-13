@@ -21,7 +21,7 @@
     "python.autoComplete.extraPaths": ["/usr/lib/python3/dist-packages"],
     "python.analysis.typeCheckingMode": "off",
     "C_Cpp.default.compilerPath": "/usr/bin/g++",
-    "C_Cpp.intelliSenseCacheSize": 500,
+    "C_Cpp.intelliSenseCacheSize": 300,
     "C_Cpp.autocompleteAddParentheses": true,
     "python.analysis.extraPaths": [
         "/usr/lib/python3/dist-packages"

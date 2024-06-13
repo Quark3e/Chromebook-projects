@@ -14,7 +14,7 @@
  * 
  * settings:
  *  link to server: default: true   desc: whether to attempt to connect to Hexclaw Server at intervals
- *  findOrient    : default: true   desc: Terminal: whether to look for a valid orient for a given pos with invalid `getAngles` result
+ *  findOrient    : default: true   desc: whether to look for a valid orient if a given pos+orient gives invalid `getAngles` error
  *  "a1:frameX"   : default: true   desc: getAngles: "frame1X = frame1X * cos(b)"
  *  "a1:a1"       : default: true   desc: getAngles: "a1 = a1 * cos(b)"
  *  "q4:default"  : default: false  desc: getAngles: "q4 = atan(frame1X / frame1Y)"
@@ -64,8 +64,25 @@
 
 int mode = 0;
 
+bool setting_findOrient = true;
+bool setting_link_to_server = true;
+
 
 int main(int argc, char** argv) {
+
+    static DIY::typed_dict<std::string, std::string> guiSettings_desc= HW_KINEMATICS::setting_desc;
+    guiSettings_desc.add("Link to server", std::string("whether to attempt to connect to Hexclaw Server at intervals"));
+    guiSettings_desc.add("findOrient", std::string("whether to look for a valid orient if a given pos+orient gives invalid `getAngles` error"));
+
+    
+    std::vector<bool*> vecPtr;
+    for(std::string key: HW_KINEMATICS::settings.keys()) vecPtr.push_back(HW_KINEMATICS::settings.getPtr(key));
+    DIY::typed_dict<std::string, bool*> guiSettings(HW_KINEMATICS::settings.keys(), vecPtr);
+
+    // static DIY::typed_dict<std::string, bool> guiSettings     = HW_KINEMATICS::settings;
+    // guiSettings.add("Link to server", true);
+    // guiSettings.add("findOrient", true);
+
 
     al_init();
     al_install_keyboard();
@@ -173,6 +190,7 @@ int main(int argc, char** argv) {
         ImGui::SameLine();
         if(ImGui::BeginChild("Settings", ImVec2(WIN_INPUT_SETTINGS_WIDTH, WIN_INPUT_SETTINGS_HEIGHT))) {
             ImGui::SeparatorText("Settings");
+
             ImGui::EndChild();
         }
         if(ImGui::BeginChild("Solved angles[deg.]", ImVec2(WIN_OUTPUT_ANGLES_WIDTH, WIN_OUTPUT_ANGLES_HEIGHT))) {

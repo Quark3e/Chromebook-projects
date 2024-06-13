@@ -44,7 +44,7 @@ namespace HW_KINEMATICS
         "exceedState"
     };
 
-    DIY::dict settings(
+    DIY::typed_dict<std::string, bool> settings(
         setting_labels,
         std::vector<bool>{
             true,
@@ -59,7 +59,7 @@ namespace HW_KINEMATICS
         }
     );
 
-    const DIY::dict setting_desc(
+    const DIY::typed_dict<std::string, std::string> setting_desc(
         setting_labels,
         std::vector<std::string>{
             "frame1X = frame1X * cos(b)",

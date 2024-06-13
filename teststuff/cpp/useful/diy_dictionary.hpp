@@ -608,6 +608,9 @@ namespace DIY {
             if(pos==-1) throw std::runtime_error("ERROR: "+this->_info_name+"::` _store_type`& operator[](): argument for `key` was not found in dictionary.");
             return const_cast<_store_type&>(_keys.at(pos));
         }
+
+        _store_type* getPtr(_key_type key);
+
         size_t find(_key_type key);
 
         size_t size() { return this->_keys.size(); }
@@ -679,6 +682,22 @@ namespace DIY {
         this->_init_container = true;
     }
 
+
+    /**
+     * @brief get pointer to a stored value
+     * @warning If size of stored values are changed (either by addition or removal) the previously gotten pointers may become invalid
+     * because of how pointers change.
+     * @tparam _key_type type for the stored "keys"
+     * @param key `key` to value to get the pointer to
+     * @return `const _store_type*` to element stored with key `key`.
+     */
+    template<class _key_type, class _store_type>
+    _store_type* typed_dict<_key_type, _store_type>::getPtr(_key_type key) {
+        int pos = check_existence<_key_type>(key, this->_keys);
+        if(pos<0) this->_call_error(0, "::getPtr(_key_type)");
+        std::vector<_store_type>::iterator it = _values.begin()+pos;
+        return &(*it);
+    }
 
     template<class _key_type, class _store_type>
     size_t typed_dict<_key_type, _store_type>::find(_key_type key) {
