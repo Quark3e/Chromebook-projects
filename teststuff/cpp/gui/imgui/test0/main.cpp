@@ -47,6 +47,12 @@ int main(int argc, char** argv) {
     bool my_tool_active = true;
 
 
+    ImGuiWindowFlags window_flags = 0;
+    window_flags |= ImGuiWindowFlags_NoMove;
+    window_flags |= ImGuiWindowFlags_NoResize;
+    window_flags |= ImGuiWindowFlags_NoCollapse;
+    window_flags |= ImGuiWindowFlags_MenuBar;
+    
     while(running) {
         ALLEGRO_EVENT al_event;
         while(al_get_next_event(queue, &al_event)) {
@@ -59,14 +65,8 @@ int main(int argc, char** argv) {
             }
         }
         ImGui_ImplAllegro5_NewFrame();
-        ImGui::NewFrame();
-
+        ImGui::NewFrame();  
         //---------------------
-        ImGuiWindowFlags window_flags = 0;
-        window_flags |= ImGuiWindowFlags_NoMove;
-        window_flags |= ImGuiWindowFlags_NoResize;
-        window_flags |= ImGuiWindowFlags_NoCollapse;
-        window_flags |= ImGuiWindowFlags_MenuBar;
 
 
         ImGui::Begin(" ", NULL, window_flags);
