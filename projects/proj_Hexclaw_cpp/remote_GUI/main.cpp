@@ -30,6 +30,9 @@
 #include <iostream>
 #include <math.h>
 #include <stdint.h>
+#include <thread>
+#include <mutex>
+#include <atomic>
 
 #include <HC_useful/useful.hpp>
 #include <HC_useful/diy_dictionary.hpp>
@@ -42,22 +45,22 @@
 #include <imgui/backends/imgui_impl_allegro5.h>
 
 
-#define WIN_WIDTH   500
+#define WIN_WIDTH   600
 #define WIN_HEIGHT  600
 
-#define WIN_INPUT_IK_WIDTH  300
-#define WIN_INPUT_IK_HEIGHT 200
+#define WIN_INPUT_IK_WIDTH  350
+#define WIN_INPUT_IK_HEIGHT 250
 #define WIN_INPUT_IK_POS  [0, 0]
 
 #define WIN_INPUT_SETTINGS_WIDTH    200
-#define WIN_INPUT_SETTINGS_HEIGHT   200
+#define WIN_INPUT_SETTINGS_HEIGHT   300
 #define WIN_INPUT_SETTINGS_POS  [WIN_INPUT_IK_POS[0]+WIN_INPUT_IK_WIDTH, 0]
 
-#define WIN_OUTPUT_ANGLES_WIDTH     600
+#define WIN_OUTPUT_ANGLES_WIDTH     350
 #define WIN_OUTPUT_ANGLES_HEIGHT    100
 #define WIN_OUTPUT_ANGLES_POS   [0, WIN_INPUT_IK_POS[1]+WIN_INPUT_IK_HEIGHT]
 
-#define WIN_OUTPUT_FK_WIDTH     300
+#define WIN_OUTPUT_FK_WIDTH     350
 #define WIN_OUTPUT_FK_HEIGHT    100
 #define WIN_OUTPUT_FK_POS   [0, WIN_OUTPUT_ANGLES_POS[1]+WIN_INPUT_IK_HEIGHT]
 
@@ -65,14 +68,8 @@
 int mode = 0;
 
 
-bool setting_link_to_server = true;
-bool setting_findOrient = true;
-
-
-
-static void HelpMarker(const char* desc)
-{
-    ImGui::TextDisabled("(?)");
+static void HelpMarker(const char* desc, const char* symb="(?)") {
+    ImGui::TextDisabled(symb);
     if (ImGui::BeginItemTooltip())
     {
         ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
@@ -82,23 +79,42 @@ static void HelpMarker(const char* desc)
     }
 }
 
+
+static float input_IK_pos[3]    = {0, 200, 150};
+static float input_IK_orient[3] = {0, 0, 0};
+
+static float output_IK_angles[6]= {0, 0, 0, 0, 0, 0}; //mtx dependant
+
+static float output_FK_pos[3]   = {0, 0, 0};
+static float output_FK_orient[3]= {0, 0, 0};
+
+bool input_IK_enterPress = false;
+
+struct funcs {
+    static bool IsLegacyNativeDupe(ImGuiKey key) {
+        return key >= 0 && key < 512 && ImGui::GetIO().KeyMap[key] != -1;
+    }
+}; // Hide Native<>ImGuiKey duplicates when both exists in the array
+
+
+
 int main(int argc, char** argv) {
+
+    static bool guisetting_link_to_server = true;
+    static bool guisetting_findOrient = true;
+
 
     static DIY::typed_dict<std::string, std::string> guiSettings_desc= HW_KINEMATICS::setting_desc;
     guiSettings_desc.add("Link to server", std::string("whether to attempt to connect to Hexclaw Server at intervals"));
     guiSettings_desc.add("findOrient", std::string("whether to look for a valid orient if a given pos+orient gives invalid `getAngles` error"));
 
-    
     std::vector<bool*> vecPtr;
     for(std::string key: HW_KINEMATICS::settings.keys()) vecPtr.push_back(HW_KINEMATICS::settings.getPtr(key));
-    DIY::typed_dict<std::string, bool*> guiSettings(HW_KINEMATICS::settings.keys(), vecPtr);
-    guiSettings.add("Link to server", &setting_link_to_server);
-    guiSettings.add("findOrient", &setting_findOrient);
 
+    DIY::typed_dict<std::string, bool*> guiSettings(HW_KINEMATICS::settings.keys(), vecPtr); //affects HW_KINEMATICS variables
+    guiSettings.add("Link to server", &guisetting_link_to_server);
+    guiSettings.add("findOrient", &guisetting_findOrient);
 
-    // static DIY::typed_dict<std::string, bool> guiSettings     = HW_KINEMATICS::settings;
-    // guiSettings.add("Link to server", true);
-    // guiSettings.add("findOrient", true);
 
 
     al_init();
@@ -149,18 +165,13 @@ int main(int argc, char** argv) {
 
 
     static ImGuiChildFlags input_child_flags = 0;
-    input_child_flags |= ImGuiChildFlags_ResizeX;
+    // input_child_flags |= ImGuiChildFlags_ResizeX;
 
-    
 
-    static float input_IK_pos[3]    = {0, 200, 150};
-    static float input_IK_orient[3] = {0, 0, 0};
+    static ImGuiInputTextFlags input_inputText_flags = 0;
+    // input_inputText_flags |= ImGuiInputTextFlags_
 
-    static float output_IK_angles[6]= {0, 0, 0, 0, 0, 0};
-
-    static float output_FK_pos[3]   = {0, 0, 0};
-    static float output_FK_orient[3]= {0, 0, 0};
-
+    std::string outMsg = "";
 
 
     while(running) {
@@ -177,7 +188,7 @@ int main(int argc, char** argv) {
         ImGui_ImplAllegro5_NewFrame();
         ImGui::NewFrame();
         //---------------------
-        ImGui::SetNextWindowSizeConstraints(ImVec2(WIN_WIDTH-1, WIN_HEIGHT-1), ImVec2(WIN_WIDTH, WIN_HEIGHT));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(WIN_WIDTH, WIN_HEIGHT), ImVec2(WIN_WIDTH, WIN_HEIGHT));
         ImGui::Begin(" ", NULL, window_flags);
         ImGui::SetWindowPos(ImVec2(0, 0));
         ImGui::SetWindowSize(ImVec2(WIN_WIDTH, WIN_HEIGHT));
@@ -196,15 +207,36 @@ int main(int argc, char** argv) {
             ImGui::EndMenuBar();
         }
 
-
+        ImGui::BeginGroup();
         if(ImGui::BeginChild("IK input", ImVec2(WIN_INPUT_IK_WIDTH, WIN_INPUT_IK_HEIGHT), input_child_flags)) {
             ImGui::SeparatorText("Input");
             ImGui::InputFloat3("pos", input_IK_pos);
             ImGui::InputFloat3("tilt", input_IK_orient);
+            static float _lim_orient[2] = {-90, 90};
+            for(float& elem: input_IK_orient)
+                elem = (elem>_lim_orient[1] ? elem=_lim_orient[1] : elem<_lim_orient[0] ? elem=_lim_orient[0] : elem=elem);
             
+            // ImGui::SetCursorPosX(float(WIN_INPUT_IK_POS[0]));
+            // ImGui::SetCursorPos(ImVec2(WIN_INPUT_IK_POS[0], WIN_INPUT_IK_POS[1]+WIN_INPUT_IK_HEIGHT-50));
+            ImGui::SetCursorPos(ImVec2(300, 100));
+            if(ImGui::Button("Enter")) { input_IK_enterPress = true; }
+            else if(input_IK_enterPress) input_IK_enterPress = false;
+
             ImGui::EndChild();
         }
+        if(ImGui::BeginChild("IK info", ImVec2(WIN_INPUT_IK_WIDTH, WIN_INPUT_SETTINGS_HEIGHT-WIN_INPUT_IK_HEIGHT), input_child_flags)) {
+            ImGui::SeparatorText("IK info");
+
+
+            ImGui::TextUnformatted(std::string(">> "+outMsg).c_str());
+
+            ImGui::EndChild();
+        }
+        ImGui::EndGroup();
+
         ImGui::SameLine();
+
+        ImGui::BeginGroup();
         if(ImGui::BeginChild("Settings", ImVec2(WIN_INPUT_SETTINGS_WIDTH, WIN_INPUT_SETTINGS_HEIGHT))) {
             ImGui::SeparatorText("Settings");
 
@@ -212,14 +244,60 @@ int main(int argc, char** argv) {
             for(std::string key: guiSettings.keys()) {
                 ImGui::Checkbox(key.c_str(), guiSettings[key]);
                 ImGui::SameLine();
+                HelpMarker(guiSettings_desc[key].c_str());
+                ImGui::SameLine();
                 HelpMarker(
-                    std::string(guiSettings_desc[key]).c_str()
+                    std::string(
+                        "default:["+
+                        (_i<HW_KINEMATICS::setting_default.size()? HW_KINEMATICS::setting_default.str_export(key,5,0,"left",true) : std::string("true "))+"]"
+                    ).c_str(), std::string("[]").c_str()
                 );
                 _i++;
             }
 
             ImGui::EndChild();
         }
+        ImGui::EndGroup();
+        //-------------
+        // outMsg = "";
+        // 525, 527
+
+        ImGui::Text("Keys down:");
+        ImGuiKey start_key = (ImGuiKey)0;
+        int _ctrl_enter__count = 0;
+        bool _ctrl_enter__pressed = false;
+        for (ImGuiKey key = start_key; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) {
+            if (funcs::IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) continue;
+            // ImGui::SameLine();
+            // ImGui::Text((key < ImGuiKey_NamedKey_BEGIN) ? "\"%s\"" : "\"%s\" %d", ImGui::GetKeyName(key), key);
+            if(key==525 || key==527) _ctrl_enter__count++;
+        }
+
+        if(input_IK_enterPress || (_ctrl_enter__count==2 && !_ctrl_enter__pressed)) {
+            if(HW_KINEMATICS::getAngles(
+                    output_IK_angles,
+                    input_IK_pos,
+                    HW_KINEMATICS::toRadians(input_IK_orient[0]),
+                    HW_KINEMATICS::toRadians(input_IK_orient[1]),
+                    HW_KINEMATICS::toRadians(input_IK_orient[2]),
+                    1
+            )) {
+                outMsg = "found solution for given pos and orient";
+            }
+            else if(guiSettings["findOrient"]) {
+                if(HW_KINEMATICS::findValidOrient(input_IK_pos, input_IK_orient, input_IK_orient, output_IK_angles)) { //find replacement
+                    outMsg = "note: No solution found for given orient:\nfound solution for different orient.";
+                }
+                else { //couldn't find replacement
+                    outMsg = "error: No solution for any possible\norient found for given pos.";
+                }
+            }
+            else { outMsg = "error: No solution found."; }
+        }
+        if(_ctrl_enter__count==2) _ctrl_enter__pressed = true;
+        else _ctrl_enter__pressed = false;
+        //-------------
+        ImGui::BeginGroup();
         if(ImGui::BeginChild("Solved angles[deg.]", ImVec2(WIN_OUTPUT_ANGLES_WIDTH, WIN_OUTPUT_ANGLES_HEIGHT))) {
             ImGui::SeparatorText("IK solutions");
             if(ImGui::BeginTable("IK_out", 6, table_flags_IK_out)) {
@@ -230,14 +308,15 @@ int main(int argc, char** argv) {
                     ImGui::SetNextItemWidth(6);
                     ImGui::TableSetColumnIndex(i);
                     ImGui::AlignTextToFramePadding();
-                    // ImGui::TextUnformatted(formatNumber<float>(HW_KINEMATICS::solved_q[i],6,2).c_str());
-                    ImGui::Text(formatNumber<float>(HW_KINEMATICS::solved_q[i],7,2).c_str());
+                    ImGui::Text(formatNumber<float>(output_IK_angles[i],6,1).c_str());
                 }
 
                 ImGui::EndTable();
             }
             ImGui::EndChild();
         }
+        ImGui::EndGroup();
+
         if(ImGui::BeginChild("FK solutions", ImVec2(WIN_OUTPUT_FK_WIDTH, WIN_OUTPUT_FK_HEIGHT))) {
             ImGui::SeparatorText("FK solutions");
             ImGui::EndChild();

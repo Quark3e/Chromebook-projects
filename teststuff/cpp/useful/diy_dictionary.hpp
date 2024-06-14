@@ -613,12 +613,6 @@ namespace DIY {
         }
 
 
-        // _store_type getElemCopy(_key_type key) {
-        //     int pos = check_existence<_key_type>(key, _keys);
-        //     if(pos<0) this->_call_error(0, ("getElemCopy(_key_type)"));
-        //     return std::move(_keys.at(pos));
-        // }
-
         _store_type* getPtr(_key_type key);
 
         size_t find(_key_type key);
@@ -627,6 +621,10 @@ namespace DIY {
 
         std::vector<_key_type> keys() { return _keys; }
         std::vector<_store_type> values() { return _values; }
+
+        std::string str_export(_key_type key, int width=0, int precision=2, std::string align="right", bool useBoolAlpha=false);
+
+
         int add(_key_type key, _store_type value);
 
         int append(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values);
@@ -719,6 +717,19 @@ namespace DIY {
         int pos = check_existence<_key_type>(key, this->_keys);
         if(pos<0) this->_call_error(0, "::find(_key_type)");
         return static_cast<size_t>(pos);
+    }
+
+    template<class _key_type, class _store_type>
+    std::string typed_dict<_key_type, _store_type>::str_export(
+        _key_type key,
+        int width,
+        int precision,
+        std::string align,
+        bool useBoolAlpha
+    ) {
+        int pos = check_existence<_key_type>(key, _keys);
+        if(pos<0) this->_call_error(0, "::str_export(_key_type)");
+        return formatNumber<_store_type>(_values.at(pos),width,precision,align,useBoolAlpha);
     }
 
     template<class _key_type, class _store_type>

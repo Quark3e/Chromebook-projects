@@ -59,7 +59,7 @@ namespace HW_KINEMATICS
         }
     );
 
-    const DIY::typed_dict<std::string, bool> setting_default(
+    DIY::typed_dict<std::string, bool> setting_default(
         setting_labels,
         settings.values()
     );
@@ -89,6 +89,9 @@ namespace HW_KINEMATICS
     /**Namespace scope array of values to store newly solved angles by HW_KINEMATICS::getAngles()*/
     inline float solved_q[6] = {0, 0, 0, 0, 0, 0};
 
+
+    float _servo_lim[2] = {0, 180};
+    
 
 
     float toRadians(float degrees) { return (degrees*M_PI)/180; }
