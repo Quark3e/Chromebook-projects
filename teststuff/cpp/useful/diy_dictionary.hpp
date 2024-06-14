@@ -585,7 +585,8 @@ namespace DIY {
         std::vector<_key_type>      _keys;
         std::vector<_store_type>    _values;
         std::list<_store_type>      _valuesL;
-    
+        bool _values_modified = true;
+
         _key_type   _nullKey;
         _store_type _nullValue;
 
@@ -704,9 +705,11 @@ namespace DIY {
     _store_type* typed_dict<_key_type, _store_type>::getPtr(_key_type key) {
         int pos = check_existence<_key_type>(key, this->_keys);
         if(pos<0) this->_call_error(0, "::getPtr(_key_type)");
-        this->_valuesL = std::list<_store_type>(_values.begin(), _values.end());
+        if(_values_modified) {
+            this->_valuesL = std::list<_store_type>(_values.begin(), _values.end());
+            _values_modified = false;
+        }
         typename std::list<_store_type>::iterator it = _valuesL.begin();
-
         std::advance(it, pos);
         // for(int i=0; i<pos; i++) it++;
         return &*it;
@@ -738,6 +741,7 @@ namespace DIY {
         this->_keys.push_back(key);
         this->_values.push_back(value);
         if(this->_init_container) this->_init_container = true;
+        this->_values_modified = true;
         return 0;
     }
 
@@ -748,6 +752,7 @@ namespace DIY {
         for(auto elem: keys) { if(check_existence<_key_type>(elem, keys)!=-1) { return 1; } }
         this->_keys.insert(this->_keys.end(), keys.begin(), keys.end());
         this->_values.insert(this->_values.end(), values.begin(), values.end());
+        this->_values_modified = true;
         return 0;
     }
 
@@ -758,6 +763,7 @@ namespace DIY {
         for(auto elem: keys) { if(check_existence<_key_type>(elem, keys)!=-1) { return 1; } }
         this->_keys.insert(this->_keys.end(), keys.begin(), keys.end());
         this->_values.insert(this->_values.end(), values.begin(), values.end());
+        this->_values_modified = true;
         return 0;
     }
 
@@ -766,6 +772,7 @@ namespace DIY {
         if(check_existence<_key_type>(key, this->_keys)!=-1) this->_call_error(1, "::insert(size_t, _key_type, _store_type)");
         this->_keys.insert(this->_keys.begin()+pos, key);
         this->_values.insert(this->_values.begin()+pos, value);
+        this->_values_modified = true;
         return 0;
     }
 
@@ -777,6 +784,8 @@ namespace DIY {
         
         this->_keys.insert(this->_keys.begin()+pos, keys.begin(), keys.end());
         this->_values.insert(this->_values.begin()+pos, values.begin(), values.end());
+
+        this->_values_modified = true;
         return 0;
     }
 
@@ -788,6 +797,8 @@ namespace DIY {
 
         this->_keys.insert(this->_keys.begin()+pos, keys.begin(), keys.end());
         this->_values.insert(this->_values.begin()+pos, values.begin(), values.end());
+
+        this->_values_modified = true;
         return 0;
     }
 
@@ -796,6 +807,8 @@ namespace DIY {
         int pos = check_existence<_key_type>(key, this->_keys);
         if(pos<0) this->_call_error(0, "::replace(_key_type, _store_type)");
         this->_values.at(pos) = new_value;
+
+        this->_values_modified = true;
         return 0;
     }
 
@@ -816,6 +829,7 @@ namespace DIY {
         this->_keys.erase(this->_keys.begin()+pos);
         this->_values.erase(this->_values.begin()+pos);
 
+        this->_vector_modified = true;
         return 0;
     }
 

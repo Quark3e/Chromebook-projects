@@ -49,7 +49,7 @@
 #define WIN_HEIGHT  600
 
 #define WIN_INPUT_IK_WIDTH  350
-#define WIN_INPUT_IK_HEIGHT 250
+#define WIN_INPUT_IK_HEIGHT 150
 #define WIN_INPUT_IK_POS  [0, 0]
 
 #define WIN_INPUT_SETTINGS_WIDTH    200
@@ -97,7 +97,6 @@ struct funcs {
 }; // Hide Native<>ImGuiKey duplicates when both exists in the array
 
 
-
 int main(int argc, char** argv) {
 
     static bool guisetting_link_to_server = true;
@@ -105,16 +104,46 @@ int main(int argc, char** argv) {
 
 
     static DIY::typed_dict<std::string, std::string> guiSettings_desc= HW_KINEMATICS::setting_desc;
-    guiSettings_desc.add("Link to server", std::string("whether to attempt to connect to Hexclaw Server at intervals"));
-    guiSettings_desc.add("findOrient", std::string("whether to look for a valid orient if a given pos+orient gives invalid `getAngles` error"));
+    // guiSettings_desc.add("Link to server", std::string("whether to attempt to connect to Hexclaw Server at intervals"));
+    // guiSettings_desc.add("findOrient", std::string("whether to look for a valid orient if a given pos+orient gives invalid `getAngles` error"));
 
     std::vector<bool*> vecPtr;
-    for(std::string key: HW_KINEMATICS::settings.keys()) vecPtr.push_back(HW_KINEMATICS::settings.getPtr(key));
+    for(const std::string key: HW_KINEMATICS::settings.keys()) {
+        std::cout << std::setw(15) << key << " | ";
+        vecPtr.push_back(HW_KINEMATICS::settings.getPtr(key));
+        std::cout<< DIY::formatNumber<bool*>(HW_KINEMATICS::settings.getPtr(key),14,0,"")+" | ";
+        std::cout<< DIY::formatNumber<bool*>(HW_KINEMATICS::settings.getPtr(key),14,0,"")+" | ";
+        std::cout<< vecPtr.at(vecPtr.size()-1)<<std::endl;
+    }
+    std::cout << endl << endl;
 
+    // std::cout << "\n |-1 | "+DIY::prettyPrint_vec1<bool*>(vecPtr,"left",0,15,1,1,4) << std::endl;
+    // for(int i=0; i<HW_KINEMATICS::settings.size(); i++) {
+    //     std::cout << std::setw(15)<< HW_KINEMATICS::settings.keys()[i]<< " | "<<std::setw(15)<<HW_KINEMATICS::settings.getPtr(HW_KINEMATICS::settings.keys()[i]) << " - "<< vecPtr[i] << std::endl;
+    // }
+    // std::cout << endl << endl;
+
+    std::cout << DIY::prettyPrint_vec1<std::string>(HW_KINEMATICS::settings.keys());
     DIY::typed_dict<std::string, bool*> guiSettings(HW_KINEMATICS::settings.keys(), vecPtr); //affects HW_KINEMATICS variables
-    guiSettings.add("Link to server", &guisetting_link_to_server);
-    guiSettings.add("findOrient", &guisetting_findOrient);
+    std::cout << std::endl;
+    // guiSettings.add("Link to server", &guisetting_link_to_server);
+    // guiSettings.add("findOrient", &guisetting_findOrient);
 
+    std::cout << DIY::prettyPrint_vec1<std::string>(HW_KINEMATICS::settings.keys());
+    std::cout << " | 0 | "+DIY::prettyPrint_vec1<bool>(HW_KINEMATICS::settings.values(), "right",2,6,0,0,4,true )<<std::endl;
+
+    // std::vector<bool> _temp;
+    // for(std::string key: guiSettings.keys()) _temp.push_back(*guiSettings[key]);
+    std::cout << DIY::prettyPrint_vec1<std::string>(HW_KINEMATICS::setting_default.keys());
+    std::cout << " | 1 | "+DIY::prettyPrint_vec1<bool>(HW_KINEMATICS::setting_default.values(), "right",2,6,0,0,4,true)<<std::endl;
+
+    std::vector<bool> _temp;
+    std::cout << DIY::prettyPrint_vec1<std::string>(guiSettings.keys());
+    for(const std::string key: guiSettings.keys()) _temp.push_back(*guiSettings[key]);
+    std::cout << " | 2 | "+DIY::prettyPrint_vec1<bool>(_temp,"right",2,6,0,0,4,true)<<std::endl;
+
+
+    std::cout << "vecPtr"+DIY::prettyPrint_vec1<bool>(HW_KINEMATICS::settings.values(),"",2,6,0,0,4,true) <<std::endl;
 
 
     al_init();
@@ -218,7 +247,7 @@ int main(int argc, char** argv) {
             
             // ImGui::SetCursorPosX(float(WIN_INPUT_IK_POS[0]));
             // ImGui::SetCursorPos(ImVec2(WIN_INPUT_IK_POS[0], WIN_INPUT_IK_POS[1]+WIN_INPUT_IK_HEIGHT-50));
-            ImGui::SetCursorPos(ImVec2(300, 100));
+            ImGui::SetCursorPos(ImVec2(250, 100));
             if(ImGui::Button("Enter")) { input_IK_enterPress = true; }
             else if(input_IK_enterPress) input_IK_enterPress = false;
 
@@ -241,6 +270,11 @@ int main(int argc, char** argv) {
             ImGui::SeparatorText("Settings");
 
             int _i = 0;
+            
+            // std::vector<bool> _temp;
+            // for(std::string key: guiSettings.keys()) _temp.push_back(*guiSettings[key]);
+            // std::cout << DIY::prettyPrint_vec1<bool>(_temp,"right",2,6,0,0,4,true)+"\n";
+
             for(std::string key: guiSettings.keys()) {
                 ImGui::Checkbox(key.c_str(), guiSettings[key]);
                 ImGui::SameLine();
@@ -249,7 +283,7 @@ int main(int argc, char** argv) {
                 HelpMarker(
                     std::string(
                         "default:["+
-                        (_i<HW_KINEMATICS::setting_default.size()? HW_KINEMATICS::setting_default.str_export(key,5,0,"left",true) : std::string("true "))+"]"
+                        ((_i<HW_KINEMATICS::setting_default.size())? HW_KINEMATICS::setting_default.str_export(key,5,0,"left",true) : std::string("true_"))+"]"
                     ).c_str(), std::string("[]").c_str()
                 );
                 _i++;
@@ -262,7 +296,6 @@ int main(int argc, char** argv) {
         // outMsg = "";
         // 525, 527
 
-        ImGui::Text("Keys down:");
         ImGuiKey start_key = (ImGuiKey)0;
         int _ctrl_enter__count = 0;
         bool _ctrl_enter__pressed = false;
