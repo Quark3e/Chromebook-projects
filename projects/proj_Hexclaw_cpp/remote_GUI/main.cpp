@@ -30,9 +30,6 @@
 #include <iostream>
 #include <math.h>
 #include <stdint.h>
-#include <thread>
-#include <mutex>
-#include <atomic>
 
 #include <HC_useful/useful.hpp>
 #include <HC_useful/diy_dictionary.hpp>
@@ -146,7 +143,7 @@ int main(int argc, char** argv) {
 
     bool running = true;
     
-    
+
 
     static ImGuiWindowFlags window_flags = 0;
     window_flags |= ImGuiWindowFlags_NoMove;
@@ -320,6 +317,9 @@ int main(int argc, char** argv) {
             ImGui::EndChild();
         }
 
+
+        ImGui::SetCursorPos(ImVec2(WIN_WIDTH*0+10, WIN_HEIGHT-25));
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
         ImGui::End();
         //---------------------
         ImGui::Render();
