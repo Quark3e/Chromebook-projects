@@ -64,9 +64,23 @@
 
 int mode = 0;
 
-bool setting_findOrient = true;
-bool setting_link_to_server = true;
 
+bool setting_link_to_server = true;
+bool setting_findOrient = true;
+
+
+
+static void HelpMarker(const char* desc)
+{
+    ImGui::TextDisabled("(?)");
+    if (ImGui::BeginItemTooltip())
+    {
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(desc);
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
+}
 
 int main(int argc, char** argv) {
 
@@ -78,6 +92,9 @@ int main(int argc, char** argv) {
     std::vector<bool*> vecPtr;
     for(std::string key: HW_KINEMATICS::settings.keys()) vecPtr.push_back(HW_KINEMATICS::settings.getPtr(key));
     DIY::typed_dict<std::string, bool*> guiSettings(HW_KINEMATICS::settings.keys(), vecPtr);
+    guiSettings.add("Link to server", &setting_link_to_server);
+    guiSettings.add("findOrient", &setting_findOrient);
+
 
     // static DIY::typed_dict<std::string, bool> guiSettings     = HW_KINEMATICS::settings;
     // guiSettings.add("Link to server", true);
@@ -190,6 +207,16 @@ int main(int argc, char** argv) {
         ImGui::SameLine();
         if(ImGui::BeginChild("Settings", ImVec2(WIN_INPUT_SETTINGS_WIDTH, WIN_INPUT_SETTINGS_HEIGHT))) {
             ImGui::SeparatorText("Settings");
+
+            int _i = 0;
+            for(std::string key: guiSettings.keys()) {
+                ImGui::Checkbox(key.c_str(), guiSettings[key]);
+                ImGui::SameLine();
+                HelpMarker(
+                    std::string(guiSettings_desc[key]).c_str()
+                );
+                _i++;
+            }
 
             ImGui::EndChild();
         }

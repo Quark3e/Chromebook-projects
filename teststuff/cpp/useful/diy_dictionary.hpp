@@ -24,6 +24,8 @@
 #include <iomanip>
 #include <stdexcept>
 #include <vector>
+#include <list>
+#include <iterator>
 #include <initializer_list>
 
 // #include <HC_useful/useful.hpp>
@@ -582,6 +584,7 @@ namespace DIY {
 
         std::vector<_key_type>      _keys;
         std::vector<_store_type>    _values;
+        std::list<_store_type>      _valuesL;
     
         _key_type   _nullKey;
         _store_type _nullValue;
@@ -609,6 +612,13 @@ namespace DIY {
             return const_cast<_store_type&>(_keys.at(pos));
         }
 
+
+        // _store_type getElemCopy(_key_type key) {
+        //     int pos = check_existence<_key_type>(key, _keys);
+        //     if(pos<0) this->_call_error(0, ("getElemCopy(_key_type)"));
+        //     return std::move(_keys.at(pos));
+        // }
+
         _store_type* getPtr(_key_type key);
 
         size_t find(_key_type key);
@@ -616,6 +626,7 @@ namespace DIY {
         size_t size() { return this->_keys.size(); }
 
         std::vector<_key_type> keys() { return _keys; }
+        std::vector<_store_type> values() { return _values; }
         int add(_key_type key, _store_type value);
 
         int append(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values);
@@ -695,8 +706,12 @@ namespace DIY {
     _store_type* typed_dict<_key_type, _store_type>::getPtr(_key_type key) {
         int pos = check_existence<_key_type>(key, this->_keys);
         if(pos<0) this->_call_error(0, "::getPtr(_key_type)");
-        std::vector<_store_type>::iterator it = _values.begin()+pos;
-        return &(*it);
+        this->_valuesL = std::list<_store_type>(_values.begin(), _values.end());
+        typename std::list<_store_type>::iterator it = _valuesL.begin();
+
+        std::advance(it, pos);
+        // for(int i=0; i<pos; i++) it++;
+        return &*it;
     }
 
     template<class _key_type, class _store_type>

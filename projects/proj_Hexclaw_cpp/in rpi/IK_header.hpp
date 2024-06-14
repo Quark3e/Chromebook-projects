@@ -59,6 +59,11 @@ namespace HW_KINEMATICS
         }
     );
 
+    const DIY::typed_dict<std::string, bool> setting_default(
+        setting_labels,
+        settings.values()
+    );
+
     const DIY::typed_dict<std::string, std::string> setting_desc(
         setting_labels,
         std::vector<std::string>{
