@@ -104,46 +104,17 @@ int main(int argc, char** argv) {
 
 
     static DIY::typed_dict<std::string, std::string> guiSettings_desc= HW_KINEMATICS::setting_desc;
-    // guiSettings_desc.add("Link to server", std::string("whether to attempt to connect to Hexclaw Server at intervals"));
-    // guiSettings_desc.add("findOrient", std::string("whether to look for a valid orient if a given pos+orient gives invalid `getAngles` error"));
+    guiSettings_desc.add("Link to server", std::string("whether to attempt to connect to Hexclaw Server at intervals"));
+    guiSettings_desc.add("findOrient", std::string("whether to look for a valid orient if a given pos+orient gives invalid `getAngles` error"));
 
     std::vector<bool*> vecPtr;
-    for(const std::string key: HW_KINEMATICS::settings.keys()) {
-        std::cout << std::setw(15) << key << " | ";
-        vecPtr.push_back(HW_KINEMATICS::settings.getPtr(key));
-        std::cout<< DIY::formatNumber<bool*>(HW_KINEMATICS::settings.getPtr(key),14,0,"")+" | ";
-        std::cout<< DIY::formatNumber<bool*>(HW_KINEMATICS::settings.getPtr(key),14,0,"")+" | ";
-        std::cout<< vecPtr.at(vecPtr.size()-1)<<std::endl;
-    }
-    std::cout << endl << endl;
+    for(const std::string key: HW_KINEMATICS::settings.keys()) vecPtr.push_back(HW_KINEMATICS::settings.getPtr(key));
 
-    // std::cout << "\n |-1 | "+DIY::prettyPrint_vec1<bool*>(vecPtr,"left",0,15,1,1,4) << std::endl;
-    // for(int i=0; i<HW_KINEMATICS::settings.size(); i++) {
-    //     std::cout << std::setw(15)<< HW_KINEMATICS::settings.keys()[i]<< " | "<<std::setw(15)<<HW_KINEMATICS::settings.getPtr(HW_KINEMATICS::settings.keys()[i]) << " - "<< vecPtr[i] << std::endl;
-    // }
-    // std::cout << endl << endl;
 
-    std::cout << DIY::prettyPrint_vec1<std::string>(HW_KINEMATICS::settings.keys());
     DIY::typed_dict<std::string, bool*> guiSettings(HW_KINEMATICS::settings.keys(), vecPtr); //affects HW_KINEMATICS variables
-    std::cout << std::endl;
-    // guiSettings.add("Link to server", &guisetting_link_to_server);
-    // guiSettings.add("findOrient", &guisetting_findOrient);
+    guiSettings.add("Link to server", &guisetting_link_to_server);
+    guiSettings.add("findOrient", &guisetting_findOrient);
 
-    std::cout << DIY::prettyPrint_vec1<std::string>(HW_KINEMATICS::settings.keys());
-    std::cout << " | 0 | "+DIY::prettyPrint_vec1<bool>(HW_KINEMATICS::settings.values(), "right",2,6,0,0,4,true )<<std::endl;
-
-    // std::vector<bool> _temp;
-    // for(std::string key: guiSettings.keys()) _temp.push_back(*guiSettings[key]);
-    std::cout << DIY::prettyPrint_vec1<std::string>(HW_KINEMATICS::setting_default.keys());
-    std::cout << " | 1 | "+DIY::prettyPrint_vec1<bool>(HW_KINEMATICS::setting_default.values(), "right",2,6,0,0,4,true)<<std::endl;
-
-    std::vector<bool> _temp;
-    std::cout << DIY::prettyPrint_vec1<std::string>(guiSettings.keys());
-    for(const std::string key: guiSettings.keys()) _temp.push_back(*guiSettings[key]);
-    std::cout << " | 2 | "+DIY::prettyPrint_vec1<bool>(_temp,"right",2,6,0,0,4,true)<<std::endl;
-
-
-    std::cout << "vecPtr"+DIY::prettyPrint_vec1<bool>(HW_KINEMATICS::settings.values(),"",2,6,0,0,4,true) <<std::endl;
 
 
     al_init();
@@ -175,9 +146,7 @@ int main(int argc, char** argv) {
 
     bool running = true;
     
-
-    // const float TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
-    // const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
+    
 
     static ImGuiWindowFlags window_flags = 0;
     window_flags |= ImGuiWindowFlags_NoMove;
@@ -270,13 +239,9 @@ int main(int argc, char** argv) {
             ImGui::SeparatorText("Settings");
 
             int _i = 0;
-            
-            // std::vector<bool> _temp;
-            // for(std::string key: guiSettings.keys()) _temp.push_back(*guiSettings[key]);
-            // std::cout << DIY::prettyPrint_vec1<bool>(_temp,"right",2,6,0,0,4,true)+"\n";
 
             for(std::string key: guiSettings.keys()) {
-                ImGui::Checkbox(key.c_str(), guiSettings[key]);
+                ImGui::Checkbox(DIY::formatNumber<std::string>(key,15,0,"left").c_str(), guiSettings[key]);
                 ImGui::SameLine();
                 HelpMarker(guiSettings_desc[key].c_str());
                 ImGui::SameLine();
@@ -317,7 +282,7 @@ int main(int argc, char** argv) {
             )) {
                 outMsg = "found solution for given pos and orient";
             }
-            else if(guiSettings["findOrient"]) {
+            else if(*guiSettings["findOrient"]) {
                 if(HW_KINEMATICS::findValidOrient(input_IK_pos, input_IK_orient, input_IK_orient, output_IK_angles)) { //find replacement
                     outMsg = "note: No solution found for given orient:\nfound solution for different orient.";
                 }
