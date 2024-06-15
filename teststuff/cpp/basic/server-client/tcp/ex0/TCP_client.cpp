@@ -17,15 +17,19 @@
 void func(int sockfd) {
     char buff[MAX];
     int n;
+    int write_bytes = 0;
+    int read_bytes = 0;
     while(true) {
         bzero(buff, sizeof(buff)); // set buffer values to 0
         printf("Enter the string : ");
         n=0;
         while((buff[n++]=getchar()) != '\n'); // take input from the user
-        if(write(sockfd, buff, sizeof(buff))<0) {//write the buffer to sockfd
-            printf("[client] write() returned <0. closing session.");
-            break;
-        }
+        
+        std::cout << "write(): "<<write(sockfd, buff, sizeof(buff))<<"\n";
+        // if(write(sockfd, buff, sizeof(buff))<0) {//write the buffer to sockfd
+        //     printf("[client] write() returned <0. closing session.");
+        //     break;
+        // }
         bzero(buff, sizeof(buff)); // set buffer values to 0
         if(read(sockfd, buff, sizeof(buff))<0) {
             printf("[client] connection error: exiting session\n");
