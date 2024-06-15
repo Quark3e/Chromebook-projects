@@ -76,7 +76,12 @@ void func(int connfd) {
 int main(int argc, char** argv) {
     int sockfd, connfd;
     unsigned int len;
-    struct sockaddr_in servaddr, cli;
+    sockaddr_in servaddr, cli;
+
+
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_addr.s_addr = INADDR_ANY;
+    servaddr.sin_port = htons(PORT);
 
     runServer = true;
     while(runServer) {
@@ -84,30 +89,27 @@ int main(int argc, char** argv) {
         // socket creation and verification
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
         if(sockfd==-1) {
-            printf("socket creation failed...\n");
+            printf("[server] Socket creation failed...\n");
             exit(0);
         }
-        else printf("Socket successfully created..\n");
+        else printf("[server] Socket successfully created..\n");
         bzero(&servaddr, sizeof(servaddr));
 
         // assign iP, PORT
-        servaddr.sin_family = AF_INET;
-        servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-        servaddr.sin_port = htons(PORT);
 
         // binding newly created socket to given IP and verification
         if((bind(sockfd, (SA*)&servaddr, sizeof(servaddr))) != 0) {
-            printf("socket bind failed...\n");
+            printf("[server] Socket bind failed...\n");
             exit(0);
         }
-        else printf("Socket successfully bound..\n");
+        else printf("[server] Socket successfully bound..\n");
 
         // server is ready to listen and verification
         if((listen(sockfd, 5)) != 0) {
-            printf("Listen failed...\n");
+            printf("[server] Listen failed...\n");
             exit(0);
         }
-        else printf("Server listening..\n");
+        else printf("[server] Server listening..\n");
         len = sizeof(cli);
 
         // accept the data packet from client and verification
