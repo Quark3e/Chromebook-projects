@@ -22,12 +22,18 @@ void func(int sockfd) {
         printf("Enter the string : ");
         n=0;
         while((buff[n++]=getchar()) != '\n'); // take input from the user
-        write(sockfd, buff, sizeof(buff)); //write the buffer to sockfd
+        if(write(sockfd, buff, sizeof(buff))<0) {//write the buffer to sockfd
+            printf("[client] write() returned <0. closing session.");
+            break;
+        }
         bzero(buff, sizeof(buff)); // set buffer values to 0
-        read(sockfd, buff, sizeof(buff));
+        if(read(sockfd, buff, sizeof(buff))<0) {
+            printf("[client] connection error: exiting session\n");
+            break;
+        } 
         printf("From Server : %s", buff);
-        if((strncmp(buff, "exit", 4)) == 0) {
-            printf("Client Exit...\n");
+        if((strncmp(buff, "$exit", 5)) == 0) {
+            printf("[client] \"$exit\" received from server. closing client\n");
             break;
         }
     }
@@ -44,10 +50,10 @@ int main(int argc, char** argv) {
     // socket creation and verification
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if(sockfd==-1) {
-        printf("socket creation failed...\n");
+        printf("[client] socket creation failed...\n");
         exit(0);
     }
-    else printf("Socket successfully created\n");
+    else printf("[client] Socket successfully created\n");
     bzero(&servaddr, sizeof(servaddr));
 
     // assign IP, PORT
@@ -57,10 +63,10 @@ int main(int argc, char** argv) {
 
     // connect the client socket to server socket
     if(connect(sockfd, (SA*)&servaddr, sizeof(servaddr)) != 0) {
-        printf("Connection with the server failed...\n");
+        printf("[client] Connection with the server failed...\n");
         exit(0);
     }
-    else printf("Connected to the server.\n");
+    else printf("[client] Connected to the server.\n");
 
     func(sockfd);
 

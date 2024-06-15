@@ -30,13 +30,18 @@ void func(int connfd) {
         std::cout << "[server] Called read()"<<std::endl;
         return_read = read(connfd, buff_recev, sizeof(buff_recev));
 
-        if(strncmp("shutdown", buff_recev, 8)==0) {
-            printf("[server] \"shutdown\" called. Closing server..\n");
+        if(return_read<0) {
+            printf("[server] read() returned -1. Closing connection\n");
+            runServer = true;
+            break;
+        }
+        if(strncmp("$shutdown", buff_recev, 9)==0) {
+            printf("[server] \"$shutdown\" called. Closing server..\n");
             runServer = false;
             break;
         }
-        else if(strncmp("close", buff_recev, 5)==0) {
-            printf("[server] \"close\" called. Exiting connection..\n");
+        else if(strncmp("$close", buff_recev, 6)==0) {
+            printf("[server] \"$close\" called. Closing connection..\n");
             runServer = true;
             break;
         }
@@ -47,15 +52,18 @@ void func(int connfd) {
 
         while((buff_send[n++]=getchar()) != '\n');
 
-        write(connfd, buff_send, sizeof(buff_send));
+        if(write(connfd, buff_send, sizeof(buff_send))<0) {
+            printf("[server] write() returned <0. Closing session..\n");
+            break;
+        }
 
         if(strncmp("exit", buff_send, 4) == 0) {
-            printf("[server] Client Exit...\n");
+            printf("[server] server Exit...\n");
             runServer = false;
             break;
         }
         else if(strncmp("close", buff_send, 5) == 0) {
-            printf("[server] Server closing...\n");
+            printf("[server] server closing...\n");
             runServer = true;
             break;
         }
