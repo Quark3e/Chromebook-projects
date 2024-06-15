@@ -78,6 +78,9 @@ int main(int argc, char** argv) {
     unsigned int len;
     sockaddr_in servaddr, cli;
 
+
+    int yes = 1;
+
     runServer = true;
     while(runServer) {
 
@@ -92,22 +95,27 @@ int main(int argc, char** argv) {
 
         // assign iP, PORT
         servaddr.sin_family = AF_INET;
-        servaddr.sin_addr.s_addr = INADDR_ANY;
+        servaddr.sin_addr.s_addr = AI_PASSIVE;
         servaddr.sin_port = htons(PORT);
+
+        if(setsockopt(sockfd,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(yes))==-1) {
+            perror("setsockopt");
+            exit(1);
+        }
 
         // binding newly created socket to given IP and verification
         if((bind(sockfd, (SA*)&servaddr, sizeof(servaddr))) != 0) {
             printf("[server] Socket bind failed...\n");
-            exit(0);
+            exit(1);
         }
         else printf("[server] Socket successfully bound..\n");
 
         // server is ready to listen and verification
         if((listen(sockfd, 5)) != 0) {
             printf("[server] Listen failed...\n");
-            exit(0);
+            exit(1);
         }
-        else printf("[server] Server listening at: port:%d\n",servaddr.sin_port);
+        else printf("[server] Server listening at: port:%d\n",static_cast<int>(servaddr.sin_port));
 
         len = sizeof(cli);
 
