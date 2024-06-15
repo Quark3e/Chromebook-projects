@@ -98,10 +98,10 @@ int main(int argc, char** argv) {
         servaddr.sin_addr.s_addr = AI_PASSIVE;
         servaddr.sin_port = htons(PORT);
 
-        if(setsockopt(sockfd,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(yes))==-1) {
-            perror("setsockopt");
-            exit(1);
-        }
+        // if(setsockopt(sockfd,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(yes))==-1) {
+        //     perror("setsockopt");
+        //     exit(1);
+        // }
 
         // binding newly created socket to given IP and verification
         if((bind(sockfd, (SA*)&servaddr, sizeof(servaddr))) != 0) {
