@@ -74,7 +74,8 @@ void func(int connfd) {
 
 
 int main(int argc, char** argv) {
-    unsigned int sockfd, connfd, len;
+    int sockfd, connfd;
+    unsigned int len;
     struct sockaddr_in servaddr, cli;
 
     // socket creation and verification
@@ -115,7 +116,7 @@ int main(int argc, char** argv) {
             printf("server accept failed...\n");
             exit(0);
         }
-        else std::cout<<"server accepted the client: "<<sockfd<<", "<<connfd<<"\n";
+        else std::cout<<"[server] accepted the client: "<<sockfd<<", "<<connfd<<"\n";
         
         func(connfd);
 
