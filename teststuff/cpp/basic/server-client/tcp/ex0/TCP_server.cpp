@@ -28,7 +28,7 @@ void func(int connfd) {
     while(true) {
         bzero(buff_recev, MAX);
 
-        std::cout << "[server] Called read()"<<std::endl;
+        // std::cout << "[server] Called read()"<<std::endl;
         read_bytes = read(connfd, buff_recev, sizeof(buff_recev));
         // std::cout<<"read(): "<<read_bytes<<"\n";
 
@@ -48,7 +48,7 @@ void func(int connfd) {
             break;
         }
 
-        printf(" >> From client: \"%s\"To client : ", buff_recev);
+        printf(" >> From client: %s To client : ", buff_recev);
         bzero(buff_send, MAX);
         n=0;
 
@@ -129,7 +129,7 @@ int main(int argc, char** argv) {
 
         // accept the data packet from client and verification
         connfd = accept(sockfd, (SA*)&cli, &len);
-        std::cout << "errno: "<< errno<<std::endl;
+        // std::cout << "errno: "<< errno<<std::endl;
         if(connfd < 0) {
             printf("[server] accept failed...\n");
             exit(0);

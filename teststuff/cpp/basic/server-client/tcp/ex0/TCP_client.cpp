@@ -24,7 +24,7 @@ void func(int sockfd) {
 
     while(true) {
         bzero(write_buff, sizeof(write_buff)); // set write_buffer values to 0
-        printf("Enter the string : ");
+        printf("Enter the string: ");
         n=0;
         while((write_buff[n++]=getchar()) != '\n'); // take input from the user
         
@@ -41,7 +41,9 @@ void func(int sockfd) {
             printf("[client] connection error: exiting session\n");
             break;
         } 
+        
         printf("From Server : %s", read_buff);
+
         if((strncmp(read_buff, "$exit", 5)) == 0) {
             printf("[client] \"$exit\" received from server. closing client\n");
             break;
