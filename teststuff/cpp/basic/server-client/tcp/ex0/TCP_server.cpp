@@ -22,43 +22,13 @@ void func(int connfd) {
     int return_read = 0;
     int return_select = 0;
 
-    // fd_set rfds;
-
-    // FD_ZERO(&rfds);
-    // FD_SET(connfd, &rfds);
-
-
-    // struct timeval tv;
-    // tv.tv_usec  = 0.0;
-    // tv.tv_sec   = 0.0;
-
     while(true) {
         bzero(buff, MAX);
 
-        // fd_set rsd = rfds;
-
-        // return_select = select(connfd+1, &rfds, 0, 0, &tv);
-
-        // if(return_select<0 || (return_select==0 && !(tv.tv_sec==0 && tv.tv_usec==0))) {
-        //     std::cout << "ERROR: ";
-        //     if(return_select<0)         std::cout << "select() return -1.";
-        //     else if(return_select==0)   std::cout << "select() timeout.";
-        //     std::cout << " Closing connection.."<<std::endl;
-        //     break;
-        // }
-        // else if(return_select==0) continue;
-
         return_read = read(connfd, buff, sizeof(buff));
 
-        // if(return_read<=0) {
-        //     std::cout << "ERROR: ";
-        //     if(return_read==0)      std::cout << "read() returned 0";
-        //     else if(return_read<0)  std::cout << "read() returned -1";
-        //     std::cout << " Closing connection.."<<std::endl;
-        //     break;
-        // }
 
-        printf("From client: %s\t To client : ", buff);
+        printf(" >> From client: \"%s\"To client : ", buff);
         bzero(buff, MAX);
         n=0;
 
@@ -120,11 +90,11 @@ int main(int argc, char** argv) {
             printf("server accept failed...\n");
             exit(0);
         }
-        else printf("server accepted the client...\n");
+        else std::cout<<"server accepted the client: "<<sockfd<<", "<<connfd<<"\n";
         
         func(connfd);
 
-        close(sockfd);
+        std::cout << "server: connection closing: "<<close(sockfd)<<", "<<close(connfd)<<std::endl;
     }
     return 0;
 }
