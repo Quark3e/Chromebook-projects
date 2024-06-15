@@ -32,10 +32,10 @@ void func(int sockfd) {
         //     break;
         // }
         bzero(buff, sizeof(buff)); // set buffer values to 0
-        
+
         read_bytes = read(sockfd, buff, sizeof(buff));
         std::cout << "read(): "<<read_bytes<<"\n";
-        if(read_bytes<0) {
+        if(read_bytes<=0) {
             printf("[client] connection error: exiting session\n");
             break;
         } 
