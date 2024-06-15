@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <arpa/inet.h>
 #include <unistd.h>
 #include <iostream>
 
@@ -122,7 +123,7 @@ int main(int argc, char** argv) {
             printf("[server] Listen failed...\n");
             exit(1);
         }
-        else printf("[server] Server listening at: port:%d ip:%s\n",ntohs(servaddr.sin_port), servaddr.sin_addr.s_addr);
+        else printf("[server] Server listening at: port:%d ip:%s\n",ntohs(servaddr.sin_port), inet_ntoa(servaddr.sin_addr));
 
         len = sizeof(cli);
 
