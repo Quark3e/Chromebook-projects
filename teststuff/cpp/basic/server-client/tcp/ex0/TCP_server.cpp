@@ -50,13 +50,13 @@ void func(int connfd) {
 
         return_read = read(connfd, buff, sizeof(buff));
 
-        if(return_read<=0) {
-            std::cout << "ERROR: ";
-            if(return_read==0)      std::cout << "read() returned 0";
-            else if(return_read<0)  std::cout << "read() returned -1";
-            std::cout << " Closing connection.."<<std::endl;
-            break;
-        }
+        // if(return_read<=0) {
+        //     std::cout << "ERROR: ";
+        //     if(return_read==0)      std::cout << "read() returned 0";
+        //     else if(return_read<0)  std::cout << "read() returned -1";
+        //     std::cout << " Closing connection.."<<std::endl;
+        //     break;
+        // }
 
         printf("From client: %s\t To client : ", buff);
         bzero(buff, MAX);
