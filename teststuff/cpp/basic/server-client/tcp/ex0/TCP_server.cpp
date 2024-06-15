@@ -30,12 +30,12 @@ void func(int connfd) {
         std::cout << "[server] Called read()"<<std::endl;
         return_read = read(connfd, buff_recev, sizeof(buff_recev));
 
-        if(strncmp("shutdown", buff_recev, 8)) {
+        if(strncmp("shutdown", buff_recev, 8)==0) {
             printf("[server] \"shutdown\" called. Closing server..\n");
             runServer = false;
             break;
         }
-        else if(strncmp("close", buff_recev, 5)) {
+        else if(strncmp("close", buff_recev, 5)==0) {
             printf("[server] \"close\" called. Exiting connection..\n");
             runServer = true;
             break;
