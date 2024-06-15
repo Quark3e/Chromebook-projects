@@ -21,16 +21,17 @@ void func(int connfd) {
 
     int n;
     
-    int return_read = 0;
-    int return_select = 0;
+    int read_bytes = 0;
+    ssize_t write_bytes = 0;
 
     while(true) {
         bzero(buff_recev, MAX);
 
         std::cout << "[server] Called read()"<<std::endl;
-        return_read = read(connfd, buff_recev, sizeof(buff_recev));
+        read_bytes = read(connfd, buff_recev, sizeof(buff_recev));
+        std::cout<<"read(): "<<read_bytes<<"\n";
 
-        if(return_read<0) {
+        if(read_bytes<0) {
             printf("[server] read() returned -1. Closing connection\n");
             runServer = true;
             break;
@@ -51,8 +52,9 @@ void func(int connfd) {
         n=0;
 
         while((buff_send[n++]=getchar()) != '\n');
-
-        if(write(connfd, buff_send, sizeof(buff_send))<0) {
+        write_bytes = write(connfd, buff_send, sizeof(buff_send));
+        std::cout<<"write(): "<<write_bytes<<"\n";
+        if(write_bytes<0) {
             printf("[server] write() returned <0. Closing session..\n");
             break;
         }

@@ -17,7 +17,7 @@
 void func(int sockfd) {
     char buff[MAX];
     int n;
-    int write_bytes = 0;
+    ssize_t write_bytes = 0;
     int read_bytes = 0;
     while(true) {
         bzero(buff, sizeof(buff)); // set buffer values to 0
@@ -25,13 +25,17 @@ void func(int sockfd) {
         n=0;
         while((buff[n++]=getchar()) != '\n'); // take input from the user
         
-        std::cout << "write(): "<<write(sockfd, buff, sizeof(buff))<<"\n";
+        write_bytes = write(sockfd, buff, sizeof(buff));
+        std::cout << "write(): "<<write_bytes<<"\n";
         // if(write(sockfd, buff, sizeof(buff))<0) {//write the buffer to sockfd
         //     printf("[client] write() returned <0. closing session.");
         //     break;
         // }
         bzero(buff, sizeof(buff)); // set buffer values to 0
-        if(read(sockfd, buff, sizeof(buff))<0) {
+        
+        read_bytes = read(sockfd, buff, sizeof(buff));
+        std::cout << "read(): "<<read_bytes<<"\n";
+        if(read_bytes<0) {
             printf("[client] connection error: exiting session\n");
             break;
         } 
