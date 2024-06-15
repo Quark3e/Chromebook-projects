@@ -16,32 +16,46 @@
 bool runServer = false;
 
 void func(int connfd) {
-    char buff[MAX];
+    char buff_send[MAX];
+    char buff_recev[MAX];
+
     int n;
     
     int return_read = 0;
     int return_select = 0;
 
     while(true) {
-        bzero(buff, MAX);
+        bzero(buff_recev, MAX);
 
-        return_read = read(connfd, buff, sizeof(buff));
+        std::cout << "[server] Called read()"<<std::endl;
+        return_read = read(connfd, buff_recev, sizeof(buff_recev));
 
-
-        printf(" >> From client: \"%s\"To client : ", buff);
-        bzero(buff, MAX);
-        n=0;
-
-        while((buff[n++]=getchar()) != '\n');
-
-        write(connfd, buff, sizeof(buff));
-
-        if(strncmp("exit", buff, 4) == 0) {
-            printf("Client Exit...\n");
+        if(strncmp("shutdown", buff_recev, 8)) {
+            printf("[server] \"shutdown\" called. Closing server..\n");
+            runServer = false;
             break;
         }
-        else if(strncmp("close", buff, 5) == 0) {
-            printf("Server closing...\n");
+        else if(strncmp("close", buff_recev, 5)) {
+            printf("[server] \"close\" called. Exiting connection..\n");
+            runServer = true;
+            break;
+        }
+
+        printf(" >> From client: \"%s\"To client : ", buff_recev);
+        bzero(buff_send, MAX);
+        n=0;
+
+        while((buff_send[n++]=getchar()) != '\n');
+
+        write(connfd, buff_send, sizeof(buff_send));
+
+        if(strncmp("exit", buff_send, 4) == 0) {
+            printf("[server] Client Exit...\n");
+            runServer = false;
+            break;
+        }
+        else if(strncmp("close", buff_send, 5) == 0) {
+            printf("[server] Server closing...\n");
             runServer = true;
             break;
         }
