@@ -35,18 +35,18 @@ void func(int connfd) {
     while(true) {
         bzero(buff, MAX);
 
-        fd_set rsd = rfds;
+        // fd_set rsd = rfds;
 
-        return_select = select(connfd+1, &rfds, 0, 0, &tv);
+        // return_select = select(connfd+1, &rfds, 0, 0, &tv);
 
-        if(return_select<0 || (return_select==0 && !(tv.tv_sec==0 && tv.tv_usec==0))) {
-            std::cout << "ERROR: ";
-            if(return_select<0)         std::cout << "select() return -1.";
-            else if(return_select==0)   std::cout << "select() timeout.";
-            std::cout << " Closing connection.."<<std::endl;
-            break;
-        }
-        else if(return_select==0) continue;
+        // if(return_select<0 || (return_select==0 && !(tv.tv_sec==0 && tv.tv_usec==0))) {
+        //     std::cout << "ERROR: ";
+        //     if(return_select<0)         std::cout << "select() return -1.";
+        //     else if(return_select==0)   std::cout << "select() timeout.";
+        //     std::cout << " Closing connection.."<<std::endl;
+        //     break;
+        // }
+        // else if(return_select==0) continue;
 
         return_read = read(connfd, buff, sizeof(buff));
 
