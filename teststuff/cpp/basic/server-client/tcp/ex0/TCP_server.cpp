@@ -31,8 +31,8 @@ void func(int connfd) {
         read_bytes = read(connfd, buff_recev, sizeof(buff_recev));
         std::cout<<"read(): "<<read_bytes<<"\n";
 
-        if(read_bytes<0) {
-            printf("[server] read() returned -1. Closing connection\n");
+        if(read_bytes<=0) {
+            printf("[server] read() returned <=0. Closing connection\n");
             runServer = true;
             break;
         }
