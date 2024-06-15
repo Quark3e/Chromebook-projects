@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
     std::string IP_addr = "81.229.133.253";
     IP_addr = "192.168.1.177";
 
-    sockaddr_in servaddr, cli;
+    struct sockaddr_in servaddr, cli;
 
     // socket creation and verification
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -66,11 +66,12 @@ int main(int argc, char** argv) {
 
     // assign IP, PORT
     servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(PORT);
     servaddr.sin_addr.s_addr = inet_addr(IP_addr.c_str());
+    servaddr.sin_port = htons(PORT);
 
     // connect the client socket to server socket
     if(connect(sockfd, (SA*)&servaddr, sizeof(servaddr)) != 0) {
+        std::cout << "errno: "<<errno<<std::endl;
         printf("[client] Connection with the server failed...\n");
         exit(0);
     }

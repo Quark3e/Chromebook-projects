@@ -78,11 +78,6 @@ int main(int argc, char** argv) {
     unsigned int len;
     sockaddr_in servaddr, cli;
 
-
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = INADDR_ANY;
-    servaddr.sin_port = htons(PORT);
-
     runServer = true;
     while(runServer) {
 
@@ -96,6 +91,9 @@ int main(int argc, char** argv) {
         bzero(&servaddr, sizeof(servaddr));
 
         // assign iP, PORT
+        servaddr.sin_family = AF_INET;
+        servaddr.sin_addr.s_addr = INADDR_ANY;
+        servaddr.sin_port = htons(PORT);
 
         // binding newly created socket to given IP and verification
         if((bind(sockfd, (SA*)&servaddr, sizeof(servaddr))) != 0) {
@@ -109,7 +107,8 @@ int main(int argc, char** argv) {
             printf("[server] Listen failed...\n");
             exit(0);
         }
-        else printf("[server] Server listening..\n");
+        else printf("[server] Server listening at: port:%d\n",servaddr.sin_port);
+
         len = sizeof(cli);
 
         // accept the data packet from client and verification
