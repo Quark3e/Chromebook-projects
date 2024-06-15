@@ -15,32 +15,34 @@
 
 
 void func(int sockfd) {
-    char buff[MAX];
+    char write_buff[MAX];
+    char read_buff[MAX];
+
     int n;
     ssize_t write_bytes = 0;
     int read_bytes = 0;
+
     while(true) {
-        bzero(buff, sizeof(buff)); // set buffer values to 0
+        bzero(write_buff, sizeof(write_buff)); // set write_buffer values to 0
         printf("Enter the string : ");
         n=0;
-        while((buff[n++]=getchar()) != '\n'); // take input from the user
+        while((write_buff[n++]=getchar()) != '\n'); // take input from the user
         
-        write_bytes = write(sockfd, buff, sizeof(buff));
-        // std::cout << "write(): "<<write_bytes<<"\n";
-        // if(write(sockfd, buff, sizeof(buff))<0) {//write the buffer to sockfd
-        //     printf("[client] write() returned <0. closing session.");
-        //     break;
-        // }
-        bzero(buff, sizeof(buff)); // set buffer values to 0
+        write_bytes = write(sockfd, write_buff, sizeof(write_buff));
+        if(write_bytes!=sizeof(write_buff)) {//write the write_buffer to sockfd
+            printf("[client] write() returned <0. closing session.");
+            break;
+        }
+        bzero(read_buff, sizeof(read_buff)); // set write_buffer values to 0
 
-        read_bytes = read(sockfd, buff, sizeof(buff));
+        read_bytes = read(sockfd, read_buff, sizeof(read_buff));
         // std::cout << "read(): "<<read_bytes<<"\n";
         if(read_bytes<=0) {
             printf("[client] connection error: exiting session\n");
             break;
         } 
-        printf("From Server : %s", buff);
-        if((strncmp(buff, "$exit", 5)) == 0) {
+        printf("From Server : %s", read_buff);
+        if((strncmp(read_buff, "$exit", 5)) == 0) {
             printf("[client] \"$exit\" received from server. closing client\n");
             break;
         }

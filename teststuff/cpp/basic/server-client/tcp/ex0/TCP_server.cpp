@@ -30,7 +30,7 @@ void func(int connfd) {
 
         std::cout << "[server] Called read()"<<std::endl;
         read_bytes = read(connfd, buff_recev, sizeof(buff_recev));
-        std::cout<<"read(): "<<read_bytes<<"\n";
+        // std::cout<<"read(): "<<read_bytes<<"\n";
 
         if(read_bytes<=0) {
             printf("[server] read() returned <=0. Closing connection\n");
@@ -54,7 +54,7 @@ void func(int connfd) {
 
         while((buff_send[n++]=getchar()) != '\n');
         write_bytes = write(connfd, buff_send, sizeof(buff_send));
-        std::cout<<"write(): "<<write_bytes<<"\n";
+        // std::cout<<"write(): "<<write_bytes<<"\n";
         if(write_bytes<0) {
             printf("[server] write() returned <0. Closing session..\n");
             break;
@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
             printf("[server] Listen failed...\n");
             exit(1);
         }
-        else printf("[server] Server listening at: port:%d ip:%s\n",ntohs(servaddr.sin_port), inet_ntoa(servaddr.sin_addr));
+        else printf("[server] Server listening at: port:%d\n",ntohs(servaddr.sin_port));
 
         len = sizeof(cli);
 
