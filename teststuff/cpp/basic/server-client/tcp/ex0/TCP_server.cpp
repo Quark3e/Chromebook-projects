@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <iostream>
 
 #define MAX     80
 #define PORT    2225
@@ -17,9 +18,44 @@ bool runServer = false;
 void func(int connfd) {
     char buff[MAX];
     int n;
-    for(;;) {
+    
+    int return_read = 0;
+    int return_select = 0;
+
+    fd_set rfds;
+
+    FD_ZERO(&rfds);
+    FD_SET(connfd, &rfds);
+
+
+    struct timeval tv;
+    tv.tv_usec  = 0.0;
+    tv.tv_sec   = 0.0;
+
+    while(true) {
         bzero(buff, MAX);
-        read(connfd, buff, sizeof(buff));
+
+        fd_set rsd = rfds;
+
+        return_select = select(connfd+1, &rfds, 0, 0, &tv);
+
+        if(return_select<0 || (return_select==0 && tv.tv_sec==0 && tv.tv_usec==0)) {
+            std::cout << "ERROR: ";
+            if(return_select<0)         std::cout << "select() return -1.";
+            else if(return_select==0)   std::cout << "select() timeout.";
+            std::cout << " Closing connection.."<<std::endl;
+            break;
+        }
+
+        return_read = read(connfd, buff, sizeof(buff));
+
+        if(return_read<=0) {
+            std::cout << "ERROR: ";
+            if(return_read==0)      std::cout << "read() returned 0";
+            else if(return_read<0)  std::cout << "read() returned -1";
+            std::cout << " Closing connection.."<<std::endl;
+            break;
+        }
 
         printf("From client: %s\t To client : ", buff);
         bzero(buff, MAX);
