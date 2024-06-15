@@ -76,8 +76,7 @@ void func(int connfd) {
 int main(int argc, char** argv) {
     int sockfd, connfd;
     unsigned int len;
-    sockaddr_in servaddr, cli;
-
+    sockaddr_in servaddr, cli, sock_info;
 
     int yes = 1;
 
@@ -111,11 +110,19 @@ int main(int argc, char** argv) {
         else printf("[server] Socket successfully bound..\n");
 
         // server is ready to listen and verification
+
+        socklen_t sock_info_len = sizeof(sock_info);
+        if(getsockname(sockfd,(SA*)&sock_info, &sock_info_len)==-1) {
+            perror("getsockname");
+            exit(1);
+        }
+
+
         if((listen(sockfd, 5)) != 0) {
             printf("[server] Listen failed...\n");
             exit(1);
         }
-        else printf("[server] Server listening at: port:%d\n",static_cast<int>(servaddr.sin_port));
+        else printf("[server] Server listening at: port:%d\n",ntohs(servaddr.sin_port));
 
         len = sizeof(cli);
 
