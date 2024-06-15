@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
             printf("[server] Listen failed...\n");
             exit(1);
         }
-        else printf("[server] Server listening at: port:%d\n",ntohs(servaddr.sin_port));
+        else printf("[server] Server listening at: port:%d ip:\n",ntohs(servaddr.sin_port), servaddr.sin_addr);
 
         len = sizeof(cli);
 
