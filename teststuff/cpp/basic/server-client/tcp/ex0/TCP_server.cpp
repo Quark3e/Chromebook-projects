@@ -110,6 +110,7 @@ int main(int argc, char** argv) {
     while(runServer) {
         // accept the data packet from client and verification
         connfd = accept(sockfd, (SA*)&cli, &len);
+        std::cout << "errno: "<< errno<<std::endl;
         if(connfd < 0) {
             printf("server accept failed...\n");
             exit(0);
@@ -118,7 +119,7 @@ int main(int argc, char** argv) {
         
         func(connfd);
 
-        std::cout << "server: connection closing: "<<close(sockfd)<<", "<<close(connfd)<<std::endl;
+        std::cout << "[server] connection closing: "<<close(sockfd)<<", "<<close(connfd)<<std::endl;
     }
     return 0;
 }
