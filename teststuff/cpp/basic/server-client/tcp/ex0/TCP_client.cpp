@@ -42,7 +42,7 @@ void func(int sockfd) {
             break;
         } 
         
-        printf("From Server : %s", read_buff);
+        printf("From Server: %s", read_buff);
 
         if((strncmp(read_buff, "$exit", 5)) == 0) {
             printf("[client] \"$exit\" received from server. closing client\n");
