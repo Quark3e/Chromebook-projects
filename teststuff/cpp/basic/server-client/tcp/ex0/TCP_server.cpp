@@ -22,15 +22,15 @@ void func(int connfd) {
     int return_read = 0;
     int return_select = 0;
 
-    fd_set rfds;
+    // fd_set rfds;
 
-    FD_ZERO(&rfds);
-    FD_SET(connfd, &rfds);
+    // FD_ZERO(&rfds);
+    // FD_SET(connfd, &rfds);
 
 
-    struct timeval tv;
-    tv.tv_usec  = 0.0;
-    tv.tv_sec   = 0.0;
+    // struct timeval tv;
+    // tv.tv_usec  = 0.0;
+    // tv.tv_sec   = 0.0;
 
     while(true) {
         bzero(buff, MAX);
