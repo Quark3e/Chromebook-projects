@@ -17,7 +17,7 @@
 void func(int sockfd) {
     char buff[MAX];
     int n;
-    for(;;) {
+    while(true) {
         bzero(buff, sizeof(buff)); // set buffer values to 0
         printf("Enter the string : ");
         n=0;
@@ -37,7 +37,8 @@ void func(int sockfd) {
 int main(int argc, char** argv) {
     int sockfd, connfd;
     std::string IP_addr = "81.229.133.253";
-    
+    IP_addr = "192.168.1.177";
+
     struct sockaddr_in servaddr, cli;
 
     // socket creation and verification
@@ -51,7 +52,7 @@ int main(int argc, char** argv) {
 
     // assign IP, PORT
     servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = inet_addr("192.168.1.177");
+    servaddr.sin_addr.s_addr = inet_addr(IP_addr.c_str());
     servaddr.sin_port = htons(PORT);
 
     // connect the client socket to server socket

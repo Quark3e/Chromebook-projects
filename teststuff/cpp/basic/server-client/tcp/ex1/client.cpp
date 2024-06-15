@@ -15,6 +15,7 @@
 #include <arpa/inet.h>
 
 #define PORT "2225" // the port client will be connecting to 
+#define ADDR "192.168.1.177"
 
 #define MAXDATASIZE 100 // max number of bytes we can get at once 
 
@@ -36,16 +37,16 @@ int main(int argc, char *argv[])
 	int rv;
 	char s[INET6_ADDRSTRLEN];
 
-	if (argc != 2) {
-	    fprintf(stderr,"usage: client hostname\n");
-	    exit(1);
-	}
+	// if (argc != 2) {
+	//     fprintf(stderr,"usage: client hostname\n");
+	//     exit(1);
+	// }
 
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 
-	if ((rv = getaddrinfo(argv[1], PORT, &hints, &servinfo)) != 0) {
+	if ((rv = getaddrinfo((argc==2? argv[1]: ADDR), PORT, &hints, &servinfo)) != 0) {
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
 		return 1;
 	}
