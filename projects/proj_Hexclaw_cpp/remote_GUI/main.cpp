@@ -94,6 +94,9 @@ struct funcs {
 }; // Hide Native<>ImGuiKey duplicates when both exists in the array
 
 
+
+
+
 int main(int argc, char** argv) {
 
     static bool guisetting_link_to_server = true;
@@ -166,6 +169,7 @@ int main(int argc, char** argv) {
     static ImGuiInputTextFlags input_inputText_flags = 0;
     // input_inputText_flags |= ImGuiInputTextFlags_
 
+
     std::string outMsg = "";
 
 
@@ -205,8 +209,19 @@ int main(int argc, char** argv) {
         ImGui::BeginGroup();
         if(ImGui::BeginChild("IK input", ImVec2(WIN_INPUT_IK_WIDTH, WIN_INPUT_IK_HEIGHT), input_child_flags)) {
             ImGui::SeparatorText("Input");
-            ImGui::InputFloat3("pos", input_IK_pos);
-            ImGui::InputFloat3("tilt", input_IK_orient);
+            // ImGui::InputFloat3("pos", input_IK_pos);
+
+            ImGui::PushItemWidth(WIN_INPUT_IK_WIDTH/6+30);
+            ImGui::InputFloat("x",&input_IK_pos[0],0.0f,0.0f,"%.2f");
+            ImGui::SameLine(); ImGui::InputFloat("y",&input_IK_pos[1],0.0f,0.0f,"%.2f");
+            ImGui::SameLine(); ImGui::InputFloat("z",&input_IK_pos[2],0.0f,0.0f,"%.2f");
+
+
+            ImGui::InputFloat("a",&input_IK_orient[0],0.0f,0.0f,"%.2f");
+            ImGui::SameLine(); ImGui::InputFloat("B",&input_IK_orient[1],0.0f,0.0f,"%.2f");
+            ImGui::SameLine(); ImGui::InputFloat("Y",&input_IK_orient[2],0.0f,0.0f,"%.2f");
+
+            // ImGui::InputFloat3("tilt", input_IK_orient);
             static float _lim_orient[2] = {-90, 90};
             for(float& elem: input_IK_orient)
                 elem = (elem>_lim_orient[1] ? elem=_lim_orient[1] : elem<_lim_orient[0] ? elem=_lim_orient[0] : elem=elem);
@@ -256,8 +271,19 @@ int main(int argc, char** argv) {
         ImGui::EndGroup();
         //-------------
         // outMsg = "";
-        // 525, 527
-
+        /**
+         * 515 [TAB]
+         * 568 [w]
+         * 525 [ENTER], 
+         * 527 [L_CTRL]
+         * 528 [L_SHIFT]
+         * 529 [L_ALT]
+         * 
+         * 531 [R_CTRL]
+         * 532 [R_SHIFT]
+         * 533 [R_ALT / alt-gr]
+         * 
+        */
         ImGuiKey start_key = (ImGuiKey)0;
         int _ctrl_enter__count = 0;
         bool _ctrl_enter__pressed = false;
