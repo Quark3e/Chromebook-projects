@@ -54,8 +54,8 @@ void func(int sockfd) {
 
 int main(int argc, char** argv) {
     int sockfd, connfd;
-    std::string IP_addr = "81.229.133.253";
-    IP_addr = "192.168.1.177";
+    std::string IP_addr = "192.168.1.177";
+
 
     struct sockaddr_in servaddr, cli;
 
