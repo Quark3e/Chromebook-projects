@@ -31,6 +31,7 @@
 // #include <HC_useful/useful.hpp>
 #include <HC_useful/search_multithread.hpp>
 
+using DIY_SEARCH_MULTITHREAD::hasRepetitions;
 
 namespace DIY {
 
@@ -113,24 +114,6 @@ namespace DIY {
         return resultString;
     }
 
-
-    /**
-     * @brief check if a `std::vector<T>` has repetitions of its elements (if any element is repeated/"exists in more than one element")
-     * 
-     * @tparam `T` type of the elements and `std::vector<T>`
-     * @param vec `std::vector<T>` to search its element
-     * @return `true` if any element occurs more than once in the vector
-     * @return `false` if otherwise (all elements only occur once in the vector)
-     */
-    template<typename T>
-    bool hasRepetitions(std::vector<T> vec) {
-        bool repeated = false;
-        for(T elem: vec) {
-            std::vector<int> pos = DIY_SEARCH_MULTITHREAD::multithread_searchVec<T>(vec, elem, -1, -1, true, 0, false);
-            if(pos.size()>1) { repeated=true; break; }
-        }
-        return repeated;
-    }
 
 
     /**
@@ -595,6 +578,7 @@ namespace DIY {
         void _call_error(int code, std::string from_member="", std::string custom_error="");
 
         public:
+        typed_dict() {} //empty default constructor
         typed_dict(std::vector<_key_type> keys, std::vector<_store_type> values);
         typed_dict(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values);
 

@@ -81,13 +81,13 @@ namespace HW_KINEMATICS
 
 
     /**Length of the six arms. unit: [mm]*/
-    inline float arm_link[6] = {145, 130, 75, 50, 25, 25};
+    float arm_link[6] = {145, 130, 75, 50, 25, 25};
 
     /**Weight of the load the motor at index [] is carrying. unit: [kg]*/
-    inline float sLoadWeight[6] = {0, 0.130, 0.085, 0.051, 0.03, 0.01};
+    float sLoadWeight[6] = {0, 0.130, 0.085, 0.051, 0.03, 0.01};
 
     /**Namespace scope array of values to store newly solved angles by HW_KINEMATICS::getAngles()*/
-    inline float solved_q[6] = {0, 0, 0, 0, 0, 0};
+    float solved_q[6] = {0, 0, 0, 0, 0, 0};
 
 
     float _servo_lim[2] = {0, 180};

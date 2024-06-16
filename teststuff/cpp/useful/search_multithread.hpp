@@ -166,6 +166,26 @@ namespace DIY_SEARCH_MULTITHREAD
         }
         return idx;
     }
+
+
+    /**
+     * @brief check if a `std::vector<T>` has repetitions of its elements (if any element is repeated/"exists in more than one element")
+     * 
+     * @tparam `T` type of the elements and `std::vector<T>`
+     * @param vec `std::vector<T>` to search its element
+     * @return `true` if any element occurs more than once in the vector
+     * @return `false` if otherwise (all elements only occur once in the vector)
+     */
+    template<typename T>
+    bool hasRepetitions(std::vector<T> vec) {
+        bool repeated = false;
+        for(T elem: vec) {
+            std::vector<int> pos = DIY_SEARCH_MULTITHREAD::multithread_searchVec<T>(vec, elem, -1, -1, true, 0, false);
+            if(pos.size()>1) { repeated=true; break; }
+        }
+        return repeated;
+    }
+
 }
 
 
