@@ -81,8 +81,6 @@ int main(int argc, char** argv) {
 
     int yes = 1;
 
-    runServer = true;
-    while(runServer) {
 
         // socket creation and verification
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -127,6 +125,8 @@ int main(int argc, char** argv) {
 
         len = sizeof(cli);
 
+    runServer = true;
+    while(runServer) {
         // accept the data packet from client and verification
         connfd = accept(sockfd, (SA*)&cli, &len);
         // std::cout << "errno: "<< errno<<std::endl;
