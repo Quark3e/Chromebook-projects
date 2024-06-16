@@ -17,10 +17,10 @@
 bool runServer = false;
 
 void func(int connfd) {
-    char buff_send[MAX];
-    char buff_recev[MAX];
+    char    buff_send[MAX];
+    char    buff_recev[MAX];
 
-    int n;
+    int     n;
     
     int read_bytes = 0;
     ssize_t write_bytes = 0;
@@ -29,7 +29,8 @@ void func(int connfd) {
         bzero(buff_recev, MAX);
 
         // std::cout << "[server] Called read()"<<std::endl;
-        read_bytes = read(connfd, buff_recev, sizeof(buff_recev));
+        read_bytes = recv(connfd, buff_recev, sizeof(buff_recev), 0);
+        // read_bytes = read(connfd, buff_recev, sizeof(buff_recev));
         // std::cout<<"read(): "<<read_bytes<<"\n";
 
         if(read_bytes<=0) {
@@ -53,7 +54,8 @@ void func(int connfd) {
         n=0;
 
         while((buff_send[n++]=getchar()) != '\n');
-        write_bytes = write(connfd, buff_send, sizeof(buff_send));
+        // write_bytes = write(connfd, buff_send, sizeof(buff_send));
+        write_bytes = send(connfd, buff_send, sizeof(buff_send), 0);
         // std::cout<<"write(): "<<write_bytes<<"\n";
         if(write_bytes<0) {
             printf("[server] write() returned <0. Closing session..\n");
