@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <list>
+#include <initializer_list>
 
 #include <time.h>
 #include <chrono>
@@ -30,11 +31,9 @@ namespace PERF {
 
         float delayFilter = 1;
 
-        std::vector<std::string> _names;
-
-        std::vector<float> _delays_ms;
-
-        std::vector<std::vector<std::chrono::_V2::steady_clock::time_point>> _times;
+        std::vector<std::string>    _names;
+        std::vector<float>          _delays_ms;
+        std::vector<std::vector<std::chrono::_V2::steady_clock::time_point>>    _times;
 
         
         void _call_error(int code, std::string from_member="", std::string custom_error="");
@@ -47,7 +46,9 @@ namespace PERF {
         }
         
 
-        perf_isolated(/* args */);
+        perf_isolated();
+        perf_isolated(std::initializer_list<std::string> init_names);
+        perf_isolated(std::vector<std::string> init_names);
         ~perf_isolated();
 
         int set_T0(std::string name);
@@ -80,6 +81,24 @@ void PERF::perf_isolated::_call_error(int code, std::string from_member, std::st
         }
     }
     throw std::runtime_error(callStr);
+}
+
+
+PERF::perf_isolated::perf_isolated(std::initializer_list<std::string> init_names) {
+    if(init_names.size()==0) throw std::runtime_error("ERROR: "+this->_info_name+"(std::initializer_list<std::string>): initializer list can't have the length of 0");
+    for(auto name: init_names) {
+        this->_names.push_back(name);
+        this->_delays_ms.push_back(0);
+        this->_times.push_back(std::vector<std::chrono::_V2::steady_clock::time_point>(2,std::chrono::steady_clock::now()));
+    }
+}
+PERF::perf_isolated::perf_isolated(std::vector<std::string> init_names) {
+    if(init_names.size()==0) throw std::runtime_error("ERROR: "+this->_info_name+"(std::initializer_list<std::string>): initializer list can't have the length of 0");
+    for(auto name: init_names) {
+        this->_names.push_back(name);
+        this->_delays_ms.push_back(0);
+        this->_times.push_back(std::vector<std::chrono::_V2::steady_clock::time_point>(2,std::chrono::steady_clock::now()));
+    }
 }
 
 int PERF::perf_isolated::set_T0(std::string name) {

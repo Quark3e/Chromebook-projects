@@ -33,6 +33,7 @@
 
 #include <HC_useful/useful.hpp>
 #include <HC_useful/diy_dictionary.hpp>
+#include <HC_useful/diy_performance.hpp>
 #include "../in rpi/IK_header.hpp"
 
 
@@ -219,6 +220,9 @@ int main(int argc, char** argv) {
 
 
 void tab_0(void) {
+
+    static PERF::perf_isolated perf_tab0;
+
 
     static ImGuiTableFlags table_flags_IK_out = ImGuiTableFlags_Borders;
     // table_flags_IK_out |= ImGuiTableFlags_BordersOuter;
