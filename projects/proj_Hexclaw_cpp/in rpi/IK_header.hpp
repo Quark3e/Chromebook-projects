@@ -16,8 +16,7 @@ using namespace std;
 
 
 
-namespace HW_KINEMATICS 
-{
+namespace HW_KINEMATICS  {
 
     /** 
      * settings:
@@ -31,7 +30,6 @@ namespace HW_KINEMATICS
      *  "q5:d5"       : default: false  desc: getAngles: "q5 = atan( [...] / (frame1X / tan(a1) ))"
      *  "exceedState" : default: true   desc: getAnlges: "if [...]_exceeded: positionIsReachable[0] = False"
      */
-
     const std::vector<std::string> setting_labels{
         "al:frameX",
         "a1:a1",
@@ -293,4 +291,180 @@ namespace HW_KINEMATICS
         }
         return false;
     }
+
 }
+
+
+#define NULL_POS_INFO 42069
+
+struct pos_info {
+    float x=NULL_POS_INFO; // x coordinate
+    float y=NULL_POS_INFO; // y coordinate
+    float z=NULL_POS_INFO; // z coordinate
+    float a=NULL_POS_INFO; // a orient (alpha tilt [yaw])
+    float B=NULL_POS_INFO; // B orient (beta tilt  [pitch])
+    float Y=NULL_POS_INFO; // Y orient [gamma tilt [roll]]
+};
+
+
+class Pos_schedule {
+    private:
+    std::string _info_name = "Pos_schedule";
+    /* data */
+    std::vector<pos_info> _positions;
+
+    void _call_error(int code, std::string from_member="", std::string custom_error="");
+
+    void _fill_pos_info(pos_info& _toCheck, int idx=-1);
+    public:
+    size_t size() { return _positions.size(); }
+    pos_info operator[](size_t i) {
+        size_t vecSize = this->_positions.size();
+        if(vecSize==0) this->_call_error(0, "operator[](size_t)", "no position has been added to object");
+        else if(i>=vecSize) this->_call_error(0, "operator[](size_t)");
+        return _positions.at(i);
+    }
+    pos_info& operator[](size_t i) const {
+        size_t vecSize = this->_positions.size();
+        if(vecSize==0) throw std::runtime_error(_info_name+"::operator[](size_t): no position has been added to object");
+        else if(i>=vecSize) throw std::runtime_error(_info_name+"::operator[](size_t): input index bigger than available indices");
+        return const_cast<pos_info&>(_positions.at(i));
+    }
+
+    Pos_schedule(/* args */);
+    ~Pos_schedule();
+
+    void add(pos_info pos);
+    void add(float x, float y, float z, float a, float B, float Y);
+    void add_pos(float x, float y, float z);
+    void add_tilt(float a, float B, float Y);
+
+    void insert(size_t idx, pos_info pos);
+    void insert(size_t idx, float x, float y, float z, float a, float B, float Y);
+    void insert_pos(size_t idx, float x, float y, float z);
+    void insert_tilt(size_t idx, float a, float B, float Y);
+
+    void set(size_t idx, pos_info pos);
+    void set(size_t idx, float x, float y, float z, float a, float B, float Y);
+    void set_pos(size_t idx, float x, float y, float z);
+    void set_tilt(size_t idx, float a, float B, float Y);
+
+    void erase(size_t idx);
+
+};
+
+Pos_schedule::Pos_schedule(/* args */) {
+
+}
+Pos_schedule::~Pos_schedule() {
+}
+
+
+void Pos_schedule::_call_error(int code, std::string from_member, std::string custom_error) {
+    if(from_member.length()!=0) from_member = "::"+from_member;
+    std::string callStr = "ERROR: "+this->_info_name+from_member+": ";
+    if(custom_error.length()!=0) callStr+=custom_error;
+    else {
+        switch (code) {
+        case 0: //key not found
+            callStr += " input index outside stored elements: avail. size="+std::to_string(this->_positions.size());
+            break;
+        // case 1: //key already exists
+        //     callStr += " input index  stored elements";
+        //     break;
+        default:
+            break;
+        }
+    }
+    throw std::runtime_error(callStr);
+}
+
+
+void Pos_schedule::_fill_pos_info(pos_info& _toCheck, int idx) {
+    size_t vecSize = this->_positions.size();
+    if(idx>=static_cast<int>(vecSize)) this->_call_error(0, "_fill_pos_info(pos_info&, int)", "input index `idx` is bigger than size of stored elements");
+
+    if(idx<0) idx=
+
+    if(idx<0) {
+        if(_toCheck.x==NULL_POS_INFO) _toCheck.x = (vecSize>0 ? this->_positions[vecSize-1].x : 0);
+        if(_toCheck.y==NULL_POS_INFO) _toCheck.y = (vecSize>0 ? this->_positions[vecSize-1].y : 0);
+        if(_toCheck.z==NULL_POS_INFO) _toCheck.z = (vecSize>0 ? this->_positions[vecSize-1].z : 0);
+
+        if(_toCheck.a==NULL_POS_INFO) _toCheck.a = (vecSize>0 ? this->_positions[vecSize-1].a : 0);
+        if(_toCheck.B==NULL_POS_INFO) _toCheck.B = (vecSize>0 ? this->_positions[vecSize-1].B : 0);
+        if(_toCheck.Y==NULL_POS_INFO) _toCheck.Y = (vecSize>0 ? this->_positions[vecSize-1].Y : 0);
+    }
+    
+}
+
+void Pos_schedule::add(pos_info pos) {
+    this->_fill_pos_info(pos);
+    this->_positions.push_back(pos);
+}
+void Pos_schedule::add(float x, float y, float z, float a, float B, float Y) {
+    pos_info tempObj{x, y, z, a, B, Y};
+    this->_positions.push_back(tempObj);
+}
+void Pos_schedule::add_pos(float x, float y, float z) {
+    pos_info tempObj{x, y, z, NULL_POS_INFO, NULL_POS_INFO, NULL_POS_INFO};
+    this->_fill_pos_info(tempObj);
+    this->_positions.push_back(tempObj);
+}
+void Pos_schedule::add_tilt(float a, float B, float Y) {
+    pos_info tempObj{NULL_POS_INFO, NULL_POS_INFO, NULL_POS_INFO, a, B, Y};
+    this->_fill_pos_info(tempObj);
+    this->_positions.push_back(tempObj);
+}
+
+
+void Pos_schedule::insert(size_t idx, pos_info pos) {
+    if(idx>=this->_positions.size()) this->_call_error(0, "insert(size_t, pos_info)");
+    this->_fill_pos_info(pos);
+    this->_positions.insert(this->_positions.begin()+idx, pos);
+}
+void Pos_schedule::insert(size_t idx, float x, float y, float z, float a, float B, float Y) {
+    if(idx>=this->_positions.size()) this->_call_error(0, "insert(size_t, float, float, float, float, float, float)");
+    pos_info tempObj{x, y, z, a, B, Y};
+    this->_positions.insert(this->_positions.begin()+idx, tempObj);
+}
+void Pos_schedule::insert_pos(size_t idx, float x, float y, float z) {
+    if(idx>=this->_positions.size()) this->_call_error(0, "insert_pos(size_t, float, float, float)");
+    pos_info tempObj{x, y, z, NULL_POS_INFO, NULL_POS_INFO, NULL_POS_INFO};
+    this->_fill_pos_info(tempObj);
+    this->_positions.insert(this->_positions.begin()+idx, tempObj);
+}
+void Pos_schedule::insert_tilt(size_t idx, float a, float B, float Y) {
+    if(idx>=this->_positions.size()) this->_call_error(0, "insert_tilt(size_t, float, float, float)");
+    pos_info tempObj{NULL_POS_INFO, NULL_POS_INFO, NULL_POS_INFO, a, B, Y};
+    this->_fill_pos_info(tempObj);
+    this->_positions.insert(this->_positions.begin()+idx, tempObj);
+}
+
+void Pos_schedule::set(size_t idx, pos_info pos) {
+    if(idx>=this->_positions.size()) this->_call_error(0, "set(size_t, pos_info)");
+    this->_fill_pos_info(pos);
+    this->_positions.at(idx) = pos;
+}
+void Pos_schedule::set(size_t idx, float x, float y, float z, float a, float B, float Y) {
+    if(idx>=this->_positions.size()) this->_call_error(0, "set(size_t, float, float, float, float, float, float)");
+    pos_info tempObj{x, y, z, a, B, Y};
+    this->_positions.at(idx) = tempObj;
+}
+void Pos_schedule::set_pos(size_t idx, float x, float y, float z) {
+    if(idx>=this->_positions.size()) this->_call_error(0, "set(size_t, float, float, float)");
+    pos_info tempObj{x, y, z, NULL_POS_INFO, NULL_POS_INFO, NULL_POS_INFO};
+    this->_fill_pos_info(tempObj);
+    this->_positions.at(idx) = tempObj;
+}
+void Pos_schedule::set_tilt(size_t idx, float a, float B, float Y) {
+    if(idx>=this->_positions.size()) this->_call_error(0, "set(size_t, float, float, float)");
+    pos_info tempObj{x, y, z, NULL_POS_INFO, NULL_POS_INFO, NULL_POS_INFO};
+    this->_fill_pos_info(tempObj);
+    this->_positions.at(idx) = tempObj;
+}
+
+void Pos_schedule::erase(size_t idx) {
+
+}
+
