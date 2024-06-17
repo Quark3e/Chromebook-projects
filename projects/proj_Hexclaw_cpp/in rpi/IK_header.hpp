@@ -384,7 +384,8 @@ void Pos_schedule::_fill_pos_info(pos_info& _toCheck, int idx) {
     size_t vecSize = this->_positions.size();
     if(idx>=static_cast<int>(vecSize)) this->_call_error(0, "_fill_pos_info(pos_info&, int)", "input index `idx` is bigger than size of stored elements");
 
-    if(idx<0) idx=
+    if(idx<0 && vecSize==0) idx=0;
+    else if(idx>=0 && vecSize!=0) {}
 
     if(idx<0) {
         if(_toCheck.x==NULL_POS_INFO) _toCheck.x = (vecSize>0 ? this->_positions[vecSize-1].x : 0);
