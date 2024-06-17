@@ -31,7 +31,7 @@
 // #include <HC_useful/useful.hpp>
 #include <HC_useful/search_multithread.hpp>
 
-using DIY_SEARCH_MULTITHREAD::hasRepetitions;
+using DIY_SEARCH_MULTITHREAD::hasRepetitions, DIY_SEARCH_MULTITHREAD::check_existence;
 
 namespace DIY {
 
@@ -114,34 +114,6 @@ namespace DIY {
         return resultString;
     }
 
-
-
-    /**
-     * @brief Check if a value of type `_check` exists in given `std::vector<_check>` container
-     * 
-     * @tparam _check data type of value and vector of same type to check
-     * @param key the value to check if it exists in `vec`
-     * @param vec the `std::vector<_check>` to search through
-     * @param verbose `DIY_SEARCH_MULTITHREAD::multithread_searchVec`: boolean for whether to print out intermediary statements
-     * @param numThreads `DIY_SEARCH_MULTITHREAD::multithread_searchVec`: number of threads to split the search vector in
-     * @param threadLen `DIY_SEARCH_MULTITHREAD::multithread_searchVec`: maximum number of elements for a single thread to look through in a vector (is overriden if `numThreads` num is bigger than
-     * recommended value by `std::thread::hardware_concurrency();`).
-     * @param checkSpacing `DIY_SEARCH_MULTITHREAD::multithread_searchVec`: number of loop iterations/cycles to wait before checking concurrent threads if they've found the value in vector
-     * @return if `key` found, returns  `int` position/index value for `key` in `vec`. If not found returns `-1`; 
-     */
-    template<typename _check>
-    int check_existence(
-        _check key,
-        std::vector<_check> vec,
-        bool verbose=false,
-        int numThreads=-1,
-        int threadLen=-1,
-        int checkSpacing=1
-    ) {
-        std::vector<int> pos = DIY_SEARCH_MULTITHREAD::multithread_searchVec<_check>(
-            vec, key, numThreads, threadLen, false, checkSpacing, verbose);
-        return pos.at(0);
-    }
 
 
     /**
@@ -592,7 +564,7 @@ namespace DIY {
         }
         _store_type  operator[] (_key_type key) const   {
             if(!_init_container) throw std::runtime_error("ERROR: "+this->_info_name+"::` _store_type`& operator[](): class containers hasn't been initialized/(are empty)");
-            int pos = check_existence<_key_type>(key, _keys);
+            int pos =  check_existence<_key_type>(key, _keys);
             if(pos==-1) throw std::runtime_error("ERROR: "+this->_info_name+"::` _store_type`& operator[](): argument for `key` was not found in dictionary.");
             return const_cast<_store_type&>(_keys.at(pos));
         }

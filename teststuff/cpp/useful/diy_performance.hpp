@@ -41,8 +41,11 @@ namespace PERF {
 
         public:
         float operator[](std::string name) {
-            
+            int pos = DIY_SEARCH_MULTITHREAD::check_existence<std::string>(name, this->_names);
+            if(pos<0) this->_call_error(0, "operator[](std::string)");
+            return this->_delays_ms.at(pos);
         }
+        
 
         perf_isolated(/* args */);
         ~perf_isolated();
