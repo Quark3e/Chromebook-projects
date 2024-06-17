@@ -45,6 +45,8 @@ namespace PERF {
             return this->_delays_ms.at(pos);
         }
         
+        std::vector<std::string>    names() { return this->_names; }
+        std::vector<float>         delays() { return this->_delays_ms; }
 
         perf_isolated();
         perf_isolated(std::initializer_list<std::string> init_names);
@@ -103,22 +105,22 @@ PERF::perf_isolated::perf_isolated(std::vector<std::string> init_names) {
 
 int PERF::perf_isolated::set_T0(std::string name) {
     std::chrono::_V2::steady_clock::time_point tempTime = std::chrono::steady_clock::now();
-    int pos = DIY_SEARCH_MULTITHREAD::hasRepetitions<std::string>(this->_names);
-    if(pos<0) {
+    int pos = DIY_SEARCH_MULTITHREAD::check_existence<std::string>(name, this->_names);
+    if(pos<0) { //name already exists in system
         this->_names.push_back(name);
         this->_times.push_back(std::vector<std::chrono::_V2::steady_clock::time_point>{tempTime, tempTime});
         // std::chrono::milliseconds elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(tempTime-tempTime);
         this->_delays_ms.push_back(0);
     }
-    else {
+    else { //name doesn't exist. create a new element(s) with said name
         this->_times[pos][0] = tempTime;
     }
     return 0;
 }
 int PERF::perf_isolated::set_T1(std::string name) {
     std::chrono::_V2::steady_clock::time_point tempTime = std::chrono::steady_clock::now();
-    int pos = DIY_SEARCH_MULTITHREAD::hasRepetitions<std::string>(this->_names);
-    if(pos<0) this->_call_error(0,"set_T1(std::string)","`name` not initialised with perf_isolated::set_T1()");
+    int pos = DIY_SEARCH_MULTITHREAD::check_existence<std::string>(name, this->_names);
+    if(pos<0) this->_call_error(0,"set_T1(std::string)","input `name` \""+name+"\" has not been initialised with perf_isolated::set_T0()");
 
     this->_times[pos][1]    = tempTime;
     this->_delays_ms[pos]   = (std::chrono::duration_cast<std::chrono::milliseconds>(this->_times[pos][1]-this->_times[pos][0])).count();
@@ -126,7 +128,7 @@ int PERF::perf_isolated::set_T1(std::string name) {
 
 
 float PERF::perf_isolated::getDelay_ms(std::string name) {
-    int pos = DIY_SEARCH_MULTITHREAD::hasRepetitions<std::string>(this->_names);
+    int pos = DIY_SEARCH_MULTITHREAD::check_existence<std::string>(name, this->_names);
     if(pos<0) this->_call_error(0, "getDelay_ms(std::string)");
     return this->_delays_ms[pos];
 }

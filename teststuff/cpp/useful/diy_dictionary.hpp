@@ -566,9 +566,11 @@ namespace DIY {
             if(!_init_container) throw std::runtime_error("ERROR: "+this->_info_name+"::` _store_type`& operator[](): class containers hasn't been initialized/(are empty)");
             int pos =  check_existence<_key_type>(key, _keys);
             if(pos==-1) throw std::runtime_error("ERROR: "+this->_info_name+"::` _store_type`& operator[](): argument for `key` was not found in dictionary.");
-            return const_cast<_store_type&>(_keys.at(pos));
+            return const_cast<_store_type&>(_values.at(pos));
         }
-
+        _store_type _from_idx(size_t idx) {
+            return _values.at(idx);
+        }
 
         _store_type* getPtr(_key_type key);
 

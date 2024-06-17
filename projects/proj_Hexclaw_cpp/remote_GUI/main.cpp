@@ -96,11 +96,17 @@ static bool IsLegacyNativeDupe(ImGuiKey key) {
 }
 // }; // Hide Native<>ImGuiKey duplicates when both exists in the array
 
-static DIY::typed_dict<std::string, std::string> guiSettings_desc= HW_KINEMATICS::setting_desc;
+DIY::typed_dict<std::string, std::string> guiSettings_desc= HW_KINEMATICS::setting_desc;
 DIY::typed_dict<std::string, bool*> guiSettings;
+// DIY::typed_dict<std::string, std::string> guiSettings
 
 static bool guisetting_link_to_server = true;
 static bool guisetting_findOrient = true;
+
+static bool takePerf_tab_0 = false;
+
+
+void Delays_table(PERF::perf_isolated& perfObj, const char* childID, const char* tableID, const char* sepText);
 
 void tab_0(void);
 void tab_1(void);
@@ -239,11 +245,12 @@ void tab_0(void) {
     // input_inputText_flags |= ImGuiInputTextFlags_
 
 
-    std::string outMsg = "";
+    static std::string outMsg = "";
 
-
-
+    
+    // perf_tab0.set_T0("group:0"); //perf time_point:0
     ImGui::BeginGroup();
+    if(takePerf_tab_0) perf_tab0.set_T0("T:IK_input"); //perf time_point:0
     if(ImGui::BeginChild("IK input", ImVec2(WIN_INPUT_IK_WIDTH, WIN_INPUT_IK_HEIGHT), input_child_flags)) {
         ImGui::SeparatorText("Input");
         // ImGui::InputFloat3("pos", input_IK_pos);
@@ -270,7 +277,9 @@ void tab_0(void) {
         else if(input_IK_enterPress) input_IK_enterPress = false;
 
         ImGui::EndChild();
+        if(takePerf_tab_0) perf_tab0.set_T1("T:IK_input"); //perf time_point:1
     }
+    if(takePerf_tab_0) perf_tab0.set_T0("T:IK_info"); //perf time_point:0
     if(ImGui::BeginChild("IK info", ImVec2(WIN_INPUT_IK_WIDTH, WIN_INPUT_SETTINGS_HEIGHT-WIN_INPUT_IK_HEIGHT), input_child_flags)) {
         ImGui::SeparatorText("IK info");
 
@@ -278,36 +287,46 @@ void tab_0(void) {
         ImGui::TextUnformatted(std::string(">> "+outMsg).c_str());
 
         ImGui::EndChild();
+        perf_tab0.set_T0("T:IK_info"); //perf time_point:1
     }
     ImGui::EndGroup();
+    // perf_tab0.set_T1("group:0"); //perf time_point: 1
 
     ImGui::SameLine();
 
+    // perf_tab0.set_T0("group:1"); //perf time_point:0
     ImGui::BeginGroup();
+    if(takePerf_tab_0) perf_tab0.set_T0("T:Settings"); //perf time_point:0
     if(ImGui::BeginChild("Settings", ImVec2(WIN_INPUT_SETTINGS_WIDTH, WIN_INPUT_SETTINGS_HEIGHT))) {
         ImGui::SeparatorText("Settings");
 
-        int _i = 0;
-
-        for(std::string key: guiSettings.keys()) {
-            ImGui::Checkbox(DIY::formatNumber<std::string>(key,15,0,"left").c_str(), guiSettings[key]);
+        std::vector<std::string> temp_keys = guiSettings.keys();
+        std::vector<bool*> temp_settingPtr = guiSettings.values();
+        for(int _i=0; _i<temp_keys.size(); _i++) {
+            ImGui::Checkbox(DIY::formatNumber<std::string>(temp_keys[_i],15,0,"left").c_str(), temp_settingPtr[_i]);
             ImGui::SameLine();
-            HelpMarker(guiSettings_desc[key].c_str());
+            HelpMarker(guiSettings_desc._from_idx(_i).c_str());
             ImGui::SameLine();
+            // if(_i<HW_KINEMATICS::setting_default.size()) {
+            //     HelpMarker(("default:["+))
+            // }
             HelpMarker(
                 std::string(
                     "default:["+
-                    ((_i<HW_KINEMATICS::setting_default.size())? HW_KINEMATICS::setting_default.str_export(key,5,0,"left",true) : std::string("true_"))+"]"
+                    ((_i<HW_KINEMATICS::setting_default.size())? HW_KINEMATICS::setting_default.str_export(temp_keys[_i],5,0,"left",true) : std::string("true "))+"]"
                 ).c_str(), std::string("[]").c_str()
             );
-            _i++;
         }
 
         ImGui::EndChild();
+        if(takePerf_tab_0) perf_tab0.set_T1("T:Settings"); //perf time_point:1
     }
     ImGui::EndGroup();
+    // perf_tab0.set_T1("group:1"); //perf time_point:1
     //-------------
     // outMsg = "";
+
+    if(takePerf_tab_0) perf_tab0.set_T0("T:Keys"); //perf time_point:0
     /**
      * 515 [TAB]
      * 568 [w]
@@ -335,6 +354,9 @@ void tab_0(void) {
     }
     if(_keys_count_exit==2) running = false;
 
+    if(takePerf_tab_0) perf_tab0.set_T1("T:Keys"); //perf time_point:1
+
+    if(takePerf_tab_0) perf_tab0.set_T0("T:IK_group"); //prf time_point:0
     if(input_IK_enterPress || (_keys_count_enter==2 && !_ctrl_enter__pressed)) {
         if(HW_KINEMATICS::getAngles(
                 output_IK_angles,
@@ -358,8 +380,13 @@ void tab_0(void) {
     }
     if(_keys_count_enter==2) _ctrl_enter__pressed = true;
     else _ctrl_enter__pressed = false;
+   if(takePerf_tab_0)  perf_tab0.set_T1("T:IK_group"); //perf time_point:1
+
     //-------------
+
+    // perf_tab0.set_T0("group:2"); //perf time_point:0
     ImGui::BeginGroup();
+    if(takePerf_tab_0) perf_tab0.set_T0("T:IK_sol"); //perf time_point:0
     if(ImGui::BeginChild("Solved angles[deg.]", ImVec2(WIN_OUTPUT_ANGLES_WIDTH, WIN_OUTPUT_ANGLES_HEIGHT))) {
         ImGui::SeparatorText("IK solutions");
         if(ImGui::BeginTable("IK_out", 6, table_flags_IK_out)) {
@@ -376,13 +403,26 @@ void tab_0(void) {
             ImGui::EndTable();
         }
         ImGui::EndChild();
+        if(takePerf_tab_0) perf_tab0.set_T1("T:IK_sol"); //perf time_point:1
     }
-    ImGui::EndGroup();
 
+    if(takePerf_tab_0) perf_tab0.set_T0("T:FK_sol"); //perf time_point;0
     if(ImGui::BeginChild("FK solutions", ImVec2(WIN_OUTPUT_FK_WIDTH, WIN_OUTPUT_FK_HEIGHT))) {
         ImGui::SeparatorText("FK solutions");
         ImGui::EndChild();
     }
+    if(takePerf_tab_0) perf_tab0.set_T1("T:FK_sol"); //perf time_point:1
+    ImGui::EndGroup();
+    // perf_tab0.set_T1("group:2"); //perf time_point:1
+
+    ImGui::SameLine();
+
+    static int perf_maxString=0;
+    // perf_maxString = stringOfVector(perf_tab0.names(),1);
+
+    ImGui::BeginGroup();
+    if(takePerf_tab_0) Delays_table(perf_tab0,"Delays table","Tab0 delays","Delays table");
+    ImGui::EndGroup();
 
 }
 
@@ -390,3 +430,29 @@ void tab_1(void) {
 
 }
 
+void Delays_table(PERF::perf_isolated& perfRef, const char* childID, const char* tableID, const char* sepText="") {
+    
+    if(ImGui::BeginChild(childID, ImVec2(WIN_INPUT_SETTINGS_WIDTH, 200))) {
+        ImGui::SeparatorText(sepText);
+        if(ImGui::BeginTable(tableID, 2)) {
+            std::vector<float> perf_delays = perfRef.delays();
+            std::vector<std::string> perf_names = perfRef.names();
+            for(int i=0; i<perf_names.size(); i++) {
+                ImGui::TableNextRow();
+                // ImGui::SetNextItemWidth(perf_name.length());
+                ImGui::TableSetColumnIndex(0);
+                // ImGui::AlignTextToFramePadding();
+                ImGui::TextUnformatted(perf_names[i].c_str());
+                ImGui::TableSetColumnIndex(1);
+                // ImGui::TextUnformatted("test");
+                // ImGui::SetNextItemWidth(5);
+                // ImGui::TableSetColumnIndex(1);
+                // ImGui::AlignTextToFramePadding();
+                ImGui::Text((formatNumber<float>(perf_delays[i],5,2)+"ms").c_str());
+                // if(i>=5) break;
+            }
+            ImGui::EndTable();
+        }
+        ImGui::EndChild();
+    }
+}
