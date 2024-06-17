@@ -334,6 +334,13 @@ class Pos_schedule {
     Pos_schedule(/* args */);
     ~Pos_schedule();
 
+    const float x(size_t idx);
+    const float y(size_t idx);
+    const float z(size_t idx);
+    const float a(size_t idx);
+    const float B(size_t idx);
+    const float Y(size_t idx);
+
     void add(pos_info pos);
     void add(float x, float y, float z, float a, float B, float Y);
     void add_pos(float x, float y, float z);
@@ -379,24 +386,60 @@ void Pos_schedule::_call_error(int code, std::string from_member, std::string cu
     throw std::runtime_error(callStr);
 }
 
-
+/**
+ * @brief check member variables of `pos_info` object for `NULL_POS_INFO` and replace those variable according to function
+ * 
+ * @param _toCheck reference to `pos_info` to check through and fill in accordingly
+ * @param idx index to use to fill in in "NULL_POS_INFO" values
+ */
 void Pos_schedule::_fill_pos_info(pos_info& _toCheck, int idx) {
     size_t vecSize = this->_positions.size();
     if(idx>=static_cast<int>(vecSize)) this->_call_error(0, "_fill_pos_info(pos_info&, int)", "input index `idx` is bigger than size of stored elements");
 
-    if(idx<0 && vecSize==0) idx=0;
-    else if(idx>=0 && vecSize!=0) {}
+
+    if(vecSize>0) {
+        if(idx==-1) idx = vecSize-1; //use last element
+        else {} //use idx element
+    }
+    else if(vecSize==0) idx=-1; //can't set an element: no reference element -> reference=0
+
 
     if(idx<0) {
-        if(_toCheck.x==NULL_POS_INFO) _toCheck.x = (vecSize>0 ? this->_positions[vecSize-1].x : 0);
-        if(_toCheck.y==NULL_POS_INFO) _toCheck.y = (vecSize>0 ? this->_positions[vecSize-1].y : 0);
-        if(_toCheck.z==NULL_POS_INFO) _toCheck.z = (vecSize>0 ? this->_positions[vecSize-1].z : 0);
+        if(_toCheck.x==NULL_POS_INFO) _toCheck.x = (idx>-1 ? this->_positions[idx].x : 0);
+        if(_toCheck.y==NULL_POS_INFO) _toCheck.y = (idx>-1 ? this->_positions[idx].y : 0);
+        if(_toCheck.z==NULL_POS_INFO) _toCheck.z = (idx>-1 ? this->_positions[idx].z : 0);
 
-        if(_toCheck.a==NULL_POS_INFO) _toCheck.a = (vecSize>0 ? this->_positions[vecSize-1].a : 0);
-        if(_toCheck.B==NULL_POS_INFO) _toCheck.B = (vecSize>0 ? this->_positions[vecSize-1].B : 0);
-        if(_toCheck.Y==NULL_POS_INFO) _toCheck.Y = (vecSize>0 ? this->_positions[vecSize-1].Y : 0);
+        if(_toCheck.a==NULL_POS_INFO) _toCheck.a = (idx>-1 ? this->_positions[idx].a : 0);
+        if(_toCheck.B==NULL_POS_INFO) _toCheck.B = (idx>-1 ? this->_positions[idx].B : 0);
+        if(_toCheck.Y==NULL_POS_INFO) _toCheck.Y = (idx>-1 ? this->_positions[idx].Y : 0);
     }
     
+}
+
+
+const float Pos_schedule::x(size_t idx) {
+    if(idx>=this->_positions.size()) this->_call_error(0, "insert(size_t, pos_info)");
+    return this->_positions.at(idx).x;
+}
+const float Pos_schedule::y(size_t idx) {
+    if(idx>=this->_positions.size()) this->_call_error(0, "insert(size_t, pos_info)");
+    return this->_positions.at(idx).y;
+}
+const float Pos_schedule::z(size_t idx) {
+    if(idx>=this->_positions.size()) this->_call_error(0, "insert(size_t, pos_info)");
+    return this->_positions.at(idx).z;
+}
+const float Pos_schedule::a(size_t idx) {
+    if(idx>=this->_positions.size()) this->_call_error(0, "insert(size_t, pos_info)");
+    return this->_positions.at(idx).a;
+}
+const float Pos_schedule::B(size_t idx) {
+    if(idx>=this->_positions.size()) this->_call_error(0, "insert(size_t, pos_info)");
+    return this->_positions.at(idx).B;
+}
+const float Pos_schedule::Y(size_t idx) {
+    if(idx>=this->_positions.size()) this->_call_error(0, "insert(size_t, pos_info)");
+    return this->_positions.at(idx).Y;
 }
 
 void Pos_schedule::add(pos_info pos) {
@@ -421,7 +464,7 @@ void Pos_schedule::add_tilt(float a, float B, float Y) {
 
 void Pos_schedule::insert(size_t idx, pos_info pos) {
     if(idx>=this->_positions.size()) this->_call_error(0, "insert(size_t, pos_info)");
-    this->_fill_pos_info(pos);
+    this->_fill_pos_info(pos, idx);
     this->_positions.insert(this->_positions.begin()+idx, pos);
 }
 void Pos_schedule::insert(size_t idx, float x, float y, float z, float a, float B, float Y) {
@@ -432,19 +475,19 @@ void Pos_schedule::insert(size_t idx, float x, float y, float z, float a, float 
 void Pos_schedule::insert_pos(size_t idx, float x, float y, float z) {
     if(idx>=this->_positions.size()) this->_call_error(0, "insert_pos(size_t, float, float, float)");
     pos_info tempObj{x, y, z, NULL_POS_INFO, NULL_POS_INFO, NULL_POS_INFO};
-    this->_fill_pos_info(tempObj);
+    this->_fill_pos_info(tempObj, idx);
     this->_positions.insert(this->_positions.begin()+idx, tempObj);
 }
 void Pos_schedule::insert_tilt(size_t idx, float a, float B, float Y) {
     if(idx>=this->_positions.size()) this->_call_error(0, "insert_tilt(size_t, float, float, float)");
     pos_info tempObj{NULL_POS_INFO, NULL_POS_INFO, NULL_POS_INFO, a, B, Y};
-    this->_fill_pos_info(tempObj);
+    this->_fill_pos_info(tempObj, idx);
     this->_positions.insert(this->_positions.begin()+idx, tempObj);
 }
 
 void Pos_schedule::set(size_t idx, pos_info pos) {
     if(idx>=this->_positions.size()) this->_call_error(0, "set(size_t, pos_info)");
-    this->_fill_pos_info(pos);
+    this->_fill_pos_info(pos, idx);
     this->_positions.at(idx) = pos;
 }
 void Pos_schedule::set(size_t idx, float x, float y, float z, float a, float B, float Y) {
@@ -455,17 +498,18 @@ void Pos_schedule::set(size_t idx, float x, float y, float z, float a, float B, 
 void Pos_schedule::set_pos(size_t idx, float x, float y, float z) {
     if(idx>=this->_positions.size()) this->_call_error(0, "set(size_t, float, float, float)");
     pos_info tempObj{x, y, z, NULL_POS_INFO, NULL_POS_INFO, NULL_POS_INFO};
-    this->_fill_pos_info(tempObj);
+    this->_fill_pos_info(tempObj, idx);
     this->_positions.at(idx) = tempObj;
 }
 void Pos_schedule::set_tilt(size_t idx, float a, float B, float Y) {
     if(idx>=this->_positions.size()) this->_call_error(0, "set(size_t, float, float, float)");
-    pos_info tempObj{x, y, z, NULL_POS_INFO, NULL_POS_INFO, NULL_POS_INFO};
-    this->_fill_pos_info(tempObj);
+    pos_info tempObj{NULL_POS_INFO, NULL_POS_INFO, NULL_POS_INFO, a, B, Y};
+    this->_fill_pos_info(tempObj, idx);
     this->_positions.at(idx) = tempObj;
 }
 
 void Pos_schedule::erase(size_t idx) {
-
+    if(idx>=this->_positions.size()) this->_call_error(0, "erase(size_t)");
+    this->_positions.erase(this->_positions.begin()+idx);
 }
 
