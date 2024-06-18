@@ -47,7 +47,7 @@
 #define WIN_HEIGHT  600
 
 #define WIN_INPUT_IK_WIDTH  350
-#define WIN_INPUT_IK_HEIGHT 150
+#define WIN_INPUT_IK_HEIGHT 100
 #define WIN_INPUT_IK_POS  [0, 0]
 
 #define WIN_INPUT_SETTINGS_WIDTH    200
@@ -62,6 +62,8 @@
 #define WIN_OUTPUT_FK_HEIGHT    100
 #define WIN_OUTPUT_FK_POS   [0, WIN_OUTPUT_ANGLES_POS[1]+WIN_INPUT_IK_HEIGHT]
 
+
+#define LIM_SHORTCUT_KEYS   10 //number of frames to wait after calling a boolean via key shortcut
 
 int mode = 0;
 
@@ -112,7 +114,6 @@ void tab_0(void);
 void tab_1(void);
 
 int main(int argc, char** argv) {
-
 
 
     guiSettings_desc.add("Link to server", std::string("whether to attempt to connect to Hexclaw Server at intervals"));
@@ -229,7 +230,6 @@ void tab_0(void) {
 
     static PERF::perf_isolated perf_tab0;
 
-
     static ImGuiTableFlags table_flags_IK_out = ImGuiTableFlags_Borders;
     // table_flags_IK_out |= ImGuiTableFlags_BordersOuter;
     // table_flags_IK_out |= ImGuiTableFlags_SizingStretchSame;
@@ -272,9 +272,9 @@ void tab_0(void) {
         
         // ImGui::SetCursorPosX(float(WIN_INPUT_IK_POS[0]));
         // ImGui::SetCursorPos(ImVec2(WIN_INPUT_IK_POS[0], WIN_INPUT_IK_POS[1]+WIN_INPUT_IK_HEIGHT-50));
-        ImGui::SetCursorPos(ImVec2(250, 100));
+        ImGui::SetCursorPos(ImVec2(275, 75));
         if(ImGui::Button("Enter")) { input_IK_enterPress = true; }
-        else if(input_IK_enterPress) input_IK_enterPress = false;
+        // else if(input_IK_enterPress) input_IK_enterPress = false;
 
         ImGui::EndChild();
         if(takePerf_tab_0) perf_tab0.set_T1("T:IK_input"); //perf time_point:1
@@ -283,7 +283,13 @@ void tab_0(void) {
     if(ImGui::BeginChild("IK info", ImVec2(WIN_INPUT_IK_WIDTH, WIN_INPUT_SETTINGS_HEIGHT-WIN_INPUT_IK_HEIGHT), input_child_flags)) {
         ImGui::SeparatorText("IK info");
 
+        const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y+ImGui::GetFrameHeightWithSpacing();
+        if(ImGui::BeginChild("ScrollingRegion", ImVec2(0,WIN_INPUT_SETTINGS_HEIGHT-WIN_INPUT_IK_HEIGHT-75),ImGuiChildFlags_None,ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NavFlattened)) {
 
+
+            ImGui::EndChild();
+        }
+        ImGui::Separator();
         ImGui::TextUnformatted(std::string(">> "+outMsg).c_str());
 
         ImGui::EndChild();
@@ -344,20 +350,32 @@ void tab_0(void) {
     int _keys_count_enter   = 0;
     int _keys_count_exit    = 0;
     
-    bool _ctrl_enter__pressed = false;
+    static int _wait_keys__enter = 0;
+
+
+    static bool _ctrl_enter__pressed = false;
     for (ImGuiKey key = start_key; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) {
         if (IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) continue;
         // ImGui::SameLine();
         // ImGui::Text((key < ImGuiKey_NamedKey_BEGIN) ? "\"%s\"" : "\"%s\" %d", ImGui::GetKeyName(key), key);
-        if(key==527 || key==525) _keys_count_enter++;
-        if(key==527 || key==568) _keys_count_exit++;
+        if((key==527 || key==531) || key==525) _keys_count_enter++;
+        if((key==527 || key==531) || key==568) _keys_count_exit++;
     }
     if(_keys_count_exit==2) running = false;
+    // if(_keys_count_enter==2 && !_ctrl_enter__pressed) input_IK_enterPress = true;
+    if(_keys_count_enter==2 && _wait_keys__enter==0) {
+        _ctrl_enter__pressed  = true;
+        _wait_keys__enter=1;
+    }
+    else _ctrl_enter__pressed = false;
+
+    if(_wait_keys__enter>=LIM_SHORTCUT_KEYS) _wait_keys__enter=0;
+    else if(_wait_keys__enter>0) _wait_keys__enter++;
 
     if(takePerf_tab_0) perf_tab0.set_T1("T:Keys"); //perf time_point:1
 
     if(takePerf_tab_0) perf_tab0.set_T0("T:IK_group"); //prf time_point:0
-    if(input_IK_enterPress || (_keys_count_enter==2 && !_ctrl_enter__pressed)) {
+    if(input_IK_enterPress || _ctrl_enter__pressed) {
         if(HW_KINEMATICS::getAngles(
                 output_IK_angles,
                 input_IK_pos,
@@ -377,11 +395,12 @@ void tab_0(void) {
             }
         }
         else { outMsg = "error: No solution found."; }
+        input_IK_enterPress = false;
+        _ctrl_enter__pressed = false;
     }
-    if(_keys_count_enter==2) _ctrl_enter__pressed = true;
-    else _ctrl_enter__pressed = false;
-   if(takePerf_tab_0)  perf_tab0.set_T1("T:IK_group"); //perf time_point:1
-
+    if(takePerf_tab_0)  perf_tab0.set_T1("T:IK_group"); //perf time_point:1
+    
+    
     //-------------
 
     // perf_tab0.set_T0("group:2"); //perf time_point:0
