@@ -312,6 +312,7 @@ class Pos_schedule {
     std::string _info_name = "Pos_schedule";
     /* data */
     std::vector<pos_info> _positions;
+    std::vector<int> _wait_ms;
 
     void _call_error(int code, std::string from_member="", std::string custom_error="");
 
@@ -340,6 +341,8 @@ class Pos_schedule {
     const float a(size_t idx);
     const float B(size_t idx);
     const float Y(size_t idx);
+
+    int loadFile(std::string filename);
 
     void add(pos_info pos);
     void add(float x, float y, float z, float a, float B, float Y);
@@ -440,6 +443,18 @@ const float Pos_schedule::B(size_t idx) {
 const float Pos_schedule::Y(size_t idx) {
     if(idx>=this->_positions.size()) this->_call_error(0, "insert(size_t, pos_info)");
     return this->_positions.at(idx).Y;
+}
+
+/**
+ * @brief load POS_schedule header with values from dedicated file
+ * 
+ * @param filename `std::string` of absolute directory to the file
+ * @return int value of whether it successfully loaded the contents of the file into the class.
+ */
+int Pos_schedule::loadFile(std::string filename) {
+
+
+    return 0;
 }
 
 void Pos_schedule::add(pos_info pos) {
