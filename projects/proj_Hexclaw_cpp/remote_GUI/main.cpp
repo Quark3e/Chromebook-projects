@@ -42,6 +42,11 @@
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_allegro5.h>
 
+#include <dirent.h>
+
+#include <filesystem>
+// namespace fs = std::filesystem;
+
 
 #define WIN_WIDTH   600
 #define WIN_HEIGHT  600
@@ -115,6 +120,23 @@ void tab_1(void);
 
 int main(int argc, char** argv) {
 
+    std::string path = getFileCWD(true);
+    std::cout<<path<<std::endl;
+    DIR* dir;
+    struct dirent *ent;
+    if((dir=opendir(path.c_str()))!=NULL) {
+        while((ent=readdir(dir))!=NULL) {
+            // std::cout<<ent->d_type<<": ";
+            std::cout<<ent->d_name<<"\n";
+        }
+        closedir(dir);
+    }
+    else {
+        perror("could not open directory");
+        return EXIT_FAILURE;
+    }
+    std::cout<<std::endl;
+    // for(const auto& entry: std::filesystem)
 
     guiSettings_desc.add("Link to server", std::string("whether to attempt to connect to Hexclaw Server at intervals"));
     guiSettings_desc.add("findOrient", std::string("whether to look for a valid orient if a given pos+orient gives invalid `getAngles` error"));

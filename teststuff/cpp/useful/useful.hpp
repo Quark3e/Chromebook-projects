@@ -556,8 +556,9 @@ float toRadians(float degrees) { return float(degrees*M_PI)/180; }
 */
 std::string getFileCWD(bool inclEndSlash=true) {
     char cwd[PATH_MAX];
-    std::string returStr = cwd;
     if(getcwd(cwd, sizeof(cwd)) != NULL) {
+        // std::cout<<cwd<<std::endl;
+        std::string returStr = cwd;
         if(inclEndSlash) return returStr+"/";
         else return returStr;
     }
