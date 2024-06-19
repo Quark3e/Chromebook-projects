@@ -682,7 +682,7 @@ std::vector<std::string> splitString(
     std::vector<std::string> resultStrings;
     if(line.find(delimiter)==std::string::npos) {
         resultStrings.push_back(line);
-        std::cout << "error: splitString: no delimiter \"" << delimiter << "\" found. Returning empty vector\n";
+        if(printVar) std::cout << "error: splitString: no delimiter \"" << delimiter << "\" found. Returning empty vector\n";
         return resultStrings;
     }
     while(true) {
