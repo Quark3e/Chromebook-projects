@@ -332,8 +332,9 @@ void splitString(std::string line, std::string delimiter, float returnArr[], int
  * @param line std::string to split.
  * @param delimiter std::string for where to split the std::string `line` by.
  * @param printVar whether to print each delimiter and substring
+ * @param causeError whether to end program and throw an error if `line` doesn't contain `delimiter`
 */
-std::vector<std::string> splitString(std::string line, std::string delimiter, bool printVar);
+std::vector<std::string> splitString(std::string line, std::string delimiter, bool printVar=false, bool causeError=false);
 /**
  * @brief Split `line` std::string by each `delimiter` and pass the result to reference parameter `returnVec`
  * @param line std::string to split.
@@ -675,7 +676,8 @@ void splitString(
 std::vector<std::string> splitString(
     std::string line,
     std::string delimiter,
-    bool printVar=false
+    bool printVar,
+    bool causeError
 ) {
     if(printVar) std::cout << "--- \"" << line << "\"\n";
     std::vector<std::string> resultStrings;
@@ -684,6 +686,7 @@ std::vector<std::string> splitString(
 
     if(idx1==std::string::npos) {
         resultStrings.push_back(line);
+        if(causeError) throw std::runtime_error("std::vector<std::string> splitString(std::string, std::string, bool, bool) delimiter doesn't exist in `line`");
         if(printVar) std::cout << "error: splitString: no delimiter \"" << delimiter << "\" found. Returning empty vector\n";
         return resultStrings;
     }
@@ -691,8 +694,9 @@ std::vector<std::string> splitString(
     while(true) {
         resultStrings.push_back(line.substr(idx0, idx1-idx0));
         if(idx1==std::string::npos) break;
-        for(;line.substr(idx1+delimiter.length(),delimiter.length())==delimiter; idx1+=delimiter.length());
+        for(;line.substr(idx1+delimiter.length(), delimiter.length())==delimiter; idx1+=delimiter.length());
         idx0 = idx1+delimiter.length();
+        if(idx0==line.length()) break;
         idx1 = line.find(delimiter, idx0);
     }
 

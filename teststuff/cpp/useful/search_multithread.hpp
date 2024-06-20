@@ -214,6 +214,18 @@ namespace DIY_SEARCH_MULTITHREAD
         return pos.at(0);
     }
 
+    template<typename _check>
+    int check_existence(
+        _check key,
+        const _check arr[],
+        int arrLen
+    ) {
+        for(int i=0; i<arrLen; i++) {
+            if(key==arr[i]) return i;
+        }
+        return -1;
+    }
+
 }
 
 

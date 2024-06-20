@@ -8,6 +8,9 @@
 #include <math.h>
 #include <vector>
 
+#include <HC_useful/useful.hpp>
+#include <HC_useful/search_multithread.hpp>
+
 
 #define NULL_POS_POINT 42069
 
@@ -97,9 +100,24 @@ namespace IK_PATH {
         int G_plane     = 17;   //Plane selection: `17`-XY; `18`-XZ; `19`-YZ
         int G_posit     = 90;   //Coordinate positioning: `90`-absolute; `91`-relative to previous
 
-        int F_feedrate  = 100;  //Speed of movement: `{G_unit}/min`
+        int G_motion    =  0;
 
-        bool _parse_line(std::string line);
+        int F_feedrate  =100;  //Speed of movement: `{G_unit}/min`
+
+        const char _valid_letters[10] = {
+            'G',
+            'M',
+            'F',
+            'P',
+            'S',
+            'X',
+            'Y',
+            'Z',
+            'I',
+            'J',
+        };
+
+        bool _parse_line(std::string line, bool throwError = false);
         public:
         GCODE_schedule(/* args */);
         ~GCODE_schedule();
@@ -108,10 +126,70 @@ namespace IK_PATH {
 
 }
 
-bool IK_PATH::GCODE_schedule::_parse_line(std::string line) {
-    std::vector<std::string> 
+bool IK_PATH::GCODE_schedule::_parse_line(std::string line, bool throwError) {
+    bool valid_line = false;
 
-    return true;
+    bool valid_arg0 = false;
+    bool valid_arg1 = false;
+
+    std::vector<std::string> args = splitString(line, " ");
+    std::vector<char> arg_letts;
+    for(std::string arg: args) arg_letts.push_back(arg[0]);
+
+    int dwell_ms = -1;
+
+    std::string prev_lett = "";
+    int _i = 0;
+    for(std::string arg: args) {
+        bool breakLoop = false;
+        int start_letter = DIY_SEARCH_MULTITHREAD::check_existence<char>(arg[0],this->_valid_letters, 10);
+        if(start_letter==-1) continue;
+        int arg_value = 0;
+        try {
+            arg_value = std::stoi(arg.substr(1,arg.length()));
+        }
+        catch(const std::exception& e) {
+            std::cerr << e.what() << '\n';
+            if(throwError) exit(1);
+            continue;
+        }
+        
+        switch (_valid_letters[start_letter]) {
+            case 'G':
+                switch (arg_value) {
+                    case  0: this->G_motion =  0; break;
+                    case  1: this->G_motion =  1; break;
+                    case  2: this->G_motion =  2; break;
+                    case  3: this->G_motion =  3; break;
+                    case 17: this->G_plane  = 17; break;
+                    case 18: this->G_plane  = 18; break;
+                    case 19: this->G_plane  = 19; break;
+                    case 20: this->G_unit   = 20; break;
+                    case 21: this->G_unit   = 21; break;
+                    case 90: this->G_posit  = 90; break;
+                    case 91: this->G_posit  = 91; break;
+                    default: break;
+                }
+            break;
+            case 'M': /*haven't started here because I'll likely never use this for this letters intended purposes in the near future*/
+            break;
+            case 'F': this->F_feedrate = arg_value; break;
+            case 'P':
+            if(prev_lett=="G04") {
+                dwell_ms = arg_value;
+            }
+            break;
+
+        default: break;
+        }
+        if(breakLoop) break;
+
+
+        prev_lett = arg;
+        _i++;
+    }
+
+    return valid_line;
 }
 
 
