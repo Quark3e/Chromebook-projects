@@ -678,23 +678,24 @@ std::vector<std::string> splitString(
     bool printVar=false
 ) {
     if(printVar) std::cout << "--- \"" << line << "\"\n";
-    size_t pos = 0;
     std::vector<std::string> resultStrings;
-    if(line.find(delimiter)==std::string::npos) {
+    size_t idx0 = 0;
+    size_t idx1 = line.find(delimiter, idx0);
+
+    if(idx1==std::string::npos) {
         resultStrings.push_back(line);
         if(printVar) std::cout << "error: splitString: no delimiter \"" << delimiter << "\" found. Returning empty vector\n";
         return resultStrings;
     }
+
     while(true) {
-        pos = line.find(delimiter);
-        if(printVar) std::cout << "- pos:" << pos << " :" << line.substr(0, pos) << "\n";
-        resultStrings.push_back(line.substr(0, pos));
-        line.erase(0, pos + delimiter.length());
-        if(line.find(delimiter)==std::string::npos) {
-            resultStrings.push_back(line);
-            break;
-        }
+        resultStrings.push_back(line.substr(idx0, idx1-idx0));
+        if(idx1==std::string::npos) break;
+        for(;line.substr(idx1+delimiter.length(),delimiter.length())==delimiter; idx1+=delimiter.length());
+        idx0 = idx1+delimiter.length();
+        idx1 = line.find(delimiter, idx0);
     }
+
     if(printVar) std::cout << "---";
     return resultStrings;
 }
