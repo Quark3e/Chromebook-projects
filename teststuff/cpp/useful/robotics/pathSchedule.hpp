@@ -94,7 +94,7 @@ namespace IK_PATH {
         std::string _info_name = "GCODE_schedule";
 
         std::vector<std::string> _commands;
-        
+        std::vector<std::string> _commands_raw;
 
         int G_unit      = 21;   //Unit: `21`-Metric[mm]; `20`-Imperial[inch]
         int G_plane     = 17;   //Plane selection: `17`-XY; `18`-XZ; `19`-YZ
@@ -132,6 +132,9 @@ bool IK_PATH::GCODE_schedule::_parse_line(std::string line, bool throwError) {
     bool valid_arg0 = false;
     bool valid_arg1 = false;
 
+    std::string arg_0 = "";
+    std::string arg_1 = "";
+
     std::vector<std::string> args = splitString(line, " ");
     std::vector<char> arg_letts;
     for(std::string arg: args) arg_letts.push_back(arg[0]);
@@ -155,19 +158,20 @@ bool IK_PATH::GCODE_schedule::_parse_line(std::string line, bool throwError) {
         }
         
         switch (_valid_letters[start_letter]) {
+            bool temp_valid_arg0 = false;
             case 'G':
                 switch (arg_value) {
-                    case  0: this->G_motion =  0; break;
-                    case  1: this->G_motion =  1; break;
-                    case  2: this->G_motion =  2; break;
-                    case  3: this->G_motion =  3; break;
-                    case 17: this->G_plane  = 17; break;
-                    case 18: this->G_plane  = 18; break;
-                    case 19: this->G_plane  = 19; break;
-                    case 20: this->G_unit   = 20; break;
-                    case 21: this->G_unit   = 21; break;
-                    case 90: this->G_posit  = 90; break;
-                    case 91: this->G_posit  = 91; break;
+                    case  0: this->G_motion =  0; temp_valid_arg0 = true; break;
+                    case  1: this->G_motion =  1; temp_valid_arg0 = true; break;
+                    case  2: this->G_motion =  2; temp_valid_arg0 = true; break;
+                    case  3: this->G_motion =  3; temp_valid_arg0 = true; break;
+                    case 17: this->G_plane  = 17; temp_valid_arg0 = true; break;
+                    case 18: this->G_plane  = 18; temp_valid_arg0 = true; break;
+                    case 19: this->G_plane  = 19; temp_valid_arg0 = true; break;
+                    case 20: this->G_unit   = 20; temp_valid_arg0 = true; break;
+                    case 21: this->G_unit   = 21; temp_valid_arg0 = true; break;
+                    case 90: this->G_posit  = 90; temp_valid_arg0 = true; break;
+                    case 91: this->G_posit  = 91; temp_valid_arg0 = true; break;
                     default: break;
                 }
             break;
@@ -180,7 +184,8 @@ bool IK_PATH::GCODE_schedule::_parse_line(std::string line, bool throwError) {
             }
             break;
 
-        default: break;
+            default: break;
+            if(temp_valid_arg0) valid_arg0 = true;
         }
         if(breakLoop) break;
 
