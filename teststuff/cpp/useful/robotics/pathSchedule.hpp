@@ -88,21 +88,52 @@ namespace IK_PATH {
 
     };
 
+    /**
+     * Syntax of (some) GCode arguments.
+     * Symbol definition
+     * `a,b`    - and/or: either or both values on either side of the symbol.
+     * `(a,b)`  - must: atleast one of the symbols/args inside the parenthesis has to exist.
+     * `a/(b,c)`- either of the symbols must be called.
+     * `{num}`  - letter must be accompanied with a value
+     */
+    const std::vector<std::vector<std::string>> GCODE_Syntax
+    {
+        {"M03"},
+        {"M04"},
+        {"M05"},
+        {"M30"},
+        {"G00", "(X,Y,Z)"},
+        {"G01", "(X,Y,Z)"},
+        {"G02", "(X,Y,Z)", "(I,J)/(R)"},
+        {"G03", "(X,Y,Z)", "(I,J)/(R)"},
+        {"G04", "(P)"},
+        {"G17+"},
+        {"G18+"},
+        {"G19+"},
+        {"G20+"},
+        {"G21+"},
+        {"G90+"},
+        {"G91+"},
+        {"F{NUM}"},
+        {"%"}
+    };
 
     class GCODE_schedule {
         private:
         std::string _info_name = "GCODE_schedule";
 
-        std::vector<std::string> _commands;
-        std::vector<std::string> _commands_raw;
+        std::vector<std::string>                _commands_raw;  //raw lines of commands
+        std::vector<std::vector<std::string>>   _commands;      //parsed commands separated into elements in a lvl1 vector
+
 
         int G_unit      = 21;   //Unit: `21`-Metric[mm]; `20`-Imperial[inch]
         int G_plane     = 17;   //Plane selection: `17`-XY; `18`-XZ; `19`-YZ
         int G_posit     = 90;   //Coordinate positioning: `90`-absolute; `91`-relative to previous
-
         int G_motion    =  0;
+        int F_feedrate  = 10;  //Speed of movement: `{G_unit}/min`
 
-        int F_feedrate  =100;  //Speed of movement: `{G_unit}/min`
+        float ref_pos[3] = {0, 0, 0};
+
 
         const char _valid_letters[10] = {
             'G',
@@ -117,15 +148,43 @@ namespace IK_PATH {
             'J',
         };
 
-        bool _parse_line(std::string line, bool throwError = false);
+        // std::string _parse_line(std::string line, bool throwError = false);
+
+
+        bool _parse_line(std::string& line);
+        std::string _parse_error_msg = "";
         public:
+
+        bool _arg_isNumber(std::string argToCheck, const int* solvedValue);
+        std::string operator[](size_t i) const;
+        
         GCODE_schedule(/* args */);
         ~GCODE_schedule();
-    
+
+
+        int add(std::string newCommand);
+        int insert(size_t idx, std::string newCommand);
+        int replace(size_t idx, std::string newCommand);
+        int erase(size_t idx);
     };
 
 }
 
+bool IK_PATH::GCODE_schedule::_arg_isNumber(std::string argToCheck, const int* solvedValue) {
+    static int _solvedValue = 0;
+    try {
+        _solvedValue = std::stoi(argToCheck.substr(1));
+        solvedValue = &_solvedValue;
+    }
+    catch(const std::exception& e) {
+        // std::cerr << e.what() << '\n';
+        solvedValue = nullptr;
+        return false;
+    }
+    return true;
+}
+
+/*
 bool IK_PATH::GCODE_schedule::_parse_line(std::string line, bool throwError) {
     bool valid_line = false;
 
@@ -175,7 +234,7 @@ bool IK_PATH::GCODE_schedule::_parse_line(std::string line, bool throwError) {
                     default: break;
                 }
             break;
-            case 'M': /*haven't started here because I'll likely never use this for this letters intended purposes in the near future*/
+            case 'M': haven't started here because I'll likely never use this for this letters intended purposes in the near future
             break;
             case 'F': this->F_feedrate = arg_value; break;
             case 'P':
@@ -197,9 +256,47 @@ bool IK_PATH::GCODE_schedule::_parse_line(std::string line, bool throwError) {
     return valid_line;
 }
 
+*/
+
+bool IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
+    std::vector<std::string> args = splitString(line, " ");
+    bool isValid = false;
+
+
+
+    if(args.size()<=1 && !(args[0]=="" || args[0]=="")) {
+        return false;
+    }
+
+    if(args[0]=="G00")
+
+    return isValid;
+}
+
+std::string IK_PATH::GCODE_schedule::operator[](size_t i) const {
+    if(i>=this->_commands_raw.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::operator[](size_t) input index is bigger than stored commands");
+    return const_cast<std::string&>(_commands_raw.at(i));
+}
 
 IK_PATH::GCODE_schedule::GCODE_schedule(/* args */) {}
 IK_PATH::GCODE_schedule::~GCODE_schedule() {}
+
+int IK_PATH::GCODE_schedule::add(std::string newCommand) {
+
+}
+int IK_PATH::GCODE_schedule::insert(size_t idx, std::string newCommand) {
+    if(idx>=this->_commands.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::insert(size_t, std::string) input index is bigger than stored commands");
+
+}
+int IK_PATH::GCODE_schedule::replace(size_t idx, std::string newCommand) {
+    if(idx>=this->_commands.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::replace(size_t, std::string) input index is bigger than stored commands");
+
+}
+int IK_PATH::GCODE_schedule::erase(size_t idx) {
+    if(idx>=this->_commands.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::erase(size_t) input index is bigger than stored commands");
+
+}
+
 
 
 
@@ -216,13 +313,11 @@ IK_PATH::pos_point& IK_PATH::Pos_schedule::operator[](size_t i) const {
     return const_cast<pos_point&>(_points.at(i));
 }
 
-
 IK_PATH::Pos_schedule::Pos_schedule(/* args */) {
 
 }
 IK_PATH::Pos_schedule::~Pos_schedule() {
 }
-
 
 void IK_PATH::Pos_schedule::_call_error(int code, std::string from_member, std::string custom_error) {
     if(from_member.length()!=0) from_member = "::"+from_member;
@@ -273,7 +368,6 @@ void IK_PATH::Pos_schedule::_fill_pos_point(pos_point& _toCheck, int idx) {
     
 }
 
-
 const float IK_PATH::Pos_schedule::x(size_t idx) {
     if(idx>=this->_points.size()) this->_call_error(0, "insert(size_t, pos_point)");
     return this->_points.at(idx).x;
@@ -299,7 +393,6 @@ const float IK_PATH::Pos_schedule::Y(size_t idx) {
     return this->_points.at(idx).Y;
 }
 
-
 void IK_PATH::Pos_schedule::add(pos_point pos) {
     this->_fill_pos_point(pos);
     this->_points.push_back(pos);
@@ -318,7 +411,6 @@ void IK_PATH::Pos_schedule::add_tilt(float a, float B, float Y) {
     this->_fill_pos_point(tempObj);
     this->_points.push_back(tempObj);
 }
-
 
 void IK_PATH::Pos_schedule::insert(size_t idx, pos_point pos) {
     if(idx>=this->_points.size()) this->_call_error(0, "insert(size_t, pos_point)");
