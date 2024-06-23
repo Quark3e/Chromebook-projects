@@ -91,18 +91,19 @@ namespace IK_PATH {
     /**
      * Syntax of (some) GCode arguments.
      * Symbol definition
-     * `a,b`    - and/or: either or both values on either side of the symbol.
-     * `(a,b)`  - must: atleast one of the symbols/args inside the parenthesis has to exist.
-     * `a/(b,c)`- either of the symbols must be called.
-     * `{num}`  - letter must be accompanied with a value
+     * `,`: `a,b`    - and/or: either or both values on either side of the symbol.
+     * `(`: `(a,b)`   - must: atleast one of the symbols/args inside the parenthesis has to exist.
+     * `/`: `a/(b,c)`- either of the symbols must be called but never both.
+     *    : `{INT}`  - letter must be accompanied with an integer number/value.
+     * `+`: `a+`     - another code can be called after the code with this symbol
      */
-    const std::vector<std::vector<std::string>> GCODE_Syntax
-    {
+    const std::vector<std::vector<std::string>> GCODE_Syntax {
+        {"%"},
         {"M03"},
         {"M04"},
         {"M05"},
         {"M30"},
-        {"G00", "(X,Y,Z)"},
+        {"G00", "(X,Y,Z)"}, //U V W
         {"G01", "(X,Y,Z)"},
         {"G02", "(X,Y,Z)", "(I,J)/(R)"},
         {"G03", "(X,Y,Z)", "(I,J)/(R)"},
@@ -114,12 +115,12 @@ namespace IK_PATH {
         {"G21+"},
         {"G90+"},
         {"G91+"},
-        {"F{NUM}"},
-        {"%"}
+        {"F{INT}"}
     };
 
     class GCODE_schedule {
         private:
+
         std::string _info_name = "GCODE_schedule";
 
         std::vector<std::string>                _commands_raw;  //raw lines of commands
@@ -150,14 +151,20 @@ namespace IK_PATH {
 
         // std::string _parse_line(std::string line, bool throwError = false);
 
-
+        int  _syntax_idx(std::string arg, bool* gcode_additional=nullptr);
         bool _parse_line(std::string& line);
+        std::vector<std::string> _lastParsed_args;
         std::string _parse_error_msg = "";
+
         public:
+        bool verbose = false;
+
+        const std::string get_errorMsg_parse() { return _parse_error_msg; }
 
         bool _arg_isNumber(std::string argToCheck, const int* solvedValue);
         std::string operator[](size_t i) const;
-        
+        std::vector<std::string> commands() { return this->_commands_raw; }
+
         GCODE_schedule(/* args */);
         ~GCODE_schedule();
 
@@ -258,17 +265,127 @@ bool IK_PATH::GCODE_schedule::_parse_line(std::string line, bool throwError) {
 
 */
 
-bool IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
-    std::vector<std::string> args = splitString(line, " ");
-    bool isValid = false;
-
-
-
-    if(args.size()<=1 && !(args[0]=="" || args[0]=="")) {
-        return false;
+/**
+ * @brief find index to vector for given code (ex. "G01") in `IK_PATH::GCODE_Syntax`
+ * 
+ * @param arg the string of code to find in `IK_PATH::GCODE_Syntax` 2d vector
+ * @param gcode_additional pointer to a boolean for whether the indexed element[0] contains `+`
+ * @return `int` type of index. If index not found then it'll return `-1`.
+ */
+int IK_PATH::GCODE_schedule::_syntax_idx(std::string arg, bool* gcode_additional) {
+    int idx = 0;
+    (*gcode_additional) = false;
+    for(std::vector<std::string> _codeLine: GCODE_Syntax) {
+        if(_codeLine[0][_codeLine[0].length()-1]=='+') {
+            if(arg==_codeLine[0].substr(0, _codeLine[0].length()-1)) {
+                (*gcode_additional) = true;
+                return idx;
+            }
+        }
+        else if(_codeLine[0][0]=='F') {
+            return idx;
+        }
+        else {
+            if(arg==_codeLine[0]) return idx;
+        }
+        idx++;
     }
+    return -1;
+}
 
-    if(args[0]=="G00")
+bool IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
+    bool gcode_additional = true;
+    int successful_parsed = 0;
+
+    /**
+     * @brief parse the required code letters from IK_PATH::GCODE_Syntax.
+     * @param _arg0 index to line in IK_PATH::GCODE_Syntax
+     * @param _arg1 index to element in line of `_arg0` vector
+     * @return `std::vector<std::string>` of the letters of codes:
+     * @note example: `"(A,B)/(C)"` -> {`"AB"`, `"C"`}
+     */
+    static auto lambda_parseAlt = [](int _arg0, int _arg1) {
+        std::vector<std::string> splits;
+        if(_arg0>=IK_PATH::GCODE_Syntax.size() || _arg1>=IK_PATH::GCODE_Syntax[_arg0].size()) return splits;
+        std::string toCheck = IK_PATH::GCODE_Syntax[_arg0][_arg1];
+
+        for(size_t _c=0; _c<toCheck.length(); _c++) {
+            char currChar = toCheck[_c];
+            if(currChar=='(') splits.push_back(std::string(""));
+            else if(
+                currChar==',' || currChar=='/' || currChar==')'
+            ) continue;
+            else splits[splits.size()-1]+=toCheck[_c];
+        }
+        return splits;
+    };
+    
+    
+    std::vector<std::string> args = splitString(line, " ");
+    bool isValid = true;
+
+    int plusIter = 0;
+    while(gcode_additional) {
+        int arg0_idx = this->_syntax_idx(args[plusIter], &gcode_additional);
+        size_t idx_syntax_size = IK_PATH::GCODE_Syntax[arg0_idx].size();
+
+        if(arg0_idx==-1) {
+            this->_parse_error_msg = "arg["+std::to_string(plusIter)+"]: \""+args[plusIter]+"\" does not exist in IK_PATH::GCODE_Syntax.";
+            return false;
+        }
+        if((args.size()-plusIter)<idx_syntax_size) {
+            this->_parse_error_msg = "input string of arguments does not contain minimum number of arguments for gcode code:\""+args[plusIter]+"\".";
+            return false;
+        }
+        // args[0] found
+
+        int currentArgsLen_0= plusIter;
+        int currentArgsLen  = idx_syntax_size-1;
+        for(int i=0; i<idx_syntax_size; i++) {
+            currentArgsLen += args[i].length();
+            if(i<=plusIter) currentArgsLen_0 += args[i].length();
+        }
+
+        bool __temp = true;
+        // Searching for args[>0] matches
+        for(size_t i=1; i<idx_syntax_size; i++) {
+            __temp = false;
+            //Go through GCODE_syntax[arg0_idx]{}.
+            //This for() loop shouldn't occur for current codes with `+` symbol as their length is only 1.
+            // -in the future if I want to use `+` symbol for codes with parameters then I think I'll need to find string
+            // -start and end pos of those parameters associated with said code. (???)
+
+            int vecCount = 0;
+            std::vector<std::string> _alt = lambda_parseAlt(arg0_idx, i); // ->{"AB", "C"}
+            for(std::string _ii: _alt) {
+                for(int _iii=0; _iii<_ii.length(); _iii++) {
+                    if(line.substr(currentArgsLen_0,currentArgsLen).find(_ii[_iii])!=std::string::npos) {
+                        vecCount++;
+                        break;
+                    }
+                }
+            }
+            if(vecCount==0) {
+                this->_parse_error_msg = "followup arguments to code \""+args[plusIter]+"\" does not contain any of the obligatory args: \""+GCODE_Syntax[arg0_idx][i]+"\".";
+                return false;
+            }
+            else if(vecCount>=2) {
+                this->_parse_error_msg = "followup arguments to code \""+args[plusIter]+"\" contain either both of types not allowed to co-exist or has same arg repeated.";
+                return false;
+            }
+            successful_parsed++;
+        }
+        if(__temp) successful_parsed++;
+        plusIter++;
+    }
+    std::string newStr = "";
+    for(std::string arg: args) newStr+=arg;
+    line = newStr;
+
+    // filter out comments and whatnot and store that in _lastParsed_args.
+    std::vector<std::string> tempVec;
+    for(int i=0; i<successful_parsed; i++) tempVec.push_back(args[i]);
+    this->_lastParsed_args = tempVec; 
 
     return isValid;
 }
@@ -282,19 +399,41 @@ IK_PATH::GCODE_schedule::GCODE_schedule(/* args */) {}
 IK_PATH::GCODE_schedule::~GCODE_schedule() {}
 
 int IK_PATH::GCODE_schedule::add(std::string newCommand) {
-
+    if(!(this->_parse_line(newCommand))) {
+        if(this->verbose) std::cout << this->_parse_error_msg << std::endl;
+        return 1;
+    }
+    this->_commands.push_back(this->_lastParsed_args);
+    this->_commands_raw.push_back(newCommand);
+    
+    return 0;
 }
 int IK_PATH::GCODE_schedule::insert(size_t idx, std::string newCommand) {
     if(idx>=this->_commands.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::insert(size_t, std::string) input index is bigger than stored commands");
-
+    if(!(this->_parse_line(newCommand))) {
+        if(this->verbose) std::cout << this->_parse_error_msg << std::endl;
+        return 1;
+    }
+    this->_commands.insert(this->_commands.begin()+idx, this->_lastParsed_args);
+    this->_commands_raw.insert(this->_commands_raw.begin()+idx, newCommand);
+    
+    return 0;
 }
 int IK_PATH::GCODE_schedule::replace(size_t idx, std::string newCommand) {
     if(idx>=this->_commands.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::replace(size_t, std::string) input index is bigger than stored commands");
-
+    if(!(this->_parse_line(newCommand))) {
+        if(this->verbose) std::cout << this->_parse_error_msg << std::endl;
+        return 1;
+    }
+    this->_commands[idx] = this->_lastParsed_args;
+    this->_commands_raw[idx] = newCommand;
+    
+    return 0;
 }
 int IK_PATH::GCODE_schedule::erase(size_t idx) {
     if(idx>=this->_commands.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::erase(size_t) input index is bigger than stored commands");
-
+    this->_commands.erase(this->_commands.begin()+idx);
+    this->_commands_raw.erase(this->_commands_raw.begin()+idx);
 }
 
 
