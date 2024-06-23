@@ -273,8 +273,7 @@ void tab_0(void) {
 
 
     static std::string outMsg = "";
-
-    
+ 
     // perf_tab0.set_T0("group:0"); //perf time_point:0
     ImGui::BeginGroup();
     if(takePerf_tab_0) perf_tab0.set_T0("T:IK_input"); //perf time_point:0
@@ -313,7 +312,10 @@ void tab_0(void) {
         const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y+ImGui::GetFrameHeightWithSpacing();
         if(ImGui::BeginChild("ScrollingRegion", ImVec2(0,WIN_INPUT_SETTINGS_HEIGHT-WIN_INPUT_IK_HEIGHT-75),ImGuiChildFlags_None,ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NavFlattened)) {
             for(int i=0; i<tab0_schedule.size(); i++) {
-                ImGui::TextUnformatted(std::string(">> "+tab0_schedule[i]).c_str());
+                std::string tempStr = "";
+                for(int ii=0; ii<tab0_schedule[i].size(); ii++) tempStr+=tab0_schedule[i][ii]+" ";
+                // ImGui::TextUnformatted(std::string(">> "+DIY::prettyPrint_vec1<std::string>(tab0_schedule[i])).c_str());
+                ImGui::TextUnformatted(std::string(">> "+tempStr).c_str());
             }
 
             ImGui::EndChild();
