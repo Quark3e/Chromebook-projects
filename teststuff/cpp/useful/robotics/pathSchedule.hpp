@@ -350,15 +350,26 @@ bool IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
         bool __temp = true;
         // Searching for args[>0] matches
         for(size_t i=1; i<idx_syntax_size; i++) {
-            currentArgsLen_0 = i;
-            currentArgsLen = i;
-            for(int i1=0; i1<i; i1++) currentArgsLen_0 += args[i1].length();
-            //idx_syntax_size != args.length();
-            for(int i1=i; i1<idx_syntax_size; i1++) {
-                std::cout<<">"<<args[i1]<<"|";
-                currentArgsLen += args[i1].length();
+            std::vector<std::string> _alt = lambda_parseAlt(arg0_idx, i); // ->{"AB", "C"}
+            //one two three four one2
+
+            currentArgsLen_0= i-1;
+            currentArgsLen  = idx_syntax_size-(i)-1; //line.length();
+            int _ii = 0;
+            for(std::string _arg: args) {
+                if(_ii>=i)  currentArgsLen  +=_arg.length();
+                if(_ii<i)   currentArgsLen_0+=_arg.length();
+                _ii++;
             }
-            std::cout<<"len:"<<currentArgsLen<<"|";
+            // for(int i1=1; i1<=i; i1++) {
+            //     currentArgsLen_0 += args[i1].length();
+            // }
+            // //idx_syntax_size != args.length();
+            // for(int i1=_alt.size(); i1>i; i1--) {
+            //     std::cout<<"["<<args[i+i1]<<"]"<<args[i1].length()<<"|";
+            //     currentArgsLen += args[i1].length();
+            // }
+            std::cout<<" {"<<currentArgsLen_0<<", "<<currentArgsLen<<"}|";
 
             __temp = false;
             //Go through GCODE_syntax[arg0_idx]{}.
@@ -367,19 +378,17 @@ bool IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
             // -start and end pos of those parameters associated with said code. (???)
 
             int vecCount = 0;
-            std::cout<<"|i:"<<i<<"|";
-            std::vector<std::string> _alt = lambda_parseAlt(arg0_idx, i); // ->{"AB", "C"}
+            // std::cout<<"|i:"<<i<<"|";
             for(std::string _ii: _alt) {
-                std::cout<<"ii:" <<_ii<<"|s:"<<line.substr(currentArgsLen_0, currentArgsLen)<<"|";
+                // std::cout<<"ii:" <<_ii<<"|s:"<<line.substr(currentArgsLen_0, currentArgsLen)<<"|";
                 for(int _iii=0; _iii<_ii.length(); _iii++) {
                     if(line.substr(currentArgsLen_0, currentArgsLen).find(_ii[_iii])!=std::string::npos) {
                         vecCount++;
                         break;
                     }
                 }
-                std::cout << "v"<<vecCount<<"|";
+                // std::cout << "v"<<vecCount<<"|";
             }
-            std::cout<<std::endl;
             if(vecCount==0) {
                 this->_parse_error_msg = "followup arguments to code \""+args[plusIter]+"\" does not contain any of the obligatory args: \""+GCODE_Syntax[arg0_idx][i]+"\".";
                 return false;
@@ -389,7 +398,9 @@ bool IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
                 return false;
             }
             successful_parsed++;
+            // std::cout<<" ";
         }
+        std::cout<<std::endl;
         if(__temp) successful_parsed++;
         plusIter++;
     }

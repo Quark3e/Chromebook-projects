@@ -313,7 +313,7 @@ void tab_0(void) {
         const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y+ImGui::GetFrameHeightWithSpacing();
         if(ImGui::BeginChild("ScrollingRegion", ImVec2(0,WIN_INPUT_SETTINGS_HEIGHT-WIN_INPUT_IK_HEIGHT-75),ImGuiChildFlags_None,ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NavFlattened)) {
             for(int i=0; i<tab0_schedule.size(); i++) {
-                ImGui::TextUnformatted(tab0_schedule[i].c_str());
+                ImGui::TextUnformatted(std::string(">> "+tab0_schedule[i]).c_str());
             }
 
             ImGui::EndChild();
