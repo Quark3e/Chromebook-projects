@@ -7,6 +7,7 @@
 #include <string>
 #include <math.h>
 #include <vector>
+#include <fstream>
 
 #include <HC_useful/useful.hpp>
 #include <HC_useful/search_multithread.hpp>
@@ -157,8 +158,9 @@ namespace IK_PATH {
         std::string _parse_error_msg = "";
 
         public:
-        bool verbose = false;
-
+        bool verbose = true;
+        
+        size_t size() { return this->_commands_raw.size(); }
         const std::string get_errorMsg_parse() { return _parse_error_msg; }
 
         bool _arg_isNumber(std::string argToCheck, const int* solvedValue);
@@ -167,6 +169,8 @@ namespace IK_PATH {
 
         GCODE_schedule(/* args */);
         ~GCODE_schedule();
+
+        bool loadFile(std::string filename);
 
 
         int add(std::string newCommand);
@@ -339,16 +343,23 @@ bool IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
         }
         // args[0] found
 
-        int currentArgsLen_0= plusIter;
+        int currentArgsLen_0= idx_syntax_size-1;
         int currentArgsLen  = idx_syntax_size-1;
-        for(int i=0; i<idx_syntax_size; i++) {
-            currentArgsLen += args[i].length();
-            if(i<=plusIter) currentArgsLen_0 += args[i].length();
-        }
 
+        std::cout<<"size:"<<idx_syntax_size<<"|";
         bool __temp = true;
         // Searching for args[>0] matches
         for(size_t i=1; i<idx_syntax_size; i++) {
+            currentArgsLen_0 = i;
+            currentArgsLen = i;
+            for(int i1=0; i1<i; i1++) currentArgsLen_0 += args[i1].length();
+            //idx_syntax_size != args.length();
+            for(int i1=i; i1<idx_syntax_size; i1++) {
+                std::cout<<">"<<args[i1]<<"|";
+                currentArgsLen += args[i1].length();
+            }
+            std::cout<<"len:"<<currentArgsLen<<"|";
+
             __temp = false;
             //Go through GCODE_syntax[arg0_idx]{}.
             //This for() loop shouldn't occur for current codes with `+` symbol as their length is only 1.
@@ -356,15 +367,19 @@ bool IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
             // -start and end pos of those parameters associated with said code. (???)
 
             int vecCount = 0;
+            std::cout<<"|i:"<<i<<"|";
             std::vector<std::string> _alt = lambda_parseAlt(arg0_idx, i); // ->{"AB", "C"}
             for(std::string _ii: _alt) {
+                std::cout<<"ii:" <<_ii<<"|s:"<<line.substr(currentArgsLen_0, currentArgsLen)<<"|";
                 for(int _iii=0; _iii<_ii.length(); _iii++) {
-                    if(line.substr(currentArgsLen_0,currentArgsLen).find(_ii[_iii])!=std::string::npos) {
+                    if(line.substr(currentArgsLen_0, currentArgsLen).find(_ii[_iii])!=std::string::npos) {
                         vecCount++;
                         break;
                     }
                 }
+                std::cout << "v"<<vecCount<<"|";
             }
+            std::cout<<std::endl;
             if(vecCount==0) {
                 this->_parse_error_msg = "followup arguments to code \""+args[plusIter]+"\" does not contain any of the obligatory args: \""+GCODE_Syntax[arg0_idx][i]+"\".";
                 return false;
@@ -379,7 +394,7 @@ bool IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
         plusIter++;
     }
     std::string newStr = "";
-    for(std::string arg: args) newStr+=arg;
+    for(std::string arg: args) newStr+=arg+" ";
     line = newStr;
 
     // filter out comments and whatnot and store that in _lastParsed_args.
@@ -397,6 +412,31 @@ std::string IK_PATH::GCODE_schedule::operator[](size_t i) const {
 
 IK_PATH::GCODE_schedule::GCODE_schedule(/* args */) {}
 IK_PATH::GCODE_schedule::~GCODE_schedule() {}
+
+/**
+ * @brief load gcode file (ex. `.nc` extension) into class object commands storage.
+ * 
+ * @param filename `std::string` of filename with relative or absolute path included
+ * @return `true` if file successfully loaded.
+ * @return `false` if an error occurred trying to load file.
+ */
+bool IK_PATH::GCODE_schedule::loadFile(std::string filename) {
+    std::ifstream readFile;
+    readFile.open(filename);
+    if(!readFile.is_open()) {
+        if(this->verbose) std::cout << "Could not open filename: \""+filename+"\""<<std::endl;
+        return false;
+    }
+
+    std::string line;
+    for(int i=1; getline(readFile, line); i++) {
+        if(this->add(line)==1) {
+            if(this->verbose) std::cout << "failed to read line: "<<i<<std::endl;
+            return false;
+        }
+    }
+    return true;
+}
 
 int IK_PATH::GCODE_schedule::add(std::string newCommand) {
     if(!(this->_parse_line(newCommand))) {

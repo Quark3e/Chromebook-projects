@@ -34,6 +34,7 @@
 #include <HC_useful/useful.hpp>
 #include <HC_useful/diy_dictionary.hpp>
 #include <HC_useful/diy_performance.hpp>
+#include <HC_useful/pathSchedule.hpp>
 #include "../in rpi/IK_header.hpp"
 
 
@@ -250,6 +251,10 @@ int main(int argc, char** argv) {
 
 void tab_0(void) {
 
+    static bool tab0_init = false;
+    static IK_PATH::GCODE_schedule tab0_schedule;
+    if(!tab0_init) tab0_schedule.loadFile("/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/gCode/ex0.nc");
+
     static PERF::perf_isolated perf_tab0;
 
     static ImGuiTableFlags table_flags_IK_out = ImGuiTableFlags_Borders;
@@ -307,7 +312,9 @@ void tab_0(void) {
 
         const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y+ImGui::GetFrameHeightWithSpacing();
         if(ImGui::BeginChild("ScrollingRegion", ImVec2(0,WIN_INPUT_SETTINGS_HEIGHT-WIN_INPUT_IK_HEIGHT-75),ImGuiChildFlags_None,ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NavFlattened)) {
-
+            for(int i=0; i<tab0_schedule.size(); i++) {
+                ImGui::TextUnformatted(tab0_schedule[i].c_str());
+            }
 
             ImGui::EndChild();
         }
@@ -465,6 +472,7 @@ void tab_0(void) {
     if(takePerf_tab_0) Delays_table(perf_tab0,"Delays table","Tab0 delays","Delays table");
     ImGui::EndGroup();
 
+    tab0_init = true;
 }
 
 void tab_1(void) {
