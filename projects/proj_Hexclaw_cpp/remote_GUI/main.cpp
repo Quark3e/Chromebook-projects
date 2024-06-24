@@ -314,8 +314,9 @@ void tab_0(void) {
             for(int i=0; i<tab0_schedule.size(); i++) {
                 std::string tempStr = "";
                 for(int ii=0; ii<tab0_schedule[i].size(); ii++) tempStr+=tab0_schedule[i][ii]+" ";
-                // ImGui::TextUnformatted(std::string(">> "+DIY::prettyPrint_vec1<std::string>(tab0_schedule[i])).c_str());
                 ImGui::TextUnformatted(std::string(">> "+tempStr).c_str());
+                // ImGui::TextUnformatted(std::string(">> "+DIY::prettyPrint_vec1<std::string>(tab0_schedule[i])).c_str());
+                // ImGui::TextUnformatted(tab0_schedule.get_raw(i).c_str());
             }
 
             ImGui::EndChild();

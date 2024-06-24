@@ -7,7 +7,7 @@ M03 S1000
 G00 X5 Y5                 ; point B
 G01 X5 Y5 Z-1             ; point B
 G01 X5 Y15 Z-1            ; point C
-; G03 X9 Y19 Z-1 I4 J0      ; point D
+G03 X9 Y19 Z-1 I4 J0      ; point D
 G02 X4 Y14 Z-1 R4
 G01 X23 Y19 Z-1           ; point E
 G01 X32 Y5 Z-1            ; point F
