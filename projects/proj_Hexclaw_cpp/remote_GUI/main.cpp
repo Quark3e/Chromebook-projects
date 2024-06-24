@@ -253,7 +253,23 @@ void tab_0(void) {
 
     static bool tab0_init = false;
     static IK_PATH::GCODE_schedule tab0_schedule;
-    if(!tab0_init) tab0_schedule.loadFile("/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/gCode/ex0.nc");
+
+    /** History of each tab0_schedule command line
+     *  `int` {"", ""}, *history*
+     *  `int` {"", ""}
+     * }
+     */
+    static DIY::typed_dict<int, std::vector<std::string>> history_scrollingRegions({}, {});
+    static DIY::typed_dict<int, int> history_scrollingRegions_index({}, {}); //index to what history element is currently hovered
+    static int MAX_historySize = 4;
+    if(!tab0_init) {
+        if(!tab0_schedule.loadFile("/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/gCode/ex0.nc")) {
+            // perror("tab0_schedule failed to load")
+        }
+        for(size_t i=0; i<tab0_schedule.size(); i++) {
+            history_scrollingRegions.add(i, std::vector<std::string>{tab0_schedule[i]});
+        }
+    }
 
     static PERF::perf_isolated perf_tab0;
 
@@ -310,15 +326,33 @@ void tab_0(void) {
         ImGui::SeparatorText("IK info");
 
         const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y+ImGui::GetFrameHeightWithSpacing();
+        static char buff_ScrollingRegion[256];
+        // static std::vector<std::vector<std::string>> history_scrollingRegions;
+
+
         if(ImGui::BeginChild("ScrollingRegion", ImVec2(0,WIN_INPUT_SETTINGS_HEIGHT-WIN_INPUT_IK_HEIGHT-75),ImGuiChildFlags_None,ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NavFlattened)) {
+            
             for(int i=0; i<tab0_schedule.size(); i++) {
                 std::string tempStr = "";
                 for(int ii=0; ii<tab0_schedule[i].size(); ii++) tempStr+=tab0_schedule[i][ii]+" ";
-                ImGui::TextUnformatted(std::string(">> "+tempStr).c_str());
+                // ImGui::TextUnformatted(std::string(">> "+tempStr).c_str());
                 // ImGui::TextUnformatted(std::string(">> "+DIY::prettyPrint_vec1<std::string>(tab0_schedule[i])).c_str());
                 // ImGui::TextUnformatted(tab0_schedule.get_raw(i).c_str());
+                snprintf(buff_ScrollingRegion, 256, "%s", tempStr.c_str());
+                // sprintf(buff_ScrollingRegion, "%s", tempStr.c_str());
+                ImGui::TextUnformatted(">>");
+                ImGui::SameLine();
+                if(ImGui::InputText(std::string(" ["+std::to_string(i)+"]").c_str(), buff_ScrollingRegion, IM_ARRAYSIZE(buff_ScrollingRegion))) {
+                    if(tab0_schedule.replace(i, std::string(buff_ScrollingRegion))==0) {
+                        if(history_scrollingRegions[i].size()>MAX_historySize) history_scrollingRegions[i].erase(history_scrollingRegions[i].begin());
+                        history_scrollingRegions[i].push_back(std::string(buff_ScrollingRegion));
+                        
+                    }
+                    else {
+                        
+                    }
+                }
             }
-
             ImGui::EndChild();
         }
         ImGui::Separator();

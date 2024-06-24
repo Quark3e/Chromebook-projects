@@ -562,7 +562,7 @@ namespace DIY {
             if(pos==-1) throw std::runtime_error("ERROR: "+this->_info_name+"::` _store_type`& operator[](): argument for `key` was not found in dictionary.");
             return _values.at(pos);
         }
-        _store_type  operator[] (_key_type key) const   {
+        _store_type  operator[] (_key_type key) const {
             if(!_init_container) throw std::runtime_error("ERROR: "+this->_info_name+"::` _store_type`& operator[](): class containers hasn't been initialized/(are empty)");
             int pos =  check_existence<_key_type>(key, _keys);
             if(pos==-1) throw std::runtime_error("ERROR: "+this->_info_name+"::` _store_type`& operator[](): argument for `key` was not found in dictionary.");
