@@ -336,6 +336,9 @@ void tab_0(void) {
         if(ImGui::BeginChild("ScrollingRegion", ImVec2(0,WIN_INPUT_SETTINGS_HEIGHT-WIN_INPUT_IK_HEIGHT-75),ImGuiChildFlags_None,ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NavFlattened)) {
             
             for(int i=0; i<tab0_schedule.size(); i++) {
+                ImGui::PushID(i);
+
+
                 std::string tempStr = "";
                 for(int ii=0; ii<tab0_schedule[i].size(); ii++) tempStr+=tab0_schedule[i][ii]+" ";
                 // ImGui::TextUnformatted(std::string(">> "+tempStr).c_str());
@@ -345,29 +348,36 @@ void tab_0(void) {
                 // sprintf(buff_ScrollingRegion, "%s", tempStr.c_str());
                 ImGui::TextUnformatted(">>");
                 ImGui::SameLine();
-                // strncpy(buff_temp, buff_ScrollingRegion, 256);
-                if(ImGui::InputText(
-                    std::string(" ["+std::to_string(i)+"]").c_str(), buff_ScrollingRegion, IM_ARRAYSIZE(buff_ScrollingRegion),
-                    ImGuiInputTextFlags_EnterReturnsTrue
-                )) {
-                    // if(strncmp(buff_temp, buff_ScrollingRegion, 256)!=0){
-                    std::cout << "edit called: ";
+                if(ImGui::InputText("", buff_ScrollingRegion, IM_ARRAYSIZE(buff_ScrollingRegion), ImGuiInputTextFlags_EnterReturnsTrue)) {
                     if(tab0_schedule.replace(i, std::string(buff_ScrollingRegion))==0) {
-                        std::cout << "successfully replaced line: ";
                         history_scrollingRegions[i] = tab0_schedule[i];
-
-                        // if(history_scrollingRegions[i].size()>MAX_historySize) history_scrollingRegions[i].erase(history_scrollingRegions[i].begin());
-                        // history_scrollingRegions[i].push_back(std::string(buff_ScrollingRegion));
                     }
                     else {
                         
                     }
-                    // }
                 }
                 ImGui::SameLine();
-                if(ImGui::Button(std::string("D").c_str())) {
+                if(ImGui::Button(std::string("X").c_str())) {
                     std::cout << "delete triggered: "<< i <<std::endl;
                 }
+
+
+                if(ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+                    ImGui::SetDragDropPayload("DND", &i, sizeof(int));
+                    ImGui::EndDragDropSource();
+                }
+                if(ImGui::BeginDragDropTarget()) {
+                    if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND")) {
+                        IM_ASSERT(payload->DataSize == sizeof(int));
+                        int payload_n = *(const int*)payload->Data;
+                        { //swap stuff
+
+                        }
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+
+                ImGui::PopID();
             }
             ImGui::EndChild();
         }
