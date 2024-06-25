@@ -358,7 +358,7 @@ void tab_0(void) {
                 }
                 ImGui::SameLine();
                 if(ImGui::Button(std::string("X").c_str())) {
-                    std::cout << "delete triggered: "<< i <<std::endl;
+                    // std::cout << "delete triggered: "<< i <<std::endl;
                 }
 
 
@@ -369,10 +369,8 @@ void tab_0(void) {
                 if(ImGui::BeginDragDropTarget()) {
                     if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND")) {
                         IM_ASSERT(payload->DataSize == sizeof(int));
-                        int payload_n = *(const int*)payload->Data;
-                        { //swap stuff
-
-                        }
+                        int payload_i = *(const int*)payload->Data;
+                        tab0_schedule.swap(i, payload_i);
                     }
                     ImGui::EndDragDropTarget();
                 }

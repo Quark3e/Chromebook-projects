@@ -128,7 +128,7 @@ namespace IK_PATH {
         std::string _info_name = "GCODE_schedule";
 
         std::vector<std::string>                _commands_orig; //original strings before getting parsed.
-        std::vector<std::string>                _commands_raw;  //raw lines of commands
+        std::vector<std::string>                _commands_raw;  //parsed raw std::string lines of commands
         std::vector<std::vector<std::string>>   _commands;      //parsed commands separated into elements in a lvl1 vector
 
 
@@ -170,22 +170,26 @@ namespace IK_PATH {
 
         bool _arg_isNumber(std::string argToCheck, const int* solvedValue);
 
-        std::vector<std::string> operator[](size_t i) const;
-        std::string get_raw(size_t i) const;
-        std::string get_orig(size_t i) const;
+        std::vector<std::string> operator[](size_t i) const; //_commands
+        std::string get_raw(size_t i) const; //_commands_raw
+        std::string get_orig(size_t i) const; //_commands_orig
 
-        std::vector<std::string> commands() { return this->_commands_raw; }
+        std::vector<std::vector<std::string>> commands() { return this->_commands; }
+        std::vector<std::string> commands_raw() { return this->_commands_raw; }
+        std::vector<std::string> commands_orig() { return this->_commands_orig; }
 
         GCODE_schedule(/* args */);
         ~GCODE_schedule();
 
         bool loadFile(std::string filename);
 
-
+        int swap(size_t i0, size_t i1);
         int add(std::string newCommand);
         int insert(size_t idx, std::string newCommand);
         int replace(size_t idx, std::string newCommand);
         int erase(size_t idx);
+
+        int copy_in(IK_PATH::GCODE_schedule* _src, int mode=0, size_t mode2_insrt=0);
     };
 
 }
@@ -510,6 +514,26 @@ bool IK_PATH::GCODE_schedule::loadFile(std::string filename) {
     return true;
 }
 
+int IK_PATH::GCODE_schedule::swap(size_t i0, size_t i1) {
+    if(i0==i1) throw std::runtime_error("ERROR: "+this->_info_name+"::swap(size_t, size_t): the two index arguments to swap can't be the same.");
+    if(i0>=this->_commands.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::swap(size_t, size_t): input index `i0` is bigger than stored commands");
+    if(i1>=this->_commands.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::swap(size_t, size_t): input index `i0` is bigger than stored commands");
+    std::vector<std::string> tmp_commands = this->_commands[i0];
+    std::string 
+        tmp_commands_raw = this->_commands_raw[i0],
+        tmp_commands_orig = this->_commands_orig[i0];
+
+    this->_commands[i0]     = this->_commands[i1];
+    this->_commands_raw[i0] = this->_commands_raw[i1];
+    this->_commands_orig[i0]= this->_commands_orig[i1];
+
+    this->_commands[i1]     = tmp_commands;
+    this->_commands_raw[i1] = tmp_commands_raw;
+    this->_commands_orig[i1]= tmp_commands_orig;
+
+    return 0;
+}
+
 int IK_PATH::GCODE_schedule::add(std::string newCommand) {
     if(this->_parse_line(newCommand)==-1) {
         if(this->verbose) std::cout << this->_parse_error_msg << std::endl;
@@ -550,6 +574,43 @@ int IK_PATH::GCODE_schedule::erase(size_t idx) {
     this->_commands.erase(this->_commands.begin()+idx);
     this->_commands_raw.erase(this->_commands_raw.begin()+idx);
     this->_commands_orig.erase(this->_commands_orig.begin()+idx);
+}
+
+
+int IK_PATH::GCODE_schedule::copy_in(IK_PATH::GCODE_schedule* _src, int mode, size_t mode2_insrt) {
+    if(_src->size()==0) throw std::runtime_error("ERROR: "+this->_info_name+"::copy_in(IK_PATH::GCODE_schedule*, int, size_t): in, int modeput object doesn't have any values");
+    if(mode2_insrt>this->_commands.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::copy_in(IK_PATH::GCODE_schedule*, int, size_t): input value for mode2_insrt is bigger than stored size");
+    
+    std::vector<std::vector<std::string>> tmp_commands;
+    std::vector<std::string> tmp_commands_raw;
+    std::vector<std::string> tmp_commands_orig;
+    if(mode==0 || mode==2) {
+        tmp_commands = _src->commands();
+        tmp_commands_raw = _src->commands_raw();
+        tmp_commands_orig = _src->commands_orig();
+    }
+
+    switch (mode) {
+        case 0: //append
+        this->_commands.insert(this->_commands.end(), tmp_commands.begin(), tmp_commands.end());
+        this->_commands_raw.insert(this->_commands_raw.end(), tmp_commands_raw.begin(), tmp_commands_raw.end());
+        this->_commands_orig.insert(this->_commands_orig.end(), tmp_commands_orig.begin(), tmp_commands_orig.end());
+        break;
+        case 1: //overwrite
+        this->_commands = tmp_commands;
+        this->_commands_raw = tmp_commands_raw;
+        this->_commands_orig = tmp_commands_orig;
+        break;
+        case 2: //insert at an index
+        this->_commands.insert(this->_commands.begin()+mode2_insrt, tmp_commands.begin(), tmp_commands.end());
+        this->_commands_raw.insert(this->_commands_raw.end()+mode2_insrt, tmp_commands_raw.begin(), tmp_commands_raw.end());
+        this->_commands_orig.insert(this->_commands_orig.end()+mode2_insrt, tmp_commands_orig.begin(), tmp_commands_orig.end());
+        break;
+    default:
+        break;
+    }
+
+    return 0;
 }
 
 
