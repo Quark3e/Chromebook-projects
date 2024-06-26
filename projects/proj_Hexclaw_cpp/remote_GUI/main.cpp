@@ -71,6 +71,8 @@
 
 #define LIM_SHORTCUT_KEYS   10 //number of frames to wait after calling a boolean via key shortcut
 
+#define MAX_HISTORY_SIZE    10
+
 int mode = 0;
 
 
@@ -134,23 +136,19 @@ static bool takePerf_tab_0 = false;
  */
 template<typename storeType>
 void basic_timeline_add(storeType& tmp, std::vector<storeType>& historyVec, int& idx, int _MAX) {
-    std::cout << "i:"<<idx<<" "; std::cout.flush();
     //Timeline change: addition
     if(idx>=_MAX) { //timeline addition: same branch: beyond MAX lim
         historyVec.erase(historyVec.begin()); //delete oldest
         historyVec.push_back(tmp); //add new
-        std::cout << "    history: same branch: new node(1)"<<std::endl;
     }
     else if(idx>=historyVec.size()-1) { //timeline addition: same branch: still whithin MAX lim
         historyVec.push_back(tmp);
         idx+=1;
-        std::cout << "    history: same branch: new node(2)"<<std::endl;
     }
     else { //timeline addition: new branch creation:
         historyVec.erase(historyVec.begin()+idx+1, historyVec.end());
         historyVec.push_back(tmp);
         idx+=1;
-        std::cout << "    history: new branch: erased old"<<std::endl;
     }
 }
 
@@ -311,7 +309,6 @@ void tab_0(void) {
      */
     // static DIY::typed_dict<int, std::vector<std::string>> history_scrollingRegions({}, {});
     // static DIY::typed_dict<int, int> history_scrollingRegions_index({}, {}); //index to what history element is currently hovered
-    static int MAX_historySize = 4;
     if(!tab0_init) {
         if(!tab0_schedule.loadFile("/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/gCode/ex0.nc")) {
             // perror("tab0_schedule failed to load")
@@ -402,9 +399,7 @@ void tab_0(void) {
                 ImGui::SameLine();
                 if(ImGui::InputText("", buff_ScrollingRegion, IM_ARRAYSIZE(buff_ScrollingRegion), ImGuiInputTextFlags_EnterReturnsTrue)) {
                     if(tab0_schedule.replace(i, std::string(buff_ScrollingRegion))==0) { //tab0_schedule modification
-                        basic_timeline_add<IK_PATH::GCODE_schedule>(tab0_schedule, history_tab0_schedule, history_idx_tab0_schedule, MAX_historySize);
-
-                        std::cout << "snapshot created: i["<<history_idx_tab0_schedule<<"]"<<std::endl;
+                        basic_timeline_add<IK_PATH::GCODE_schedule>(tab0_schedule, history_tab0_schedule, history_idx_tab0_schedule, MAX_HISTORY_SIZE);
 
                         // history_scrollingRegions[i] = tab0_schedule[i];
                     }
@@ -417,8 +412,7 @@ void tab_0(void) {
                     // std::cout << "delete triggered: "<< i <<std::endl;
                     tab0_schedule.erase(i);
 
-                    basic_timeline_add<IK_PATH::GCODE_schedule>(tab0_schedule, history_tab0_schedule, history_idx_tab0_schedule, MAX_historySize);
-                    std::cout << "snapshot created: i["<<history_idx_tab0_schedule<<"]"<<std::endl;
+                    basic_timeline_add<IK_PATH::GCODE_schedule>(tab0_schedule, history_tab0_schedule, history_idx_tab0_schedule, MAX_HISTORY_SIZE);
 
                 }
 
@@ -433,8 +427,7 @@ void tab_0(void) {
                         int payload_i = *(const int*)payload->Data;
                         tab0_schedule.swap(i, payload_i);
 
-                        basic_timeline_add<IK_PATH::GCODE_schedule>(tab0_schedule, history_tab0_schedule, history_idx_tab0_schedule, MAX_historySize);
-                        std::cout << "snapshot created: i["<<history_idx_tab0_schedule<<"]"<<std::endl;
+                        basic_timeline_add<IK_PATH::GCODE_schedule>(tab0_schedule, history_tab0_schedule, history_idx_tab0_schedule, MAX_HISTORY_SIZE);
 
                     }
                     ImGui::EndDragDropTarget();
@@ -444,22 +437,18 @@ void tab_0(void) {
             }
             ImGui::EndChild();
             if(keys__undo || _undo__pressed) {
-                std::cout << "i:"<<history_idx_tab0_schedule<<" "; std::cout.flush();
                 if(history_idx_tab0_schedule>0) {
                     history_idx_tab0_schedule--;
                     tab0_schedule = history_tab0_schedule[history_idx_tab0_schedule];
-                    std::cout << "undo pressed"<<std::endl;
                 }
                 else {}
                 keys__undo = false;
                 _undo__pressed = false;
             }
             if(keys__redo || _redo__pressed) {
-                std::cout << "i:"<<history_idx_tab0_schedule<<" "; std::cout.flush();
-                if(history_idx_tab0_schedule<history_tab0_schedule[history_idx_tab0_schedule].size()-1) {
+                if(history_idx_tab0_schedule<history_tab0_schedule.size()-1) {
                     history_idx_tab0_schedule++;
                     tab0_schedule = history_tab0_schedule[history_idx_tab0_schedule];
-                    std::cout << "redo pressed"<<std::endl;
                 }
                 else {}
                 keys__redo = false;
@@ -533,14 +522,20 @@ void tab_0(void) {
     // int key_
 
 
-    int _keys_count_enter   = 0; //`ctrl+enter`
-    int _keys_count_exit    = 0; //`ctrl+x`
-    int _keys_count_undo    = 0; //`ctrl+z`
-    int _keys_count_redo    = 0; //`ctrl+y` or `ctrl+shift+z`
+    // int _keys_count_enter   = 0; //`ctrl+enter`
+    // int _keys_count_exit    = 0; //`ctrl+x`
+    // int _keys_count_undo    = 0; //`ctrl+z`
+    // int _keys_count_redo    = 0; //`ctrl+y` or `ctrl+shift+z`
     
     static int _wait_keys__enter = 0;
     static int _wait_keys__undo = 0;
     static int _wait_keys__redo = 0;
+
+    static std::vector<int> keys_enter  {527, 662, 525};
+    static std::vector<int> keys_exit   {527, 662, 568};
+    static std::vector<int> keys_undo   {527, 662, 571};
+    static std::vector<int> keys_redo   {527, 662, 570};
+    static std::vector<int> keys_redo1  {527, 528, 662, 663, 571};
 
     static std::vector<int> pressed_keys;
     pressed_keys.clear();
@@ -549,38 +544,66 @@ void tab_0(void) {
         pressed_keys.push_back(key);
         // ImGui::SameLine();
         // ImGui::Text((key < ImGuiKey_NamedKey_BEGIN) ? "\"%s\"" : "\"%s\" %d", ImGui::GetKeyName(key), key);
-        if(key==527 || key==531) { //`L_ctrl`/`R_ctrl`
-            _keys_count_enter++;
-            _keys_count_exit++;
-            _keys_count_undo++;
-            _keys_count_redo++;
+        // if(key==527 || key==531) { //`L_ctrl`/`R_ctrl`
+        //     _keys_count_enter++;
+        //     _keys_count_exit++;
+        //     _keys_count_undo++;
+        //     _keys_count_redo++;
+        // }
+        // if(key==528 || key==532) { //`L_shift`/`R_shift`
+        //     _keys_count_redo++;
+        //     _keys_count_undo--;
+        // }
+        // if(key==525) _keys_count_enter++;   //`enter`
+        // if(key==568) _keys_count_exit++;    //`w`
+        // if(key==571) _keys_count_undo++;    //`z`
+        // if(key==570) _keys_count_redo++;    //`y`
+    }
+    size_t size_pressed_keys = pressed_keys.size();
+    if(size_pressed_keys==3) {
+        if(match_vectors<int>(pressed_keys, keys_exit)) running = false;
+        if(match_vectors<int>(pressed_keys, keys_enter) && _wait_keys__enter==0) {
+            _ctrl_enter__pressed = true;
+            _wait_keys__enter = 1;
         }
-        if(key==528 || key==532) { //`L_shift`/`R_shift`
-            _keys_count_redo++;
-            _keys_count_undo--;
+        else _ctrl_enter__pressed = false;
+        if(match_vectors<int>(pressed_keys, keys_undo) && _wait_keys__undo==0) {
+            _undo__pressed = true;
+            _wait_keys__undo = 1;
         }
-        if(key==525) _keys_count_enter++;   //`enter`
-        if(key==568) _keys_count_exit++;    //`w`
-        if(key==571) _keys_count_undo++;    //`z`
-        if(key==570) _keys_count_redo++;    //`y`
+        else _undo__pressed = false;
+        if(match_vectors<int>(pressed_keys, keys_redo) && _wait_keys__redo==0) {
+            _redo__pressed = true;
+            _wait_keys__redo = 1;
+        }
+        else _redo__pressed = false;
     }
-    // std::cout << std::endl;
-    if(_keys_count_exit==2) running = false;
-    // if(_keys_count_enter==2 && !_ctrl_enter__pressed) input_IK_enterPress = true;
-    if(_keys_count_enter==2 && _wait_keys__enter==0) {
-        _ctrl_enter__pressed  = true;
-        _wait_keys__enter = 1;
+    else if(size_pressed_keys==5) {
+        if(match_vectors<int>(pressed_keys, keys_redo1) && _wait_keys__redo==0) {
+            _redo__pressed = true;
+            _wait_keys__redo = 1;
+        }
+        else _redo__pressed = false;
     }
-    else _ctrl_enter__pressed = false;
-    if(_keys_count_undo==2 && _wait_keys__undo==0) {
-        _undo__pressed = true;
-        _wait_keys__undo = 1;
-    }
-    else _undo__pressed = false;
-    if(_keys_count_redo==2 && _wait_keys__redo==0) {
-        _redo__pressed = true;
-        _wait_keys__redo = 1;
-    }
+    // if(size_pressed_keys!=0) std::cout<<DIY::prettyPrint_vec1<int>(pressed_keys)<<std::endl;
+
+    // // std::cout << std::endl;
+    // if(_keys_count_exit==2) running = false;
+    // // if(_keys_count_enter==2 && !_ctrl_enter__pressed) input_IK_enterPress = true;
+    // if(_keys_count_enter==2 && _wait_keys__enter==0) {
+    //     _ctrl_enter__pressed  = true;
+    //     _wait_keys__enter = 1;
+    // }
+    // else _ctrl_enter__pressed = false;
+    // if(_keys_count_undo==2 && _wait_keys__undo==0) {
+    //     _undo__pressed = true;
+    //     _wait_keys__undo = 1;
+    // }
+    // else _undo__pressed = false;
+    // if(_keys_count_redo==2 && _wait_keys__redo==0) {
+    //     _redo__pressed = true;
+    //     _wait_keys__redo = 1;
+    // }
 
     if(_wait_keys__enter>=LIM_SHORTCUT_KEYS) _wait_keys__enter=0;
     else if(_wait_keys__enter>0) _wait_keys__enter++;

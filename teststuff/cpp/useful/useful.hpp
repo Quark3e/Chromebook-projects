@@ -178,7 +178,7 @@ void signal_callback_handler(int signum) {
 
 template<typename checkType>
 int findVectorIndex(std::vector<checkType> vec, checkType toFind) {
-    std::vector<checkType>::iterator idx = find(vec.begin(), vec.end(), toFind);
+    typename std::vector<checkType>::iterator idx = find(vec.begin(), vec.end(), toFind);
     if(idx!=vec.end()) return idx-vec.begin();
     else return -1;
 }
@@ -249,38 +249,37 @@ std::vector<int> findVectorIndex(std::vector<std::vector<std::string>> vecvec, s
  * @note if the value is not found in the vector then the function will return -1
  */
 template<class T> int searchVec(std::vector<T> vec, T toFind) {
-    int idx = -1;
-    
-    for(size_t i=0; i<vec.size(); i++) {
-    	if(vec.at(i)==toFind) {
-        	idx=i;
-            break;
-        }
-    }
-    
-    return idx;
+    typename std::vector<T>::iterator idx = find(vec.begin(), vec.end(), toFind);
+    if(idx!=vec.end()) return idx-vec.begin();
+    else return -1;
+    // int idx = -1;
+    // for(size_t i=0; i<vec.size(); i++) {
+    // 	if(vec.at(i)==toFind) {
+    //     	idx=i;
+    //         break;
+    //     }
+    // }
+    // return idx;
 }
 
 
 template<typename typeVar>
-bool match_vectors(std::vector<typeVar> vec0, std::vector<typeVar> vec1, int numMatch=-1, int method=0) {
-    bool result=false;
-    std::vector<size_t> repets;
+bool match_vectors(std::vector<typeVar> vec0, std::vector<typeVar> vec1, bool orderImportant=false) {
+    if(vec0.size()!=vec1.size()) return false;
 
+    std::vector<size_t> avoidIdx(0, 0);
+    for(size_t i=0; i<vec0.size(); i++) {
+        for(size_t ii=0; ii<vec1.size(); ii++) {
+            if(vec0[i]==vec1[ii] && findVectorIndex<size_t>(avoidIdx, ii)!=ii) {
+                avoidIdx.push_back(ii);
+                continue;
+            }
+            else if(orderImportant) return false;
+        }
+    }
+    if(avoidIdx.size()!=vec0.size()) return false;
 
-    // for(size_t i=0; i<vec0.size(); i++) {
-    //     if(method==0) {
-    //         int tmp = findVectorIndex<typeVar>(vec1, vec0[i]);
-    //         if(tmp!=-1) 
-    //     }
-    //     else if(method==1) {
-    //         for(size_t ii=0; ii<vec1.size(); ii++) {
-
-    //         }
-    //     }
-    // }
-
-    return result;
+    return true;
 }
 
 
