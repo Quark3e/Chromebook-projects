@@ -302,24 +302,12 @@ void tab_0(void) {
     static std::vector<IK_PATH::GCODE_schedule> history_tab0_schedule;
     static int history_idx_tab0_schedule = -1; //index for currently displayed/"used" history "node"
 
-    /** History of each tab0_schedule command line
-     *  `int` {"", ""}, *history*
-     *  `int` {"", ""}
-     * }
-     */
-    // static DIY::typed_dict<int, std::vector<std::string>> history_scrollingRegions({}, {});
-    // static DIY::typed_dict<int, int> history_scrollingRegions_index({}, {}); //index to what history element is currently hovered
     if(!tab0_init) {
         if(!tab0_schedule.loadFile("/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/gCode/ex0.nc")) {
             // perror("tab0_schedule failed to load")
         }
         history_tab0_schedule.push_back(tab0_schedule);
         history_idx_tab0_schedule++;
-
-        // for(size_t i=0; i<tab0_schedule.size(); i++) {
-        //     history_scrollingRegions.add(i, tab0_schedule[i]);
-        //     history_scrollingRegions_index.add(i, 0); //starting index is at 0 for every variable. `Ctrl+Z` adds a positive value.
-        // }
     }
 
     static PERF::perf_isolated perf_tab0;
