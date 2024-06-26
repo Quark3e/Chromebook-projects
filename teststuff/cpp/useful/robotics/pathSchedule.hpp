@@ -141,7 +141,7 @@ namespace IK_PATH {
         float ref_pos[3] = {0, 0, 0};
 
 
-        const char _valid_letters[10] = {
+        char _valid_letters[10] = {
             'G',
             'M',
             'F',
@@ -166,7 +166,7 @@ namespace IK_PATH {
         bool verbose = true;
         
         size_t size() { return this->_commands_raw.size(); }
-        const std::string get_errorMsg_parse() { return _parse_error_msg; }
+        std::string get_errorMsg_parse() { return _parse_error_msg; }
 
         bool _arg_isNumber(std::string argToCheck, const int* solvedValue);
 

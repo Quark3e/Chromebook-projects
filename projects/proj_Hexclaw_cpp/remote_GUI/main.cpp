@@ -97,6 +97,14 @@ static float output_FK_pos[3]   = {0, 0, 0};
 static float output_FK_orient[3]= {0, 0, 0};
 
 bool input_IK_enterPress = false;
+bool keys__undo = false;
+bool keys__redo = false;
+
+
+bool _ctrl_enter__pressed = false; //`ctrl+enter`
+bool _undo__pressed = false; //`ctrl+z`
+bool _redo__pressed = false; //`ctrl+y` or `ctrl+shift+z`
+
 
 // struct funcs {
 static bool IsLegacyNativeDupe(ImGuiKey key) {
@@ -113,6 +121,38 @@ static bool guisetting_findOrient = true;
 
 static bool takePerf_tab_0 = false;
 
+/**
+ * @brief Timeline/snapshot history "node"/change addition.
+ * 
+ * @tparam storeType - the type of variable stored in history vector
+ * @param tmp reference to the temprorary object to add to the timeline. NOTE:this is meant to be the changed/new variant
+ * @param historyVec reference to the vector that stores the history/snapshots
+ * @param idx index of where on the history/snapshot vector that's currently indexed/used/displayed
+ * @param _MAX maximum size of the history vector that when the length is beyond, will delete the oldest snapshot
+ * @note if `idx` isn't at the end of the vector `historyVec` then this function will cut and delete everything after `idx` and add
+ * then change from there, essentially pruning the branch
+ */
+template<typename storeType>
+void basic_timeline_add(storeType& tmp, std::vector<storeType>& historyVec, int& idx, int _MAX) {
+    std::cout << "i:"<<idx<<" "; std::cout.flush();
+    //Timeline change: addition
+    if(idx>=_MAX) { //timeline addition: same branch: beyond MAX lim
+        historyVec.erase(historyVec.begin()); //delete oldest
+        historyVec.push_back(tmp); //add new
+        std::cout << "    history: same branch: new node(1)"<<std::endl;
+    }
+    else if(idx>=historyVec.size()-1) { //timeline addition: same branch: still whithin MAX lim
+        historyVec.push_back(tmp);
+        idx+=1;
+        std::cout << "    history: same branch: new node(2)"<<std::endl;
+    }
+    else { //timeline addition: new branch creation:
+        historyVec.erase(historyVec.begin()+idx+1, historyVec.end());
+        historyVec.push_back(tmp);
+        idx+=1;
+        std::cout << "    history: new branch: erased old"<<std::endl;
+    }
+}
 
 void Delays_table(PERF::perf_isolated& perfObj, const char* childID, const char* tableID, const char* sepText);
 
@@ -255,22 +295,34 @@ void tab_0(void) {
     static bool tab0_init = false;
     static IK_PATH::GCODE_schedule tab0_schedule;
 
+    /**
+     * General history of the states of tab0_schedule with each change/"node" saved as an element.
+     * For simplicities sake, if a change is made while `history_idx_tab0_schedule` isn't at the end, all the changes after current point will be erased, essentially "pruning" that branch.
+     * [0]      = oldest snapshot
+     * [history_idx_tab0_schedule] = currently "used"/"shown" history node/change.
+     */
+    static std::vector<IK_PATH::GCODE_schedule> history_tab0_schedule;
+    static int history_idx_tab0_schedule = -1; //index for currently displayed/"used" history "node"
+
     /** History of each tab0_schedule command line
      *  `int` {"", ""}, *history*
      *  `int` {"", ""}
      * }
      */
-    static DIY::typed_dict<int, std::vector<std::string>> history_scrollingRegions({}, {});
-    static DIY::typed_dict<int, int> history_scrollingRegions_index({}, {}); //index to what history element is currently hovered
+    // static DIY::typed_dict<int, std::vector<std::string>> history_scrollingRegions({}, {});
+    // static DIY::typed_dict<int, int> history_scrollingRegions_index({}, {}); //index to what history element is currently hovered
     static int MAX_historySize = 4;
     if(!tab0_init) {
         if(!tab0_schedule.loadFile("/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/gCode/ex0.nc")) {
             // perror("tab0_schedule failed to load")
         }
-        for(size_t i=0; i<tab0_schedule.size(); i++) {
-            history_scrollingRegions.add(i, tab0_schedule[i]);
-            history_scrollingRegions_index.add(i, 0); //starting index is at 0 for every variable. `Ctrl+Z` adds a positive value.
-        }
+        history_tab0_schedule.push_back(tab0_schedule);
+        history_idx_tab0_schedule++;
+
+        // for(size_t i=0; i<tab0_schedule.size(); i++) {
+        //     history_scrollingRegions.add(i, tab0_schedule[i]);
+        //     history_scrollingRegions_index.add(i, 0); //starting index is at 0 for every variable. `Ctrl+Z` adds a positive value.
+        // }
     }
 
     static PERF::perf_isolated perf_tab0;
@@ -349,16 +401,25 @@ void tab_0(void) {
                 ImGui::TextUnformatted(">>");
                 ImGui::SameLine();
                 if(ImGui::InputText("", buff_ScrollingRegion, IM_ARRAYSIZE(buff_ScrollingRegion), ImGuiInputTextFlags_EnterReturnsTrue)) {
-                    if(tab0_schedule.replace(i, std::string(buff_ScrollingRegion))==0) {
-                        history_scrollingRegions[i] = tab0_schedule[i];
+                    if(tab0_schedule.replace(i, std::string(buff_ScrollingRegion))==0) { //tab0_schedule modification
+                        basic_timeline_add<IK_PATH::GCODE_schedule>(tab0_schedule, history_tab0_schedule, history_idx_tab0_schedule, MAX_historySize);
+
+                        std::cout << "snapshot created: i["<<history_idx_tab0_schedule<<"]"<<std::endl;
+
+                        // history_scrollingRegions[i] = tab0_schedule[i];
                     }
                     else {
-                        
+                        std::cout << "incorrect new gcode line."<<std::endl;
                     }
                 }
                 ImGui::SameLine();
                 if(ImGui::Button(std::string("X").c_str())) {
                     // std::cout << "delete triggered: "<< i <<std::endl;
+                    tab0_schedule.erase(i);
+
+                    basic_timeline_add<IK_PATH::GCODE_schedule>(tab0_schedule, history_tab0_schedule, history_idx_tab0_schedule, MAX_historySize);
+                    std::cout << "snapshot created: i["<<history_idx_tab0_schedule<<"]"<<std::endl;
+
                 }
 
 
@@ -371,6 +432,10 @@ void tab_0(void) {
                         IM_ASSERT(payload->DataSize == sizeof(int));
                         int payload_i = *(const int*)payload->Data;
                         tab0_schedule.swap(i, payload_i);
+
+                        basic_timeline_add<IK_PATH::GCODE_schedule>(tab0_schedule, history_tab0_schedule, history_idx_tab0_schedule, MAX_historySize);
+                        std::cout << "snapshot created: i["<<history_idx_tab0_schedule<<"]"<<std::endl;
+
                     }
                     ImGui::EndDragDropTarget();
                 }
@@ -378,6 +443,28 @@ void tab_0(void) {
                 ImGui::PopID();
             }
             ImGui::EndChild();
+            if(keys__undo || _undo__pressed) {
+                std::cout << "i:"<<history_idx_tab0_schedule<<" "; std::cout.flush();
+                if(history_idx_tab0_schedule>0) {
+                    history_idx_tab0_schedule--;
+                    tab0_schedule = history_tab0_schedule[history_idx_tab0_schedule];
+                    std::cout << "undo pressed"<<std::endl;
+                }
+                else {}
+                keys__undo = false;
+                _undo__pressed = false;
+            }
+            if(keys__redo || _redo__pressed) {
+                std::cout << "i:"<<history_idx_tab0_schedule<<" "; std::cout.flush();
+                if(history_idx_tab0_schedule<history_tab0_schedule[history_idx_tab0_schedule].size()-1) {
+                    history_idx_tab0_schedule++;
+                    tab0_schedule = history_tab0_schedule[history_idx_tab0_schedule];
+                    std::cout << "redo pressed"<<std::endl;
+                }
+                else {}
+                keys__redo = false;
+                _redo__pressed = false;
+            }
         }
         ImGui::Separator();
         ImGui::TextUnformatted(std::string(">> "+outMsg).c_str());
@@ -435,32 +522,74 @@ void tab_0(void) {
      * 532 [R_SHIFT]
      * 533 [R_ALT / alt-gr]
      * 
+     * 569 [x]
+     * 570 [y]
+     * 571 [z]
+     * 
+     * 
     */
     ImGuiKey start_key = (ImGuiKey)0;
-    int _keys_count_enter   = 0;
-    int _keys_count_exit    = 0;
+    // std::cout << "----"<<start_key << std::endl;
+    // int key_
+
+
+    int _keys_count_enter   = 0; //`ctrl+enter`
+    int _keys_count_exit    = 0; //`ctrl+x`
+    int _keys_count_undo    = 0; //`ctrl+z`
+    int _keys_count_redo    = 0; //`ctrl+y` or `ctrl+shift+z`
     
     static int _wait_keys__enter = 0;
+    static int _wait_keys__undo = 0;
+    static int _wait_keys__redo = 0;
 
-
-    static bool _ctrl_enter__pressed = false;
+    static std::vector<int> pressed_keys;
+    pressed_keys.clear();
     for (ImGuiKey key = start_key; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) {
         if (IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) continue;
+        pressed_keys.push_back(key);
         // ImGui::SameLine();
         // ImGui::Text((key < ImGuiKey_NamedKey_BEGIN) ? "\"%s\"" : "\"%s\" %d", ImGui::GetKeyName(key), key);
-        if((key==527 || key==531) || key==525) _keys_count_enter++;
-        if((key==527 || key==531) || key==568) _keys_count_exit++;
+        if(key==527 || key==531) { //`L_ctrl`/`R_ctrl`
+            _keys_count_enter++;
+            _keys_count_exit++;
+            _keys_count_undo++;
+            _keys_count_redo++;
+        }
+        if(key==528 || key==532) { //`L_shift`/`R_shift`
+            _keys_count_redo++;
+            _keys_count_undo--;
+        }
+        if(key==525) _keys_count_enter++;   //`enter`
+        if(key==568) _keys_count_exit++;    //`w`
+        if(key==571) _keys_count_undo++;    //`z`
+        if(key==570) _keys_count_redo++;    //`y`
     }
+    // std::cout << std::endl;
     if(_keys_count_exit==2) running = false;
     // if(_keys_count_enter==2 && !_ctrl_enter__pressed) input_IK_enterPress = true;
     if(_keys_count_enter==2 && _wait_keys__enter==0) {
         _ctrl_enter__pressed  = true;
-        _wait_keys__enter=1;
+        _wait_keys__enter = 1;
     }
     else _ctrl_enter__pressed = false;
+    if(_keys_count_undo==2 && _wait_keys__undo==0) {
+        _undo__pressed = true;
+        _wait_keys__undo = 1;
+    }
+    else _undo__pressed = false;
+    if(_keys_count_redo==2 && _wait_keys__redo==0) {
+        _redo__pressed = true;
+        _wait_keys__redo = 1;
+    }
 
     if(_wait_keys__enter>=LIM_SHORTCUT_KEYS) _wait_keys__enter=0;
     else if(_wait_keys__enter>0) _wait_keys__enter++;
+
+    if(_wait_keys__undo>=LIM_SHORTCUT_KEYS) _wait_keys__undo=0;
+    else if(_wait_keys__undo>0) _wait_keys__undo++;
+
+    if(_wait_keys__redo>=LIM_SHORTCUT_KEYS) _wait_keys__redo=0;
+    else if(_wait_keys__redo>0) _wait_keys__redo++;
 
     if(takePerf_tab_0) perf_tab0.set_T1("T:Keys"); //perf time_point:1
 

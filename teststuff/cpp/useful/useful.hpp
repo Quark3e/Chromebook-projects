@@ -176,6 +176,13 @@ void signal_callback_handler(int signum) {
 }
 // #include "createTable.hpp"
 
+template<typename checkType>
+int findVectorIndex(std::vector<checkType> vec, checkType toFind) {
+    std::vector<checkType>::iterator idx = find(vec.begin(), vec.end(), toFind);
+    if(idx!=vec.end()) return idx-vec.begin();
+    else return -1;
+}
+
 /**
  * @brief search and find index in std::string vector to given std::string to find
  * @param vec `std::std::vector<std::string>` vector search through
@@ -254,6 +261,27 @@ template<class T> int searchVec(std::vector<T> vec, T toFind) {
     return idx;
 }
 
+
+template<typename typeVar>
+bool match_vectors(std::vector<typeVar> vec0, std::vector<typeVar> vec1, int numMatch=-1, int method=0) {
+    bool result=false;
+    std::vector<size_t> repets;
+
+
+    // for(size_t i=0; i<vec0.size(); i++) {
+    //     if(method==0) {
+    //         int tmp = findVectorIndex<typeVar>(vec1, vec0[i]);
+    //         if(tmp!=-1) 
+    //     }
+    //     else if(method==1) {
+    //         for(size_t ii=0; ii<vec1.size(); ii++) {
+
+    //         }
+    //     }
+    // }
+
+    return result;
+}
 
 
 /**
