@@ -122,8 +122,17 @@ namespace IK_PATH {
         {"F{INT}"}
     };
 
+
+    void null_TDEF_runCode(float X, float Y, float Z, float a, float b, float y) {}
+
+
     class GCODE_schedule {
         private:
+        /**
+         * type for function to callin 
+         * Parameters: (X, Y, Z, a, b, y)
+         */
+        typedef void    (*TDEF_runCode)(float, float, float, float, float, float);
 
         std::string _info_name = "GCODE_schedule";
 
@@ -139,22 +148,9 @@ namespace IK_PATH {
         int F_feedrate  = 10;  //Speed of movement: `{G_unit}/min`
 
         float ref_pos[3] = {0, 0, 0};
+        float ref_tilt[3]= {0, 0, 0};
 
 
-        char _valid_letters[10] = {
-            'G',
-            'M',
-            'F',
-            'P',
-            'S',
-            'X',
-            'Y',
-            'Z',
-            'I',
-            'J',
-        };
-
-        // std::string _parse_line(std::string line, bool throwError = false);
 
         int  _syntax_idx(std::string arg, bool* gcode_additional=nullptr);
         int _parse_line(std::string& line);
@@ -190,6 +186,10 @@ namespace IK_PATH {
         int erase(size_t idx);
 
         int copy_in(IK_PATH::GCODE_schedule* _src, int mode=0, size_t mode2_insrt=0);
+
+
+        int runSchedule(TDEF_runCode funcToCall = null_TDEF_runCode);
+
     };
 
 }
@@ -613,6 +613,22 @@ int IK_PATH::GCODE_schedule::copy_in(IK_PATH::GCODE_schedule* _src, int mode, si
     return 0;
 }
 
+
+int IK_PATH::GCODE_schedule::runSchedule(TDEF_runCode funcToCall = null_TDEF_runCode) {
+    int returCode = 0;
+
+
+    for(size_t i=0; i<this->_commands.size(); i++) {
+        std::vector<std::string> tmp = this->_commands[i];
+        for(std::string arg: tmp) {
+            
+        }
+
+
+    }
+
+    return returCode;
+}
 
 
 
