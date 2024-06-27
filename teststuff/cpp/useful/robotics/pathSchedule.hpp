@@ -474,15 +474,15 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
 }
 
 std::vector<std::string> IK_PATH::GCODE_schedule::operator[](size_t i) const {
-    if(i>=this->_commands.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::operator[](size_t) input index is bigger than stored commands");
+    if(i>=this->_commands.size()) throw std::runtime_error(this->_info_name+"::operator[](size_t) input index is bigger than stored commands");
     return const_cast<std::vector<std::string>&>(_commands.at(i));
 }
 std::string IK_PATH::GCODE_schedule::get_raw(size_t i) const {
-    if(i>=this->_commands_raw.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::get_raw(size_t) input index is bigger than stored commands");
+    if(i>=this->_commands_raw.size()) throw std::runtime_error(this->_info_name+"::get_raw(size_t) input index is bigger than stored commands");
     return const_cast<std::string&>(_commands_raw.at(i));
 }
 std::string IK_PATH::GCODE_schedule::get_orig(size_t i) const {
-    if(i>=this->_commands_orig.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::get_orig(size_t) input index is bigger than stored commands");
+    if(i>=this->_commands_orig.size()) throw std::runtime_error(this->_info_name+"::get_orig(size_t) input index is bigger than stored commands");
     return const_cast<std::string&>(_commands_orig.at(i));
 }
 
@@ -515,9 +515,9 @@ bool IK_PATH::GCODE_schedule::loadFile(std::string filename) {
 }
 
 int IK_PATH::GCODE_schedule::swap(size_t i0, size_t i1) {
-    if(i0==i1) throw std::runtime_error("ERROR: "+this->_info_name+"::swap(size_t, size_t): the two index arguments to swap can't be the same.");
-    if(i0>=this->_commands.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::swap(size_t, size_t): input index `i0` is bigger than stored commands");
-    if(i1>=this->_commands.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::swap(size_t, size_t): input index `i0` is bigger than stored commands");
+    if(i0==i1) throw std::runtime_error(this->_info_name+"::swap(size_t, size_t): the two index arguments to swap can't be the same.");
+    if(i0>=this->_commands.size()) throw std::runtime_error(this->_info_name+"::swap(size_t, size_t): input index `i0` is bigger than stored commands");
+    if(i1>=this->_commands.size()) throw std::runtime_error(this->_info_name+"::swap(size_t, size_t): input index `i0` is bigger than stored commands");
     std::vector<std::string> tmp_commands = this->_commands[i0];
     std::string 
         tmp_commands_raw = this->_commands_raw[i0],
@@ -536,7 +536,7 @@ int IK_PATH::GCODE_schedule::swap(size_t i0, size_t i1) {
 
 int IK_PATH::GCODE_schedule::add(std::string newCommand) {
     if(this->_parse_line(newCommand)==-1) {
-        if(this->verbose) std::cout << this->_parse_error_msg << std::endl;
+        if(this->verbose) std::cout << "IK_PATH::GCODE_schedule::add(std::string): "+this->_parse_error_msg << std::endl;
         return 1;
     }
     this->_commands.push_back(this->_lastParsed_args);
@@ -546,7 +546,7 @@ int IK_PATH::GCODE_schedule::add(std::string newCommand) {
     return 0;
 }
 int IK_PATH::GCODE_schedule::insert(size_t idx, std::string newCommand) {
-    if(idx>=this->_commands.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::insert(size_t, std::string) input index is bigger than stored commands");
+    if(idx>=this->_commands.size()) throw std::runtime_error(this->_info_name+"::insert(size_t, std::string) input index is bigger than stored commands");
     if(this->_parse_line(newCommand)==-1) {
         if(this->verbose) std::cout << this->_parse_error_msg << std::endl;
         return 1;
@@ -558,7 +558,7 @@ int IK_PATH::GCODE_schedule::insert(size_t idx, std::string newCommand) {
     return 0;
 }
 int IK_PATH::GCODE_schedule::replace(size_t idx, std::string newCommand) {
-    if(idx>=this->_commands.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::replace(size_t, std::string) input index is bigger than stored commands");
+    if(idx>=this->_commands.size()) throw std::runtime_error(this->_info_name+"::replace(size_t, std::string) input index is bigger than stored commands");
     if(this->_parse_line(newCommand)==-1) {
         if(this->verbose) std::cout << this->_parse_error_msg << std::endl;
         return 1;
@@ -570,7 +570,7 @@ int IK_PATH::GCODE_schedule::replace(size_t idx, std::string newCommand) {
     return 0;
 }
 int IK_PATH::GCODE_schedule::erase(size_t idx) {
-    if(idx>=this->_commands.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::erase(size_t) input index is bigger than stored commands");
+    if(idx>=this->_commands.size()) throw std::runtime_error(this->_info_name+"::erase(size_t) input index is bigger than stored commands");
     this->_commands.erase(this->_commands.begin()+idx);
     this->_commands_raw.erase(this->_commands_raw.begin()+idx);
     this->_commands_orig.erase(this->_commands_orig.begin()+idx);
@@ -578,8 +578,8 @@ int IK_PATH::GCODE_schedule::erase(size_t idx) {
 
 
 int IK_PATH::GCODE_schedule::copy_in(IK_PATH::GCODE_schedule* _src, int mode, size_t mode2_insrt) {
-    if(_src->size()==0) throw std::runtime_error("ERROR: "+this->_info_name+"::copy_in(IK_PATH::GCODE_schedule*, int, size_t): in, int modeput object doesn't have any values");
-    if(mode2_insrt>this->_commands.size()) throw std::runtime_error("ERROR: "+this->_info_name+"::copy_in(IK_PATH::GCODE_schedule*, int, size_t): input value for mode2_insrt is bigger than stored size");
+    if(_src->size()==0) throw std::runtime_error(this->_info_name+"::copy_in(IK_PATH::GCODE_schedule*, int, size_t): in, int modeput object doesn't have any values");
+    if(mode2_insrt>this->_commands.size()) throw std::runtime_error(this->_info_name+"::copy_in(IK_PATH::GCODE_schedule*, int, size_t): input value for mode2_insrt is bigger than stored size");
     
     std::vector<std::vector<std::string>> tmp_commands;
     std::vector<std::string> tmp_commands_raw;

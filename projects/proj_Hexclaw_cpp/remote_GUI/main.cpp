@@ -69,7 +69,7 @@
 #define WIN_OUTPUT_FK_POS   [0, WIN_OUTPUT_ANGLES_POS[1]+WIN_INPUT_IK_HEIGHT]
 
 
-#define LIM_SHORTCUT_KEYS   10 //number of frames to wait after calling a boolean via key shortcut
+#define LIM_SHORTCUT_KEYS   8 //number of frames to wait after calling a boolean via key shortcut
 
 #define MAX_HISTORY_SIZE    10
 
@@ -364,32 +364,33 @@ void tab_0(void) {
     if(ImGui::BeginChild("IK info", ImVec2(WIN_INPUT_IK_WIDTH, WIN_INPUT_SETTINGS_HEIGHT-WIN_INPUT_IK_HEIGHT), input_child_flags)) {
         ImGui::SeparatorText("IK info");
 
-        const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y+ImGui::GetFrameHeightWithSpacing();
+        // const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y+ImGui::GetFrameHeightWithSpacing();
         static char buff_ScrollingRegion[256];
         // static char buff_temp[256];
         // static std::vector<std::vector<std::string>> history_scrollingRegions;
 
-
-        if(ImGui::BeginChild("ScrollingRegion", ImVec2(0,WIN_INPUT_SETTINGS_HEIGHT-WIN_INPUT_IK_HEIGHT-75),ImGuiChildFlags_None,ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NavFlattened)) {
-            
+        if(ImGui::BeginChild(
+            "ScrollingRegion",
+            ImVec2(0, WIN_INPUT_SETTINGS_HEIGHT-WIN_INPUT_IK_HEIGHT-50),
+            ImGuiChildFlags_None//, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NavFlattened
+        )) {
+            int tab0_schedule_size_len = std::to_string(tab0_schedule.size()).length();
             for(int i=0; i<tab0_schedule.size(); i++) {
                 ImGui::PushID(i);
-
 
                 std::string tempStr = "";
                 for(int ii=0; ii<tab0_schedule[i].size(); ii++) tempStr+=tab0_schedule[i][ii]+" ";
                 // ImGui::TextUnformatted(std::string(">> "+tempStr).c_str());
                 // ImGui::TextUnformatted(std::string(">> "+DIY::prettyPrint_vec1<std::string>(tab0_schedule[i])).c_str());
                 // ImGui::TextUnformatted(tab0_schedule.get_raw(i).c_str());
-                snprintf(buff_ScrollingRegion, 256, "%s", tempStr.c_str());
+                snprintf(buff_ScrollingRegion, IM_ARRAYSIZE(buff_ScrollingRegion), "%s", tempStr.c_str());
                 // sprintf(buff_ScrollingRegion, "%s", tempStr.c_str());
-                ImGui::TextUnformatted(">>");
+                ImGui::TextUnformatted(DIY::formatNumber<int>(i, tab0_schedule_size_len).c_str());
                 ImGui::SameLine();
                 if(ImGui::InputText("", buff_ScrollingRegion, IM_ARRAYSIZE(buff_ScrollingRegion), ImGuiInputTextFlags_EnterReturnsTrue)) {
                     if(tab0_schedule.replace(i, std::string(buff_ScrollingRegion))==0) { //tab0_schedule modification
                         basic_timeline_add<IK_PATH::GCODE_schedule>(tab0_schedule, history_tab0_schedule, history_idx_tab0_schedule, MAX_HISTORY_SIZE);
 
-                        // history_scrollingRegions[i] = tab0_schedule[i];
                     }
                     else {
                         std::cout << "incorrect new gcode line."<<std::endl;
@@ -397,11 +398,8 @@ void tab_0(void) {
                 }
                 ImGui::SameLine();
                 if(ImGui::Button(std::string("X").c_str())) {
-                    // std::cout << "delete triggered: "<< i <<std::endl;
                     tab0_schedule.erase(i);
-
                     basic_timeline_add<IK_PATH::GCODE_schedule>(tab0_schedule, history_tab0_schedule, history_idx_tab0_schedule, MAX_HISTORY_SIZE);
-
                 }
 
 
@@ -444,10 +442,60 @@ void tab_0(void) {
             }
         }
         ImGui::Separator();
-        ImGui::TextUnformatted(std::string(">> "+outMsg).c_str());
+        static char buff_gcode_input[256];
+        if(ImGui::BeginChild(
+            "GCode_input",
+            ImVec2(0, 0),
+            ImGuiChildFlags_None
+        )) {
+            ImGui::PushID(0);
+            ImGui::TextUnformatted(">>");
+
+            ImGui::SameLine();
+            if(ImGui::InputText("", buff_gcode_input, IM_ARRAYSIZE(buff_gcode_input), 0)) {
+
+            }
+
+            ImGui::SameLine();
+            if(ImGui::Button("Add")) {
+                if(tab0_schedule.add(std::string(buff_gcode_input))==0) {
+                    basic_timeline_add<IK_PATH::GCODE_schedule>(tab0_schedule, history_tab0_schedule, history_idx_tab0_schedule, MAX_HISTORY_SIZE);
+                    snprintf(buff_gcode_input, IM_ARRAYSIZE(buff_gcode_input), "");
+                }
+                else {
+
+                }
+            }
+            ImGui::SameLine();
+            static int _insert_idx = -1;
+            if(ImGui::Button("Insert")) ImGui::OpenPopup("GCODE_insert_popup");
+            if(ImGui::BeginPopup("GCODE_insert_popup")) {
+                ImGui::TextUnformatted("Insert index:");
+                static int _schedule_insert_success = -1;
+                if(ImGui::InputInt(std::string("range:[0:"+std::to_string(tab0_schedule.size())+"]").c_str(), &_insert_idx,1,100,ImGuiInputTextFlags_EnterReturnsTrue)) {
+                }
+                ImGui::SameLine();
+                if(ImGui::Button("insert")) {
+
+                    if(_insert_idx>=0 && _insert_idx<tab0_schedule.size()) {
+                        _schedule_insert_success = tab0_schedule.insert(_insert_idx, std::string(buff_gcode_input));
+                    }
+                    else _schedule_insert_success = -1;
+
+                    if(_schedule_insert_success==0) basic_timeline_add<IK_PATH::GCODE_schedule>(tab0_schedule, history_tab0_schedule, history_idx_tab0_schedule, MAX_HISTORY_SIZE);
+                    else _schedule_insert_success = -1;
+                }
+
+                ImGui::EndPopup();
+            }
+
+
+            ImGui::PopID();
+            ImGui::EndChild();
+        }
 
         ImGui::EndChild();
-        perf_tab0.set_T0("T:IK_info"); //perf time_point:1
+        if(takePerf_tab_0) perf_tab0.set_T0("T:IK_info"); //perf time_point:1
     }
     ImGui::EndGroup();
     // perf_tab0.set_T1("group:0"); //perf time_point: 1
@@ -638,6 +686,9 @@ void tab_0(void) {
     if(takePerf_tab_0) perf_tab0.set_T0("T:IK_sol"); //perf time_point:0
     if(ImGui::BeginChild("Solved angles[deg.]", ImVec2(WIN_OUTPUT_ANGLES_WIDTH, WIN_OUTPUT_ANGLES_HEIGHT))) {
         ImGui::SeparatorText("IK solutions");
+        ImGui::TextUnformatted(std::string(">> "+outMsg).c_str());
+        ImGui::Separator();
+
         if(ImGui::BeginTable("IK_out", 6, table_flags_IK_out)) {
             for(int i=0; i<6; i++) ImGui::TableSetupColumn(std::string("q["+std::to_string(i)+"]").c_str());
             ImGui::TableHeadersRow();
