@@ -472,7 +472,7 @@ void tab_0(void) {
             if(ImGui::BeginPopup("GCODE_insert_popup")) {
                 ImGui::TextUnformatted("Insert index:");
                 static int _schedule_insert_success = -1;
-                if(ImGui::InputInt(std::string("range:[0:"+std::to_string(tab0_schedule.size())+"]").c_str(), &_insert_idx,1,100,ImGuiInputTextFlags_EnterReturnsTrue)) {
+                if(ImGui::InputInt(std::string("range:[0:"+std::to_string(tab0_schedule.size())+"]").c_str(), &_insert_idx,1,100)) {
                 }
                 ImGui::SameLine();
                 if(ImGui::Button("insert")) {
@@ -484,8 +484,8 @@ void tab_0(void) {
 
                     if(_schedule_insert_success==0) basic_timeline_add<IK_PATH::GCODE_schedule>(tab0_schedule, history_tab0_schedule, history_idx_tab0_schedule, MAX_HISTORY_SIZE);
                     else _schedule_insert_success = -1;
-                }
 
+                }
                 ImGui::EndPopup();
             }
 

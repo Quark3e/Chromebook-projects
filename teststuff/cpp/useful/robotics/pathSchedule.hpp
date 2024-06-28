@@ -106,19 +106,21 @@ namespace IK_PATH {
         {"M04"},
         {"M05"},
         {"M30"},
-        {"G00", "(X,Y,Z)"}, //U V W
-        {"G01", "(X,Y,Z)"},
-        {"G02", "(X,Y,Z)", "(I,J)/(R)"},
-        {"G03", "(X,Y,Z)", "(I,J)/(R)"},
-        {"G04", "(P)"},
-        {"G17+"},
-        {"G18+"},
-        {"G19+"},
-        {"G20+"},
-        {"G21+"},
-        {"G28", "(X,Y,Z)"},
-        {"G90+"},
-        {"G91+"},
+        {"G00", "(X,Y,Z)/(U,V,W)"}, // Linear interpolation: instant motion. U V W = a b y //tilt change is assumed to be a constant
+        {"G01", "(X,Y,Z)/(U,V,W)"}, // Linear interpolation: uses feedrate like G02 and G03
+        {"G02", "(X,Y,Z)", "(I,J)/(R)"}, // Circulat interpolation: CW
+        {"G03", "(X,Y,Z)", "(I,J)/(R)"}, // Circular interpolation: CCW
+        {"G04", "(P)"}, // Dwell/Pause for `P` number of milliseconds
+        {"G17+"}, // G_plane: XY
+        {"G18+"}, // G_plane: XZ
+        {"G19+"}, // G_plane: YZ
+        {"G20+"}, // G_unit:  Imperial[inch]
+        {"G21+"}, // G_unit:  Metric[mm]
+        // {"G28", "(X,Y,Z)"},
+        {"G90+"}, // G_positioning: absolute (coord)
+        {"G91+"}, // G_positioning: relative (coord)
+        {"A0+"},  // A_positioning: absolute (orient)
+        {"A1+"},  // A_positioning: relative (orient)
         {"F{INT}"}
     };
 
@@ -145,11 +147,11 @@ namespace IK_PATH {
         int G_plane     = 17;   //Plane selection: `17`-XY; `18`-XZ; `19`-YZ
         int G_posit     = 90;   //Coordinate positioning: `90`-absolute; `91`-relative to previous
         int G_motion    =  0;
-        int F_feedrate  = 10;  //Speed of movement: `{G_unit}/min`
+        int A_posit     =  0;   //Orientation positioning: `0`-absolute, `1`-relative
+        int F_feedrate  = 10;   //Speed of movement: `{G_unit}/min`
 
-        float ref_pos[3] = {0, 0, 0};
-        float ref_tilt[3]= {0, 0, 0};
-
+        float ref_pos[3] = {0, 0, 0}; // last input coordinate (updated by each new command/coordinate-point)
+        float ref_tilt[3]= {0, 0, 0}; // last input orientation (updated by each new command/orient-point)
 
 
         int  _syntax_idx(std::string arg, bool* gcode_additional=nullptr);
@@ -186,7 +188,6 @@ namespace IK_PATH {
         int erase(size_t idx);
 
         int copy_in(IK_PATH::GCODE_schedule* _src, int mode=0, size_t mode2_insrt=0);
-
 
         int runSchedule(TDEF_runCode funcToCall = null_TDEF_runCode);
 
@@ -614,17 +615,51 @@ int IK_PATH::GCODE_schedule::copy_in(IK_PATH::GCODE_schedule* _src, int mode, si
 }
 
 
-int IK_PATH::GCODE_schedule::runSchedule(TDEF_runCode funcToCall = null_TDEF_runCode) {
+int IK_PATH::GCODE_schedule::runSchedule(TDEF_runCode funcToCall) {
+    /**
+     * Parsed line interpretation
+     * Constants:
+     * - {"X", "Y", "Z"}
+     * 
+     */
     int returCode = 0;
 
+    static auto valueIndexer = [](char letter) {
+        int idx;
+        switch (letter) {
+            case 'U': idx = 0; break;
+            case 'V': idx = 1; break;
+            case 'W': idx = 2; break;
+            case 'X': idx = 3; break;
+            case 'Y': idx = 4; break;
+            case 'Z': idx = 5; break;
+            default: break;
+        }
+        return idx;
+    };
 
+    float new_coord[3]  = {this->ref_pos[0], this->ref_pos[1], this->ref_pos[2]};
+    float nwe_orient[3] = {this->ref_tilt[0], this->ref_tilt[1], this->ref_tilt[2]};
+
+    ///@brief {U, V, W, X, Y, Z}
+    float sendValues[6];
+
+    int arg_idx = 0;
     for(size_t i=0; i<this->_commands.size(); i++) {
         std::vector<std::string> tmp = this->_commands[i];
-        for(std::string arg: tmp) {
+        if(tmp[arg_idx]=="G00") {
             
         }
+        for(std::string arg: tmp) {
+            if(arg=="G00") {
+
+            }
 
 
+
+        }
+
+        
     }
 
     return returCode;
