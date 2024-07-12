@@ -15,7 +15,15 @@ namespace NC {
         std::string label   = ""; //optional
         std::string desc    = ""; //optional
 
+        /**
+         * Integer code for source type: Whether it's "out" or "share":
+         * - {`out`: `1`, `share`: `3`}
+         */
         int type_src;
+        /**
+         * Integer code for dest type: WHether it's "in" our "add"
+         * - {`in`: `0`, `add`: `2`}
+         */
         int type_dest;
 
         NC::NODE* src;
@@ -56,18 +64,24 @@ namespace NC {
          */
         std::list<NC::LINK> _links;
 
+        //Address of the last `NC::NODE` element in the list: NOTE: can be added or inserted , so it doesn't have to be the last element
+        NC::NODE* _lastAddedNode = nullptr;
+
         public:
         NodeChart(/* args */);
+        size_t size(int whatList=0);
+
+        NC::NODE* lastAdded_NODE();
 
         NC::NODE operator[](size_t i) const;
         
 
-        int NODE_add(
+        NC::NODE* NODE_add(
             std::string label   = "",
             std::string desc    = "",
             std::string bodyText= ""
         );
-        int NODE_insert(
+        NC::NODE* NODE_insert(
             size_t insert_idx,
             std::string label   = "",
             std::string desc    = "",

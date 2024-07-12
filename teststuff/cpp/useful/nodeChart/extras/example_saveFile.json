@@ -1,0 +1,33 @@
+
+{
+    "NODES": {
+        "example node addr 0": {
+            "label"     :   "",
+            "desc"      :   "",
+            "bodyText"  :   "",
+            "LINK_IN"   :   [],
+            "LINK_OUT"  :   ["example link addr 0"],
+            "LINK_ADD"  :   [],
+            "LINK_SHARE":   []
+        },
+        "example node addr 1": {
+            "label"     :   "",
+            "desc"      :   "",
+            "bodyText"  :   "",
+            "LINK_IN"   :   [],
+            "LINK_OUT"  :   [],
+            "LINK_ADD"  :   ["example link addr 0"],
+            "LINK_SHARE":   []
+        }
+    },
+    "LINKS": {
+        "example link addr 0": {
+            "label"     :   "",
+            "desc"      :   "",
+            "TYPE_src"  :   1, 
+            "TYPE_dest" :   2,
+            "NODE_SRC"  :   "example node addr 0",
+            "NODE_DEST" :   "example node addr 1"
+        }
+    }
+}
