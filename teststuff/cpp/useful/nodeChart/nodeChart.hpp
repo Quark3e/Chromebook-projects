@@ -26,9 +26,24 @@ namespace NC {
          */
         int type_dest;
 
-        NC::NODE* src;
-        NC::NODE* dest;
-    
+        NC::NODE* src;  // link source
+        NC::NODE* dest; // link destination
+
+
+        LINK(
+            int par_type_src, int par_type_dest,
+            NC::NODE* par_src, NC::NODE* par_dest,
+            std::string par_label="",std::string par_desc=""
+        ) {
+            if(par_type_src!=1 && par_type_src!=3 && par_type_dest!=0 && par_type_dest!=2) std::runtime_error("ERROR: NC::LINK() constructor par_type_{..} is invalid");
+
+            this->type_src  = par_type_src;
+            this->type_dest = par_type_dest;
+            this->src  = par_src;
+            this->dest = par_dest;
+            this->label = par_label;
+            this->desc  = par_desc;
+        }
 
     };
     
@@ -64,14 +79,28 @@ namespace NC {
          */
         std::list<NC::LINK> _links;
 
-        //Address of the last `NC::NODE` element in the list: NOTE: can be added or inserted , so it doesn't have to be the last element
+        //Address of the last `NC::NODE` element in the list
         NC::NODE* _lastAddedNode = nullptr;
+        //Address of the last `NC::LINK` element in the list
+        NC::LINK* _lastAddedLink = nullptr;
+
+        template<typename storedType>
+        int _find_ptr_idx(const std::list<storedType>& toCheck, storedType* ptr_toFind);
+        template<typename storedType>
+        auto _find_ptr_itr(const std::list<storedType>& toCheck, storedType* ptr_toFind);
+
+        template<typename storedType>
+        int _vecfind_ptr_idx(const std::vector<storedType>& toCheck, storedType toFind);
+        template<typename storedType>
+        auto _vecfind_ptr_itr(const std::vector<storedType>& toCheck, storedType toFind);
+
 
         public:
         NodeChart(/* args */);
         size_t size(int whatList=0);
 
         NC::NODE* lastAdded_NODE();
+        NC::LINK* lastAdded_LINK();
 
         NC::NODE operator[](size_t i) const;
         
@@ -87,23 +116,28 @@ namespace NC {
             std::string desc    = "",
             std::string bodyText= ""
         );
-        int NODE_delete(size_t NODE_idx);
-        int NODE_delete(NC::NODE* NODE_toDelete);
+        int NODE_delete(size_t NODE_idx, bool leaveFloating=false);
+        int NODE_delete(NC::NODE* NODE_toDelete, bool leaveFloating=false);
 
-        int LINK_add(
+        NC::LINK* LINK_add(
             size_t NODE_src_idx,
             size_t NODE_dest_idx,
+            int type_src,
+            int type_dest,
             std::string label   = "",
             std::string desc    = ""
         );
-        int LINK_add(
+        NC::LINK* LINK_add(
             NC::NODE* NODE_src,
             NC::NODE* NODE_dest,
+            int type_src,
+            int type_dest,
             std::string label   = "",
             std::string desc    = ""
         );
+        int LINK_swapSrc(NC::LINK* toSwap, NC::NODE* newSrc);
+        int LINK_swapDest(NC::LINK* toSwap, NC::NODE* newDest);
         int LINK_delete(NC::LINK* LINK_toDelete);
-
 
     };
     
