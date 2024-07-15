@@ -1,5 +1,5 @@
 
-#include <nodeChart.hpp>
+#include "nodeChart.hpp"
 
 template<typename storedType>
 int NC::NodeChart::_find_ptr_idx(const std::list<storedType>& toCheck, storedType* ptr_toFind) {
@@ -19,7 +19,7 @@ auto NC::NodeChart::_find_ptr_itr(const std::list<storedType>& toCheck, storedTy
     int found = -1;
     for(auto itr=toCheck.begin(); itr!=toCheck.end(); ++itr) {
         found++;
-        if(&*itr==ptr_toFind) {
+        if(&(*itr)==ptr_toFind) {
             return itr;
         }
     }
@@ -33,19 +33,19 @@ int NC::NodeChart::_vecfind_ptr_idx(const std::vector<storedType>& toCheck, stor
     int found = -1;
     for(auto itr=toCheck.begin(); itr!=toCheck.end(); ++itr) {
         found++;
-        if(&*itr==toFind) {
+        if((*itr)==toFind) {
             return found;
         }
     }
     return found;
 }
 template<typename storedType>
-auto NC::NodeChart::_vecfind_ptr_itr(const std::vector<storedType>& toCheck, storedType toFind) {
+auto NC::NodeChart::_vecfind_ptr_itr(std::vector<storedType>& toCheck, storedType toFind) {
     // std::vector<storedType>::const_iterator itr;
     int found = -1;
     for(auto itr=toCheck.begin(); itr!=toCheck.end(); ++itr) {
         found++;
-        if(&*itr==toFind) {
+        if((*itr)==toFind) {
             return itr;
         }
     }
@@ -70,6 +70,7 @@ size_t NC::NodeChart::size(int whatList) {
     if(whatList==0) return this->_nodes.size();
     else if(whatList==1) return this->_links.size();
     std::runtime_error("ERROR: "+this->_info_name+"size(int): input arguemnt for `whatList` does not match available options");
+    return 0;
 }
 
 /**

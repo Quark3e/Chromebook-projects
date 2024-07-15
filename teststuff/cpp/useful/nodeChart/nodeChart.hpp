@@ -11,6 +11,8 @@
 
 namespace NC {    
 
+    struct NODE;
+
     struct LINK {
         std::string label   = ""; //optional
         std::string desc    = ""; //optional
@@ -92,7 +94,7 @@ namespace NC {
         template<typename storedType>
         int _vecfind_ptr_idx(const std::vector<storedType>& toCheck, storedType toFind);
         template<typename storedType>
-        auto _vecfind_ptr_itr(const std::vector<storedType>& toCheck, storedType toFind);
+        auto _vecfind_ptr_itr( std::vector<storedType>& toCheck, storedType toFind);
 
 
         public:

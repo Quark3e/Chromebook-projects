@@ -42,5 +42,7 @@ int main(int argc, char** argv) {
     std::cout <<"["<< tempVar << "]" << " "<<*itrFunc<std::string>(temp, static_cast<size_t>(tempVar));
 
 
+    
+
     return 0;
 }

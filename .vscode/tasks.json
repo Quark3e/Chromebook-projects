@@ -152,6 +152,29 @@
 				"isDefault": true
 			},
 			"detail": "compiler: /usr/bin/g++"
+		},
+		{
+			"type": "cppbuild",
+			"label": "CUSTOM [nodeChart] EXE_ C/C++: g++ build active file and run build",
+			"command": "/usr/bin/g++",
+			"args": [
+				"-fdiagnostics-color=always",
+				"-g",
+				"${file}",
+				"/usr/local/include/HC_useful/nodeChart/nodeChart.cpp",
+				"-o",
+				"${fileDirname}/${fileBasenameNoExtension}_EXE",
+				"&&",
+				"${fileDirname}/${fileBasenameNoExtension}_EXE"
+			],
+			"options": {
+				"cwd": "${fileDirname}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build",
+			"detail": "compiler: /usr/bin/g++\nadds \"_EXE\" at the end to denote as executable"
 		}
 	]
 }
