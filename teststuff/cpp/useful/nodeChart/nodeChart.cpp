@@ -268,11 +268,12 @@ int NC::NodeChart::LINK_swapSrc(NC::LINK* toSwap, NC::NODE* newSrc, int srcType)
 
     if(toSwap->src==newSrc) return 1;
     
-    // locate and erase the link address from the current src NODE
-    std::vector<NC::LINK*>& eraseVec = (toSwap->type_src==1? toSwap->src->ln_out : toSwap->src->ln_share);
-    std::vector<NC::LINK*>::const_iterator deleteItr = _vecfind_ptr_itr<NC::LINK*>(eraseVec, toSwap);
-    eraseVec.erase(deleteItr);
-
+    if(toSwap->src!=nullptr) {
+        // locate and erase the link address from the current src NODE
+        std::vector<NC::LINK*>& eraseVec = (toSwap->type_src==1? toSwap->src->ln_out : toSwap->src->ln_share);
+        std::vector<NC::LINK*>::const_iterator deleteItr = _vecfind_ptr_itr<NC::LINK*>(eraseVec, toSwap);
+        eraseVec.erase(deleteItr);
+    }
     // update src address in the link
     toSwap->src = newSrc;
 
@@ -291,12 +292,12 @@ int NC::NodeChart::LINK_swapDest(NC::LINK* toSwap, NC::NODE* newDest, int destTy
 
     if(toSwap->dest==newDest) return 1;
 
-
-    // locate and erase the link address from the current dest NODE
-    std::vector<NC::LINK*>& eraseVec = (toSwap->type_dest==0? toSwap->dest->ln_in : toSwap->dest->ln_add);
-    std::vector<NC::LINK*>::const_iterator deleteItr = _vecfind_ptr_itr<NC::LINK*>(eraseVec, toSwap);
-    eraseVec.erase(deleteItr);
-
+    if(toSwap->dest!=nullptr) {
+        // locate and erase the link address from the current dest NODE
+        std::vector<NC::LINK*>& eraseVec = (toSwap->type_dest==0? toSwap->dest->ln_in : toSwap->dest->ln_add);
+        std::vector<NC::LINK*>::const_iterator deleteItr = _vecfind_ptr_itr<NC::LINK*>(eraseVec, toSwap);
+        eraseVec.erase(deleteItr);
+    }
     // update dest address in the link
     toSwap->dest = newDest;
 
@@ -310,5 +311,24 @@ int NC::NodeChart::LINK_swapDest(NC::LINK* toSwap, NC::NODE* newDest, int destTy
 int NC::NodeChart::LINK_delete(
     NC::LINK* LINK_toDelete
 ) {
+    std::list<NC::LINK>::const_iterator linkItr = _find_ptr_itr<NC::LINK>(this->_links, LINK_toDelete);
+    if(linkItr==this->_links.end()) std::runtime_error("ERROR: "+this->_info_name+"LINK_delete(NC::LINK*): invalid `NC::LINK` address to delete.");
 
+
+    if(LINK_toDelete->src!=nullptr) {
+        //locate and erase this link from LINK_toDelete src NODE.
+        std::vector<NC::LINK*>& eraseVec = (LINK_toDelete->type_src==1? LINK_toDelete->src->ln_out : LINK_toDelete->src->ln_share);
+        std::vector<NC::LINK*>::const_iterator deleteItr = _vecfind_ptr_itr<NC::LINK*>(eraseVec, LINK_toDelete);
+        eraseVec.erase(deleteItr);
+    }
+    if(LINK_toDelete->dest!=nullptr) {
+        //locate and erase this link from LINK_toDelete dest NODE.
+        std::vector<NC::LINK*>& eraseVec = (LINK_toDelete->type_dest==0? LINK_toDelete->dest->ln_in : LINK_toDelete->dest->ln_add);
+        std::vector<NC::LINK*>::const_iterator deleteItr = _vecfind_ptr_itr<NC::LINK*>(eraseVec, LINK_toDelete);
+        eraseVec.erase(deleteItr);
+    }
+
+    this->_links.erase(linkItr);
+
+    return 0;
 }
