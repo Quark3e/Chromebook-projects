@@ -258,17 +258,51 @@ NC::LINK* NC::NodeChart::LINK_add(
     return this->_lastAddedLink;
 }
 
-int NC::NodeChart::LINK_swapSrc(NC::LINK* toSwap, NC::NODE* newSrc) {
-    if(_find_ptr_itr<NC::NODE>(_nodes,newSrc)==_nodes.end())
-        std::runtime_error("ERROR: "+this->_info_name+"LINK_swapSrc(NC::LINK*, NC::NODE*): arg for `newSrc` is not a valid `NC::NODE` address");
+int NC::NodeChart::LINK_swapSrc(NC::LINK* toSwap, NC::NODE* newSrc, int srcType) {
+    if(srcType!=1 && srcType!=3) std::runtime_error("ERROR: "+this->_info_name+"LINK_swapSrc(NC::LINK*, NC::NODE*, int): invalid `srcType` input");
+    if(_find_ptr_itr<NC::NODE>(_nodes, newSrc)==_nodes.end())
+        std::runtime_error("ERROR: "+this->_info_name+"LINK_swapSrc(NC::LINK*, NC::NODE*, int): arg for `newSrc` is not a valid `NC::NODE` address");
     else if(_find_ptr_itr<NC::LINK>(_links, toSwap)==_links.end())
-        std::runtime_error("ERROR: "+this->_info_name+"LINK_swapSrc(NC::LINK*, NC::NODE*): arg for `toSwap` is not a valid `NC::LINK` address");
+        std::runtime_error("ERROR: "+this->_info_name+"LINK_swapSrc(NC::LINK*, NC::NODE*, int): arg for `toSwap` is not a valid `NC::LINK` address");
 
+
+    if(toSwap->src==newSrc) return 1;
     
+    // locate and erase the link address from the current src NODE
+    std::vector<NC::LINK*>& eraseVec = (toSwap->type_src==1? toSwap->src->ln_out : toSwap->src->ln_share);
+    std::vector<NC::LINK*>::const_iterator deleteItr = _vecfind_ptr_itr<NC::LINK*>(eraseVec, toSwap);
+    eraseVec.erase(deleteItr);
+
+    // update src address in the link
+    toSwap->src = newSrc;
+
+    // add NC::LINK address to the new NODE in correct std::vector container
+    if(srcType==1) newSrc->ln_out.push_back(toSwap);
+    else if(srcType==3) newSrc->ln_share.push_back(toSwap);
 
     return 0;
 }
-int NC::NodeChart::LINK_swapDest(NC::LINK* toSwap, NC::NODE* newDest) {
+int NC::NodeChart::LINK_swapDest(NC::LINK* toSwap, NC::NODE* newDest, int destType) {
+    if(destType!=0 && destType!=2) std::runtime_error("ERROR: "+this->_info_name+"LINK_swapDest(NC::LINK*, NC::NODE*, int): invalid `destType` input");
+    if(_find_ptr_itr<NC::NODE>(_nodes, newDest)==_nodes.end())
+        std::runtime_error("ERROR: "+this->_info_name+"LINK_swapDest(NC::LINK*, NC::NODE*, int): arg for `newDest` is not a valid `NC::NODE` address");
+    else if(_find_ptr_itr<NC::LINK>(_links, toSwap)==_links.end())
+        std::runtime_error("ERROR: "+this->_info_name+"LINK_swapDest(NC::LINK*, NC::NODE*, int): arg for `toSwap` is not a valid `NC::LINK` address");
+
+    if(toSwap->dest==newDest) return 1;
+
+
+    // locate and erase the link address from the current dest NODE
+    std::vector<NC::LINK*>& eraseVec = (toSwap->type_dest==0? toSwap->dest->ln_in : toSwap->dest->ln_add);
+    std::vector<NC::LINK*>::const_iterator deleteItr = _vecfind_ptr_itr<NC::LINK*>(eraseVec, toSwap);
+    eraseVec.erase(deleteItr);
+
+    // update dest address in the link
+    toSwap->dest = newDest;
+
+    // add NC::LINK address to the new NODE in correct std::vector container
+    if(destType==0) newDest->ln_in.push_back(toSwap);
+    else if(destType==2) newDest->ln_add.push_back(toSwap);
 
     return 0;
 }
