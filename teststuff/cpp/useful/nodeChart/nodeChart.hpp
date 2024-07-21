@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <vector>
 #include <list>
+#include <fstream>
 
 
 namespace NC {    
@@ -140,6 +141,8 @@ namespace NC {
         int LINK_swapSrc(NC::LINK* toSwap, NC::NODE* newSrc, int srcType);
         int LINK_swapDest(NC::LINK* toSwap, NC::NODE* newDest, int destType);
         int LINK_delete(NC::LINK* LINK_toDelete);
+
+        int save(std::string filename, bool overwrite = false);
 
     };
     

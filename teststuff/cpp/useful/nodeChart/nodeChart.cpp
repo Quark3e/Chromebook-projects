@@ -333,3 +333,17 @@ int NC::NodeChart::LINK_delete(
 
     return 0;
 }
+
+
+int NC::NodeChart::save(std::string filename, bool overwrite) {
+    std::ofstream saveFile;
+    saveFile.open(filename);
+
+    if(!saveFile.is_open()) std::runtime_error("ERROR: "+this->_info_name+"save(std::string, bool): could not open/create file.");
+
+
+
+
+
+    return 0;
+}
