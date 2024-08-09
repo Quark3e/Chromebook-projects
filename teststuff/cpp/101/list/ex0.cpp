@@ -4,6 +4,13 @@
 #include <vector>
 #include <string>
 
+
+template<typename _varType> int checkExistence(_varType toFind, const std::vector<_varType>& toSearch);
+template<typename _varType> int checkExistence(_varType toFind, const std::list<_varType>& toSearch);
+template<typename _varType> int checkExistence(_varType toFind, _varType toSearch[], int arrLen);
+
+
+
 std::string nums[10] = {
     "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"
 };
@@ -18,30 +25,6 @@ auto itrFunc(const std::list<var>& listRef, size_t idx=0) {
     return listRef.end();
 }
 
-
-
-template<typename _varType> int checkExistence(_varType toFind, const std::vector<_varType>& toSearch) {
-    for(size_t i=0; i<toSearch.size(); i++) {
-        if(toSearch.at(i)==toFind) return static_cast<int>(i);
-    }
-    return -1;
-}
-template<typename _varType> int checkExistence(_varType toFind, const std::list<_varType>& toSearch) {
-    int count=0;
-    for(auto itr=toSearch.begin(); itr!=toSearch.end(); ++itr) {
-        if(*itr==toFind) return count;
-
-        count++;
-    }
-
-    return -1;
-}
-template<typename _varType> int checkExistence(_varType toFind, _varType toSearch[], int arrLen) {
-    for(int i=0; i<arrLen; i++) {
-        if(toSearch[i]==toFind) return i;
-    }
-    return -1;
-}
 
 
 int main(int argc, char** argv) {
@@ -76,3 +59,27 @@ int main(int argc, char** argv) {
     return 0;
 }
 
+
+
+template<typename _varType> int checkExistence(_varType toFind, const std::vector<_varType>& toSearch) {
+    for(size_t i=0; i<toSearch.size(); i++) {
+        if(toSearch.at(i)==toFind) return static_cast<int>(i);
+    }
+    return -1;
+}
+template<typename _varType> int checkExistence(_varType toFind, const std::list<_varType>& toSearch) {
+    int count=0;
+    for(auto itr=toSearch.begin(); itr!=toSearch.end(); ++itr) {
+        if(*itr==toFind) return count;
+
+        count++;
+    }
+
+    return -1;
+}
+template<typename _varType> int checkExistence(_varType toFind, _varType toSearch[], int arrLen) {
+    for(int i=0; i<arrLen; i++) {
+        if(toSearch[i]==toFind) return i;
+    }
+    return -1;
+}

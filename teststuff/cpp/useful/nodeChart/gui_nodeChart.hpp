@@ -100,14 +100,29 @@ namespace gNC {
             float par_posX_share=63,float par_posY_share=0
 
         ): label{par_label}, desc{par_desc}, bodyText{par_bodyText}, ln_in{par_ln_in}, ln_out{par_ln_out}, ln_add{par_ln_add}, ln_share{par_ln_share} {
-            if(par_layout != 0 && par_layout != 0 && par_layout != 0 && par_layout != 0)
+            if(checkExistence<int>(par_layout, std::vector<int>{0,1,2,3})==-1) std::runtime_error("ERROR: gNC::gNODE constructor: par_layout is an invalid value");
+            layout = par_layout;
             width   = par_width;
             height  = par_height;
             pos[0]  = par_posX;
             pos[1]  = par_posY;
             pos_in[0]   = par_posX_in;  pos_in[1]   = par_posY_in;
             pos_out[0]  = par_posX_out; pos_out[1]  = par_posY_out;
-            pos_add_0[0]= par_posX_add; pos_add_0[1]= par_posY_add;
+            pos_add_0[0]    = par_posX_add;     pos_add_0[1]    = par_posY_add;
+            pos_share_0[0]  = par_posX_share;   pos_share_0[1]  = par_posY_share;
+            if(layout==0 || layout==1) {
+                pos_add_1[0]    = pos_add_0[0];
+                pos_add_1[1]    = height*2-pos_add_0[1];
+                pos_share_1[0]  = pos_share_0[0];
+                pos_share_1[1]  = height*2-pos_share_0[1];
+            }
+            else if(layout==2 || layout==3) {
+                pos_add_1[1]    = pos_add_0[1];
+                pos_add_1[0]    = width*2-pos_add_0[0];
+                pos_share_1[1]  = pos_share_0[1];
+                pos_share_1[0]  = width*2-pos_share_0[0];
+            }
+
 
         }
 
