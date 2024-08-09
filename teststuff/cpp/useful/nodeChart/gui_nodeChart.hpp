@@ -1,6 +1,15 @@
 
 
-#include "nodeChart.hpp"
+// #include "nodeChart.hpp"
+#include <iostream>
+#include <string>
+#include <vector>
+#include <list>
+
+
+template<typename _varType> int checkExistence(_varType toFind, const std::vector<_varType>& toSearch);
+template<typename _varType> int checkExistence(_varType toFind, const std::list<_varType>& toSearch);
+template<typename _varType> int checkExistence(_varType toFind, _varType toSearch[], int arrLen);
 
 
 namespace gNC {
@@ -47,6 +56,15 @@ namespace gNC {
         std::string desc    = ""; //optional
         std::string bodyText= ""; //optional
 
+        /**
+         * Different modes for the layout of the gNode:
+         *  - `0` - horizontal: left->right
+         *  - `1` - horizontal: right->left (text is left->right)
+         *  - `2` - vertical:   top->down
+         *  - `3` - vertical:   down->top
+         */
+        int layout;
+
         /// @details GUI related
         float width = 100; /// [unit: px] width of the bounding box ROI
         float height= 50; /// [unit: px] height of the bounding box ROI
@@ -56,7 +74,7 @@ namespace gNC {
 
         float pos_in[2]     = {0,  25}; // [unit: px] Position of the `ln_in` node bounding box
         float pos_out[2]    = {100, 25}; // [unit: px] Position of the `ln_out` node bounding box
-        float pos_add_0[2]  = {31,  0}; // [unit: px] Position of the `ln_add` node bounding box
+        float pos_add_0[2]  = {31,  0}; // [unit: px] Position of the `ln_add` node bounding box 
         float pos_add_1[2]  = {31, 50};
         float pos_share_0[2]= {63,  0}; // [unit: px] Position of the `ln_share` node bounding box
         float pos_share_1[2]= {63, 50};
@@ -74,15 +92,23 @@ namespace gNC {
             std::string par_label="",std::string par_desc="", std::string par_bodyText="",
             std::vector<gNC::gLINK*> par_ln_in=std::vector<gNC::gLINK*>(),  std::vector<gNC::gLINK*> par_ln_out=std::vector<gNC::gLINK*>(),
             std::vector<gNC::gLINK*> par_ln_add=std::vector<gNC::gLINK*>(), std::vector<gNC::gLINK*> par_ln_share=std::vector<gNC::gLINK*>(),
-            float par_width=100, float par_height=50,
-            float par_posX_in=0, float par_posY_in=25,
+            int par_layout = 0,
+            float par_width=100,    float par_height=50,
+            float par_posX_in=0,    float par_posY_in=25,
             float par_posX_out=100, float par_posY_out=25,
-            float par_posX_add=31, float par_posX_share=63
+            float par_posX_add=31,  float par_posY_add=0,
+            float par_posX_share=63,float par_posY_share=0
+
         ): label{par_label}, desc{par_desc}, bodyText{par_bodyText}, ln_in{par_ln_in}, ln_out{par_ln_out}, ln_add{par_ln_add}, ln_share{par_ln_share} {
+            if(par_layout != 0 && par_layout != 0 && par_layout != 0 && par_layout != 0)
             width   = par_width;
             height  = par_height;
             pos[0]  = par_posX;
             pos[1]  = par_posY;
+            pos_in[0]   = par_posX_in;  pos_in[1]   = par_posY_in;
+            pos_out[0]  = par_posX_out; pos_out[1]  = par_posY_out;
+            pos_add_0[0]= par_posX_add; pos_add_0[1]= par_posY_add;
+
         }
 
     };
@@ -147,6 +173,29 @@ namespace gNC {
     };
     
     
+}
 
 
+
+template<typename _varType> int checkExistence(_varType toFind, const std::vector<_varType>& toSearch) {
+    for(size_t i=0; i<toSearch.size(); i++) {
+        if(toSearch.at(i)==toFind) return static_cast<int>(i);
+    }
+    return -1;
+}
+template<typename _varType> int checkExistence(_varType toFind, const std::list<_varType>& toSearch) {
+    int count=0;
+    for(auto itr=toSearch.begin(); itr!=toSearch.end(); ++itr) {
+        if(*itr==toFind) return count;
+
+        count++;
+    }
+
+    return -1;
+}
+template<typename _varType> int checkExistence(_varType toFind, _varType toSearch[], int arrLen) {
+    for(int i=0; i<arrLen; i++) {
+        if(toSearch[i]==toFind) return i;
+    }
+    return -1;
 }
