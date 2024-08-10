@@ -173,15 +173,17 @@ int NC::NodeChart::NODE_delete(
             for(NC::LINK* plink: linkVec) {
                 // go to each link in link vector
                 if(NODE_toDelete==plink->src) {
-                    for(NC::LINK* pplink: (plink->type_dest==0? plink->dest->ln_in : plink->dest->ln_add)) {
+                    std::vector<NC::LINK*>& plink_type = (plink->type_dest==0? plink->dest->ln_in : plink->dest->ln_add);
+                    for(NC::LINK* pplink: plink_type) {
                         // iterate through stored links in opposing Node and find currently iterated link and erase it from the opposing Node
-                        if(pplink==plink) plink->dest->ln_in.erase(this->_vecfind_ptr_itr<NC::LINK*>((plink->type_dest==0? plink->dest->ln_in : plink->dest->ln_add), plink));
+                        if(pplink==plink) plink_type.erase(this->_vecfind_ptr_itr<NC::LINK*>((plink->type_dest==0? plink->dest->ln_in : plink->dest->ln_add), plink));
                     }
                 }
                 else if(NODE_toDelete==plink->dest) {
-                    for(NC::LINK* pplink: (plink->type_src==0? plink->src->ln_out : plink->src->ln_share)) {
+                    std::vector<NC::LINK*>& plink_type = (plink->type_src==0? plink->src->ln_out : plink->src->ln_share);
+                    for(NC::LINK* pplink: plink_type) {
                         // iterate through stored links in opposing Node and find currently iterated link and erase it from the opposing Node
-                        if(pplink==plink) plink->src->ln_in.erase(this->_vecfind_ptr_itr<NC::LINK*>((plink->type_src==0? plink->src->ln_out : plink->src->ln_share), plink));
+                        if(pplink==plink) plink_type.erase(this->_vecfind_ptr_itr<NC::LINK*>((plink->type_src==0? plink->src->ln_out : plink->src->ln_share), plink));
                     }
                 }
             }

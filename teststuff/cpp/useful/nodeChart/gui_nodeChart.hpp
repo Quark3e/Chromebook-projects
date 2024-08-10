@@ -110,7 +110,7 @@ namespace gNC {
             pos_out[0]  = par_posX_out; pos_out[1]  = par_posY_out;
             pos_add_0[0]    = par_posX_add;     pos_add_0[1]    = par_posY_add;
             pos_share_0[0]  = par_posX_share;   pos_share_0[1]  = par_posY_share;
-            if(layout==0 || layout==1) {
+            if(layout==0 || layout==1) { //define the opposing connection points positions
                 pos_add_1[0]    = pos_add_0[0];
                 pos_add_1[1]    = height*2-pos_add_0[1];
                 pos_share_1[0]  = pos_share_0[0];
@@ -175,7 +175,7 @@ namespace gNC {
         gNC::gNODE operator[](size_t i) const;
 
 
-        gNC::gNODE* NODE_add(
+        gNC::gNODE* NODE_create(
             float pos_x,
             float pos_y,
             float width = default_gNODE.width, //default_NODE_width,
@@ -184,7 +184,35 @@ namespace gNC {
             std::string desc    = "",
             std::string bodyText= ""
         );
+        int NODE_delete(size_t NODE_idx, bool leaveFloating=false);
+        int NODE_delete(gNC::gNODE* NODE_toDelete, bool leaveFloating=false);
 
+
+        gNC::gLINK* LINK_create(
+            size_t NODE_src_idx,
+            size_t NODE_dest_idx,
+            int type_src,
+            int type_dest,
+            std::string label   = "",
+            std::string desc    = ""
+        );
+        gNC::gLINK* LINK_create(
+            gNC::gNODE* NODE_src,
+            gNC::gNODE* NODE_dest,
+            int type_src,
+            int type_dest,
+            std::string label   =  "",
+            std::string desc    =  ""
+        );
+        int LINK_swapSrc(gNC::gLINK* toSwap, gNC::gNODE* newSrc, int srcType);
+        int LINK_swapDest(gNC::gLINK* toSwap, gNC::gNODE* newDest, int destType);
+        int LINK_delete(gNC::gLINK* LINK_toDelete);
+
+
+        int save(
+            std::string filename,
+            bool overwrite = false
+        );
     };
     
     
