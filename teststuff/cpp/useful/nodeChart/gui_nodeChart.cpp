@@ -76,13 +76,15 @@ int gNC::guiNodeChart::NODE_delete(gNC::gNODE* NODE_toDelete, bool leaveFloating
 
             for(gNC::gLINK* plink: linkVec) {
                 if(NODE_toDelete==plink->src) {
-                    for(gNC::gLINK* pplink: (plink->type_dest==0? plink->dest->ln_in : plink->dest->ln_add)) {
-                        if(pplink==plink) plink->dest->ln_in.erase(this->_vecfind_ptr_itr<gNC::gLINK*>((plink->type_dest==0? plink->dest->ln_in : plink->dest->ln_add), plink));
+                    std::vector<gNC::gLINK*>& plink_type = (plink->type_dest==0? plink->dest->ln_in : plink->dest->ln_add);
+                    for(gNC::gLINK* pplink: plink_type) {
+                        if(pplink==plink) plink_type.erase(this->_vecfind_ptr_itr<gNC::gLINK*>(plink_type, plink));
                     }
                 }
                 else if(NODE_toDelete==plink->dest) {
-                    for(gNC::gLINK* pplink: (plink->type_src==0? plink->src->ln_out : plink->src->ln_share)) {
-                        if(pplink==plink) plink->src->ln_in.erase
+                    std::vector<gNC::gLINK*>& plink_type = (plink->type_src==1? plink->src->ln_out : plink->src->ln_share);
+                    for(gNC::gLINK* pplink: plink_type) {
+                        if(pplink==plink) plink_type.erase(this->_vecfind_ptr_itr<gNC::gLINK*>(plink_type, plink));
                     }
                 }
             }

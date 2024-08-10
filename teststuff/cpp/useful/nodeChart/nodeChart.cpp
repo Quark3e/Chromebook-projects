@@ -176,14 +176,14 @@ int NC::NodeChart::NODE_delete(
                     std::vector<NC::LINK*>& plink_type = (plink->type_dest==0? plink->dest->ln_in : plink->dest->ln_add);
                     for(NC::LINK* pplink: plink_type) {
                         // iterate through stored links in opposing Node and find currently iterated link and erase it from the opposing Node
-                        if(pplink==plink) plink_type.erase(this->_vecfind_ptr_itr<NC::LINK*>((plink->type_dest==0? plink->dest->ln_in : plink->dest->ln_add), plink));
+                        if(pplink==plink) plink_type.erase(this->_vecfind_ptr_itr<NC::LINK*>(plink_type, plink));
                     }
                 }
                 else if(NODE_toDelete==plink->dest) {
                     std::vector<NC::LINK*>& plink_type = (plink->type_src==0? plink->src->ln_out : plink->src->ln_share);
                     for(NC::LINK* pplink: plink_type) {
                         // iterate through stored links in opposing Node and find currently iterated link and erase it from the opposing Node
-                        if(pplink==plink) plink_type.erase(this->_vecfind_ptr_itr<NC::LINK*>((plink->type_src==0? plink->src->ln_out : plink->src->ln_share), plink));
+                        if(pplink==plink) plink_type.erase(this->_vecfind_ptr_itr<NC::LINK*>(plink_type, plink));
                     }
                 }
             }
