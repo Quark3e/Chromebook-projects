@@ -127,6 +127,8 @@ int gNC::guiNodeChart::NODE_delete(gNC::gNODE* NODE_toDelete, bool leaveFloating
                 NODE_toDelete->ln_share))
             );
 
+            std::vector<std::list<gNC::gLINK>::const_iterator> itrToErase;
+
             for(gNC::gLINK* plink: linkVec) {
                 if(NODE_toDelete==plink->src) {
                     std::vector<gNC::gLINK*>& plink_type = (plink->type_dest==0? plink->dest->ln_in : plink->dest->ln_add);
@@ -140,7 +142,9 @@ int gNC::guiNodeChart::NODE_delete(gNC::gNODE* NODE_toDelete, bool leaveFloating
                         if(pplink==plink) plink_type.erase(this->_vecfind_ptr_itr<gNC::gLINK*>(plink_type, plink));
                     }
                 }
+                itrToErase.push_back(this->_find_ptr_itr<gNC::gLINK>(this->_links, plink));
             }
+            for(auto itrs: itrToErase) this->_links.erase(itrs);
         }
     }
     else if(leaveFloating) {
