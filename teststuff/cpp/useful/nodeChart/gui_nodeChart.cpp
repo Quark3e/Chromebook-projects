@@ -90,6 +90,21 @@ int gNC::guiNodeChart::NODE_delete(gNC::gNODE* NODE_toDelete, bool leaveFloating
             }
         }
     }
+    else if(leaveFloating) {
+        for(size_t i=0; i<4; i++) {
+            const std::vector<gNC::gLINK*> linkVec = (
+                i==0? NODE_toDelete->ln_in : 
+                (i==1? NODE_toDelete->ln_out : 
+                (i==2? NODE_toDelete->ln_add : 
+                NODE_toDelete->ln_share))
+            );
+
+            for(gNC::gLINK* plink: linkVec) {
+                if(NODE_toDelete==plink->src)       plink->src  = nullptr;
+                else if(NODE_toDelete==plink->dest) plink->dest = nullptr;
+            }
+        }
+    }
 }
 
 
