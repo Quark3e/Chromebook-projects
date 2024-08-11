@@ -148,9 +148,9 @@ namespace gNC {
          */
         std::list<gNC::gLINK> _links;
 
-        //Address of the last `NC::NODE` element in the list
+        //Address of the last `gNC::gNODE` element in the list
         gNC::gNODE* _lastAddedNode = nullptr;
-        //Address of the last `NC::LINK` element in the list
+        //Address of the last `gNC::gLINK` element in the list
         gNC::gLINK* _lastAddedLink = nullptr;
 
         template<typename storedType>
@@ -215,9 +215,7 @@ namespace gNC {
         );
     };
     
-    
 }
-
 
 
 template<typename _varType> int checkExistence(_varType toFind, const std::vector<_varType>& toSearch) {

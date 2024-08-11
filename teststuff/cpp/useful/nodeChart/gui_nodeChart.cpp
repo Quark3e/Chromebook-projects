@@ -177,7 +177,22 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create(
     std::string label,
     std::string desc
 ) {
+    if(NODE_src_idx>=this->_nodes.size() || NODE_dest_idx>=this->_nodes.size()) {
+        std::runtime_error(
+            "ERROR: "+this->_info_name+"LINK_create(size_t, size_t, int, int, std::string, std::string):"+
+            " arg for `{..}_idx` is out of range"
+        );
+    }
 
+    gNC::gNODE *ptrSrc, *ptrDest;
+    std::list<gNC::gNODE>::iterator itr = this->_nodes.begin();
+    advance(itr, NODE_src_idx);
+    ptrSrc  = &*itr;
+    itr = this->_nodes.begin();
+    advance(itr, NODE_dest_idx);
+    ptrDest = &*itr;
+
+    return this->LINK_create(ptrSrc, ptrDest, type_src, type_dest, label, desc);
 }
 gNC::gLINK* gNC::guiNodeChart::LINK_create(
     gNC::gNODE* NODE_src,
@@ -187,16 +202,91 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create(
     std::string label,
     std::string desc
 ) {
+    std::list<gNC::gNODE>::const_iterator
+        eraseItr_src    = this->_find_ptr_itr<gNC::gNODE>(this->_nodes, NODE_src),
+        eraseItr_dest   = this->_find_ptr_itr<gNC::gNODE>(this->_nodes, NODE_dest);
 
+    if(eraseItr_src==this->_nodes.end() || eraseItr_dest==this->_nodes.end())
+        std::runtime_error(
+            "ERROR: "+this->_info_name+"LINK_create(gNC::gNODE*, gNC::gNODE*, int, int, std::string, std::string):"+
+            " arg(s) for node address(es) does not exist in stored nodes."
+        );
+    if(type_src!=1 && type_src!=3 && type_dest!=0 && type_dest!=2) 
+        std::runtime_error(
+            "ERROR: "+this->_info_name+"LINK_create(gNC::gNODE*, gNC::gNODE*, int, int, std::string, std::string):"+
+            " arg(s) for type_{..} is/are not valid."
+        );
+
+    this->_links.push_back(gNC::gLINK(type_src, type_dest, NODE_src, NODE_dest, label, desc));
+    this->_lastAddedLink = &(this->_links.back());
+    return this->_lastAddedLink;
 }
 int gNC::guiNodeChart::LINK_swapSrc(gNC::gLINK* toSwap, gNC::gNODE* newSrc, int srcType) {
+    if(srcType!=1 && srcType!=3) std::runtime_error("ERROR: "+this->_info_name+"LINK_swapSrc(gNC::gLINK*, gNC::gNODE*, int): invalid `srcType` input");
+    if(_find_ptr_itr<gNC::gNODE>(_nodes, newSrc)==_nodes.end())
+        std::runtime_error("ERROR: "+this->_info_name+"LINK_swapSrc(gNC::gLINK*, gNC::gNODE*, int): arg for `newSrc` is not a valid `gNC::gNODE` address");
+    else if(_find_ptr_itr<gNC::gLINK>(_links, toSwap)==_links.end())
+        std::runtime_error("ERROR: "+this->_info_name+"LINK_swapSrc(gNC::gLINK*, gNC::gNODE*, int): arg for `toSwap` is not a valid `gNC::gLINK` address");
 
+
+    if(toSwap->src==newSrc) return 1;
+
+    if(toSwap->src!=nullptr) {
+        std::vector<gNC::gLINK*>& eraseVec = (toSwap->type_src==1? toSwap->src->ln_out : toSwap->src->ln_share);
+        std::vector<gNC::gLINK*>::const_iterator deleteItr = _vecfind_ptr_itr<gNC::gLINK*>(eraseVec, toSwap);
+        eraseVec.erase(deleteItr);
+    }
+
+    toSwap->src = newSrc;
+
+    if(srcType==1)      newSrc->ln_out.push_back(toSwap);
+    else if(srcType==3) newSrc->ln_share.push_back(toSwap);
+
+    return 0;
 }
 int gNC::guiNodeChart::LINK_swapDest(gNC::gLINK* toSwap, gNC::gNODE* newDest, int destType) {
+    if(destType!=0 && destType!=2) std::runtime_error("ERROR: "+this->_info_name+"LINK_swapDest(gNC::gLINK*, gNC::gNODE*, int): invalid `destType` input");
+    if(_find_ptr_itr<gNC::gNODE>(_nodes, newDest)==_nodes.end())
+        std::runtime_error("ERROR: "+this->_info_name+"LINK_swapDest(gNC::gLINK*, gNC::gNODE*, int): arg for `newDest` is not a valid `NC::NODE` address");
+    else if(_find_ptr_itr<gNC::gLINK>(_links, toSwap)==_links.end())
+        std::runtime_error("ERROR: "+this->_info_name+"LINK_swapDest(gNC::gLINK*, gNC::gNODE*, int): arg for `toSwap` is not a valid `NC::LINK` address");
 
+    if(toSwap->dest==newDest) return 1;
+
+    if(toSwap->dest!=nullptr) {
+        // locate and erase the link address from the current dest NODE
+        std::vector<gNC::gLINK*>& eraseVec = (toSwap->type_dest==0? toSwap->dest->ln_in : toSwap->dest->ln_add);
+        std::vector<gNC::gLINK*>::const_iterator deleteItr = _vecfind_ptr_itr<gNC::gLINK*>(eraseVec, toSwap);
+        eraseVec.erase(deleteItr);
+    }
+    // update dest address in the link
+    toSwap->dest = newDest;
+
+    // add NC::LINK address to the new NODE in correct std::vector container
+    if(destType==0) newDest->ln_in.push_back(toSwap);
+    else if(destType==2) newDest->ln_add.push_back(toSwap);
+
+    return 0;
 }
 int gNC::guiNodeChart::LINK_delete(gNC::gLINK* LINK_toDelete) {
+    std::list<gNC::gLINK>::const_iterator linkItr = _find_ptr_itr<gNC::gLINK>(this->_links, LINK_toDelete);
+    if(linkItr==this->_links.end()) std::runtime_error("ERROR: "+this->_info_name+"LINK_delete(gNC::gLINK*): invalid `gNC::gLINK` address to delete");
 
+
+    if(LINK_toDelete->src!=nullptr) {
+        std::vector<gNC::gLINK*>& eraseVec = (LINK_toDelete->type_src==1? LINK_toDelete->src->ln_out : LINK_toDelete->src->ln_share);
+        std::vector<gNC::gLINK*>::const_iterator deleteItr = _vecfind_ptr_itr<gNC::gLINK*>(eraseVec, LINK_toDelete);
+        eraseVec.erase(deleteItr);
+    }
+    if(LINK_toDelete->dest!=nullptr) {
+        std::vector<gNC::gLINK*>& eraseVec = (LINK_toDelete->type_dest==0? LINK_toDelete->dest->ln_in : LINK_toDelete->dest->ln_add);
+        std::vector<gNC::gLINK*>::const_iterator deleteItr = _vecfind_ptr_itr<gNC::gLINK*>(eraseVec, LINK_toDelete);
+        eraseVec.erase(deleteItr);
+    }
+
+    this->_links.erase(linkItr);
+
+    return 0;
 }
 
 
