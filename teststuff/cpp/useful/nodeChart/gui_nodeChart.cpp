@@ -8,6 +8,59 @@ const gNC::gNODE gNC::guiNodeChart::default_gNODE = {
 };
 
 
+
+template<typename storedType>
+int gNC::guiNodeChart::_find_ptr_idx(const std::list<storedType>& toCheck, storedType* ptr_toFind) {
+    int found = -1;
+    for(auto itr=toCheck.begin(); itr!=toCheck.end(); ++itr) {
+        found ++;
+        if(&*itr==ptr_toFind) {
+            return found;
+        }
+    }
+    return found;
+}
+template<typename storedType>
+auto gNC::guiNodeChart::_find_ptr_itr(const std::list<storedType>& toCheck, storedType* ptr_toFind) {
+    int found = -1;
+    for(auto itr=toCheck.begin(); itr!=toCheck.end(); ++itr) {
+        found++;
+        if(&(*itr)==ptr_toFind) {
+            return itr;
+        }
+    }
+    return toCheck.end();
+}
+
+template<typename storedType>
+int gNC::guiNodeChart::_vecfind_ptr_idx(const std::vector<storedType>& toCheck, storedType toFind) {
+    int found = -1;
+    for(auto itr=toCheck.begin(); itr!=toCheck.end(); ++itr) {
+        found++;
+        if(*itr==toFind) {
+            return found;
+        }
+    }
+    return found;
+}
+template<typename storedType>
+auto gNC::guiNodeChart::_vecfind_ptr_itr( std::vector<storedType>& toCheck, storedType toFind) {
+    int found = -1;
+    for(auto itr=toCheck.begin(); itr!=toCheck.end(); ++itr) {
+        found++;
+        if(*itr==toFind) {
+            return itr;
+        }
+    }
+    return toCheck.end();
+}
+
+gNC::guiNodeChart::guiNodeChart(/* args */) {
+
+}
+
+
+
 size_t gNC::guiNodeChart::size(int whatList) {
     if(whatList==0) return this->_nodes.size();
     else if(whatList==1) return this->_links.size();
