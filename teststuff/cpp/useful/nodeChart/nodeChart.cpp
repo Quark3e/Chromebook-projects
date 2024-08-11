@@ -170,13 +170,17 @@ int NC::NodeChart::NODE_delete(
             // go to each link vector
             const std::vector<NC::LINK*> linkVec = (i==0? NODE_toDelete->ln_in : (i==1? NODE_toDelete->ln_out : (i==2? NODE_toDelete->ln_add : NODE_toDelete->ln_share)));
 
+            std::vector<std::list<NC::LINK>::const_iterator> itrToErase; //iterators of NC::LINK's to erase
             for(NC::LINK* plink: linkVec) {
                 // go to each link in link vector
                 if(NODE_toDelete==plink->src) {
                     std::vector<NC::LINK*>& plink_type = (plink->type_dest==0? plink->dest->ln_in : plink->dest->ln_add);
                     for(NC::LINK* pplink: plink_type) {
                         // iterate through stored links in opposing Node and find currently iterated link and erase it from the opposing Node
-                        if(pplink==plink) plink_type.erase(this->_vecfind_ptr_itr<NC::LINK*>(plink_type, plink));
+                        if(pplink==plink) {
+                            //erase the link in the corresponding node linked to the node that's about to be deleted
+                            plink_type.erase(this->_vecfind_ptr_itr<NC::LINK*>(plink_type, plink));
+                        }
                     }
                 }
                 else if(NODE_toDelete==plink->dest) {
@@ -186,7 +190,10 @@ int NC::NodeChart::NODE_delete(
                         if(pplink==plink) plink_type.erase(this->_vecfind_ptr_itr<NC::LINK*>(plink_type, plink));
                     }
                 }
+                itrToErase.push_back(this->_find_ptr_itr<NC::LINK>(this->_links, plink));
+                // this->_links.erase(this->_find_ptr_itr<NC::LINK>(this->_links, plink));
             }
+            for(auto itrs: itrToErase) this->_links.erase(itrs);
         }
     }
     else if(leaveFloating) {
@@ -205,6 +212,8 @@ int NC::NodeChart::NODE_delete(
             }
         }
     }
+
+    this->_nodes.erase(this->_find_ptr_itr<NC::NODE>(this->_nodes, NODE_toDelete));
 
     return 0;
 }

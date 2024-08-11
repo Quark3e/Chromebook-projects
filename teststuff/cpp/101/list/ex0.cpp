@@ -55,6 +55,31 @@ int main(int argc, char** argv) {
 
     std::cout << "\nexistence check: \""<<nums[5]<<"\""<<checkExistence<std::string>(nums[5],temp) << std::endl;
     
+    std::cout << "----------" << std::endl;
+    std::cout << "test:"<<std::endl;
+
+    std::vector<std::list<std::string>::iterator> itrToErase;
+    auto itr = temp.begin();
+    count = 0;
+    for(auto var: temp) {
+        if(count%2==0) {
+            std::cout << "   " << *itr << std::endl;//var;
+            itrToErase.push_back(itr);
+            // temp.erase(itr); //need to solve how to erase
+            // break;
+        }
+        count++;
+        ++itr;
+    }
+    for(auto itrs: itrToErase) temp.erase(itrs);
+    std::cout << "-----------" << std::endl;
+
+    count=0;
+    for(auto it=temp.begin(); it!=temp.end(); ++it) {
+        std::cout<<"["<<count<<"] "<< &*it<<"  "<<*it << std::endl;
+        count++;
+    }    
+    std::cout << "----------" << std::endl;
 
     return 0;
 }

@@ -158,6 +158,8 @@ int gNC::guiNodeChart::NODE_delete(gNC::gNODE* NODE_toDelete, bool leaveFloating
             }
         }
     }
+
+    return 0;
 }
 
 
