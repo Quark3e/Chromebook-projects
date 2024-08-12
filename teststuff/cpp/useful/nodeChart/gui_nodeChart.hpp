@@ -169,6 +169,9 @@ namespace gNC {
 
         size_t size(int whatList=0);
 
+        std::list<gNC::gNODE> NODES();
+        std::list<gNC::gLINK> LINKS();
+
         gNC::gNODE* lastAdded_NODE();
         gNC::gLINK* lastAdded_LINK();
 
@@ -186,6 +189,8 @@ namespace gNC {
         );
         int NODE_delete(size_t NODE_idx, bool leaveFloating=false);
         int NODE_delete(gNC::gNODE* NODE_toDelete, bool leaveFloating=false);
+
+        int NODE_move(gNC::gNODE* NODE_toMove, float new_X, float new_Y);
 
 
         gNC::gLINK* LINK_create(

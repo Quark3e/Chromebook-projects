@@ -8,7 +8,6 @@ const gNC::gNODE gNC::guiNodeChart::default_gNODE = {
 };
 
 
-
 template<typename storedType>
 int gNC::guiNodeChart::_find_ptr_idx(const std::list<storedType>& toCheck, storedType* ptr_toFind) {
     int found = -1;
@@ -82,6 +81,13 @@ gNC::gNODE gNC::guiNodeChart::operator[](size_t i) const {
     return const_cast<gNC::gNODE&>(*itr);
 }
 
+
+std::list<gNC::gNODE> gNC::guiNodeChart::NODES() {
+    return this->_nodes;
+}
+std::list<gNC::gLINK> gNC::guiNodeChart::LINKS() {
+    return this->_links;
+}
 
 gNC::gNODE* gNC::guiNodeChart::NODE_create(
     float pos_x,
@@ -168,6 +174,19 @@ int gNC::guiNodeChart::NODE_delete(gNC::gNODE* NODE_toDelete, bool leaveFloating
     return 0;
 }
 
+
+int gNC::guiNodeChart::NODE_move(gNC::gNODE* NODE_toMove, float new_X, float new_Y) {
+    auto moveItr = this->_find_ptr_itr<gNC::gNODE>(this->_nodes, NODE_toMove);
+    if(moveItr==this->_nodes.end()) std::runtime_error(
+        "ERROR: "+_info_name+"NODE_move(gNC::gNODE*, float, float)"+
+        " arg for gNC::gNODE address is invalid"
+    );
+
+    NODE_toMove->pos[0] = new_X;
+    NODE_toMove->pos[1] = new_Y;
+
+    
+}
 
 gNC::gLINK* gNC::guiNodeChart::LINK_create(
     size_t NODE_src_idx,
