@@ -1,6 +1,12 @@
 
 #include "gui_nodeChart.hpp"
 
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_allegro5.h>
+
+
 
 const gNC::gNODE gNC::guiNodeChart::default_gNODE = {
     0, 0,
@@ -185,7 +191,7 @@ int gNC::guiNodeChart::NODE_move(gNC::gNODE* NODE_toMove, float new_X, float new
     NODE_toMove->pos[0] = new_X;
     NODE_toMove->pos[1] = new_Y;
 
-    
+    return 0;
 }
 
 gNC::gLINK* gNC::guiNodeChart::LINK_create(
@@ -308,6 +314,13 @@ int gNC::guiNodeChart::LINK_delete(gNC::gLINK* LINK_toDelete) {
     return 0;
 }
 
+
+
+int gNC::guiNodeChart::draw() {
+    
+
+    return 0;
+}
 
 int gNC::guiNodeChart::save(
     std::string filename,

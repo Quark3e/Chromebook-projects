@@ -7,6 +7,11 @@
 #include <list>
 
 
+#include <dirent.h>
+#include <filesystem>
+
+
+
 template<typename _varType> int checkExistence(_varType toFind, const std::vector<_varType>& toSearch);
 template<typename _varType> int checkExistence(_varType toFind, const std::list<_varType>& toSearch);
 template<typename _varType> int checkExistence(_varType toFind, _varType toSearch[], int arrLen);
@@ -213,6 +218,8 @@ namespace gNC {
         int LINK_swapDest(gNC::gLINK* toSwap, gNC::gNODE* newDest, int destType);
         int LINK_delete(gNC::gLINK* LINK_toDelete);
 
+
+        int draw();
 
         int save(
             std::string filename,
