@@ -3,9 +3,10 @@
 // #include "nodeChart.hpp"
 #include <iostream>
 #include <string>
+#include <sstream>
+
 #include <vector>
 #include <list>
-
 
 #include <dirent.h>
 #include <filesystem>
@@ -15,13 +16,15 @@
 template<typename _varType> int checkExistence(_varType toFind, const std::vector<_varType>& toSearch);
 template<typename _varType> int checkExistence(_varType toFind, const std::list<_varType>& toSearch);
 template<typename _varType> int checkExistence(_varType toFind, _varType toSearch[], int arrLen);
-
+template<typename addrType> std::string ptrToStr(addrType toConv);
 
 namespace gNC {
 
     struct gNODE;
 
     struct gLINK {
+        std::string addr    = "";
+
         std::string label   = ""; //optional
         std::string desc    = ""; //optional
 
@@ -57,9 +60,13 @@ namespace gNC {
     };
 
     struct gNODE {
+        std::string addr    = "";
+
         std::string label   = ""; //optional
         std::string desc    = ""; //optional
         std::string bodyText= ""; //optional
+
+        bool init = false;
 
         /**
          * Different modes for the layout of the gNode:
@@ -71,8 +78,8 @@ namespace gNC {
         int layout;
 
         /// @details GUI related
-        float width = 100; /// [unit: px] width of the bounding box ROI
-        float height= 50; /// [unit: px] height of the bounding box ROI
+        float width = 200; /// [unit: px] width of the bounding box ROI
+        float height= 150; /// [unit: px] height of the bounding box ROI
 
         /// [unit: px] Absolute(relative to screen) {x, y} coordinate of the top left corner of this NODE ROI.
         float pos[2];
@@ -98,7 +105,7 @@ namespace gNC {
             std::vector<gNC::gLINK*> par_ln_in=std::vector<gNC::gLINK*>(),  std::vector<gNC::gLINK*> par_ln_out=std::vector<gNC::gLINK*>(),
             std::vector<gNC::gLINK*> par_ln_add=std::vector<gNC::gLINK*>(), std::vector<gNC::gLINK*> par_ln_share=std::vector<gNC::gLINK*>(),
             int par_layout = 0,
-            float par_width=100,    float par_height=50,
+            float par_width=160,    float par_height=140,
             float par_posX_in=0,    float par_posY_in=25,
             float par_posX_out=100, float par_posY_out=25,
             float par_posX_add=31,  float par_posY_add=0,
@@ -131,6 +138,15 @@ namespace gNC {
 
         }
 
+        void setPos(int x, int y) {
+            pos[0] = x;
+            pos[1] = y;
+        }
+        void setDim(int w, int h) {
+            width   = w;
+            height  = h;
+        }
+
     };
 
 
@@ -140,7 +156,6 @@ namespace gNC {
 
         static const gNC::gNODE default_gNODE;
         // static const float default_NODE_width   = 100;
-
 
         /**
          * Main storage for the different nodes. The nodes will be differentiated by their element
@@ -170,7 +185,14 @@ namespace gNC {
 
 
         public:
+        int screen_pos[2] = {0, 0};
+        int screen_dim[2] = {1280, 720};
+
         guiNodeChart(/* args */);
+
+        int setScreen_pos(int x, int y, int moveMode = 0);
+        int setScreen_dim(int w, int h);
+
 
         size_t size(int whatList=0);
 
@@ -251,4 +273,13 @@ template<typename _varType> int checkExistence(_varType toFind, _varType toSearc
         if(toSearch[i]==toFind) return i;
     }
     return -1;
+}
+
+
+template<typename addrType>
+std::string ptrToStr(addrType toConv) {
+    const void *address = static_cast<const void*>(toConv);
+    std::stringstream ss;
+    ss << address;
+    return ss.str();
 }

@@ -64,7 +64,29 @@ gNC::guiNodeChart::guiNodeChart(/* args */) {
 
 }
 
+int gNC::guiNodeChart::setScreen_pos(int x, int y, int moveMode) {
+    assert(moveMode>0 && moveMode<2);
 
+    switch (moveMode) {
+    case 0:
+        this->screen_pos[0] = x;
+        this->screen_pos[1] = y;
+        break;
+    case 1:
+        this->screen_pos[0]+=x;
+        this->screen_pos[1]+=y;
+        break;
+    default:
+        break;
+    }
+
+    return 0;
+}
+int gNC::guiNodeChart::setScreen_dim(int w, int h) {
+    this->screen_dim[0] = w;
+    this->screen_dim[1] = h;
+    return 0;
+}
 
 size_t gNC::guiNodeChart::size(int whatList) {
     if(whatList==0) return this->_nodes.size();
@@ -104,14 +126,14 @@ gNC::gNODE* gNC::guiNodeChart::NODE_create(
     float width,
     float height
 ) {
-
     this->_nodes.push_back(gNC::gNODE(
         pos_x, pos_y, label, desc, bodyText
     ));
 
     this->_lastAddedNode = &(this->_nodes.back());
-    return this->_lastAddedNode;
+    this->_lastAddedNode->addr = ptrToStr<gNC::gNODE*>(this->_lastAddedNode);
 
+    return this->_lastAddedNode;
 }
 int gNC::guiNodeChart::NODE_delete(size_t NODE_idx, bool leaveFloating) {
     if(NODE_idx >= this->_nodes.size()) std::runtime_error(
@@ -244,6 +266,7 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create(
 
     this->_links.push_back(gNC::gLINK(type_src, type_dest, NODE_src, NODE_dest, label, desc));
     this->_lastAddedLink = &(this->_links.back());
+    this->_lastAddedLink->addr = ptrToStr<gNC::gLINK*>(this->_lastAddedLink);
     return this->_lastAddedLink;
 }
 int gNC::guiNodeChart::LINK_swapSrc(gNC::gLINK* toSwap, gNC::gNODE* newSrc, int srcType) {
@@ -317,7 +340,29 @@ int gNC::guiNodeChart::LINK_delete(gNC::gLINK* LINK_toDelete) {
 
 
 int gNC::guiNodeChart::draw() {
-    
+    static ImGuiWindowFlags win_flags = 0;
+    win_flags |= ImGuiWindowFlags_NoResize;
+
+
+    for(auto itr=_nodes.begin(); itr!=this->_nodes.end(); ++itr) {
+        ImGui::Begin((*itr).addr.c_str(), NULL, win_flags);
+        ImGui::SetWindowSize(ImVec2(((*itr).width), (*itr).height));
+
+        if(!(*itr).init) {
+            ImGui::SetWindowPos(ImVec2((*itr).pos[0], (*itr).pos[1]));
+            (*itr).init = true;
+        }
+
+
+        if(ImGui::IsWindowFocused()) {
+            ImVec2 tempPos = ImGui::GetWindowPos();
+            (*itr).setPos(tempPos.x, tempPos.y);
+        }
+        ImGui::SetWindowPos(ImVec2((*itr).pos[0], (*itr).pos[1]));
+        
+        ImGui::End();
+    }
+
 
     return 0;
 }

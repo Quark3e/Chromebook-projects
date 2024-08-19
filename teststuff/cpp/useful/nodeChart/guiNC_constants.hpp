@@ -4,7 +4,14 @@
 #define HPP__GUI_NODECHART__CONSTANTS
 
 
-const int dim_main[2] = {1280, 720};
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_allegro5.h>
+
+
+
+ImVec2 dim__main = ImVec2(1280, 700);
 
 
 

@@ -11,25 +11,24 @@
  */
 
 
-#include "guiNC_constants.hpp"
-#include "gui_nodeChart.hpp"
-
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_allegro5.h>
 
+
+#include "guiNC_constants.hpp"
+#include "gui_nodeChart.hpp"
+
+
 #include <string>
 #include <sstream>
+#include <math.h>
 
 
 bool running_main = true;
 
-ImVec2 dim__main = ImVec2(1280, 720);
-
-
-template<typename addrType>
-std::string ptrToStr(addrType toConv);
+bool opt__enable_grid = true;
 
 
 int main(int argc, char** argv) {
@@ -49,8 +48,10 @@ int main(int argc, char** argv) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGuiStyle& style = ImGui::GetStyle();
 
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
 
     ImGui::StyleColorsDark();
     ImGui_ImplAllegro5_Init(display);
@@ -65,6 +66,7 @@ int main(int argc, char** argv) {
     window0_flags |= ImGuiWindowFlags_NoCollapse;
     window0_flags |= ImGuiWindowFlags_MenuBar;
     window0_flags |= ImGuiWindowFlags_NoTitleBar;
+    window0_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
 
     window1_flags |= ImGuiWindowFlags_NoResize;
 
@@ -86,9 +88,44 @@ int main(int argc, char** argv) {
         ImGui::NewFrame();
         //--------------------
         ImGui::SetNextWindowSizeConstraints(dim__main, dim__main);
+        style.WindowRounding = 0;
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 255));
+
         ImGui::Begin(" ", NULL, window0_flags);
+
+        ImGui::PopStyleColor();
+        ImGui::PopStyleVar();
+
         ImGui::SetWindowPos(ImVec2(0, 0));
         ImGui::SetWindowSize(dim__main);
+
+        ImDrawList* draw_list = ImGui::GetWindowDrawList();
+        // ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
+        // ImVec2 canvas_sz = ImGui::GetContentRegionAvail();
+        // if(canvas_sz.x < 50.0f) canvas_sz.x = 50.0f;
+        // if(canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
+        // ImVec2 canvas_p1 = ImVec2(canvas_p0.x+canvas_sz.x, canvas_p0.y+canvas_sz.y);
+
+        static const float GRID_STEP = 64.0f;
+        if(opt__enable_grid) {
+            draw_list->PushClipRect(ImVec2(0, 0), ImVec2(proj0.screen_dim[0], proj0.screen_dim[1]), true);
+
+            for(float x=0; x<(proj0.screen_dim[0]+proj0.screen_pos[0]); x+=GRID_STEP) {
+                draw_list->AddLine(ImVec2(x+proj0.screen_pos[0], 0), ImVec2(x+proj0.screen_pos[0], proj0.screen_dim[1]), IM_COL32(200, 200, 200, 40));
+            }
+            for(float x=0; x>(proj0.screen_pos[0]); x+=GRID_STEP) {
+                draw_list->AddLine(ImVec2(x+proj0.screen_pos[0], 0), ImVec2(x+proj0.screen_pos[0], proj0.screen_dim[1]), IM_COL32(200, 200, 200, 40));
+            }
+            for(float y=0; y<(proj0.screen_dim[1]+proj0.screen_pos[1]); y+=GRID_STEP) {
+                draw_list->AddLine(ImVec2(0, y+proj0.screen_pos[1]), ImVec2(proj0.screen_dim[0], y+proj0.screen_pos[1]), IM_COL32(200, 200, 200, 40));
+            }
+            for(float y=0; y>(proj0.screen_pos[1]); y+=GRID_STEP) {
+                draw_list->AddLine(ImVec2(0, y+proj0.screen_pos[1]), ImVec2(proj0.screen_dim[0], y+proj0.screen_pos[1]), IM_COL32(200, 200, 200, 40));
+            }
+            draw_list->PopClipRect();
+        }
 
 
         if(ImGui::BeginMenuBar()) {
@@ -104,19 +141,22 @@ int main(int argc, char** argv) {
             ImGui::EndMenuBar();
         }
 
+        static int cnt = 0;
         if(ImGui::BeginTabBar("Tabs")) {
             if(ImGui::BeginTabItem("project 0")) {
-
-                proj0.NODE_create(100,100, "node0", "desc0", "body0");
-                ImGui::Begin(std::string(proj0.lastAdded_NODE()).c_str(), NULL, window1_flags);
-                ImGui::End();
-
+                
+                if(cnt==0) {
+                    proj0.NODE_create(100, 100, "node0", "desc0", "body0");
+                    proj0.NODE_create( 30, 150, "node1", "desc1", "body1");
+                }
+                style.WindowRounding = 15.0f;
+                proj0.draw();
 
                 ImGui::EndTabItem();
             }
             ImGui::EndTabBar();
         }
-
+        cnt++;
 
         ImGui::SetCursorPos(ImVec2(10, dim__main[1]-25));
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f/io.Framerate, io.Framerate);
@@ -136,13 +176,3 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-
-
-
-template<typename addrType>
-std::string ptrToStr(addrType toConv) {
-    const void *address = static_cast<const void*>(toConv);
-    std::stringstream ss;
-    ss << address;
-    return ss.str();
-}
