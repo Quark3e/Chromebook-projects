@@ -98,11 +98,11 @@ std::list<gNC::gLINK> gNC::guiNodeChart::LINKS() {
 gNC::gNODE* gNC::guiNodeChart::NODE_create(
     float pos_x,
     float pos_y,
-    float width,
-    float height,
     std::string label,
     std::string desc,
-    std::string bodyText
+    std::string bodyText,
+    float width,
+    float height
 ) {
 
     this->_nodes.push_back(gNC::gNODE(

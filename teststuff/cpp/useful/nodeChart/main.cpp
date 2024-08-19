@@ -19,12 +19,17 @@
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_allegro5.h>
 
+#include <string>
+#include <sstream>
 
 
 bool running_main = true;
 
 ImVec2 dim__main = ImVec2(1280, 720);
 
+
+template<typename addrType>
+std::string ptrToStr(addrType toConv);
 
 
 int main(int argc, char** argv) {
@@ -53,11 +58,17 @@ int main(int argc, char** argv) {
     ImVec4 clear_color = ImVec4(0.20f, 0.20f, 0.2f, 0.88f);
 
     static ImGuiWindowFlags window0_flags = 0;
+    static ImGuiWindowFlags window1_flags = 0;
+
     window0_flags |= ImGuiWindowFlags_NoMove;
     window0_flags |= ImGuiWindowFlags_NoResize;
     window0_flags |= ImGuiWindowFlags_NoCollapse;
     window0_flags |= ImGuiWindowFlags_MenuBar;
     window0_flags |= ImGuiWindowFlags_NoTitleBar;
+
+    window1_flags |= ImGuiWindowFlags_NoResize;
+
+    gNC::guiNodeChart proj0;
 
 
     while(running_main) {
@@ -96,6 +107,11 @@ int main(int argc, char** argv) {
         if(ImGui::BeginTabBar("Tabs")) {
             if(ImGui::BeginTabItem("project 0")) {
 
+                proj0.NODE_create(100,100, "node0", "desc0", "body0");
+                ImGui::Begin(std::string(proj0.lastAdded_NODE()).c_str(), NULL, window1_flags);
+                ImGui::End();
+
+
                 ImGui::EndTabItem();
             }
             ImGui::EndTabBar();
@@ -118,4 +134,15 @@ int main(int argc, char** argv) {
     al_destroy_event_queue(queue);
     al_destroy_display(display);
     return 0;
+}
+
+
+
+
+template<typename addrType>
+std::string ptrToStr(addrType toConv) {
+    const void *address = static_cast<const void*>(toConv);
+    std::stringstream ss;
+    ss << address;
+    return ss.str();
 }

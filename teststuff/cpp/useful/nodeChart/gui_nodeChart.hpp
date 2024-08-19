@@ -186,11 +186,11 @@ namespace gNC {
         gNC::gNODE* NODE_create(
             float pos_x,
             float pos_y,
-            float width = default_gNODE.width, //default_NODE_width,
-            float height= default_gNODE.height,
             std::string label   = "",
             std::string desc    = "",
-            std::string bodyText= ""
+            std::string bodyText= "",
+            float width = default_gNODE.width, //default_NODE_width,
+            float height= default_gNODE.height
         );
         int NODE_delete(size_t NODE_idx, bool leaveFloating=false);
         int NODE_delete(gNC::gNODE* NODE_toDelete, bool leaveFloating=false);
