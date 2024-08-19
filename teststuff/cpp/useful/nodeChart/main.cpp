@@ -73,6 +73,9 @@ int main(int argc, char** argv) {
     gNC::guiNodeChart proj0;
 
 
+
+    static int cnt = 0;
+
     while(running_main) {
         ALLEGRO_EVENT al_event;
         while (al_get_next_event(queue, &al_event)) {
@@ -91,7 +94,7 @@ int main(int argc, char** argv) {
         style.WindowRounding = 0;
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 255));
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 200));
 
         ImGui::Begin(" ", NULL, window0_flags);
 
@@ -108,22 +111,19 @@ int main(int argc, char** argv) {
         // if(canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
         // ImVec2 canvas_p1 = ImVec2(canvas_p0.x+canvas_sz.x, canvas_p0.y+canvas_sz.y);
 
-        static const float GRID_STEP = 64.0f;
+        // proj0.screen_pos[0]=cnt;
+        // proj0.screen_pos[1]=cnt;
+
+        static const int GRID_STEP = 64;
         if(opt__enable_grid) {
             draw_list->PushClipRect(ImVec2(0, 0), ImVec2(proj0.screen_dim[0], proj0.screen_dim[1]), true);
 
-            for(float x=0; x<(proj0.screen_dim[0]+proj0.screen_pos[0]); x+=GRID_STEP) {
-                draw_list->AddLine(ImVec2(x+proj0.screen_pos[0], 0), ImVec2(x+proj0.screen_pos[0], proj0.screen_dim[1]), IM_COL32(200, 200, 200, 40));
-            }
-            for(float x=0; x>(proj0.screen_pos[0]); x+=GRID_STEP) {
-                draw_list->AddLine(ImVec2(x+proj0.screen_pos[0], 0), ImVec2(x+proj0.screen_pos[0], proj0.screen_dim[1]), IM_COL32(200, 200, 200, 40));
-            }
-            for(float y=0; y<(proj0.screen_dim[1]+proj0.screen_pos[1]); y+=GRID_STEP) {
-                draw_list->AddLine(ImVec2(0, y+proj0.screen_pos[1]), ImVec2(proj0.screen_dim[0], y+proj0.screen_pos[1]), IM_COL32(200, 200, 200, 40));
-            }
-            for(float y=0; y>(proj0.screen_pos[1]); y+=GRID_STEP) {
-                draw_list->AddLine(ImVec2(0, y+proj0.screen_pos[1]), ImVec2(proj0.screen_dim[0], y+proj0.screen_pos[1]), IM_COL32(200, 200, 200, 40));
-            }
+            for(float x=0; x<proj0.screen_dim[0]; x+=GRID_STEP)
+                draw_list->AddLine(ImVec2(x+(proj0.screen_pos[0] % GRID_STEP), 0), ImVec2(x+(proj0.screen_pos[0]%GRID_STEP), proj0.screen_dim[1]), IM_COL32(200, 200, 200, 40));
+
+            for(float y=0; y<proj0.screen_dim[1]; y+=GRID_STEP)
+                draw_list->AddLine(ImVec2(0, y+(proj0.screen_pos[1] % GRID_STEP)), ImVec2(proj0.screen_dim[0], y+(proj0.screen_pos[1]%GRID_STEP)), IM_COL32(200, 200, 200, 40));
+
             draw_list->PopClipRect();
         }
 
@@ -141,7 +141,6 @@ int main(int argc, char** argv) {
             ImGui::EndMenuBar();
         }
 
-        static int cnt = 0;
         if(ImGui::BeginTabBar("Tabs")) {
             if(ImGui::BeginTabItem("project 0")) {
                 
