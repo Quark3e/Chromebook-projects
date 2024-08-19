@@ -327,4 +327,6 @@ int gNC::guiNodeChart::save(
     bool overwrite
 ) {
 
+
+    return 0;
 }

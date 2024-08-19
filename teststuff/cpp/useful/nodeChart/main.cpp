@@ -11,7 +11,7 @@
  */
 
 
-
+#include "guiNC_constants.hpp"
 #include "gui_nodeChart.hpp"
 
 #include <allegro5/allegro.h>
@@ -19,6 +19,11 @@
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_allegro5.h>
 
+
+
+bool running_main = true;
+
+ImVec2 dim__main = ImVec2(1280, 720);
 
 
 
@@ -29,7 +34,7 @@ int main(int argc, char** argv) {
     al_install_mouse();
     al_init_primitives_addon();
     al_set_new_display_flags(!ALLEGRO_RESIZABLE);
-    ALLEGRO_DISPLAY* display = al_create_display(1280, 720);
+    ALLEGRO_DISPLAY* display = al_create_display(dim__main.x, dim__main.y);
     al_set_window_title(display, "al window title");
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
     al_register_event_source(queue, al_get_display_event_source(display));
@@ -44,11 +49,69 @@ int main(int argc, char** argv) {
 
     ImGui::StyleColorsDark();
     ImGui_ImplAllegro5_Init(display);
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    ImVec4 clear_color = ImVec4(0.20f, 0.20f, 0.2f, 0.88f);
+
+    static ImGuiWindowFlags window0_flags = 0;
+    window0_flags |= ImGuiWindowFlags_NoMove;
+    window0_flags |= ImGuiWindowFlags_NoResize;
+    window0_flags |= ImGuiWindowFlags_NoCollapse;
+    window0_flags |= ImGuiWindowFlags_MenuBar;
+    window0_flags |= ImGuiWindowFlags_NoTitleBar;
 
 
+    while(running_main) {
+        ALLEGRO_EVENT al_event;
+        while (al_get_next_event(queue, &al_event)) {
+            ImGui_ImplAllegro5_ProcessEvent(&al_event);
+            if(al_event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) running_main = false;
+            if(al_event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
+                ImGui_ImplAllegro5_InvalidateDeviceObjects();
+                al_acknowledge_resize(display);
+                ImGui_ImplAllegro5_CreateDeviceObjects();
+            }
+        }
+        ImGui_ImplAllegro5_NewFrame();
+        ImGui::NewFrame();
+        //--------------------
+        ImGui::SetNextWindowSizeConstraints(dim__main, dim__main);
+        ImGui::Begin(" ", NULL, window0_flags);
+        ImGui::SetWindowPos(ImVec2(0, 0));
+        ImGui::SetWindowSize(dim__main);
 
 
+        if(ImGui::BeginMenuBar()) {
+            if(ImGui::BeginMenu("File")) {
+                if(ImGui::MenuItem("Open")) { }
+                if(ImGui::MenuItem("Save")) { }
+                if(ImGui::MenuItem("Close")){ running_main = false; }
+                ImGui::EndMenu();
+            }
+            if(ImGui::BeginMenu("Program")) {
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenuBar();
+        }
+
+        if(ImGui::BeginTabBar("Tabs")) {
+            if(ImGui::BeginTabItem("project 0")) {
+
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
+        }
+
+
+        ImGui::SetCursorPos(ImVec2(10, dim__main[1]-25));
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f/io.Framerate, io.Framerate);
+        ImGui::End();
+        //--------------------
+        ImGui::Render();
+        al_clear_to_color(al_map_rgba_f(clear_color.x*clear_color.w, clear_color.y*clear_color.w, clear_color.z*clear_color.w, clear_color.w));
+        ImGui_ImplAllegro5_RenderDrawData(ImGui::GetDrawData());
+        al_flip_display();
+        std::cout.flush();
+    }
 
     ImGui_ImplAllegro5_Shutdown();
     ImGui::DestroyContext();
