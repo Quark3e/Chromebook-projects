@@ -1,11 +1,13 @@
 
-#include "gui_nodeChart.hpp"
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_allegro5.h>
 
+
+#include "gui_nodeChart.hpp"
+// #include <HC_useful/useful.hpp>
 
 
 const gNC::gNODE gNC::guiNodeChart::default_gNODE = {
@@ -64,15 +66,29 @@ gNC::guiNodeChart::guiNodeChart(/* args */) {
 
 }
 
+/**
+ * @brief move the background screen position and the objects on it.
+ * 
+ * @param x new x coordinate value
+ * @param y new y coordinate value
+ * @param moveMode
+ *  - `0` absolute
+ *  - `1` relative
+ * @return int 
+ */
 int gNC::guiNodeChart::setScreen_pos(int x, int y, int moveMode) {
     assert(moveMode>0 && moveMode<2);
 
     switch (moveMode) {
     case 0:
+        this->screen_pos_delta[0] = x-this->screen_pos[0];
+        this->screen_pos_delta[1] = y-this->screen_pos[1];
         this->screen_pos[0] = x;
         this->screen_pos[1] = y;
         break;
     case 1:
+        this->screen_pos_delta[0] = x;
+        this->screen_pos_delta[1] = y;
         this->screen_pos[0]+=x;
         this->screen_pos[1]+=y;
         break;
@@ -339,10 +355,22 @@ int gNC::guiNodeChart::LINK_delete(gNC::gLINK* LINK_toDelete) {
 
 
 
+extern bool IsLegacyNativeDupe(ImGuiKey key);
+extern std::vector<int>* update_keys(
+    std::vector<int>* ptr_pressed_key = nullptr,
+    size_t* ptr_num_keys_pressed = nullptr
+);
+
 int gNC::guiNodeChart::draw() {
+    static bool local_init = false;
+    static std::vector<int>* pressed_keys;
     static ImGuiWindowFlags win_flags = 0;
+
+    if(!local_init) pressed_keys = update_keys();
+
     win_flags |= ImGuiWindowFlags_NoResize;
 
+    ImGuiIO& io = ImGui::GetIO(); //(void)io;
 
     for(auto itr=_nodes.begin(); itr!=this->_nodes.end(); ++itr) {
         ImGui::Begin((*itr).addr.c_str(), NULL, win_flags);
@@ -355,15 +383,21 @@ int gNC::guiNodeChart::draw() {
 
 
         if(ImGui::IsWindowFocused()) {
-            ImVec2 tempPos = ImGui::GetWindowPos();
-            (*itr).setPos(tempPos.x, tempPos.y);
+            // ImVec2 tempPos = ImGui::GetWindowPos();
+            if(pressed_keys->size() > 0 && searchVec<int>(*pressed_keys, 655) != -1) {
+                (*itr).pos[0] += io.MouseDelta.x;
+                (*itr).pos[1] += io.MouseDelta.y;
+            }
+            // (*itr).setPos(tempPos.x, tempPos.y);
         }
-        ImGui::SetWindowPos(ImVec2((*itr).pos[0], (*itr).pos[1]));
+        else {
+            ImGui::SetWindowPos(ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]));
+        }
         
         ImGui::End();
     }
 
-
+    if(!local_init) local_init = true;
     return 0;
 }
 
@@ -375,3 +409,34 @@ int gNC::guiNodeChart::save(
 
     return 0;
 }
+
+template<typename addrType>
+std::string ptrToStr(addrType toConv) {
+    const void *address = static_cast<const void*>(toConv);
+    std::stringstream ss;
+    ss << address;
+    return ss.str();
+}
+
+// /**
+//  * @brief Search and find the vector index position of a certain value
+//  * 
+//  * @tparam T -data type of elements to look through
+//  * @param vec vector to search through
+//  * @param toFind value to find in the vector
+//  * @return int index of where on `vec` the given `toFind` value exists.
+//  * @note if the value is not found in the vector then the function will return -1
+//  */
+// template<class T> int searchVec(std::vector<T> vec, T toFind) {
+//     typename std::vector<T>::iterator idx = find(vec.begin(), vec.end(), toFind);
+//     if(idx!=vec.end()) return idx-vec.begin();
+//     else return -1;
+//     // int idx = -1;
+//     // for(size_t i=0; i<vec.size(); i++) {
+//     // 	if(vec.at(i)==toFind) {
+//     //     	idx=i;
+//     //         break;
+//     //     }
+//     // }
+//     // return idx;
+// }

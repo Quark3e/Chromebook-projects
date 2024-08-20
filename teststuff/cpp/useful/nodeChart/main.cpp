@@ -11,16 +11,16 @@
  */
 
 
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_primitives.h>
-#include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_allegro5.h>
+// #include <allegro5/allegro.h>
+// #include <allegro5/allegro_primitives.h>
+// #include <imgui/imgui.h>
+// #include <imgui/backends/imgui_impl_allegro5.h>
 
 
 #include "guiNC_constants.hpp"
 #include "gui_nodeChart.hpp"
 
-#include <HC_useful/useful.hpp>
+// #include <HC_useful/useful.hpp>
 
 #include <vector>
 #include <list>
@@ -28,6 +28,12 @@
 #include <string>
 #include <sstream>
 #include <math.h>
+
+
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_allegro5.h>
 
 
 bool running_main = true;
@@ -121,11 +127,11 @@ int main(int argc, char** argv) {
         if(ImGui::BeginMenuBar()) {
             if(ImGui::BeginMenu("File")) {
                 if(ImGui::MenuItem("Open")) { }
-                if(ImGui::MenuItem("Close")){ running_main = false; }
+                if(ImGui::MenuItem("Save")) { }
                 ImGui::EndMenu();
             }
             if(ImGui::BeginMenu("Program")) {
-                if(ImGui::MenuItem("Save")) { }
+                if(ImGui::MenuItem("Close")){ running_main = false; }
                 ImGui::EndMenu();
             }
             ImGui::EndMenuBar();
