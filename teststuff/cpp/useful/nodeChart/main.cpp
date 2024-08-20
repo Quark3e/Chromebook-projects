@@ -142,12 +142,6 @@ int main(int argc, char** argv) {
                 // std::cout << canvas_p1.x << " " << canvas_p1.y << std::endl;
 
 
-                ImVec2 subDIM_min = ImGui::GetWindowContentRegionMin();
-                ImVec2 subDIM_max = ImGui::GetWindowContentRegionMax();
-                
-
-                // std::cout << subDIM_min.x << " " << subDIM_min.y << "|" << subDIM_max.x << " " << subDIM_max.y << std::endl;
-
                 static const int GRID_STEP = 64;
                 if(opt__enable_grid) {
                     draw_list->PushClipRect(ImVec2(0, 20), ImVec2(proj0.screen_dim[0], proj0.screen_dim[1]), true);
