@@ -20,6 +20,10 @@
 #include "guiNC_constants.hpp"
 #include "gui_nodeChart.hpp"
 
+#include <HC_useful/useful.hpp>
+
+#include <vector>
+#include <list>
 
 #include <string>
 #include <sstream>
@@ -30,6 +34,12 @@ bool running_main = true;
 
 bool opt__enable_grid = true;
 
+
+static bool IsLegacyNativeDupe(ImGuiKey key) {
+    return key >= 0 && key < 512 && ImGui::GetIO().KeyMap[key] != -1;
+}
+std::vector<int>* update_keys(std::vector<int>* ptr_pressed_key=nullptr, size_t* ptr_num_keys_pressed=nullptr);
+std::vector<int>* update_mouse();
 
 int main(int argc, char** argv) {
 
@@ -47,7 +57,7 @@ int main(int argc, char** argv) {
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGuiIO& io = ImGui::GetIO(); //(void)io;
     ImGuiStyle& style = ImGui::GetStyle();
 
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -72,14 +82,15 @@ int main(int argc, char** argv) {
     window1_flags |= ImGuiWindowFlags_NoResize;
 
 
-
-
     gNC::guiNodeChart proj0;
 
 
     static int cnt = 0;
 
     while(running_main) {
+        static std::vector<int>* pressed_keys = update_keys();
+        update_keys();
+
         ALLEGRO_EVENT al_event;
         while (al_get_next_event(queue, &al_event)) {
             ImGui_ImplAllegro5_ProcessEvent(&al_event);
@@ -122,24 +133,24 @@ int main(int argc, char** argv) {
 
         if(ImGui::BeginTabBar("Tabs")) {
             if(ImGui::BeginTabItem("project 0")) {
-                
 
                 ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
                 ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 200));
                 assert(ImGui::BeginChild("tab0: contents", ImVec2(0, 0), ImGuiChildFlags_Border, ImGuiWindowFlags_NoMove));
                 ImGui::PopStyleColor();
                 ImGui::PopStyleVar();
-
+                
+                if(ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
+                    if(pressed_keys->size() > 0 && searchVec<int>(*pressed_keys, 655) != -1) {
+                        proj0.setScreen_pos(io.MouseDelta.x, io.MouseDelta.y, 1);
+                    }
+                }
 
                 ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
                 ImVec2 canvas_sz = ImGui::GetContentRegionAvail();
                 if(canvas_sz.x < 50.0f) canvas_sz.x = 50.0f;
                 if(canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
                 ImVec2 canvas_p1 = ImVec2(canvas_p0.x+canvas_sz.x, canvas_p0.y+canvas_sz.y);
-
-                // std::cout << canvas_p0.x << " " << canvas_p0.y << " | ";
-                // std::cout << canvas_sz.x << " " << canvas_sz.y << " | ";
-                // std::cout << canvas_p1.x << " " << canvas_p1.y << std::endl;
 
 
                 static const int GRID_STEP = 64;
@@ -188,3 +199,31 @@ int main(int argc, char** argv) {
     return 0;
 }
 
+
+
+std::vector<int>* update_keys(
+    std::vector<int>* ptr_pressed_key,
+    size_t* ptr_num_keys_pressed
+) {
+    static std::vector<int> pressed_keys;
+    static size_t num_keys_pressed = 0;
+    ImGuiKey start_key = (ImGuiKey)0;
+
+    pressed_keys.clear();
+    for(ImGuiKey key=start_key; key<ImGuiKey_NamedKey_END; key=(ImGuiKey)(key+1)) {
+        if(IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) continue;
+        pressed_keys.push_back(key);
+    }
+    num_keys_pressed = pressed_keys.size();
+
+    return &pressed_keys;
+}
+std::vector<int>* update_mouse() {
+    static std::vector<int> pressed_mouse;
+    static size_t num_mouse_pressed = 0;
+    ImGuiMouseButton start_mouse = (ImGuiMouseButton)0;
+
+    pressed_mouse.clear();
+    
+    return &pressed_mouse;
+}
