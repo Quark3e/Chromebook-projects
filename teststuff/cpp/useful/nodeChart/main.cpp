@@ -58,8 +58,9 @@ int main(int argc, char** argv) {
 
     ImVec4 clear_color = ImVec4(0.20f, 0.20f, 0.2f, 0.88f);
 
-    static ImGuiWindowFlags window0_flags = 0;
-    static ImGuiWindowFlags window1_flags = 0;
+    static ImGuiWindowFlags window0_flags   = 0;
+    static ImGuiWindowFlags window1_flags   = 0;
+    static ImGuiChildFlags  child0_flags    = 0;
 
     window0_flags |= ImGuiWindowFlags_NoMove;
     window0_flags |= ImGuiWindowFlags_NoResize;
@@ -70,8 +71,10 @@ int main(int argc, char** argv) {
 
     window1_flags |= ImGuiWindowFlags_NoResize;
 
-    gNC::guiNodeChart proj0;
 
+
+
+    gNC::guiNodeChart proj0;
 
 
     static int cnt = 0;
@@ -93,49 +96,25 @@ int main(int argc, char** argv) {
         ImGui::SetNextWindowSizeConstraints(dim__main, dim__main);
         style.WindowRounding = 0;
 
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 200));
 
         ImGui::Begin(" ", NULL, window0_flags);
-
-        ImGui::PopStyleColor();
-        ImGui::PopStyleVar();
 
         ImGui::SetWindowPos(ImVec2(0, 0));
         ImGui::SetWindowSize(dim__main);
 
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
-        // ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
-        // ImVec2 canvas_sz = ImGui::GetContentRegionAvail();
-        // if(canvas_sz.x < 50.0f) canvas_sz.x = 50.0f;
-        // if(canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
-        // ImVec2 canvas_p1 = ImVec2(canvas_p0.x+canvas_sz.x, canvas_p0.y+canvas_sz.y);
 
         // proj0.screen_pos[0]=cnt;
         // proj0.screen_pos[1]=cnt;
 
-        static const int GRID_STEP = 64;
-        if(opt__enable_grid) {
-            draw_list->PushClipRect(ImVec2(0, 0), ImVec2(proj0.screen_dim[0], proj0.screen_dim[1]), true);
-
-            for(float x=0; x<proj0.screen_dim[0]; x+=GRID_STEP)
-                draw_list->AddLine(ImVec2(x+(proj0.screen_pos[0] % GRID_STEP), 0), ImVec2(x+(proj0.screen_pos[0]%GRID_STEP), proj0.screen_dim[1]), IM_COL32(200, 200, 200, 40));
-
-            for(float y=0; y<proj0.screen_dim[1]; y+=GRID_STEP)
-                draw_list->AddLine(ImVec2(0, y+(proj0.screen_pos[1] % GRID_STEP)), ImVec2(proj0.screen_dim[0], y+(proj0.screen_pos[1]%GRID_STEP)), IM_COL32(200, 200, 200, 40));
-
-            draw_list->PopClipRect();
-        }
-
-
         if(ImGui::BeginMenuBar()) {
             if(ImGui::BeginMenu("File")) {
                 if(ImGui::MenuItem("Open")) { }
-                if(ImGui::MenuItem("Save")) { }
                 if(ImGui::MenuItem("Close")){ running_main = false; }
                 ImGui::EndMenu();
             }
             if(ImGui::BeginMenu("Program")) {
+                if(ImGui::MenuItem("Save")) { }
                 ImGui::EndMenu();
             }
             ImGui::EndMenuBar();
@@ -144,12 +123,52 @@ int main(int argc, char** argv) {
         if(ImGui::BeginTabBar("Tabs")) {
             if(ImGui::BeginTabItem("project 0")) {
                 
+
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+                ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 200));
+                assert(ImGui::BeginChild("tab0: contents", ImVec2(0, 0), ImGuiChildFlags_Border, ImGuiWindowFlags_NoMove));
+                ImGui::PopStyleColor();
+                ImGui::PopStyleVar();
+
+
+                ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
+                ImVec2 canvas_sz = ImGui::GetContentRegionAvail();
+                if(canvas_sz.x < 50.0f) canvas_sz.x = 50.0f;
+                if(canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
+                ImVec2 canvas_p1 = ImVec2(canvas_p0.x+canvas_sz.x, canvas_p0.y+canvas_sz.y);
+
+                // std::cout << canvas_p0.x << " " << canvas_p0.y << " | ";
+                // std::cout << canvas_sz.x << " " << canvas_sz.y << " | ";
+                // std::cout << canvas_p1.x << " " << canvas_p1.y << std::endl;
+
+
+                ImVec2 subDIM_min = ImGui::GetWindowContentRegionMin();
+                ImVec2 subDIM_max = ImGui::GetWindowContentRegionMax();
+                
+
+                // std::cout << subDIM_min.x << " " << subDIM_min.y << "|" << subDIM_max.x << " " << subDIM_max.y << std::endl;
+
+                static const int GRID_STEP = 64;
+                if(opt__enable_grid) {
+                    draw_list->PushClipRect(ImVec2(0, 20), ImVec2(proj0.screen_dim[0], proj0.screen_dim[1]), true);
+                    for(float x=0; x<proj0.screen_dim[0]; x+=GRID_STEP)
+                        draw_list->AddLine(ImVec2(x+(proj0.screen_pos[0] % GRID_STEP), 0+canvas_p0.y), ImVec2(x+(proj0.screen_pos[0]%GRID_STEP), canvas_p1.y), IM_COL32(200, 200, 200, 40));
+
+                    for(float y=0; y<proj0.screen_dim[1]; y+=GRID_STEP)
+                        draw_list->AddLine(ImVec2(canvas_p0.x, y+(proj0.screen_pos[1] % GRID_STEP)), ImVec2(canvas_p1.x, y+(proj0.screen_pos[1]%GRID_STEP)), IM_COL32(200, 200, 200, 40));
+                    draw_list->PopClipRect();
+                }
+
                 if(cnt==0) {
                     proj0.NODE_create(100, 100, "node0", "desc0", "body0");
                     proj0.NODE_create( 30, 150, "node1", "desc1", "body1");
+                    proj0.NODE_create(999, 500, "node2", "desc2", "body2");
                 }
                 style.WindowRounding = 15.0f;
                 proj0.draw();
+
+                
+                ImGui::EndChild();
 
                 ImGui::EndTabItem();
             }
