@@ -132,19 +132,20 @@ namespace gNC {
             pos_out[0]  = par_posX_out; pos_out[1]  = par_posY_out;
             pos_add_0[0]    = par_posX_add;     pos_add_0[1]    = par_posY_add;
             pos_share_0[0]  = par_posX_share;   pos_share_0[1]  = par_posY_share;
+            // std::cout<<pos_add_0[0]<< " "<<pos_add_0[1]<<" | " <<pos_share_0[0]<< " "<<pos_share_0[1] << " - ";
             if(layout==0 || layout==1) { //define the opposing connection points positions
                 pos_add_1[0]    = pos_add_0[0];
-                pos_add_1[1]    = height*2-pos_add_0[1];
+                pos_add_1[1]    = height-pos_add_0[1];
                 pos_share_1[0]  = pos_share_0[0];
-                pos_share_1[1]  = height*2-pos_share_0[1];
+                pos_share_1[1]  = height-pos_share_0[1];
             }
             else if(layout==2 || layout==3) {
                 pos_add_1[1]    = pos_add_0[1];
-                pos_add_1[0]    = width*2-pos_add_0[0];
+                pos_add_1[0]    = width-pos_add_0[0];
                 pos_share_1[1]  = pos_share_0[1];
-                pos_share_1[0]  = width*2-pos_share_0[0];
+                pos_share_1[0]  = width-pos_share_0[0];
             }
-
+            // std::cout<<pos_add_1[0]<< " "<<pos_add_1[1]<<" | " <<pos_share_1[0]<< " "<<pos_share_1[1] << std::endl;
 
         }
 

@@ -365,8 +365,8 @@ bool _draw__node_cosmetics(
 
     ImDrawList* local_drawList = ImGui::GetWindowDrawList();
 
-    std::cout << "-";
-    for(size_t i=0; i<2; i++) {
+    // std::cout << "-";
+    for(size_t i=0; i<4; i++) {
         ImVec2 tempPos = (
             i==0? ImVec2((*itr).pos_in[0], (*itr).pos_in[1]) :
             (i==1? ImVec2((*itr).pos_out[0], (*itr).pos_out[1]) :
@@ -374,16 +374,17 @@ bool _draw__node_cosmetics(
             ImVec2((*itr).pos_share_0[0], (*itr).pos_share_0[1])))
         );
 
+
         tempPos.x += nodePos.x;
         tempPos.y += nodePos.y;
+        local_drawList->AddCircleFilled(tempPos, 5, IM_COL32(100, 100, 100, 255), 50);
+        win_draw_list->AddCircleFilled( tempPos, 5, IM_COL32(100, 100, 100, 255), 50);
 
         // ImGui::SetCursorPos(tempPos);
         // ImGui::PushID(i);
         // ImGui::RadioButton("", &buttons[i], i);
         // ImGui::PopID();
 
-        win_draw_list->AddCircleFilled( tempPos, 5, IM_COL32(100, 100, 100, 255), 50);
-        local_drawList->AddCircleFilled(tempPos, 5, IM_COL32(100, 100, 100, 255), 50);
 
         if(i==2) {
             tempPos = ImVec2((*itr).pos_add_1[0], (*itr).pos_add_1[1]);
@@ -391,24 +392,28 @@ bool _draw__node_cosmetics(
         }
         switch (i) {
         case 2: tempPos = ImVec2((*itr).pos_add_1[0],   (*itr).pos_add_1[1]);
-        case 3: tempPos = ImVec2((*itr).pos_share_1[0], (*itr).pos_share_1[1]);
+        case 3: if(i==3) { tempPos = ImVec2((*itr).pos_share_1[0], (*itr).pos_share_1[1]); }
         case 69:
             tempPos.x += nodePos.x;
             tempPos.y += nodePos.y;
+            local_drawList->AddCircleFilled(tempPos, 5, IM_COL32(100, 100, 100, 255), 50);
+            win_draw_list->AddCircleFilled( tempPos, 5, IM_COL32(100, 100, 100, 255), 50);
 
-            ImGui::SetCursorPos(tempPos);
-            ImGui::PushID(i*2);
-            ImGui::RadioButton("", &buttons[i], i*2);
-            ImGui::PopID();
+            // ImGui::SetCursorPos(tempPos);
+            // ImGui::RadioButton("", &buttons[i], i*2);
+            // ImGui::PopID();
+
+            // win_draw_list->AddCircleFilled( tempPos, 5, IM_COL32(100, 100, 100, 255), 50);
+            // local_drawList->AddCircleFilled(tempPos, 5, IM_COL32(100, 100, 100, 255), 50);
             break;
         default:
             break;
         }
 
-        std::cout << i<<" ";
+        // std::cout << i<<" ";
 
     }
-    std::cout << std::endl;
+    // std::cout << std::endl;
 
     return result;
 }
