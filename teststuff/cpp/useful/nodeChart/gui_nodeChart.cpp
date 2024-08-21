@@ -363,6 +363,8 @@ bool _draw__node_cosmetics(
     bool result = true;
     static std::vector<int> buttons(4, 0);
 
+    ImDrawList* local_drawList = ImGui::GetWindowDrawList();
+
     std::cout << "-";
     for(size_t i=0; i<2; i++) {
         ImVec2 tempPos = (
@@ -372,15 +374,16 @@ bool _draw__node_cosmetics(
             ImVec2((*itr).pos_share_0[0], (*itr).pos_share_0[1])))
         );
 
-        // tempPos.x += nodePos.x;
-        // tempPos.y += nodePos.y;
+        tempPos.x += nodePos.x;
+        tempPos.y += nodePos.y;
 
-        ImGui::SetCursorPos(tempPos);
+        // ImGui::SetCursorPos(tempPos);
         // ImGui::PushID(i);
         // ImGui::RadioButton("", &buttons[i], i);
         // ImGui::PopID();
 
-        win_draw_list->AddCircleFilled(tempPos, 5, IM_COL32(100, 100, 100, 50), 10);
+        win_draw_list->AddCircleFilled( tempPos, 5, IM_COL32(100, 100, 100, 255), 50);
+        local_drawList->AddCircleFilled(tempPos, 5, IM_COL32(100, 100, 100, 255), 50);
 
         if(i==2) {
             tempPos = ImVec2((*itr).pos_add_1[0], (*itr).pos_add_1[1]);
@@ -390,8 +393,8 @@ bool _draw__node_cosmetics(
         case 2: tempPos = ImVec2((*itr).pos_add_1[0],   (*itr).pos_add_1[1]);
         case 3: tempPos = ImVec2((*itr).pos_share_1[0], (*itr).pos_share_1[1]);
         case 69:
-            // tempPos.x += nodePos.x;
-            // tempPos.y += nodePos.y;
+            tempPos.x += nodePos.x;
+            tempPos.y += nodePos.y;
 
             ImGui::SetCursorPos(tempPos);
             ImGui::PushID(i*2);
@@ -431,6 +434,9 @@ int gNC::guiNodeChart::draw() {
 
     ImGuiIO& io = ImGui::GetIO(); //(void)io;
 
+
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
     for(auto itr=_nodes.begin(); itr!=this->_nodes.end(); ++itr) {
         if(
             ((*itr).pos[0] + (*itr).width  + screen_pos[0] < 0 || (*itr).pos[0] + screen_pos[0] > screen_dim[0]) ||
@@ -442,7 +448,6 @@ int gNC::guiNodeChart::draw() {
         ImGui::Begin((*itr).addr.c_str(), NULL, win_flags);
         ImGui::SetWindowSize(ImVec2(((*itr).width), (*itr).height));
 
-        ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
         if(!(*itr).init) {
             ImGui::SetWindowPos(ImVec2((*itr).pos[0], (*itr).pos[1]));

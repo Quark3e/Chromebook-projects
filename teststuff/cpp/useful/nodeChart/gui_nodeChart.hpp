@@ -117,7 +117,7 @@ namespace gNC {
             int par_layout = 0,
             float par_width=160,    float par_height=140,
             float par_posX_in=0,    float par_posY_in=70,
-            float par_posX_out=140, float par_posY_out=70,
+            float par_posX_out=160, float par_posY_out=70,
             float par_posX_add=51,  float par_posY_add=0,
             float par_posX_share=110,float par_posY_share=0
 
