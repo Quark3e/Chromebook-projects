@@ -369,10 +369,16 @@ int gNC::guiNodeChart::draw() {
     if(!local_init) pressed_keys = update_keys();
 
     win_flags |= ImGuiWindowFlags_NoResize;
+    win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
 
     ImGuiIO& io = ImGui::GetIO(); //(void)io;
 
     for(auto itr=_nodes.begin(); itr!=this->_nodes.end(); ++itr) {
+        if(
+            ((*itr).pos[0] + (*itr).width  + screen_pos[0] < 0 || (*itr).pos[0] + screen_pos[0] > screen_dim[0]) ||
+            ((*itr).pos[1] + (*itr).height + screen_pos[1] < 0 || (*itr).pos[1] + screen_pos[1] > screen_dim[1])
+        ) continue;
+
         ImGui::Begin((*itr).addr.c_str(), NULL, win_flags);
         ImGui::SetWindowSize(ImVec2(((*itr).width), (*itr).height));
 
@@ -383,12 +389,10 @@ int gNC::guiNodeChart::draw() {
 
 
         if(ImGui::IsWindowFocused()) {
-            // ImVec2 tempPos = ImGui::GetWindowPos();
             if(pressed_keys->size() > 0 && searchVec<int>(*pressed_keys, 655) != -1) {
                 (*itr).pos[0] += io.MouseDelta.x;
                 (*itr).pos[1] += io.MouseDelta.y;
             }
-            // (*itr).setPos(tempPos.x, tempPos.y);
         }
         else {
             ImGui::SetWindowPos(ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]));
