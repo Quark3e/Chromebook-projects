@@ -377,8 +377,8 @@ bool _draw__node_cosmetics(
 
         tempPos.x += nodePos.x;
         tempPos.y += nodePos.y;
-        local_drawList->AddCircleFilled(tempPos, 5, IM_COL32(100, 100, 100, 255), 50);
-        win_draw_list->AddCircleFilled( tempPos, 5, IM_COL32(100, 100, 100, 255), 50);
+        local_drawList->AddCircleFilled(tempPos, 7, IM_COL32(100, 100, 100, 255), 50);
+        win_draw_list->AddCircleFilled( tempPos, 7, IM_COL32(100, 100, 100, 255), 50);
 
         // ImGui::SetCursorPos(tempPos);
         // ImGui::PushID(i);
@@ -396,8 +396,8 @@ bool _draw__node_cosmetics(
         case 69:
             tempPos.x += nodePos.x;
             tempPos.y += nodePos.y;
-            local_drawList->AddCircleFilled(tempPos, 5, IM_COL32(100, 100, 100, 255), 50);
-            win_draw_list->AddCircleFilled( tempPos, 5, IM_COL32(100, 100, 100, 255), 50);
+            local_drawList->AddCircleFilled(tempPos, 7, IM_COL32(100, 100, 100, 255), 50);
+            win_draw_list->AddCircleFilled( tempPos, 7, IM_COL32(100, 100, 100, 255), 50);
 
             // ImGui::SetCursorPos(tempPos);
             // ImGui::RadioButton("", &buttons[i], i*2);
@@ -428,13 +428,8 @@ extern std::vector<int>* update_keys(
 int gNC::guiNodeChart::draw() {
     static bool local_init = false;
     static std::vector<int>* pressed_keys;
-    static ImGuiWindowFlags win_flags = 0;
 
     if(!local_init) pressed_keys = update_keys();
-
-    win_flags |= ImGuiWindowFlags_NoResize;
-    win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
-    win_flags |= ImGuiWindowFlags_NoCollapse;
 
 
     ImGuiIO& io = ImGui::GetIO(); //(void)io;
@@ -449,6 +444,15 @@ int gNC::guiNodeChart::draw() {
         ) continue;
 
         ImVec2 nodePos = ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]);
+
+
+        ImGuiWindowFlags win_flags = 0;
+
+        win_flags |= ImGuiWindowFlags_NoResize;
+        if(local_init) win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
+        win_flags |= ImGuiWindowFlags_NoCollapse;
+
+
 
         ImGui::Begin((*itr).addr.c_str(), NULL, win_flags);
         ImGui::SetWindowSize(ImVec2(((*itr).width), (*itr).height));
