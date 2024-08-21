@@ -116,10 +116,10 @@ namespace gNC {
             std::vector<gNC::gLINK*> par_ln_add=std::vector<gNC::gLINK*>(), std::vector<gNC::gLINK*> par_ln_share=std::vector<gNC::gLINK*>(),
             int par_layout = 0,
             float par_width=160,    float par_height=140,
-            float par_posX_in=0,    float par_posY_in=25,
-            float par_posX_out=100, float par_posY_out=25,
-            float par_posX_add=31,  float par_posY_add=0,
-            float par_posX_share=63,float par_posY_share=0
+            float par_posX_in=0,    float par_posY_in=70,
+            float par_posX_out=140, float par_posY_out=70,
+            float par_posX_add=51,  float par_posY_add=0,
+            float par_posX_share=110,float par_posY_share=0
 
         ): label{par_label}, desc{par_desc}, bodyText{par_bodyText}, ln_in{par_ln_in}, ln_out{par_ln_out}, ln_add{par_ln_add}, ln_share{par_ln_share} {
             if(checkExistence<int>(par_layout, std::vector<int>{0,1,2,3})==-1) std::runtime_error("ERROR: gNC::gNODE constructor: par_layout is an invalid value");
@@ -192,6 +192,7 @@ namespace gNC {
         int _vecfind_ptr_idx(const std::vector<storedType>& toCheck, storedType toFind);
         template<typename storedType>
         auto _vecfind_ptr_itr( std::vector<storedType>& toCheck, storedType toFind);
+
 
 
         public:

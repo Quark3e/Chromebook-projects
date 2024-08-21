@@ -355,6 +355,62 @@ int gNC::guiNodeChart::LINK_delete(gNC::gLINK* LINK_toDelete) {
 
 
 
+bool _draw__node_cosmetics(
+    std::list<gNC::gNODE>::iterator itr,
+    ImVec2 nodePos,
+    ImDrawList* win_draw_list
+) {
+    bool result = true;
+    static std::vector<int> buttons(4, 0);
+
+    std::cout << "-";
+    for(size_t i=0; i<2; i++) {
+        ImVec2 tempPos = (
+            i==0? ImVec2((*itr).pos_in[0], (*itr).pos_in[1]) :
+            (i==1? ImVec2((*itr).pos_out[0], (*itr).pos_out[1]) :
+            (i==2? ImVec2((*itr).pos_add_0[0], (*itr).pos_add_0[1]) :
+            ImVec2((*itr).pos_share_0[0], (*itr).pos_share_0[1])))
+        );
+
+        // tempPos.x += nodePos.x;
+        // tempPos.y += nodePos.y;
+
+        ImGui::SetCursorPos(tempPos);
+        // ImGui::PushID(i);
+        // ImGui::RadioButton("", &buttons[i], i);
+        // ImGui::PopID();
+
+        win_draw_list->AddCircleFilled(tempPos, 5, IM_COL32(100, 100, 100, 50), 10);
+
+        if(i==2) {
+            tempPos = ImVec2((*itr).pos_add_1[0], (*itr).pos_add_1[1]);
+
+        }
+        switch (i) {
+        case 2: tempPos = ImVec2((*itr).pos_add_1[0],   (*itr).pos_add_1[1]);
+        case 3: tempPos = ImVec2((*itr).pos_share_1[0], (*itr).pos_share_1[1]);
+        case 69:
+            // tempPos.x += nodePos.x;
+            // tempPos.y += nodePos.y;
+
+            ImGui::SetCursorPos(tempPos);
+            ImGui::PushID(i*2);
+            ImGui::RadioButton("", &buttons[i], i*2);
+            ImGui::PopID();
+            break;
+        default:
+            break;
+        }
+
+        std::cout << i<<" ";
+
+    }
+    std::cout << std::endl;
+
+    return result;
+}
+
+
 extern bool IsLegacyNativeDupe(ImGuiKey key);
 extern std::vector<int>* update_keys(
     std::vector<int>* ptr_pressed_key = nullptr,
@@ -370,6 +426,8 @@ int gNC::guiNodeChart::draw() {
 
     win_flags |= ImGuiWindowFlags_NoResize;
     win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
+    win_flags |= ImGuiWindowFlags_NoCollapse;
+
 
     ImGuiIO& io = ImGui::GetIO(); //(void)io;
 
@@ -379,8 +437,12 @@ int gNC::guiNodeChart::draw() {
             ((*itr).pos[1] + (*itr).height + screen_pos[1] < 0 || (*itr).pos[1] + screen_pos[1] > screen_dim[1])
         ) continue;
 
+        ImVec2 nodePos = ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]);
+
         ImGui::Begin((*itr).addr.c_str(), NULL, win_flags);
         ImGui::SetWindowSize(ImVec2(((*itr).width), (*itr).height));
+
+        ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
         if(!(*itr).init) {
             ImGui::SetWindowPos(ImVec2((*itr).pos[0], (*itr).pos[1]));
@@ -395,10 +457,15 @@ int gNC::guiNodeChart::draw() {
             }
         }
         else {
-            ImGui::SetWindowPos(ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]));
+            ImGui::SetWindowPos(nodePos);
         }
+
+
+        _draw__node_cosmetics(itr, nodePos, draw_list);
+
         
         ImGui::End();
+
     }
 
     if(!local_init) local_init = true;
@@ -421,6 +488,9 @@ std::string ptrToStr(addrType toConv) {
     ss << address;
     return ss.str();
 }
+
+
+
 
 // /**
 //  * @brief Search and find the vector index position of a certain value
