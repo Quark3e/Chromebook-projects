@@ -84,6 +84,7 @@ int main(int argc, char** argv) {
     window0_flags |= ImGuiWindowFlags_MenuBar;
     window0_flags |= ImGuiWindowFlags_NoTitleBar;
     window0_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+    
 
     window1_flags |= ImGuiWindowFlags_NoResize;
 
@@ -113,8 +114,11 @@ int main(int argc, char** argv) {
         ImGui::SetNextWindowSizeConstraints(dim__main, dim__main);
         style.WindowRounding = 0;
 
-
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 0));
         ImGui::Begin(" ", NULL, window0_flags);
+        ImGui::PopStyleColor();
+        ImGui::PopStyleVar();
 
         ImGui::SetWindowPos(ImVec2(0, 0));
         ImGui::SetWindowSize(dim__main);
@@ -141,7 +145,7 @@ int main(int argc, char** argv) {
             if(ImGui::BeginTabItem("project 0")) {
 
                 ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-                ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 200));
+                ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 0));
                 assert(ImGui::BeginChild("tab0: contents", ImVec2(0, 0), ImGuiChildFlags_Border, ImGuiWindowFlags_NoMove));
                 ImGui::PopStyleColor();
                 ImGui::PopStyleVar();
