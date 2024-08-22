@@ -11,9 +11,9 @@
 
 
 
-ImVec2 dim__main = ImVec2(1280, 700);
+inline ImVec2 dim__main = ImVec2(1280, 700);
 
-
+inline bool lockMove = false;
 
 
 

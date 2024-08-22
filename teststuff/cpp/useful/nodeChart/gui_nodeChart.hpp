@@ -98,19 +98,21 @@ namespace gNC {
         float width = 200; /// [unit: px] width of the bounding box ROI
         float height= 150; /// [unit: px] height of the bounding box ROI
 
+
         /// [unit: px] Absolute(relative to screen) {x, y} coordinate of the top left corner of this NODE ROI.
         float pos[2];
 
-        float pos_in[2]     = {0,  25}; // [unit: px] Position of the `ln_in` node bounding box
-        float pos_out[2]    = {100, 25}; // [unit: px] Position of the `ln_out` node bounding box
-        float pos_add_0[2]  = {31,  0}; // [unit: px] Position of the `ln_add` node bounding box 
-        float pos_add_1[2]  = {31, 50};
-        float pos_share_0[2]= {63,  0}; // [unit: px] Position of the `ln_share` node bounding box
-        float pos_share_1[2]= {63, 50};
+        ImVec2 pos_in       = ImVec2{0,  25}; // [unit: px] Position of the `ln_in` node bounding box
+        ImVec2 pos_out      = ImVec2{100, 25}; // [unit: px] Position of the `ln_out` node bounding box
+        ImVec2 pos_add_0    = ImVec2{31,  0}; // [unit: px] Position of the `ln_add` node bounding box 
+        ImVec2 pos_add_1    = ImVec2{31, 50};
+        ImVec2 pos_share_0  = ImVec2{63,  0}; // [unit: px] Position of the `ln_share` node bounding box
+        ImVec2 pos_share_1  = ImVec2{63, 50};
         
-        float ROI_attach[2] = {5, 5};   // [unit: px] Width and Height of the `in`, `out`, `add`, `share` boxes
+        ImVec2 ROI_attach = ImVec2{14, 14};   // [unit: px] Width and Height of the `in`, `out`, `add`, `share` connect point bounding boxes
 
         float fillet_radius = 0;
+
 
         std::vector<gNC::gLINK*> ln_in;     // type 0 //optional
         std::vector<gNC::gLINK*> ln_out;    // type 1 //optional
@@ -164,7 +166,7 @@ namespace gNC {
             width   = w;
             height  = h;
         }
-
+        void draw_connections();
     };
 
 
@@ -202,6 +204,10 @@ namespace gNC {
         auto _vecfind_ptr_itr( std::vector<storedType>& toCheck, storedType toFind);
 
 
+        //state checks
+        int mouseClick_left = 0;
+        int mouseClick_right= 0;
+        int mouseAction = -1;
 
         public:
         int screen_pos[2] = {0, 0};

@@ -39,7 +39,6 @@
 
 
 bool running_main = true;
-
 bool opt__enable_grid = true;
 
 
@@ -49,7 +48,7 @@ int main(int argc, char** argv) {
     al_install_keyboard();
     al_install_mouse();
     al_init_primitives_addon();
-    al_set_new_display_flags(!ALLEGRO_RESIZABLE);
+    al_set_new_display_flags(ALLEGRO_RESIZABLE);
     ALLEGRO_DISPLAY* display = al_create_display(dim__main.x, dim__main.y);
     al_set_window_title(display, "al window title");
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
@@ -102,6 +101,10 @@ int main(int argc, char** argv) {
                 ImGui_ImplAllegro5_InvalidateDeviceObjects();
                 al_acknowledge_resize(display);
                 ImGui_ImplAllegro5_CreateDeviceObjects();
+                proj0.screen_dim[0] = al_get_display_width(display);
+                proj0.screen_dim[1] = al_get_display_height(display);
+                dim__main.x = proj0.screen_dim[0];
+                dim__main.y = proj0.screen_dim[1];
             }
         }
         ImGui_ImplAllegro5_NewFrame();
@@ -147,7 +150,7 @@ int main(int argc, char** argv) {
                 ImGui::PopStyleVar();
                 
                 if(ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
-                    if(isKeyPressed(655, pressed_keys)) {
+                    if(!lockMove && isKeyPressed(655, pressed_keys)) {
                         proj0.setScreen_pos(io.MouseDelta.x, io.MouseDelta.y, 1);
                     }
                 }
@@ -172,8 +175,8 @@ int main(int argc, char** argv) {
 
                 if(cnt==0) {
                     proj0.NODE_create(100, 100, "node0", "desc0", "body0");
-                    proj0.NODE_create( 30, 150, "node1", "desc1", "body1");
-                    proj0.NODE_create(999, 500, "node2", "desc2", "body2");
+                    proj0.NODE_create(300, 300, "node1", "desc1", "body1");
+                    proj0.NODE_create(500, 500, "node2", "desc2", "body2");
                 }
                 style.WindowRounding = 15.0f;
                 proj0.draw();
@@ -195,6 +198,7 @@ int main(int argc, char** argv) {
         al_clear_to_color(al_map_rgba_f(clear_color.x*clear_color.w, clear_color.y*clear_color.w, clear_color.z*clear_color.w, clear_color.w));
         ImGui_ImplAllegro5_RenderDrawData(ImGui::GetDrawData());
         al_flip_display();
+        std::cout << "\n";
         std::cout.flush();
     }
 

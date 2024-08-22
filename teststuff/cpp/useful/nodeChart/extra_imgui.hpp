@@ -9,7 +9,6 @@
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_allegro5.h>
 
-
 #include <vector>
 #include <list>
 #include <HC_useful/useful.hpp>
@@ -56,6 +55,9 @@ inline std::vector<int>* update_mouse() {
  * @param pressed_keys pointer to `std::vector<int>` container that holds the key ID's
  * @return true if `keyID` is pressed
  * @return false if `keyID` is NOT pressed
+ * @note Common keys:
+ * - Mouse_left:    655
+ * - Mouse_right:   656
  */
 inline bool isKeyPressed(int keyID, std::vector<int>* pressed_keys) {
     if(pressed_keys->size() > 0 && searchVec<int>(*pressed_keys, keyID) != -1)
@@ -77,5 +79,20 @@ inline std::string ptrToStr(addrType toConv) {
     ss << address;
     return ss.str();
 }
+
+
+
+inline bool inRegion(
+    ImVec2 cursor,
+    ImVec2 pos_topLeft,
+    ImVec2 pos_botRight
+) {
+    if(
+        (cursor.x > pos_topLeft.x && cursor.x < pos_botRight.x) &&
+        (cursor.y > pos_topLeft.y && cursor.y < pos_botRight.y)
+    ) return true;
+    return false;
+}
+
 
 #endif

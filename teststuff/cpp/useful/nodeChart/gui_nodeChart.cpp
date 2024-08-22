@@ -9,6 +9,11 @@
 #include "gui_nodeChart.hpp"
 #include "extra_imgui.hpp"
 #include <HC_useful/useful.hpp>
+#include "guiNC_constants.hpp"
+
+void gNC::gNODE::draw_connections() {
+
+}
 
 
 const gNC::gNODE gNC::guiNodeChart::default_gNODE = {
@@ -378,40 +383,23 @@ bool _draw__node_cosmetics(
 
         tempPos.x += nodePos.x;
         tempPos.y += nodePos.y;
-        local_drawList->AddCircleFilled(tempPos, 7, IM_COL32(100, 100, 100, 255), 50);
-        win_draw_list->AddCircleFilled( tempPos, 7, IM_COL32(100, 100, 100, 255), 50);
-
-        // ImGui::SetCursorPos(tempPos);
-        // ImGui::PushID(i);
-        // ImGui::RadioButton("", &buttons[i], i);
-        // ImGui::PopID();
+        local_drawList->AddCircleFilled(tempPos, (*itr).ROI_attach[0]/2, IM_COL32(100, 100, 100, 255), 50);
+        win_draw_list->AddCircleFilled( tempPos, (*itr).ROI_attach[0]/2, IM_COL32(100, 100, 100, 255), 50);
 
 
-        if(i==2) {
-            tempPos = ImVec2((*itr).pos_add_1[0], (*itr).pos_add_1[1]);
-
-        }
         switch (i) {
         case 2: tempPos = ImVec2((*itr).pos_add_1[0],   (*itr).pos_add_1[1]);
         case 3: if(i==3) { tempPos = ImVec2((*itr).pos_share_1[0], (*itr).pos_share_1[1]); }
         case 69:
             tempPos.x += nodePos.x;
             tempPos.y += nodePos.y;
-            local_drawList->AddCircleFilled(tempPos, 7, IM_COL32(100, 100, 100, 255), 50);
-            win_draw_list->AddCircleFilled( tempPos, 7, IM_COL32(100, 100, 100, 255), 50);
+            local_drawList->AddCircleFilled(tempPos, (*itr).ROI_attach[0]/2, IM_COL32(100, 100, 100, 255), 50);
+            win_draw_list->AddCircleFilled( tempPos, (*itr).ROI_attach[0]/2, IM_COL32(100, 100, 100, 255), 50);
 
-            // ImGui::SetCursorPos(tempPos);
-            // ImGui::RadioButton("", &buttons[i], i*2);
-            // ImGui::PopID();
-
-            // win_draw_list->AddCircleFilled( tempPos, 5, IM_COL32(100, 100, 100, 255), 50);
-            // local_drawList->AddCircleFilled(tempPos, 5, IM_COL32(100, 100, 100, 255), 50);
             break;
         default:
             break;
         }
-
-        // std::cout << i<<" ";
 
     }
     // std::cout << std::endl;
@@ -419,6 +407,38 @@ bool _draw__node_cosmetics(
     return result;
 }
 
+
+int _draw_NODEcheckConnects(
+    std::list<gNC::gNODE>::iterator _node,
+    ImVec2 nodePos
+) {
+    ImGuiIO& io = ImGui::GetIO();
+    int result = -1;
+
+    ImVec2 attachROI = (*_node).ROI_attach;
+
+    for(int i=0; i<6; i++) {
+        ImVec2 tempPos = (
+            i==0? (*_node).pos_in :
+            (i==1? (*_node).pos_out :
+            (i==2? (*_node).pos_add_0 :
+            (i==3? (*_node).pos_share_0 :
+            (i==4? (*_node).pos_add_1 :
+            (*_node).pos_share_1))))
+        );
+        if(inRegion(
+            io.MousePos,
+            ImVec2(nodePos.x + tempPos.x - attachROI.x/2, nodePos.y + tempPos.y - attachROI.y/2),
+            ImVec2(nodePos.x + tempPos.x + attachROI.x/2, nodePos.y + tempPos.y + attachROI.y/2)
+        )) {
+            result = i;
+            break;
+        }
+    }
+
+
+    return result;
+}
 
 int gNC::guiNodeChart::draw() {
     static bool local_init = false;
@@ -442,12 +462,31 @@ int gNC::guiNodeChart::draw() {
 
 
         ImGuiWindowFlags win_flags = 0;
-
         win_flags |= ImGuiWindowFlags_NoResize;
         win_flags |= ImGuiWindowFlags_NoCollapse;
         if(local_init) win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
-
+        if(lockMove) win_flags |= ImGuiWindowFlags_NoMove;
         
+        if(mouseClick_left==0 && mouseAction==-1 && isKeyPressed(655, pressed_keys)) {
+            std::cout << "Mouse left pressed: ";
+            int node_connect = _draw_NODEcheckConnects(itr, nodePos);
+            switch (node_connect) {
+            case 0: std::cout<<(*itr).addr<<" _in       pressed"; break;
+            case 1: std::cout<<(*itr).addr<<" _out      pressed"; break;
+            case 2: std::cout<<(*itr).addr<<" _add_0    pressed"; break;
+            case 3: std::cout<<(*itr).addr<<" _share_0  pressed"; break;
+            case 4: std::cout<<(*itr).addr<<" _add_1    pressed"; break;
+            case 5: std::cout<<(*itr).addr<<" _share_1  pressed"; break;
+            default:
+                break;
+            }
+            if(node_connect!=-1) lockMove = true;
+            // std::cout << std::endl;
+            mouseClick_left = 100;
+        }
+        if(mouseClick_left==0) lockMove = false;
+
+        if(mouseClick_left>0) mouseClick_left-=2;
 
         ImGui::Begin((*itr).addr.c_str(), NULL, win_flags);
         ImGui::SetWindowSize(ImVec2(((*itr).width), (*itr).height));
