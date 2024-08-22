@@ -184,6 +184,7 @@
 				"-DIMGUI_USER_CONFIG=\\\"/usr/local/include/imgui/examples/example_allegro5/imconfig_allegro5.h\\\"",
 				"-fdiagnostics-color=always",
 				"-I/usr/local/include/imgui/",
+				"-I${fileDirname}",
 				"-g",
 				"${file}",
 				"/usr/local/include/HC_useful/nodeChart/gui_nodeChart.cpp",

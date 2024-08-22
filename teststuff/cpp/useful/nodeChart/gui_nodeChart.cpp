@@ -7,6 +7,7 @@
 
 
 #include "gui_nodeChart.hpp"
+#include "extra_imgui.hpp"
 #include <HC_useful/useful.hpp>
 
 
@@ -419,13 +420,6 @@ bool _draw__node_cosmetics(
 }
 
 
-extern bool IsLegacyNativeDupe(ImGuiKey key);
-extern std::vector<int>* update_keys(
-    std::vector<int>* ptr_pressed_key = nullptr,
-    size_t* ptr_num_keys_pressed = nullptr
-);
-extern bool isKeyPressed(int keyID, std::vector<int>* pressed_keys);
-
 int gNC::guiNodeChart::draw() {
     static bool local_init = false;
     static std::vector<int>* pressed_keys;
@@ -495,36 +489,3 @@ int gNC::guiNodeChart::save(
     return 0;
 }
 
-template<typename addrType>
-std::string ptrToStr(addrType toConv) {
-    const void *address = static_cast<const void*>(toConv);
-    std::stringstream ss;
-    ss << address;
-    return ss.str();
-}
-
-
-
-
-// /**
-//  * @brief Search and find the vector index position of a certain value
-//  * 
-//  * @tparam T -data type of elements to look through
-//  * @param vec vector to search through
-//  * @param toFind value to find in the vector
-//  * @return int index of where on `vec` the given `toFind` value exists.
-//  * @note if the value is not found in the vector then the function will return -1
-//  */
-// template<class T> int searchVec(std::vector<T> vec, T toFind) {
-//     typename std::vector<T>::iterator idx = find(vec.begin(), vec.end(), toFind);
-//     if(idx!=vec.end()) return idx-vec.begin();
-//     else return -1;
-//     // int idx = -1;
-//     // for(size_t i=0; i<vec.size(); i++) {
-//     // 	if(vec.at(i)==toFind) {
-//     //     	idx=i;
-//     //         break;
-//     //     }
-//     // }
-//     // return idx;
-// }

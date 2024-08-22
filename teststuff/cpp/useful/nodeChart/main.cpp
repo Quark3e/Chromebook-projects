@@ -33,6 +33,7 @@
 
 #include <HC_useful/useful.hpp>
 
+#include "extra_imgui.hpp"
 #include "guiNC_constants.hpp"
 #include "gui_nodeChart.hpp"
 
@@ -41,13 +42,6 @@ bool running_main = true;
 
 bool opt__enable_grid = true;
 
-
-static bool IsLegacyNativeDupe(ImGuiKey key) {
-    return key >= 0 && key < 512 && ImGui::GetIO().KeyMap[key] != -1;
-}
-std::vector<int>* update_keys(std::vector<int>* ptr_pressed_key=nullptr, size_t* ptr_num_keys_pressed=nullptr);
-std::vector<int>* update_mouse();
-bool isKeyPressed(int keyID, std::vector<int>* pressed_keys);
 
 int main(int argc, char** argv) {
 
@@ -211,36 +205,3 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-
-
-std::vector<int>* update_keys(
-    std::vector<int>* ptr_pressed_key,
-    size_t* ptr_num_keys_pressed
-) {
-    static std::vector<int> pressed_keys;
-    static size_t num_keys_pressed = 0;
-    ImGuiKey start_key = (ImGuiKey)0;
-
-    pressed_keys.clear();
-    for(ImGuiKey key=start_key; key<ImGuiKey_NamedKey_END; key=(ImGuiKey)(key+1)) {
-        if(IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) continue;
-        pressed_keys.push_back(key);
-    }
-    num_keys_pressed = pressed_keys.size();
-
-    return &pressed_keys;
-}
-std::vector<int>* update_mouse() {
-    static std::vector<int> pressed_mouse;
-    static size_t num_mouse_pressed = 0;
-    ImGuiMouseButton start_mouse = (ImGuiMouseButton)0;
-
-    pressed_mouse.clear();
-    
-    return &pressed_mouse;
-}
-bool isKeyPressed(int keyID, std::vector<int>* pressed_keys) {
-    if(pressed_keys->size() > 0 && searchVec<int>(*pressed_keys, keyID) != -1)
-        return true;
-    return false;
-}

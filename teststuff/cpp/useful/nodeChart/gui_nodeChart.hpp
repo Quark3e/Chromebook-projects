@@ -18,15 +18,22 @@
 #include <filesystem>
 
 
-// #include <HC_useful/useful.hpp>
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_allegro5.h>
 
+// #include <HC_useful/useful.hpp>
 // #include "guiNC_constants.hpp"
+#include "extra_imgui.hpp"
 
 
 template<typename _varType> int checkExistence(_varType toFind, const std::vector<_varType>& toSearch);
 template<typename _varType> int checkExistence(_varType toFind, const std::list<_varType>& toSearch);
 template<typename _varType> int checkExistence(_varType toFind, _varType toSearch[], int arrLen);
 template<typename addrType> std::string ptrToStr(addrType toConv);
+
+
 
 namespace gNC {
 
@@ -267,6 +274,7 @@ namespace gNC {
 }
 
 
+
 template<typename _varType> int checkExistence(_varType toFind, const std::vector<_varType>& toSearch) {
     for(size_t i=0; i<toSearch.size(); i++) {
         if(toSearch.at(i)==toFind) return static_cast<int>(i);
@@ -290,29 +298,7 @@ template<typename _varType> int checkExistence(_varType toFind, _varType toSearc
     return -1;
 }
 
-// // template<class T> int searchVec(std::vector<T> vec, T toFind);
-// /**
-//  * @brief Search and find the vector index position of a certain value
-//  * 
-//  * @tparam T -data type of elements to look through
-//  * @param vec vector to search through
-//  * @param toFind value to find in the vector
-//  * @return int index of where on `vec` the given `toFind` value exists.
-//  * @note if the value is not found in the vector then the function will return -1
-//  */
-// template<class T> int searchVec(std::vector<T> vec, T toFind) {
-//     typename std::vector<T>::iterator idx = find(vec.begin(), vec.end(), toFind);
-//     if(idx!=vec.end()) return idx-vec.begin();
-//     else return -1;
-//     // int idx = -1;
-//     // for(size_t i=0; i<vec.size(); i++) {
-//     // 	if(vec.at(i)==toFind) {
-//     //     	idx=i;
-//     //         break;
-//     //     }
-//     // }
-//     // return idx;
-// }
+
 
 
 #endif
