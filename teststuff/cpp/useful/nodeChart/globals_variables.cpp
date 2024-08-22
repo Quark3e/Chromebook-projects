@@ -20,6 +20,6 @@ int mouseClick_right    = 0;
  */
 int mouseAction         = -1;
         
-int mouseTimer_decay    = 5;
+int mouseTimer_decay    = 20;
 
 

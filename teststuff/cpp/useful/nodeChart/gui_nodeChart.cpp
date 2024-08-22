@@ -444,7 +444,9 @@ int gNC::guiNodeChart::draw() {
 
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
+    #if _DEBUG
     std::cout<< "{"<<std::setw(2)<< mouseAction<<","<<std::setw(3)<<mouseClick_left<<"} ";
+    #endif
 
     for(auto itr=_nodes.begin(); itr!=this->_nodes.end(); ++itr) {
         if(
@@ -462,27 +464,35 @@ int gNC::guiNodeChart::draw() {
         win_flags |= ImGuiWindowFlags_NoMove;
         
         if(isKeyPressed(655, pressed_keys)) {
-
+            #if _DEBUG
             std::cout << "Mouse left pressed: ";
+            #endif
             int node_connect = _draw_NODEcheckConnects(itr, nodePos);
+            #if _DEBUG
             std::cout << std::setw(2) << node_connect << " ";
+            #endif
             if(node_connect==-1) {
                 if(inRegion(
                     io.MousePos,
                     nodePos,
                     ImVec2(nodePos.x+(*itr).width, nodePos.y+(*itr).height)
                 )) {
+                    #if _DEBUG
                     std::cout << "in region ";
+                    #endif
                     if(mouseAction==1 || mouseAction==-1) {
                         lockMove_node = false;
                         mouseAction = 1;
                         mouseClick_left = 100;
+                        #if _DEBUG
                         std::cout << " [node] ";
+                        #endif
                     }
                 }
             }
             else if(node_connect!=-1) {
                 if(mouseAction==2 || mouseAction==-1) {
+                    #if _DEBUG
                     switch (node_connect) {
                     case 0: std::cout<<"["<<(*itr).addr<<" _in       ]"; break;
                     case 1: std::cout<<"["<<(*itr).addr<<" _out      ]"; break;
@@ -493,12 +503,12 @@ int gNC::guiNodeChart::draw() {
                     default:
                         break;
                     }
+                    #endif
                     mouseAction = 2;
                     mouseClick_left = 100;
                 }
             }
 
-            
         }
 
 
@@ -531,9 +541,10 @@ int gNC::guiNodeChart::draw() {
         lockMove_screen = false;
         mouseAction = 0;
         mouseClick_left = 100;
+        #if _DEBUG
         std::cout << " [screen]";
+        #endif
     }
-
     if(mouseAction!=-1) {
         if(mouseClick_left>0) {
             if(!isKeyPressed(655, pressed_keys)) mouseClick_left -= mouseTimer_decay;
