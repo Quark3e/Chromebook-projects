@@ -447,6 +447,7 @@ int gNC::guiNodeChart::draw() {
         win_flags |= ImGuiWindowFlags_NoCollapse;
         if(local_init) win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
 
+        
 
         ImGui::Begin((*itr).addr.c_str(), NULL, win_flags);
         ImGui::SetWindowSize(ImVec2(((*itr).width), (*itr).height));
