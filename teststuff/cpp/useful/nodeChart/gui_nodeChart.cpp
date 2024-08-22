@@ -465,7 +465,7 @@ int gNC::guiNodeChart::draw() {
 
 
         if(ImGui::IsWindowFocused()) {
-            if(pressed_keys->size() > 0 && USEFUL::searchVec<int>(*pressed_keys, 655) != -1) {
+            if(pressed_keys->size() > 0 && searchVec<int>(*pressed_keys, 655) != -1) {
                 (*itr).pos[0] += io.MouseDelta.x;
                 (*itr).pos[1] += io.MouseDelta.y;
             }

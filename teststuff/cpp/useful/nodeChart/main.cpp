@@ -31,7 +31,7 @@
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_allegro5.h>
 
-// #include <HC_useful/useful.hpp>
+#include <HC_useful/useful.hpp>
 
 #include "guiNC_constants.hpp"
 #include "gui_nodeChart.hpp"

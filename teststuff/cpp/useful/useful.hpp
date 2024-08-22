@@ -29,20 +29,20 @@
 // using namespace std;
 
 
-namespace USEFUL {
+// namespace USEFUL {
 
     /// @brief return the sum of elements in an array of type `T`
     /// @tparam T 
     /// @param arr pointer to the array (array name) to find sum of
     /// @return the sum of all elements in `T` data type
     template<class T>
-    double array_sum(T *arr, int arrSize) {
+    inline double array_sum(T *arr, int arrSize) {
         double sum = 0;
         for(int i=0; i<arrSize; i++) sum += arr[i];
         return sum;
     }
     template<class T>
-    double array_sum(T vec) {
+    inline double array_sum(T vec) {
         double sum = 0;
         for(size_t i=0; i<vec.size(); i++) sum += vec.at(i);
         return sum;
@@ -64,13 +64,13 @@ namespace USEFUL {
     //     return sum;
     // }
 
-    bool array_bool_AND(bool *arrCheck, int arrSize) {
+    inline bool array_bool_AND(bool *arrCheck, int arrSize) {
         for(int i=0; i<arrSize; i++) {
             if(!arrCheck[i]) return false;
         }
         return true;
     }
-    bool array_bool_OR(bool *arrCheck, int arrSize) {
+    inline bool array_bool_OR(bool *arrCheck, int arrSize) {
         for(int i=0; i<arrSize; i++) {
             if(arrCheck[i]) return true;
         }
@@ -78,7 +78,7 @@ namespace USEFUL {
     }
 
 
-    bool isNumber(const char* stringToCheck) {
+    inline bool isNumber(const char* stringToCheck) {
         const char* numbersChar = "0123456789";
         const char* numbersChar_associated = "-+.";
         bool isNum=false;
@@ -105,7 +105,7 @@ namespace USEFUL {
         return isNum;
     }
 
-    bool isNumber(std::string stringToCheck) {
+    inline bool isNumber(std::string stringToCheck) {
         std::string numbersChar = "0123456789";
         std::string numbersChar_associated = "-+.";
         bool isNum=false;
@@ -136,7 +136,7 @@ namespace USEFUL {
     /// @param cmd command std::string to execute
     /// @param removeNewLine whether to remove trailing newline from cmd output
     /// @return result std::string of the command
-    std::string cmdExec(const char* cmd, bool removeNewLine=true) {
+    inline std::string cmdExec(const char* cmd, bool removeNewLine=true) {
         std::array<char, 128> buffer;
         std::string result;
         std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
@@ -156,7 +156,7 @@ namespace USEFUL {
     /// @param toCheck string to find occurrences in
     /// @param toFind char to find occurrences
     /// @return number of occurrences
-    int findOcc_char(std::string toCheck, char toFind) {
+    inline int findOcc_char(std::string toCheck, char toFind) {
         std::string::difference_type n = std::count(toCheck.begin(), toCheck.end(), toFind);
         return static_cast<int>(n);
     }
@@ -169,7 +169,7 @@ namespace USEFUL {
      * @param signum signal to catch on callback
      * @note to detect KeyboardInterrupt pass `signal(SIGINT, signal_callback_handler);` at the start of the program before the loop
     */
-    void signal_callback_handler(int signum) {
+    inline void signal_callback_handler(int signum) {
     std::cout <<std::endl<< "Caught signal " << signum << std::endl;
     // Terminate program
     exit(signum);
@@ -177,7 +177,7 @@ namespace USEFUL {
     // #include "createTable.hpp"
 
     template<typename checkType>
-    int findVectorIndex(std::vector<checkType> vec, checkType toFind) {
+    inline int findVectorIndex(std::vector<checkType> vec, checkType toFind) {
         typename std::vector<checkType>::iterator idx = find(vec.begin(), vec.end(), toFind);
         if(idx!=vec.end()) return idx-vec.begin();
         else return -1;
@@ -189,7 +189,7 @@ namespace USEFUL {
      * @param toFind `std::string` var to find in vector
      * @return index in vector, or `-1` if not found
     */
-    int findVectorIndex(std::vector<std::string> vec, std::string toFind) {
+    inline int findVectorIndex(std::vector<std::string> vec, std::string toFind) {
         std::vector<std::string>::iterator idx = find(vec.begin(), vec.end(), toFind);
 
         if(idx != vec.end()) {
@@ -205,7 +205,7 @@ namespace USEFUL {
      * @param toFind `std::string` var to find in vector
      * @return 2d `std::std::vector<int>` of position/coordinates
     */
-    std::vector<int> findVectorIndex(std::vector<std::vector<std::string>> vecvec, std::string toFind, bool printChecks=false) {
+    inline std::vector<int> findVectorIndex(std::vector<std::vector<std::string>> vecvec, std::string toFind, bool printChecks=false) {
         if(printChecks) {
             std::cout <<"\"" <<toFind << "\": "<< vecvec.size()<< ": {\n";
             for(std::vector<std::string> vecStr: vecvec) {
@@ -230,7 +230,7 @@ namespace USEFUL {
         }
         return indices;
     }
-    std::vector<int> findVectorIndex(std::vector<std::vector<std::string>> vecvec, std::vector<std::string> toFind, bool printChecks=false) {
+    inline std::vector<int> findVectorIndex(std::vector<std::vector<std::string>> vecvec, std::vector<std::string> toFind, bool printChecks=false) {
         std::vector<int> indices(2, -1);
         for(std::string subFind: toFind) {
             indices = findVectorIndex(vecvec, subFind, printChecks);
@@ -248,7 +248,7 @@ namespace USEFUL {
      * @return int index of where on `vec` the given `toFind` value exists.
      * @note if the value is not found in the vector then the function will return -1
      */
-    template<class T> int searchVec(std::vector<T> vec, T toFind) {
+    template<class T> inline int searchVec(std::vector<T> vec, T toFind) {
         typename std::vector<T>::iterator idx = find(vec.begin(), vec.end(), toFind);
         if(idx!=vec.end()) return idx-vec.begin();
         else return -1;
@@ -264,7 +264,7 @@ namespace USEFUL {
 
 
     template<typename typeVar>
-    bool match_vectors(std::vector<typeVar> vec0, std::vector<typeVar> vec1, bool orderImportant=false) {
+    inline bool match_vectors(std::vector<typeVar> vec0, std::vector<typeVar> vec1, bool orderImportant=false) {
         if(vec0.size()!=vec1.size()) return false;
 
         std::vector<size_t> avoidIdx(0, 0);
@@ -294,7 +294,7 @@ namespace USEFUL {
      * `3`- index of smallest value
      * @return return desired value
     */
-    float findVal(float arrToCheck[], int arrLen, int mode=0) {
+    inline float findVal(float arrToCheck[], int arrLen, int mode=0) {
         /*
         mode:
         - 0 - biggest, value
@@ -313,7 +313,7 @@ namespace USEFUL {
         else return -1;
     }
 
-    static std::string dummyRef_stringOfVector_resultStrRef;
+    static inline std::string dummyRef_stringOfVector_resultStrRef;
     /**
      * @brief find specific std::string from `std::std::vector<std::string>` parameter
      * @param stringVec `std::std::vector<std::string>` find find specific std::string from
@@ -322,7 +322,7 @@ namespace USEFUL {
      * `1` - find longest string;
      * @return index of the std::string in the vector
     */
-    int stringOfVector(
+    inline int stringOfVector(
         std::vector<std::string> stringVec,
         int id,
         std::string& resultStrRef = dummyRef_stringOfVector_resultStrRef
@@ -352,7 +352,7 @@ namespace USEFUL {
         return distance(stringVec.begin(), leWord);
     }
 
-    void splitString(std::string line, std::string delimiter, float returnArr[], int numVar, bool printVar);
+    inline void splitString(std::string line, std::string delimiter, float returnArr[], int numVar, bool printVar);
 
     /**
      * @brief Split and return `line` std::string by each `delimiter`
@@ -361,7 +361,7 @@ namespace USEFUL {
      * @param printVar whether to print each delimiter and substring
      * @param causeError whether to end program and throw an error if `line` doesn't contain `delimiter`
     */
-    std::vector<std::string> splitString(std::string line, std::string delimiter, bool printVar=false, bool causeError=false);
+    inline std::vector<std::string> splitString(std::string line, std::string delimiter, bool printVar=false, bool causeError=false);
     /**
      * @brief Split `line` std::string by each `delimiter` and pass the result to reference parameter `returnVec`
      * @param line std::string to split.
@@ -369,7 +369,7 @@ namespace USEFUL {
      * @param returnVec reference to a `std::vector<std::string>` for which to pass result to
      * @param printVar whether to print each delimiter and substring
     */
-    void splitString(std::string line, std::string delimiter, std::vector<std::string> &returnVec, bool printVar);
+    inline void splitString(std::string line, std::string delimiter, std::vector<std::string> &returnVec, bool printVar);
     /**
      * @brief Split `line` std::string by each `delimiter` and pass the result to a pointer parameter `returnPtr`
      * @param line std::string to split.
@@ -377,7 +377,7 @@ namespace USEFUL {
      * @param returnPtr pointer to a `std::vector<std::string>` for which to pass result to
      * @param printVar whether to print each delimiter and substring
     */
-    void splitString(std::string line, std::string delimiter, std::vector<std::string> *returnPtr, bool printVar);
+    inline void splitString(std::string line, std::string delimiter, std::vector<std::string> *returnPtr, bool printVar);
 
     /***
      * @brief Get size of terminal window
@@ -385,7 +385,7 @@ namespace USEFUL {
      * @param height reference to integer variable for height
      * @return `0`-successful; `-1`-error
     */
-    int getTermSize(int &width, int &height) {
+    inline int getTermSize(int &width, int &height) {
         struct winsize winDim;
         if(ioctl(STDOUT_FILENO,TIOCGWINSZ,&winDim)==-1) {
             return -1;
@@ -395,7 +395,7 @@ namespace USEFUL {
         return 0;
     }
 
-    std::string getDate() {
+    inline std::string getDate() {
         time_t currDate = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         return ctime(&currDate);
     }
@@ -407,7 +407,7 @@ namespace USEFUL {
      * @param yPos terminal y position to print on
      * @param flushEnd whether to flush `std::cout`
     */
-    void ANSI_mvprint(
+    inline void ANSI_mvprint(
         int posX,
         int posY,
         std::string printText,
@@ -429,7 +429,7 @@ namespace USEFUL {
         if(flushEnd) std::cout.flush();
     }
 
-    void baseAnsiPrint(
+    inline void baseAnsiPrint(
         std::vector<std::string> textVec,
         int posX,
         int posY,
@@ -477,7 +477,7 @@ namespace USEFUL {
      * @param textDelim delimiter std::string to indicate where to split `text` into separate lines/rows
      * @param end std::string to print at the end
     */
-    void ansiPrint(
+    inline void ansiPrint(
         std::string text,
         int posX = 0,
         int posY = 0,
@@ -504,7 +504,7 @@ namespace USEFUL {
      * @param textDelim delimiter std::string to indicate where to split `text` into separate lines/rows
      * @param end std::string to print at the end
     */
-    void ansiPrint(
+    inline void ansiPrint(
         std::string text,
         float scalX = 0,
         float scalY = 0,
@@ -543,7 +543,7 @@ namespace USEFUL {
      * @param textDelim delimiter std::string to indicate where to split `text` into separate lines/rows
      * @param end std::string to print at the end
     */
-    void ansiPrint(
+    inline void ansiPrint(
         std::string text,
         std::string xAlign,
         std::string yAlign,
@@ -571,18 +571,18 @@ namespace USEFUL {
     /// @brief Convert radians to degrees
     /// @param radians radians to convert. type: float()
     /// @return return degrees. type: float()
-    float toDegrees(float radians) { return (radians*180)/M_PI; }
+    inline float toDegrees(float radians) { return (radians*180)/M_PI; }
     /// @brief Convert degrees to radians
     /// @param degrees degrees to convert. type: float()
     /// @return return radians. type: float()
-    float toRadians(float degrees) { return float(degrees*M_PI)/180; }
+    inline float toRadians(float degrees) { return float(degrees*M_PI)/180; }
 
     /**
      * @brief Get the absolute path of the current directory
      * @param inclEndSlash whether to include `/` at the end of return path string
      * @return std::string of path:
     */
-    std::string getFileCWD(bool inclEndSlash=true) {
+    inline std::string getFileCWD(bool inclEndSlash=true) {
         char cwd[PATH_MAX];
         if(getcwd(cwd, sizeof(cwd)) != NULL) {
             // std::cout<<cwd<<std::endl;
@@ -601,7 +601,7 @@ namespace USEFUL {
      * @param filename name(with or without path) of file to check
      * @return boolean for if it exists
     */
-    bool isFile(std::string filename) {
+    inline bool isFile(std::string filename) {
         struct stat sb;
         if(stat(filename.c_str(), &sb)==0 && !(sb.st_mode & S_IFDIR)) {
             return true;
@@ -616,7 +616,7 @@ namespace USEFUL {
      * @param dirname name of directive (with or without path) to check
      * @return boolean for if it exists
     */
-    bool isDir(std::string dirname) {
+    inline bool isDir(std::string dirname) {
         struct stat sb;
         if(stat(dirname.c_str(), &sb)==0) {
             return true;
@@ -631,13 +631,13 @@ namespace USEFUL {
     /// @param p1 float()[3]: point 1 coordinate {x, y, z}
     /// @param p2 float()[3]: point 2 coordinate {x, y, z}
     /// @return float() type of absolute straight distance
-    float get3dDistance(float p1[3], float p2[3]) { return sqrt(pow(p2[0]-p1[0],2) + pow(p2[1]-p1[1],2) + pow(p2[2]-p1[2],2)); }
+    inline float get3dDistance(float p1[3], float p2[3]) { return sqrt(pow(p2[0]-p1[0],2) + pow(p2[1]-p1[1],2) + pow(p2[2]-p1[2],2)); }
 
 
     /// @brief Solve whether a number is positive or negative (same as int(var/abs(var)))
     /// @param var variable to check
     /// @return 1 if var>0; -1 if var<0; 0 if var==0
-    int PoN(float var) {
+    inline int PoN(float var) {
         if(var>0) return 1;
         else if(var<0) return -1;
         else {
@@ -652,7 +652,7 @@ namespace USEFUL {
     /// @param needle value to find the closest to in the array
     /// @param printVar whether to print results
     /// @return index of result (closest value)
-    int getClosestValIdx(std::vector<float> arr, float needle, bool printVar=false) {
+    inline int getClosestValIdx(std::vector<float> arr, float needle, bool printVar=false) {
         std::vector<float> diffVec;
         std::vector<int> foundIdx;
         float minVar;
@@ -669,7 +669,7 @@ namespace USEFUL {
     /// @param needle value to find the closest to in the array
     /// @param printVar whether to print results
     /// @return index of result (closest value)
-    int getClosestValIdx(float arr[], int arrLen, float needle, bool printVar=false) {
+    inline int getClosestValIdx(float arr[], int arrLen, float needle, bool printVar=false) {
         std::vector<float> diffVec;
         std::vector<int> foundIdx;
         float minVar;
@@ -682,7 +682,7 @@ namespace USEFUL {
     }
 
 
-    void splitString(
+    inline void splitString(
         std::string line,
         std::string delimiter,
         float returnArr[],
@@ -700,7 +700,7 @@ namespace USEFUL {
         if(printVar) std::cout << "---";
     }
 
-    std::vector<std::string> splitString(
+    inline std::vector<std::string> splitString(
         std::string line,
         std::string delimiter,
         bool printVar,
@@ -730,7 +730,7 @@ namespace USEFUL {
         if(printVar) std::cout << "---";
         return resultStrings;
     }
-    void splitString(
+    inline void splitString(
         std::string line,
         std::string delimiter,
         std::vector<std::string> &returnVec,
@@ -739,7 +739,7 @@ namespace USEFUL {
         returnVec.clear();
         returnVec = splitString(line,delimiter,printVar);
     }
-    void splitString(
+    inline void splitString(
         std::string line,
         std::string delimiter,
         std::vector<std::string> *returnPtr,
@@ -755,7 +755,7 @@ namespace USEFUL {
     /// @param toReplace old std::string that is to be removed/replaced
     /// @param replaceTo new std::string that will be inserted
     /// @return original `{text}` std::string but with `{toReplace}` replaced
-    std::string replaceSubstr(std::string text, std::string toReplace, std::string replaceTo) {
+    inline std::string replaceSubstr(std::string text, std::string toReplace, std::string replaceTo) {
         size_t count=0;
         size_t pos = text.find(toReplace);
         int replaceLen = toReplace.length();
@@ -767,7 +767,7 @@ namespace USEFUL {
         }
         return text;
     }
-    void replaceSubstr(std::string* text, std::string toReplace, std::string replaceTo) {
+    inline void replaceSubstr(std::string* text, std::string toReplace, std::string replaceTo) {
         size_t count=0;
         size_t pos = text->find(toReplace);
         int replaceLen = toReplace.length();
@@ -787,7 +787,7 @@ namespace USEFUL {
     /// @param width width of the total char std::string including decimal dot and minus sign
     /// @param precision decimal accuracy number: how many numbers of precision after decimal place
     /// @param leftAlign whether to align the float to the left in the array
-    void fillCharArray(
+    inline void fillCharArray(
         float inpVal,
         int idx_start,
         char *toSend_arr,
@@ -812,7 +812,7 @@ namespace USEFUL {
     /// @param precision number of decimals for the decimal number in string
     /// @param leftAlign whether for the number to align left side
     /// @return std::string of number
-    std::string formattedFloat_c(
+    inline std::string formattedFloat_c(
         float inpVal,
         int width=0,
         int precision=0,
@@ -825,7 +825,7 @@ namespace USEFUL {
         std::string tempStr(temp);
         return tempStr;
     }
-    void formattedFloat_c(
+    inline void formattedFloat_c(
         float inpVal,
         std::string *strVarPtr,
         int width=0,
@@ -836,7 +836,7 @@ namespace USEFUL {
     }
 
     template<class T>
-    std::string FormatWithSymbol(T value, std::string formatSymbol=" ")
+    inline std::string FormatWithSymbol(T value, std::string formatSymbol=" ")
     {
         std::stringstream ss;
         ss.imbue(std::locale(""));
@@ -849,7 +849,7 @@ namespace USEFUL {
     /// @param varPrecision number of decimals
     /// @return std::string of `value` with `varPrecision` number of decimal numbers
     template<class T>
-    std::string formatNumber(T value, int varPrecision=2) {
+    inline std::string formatNumber(T value, int varPrecision=2) {
         std::stringstream tempStream;
         tempStream << std::fixed << std::setprecision(varPrecision) << value;
         return tempStream.str();
@@ -862,7 +862,7 @@ namespace USEFUL {
     /// @param align whether to align value with left or right side: {`"left"`, `"right"`},
     /// @return returns formatted string
     template<class T>
-    std::string formatNumber(
+    inline std::string formatNumber(
         T value,
         int strWidth,
         int varPrecision,
@@ -885,7 +885,7 @@ namespace USEFUL {
     /// @param interval the time interval between each progressBar update
     /// @param symbolIndex what symbol to use {"■", "⬛", "▉", "▉", "█"}
     /// @return percent of the progress made
-    float progressBar(
+    inline float progressBar(
         float progress,
         float total_val,
         bool printBar   = true,
@@ -993,6 +993,6 @@ namespace USEFUL {
         return percent;
     }
 
-}
+// }
 
 #endif
