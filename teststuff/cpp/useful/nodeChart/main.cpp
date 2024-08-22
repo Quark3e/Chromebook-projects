@@ -17,10 +17,6 @@
 // #include <imgui/backends/imgui_impl_allegro5.h>
 
 
-#include "guiNC_constants.hpp"
-#include "gui_nodeChart.hpp"
-
-// #include <HC_useful/useful.hpp>
 
 #include <vector>
 #include <list>
@@ -35,6 +31,11 @@
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_allegro5.h>
 
+// #include <HC_useful/useful.hpp>
+
+#include "guiNC_constants.hpp"
+#include "gui_nodeChart.hpp"
+
 
 bool running_main = true;
 
@@ -46,6 +47,7 @@ static bool IsLegacyNativeDupe(ImGuiKey key) {
 }
 std::vector<int>* update_keys(std::vector<int>* ptr_pressed_key=nullptr, size_t* ptr_num_keys_pressed=nullptr);
 std::vector<int>* update_mouse();
+bool isKeyPressed(int keyID, std::vector<int>* pressed_keys);
 
 int main(int argc, char** argv) {
 
@@ -151,7 +153,7 @@ int main(int argc, char** argv) {
                 ImGui::PopStyleVar();
                 
                 if(ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
-                    if(pressed_keys->size() > 0 && searchVec<int>(*pressed_keys, 655) != -1) {
+                    if(isKeyPressed(655, pressed_keys)) {
                         proj0.setScreen_pos(io.MouseDelta.x, io.MouseDelta.y, 1);
                     }
                 }
@@ -236,4 +238,9 @@ std::vector<int>* update_mouse() {
     pressed_mouse.clear();
     
     return &pressed_mouse;
+}
+bool isKeyPressed(int keyID, std::vector<int>* pressed_keys) {
+    if(pressed_keys->size() > 0 && searchVec<int>(*pressed_keys, keyID) != -1)
+        return true;
+    return false;
 }

@@ -7,7 +7,7 @@
 
 
 #include "gui_nodeChart.hpp"
-// #include <HC_useful/useful.hpp>
+#include <HC_useful/useful.hpp>
 
 
 const gNC::gNODE gNC::guiNodeChart::default_gNODE = {
@@ -424,6 +424,7 @@ extern std::vector<int>* update_keys(
     std::vector<int>* ptr_pressed_key = nullptr,
     size_t* ptr_num_keys_pressed = nullptr
 );
+extern bool isKeyPressed(int keyID, std::vector<int>* pressed_keys);
 
 int gNC::guiNodeChart::draw() {
     static bool local_init = false;
@@ -449,9 +450,8 @@ int gNC::guiNodeChart::draw() {
         ImGuiWindowFlags win_flags = 0;
 
         win_flags |= ImGuiWindowFlags_NoResize;
-        if(local_init) win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
         win_flags |= ImGuiWindowFlags_NoCollapse;
-
+        if(local_init) win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
 
 
         ImGui::Begin((*itr).addr.c_str(), NULL, win_flags);
@@ -465,7 +465,7 @@ int gNC::guiNodeChart::draw() {
 
 
         if(ImGui::IsWindowFocused()) {
-            if(pressed_keys->size() > 0 && searchVec<int>(*pressed_keys, 655) != -1) {
+            if(pressed_keys->size() > 0 && USEFUL::searchVec<int>(*pressed_keys, 655) != -1) {
                 (*itr).pos[0] += io.MouseDelta.x;
                 (*itr).pos[1] += io.MouseDelta.y;
             }
