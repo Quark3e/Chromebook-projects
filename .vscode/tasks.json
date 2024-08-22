@@ -188,6 +188,7 @@
 				"-g",
 				"${file}",
 				"/usr/local/include/HC_useful/nodeChart/gui_nodeChart.cpp",
+				"${fileDirname}/globals_variables.cpp",
 				"/usr/local/include/imgui/backends/imgui_impl_allegro5.cpp",
 				"/usr/local/include/imgui/imgui*.cpp",
 				"-lallegro",

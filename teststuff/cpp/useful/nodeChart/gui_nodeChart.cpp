@@ -1,15 +1,7 @@
 
 
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_primitives.h>
-#include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_allegro5.h>
+#include "globals_includes.hpp"
 
-
-#include "gui_nodeChart.hpp"
-#include "extra_imgui.hpp"
-#include <HC_useful/useful.hpp>
-#include "guiNC_constants.hpp"
 
 void gNC::gNODE::draw_connections() {
 
@@ -452,6 +444,8 @@ int gNC::guiNodeChart::draw() {
 
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
+    std::cout<< "{"<<std::setw(2)<< mouseAction<<","<<std::setw(3)<<mouseClick_left<<"} ";
+
     for(auto itr=_nodes.begin(); itr!=this->_nodes.end(); ++itr) {
         if(
             ((*itr).pos[0] + (*itr).width  + screen_pos[0] < 0 || (*itr).pos[0] + screen_pos[0] > screen_dim[0]) ||
@@ -465,28 +459,48 @@ int gNC::guiNodeChart::draw() {
         win_flags |= ImGuiWindowFlags_NoResize;
         win_flags |= ImGuiWindowFlags_NoCollapse;
         if(local_init) win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
-        if(lockMove) win_flags |= ImGuiWindowFlags_NoMove;
+        win_flags |= ImGuiWindowFlags_NoMove;
         
-        if(mouseClick_left==0 && mouseAction==-1 && isKeyPressed(655, pressed_keys)) {
+        if(isKeyPressed(655, pressed_keys)) {
+
             std::cout << "Mouse left pressed: ";
             int node_connect = _draw_NODEcheckConnects(itr, nodePos);
-            switch (node_connect) {
-            case 0: std::cout<<(*itr).addr<<" _in       pressed"; break;
-            case 1: std::cout<<(*itr).addr<<" _out      pressed"; break;
-            case 2: std::cout<<(*itr).addr<<" _add_0    pressed"; break;
-            case 3: std::cout<<(*itr).addr<<" _share_0  pressed"; break;
-            case 4: std::cout<<(*itr).addr<<" _add_1    pressed"; break;
-            case 5: std::cout<<(*itr).addr<<" _share_1  pressed"; break;
-            default:
-                break;
+            std::cout << std::setw(2) << node_connect << " ";
+            if(node_connect==-1) {
+                if(inRegion(
+                    io.MousePos,
+                    nodePos,
+                    ImVec2(nodePos.x+(*itr).width, nodePos.y+(*itr).height)
+                )) {
+                    std::cout << "in region ";
+                    if(mouseAction==1 || mouseAction==-1) {
+                        lockMove_node = false;
+                        mouseAction = 1;
+                        mouseClick_left = 100;
+                        std::cout << " [node] ";
+                    }
+                }
             }
-            if(node_connect!=-1) lockMove = true;
-            // std::cout << std::endl;
-            mouseClick_left = 100;
-        }
-        if(mouseClick_left==0) lockMove = false;
+            else if(node_connect!=-1) {
+                if(mouseAction==2 || mouseAction==-1) {
+                    switch (node_connect) {
+                    case 0: std::cout<<"["<<(*itr).addr<<" _in       ]"; break;
+                    case 1: std::cout<<"["<<(*itr).addr<<" _out      ]"; break;
+                    case 2: std::cout<<"["<<(*itr).addr<<" _add_0    ]"; break;
+                    case 3: std::cout<<"["<<(*itr).addr<<" _share_0  ]"; break;
+                    case 4: std::cout<<"["<<(*itr).addr<<" _add_1    ]"; break;
+                    case 5: std::cout<<"["<<(*itr).addr<<" _share_1  ]"; break;
+                    default:
+                        break;
+                    }
+                    mouseAction = 2;
+                    mouseClick_left = 100;
+                }
+            }
 
-        if(mouseClick_left>0) mouseClick_left-=2;
+            
+        }
+
 
         ImGui::Begin((*itr).addr.c_str(), NULL, win_flags);
         ImGui::SetWindowSize(ImVec2(((*itr).width), (*itr).height));
@@ -499,22 +513,40 @@ int gNC::guiNodeChart::draw() {
 
 
         if(ImGui::IsWindowFocused()) {
-            if(pressed_keys->size() > 0 && searchVec<int>(*pressed_keys, 655) != -1) {
+            if(!lockMove_node && pressed_keys->size() > 0 && searchVec<int>(*pressed_keys, 655) != -1) {
                 (*itr).pos[0] += io.MouseDelta.x;
                 (*itr).pos[1] += io.MouseDelta.y;
+                ImGui::SetWindowPos(ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]));
             }
         }
         else {
             ImGui::SetWindowPos(nodePos);
         }
-
-
         _draw__node_cosmetics(itr, nodePos, draw_list);
 
-        
         ImGui::End();
-
     }
+
+    if((mouseAction==0 || mouseAction==-1) && isKeyPressed(655, pressed_keys)) {
+        lockMove_screen = false;
+        mouseAction = 0;
+        mouseClick_left = 100;
+        std::cout << " [screen]";
+    }
+
+    if(mouseAction!=-1) {
+        if(mouseClick_left>0) {
+            if(!isKeyPressed(655, pressed_keys)) mouseClick_left -= mouseTimer_decay;
+        }
+        else {
+            mouseClick_left = 0;
+            mouseAction = -1;
+        }
+    }
+
+    if(mouseAction!=0 || mouseAction==2) lockMove_screen  = true;
+    if(mouseAction!=1 || mouseAction==2) lockMove_node    = true;
+
 
     if(!local_init) local_init = true;
     return 0;

@@ -11,31 +11,8 @@
  */
 
 
-// #include <allegro5/allegro.h>
-// #include <allegro5/allegro_primitives.h>
-// #include <imgui/imgui.h>
-// #include <imgui/backends/imgui_impl_allegro5.h>
 
-
-
-#include <vector>
-#include <list>
-
-#include <string>
-#include <sstream>
-#include <math.h>
-
-
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_primitives.h>
-#include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_allegro5.h>
-
-#include <HC_useful/useful.hpp>
-
-#include "extra_imgui.hpp"
-#include "guiNC_constants.hpp"
-#include "gui_nodeChart.hpp"
+#include "globals_includes.hpp"
 
 
 bool running_main = true;
@@ -150,7 +127,7 @@ int main(int argc, char** argv) {
                 ImGui::PopStyleVar();
                 
                 if(ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
-                    if(!lockMove && isKeyPressed(655, pressed_keys)) {
+                    if(!lockMove_screen && isKeyPressed(655, pressed_keys)) {
                         proj0.setScreen_pos(io.MouseDelta.x, io.MouseDelta.y, 1);
                     }
                 }

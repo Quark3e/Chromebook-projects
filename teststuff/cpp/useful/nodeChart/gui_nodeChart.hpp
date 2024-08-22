@@ -4,28 +4,8 @@
 #define HPP_GUI_NODECHART
 
 
-// #include "nodeChart.hpp"
-#include <iostream>
-#include <string>
-#include <sstream>
+#include "globals_includes.hpp"
 
-#include <algorithm>
-
-#include <vector>
-#include <list>
-
-#include <dirent.h>
-#include <filesystem>
-
-
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_primitives.h>
-#include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_allegro5.h>
-
-// #include <HC_useful/useful.hpp>
-// #include "guiNC_constants.hpp"
-#include "extra_imgui.hpp"
 
 
 template<typename _varType> int checkExistence(_varType toFind, const std::vector<_varType>& toSearch);
@@ -100,7 +80,7 @@ namespace gNC {
 
 
         /// [unit: px] Absolute(relative to screen) {x, y} coordinate of the top left corner of this NODE ROI.
-        float pos[2];
+        ImVec2 pos;
 
         ImVec2 pos_in       = ImVec2{0,  25}; // [unit: px] Position of the `ln_in` node bounding box
         ImVec2 pos_out      = ImVec2{100, 25}; // [unit: px] Position of the `ln_out` node bounding box
@@ -204,10 +184,7 @@ namespace gNC {
         auto _vecfind_ptr_itr( std::vector<storedType>& toCheck, storedType toFind);
 
 
-        //state checks
-        int mouseClick_left = 0;
-        int mouseClick_right= 0;
-        int mouseAction = -1;
+
 
         public:
         int screen_pos[2] = {0, 0};
