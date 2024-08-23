@@ -348,19 +348,21 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create(
     ImVec2 pos_interm_dest
 ) {
     std::list<gNC::gNODE>::const_iterator
-        eraseItr_src    = this->_find_ptr_itr<gNC::gNODE>(this->_nodes, NODE_src),
-        eraseItr_dest   = this->_find_ptr_itr<gNC::gNODE>(this->_nodes, NODE_dest);
+        checkItr_src    = this->_find_ptr_itr<gNC::gNODE>(this->_nodes, NODE_src),
+        checkItr_dest   = this->_find_ptr_itr<gNC::gNODE>(this->_nodes, NODE_dest);
 
-    if(eraseItr_src==this->_nodes.end() || eraseItr_dest==this->_nodes.end())
+    if(checkItr_src==this->_nodes.end() || checkItr_dest==this->_nodes.end()) {
         std::runtime_error(
             "ERROR: "+this->_info_name+"LINK_create(gNC::gNODE*, gNC::gNODE*, int, int, std::string, std::string):"+
             " arg(s) for node address(es) does not exist in stored nodes."
         );
-    if(searchVec<int>(std::vector<int>{1, 3, 5},type_src)==-1 && searchVec<int>(std::vector<int>{0, 2, 4},type_dest)==-1) 
+    }
+    if(searchVec<int>(std::vector<int>{1, 3, 5},type_src)==-1 && searchVec<int>(std::vector<int>{0, 2, 4},type_dest)==-1) {
         std::runtime_error(
             "ERROR: "+this->_info_name+"LINK_create(gNC::gNODE*, gNC::gNODE*, int, int, std::string, std::string):"+
             " arg(s) for type_{..} is/are not valid."
         );
+    }
 
     this->_links.push_back(gNC::gLINK(type_src, type_dest, NODE_src, NODE_dest, label, desc));
     this->_lastAddedLink = &(this->_links.back());
@@ -373,39 +375,95 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create(
     _lastAddedLink->Pos_dest = ImVec2(NODE_dest->pos[0]+tempPos.x, NODE_dest->pos[1]+tempPos.y);
 
 
-    ImVec2 pos_delta = ImVec2((_lastAddedLink->Pos_dest.x - _lastAddedLink->Pos_src.x)/2, (_lastAddedLink->Pos_dest.y - _lastAddedLink->Pos_src.y)/2);
-    ImVec2 halfWayPoint = ImVec2(
-        _lastAddedLink->Pos_src.x + pos_delta.x,
-        _lastAddedLink->Pos_src.y + pos_delta.y
-    );
+    ImVec2 pos_delta = ImVec2(_lastAddedLink->Pos_dest.x - _lastAddedLink->Pos_src.x, _lastAddedLink->Pos_dest.y - _lastAddedLink->Pos_src.y);
+
+    ImVec2 halfWayPoint = ImVec2(_lastAddedLink->Pos_src.x + pos_delta.x/2, _lastAddedLink->Pos_src.y + pos_delta.y/2);
     
     _lastAddedLink->Pos_s1 = pos_interm_src;
     _lastAddedLink->Pos_d1 = pos_interm_dest;
 
-    if(pos_interm_src.x==-1) _lastAddedLink->Pos_s1.x =  halfWayPoint.x - pos_delta.x;
-    if(pos_interm_src.y==-1) _lastAddedLink->Pos_s1.y =  halfWayPoint.y - pos_delta.y;
+    if(pos_interm_src.x==-1) _lastAddedLink->Pos_s1.x =  halfWayPoint.x - pos_delta.x/4;
+    if(pos_interm_src.y==-1) _lastAddedLink->Pos_s1.y =  halfWayPoint.y - pos_delta.y/4;
     
-    if(pos_interm_dest.x==-1) _lastAddedLink->Pos_d1.x =  halfWayPoint.x + pos_delta.x;
-    if(pos_interm_dest.y==-1) _lastAddedLink->Pos_d1.y =  halfWayPoint.y + pos_delta.y;
+    if(pos_interm_dest.x==-1) _lastAddedLink->Pos_d1.x =  halfWayPoint.x + pos_delta.x/4;
+    if(pos_interm_dest.y==-1) _lastAddedLink->Pos_d1.y =  halfWayPoint.y + pos_delta.y/4;
     
 
 
-    if(type_src==3 || type_src==5)  _lastAddedLink->Pos_s1 = _lastAddedLink->Pos_src;
-    if(type_dest==2 || type_dest==4)_lastAddedLink->Pos_d1 = _lastAddedLink->Pos_dest;
+    if(type_src==3 || type_src==5)  _lastAddedLink->Pos_s1 = _lastAddedLink->Pos_src;   //type_src is `share`
+    if(type_dest==2 || type_dest==4)_lastAddedLink->Pos_d1 = _lastAddedLink->Pos_dest;  //type_dest is `add`
 
 
     return this->_lastAddedLink;
 }
 gNC::gLINK* gNC::guiNodeChart::LINK_create_loose(
-    ImVec2 loosPos,
+    ImVec2 loosePos,
     gNC::gNODE* _NODE,
     int type_NODE_connection,
     std::string label,
     std::string desc,
-    ImVec2 pos_interm_loose,
     ImVec2 pos_interm_NODE
 ) {
+    std::list<gNC::gNODE>::const_iterator checkItr = this->_find_ptr_itr<gNC::gNODE>(this->_nodes, _NODE);
 
+    if(checkItr==this->_nodes.end()) {
+        std::runtime_error(
+            "ERROR: "+this->_info_name+"LINK_create_loose(..):"+
+            " arg for _NODE address is incorreect."
+        );
+    }
+    if(searchVec<int>(std::vector<int>{1,2,3,4,5},type_NODE_connection)==-1) {
+        std::runtime_error(
+            "ERROR: "+this->_info_name+"LINK_create_loose(...):"+
+            " arg for `type_NODE_connection`"
+        );
+    }
+
+    int nType = 0; //
+    if(searchVec<int>(std::vector<int>{1,3,5}, type_NODE_connection)!=-1) { //node is src
+        this->_links.push_back(gNC::gLINK(type_NODE_connection, 0, _NODE, nullptr, label, desc));
+        nType = 1;
+    }
+    else { //node is dest
+        this->_links.push_back(gNC::gLINK(1, type_NODE_connection, nullptr, _NODE, label, desc));
+        nType = 0;
+    }
+
+    this->_lastAddedLink = &(this->_links.back());
+    this->_lastAddedLink->addr = ptrToStr<gNC::gLINK*>(this->_lastAddedLink);
+
+    ImVec2 tempPos = _NODE->getConnectionPos(type_NODE_connection);
+
+    if(nType==1)  {
+        _lastAddedLink->Pos_src = ImVec2(_NODE->pos[0]+tempPos.x, _NODE->pos[1]+tempPos.y);
+        _lastAddedLink->Pos_dest= loosePos;
+        _lastAddedLink->Pos_s1  = pos_interm_NODE;
+    }
+    else {
+        _lastAddedLink->Pos_dest= ImVec2(_NODE->pos[0]+tempPos.x, _NODE->pos[1]+tempPos.y);
+        _lastAddedLink->Pos_src = loosePos;
+        _lastAddedLink->Pos_d1  = pos_interm_NODE;
+    }
+
+    ImVec2 pos_delta = ImVec2(_lastAddedLink->Pos_dest.x - _lastAddedLink->Pos_src.x, _lastAddedLink->Pos_dest.y - _lastAddedLink->Pos_src.y);
+    ImVec2 halfWayPoint = ImVec2(_lastAddedLink->Pos_src.x + pos_delta.x/2, _lastAddedLink->Pos_src.y + pos_delta.y/2);
+
+
+    if(nType==1) {
+        _lastAddedLink->Pos_d1  = ImVec2(halfWayPoint.x - pos_delta.x/4, halfWayPoint.y - pos_delta.y/4);
+
+        if(pos_interm_NODE.x==-1) _lastAddedLink->Pos_s1.x =  halfWayPoint.x - pos_delta.x/4;
+        if(pos_interm_NODE.y==-1) _lastAddedLink->Pos_s1.y =  halfWayPoint.y - pos_delta.y/4;
+    }
+    if(nType==0) {
+        _lastAddedLink->Pos_s1  = ImVec2(halfWayPoint.x - pos_delta.x/4, halfWayPoint.y - pos_delta.y/4);
+
+        if(pos_interm_NODE.x==-1) _lastAddedLink->Pos_d1.x =  halfWayPoint.x + pos_delta.x/4;
+        if(pos_interm_NODE.y==-1) _lastAddedLink->Pos_d1.y =  halfWayPoint.y + pos_delta.y/4;
+    }
+
+    
+    return this->_lastAddedLink;
 }
 
 int gNC::guiNodeChart::LINK_swapSrc(gNC::gLINK* toSwap, gNC::gNODE* newSrc, int srcType) {

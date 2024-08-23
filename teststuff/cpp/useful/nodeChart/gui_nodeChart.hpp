@@ -283,12 +283,11 @@ namespace gNC {
             ImVec2 pos_interm_dest= ImVec2(-1, -1)
         );
         gNC::gLINK* LINK_create_loose(
-            ImVec2 loosPos,
+            ImVec2 loosePos,
             gNC::gNODE* _NODE,
             int type_NODE_connection,
             std::string label   = "",
             std::string desc    = "",
-            ImVec2 pos_interm_loose= ImVec2(-1, -1),
             ImVec2 pos_interm_NODE = ImVec2(-1, -1)
         );
         int LINK_swapSrc(gNC::gLINK* toSwap, gNC::gNODE* newSrc, int srcType);
