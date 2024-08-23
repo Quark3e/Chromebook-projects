@@ -70,8 +70,8 @@ namespace gNC {
             this->label = par_label;
             this->desc  = par_desc;
         }
-   
-        void draw_link(std::vector<ImDrawList*> draw_win);
+        void move_link(ImVec2 par_pos_src=ImVec2(-1, -1), ImVec2 par_pos_dest=ImVec2(-1, -1), ImVec2 par_pos_s1=ImVec2(-1, -1), ImVec2 par_pos_d1=ImVec2(-1, -1));
+        void draw_link(std::vector<ImDrawList*> draw_win, ImVec2 screen_offset);
     };
 
     struct gNODE {
@@ -244,7 +244,7 @@ namespace gNC {
         gNC::gNODE* lastAdded_NODE();
         gNC::gLINK* lastAdded_LINK();
 
-        gNC::gNODE operator[](size_t i) const;
+        gNC::gNODE& operator[](size_t i) const;
 
 
         gNC::gNODE* NODE_create(
@@ -259,7 +259,7 @@ namespace gNC {
         int NODE_delete(size_t NODE_idx, bool leaveFloating=false);
         int NODE_delete(gNC::gNODE* NODE_toDelete, bool leaveFloating=false);
 
-        int NODE_move(gNC::gNODE* NODE_toMove, float new_X, float new_Y);
+        int NODE_move(gNC::gNODE* NODE_toMove, float new_X, float new_Y, int moveMode=0);
 
 
         gNC::gLINK* LINK_create(

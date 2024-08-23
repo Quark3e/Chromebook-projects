@@ -41,18 +41,18 @@ void gNC::gNODE::draw_connection(
     static ImU32 colour_border  = IM_COL32(200, 200, 200, 255);
 
     for(int i=0; i<6; i++) {
-            ImVec2 tempPos = getConnectionPos(i);
-            tempPos.x += nodePos.x;
-            tempPos.y += nodePos.y;
+        ImVec2 tempPos = getConnectionPos(i);
+        tempPos.x += nodePos.x;
+        tempPos.y += nodePos.y;
             
-            // (
-            // i==0?   ImVec2(pos_in[0]     + nodePos.x, pos_in[1]     + nodePos.y) :
-            // (i==1?  ImVec2(pos_out[0]    + nodePos.x, pos_out[1]    + nodePos.y) :
-            // (i==2?  ImVec2(pos_add_0[0]  + nodePos.x, pos_add_0[1]  + nodePos.y) :
-            // (i==3?  ImVec2(pos_share_0[0]+ nodePos.x, pos_share_0[1]+ nodePos.y) :
-            // (i==4?  ImVec2(pos_add_1[0]  + nodePos.x, pos_add_1[1]  + nodePos.y) :
-            //         ImVec2(pos_share_1[0]+ nodePos.x, pos_share_1[1]+ nodePos.y)))))
-            // );
+        // (
+        // i==0?   ImVec2(pos_in[0]     + nodePos.x, pos_in[1]     + nodePos.y) :
+        // (i==1?  ImVec2(pos_out[0]    + nodePos.x, pos_out[1]    + nodePos.y) :
+        // (i==2?  ImVec2(pos_add_0[0]  + nodePos.x, pos_add_0[1]  + nodePos.y) :
+        // (i==3?  ImVec2(pos_share_0[0]+ nodePos.x, pos_share_0[1]+ nodePos.y) :
+        // (i==4?  ImVec2(pos_add_1[0]  + nodePos.x, pos_add_1[1]  + nodePos.y) :
+        //         ImVec2(pos_share_1[0]+ nodePos.x, pos_share_1[1]+ nodePos.y)))))
+        // );
 
         for(ImDrawList* el: draw_win) {
             el->AddCircleFilled(tempPos, ROI_attach[0]*0.5, colour_bg, 50);
@@ -70,8 +70,22 @@ void gNC::gNODE::draw_connection(
 
 }
 
+void gNC::gLINK::move_link(
+    ImVec2 par_pos_src,
+    ImVec2 par_pos_dest,
+    ImVec2 par_pos_s1,
+    ImVec2 par_pos_d1
+) {
+    /**
+     * If value is -1, that value is kept.
+     * If value is -2, that value allowed to change (s1 change if src is changed)
+     */
+
+
+}
 void gNC::gLINK::draw_link(
-    std::vector<ImDrawList*> draw_win
+    std::vector<ImDrawList*> draw_win,
+    ImVec2 screen_offset
 ) {
     /**
      * Need to find a way for a link between two nodes to be highlighted when
@@ -83,7 +97,18 @@ void gNC::gLINK::draw_link(
     static ImU32 colour_bg      = IM_COL32(250, 241, 58, 204);
     static ImU32 colour_border  = IM_COL32(102,  99, 28, 204);
 
+    for(ImDrawList* el: draw_win) {
 
+        el->AddLine(Pos_src,  Pos_s1, colour_border, 10);
+        el->AddLine(Pos_dest, Pos_d1, colour_border, 10);
+
+        el->AddLine(Pos_s1,   Pos_d1, colour_border, 10);
+
+        el->AddLine(Pos_src,  Pos_s1, colour_bg, 8);
+        el->AddLine(Pos_dest, Pos_d1, colour_bg, 8);
+
+        el->AddLine(Pos_s1,   Pos_d1, colour_bg, 8);
+    }
 
 }
 
@@ -195,10 +220,10 @@ gNC::gLINK* gNC::guiNodeChart::lastAdded_LINK() {
     return this->_lastAddedLink;
 }
 
-gNC::gNODE gNC::guiNodeChart::operator[](size_t i) const {
+gNC::gNODE& gNC::guiNodeChart::operator[](size_t i) const {
     if(i>=this->_nodes.size()) std::runtime_error("ERROR: "+_info_name+"operator[](size_t) index is out of range");
 
-    auto itr = this->_nodes.begin();
+    std::list<gNC::gNODE>::const_iterator itr = _nodes.begin();
     advance(itr, i);
     return const_cast<gNC::gNODE&>(*itr);
 }
@@ -297,15 +322,28 @@ int gNC::guiNodeChart::NODE_delete(gNC::gNODE* NODE_toDelete, bool leaveFloating
 }
 
 
-int gNC::guiNodeChart::NODE_move(gNC::gNODE* NODE_toMove, float new_X, float new_Y) {
+int gNC::guiNodeChart::NODE_move(
+    gNC::gNODE* NODE_toMove,
+    float new_X,
+    float new_Y,
+    int moveMode
+) {
     auto moveItr = this->_find_ptr_itr<gNC::gNODE>(this->_nodes, NODE_toMove);
     if(moveItr==this->_nodes.end()) std::runtime_error(
         "ERROR: "+_info_name+"NODE_move(gNC::gNODE*, float, float)"+
         " arg for gNC::gNODE address is invalid"
     );
 
-    NODE_toMove->pos[0] = new_X;
-    NODE_toMove->pos[1] = new_Y;
+    if(moveMode==0) {
+        NODE_toMove->pos[0] = new_X;
+        NODE_toMove->pos[1] = new_Y;
+    }
+    else if(moveMode==1) {
+        NODE_toMove->pos[0] += new_X;
+        NODE_toMove->pos[1] += new_Y;
+    }
+
+
 
     return 0;
 }
@@ -685,9 +723,9 @@ int gNC::guiNodeChart::draw() {
 
         if(ImGui::IsWindowFocused()) {
             if(!lockMove_node && pressed_keys->size() > 0 && searchVec<int>(*pressed_keys, 655) != -1) {
-                (*itr).pos[0] += io.MouseDelta.x;
-                (*itr).pos[1] += io.MouseDelta.y;
+                NODE_move(&(*itr), io.MouseDelta.x, io.MouseDelta.y, 1);
                 ImGui::SetWindowPos(ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]));
+
             }
         }
         else {
@@ -696,6 +734,16 @@ int gNC::guiNodeChart::draw() {
         _draw__node_cosmetics(itr, nodePos, draw_list);
 
         ImGui::End();
+    }
+    for(auto itr=_links.begin(); itr!=this->_links.end(); ++itr) {
+
+        if(
+            ((*itr).Pos_src.x < 0 && (*itr).Pos_dest.x < 0) || ((*itr).Pos_src.y < 0 && (*itr).Pos_dest.y < 0) ||
+            ((*itr).Pos_src.x > screen_dim[0] && (*itr).Pos_dest.x > screen_dim[0]) || ((*itr).Pos_src.y > screen_dim[1] && (*itr).Pos_dest.y > screen_dim[1])
+        ) continue;
+
+        (*itr).draw_link(std::vector<ImDrawList*>{draw_list}, ImVec2(screen_pos[0], screen_pos[1]));
+
     }
 
     if((mouseAction==0 || mouseAction==-1) && isKeyPressed(655, pressed_keys)) {
