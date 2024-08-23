@@ -27,25 +27,41 @@ namespace gNC {
 
         /**
          * Integer code for source type: Whether it's "out" or "share":
-         * - {`out`: `1`, `share`: `3`}
+         * - {`out`: `1`, `share_0`: `3`, `share_1`: `5`}
          */
         int type_src;
         /**
          * Integer code for dest type: WHether it's "in" our "add"
-         * - {`in`: `0`, `add`: `2`}
+         * - {`in`: `0`, `add_0`: `2`, `add_1`: `4`}
          */
         int type_dest;
 
-        gNC::gNODE* src;  // link source
-        gNC::gNODE* dest; // link destination
+        gNC::gNODE* src;    // link source
+        gNC::gNODE* dest;   // link destination
+
+
+        /**
+         * Different modes for the layout of the gNode:
+         *  - `0` - horizontal: left->right
+         *  - `1` - horizontal: right->left (text is left->right)
+         *  - `2` - vertical:   top->down
+         *  - `3` - vertical:   down->top
+         */
+        int layout;
+
+        ImVec2 Pos_src;     // 2d coordinates of src connection: By defualt this is at the src node's out point
+        ImVec2 Pos_dest;    // 2d coordinates of dest connection: By default this is at the dest node's in point
+        ImVec2 Pos_s1;      // coordinates of intermediary point 1: src side
+        ImVec2 Pos_d1;      // coordinates of intermediary point 1: dest side
 
 
         gLINK(
             int par_type_src, int par_type_dest,
             gNC::gNODE* par_src, gNC::gNODE* par_dest,
             std::string par_label="",std::string par_desc=""
-        ) {
-            if(par_type_src!=1 && par_type_src!=3 && par_type_dest!=0 && par_type_dest!=2) std::runtime_error("ERROR: NC::LINK() constructor par_type_{..} is invalid");
+        ): Pos_src(-1,-1), Pos_dest(-1,-1), Pos_s1(-1,-1), Pos_d1(-1,-1) {
+            if(searchVec<int>(std::vector<int>{1, 3, 5}, par_type_src)==-1 && searchVec<int>(std::vector<int>{0, 2, 4}, par_type_dest)==-1) std::runtime_error("ERROR: gNC::gLINK() constructor par_type_{..} is invalid");
+            if(par_src==nullptr && par_dest==nullptr) std::runtime_error("ERROR: gNC::gLINK(): constructor: both `src` and `dest` can't be nullptr");
 
             this->type_src  = par_type_src;
             this->type_dest = par_type_dest;
@@ -54,6 +70,8 @@ namespace gNC {
             this->label = par_label;
             this->desc  = par_desc;
         }
+   
+        void draw_link(std::vector<ImDrawList*> draw_win);
     };
 
     struct gNODE {
@@ -91,12 +109,26 @@ namespace gNC {
         
         ImVec2 ROI_attach = ImVec2{14, 14};   // [unit: px] Width and Height of the `in`, `out`, `add`, `share` connect point bounding boxes
 
+
         float fillet_radius = 0;
 
         /**
-         * Different states of the button. Mainly used in cosmetics/visuals
+         * Different states of the node connections. Mainly used in cosmetics/visuals.
+         *  container index to node connection:
+         *  - [0] - `in`
+         *  - [1] - `out`
+         *  - [2] - `add_0`
+         *  - [3] - `share_0`
+         *  - [4] - `add_1`
+         *  - [5] - `share_1`
+         * 
+         * index integer value to state correlation:
+         *  - `0` - off: defauult
+         *  - `1` - off: hover
+         *  - `2` - on : click
         */
-        int state = 0;
+        std::vector<int> state_connections = std::vector<int>{0, 0, 0, 0, 0, 0};
+
 
         std::vector<gNC::gLINK*> ln_in;     // type 0 //[optional]
         std::vector<gNC::gLINK*> ln_out;    // type 1 //[optional]
@@ -150,7 +182,8 @@ namespace gNC {
             width   = w;
             height  = h;
         }
-        void draw_connections(std::vector<ImDrawList*> draw_win);
+        ImVec2 getConnectionPos(int connectionID);
+        void draw_connection(std::vector<ImDrawList*> draw_win, ImVec2 nodePos);
     };
 
 
@@ -235,7 +268,9 @@ namespace gNC {
             int type_src,
             int type_dest,
             std::string label   = "",
-            std::string desc    = ""
+            std::string desc    = "",
+            ImVec2 pos_interm_src = ImVec2(-1, -1),
+            ImVec2 pos_interm_dest= ImVec2(-1, -1)
         );
         gNC::gLINK* LINK_create(
             gNC::gNODE* NODE_src,
@@ -243,7 +278,18 @@ namespace gNC {
             int type_src,
             int type_dest,
             std::string label   =  "",
-            std::string desc    =  ""
+            std::string desc    =  "",
+            ImVec2 pos_interm_src = ImVec2(-1, -1),
+            ImVec2 pos_interm_dest= ImVec2(-1, -1)
+        );
+        gNC::gLINK* LINK_create_loose(
+            ImVec2 loosPos,
+            gNC::gNODE* _NODE,
+            int type_NODE_connection,
+            std::string label   = "",
+            std::string desc    = "",
+            ImVec2 pos_interm_loose= ImVec2(-1, -1),
+            ImVec2 pos_interm_NODE = ImVec2(-1, -1)
         );
         int LINK_swapSrc(gNC::gLINK* toSwap, gNC::gNODE* newSrc, int srcType);
         int LINK_swapDest(gNC::gLINK* toSwap, gNC::gNODE* newDest, int destType);
