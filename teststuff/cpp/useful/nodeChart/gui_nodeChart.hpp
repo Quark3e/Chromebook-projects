@@ -20,10 +20,10 @@ namespace gNC {
     struct gNODE;
 
     struct gLINK {
-        std::string addr    = "";
+        std::string addr    = ""; // `std::string` of this `gNC::gLINK` instance/object address
 
-        std::string label   = ""; //optional
-        std::string desc    = ""; //optional
+        std::string label   = ""; //[optional]
+        std::string desc    = ""; //[optional]
 
         /**
          * Integer code for source type: Whether it's "out" or "share":
@@ -57,11 +57,11 @@ namespace gNC {
     };
 
     struct gNODE {
-        std::string addr    = "";
+        std::string addr    = ""; // `std::string` of this `gNC::gNODE` instance/object address
 
-        std::string label   = ""; //optional
-        std::string desc    = ""; //optional
-        std::string bodyText= ""; //optional
+        std::string label   = ""; //[optional]
+        std::string desc    = ""; //[optional]
+        std::string bodyText= ""; //[optional]
 
         bool init = false;
 
@@ -93,11 +93,15 @@ namespace gNC {
 
         float fillet_radius = 0;
 
+        /**
+         * Different states of the button. Mainly used in cosmetics/visuals
+        */
+        int state = 0;
 
-        std::vector<gNC::gLINK*> ln_in;     // type 0 //optional
-        std::vector<gNC::gLINK*> ln_out;    // type 1 //optional
-        std::vector<gNC::gLINK*> ln_add;    // type 2 //optional
-        std::vector<gNC::gLINK*> ln_share;  // type 3 //optional
+        std::vector<gNC::gLINK*> ln_in;     // type 0 //[optional]
+        std::vector<gNC::gLINK*> ln_out;    // type 1 //[optional]
+        std::vector<gNC::gLINK*> ln_add;    // type 2 //[optional]
+        std::vector<gNC::gLINK*> ln_share;  // type 3 //[optional]
         gNODE(
             float par_posX, float par_posY,
             std::string par_label="",std::string par_desc="", std::string par_bodyText="",
@@ -146,7 +150,7 @@ namespace gNC {
             width   = w;
             height  = h;
         }
-        void draw_connections();
+        void draw_connections(std::vector<ImDrawList*> draw_win);
     };
 
 

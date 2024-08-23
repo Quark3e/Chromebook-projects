@@ -375,6 +375,7 @@ bool _draw__node_cosmetics(
 
         tempPos.x += nodePos.x;
         tempPos.y += nodePos.y;
+
         local_drawList->AddCircleFilled(tempPos, (*itr).ROI_attach[0]/2, IM_COL32(100, 100, 100, 255), 50);
         win_draw_list->AddCircleFilled( tempPos, (*itr).ROI_attach[0]/2, IM_COL32(100, 100, 100, 255), 50);
 
@@ -449,26 +450,26 @@ int gNC::guiNodeChart::draw() {
     #endif
 
     for(auto itr=_nodes.begin(); itr!=this->_nodes.end(); ++itr) {
-        if(
-            ((*itr).pos[0] + (*itr).width  + screen_pos[0] < 0 || (*itr).pos[0] + screen_pos[0] > screen_dim[0]) ||
-            ((*itr).pos[1] + (*itr).height + screen_pos[1] < 0 || (*itr).pos[1] + screen_pos[1] > screen_dim[1])
-        ) continue;
-
         ImVec2 nodePos = ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]);
+
+        if(
+            (nodePos.x + (*itr).width  < 0  || nodePos.x > screen_dim[0]) ||
+            (nodePos.y + (*itr).height < 0  || nodePos.y > screen_dim[1])
+        ) continue;
 
 
         ImGuiWindowFlags win_flags = 0;
         win_flags |= ImGuiWindowFlags_NoResize;
         win_flags |= ImGuiWindowFlags_NoCollapse;
-        if(local_init) win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
+        win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
         win_flags |= ImGuiWindowFlags_NoMove;
         
+
+        int node_connect = _draw_NODEcheckConnects(itr, nodePos);
+
         if(isKeyPressed(655, pressed_keys)) {
             #if _DEBUG
             std::cout << "Mouse left pressed: ";
-            #endif
-            int node_connect = _draw_NODEcheckConnects(itr, nodePos);
-            #if _DEBUG
             std::cout << std::setw(2) << node_connect << " ";
             #endif
             if(node_connect==-1) {
@@ -508,7 +509,9 @@ int gNC::guiNodeChart::draw() {
                     mouseClick_left = 100;
                 }
             }
-
+        }
+        else {
+            
         }
 
 

@@ -19,7 +19,8 @@ int mouseClick_right    = 0;
  * - `2` node connection drag
  */
 int mouseAction         = -1;
-        
+
+/// @brief rate at which the mouse lock value decays per iteration/frame 
 int mouseTimer_decay    = 20;
 
 

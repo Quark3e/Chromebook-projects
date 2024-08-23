@@ -81,7 +81,15 @@ inline std::string ptrToStr(addrType toConv) {
 }
 
 
-
+/**
+ * @brief Check if the `cursor` position is inside region noted by the bounding box corners
+ * 
+ * @param cursor position to check relative to the bounding box
+ * @param pos_topLeft 2d coordinates of the top-left corner of the region bounding box
+ * @param pos_botRight 2d coordinates of the bottom-right corner of the region bounding box
+ * @return true if `cursor` coordinate is within the regions bounding box.
+ * @return false if `cursor` coordinate is outside the regions bounding box.
+ */
 inline bool inRegion(
     ImVec2 cursor,
     ImVec2 pos_topLeft,
