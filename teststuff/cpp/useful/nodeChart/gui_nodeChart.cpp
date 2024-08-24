@@ -103,7 +103,7 @@ void gNC::gLINK::move_link(
     if(par_pos_dest.y != -2) Pos_dest.y = par_pos_dest.y;
 
     ImVec2 pos_delta = ImVec2(Pos_dest.x - Pos_src.x, Pos_dest.y - Pos_src.y);
-    ImVec2 pos_middle= ImVec2(Pos_src.x + pos_delta.x/2, Pos_src.y + pos_delta.y);
+    ImVec2 pos_middle= ImVec2(Pos_src.x + pos_delta.x/2, Pos_src.y + pos_delta.y/2);
 
 
     for(int i=0; i<2; i++) {
@@ -131,17 +131,22 @@ void gNC::gLINK::draw_link(
     static ImU32 colour_bg      = IM_COL32(250, 241, 58, 204);
     static ImU32 colour_border  = IM_COL32(102,  99, 28, 204);
 
+    auto addOffs = [screen_offset](ImVec2 toAdd) {
+        return ImVec2(toAdd.x + screen_offset.x, toAdd.y + screen_offset.y);
+    };
+
+
     for(ImDrawList* el: draw_win) {
 
-        el->AddLine(Pos_src,  Pos_s1, colour_border, 10);
-        el->AddLine(Pos_dest, Pos_d1, colour_border, 10);
+        el->AddLine(addOffs(Pos_src),  addOffs(Pos_s1), colour_border, 10);
+        el->AddLine(addOffs(Pos_dest), addOffs(Pos_d1), colour_border, 10);
 
-        el->AddLine(Pos_s1,   Pos_d1, colour_border, 10);
+        el->AddLine(addOffs(Pos_s1),   addOffs(Pos_d1), colour_border, 10);
 
-        el->AddLine(Pos_src,  Pos_s1, colour_bg, 8);
-        el->AddLine(Pos_dest, Pos_d1, colour_bg, 8);
+        el->AddLine(addOffs(Pos_src),  addOffs(Pos_s1), colour_bg, 8);
+        el->AddLine(addOffs(Pos_dest), addOffs(Pos_d1), colour_bg, 8);
 
-        el->AddLine(Pos_s1,   Pos_d1, colour_bg, 8);
+        el->AddLine(addOffs(Pos_s1),   addOffs(Pos_d1), colour_bg, 8);
     }
 
 }
