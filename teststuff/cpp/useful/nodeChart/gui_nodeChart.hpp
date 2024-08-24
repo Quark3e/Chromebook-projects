@@ -134,6 +134,7 @@ namespace gNC {
         std::vector<gNC::gLINK*> ln_out;    // type 1 //[optional]
         std::vector<gNC::gLINK*> ln_add;    // type 2 //[optional]
         std::vector<gNC::gLINK*> ln_share;  // type 3 //[optional]
+        
         gNODE(
             float par_posX, float par_posY,
             std::string par_label="",std::string par_desc="", std::string par_bodyText="",
@@ -210,16 +211,11 @@ namespace gNC {
         //Address of the last `gNC::gLINK` element in the list
         gNC::gLINK* _lastAddedLink = nullptr;
 
-        template<typename storedType>
-        int _find_ptr_idx(const std::list<storedType>& toCheck, storedType* ptr_toFind);
-        template<typename storedType>
-        auto _find_ptr_itr(const std::list<storedType>& toCheck, storedType* ptr_toFind);
+        template<typename storedType> int _find_ptr_idx(const std::list<storedType>& toCheck, storedType* ptr_toFind);
+        template<typename storedType> auto _find_ptr_itr(const std::list<storedType>& toCheck, storedType* ptr_toFind);
 
-        template<typename storedType>
-        int _vecfind_ptr_idx(const std::vector<storedType>& toCheck, storedType toFind);
-        template<typename storedType>
-        auto _vecfind_ptr_itr( std::vector<storedType>& toCheck, storedType toFind);
-
+        template<typename storedType> int _vecfind_ptr_idx(const std::vector<storedType>& toCheck, storedType toFind);
+        template<typename storedType> auto _vecfind_ptr_itr( std::vector<storedType>& toCheck, storedType toFind);
 
 
 

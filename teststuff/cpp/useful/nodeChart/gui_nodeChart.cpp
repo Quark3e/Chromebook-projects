@@ -377,6 +377,25 @@ int gNC::guiNodeChart::NODE_move(
         NODE_toMove->pos[1] += new_Y;
     }
 
+    for(int v=0; v<4; v++) {
+        std::vector<gNC::gLINK*>& checkVec = (
+            v==0?  NODE_toMove->ln_in :
+            (v==1? NODE_toMove->ln_out:
+            (v==2? NODE_toMove->ln_add :
+                   NODE_toMove->ln_share
+            ))
+        );
+        ImVec2 connectPos = NODE_toMove->getConnectionPos(v);
+
+        for(gNC::gLINK* lnk: checkVec) {
+            if(v==0 || v==2) {
+                lnk->move_link(ImVec2(-2, -2), ImVec2(NODE_toMove->pos[0]+connectPos.x, NODE_toMove->pos[1]+connectPos.y));
+            }
+            else if(v==1 || v==3) {
+                lnk->move_link(ImVec2(NODE_toMove->pos[0]+connectPos.x, NODE_toMove->pos[1]+connectPos.y), ImVec2(-2, -2));
+            }
+        }
+    }
 
 
     return 0;
@@ -438,8 +457,14 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create(
 
     this->_links.push_back(gNC::gLINK(type_src, type_dest, NODE_src, NODE_dest, label, desc));
     this->_lastAddedLink = &(this->_links.back());
-
     this->_lastAddedLink->addr = ptrToStr<gNC::gLINK*>(this->_lastAddedLink);
+
+    if(type_src==1) _lastAddedLink->src->ln_out.push_back(_lastAddedLink);
+    else            _lastAddedLink->src->ln_share.push_back(_lastAddedLink);
+
+    if(type_dest==0)_lastAddedLink->dest->ln_in.push_back(_lastAddedLink);
+    else            _lastAddedLink->dest->ln_add.push_back(_lastAddedLink);
+
 
     ImVec2 srcPos = NODE_src->getConnectionPos(type_src);
     ImVec2 destPos = NODE_dest->getConnectionPos(type_dest);
@@ -503,6 +528,14 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create_loose(
     this->_lastAddedLink = &(this->_links.back());
     this->_lastAddedLink->addr = ptrToStr<gNC::gLINK*>(this->_lastAddedLink);
 
+    std::vector<gLINK*>& refVec = (
+        type_NODE_connection==0?  _lastAddedLink->dest->ln_in :
+        (type_NODE_connection==1? _lastAddedLink->src->ln_out :
+        ((type_NODE_connection==2 || type_NODE_connection==4)? _lastAddedLink->dest->ln_add :
+        _lastAddedLink->dest->ln_share))
+    );
+    refVec.push_back(_lastAddedLink);
+
     ImVec2 connecPos = _NODE->getConnectionPos(type_NODE_connection);
 
     if(nType==1)  {
@@ -539,16 +572,17 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create_loose(
 }
 
 int gNC::guiNodeChart::LINK_swapSrc(gNC::gLINK* toSwap, gNC::gNODE* newSrc, int srcType) {
-    if(srcType!=1 && srcType!=3) std::runtime_error("ERROR: "+this->_info_name+"LINK_swapSrc(gNC::gLINK*, gNC::gNODE*, int): invalid `srcType` input");
+    if(searchVec<int>(std::vector<int>{1,3,5}, srcType)==-1)
+        std::runtime_error("ERROR: "+this->_info_name+"LINK_swapSrc(gNC::gLINK*, gNC::gNODE*, int): invalid `srcType` input");
     if(_find_ptr_itr<gNC::gNODE>(_nodes, newSrc)==_nodes.end())
         std::runtime_error("ERROR: "+this->_info_name+"LINK_swapSrc(gNC::gLINK*, gNC::gNODE*, int): arg for `newSrc` is not a valid `gNC::gNODE` address");
     else if(_find_ptr_itr<gNC::gLINK>(_links, toSwap)==_links.end())
         std::runtime_error("ERROR: "+this->_info_name+"LINK_swapSrc(gNC::gLINK*, gNC::gNODE*, int): arg for `toSwap` is not a valid `gNC::gLINK` address");
 
-
     if(toSwap->src==newSrc) return 1;
 
     if(toSwap->src!=nullptr) {
+        //locate and erase this link for the src NODE to swap from
         std::vector<gNC::gLINK*>& eraseVec = (toSwap->type_src==1? toSwap->src->ln_out : toSwap->src->ln_share);
         std::vector<gNC::gLINK*>::const_iterator deleteItr = _vecfind_ptr_itr<gNC::gLINK*>(eraseVec, toSwap);
         eraseVec.erase(deleteItr);
@@ -556,13 +590,20 @@ int gNC::guiNodeChart::LINK_swapSrc(gNC::gLINK* toSwap, gNC::gNODE* newSrc, int 
 
     toSwap->src = newSrc;
 
-    if(srcType==1)      newSrc->ln_out.push_back(toSwap);
-    else if(srcType==3) newSrc->ln_share.push_back(toSwap);
+    if(srcType==1) newSrc->ln_out.push_back(toSwap);
+    else           newSrc->ln_share.push_back(toSwap);
+
+    ImVec2 srcPos = newSrc->getConnectionPos(srcType);
+    toSwap->move_link(
+        ImVec2(newSrc->pos[0]+srcPos.x, newSrc->pos[1]+srcPos.y),
+        ImVec2(-2, -2), ImVec2(-1, -1), ImVec2(-1, -1)
+    );
 
     return 0;
 }
 int gNC::guiNodeChart::LINK_swapDest(gNC::gLINK* toSwap, gNC::gNODE* newDest, int destType) {
-    if(destType!=0 && destType!=2) std::runtime_error("ERROR: "+this->_info_name+"LINK_swapDest(gNC::gLINK*, gNC::gNODE*, int): invalid `destType` input");
+    if(searchVec<int>(std::vector<int>{0,2,4}, destType)==-1)
+        std::runtime_error("ERROR: "+this->_info_name+"LINK_swapDest(gNC::gLINK*, gNC::gNODE*, int): invalid `destType` input");
     if(_find_ptr_itr<gNC::gNODE>(_nodes, newDest)==_nodes.end())
         std::runtime_error("ERROR: "+this->_info_name+"LINK_swapDest(gNC::gLINK*, gNC::gNODE*, int): arg for `newDest` is not a valid `NC::NODE` address");
     else if(_find_ptr_itr<gNC::gLINK>(_links, toSwap)==_links.end())
@@ -581,7 +622,15 @@ int gNC::guiNodeChart::LINK_swapDest(gNC::gLINK* toSwap, gNC::gNODE* newDest, in
 
     // add NC::LINK address to the new NODE in correct std::vector container
     if(destType==0) newDest->ln_in.push_back(toSwap);
-    else if(destType==2) newDest->ln_add.push_back(toSwap);
+    else            newDest->ln_add.push_back(toSwap);
+
+
+    ImVec2 destPos = newDest->getConnectionPos(destType);
+    toSwap->move_link(
+        ImVec2(-2, -2),
+        ImVec2(newDest->pos[0]+destPos.x, newDest->pos[1]+destPos.y),
+        ImVec2(-1, -1), ImVec2(-1, -1)
+    );
 
     return 0;
 }
