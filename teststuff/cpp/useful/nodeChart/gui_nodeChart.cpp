@@ -70,6 +70,14 @@ void gNC::gNODE::draw_connection(
 
 }
 
+/**
+ * @brief move the coordinates for the points that make up LINK draw
+ * 
+ * @param par_pos_src absolute 2d position of _src point
+ * @param par_pos_dest absolute 2d position of _dest point
+ * @param par_pos_s1 absolute 2d position of _s1 point
+ * @param par_pos_d1 absolute 2d position of _d1 point
+ */
 void gNC::gLINK::move_link(
     ImVec2 par_pos_src,
     ImVec2 par_pos_dest,
@@ -77,9 +85,35 @@ void gNC::gLINK::move_link(
     ImVec2 par_pos_d1
 ) {
     /**
-     * If value is -1, that value is kept.
-     * If value is -2, that value allowed to change (s1 change if src is changed)
+     * If value is -2, that value is kept.
+     * If value is -1, that value allowed to change (applies only to s1 and d1)
+     * else: update it
      */
+
+    // assert(
+    //     !(par_pos_src.x  < 0 && par_pos_src.x  != -1 && par_pos_src.x  != -2) ||
+    //     !(par_pos_src.y  < 0 && par_pos_src.y  != -1 && par_pos_src.y  != -2) ||
+    //     !(par_pos_dest.x < 0 && par_pos_dest.x != -1 && par_pos_dest.x != -2) ||
+    //     !(par_pos_dest.y < 0 && par_pos_dest.y != -1 && par_pos_dest.y != -2)
+    // );
+
+    if(par_pos_src.x  != -2) Pos_src.x  = par_pos_src.x;
+    if(par_pos_src.y  != -2) Pos_src.y  = par_pos_src.y;
+    if(par_pos_dest.x != -2) Pos_dest.x = par_pos_dest.x;
+    if(par_pos_dest.y != -2) Pos_dest.y = par_pos_dest.y;
+
+    ImVec2 pos_delta = ImVec2(Pos_dest.x - Pos_src.x, Pos_dest.y - Pos_src.y);
+    ImVec2 pos_middle= ImVec2(Pos_src.x + pos_delta.x/2, Pos_src.y + pos_delta.y);
+
+
+    for(int i=0; i<2; i++) {
+        if(par_pos_s1[i]==-2) {}
+        else if(par_pos_s1[i]==-1) Pos_s1[i] = pos_middle[i] - pos_delta[i]/4;
+        else Pos_s1[i] = par_pos_s1[i];
+        if(par_pos_d1[i]==-2) {}
+        else if(par_pos_d1[i]==-1) Pos_d1[i] = pos_middle[i] + pos_delta[i]/4;
+        else Pos_d1[i] = par_pos_d1[i];
+    }
 
 
 }
@@ -406,31 +440,30 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create(
     this->_lastAddedLink = &(this->_links.back());
 
     this->_lastAddedLink->addr = ptrToStr<gNC::gLINK*>(this->_lastAddedLink);
-    
-    ImVec2 tempPos = NODE_src->getConnectionPos(type_src);
-    _lastAddedLink->Pos_src = ImVec2(NODE_src->pos[0]+tempPos.x, NODE_src->pos[1]+tempPos.y);
-    tempPos = NODE_dest->getConnectionPos(type_dest);
-    _lastAddedLink->Pos_dest = ImVec2(NODE_dest->pos[0]+tempPos.x, NODE_dest->pos[1]+tempPos.y);
+
+    ImVec2 srcPos = NODE_src->getConnectionPos(type_src);
+    ImVec2 destPos = NODE_dest->getConnectionPos(type_dest);
+
+    // _lastAddedLink->Pos_src = ImVec2(NODE_src->pos[0]+srcPos.x, NODE_src->pos[1]+srcPos.y);
+    // _lastAddedLink->Pos_dest = ImVec2(NODE_dest->pos[0]+destPos.x, NODE_dest->pos[1]+destPos.y);
+    // ImVec2 pos_delta = ImVec2(_lastAddedLink->Pos_dest.x - _lastAddedLink->Pos_src.x, _lastAddedLink->Pos_dest.y - _lastAddedLink->Pos_src.y);
+    // ImVec2 halfWayPoint = ImVec2(_lastAddedLink->Pos_src.x + pos_delta.x/2, _lastAddedLink->Pos_src.y + pos_delta.y/2);
+    // _lastAddedLink->Pos_s1 = pos_interm_src;
+    // _lastAddedLink->Pos_d1 = pos_interm_dest;
+    // if(pos_interm_src.x==-1) _lastAddedLink->Pos_s1.x =  halfWayPoint.x - pos_delta.x/4;
+    // if(pos_interm_src.y==-1) _lastAddedLink->Pos_s1.y =  halfWayPoint.y - pos_delta.y/4;
+    // if(pos_interm_dest.x==-1) _lastAddedLink->Pos_d1.x =  halfWayPoint.x + pos_delta.x/4;
+    // if(pos_interm_dest.y==-1) _lastAddedLink->Pos_d1.y =  halfWayPoint.y + pos_delta.y/4;
+    // if(type_src==3 || type_src==5)  _lastAddedLink->Pos_s1 = _lastAddedLink->Pos_src;   //type_src is `share`
+    // if(type_dest==2 || type_dest==4)_lastAddedLink->Pos_d1 = _lastAddedLink->Pos_dest;  //type_dest is `add`
 
 
-    ImVec2 pos_delta = ImVec2(_lastAddedLink->Pos_dest.x - _lastAddedLink->Pos_src.x, _lastAddedLink->Pos_dest.y - _lastAddedLink->Pos_src.y);
-
-    ImVec2 halfWayPoint = ImVec2(_lastAddedLink->Pos_src.x + pos_delta.x/2, _lastAddedLink->Pos_src.y + pos_delta.y/2);
-    
-    _lastAddedLink->Pos_s1 = pos_interm_src;
-    _lastAddedLink->Pos_d1 = pos_interm_dest;
-
-    if(pos_interm_src.x==-1) _lastAddedLink->Pos_s1.x =  halfWayPoint.x - pos_delta.x/4;
-    if(pos_interm_src.y==-1) _lastAddedLink->Pos_s1.y =  halfWayPoint.y - pos_delta.y/4;
-    
-    if(pos_interm_dest.x==-1) _lastAddedLink->Pos_d1.x =  halfWayPoint.x + pos_delta.x/4;
-    if(pos_interm_dest.y==-1) _lastAddedLink->Pos_d1.y =  halfWayPoint.y + pos_delta.y/4;
-    
-
-
-    if(type_src==3 || type_src==5)  _lastAddedLink->Pos_s1 = _lastAddedLink->Pos_src;   //type_src is `share`
-    if(type_dest==2 || type_dest==4)_lastAddedLink->Pos_d1 = _lastAddedLink->Pos_dest;  //type_dest is `add`
-
+    _lastAddedLink->move_link(
+        ImVec2(NODE_src->pos[0]+srcPos.x,   NODE_src->pos[1]+srcPos.y),
+        ImVec2(NODE_dest->pos[0]+destPos.x, NODE_dest->pos[1]+destPos.y),
+        (type_src!=1?  ImVec2(NODE_src->pos[0]+srcPos.x,   NODE_src->pos[1]+srcPos.y)   : ImVec2(-1, -1)),
+        (type_dest!=0? ImVec2(NODE_dest->pos[0]+destPos.x, NODE_dest->pos[1]+destPos.y) : ImVec2(-1, -1))
+    );
 
     return this->_lastAddedLink;
 }
@@ -457,12 +490,12 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create_loose(
         );
     }
 
-    int nType = 0; //
-    if(searchVec<int>(std::vector<int>{1,3,5}, type_NODE_connection)!=-1) { //node is src
+    int nType = 0; //`1`-src; `0`-dest
+    if(searchVec<int>(std::vector<int>{1,3,5}, type_NODE_connection)!=-1) { //node is src (out, share)
         this->_links.push_back(gNC::gLINK(type_NODE_connection, 0, _NODE, nullptr, label, desc));
         nType = 1;
     }
-    else { //node is dest
+    else { //node is dest (in, add)
         this->_links.push_back(gNC::gLINK(1, type_NODE_connection, nullptr, _NODE, label, desc));
         nType = 0;
     }
@@ -470,18 +503,19 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create_loose(
     this->_lastAddedLink = &(this->_links.back());
     this->_lastAddedLink->addr = ptrToStr<gNC::gLINK*>(this->_lastAddedLink);
 
-    ImVec2 tempPos = _NODE->getConnectionPos(type_NODE_connection);
+    ImVec2 connecPos = _NODE->getConnectionPos(type_NODE_connection);
 
     if(nType==1)  {
-        _lastAddedLink->Pos_src = ImVec2(_NODE->pos[0]+tempPos.x, _NODE->pos[1]+tempPos.y);
+        _lastAddedLink->Pos_src = ImVec2(_NODE->pos[0]+connecPos.x, _NODE->pos[1]+connecPos.y);
         _lastAddedLink->Pos_dest= loosePos;
         _lastAddedLink->Pos_s1  = pos_interm_NODE;
     }
     else {
-        _lastAddedLink->Pos_dest= ImVec2(_NODE->pos[0]+tempPos.x, _NODE->pos[1]+tempPos.y);
+        _lastAddedLink->Pos_dest= ImVec2(_NODE->pos[0]+connecPos.x, _NODE->pos[1]+connecPos.y);
         _lastAddedLink->Pos_src = loosePos;
         _lastAddedLink->Pos_d1  = pos_interm_NODE;
     }
+
 
     ImVec2 pos_delta = ImVec2(_lastAddedLink->Pos_dest.x - _lastAddedLink->Pos_src.x, _lastAddedLink->Pos_dest.y - _lastAddedLink->Pos_src.y);
     ImVec2 halfWayPoint = ImVec2(_lastAddedLink->Pos_src.x + pos_delta.x/2, _lastAddedLink->Pos_src.y + pos_delta.y/2);
