@@ -47,13 +47,13 @@ namespace gNC {
          *  - `2` - vertical:   top->down
          *  - `3` - vertical:   down->top
          */
-        int layout;
+        int layout = 0;
 
         ImVec2 Pos_src;     // 2d coordinates of src connection: By defualt this is at the src node's out point
         ImVec2 Pos_dest;    // 2d coordinates of dest connection: By default this is at the dest node's in point
         ImVec2 Pos_s1;      // coordinates of intermediary point 1: src side
         ImVec2 Pos_d1;      // coordinates of intermediary point 1: dest side
-
+        ImVec2 Pos_center;  // 2d coordinate of the point between Pos_src and Pos_dest
 
         gLINK(
             int par_type_src, int par_type_dest,
@@ -134,7 +134,7 @@ namespace gNC {
         std::vector<gNC::gLINK*> ln_out;    // type 1 //[optional]
         std::vector<gNC::gLINK*> ln_add;    // type 2 //[optional]
         std::vector<gNC::gLINK*> ln_share;  // type 3 //[optional]
-        
+
         gNODE(
             float par_posX, float par_posY,
             std::string par_label="",std::string par_desc="", std::string par_bodyText="",

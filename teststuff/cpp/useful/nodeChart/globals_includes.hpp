@@ -28,6 +28,8 @@
 
 #include <HC_useful/useful.hpp>
 
+#include <HC_useful/science/bezier_curve.hpp>
+
 #include "globals_variables.hpp"
 #include "extra_imgui.hpp"
 #include "gui_nodeChart.hpp"

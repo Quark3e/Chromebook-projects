@@ -104,7 +104,7 @@ void gNC::gLINK::move_link(
 
     ImVec2 pos_delta = ImVec2(Pos_dest.x - Pos_src.x, Pos_dest.y - Pos_src.y);
     ImVec2 pos_middle= ImVec2(Pos_src.x + pos_delta.x/2, Pos_src.y + pos_delta.y/2);
-
+    this->Pos_center = pos_middle;
 
     for(int i=0; i<2; i++) {
         if(par_pos_s1[i]==-2) {}
@@ -131,22 +131,48 @@ void gNC::gLINK::draw_link(
     static ImU32 colour_bg      = IM_COL32(250, 241, 58, 204);
     static ImU32 colour_border  = IM_COL32(102,  99, 28, 204);
 
+    static auto to_ImVec2 = [](pos2d toConv) { return ImVec2(toConv.x, toConv.y); };
+    static auto to_pos2d  = [](ImVec2 toConv){ return pos2d(toConv.x, toConv.y); };
+
     auto addOffs = [screen_offset](ImVec2 toAdd) {
         return ImVec2(toAdd.x + screen_offset.x, toAdd.y + screen_offset.y);
     };
 
+    int bezierSegs = 10;
+
+    std::vector<pos2d> curveSrc = quadratic_bezier(
+        to_pos2d(Pos_src), to_pos2d(Pos_center),
+        ((layout==0 || layout==1)? pos2d(Pos_center.x, Pos_src.y) : pos2d(Pos_src.x, Pos_center.y)),
+        bezierSegs
+    );
+    std::vector<pos2d> curveDest = quadratic_bezier(
+        to_pos2d(Pos_dest), to_pos2d(Pos_center),
+        ((layout==0 || layout==1)? pos2d(Pos_center.x, Pos_dest.y) : pos2d(Pos_dest.x, Pos_center.y)),
+        bezierSegs
+    );
+
 
     for(ImDrawList* el: draw_win) {
 
-        el->AddLine(addOffs(Pos_src),  addOffs(Pos_s1), colour_border, 10);
-        el->AddLine(addOffs(Pos_dest), addOffs(Pos_d1), colour_border, 10);
+        // el->AddLine(addOffs(Pos_src),  addOffs(Pos_s1), colour_border, 10);
+        // el->AddLine(addOffs(Pos_dest), addOffs(Pos_d1), colour_border, 10);
 
-        el->AddLine(addOffs(Pos_s1),   addOffs(Pos_d1), colour_border, 10);
+        // el->AddLine(addOffs(Pos_s1),   addOffs(Pos_d1), colour_border, 10);
+        for(int i=0; i<bezierSegs; i++) {
+            // el->AddCircle(addOffs(to_ImVec2(curveSrc[i])), 5, colour_bg, 10, 2);
+            // el->AddLine(to_ImVec2(curveTest[i]), to_ImVec2(curveTest[i+1]), IM_COL32(70, 140, 210, 255), 10);
+            el->AddLine(addOffs(to_ImVec2(curveSrc[i])),  addOffs(to_ImVec2(curveSrc[i+1])),  colour_border, 10);
+            el->AddLine(addOffs(to_ImVec2(curveDest[i])), addOffs(to_ImVec2(curveDest[i+1])), colour_border, 10);
+        }
 
-        el->AddLine(addOffs(Pos_src),  addOffs(Pos_s1), colour_bg, 8);
-        el->AddLine(addOffs(Pos_dest), addOffs(Pos_d1), colour_bg, 8);
+        // el->AddLine(addOffs(Pos_src),  addOffs(Pos_s1), colour_bg, 8);
+        // el->AddLine(addOffs(Pos_dest), addOffs(Pos_d1), colour_bg, 8);
 
-        el->AddLine(addOffs(Pos_s1),   addOffs(Pos_d1), colour_bg, 8);
+        for(int i=0; i<bezierSegs-1; i++) {
+            // el->AddLine(addOffs(to_ImVec2(curveSrc[i])),  addOffs(to_ImVec2(curveSrc[i+1])),  colour_bg, 8);
+            // el->AddLine(to_ImVec2(curveDest[i]), to_ImVec2(curveDest[i+1]), colour_bg, 8);
+        }
+        // el->AddLine(addOffs(Pos_s1),   addOffs(Pos_d1), colour_bg, 8);
     }
 
 }

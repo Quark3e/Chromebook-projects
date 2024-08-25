@@ -29,6 +29,20 @@
 // using namespace std;
 
 
+struct pos2d {
+    float x;
+    float y;
+    float& operator[](size_t i) {
+        assert(i==0 || i==1);
+        if(i==0) return x;
+        return y;
+    }
+    pos2d(float X, float Y): x{X}, y{Y} { }
+    pos2d() {}
+    std::string getStr() { return std::string(std::to_string(x)+", "+std::to_string(y)); }
+};
+
+
 // namespace USEFUL {
 
     /// @brief return the sum of elements in an array of type `T`
