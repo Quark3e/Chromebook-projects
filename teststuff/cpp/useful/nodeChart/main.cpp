@@ -155,7 +155,8 @@ int main(int argc, char** argv) {
                     proj0.NODE_create(300, 300, "node1", "desc1", "body1");
                     proj0.NODE_create(500, 500, "node2", "desc2", "body2");
 
-                    proj0.LINK_create(&proj0[0], &proj0[2], 1, 0, "test");
+                    proj0.LINK_create(&proj0[0], &proj0[2], 1, 0, "link0");
+                    proj0.LINK_create(&proj0[1], &proj0[2], 3, 0, "link1");
 
                 }
                 style.WindowRounding = 15.0f;

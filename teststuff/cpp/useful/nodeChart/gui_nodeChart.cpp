@@ -56,7 +56,7 @@ void gNC::gNODE::draw_connection(
 
         for(ImDrawList* el: draw_win) {
             el->AddCircleFilled(tempPos, ROI_attach[0]*0.5, colour_bg, 50);
-            el->AddCircle(tempPos, ROI_attach[0]*0.5, colour_border, 50, 3);
+            el->AddCircle(      tempPos, ROI_attach[0]*0.5, colour_border, 50, 3);
 
             switch (state_connections[i]) {
             case 1: el->AddCircleFilled(tempPos, ROI_attach[0]*0.5, colour_hover, 50); break;
@@ -108,10 +108,24 @@ void gNC::gLINK::move_link(
 
     for(int i=0; i<2; i++) {
         if(par_pos_s1[i]==-2) {}
-        else if(par_pos_s1[i]==-1) Pos_s1[i] = pos_middle[i] - pos_delta[i]/4;
+        else if(par_pos_s1[i]==-1) {
+            if(type_src==1) {
+                if(layout==0 || layout==1) Pos_s1[i] = (i==0? pos_middle[i]-pos_delta[i]/4 : Pos_src[i]);
+                else Pos_s1[i] = (i==1? pos_middle[i]-pos_delta[i]/4 : Pos_src[i]);
+            }
+            else Pos_s1[i] = Pos_src[i];
+            // Pos_s1[i] = pos_middle[i] - pos_delta[i]/4;
+        }
         else Pos_s1[i] = par_pos_s1[i];
         if(par_pos_d1[i]==-2) {}
-        else if(par_pos_d1[i]==-1) Pos_d1[i] = pos_middle[i] + pos_delta[i]/4;
+        else if(par_pos_d1[i]==-1) {
+            if(type_dest==0) {
+                if(layout==0 || layout==1) Pos_d1[i] = (i==0? pos_middle[i]+pos_delta[i]/4 : Pos_dest[i]);
+                else Pos_d1[i] = (i==1? pos_middle[i]-pos_delta[i]/4 : Pos_dest[i]);
+            }
+            else Pos_d1[i] = Pos_dest[i];
+            // Pos_d1[i] = pos_middle[i] + pos_delta[i]/4;
+        }
         else Pos_d1[i] = par_pos_d1[i];
     }
 
@@ -128,8 +142,8 @@ void gNC::gLINK::draw_link(
      * 
      * when drawing the line on the node, only draw to the first intermediary point.
      */
-    static ImU32 colour_bg      = IM_COL32(250, 241, 58, 204);
-    static ImU32 colour_border  = IM_COL32(102,  99, 28, 204);
+    static ImU32 colour_bg      = IM_COL32(250, 241,  58, 204);
+    static ImU32 colour_border  = IM_COL32(100, 100, 100, 255); //IM_COL32(102,  99, 28, 204);
 
     static auto to_ImVec2 = [](pos2d toConv) { return ImVec2(toConv.x, toConv.y); };
     static auto to_pos2d  = [](ImVec2 toConv){ return pos2d(toConv.x, toConv.y); };
@@ -140,37 +154,64 @@ void gNC::gLINK::draw_link(
 
     int bezierSegs = 10;
 
+
+    pos2d point_C_src, point_C_dest;
+    if(layout==0 || layout==1) {
+        if(type_src==1) point_C_src = pos2d(Pos_center.x, Pos_s1.y);
+        else            point_C_src = pos2d(Pos_s1.x, Pos_center.y);
+        if(type_dest==0)point_C_dest= pos2d(Pos_center.x, Pos_d1.y);
+        else            point_C_dest= pos2d(Pos_d1.x, Pos_center.y);
+    }
+    else {
+        if(type_src==1) point_C_src = pos2d(Pos_s1.x, Pos_center.y);
+        else            point_C_src = pos2d(Pos_center.x, Pos_s1.y);
+        if(type_dest==0)point_C_dest= pos2d(Pos_d1.x, Pos_center.y);
+        else            point_C_dest= pos2d(Pos_center.x, Pos_d1.y);
+    }
+
+
     std::vector<pos2d> curveSrc = quadratic_bezier(
-        to_pos2d(Pos_src), to_pos2d(Pos_center),
-        ((layout==0 || layout==1)? pos2d(Pos_center.x, Pos_src.y) : pos2d(Pos_src.x, Pos_center.y)),
+        to_pos2d(Pos_s1), to_pos2d(Pos_center),
+        point_C_src,
+        // ((layout==0 || layout==1)? pos2d(Pos_center.x, Pos_s1.y) : pos2d(Pos_s1.x, Pos_center.y)),
         bezierSegs
     );
     std::vector<pos2d> curveDest = quadratic_bezier(
-        to_pos2d(Pos_dest), to_pos2d(Pos_center),
-        ((layout==0 || layout==1)? pos2d(Pos_center.x, Pos_dest.y) : pos2d(Pos_dest.x, Pos_center.y)),
+        to_pos2d(Pos_d1), to_pos2d(Pos_center),
+        point_C_dest,
+        // ((layout==0 || layout==1)? pos2d(Pos_center.x, Pos_d1.y) : pos2d(Pos_d1.x, Pos_center.y)),
         bezierSegs
     );
 
 
     for(ImDrawList* el: draw_win) {
 
-        // el->AddLine(addOffs(Pos_src),  addOffs(Pos_s1), colour_border, 10);
-        // el->AddLine(addOffs(Pos_dest), addOffs(Pos_d1), colour_border, 10);
+        el->AddLine(addOffs(Pos_src),  addOffs(Pos_s1), colour_border, 12);
+        el->AddLine(addOffs(Pos_dest), addOffs(Pos_d1), colour_border, 12);
 
         // el->AddLine(addOffs(Pos_s1),   addOffs(Pos_d1), colour_border, 10);
-        for(int i=0; i<bezierSegs; i++) {
+        for(size_t i=0; i<curveSrc.size()-1; i++) {
             // el->AddCircle(addOffs(to_ImVec2(curveSrc[i])), 5, colour_bg, 10, 2);
             // el->AddLine(to_ImVec2(curveTest[i]), to_ImVec2(curveTest[i+1]), IM_COL32(70, 140, 210, 255), 10);
-            el->AddLine(addOffs(to_ImVec2(curveSrc[i])),  addOffs(to_ImVec2(curveSrc[i+1])),  colour_border, 10);
-            el->AddLine(addOffs(to_ImVec2(curveDest[i])), addOffs(to_ImVec2(curveDest[i+1])), colour_border, 10);
+            el->AddLine(addOffs(to_ImVec2(curveSrc[i])),  addOffs(to_ImVec2(curveSrc[i+1])),  colour_border, 12);
+            el->AddLine(addOffs(to_ImVec2(curveDest[i])), addOffs(to_ImVec2(curveDest[i+1])), colour_border, 12);
+            // el->AddCircle(addOffs(to_ImVec2(curveSrc[i])), 10, colour_border, 10);
+            // std::cout << curveSrc[i].getStr() << std::endl;
         }
+        // std::cout << "-----"<<std::endl;
+        // el->AddLine(addOffs(to_ImVec2(curveSrc[bezierSegs-1])), addOffs(Pos_center), colour_border, 10);
+        // el->AddCircle(addOffs(Pos_center), 10, colour_border, 10);
+        // el->AddCircleFilled(addOffs(to_ImVec2(curveSrc.back())), 20, IM_COL32(255, 0, 0, 255), 10);
+        // std::cout << (&curveSrc.back())->getStr() << std::endl;
+        // std::cout << "---------" << std::endl;
 
-        // el->AddLine(addOffs(Pos_src),  addOffs(Pos_s1), colour_bg, 8);
-        // el->AddLine(addOffs(Pos_dest), addOffs(Pos_d1), colour_bg, 8);
 
-        for(int i=0; i<bezierSegs-1; i++) {
-            // el->AddLine(addOffs(to_ImVec2(curveSrc[i])),  addOffs(to_ImVec2(curveSrc[i+1])),  colour_bg, 8);
-            // el->AddLine(to_ImVec2(curveDest[i]), to_ImVec2(curveDest[i+1]), colour_bg, 8);
+        el->AddLine(addOffs(Pos_src),  addOffs(Pos_s1), colour_bg, 8);
+        el->AddLine(addOffs(Pos_dest), addOffs(Pos_d1), colour_bg, 8);
+
+        for(size_t i=0; i<curveSrc.size()-1; i++) {
+            el->AddLine(addOffs(to_ImVec2(curveSrc[i])),  addOffs(to_ImVec2(curveSrc[i+1])),  colour_bg, 8);
+            el->AddLine(addOffs(to_ImVec2(curveDest[i])), addOffs(to_ImVec2(curveDest[i+1])), colour_bg, 8);
         }
         // el->AddLine(addOffs(Pos_s1),   addOffs(Pos_d1), colour_bg, 8);
     }
@@ -753,6 +794,17 @@ int gNC::guiNodeChart::draw() {
     std::cout<< "{"<<std::setw(2)<< mouseAction<<","<<std::setw(3)<<mouseClick_left<<"} ";
     #endif
 
+
+
+    for(auto itr=_links.begin(); itr!=this->_links.end(); ++itr) {
+
+        if(
+            ((*itr).Pos_src.x < 0 && (*itr).Pos_dest.x < 0) || ((*itr).Pos_src.y < 0 && (*itr).Pos_dest.y < 0) ||
+            ((*itr).Pos_src.x > screen_dim[0] && (*itr).Pos_dest.x > screen_dim[0]) || ((*itr).Pos_src.y > screen_dim[1] && (*itr).Pos_dest.y > screen_dim[1])
+        ) continue;
+
+        (*itr).draw_link(std::vector<ImDrawList*>{draw_list}, ImVec2(screen_pos[0], screen_pos[1]));
+    }
     for(auto itr=_nodes.begin(); itr!=this->_nodes.end(); ++itr) {
         ImVec2 nodePos = ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]);
 
@@ -848,16 +900,6 @@ int gNC::guiNodeChart::draw() {
         _draw__node_cosmetics(itr, nodePos, draw_list);
 
         ImGui::End();
-    }
-    for(auto itr=_links.begin(); itr!=this->_links.end(); ++itr) {
-
-        if(
-            ((*itr).Pos_src.x < 0 && (*itr).Pos_dest.x < 0) || ((*itr).Pos_src.y < 0 && (*itr).Pos_dest.y < 0) ||
-            ((*itr).Pos_src.x > screen_dim[0] && (*itr).Pos_dest.x > screen_dim[0]) || ((*itr).Pos_src.y > screen_dim[1] && (*itr).Pos_dest.y > screen_dim[1])
-        ) continue;
-
-        (*itr).draw_link(std::vector<ImDrawList*>{draw_list}, ImVec2(screen_pos[0], screen_pos[1]));
-
     }
 
     if((mouseAction==0 || mouseAction==-1) && isKeyPressed(655, pressed_keys)) {

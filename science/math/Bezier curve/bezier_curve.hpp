@@ -15,6 +15,7 @@ inline std::vector<float> getCoef_linear(
 ) {
     float k, c;
     pos2d delta = pos2d(point_B.x-point_A.x, point_B.y-point_A.y);
+    if(delta.x<=0.0001) delta.x+=0.001; //basic solution to deal with completely vertical linear functions (im lazy)
     k = delta.y/delta.x;
     c = point_A.y - point_A.x*k;
 
@@ -36,10 +37,14 @@ inline pos2d getIntersect(
     // std::cout << "(k:"<<coefs_A[0]<<", c"
     // std::cout << "}";
 
+
     if(coefs_A[0] == coefs_B[0]) return pos2d(-1, -1);
 
     intersect_pos.x = ((coefs_B[1]-coefs_A[1])) / (coefs_A[0]-coefs_B[0]);
     intersect_pos.y = coefs_A[0]*intersect_pos.x + coefs_A[1];
+
+    // std::cout << coefs_A[0]<<" "<<coefs_A[1] << " | "<<coefs_B[0]<<" "<<coefs_B[1] << std::endl;
+    // assert(!isnan(intersect_pos.x));
 
     return intersect_pos;
 }
@@ -71,16 +76,16 @@ inline std::vector<pos2d> quadratic_bezier(
     // std::vector<float> coefs_CB = getCoef_linear(point_C, point_B);
 
 
-    for(int i=1; i<segNum; i++) {
-        AC.push_back(pos2d(point_A.x+i*(delta_AC.x/(segNum-1)), point_A.y+i*(delta_AC.y/(segNum-1))));
-        CB.push_back(pos2d(point_C.x+i*(delta_CB.x/(segNum-1)), point_C.y+i*(delta_CB.y/(segNum-1))));
+    for(int i=1; i<=segNum; i++) {
+        AC.push_back(pos2d(point_A.x+i*(delta_AC.x/(segNum)), point_A.y+i*(delta_AC.y/(segNum))));
+        CB.push_back(pos2d(point_C.x+i*(delta_CB.x/(segNum)), point_C.y+i*(delta_CB.y/(segNum))));
     }
     AC.push_back(point_C);
     CB.push_back(point_B);
 
 
     curvePoints[0] = point_A;
-    for(int i=1; i<segNum+1; i++) {
+    for(int i=1; i<=segNum; i++) {
         pos2d temp = getIntersect(AC[i], CB[i], AC[i-1], CB[i-1]);
         curvePoints[i] = temp;
     }
