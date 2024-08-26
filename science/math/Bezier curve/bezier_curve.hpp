@@ -67,13 +67,23 @@ inline std::vector<pos2d> quadratic_bezier(
     //numLines = segNum-1
     std::vector<pos2d> curvePoints = std::vector<pos2d>(segNum+2, pos2d());
 
-    if((point_A.x == point_C.x && point_B.x == point_C.x) || (point_A.y == point_C.y && point_B.y == point_C.y)) {
+    if(
+        (point_A.x==point_C.x && point_A.y==point_C.y) ||
+        (point_B.x==point_C.x && point_B.y==point_C.y) ||
+        ((point_A.x == point_C.x && point_B.x == point_C.x) || (point_A.y == point_C.y && point_B.y == point_C.y))
+    ) {
         curvePoints[0] = point_A;
         for(int i=1; i<=segNum; i++) {
-            curvePoints[i] = pos2d(point_A.x + i*((point_B.x-point_A.x)/segNum), point_A.y + i*((point_B.y+point_A.y)/segNum));
+            curvePoints[i] = pos2d(
+                point_A.x + i*((point_B.x-point_A.x)/segNum),
+                point_A.y + i*((point_B.y+point_A.y)/segNum)
+            );
         }
         curvePoints[segNum+1] = point_B;
+        return curvePoints;
     }
+
+
 
     std::vector<pos2d> AC(1, point_A);
     std::vector<pos2d> CB(1, point_C);

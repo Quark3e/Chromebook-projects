@@ -319,11 +319,36 @@ struct pos2d {
         float val = arrToCheck[0];
         int index = 0;
         for(int i=0; i<arrLen; i++) {
-            if(mode==0 || mode==2) if(arrToCheck[i]>val) { val=arrToCheck[i]; index=i; }
-            else if(mode==1 || mode==3) if(arrToCheck[i]<val) {val=arrToCheck[i]; index=i; }
+            if(mode==0 || mode==2)      if(arrToCheck[i]>val) { val=arrToCheck[i]; index=i; }
+            else if(mode==1 || mode==3) if(arrToCheck[i]<val) { val=arrToCheck[i]; index=i; }
         }
         if(mode==0 || mode==1) return val;
         else if(mode==2 || mode==3) return index;
+        else return -1;
+    }
+
+    /**
+     * @brief find desired value from vector
+     * 
+     * @param toCheck container of values to find the desired value of
+     * @param toFind what to find:
+     * - `0` - biggest value
+     * - `1` - smallest value
+     * - `2` - index of biggest value
+     * - `3` - index of smallest value
+     * @return float of the desired value
+     */
+    inline float findVal(std::vector<float> toCheck, int toFind) {
+        int index = 0;
+        float val = toCheck[0];
+        std::cout<<toCheck[0]<<", "<<toCheck[1];
+        for(int i=0; i<toCheck.size(); i++) {
+            if(toFind==0 || toFind==2) {     if(toCheck[i]>val) { val=toCheck[i]; index=i; } }
+            else if(toFind==1 || toFind==3){ if(toCheck[i]<val) { val=toCheck[i]; index=i; } }
+        }
+        std::cout << " » "<<val<<" | ";
+        if(toFind==0 || toFind==1) return val;
+        else if(toFind==2 || toFind==3) return index;
         else return -1;
     }
 
@@ -670,6 +695,8 @@ struct pos2d {
         return sqrt(sumDelta);
 
     }
+
+
 
 
 
