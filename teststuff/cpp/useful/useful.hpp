@@ -648,6 +648,31 @@ struct pos2d {
     inline float get3dDistance(float p1[3], float p2[3]) { return sqrt(pow(p2[0]-p1[0],2) + pow(p2[1]-p1[1],2) + pow(p2[2]-p1[2],2)); }
 
 
+    /**
+     * @brief Get the square root of the sum of the deltas between each axis value of both points
+     * 
+     * @tparam _pos_container container that can be indexed that stores the points coordinates for `numDim` number of "dimensions"
+     * @param numDim number of dimensions to solve for
+     * @param point_1 
+     * @param point_2 
+     * @return float of the distance between the two points
+     */
+    template<typename _pos_container>
+    inline float getNDimDistance(
+        int numDim,
+        _pos_container point_1,
+        _pos_container point_2
+    ) {
+        float sumDelta=0;
+        for(int dim=0; dim<numDim; dim++) {
+            sumDelta += pow(point_2[dim]-point_1[dim], 2);
+        }
+        return sqrt(sumDelta);
+
+    }
+
+
+
     /// @brief Solve whether a number is positive or negative (same as int(var/abs(var)))
     /// @param var variable to check
     /// @return 1 if var>0; -1 if var<0; 0 if var==0

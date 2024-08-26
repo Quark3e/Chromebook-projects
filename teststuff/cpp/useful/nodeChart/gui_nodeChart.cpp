@@ -145,8 +145,6 @@ void gNC::gLINK::draw_link(
     static ImU32 colour_bg      = IM_COL32(250, 241,  58, 204);
     static ImU32 colour_border  = IM_COL32(100, 100, 100, 255); //IM_COL32(102,  99, 28, 204);
 
-    static auto to_ImVec2 = [](pos2d toConv) { return ImVec2(toConv.x, toConv.y); };
-    static auto to_pos2d  = [](ImVec2 toConv){ return pos2d(toConv.x, toConv.y); };
 
     auto addOffs = [screen_offset](ImVec2 toAdd) {
         return ImVec2(toAdd.x + screen_offset.x, toAdd.y + screen_offset.y);
@@ -440,6 +438,7 @@ int gNC::guiNodeChart::NODE_move(
         " arg for gNC::gNODE address is invalid"
     );
 
+
     if(moveMode==0) {
         NODE_toMove->pos[0] = new_X;
         NODE_toMove->pos[1] = new_Y;
@@ -448,6 +447,7 @@ int gNC::guiNodeChart::NODE_move(
         NODE_toMove->pos[0] += new_X;
         NODE_toMove->pos[1] += new_Y;
     }
+    else if(moveMode==-1) {}
 
     for(int v=0; v<4; v++) {
         std::vector<gNC::gLINK*>& checkVec = (
@@ -457,14 +457,34 @@ int gNC::guiNodeChart::NODE_move(
                    NODE_toMove->ln_share
             ))
         );
-        ImVec2 connectPos = NODE_toMove->getConnectionPos(v);
+        ImVec2 connectPos1 = NODE_toMove->getConnectionPos(v);
+        ImVec2 connectPos2 = (v==2 || v==3? NODE_toMove->getConnectionPos(v+2) : connectPos1);
+        
+        for(int n=0; n<2; n++) {
+            connectPos1[n]+=NODE_toMove->pos[n];
+            connectPos2[n]+=NODE_toMove->pos[n];
+        }
 
         for(gNC::gLINK* lnk: checkVec) {
-            if(v==0 || v==2) {
-                lnk->move_link(ImVec2(-2, -2), ImVec2(NODE_toMove->pos[0]+connectPos.x, NODE_toMove->pos[1]+connectPos.y));
+            float delta2, delta1;
+            delta2 = getNDimDistance<ImVec2>(2, connectPos2, (v==0||v==2? lnk->Pos_src : lnk->Pos_dest));
+            delta1 = getNDimDistance<ImVec2>(2, connectPos1, (v==0||v==2? lnk->Pos_src : lnk->Pos_dest));
+            // std::cout << "["<<delta1<<", "<<delta2<<"] ";
+            ImVec2& connectPos = (delta1 < delta2? connectPos1 : connectPos2);
+
+            if(v==0 || v==2) { //in
+                lnk->move_link(
+                    ImVec2(-2, -2),
+                    connectPos
+                );
+                if(moveMode!=-1) NODE_move(lnk->src,  0, 0, -1);
             }
-            else if(v==1 || v==3) {
-                lnk->move_link(ImVec2(NODE_toMove->pos[0]+connectPos.x, NODE_toMove->pos[1]+connectPos.y), ImVec2(-2, -2));
+            else if(v==1 || v==3) { //out
+                lnk->move_link(
+                    connectPos,
+                    ImVec2(-2, -2)
+                );
+                if(moveMode!=-1) NODE_move(lnk->dest, 0, 0, -1);
             }
         }
     }

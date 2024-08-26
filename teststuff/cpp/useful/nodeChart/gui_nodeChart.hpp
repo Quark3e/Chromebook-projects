@@ -17,6 +17,10 @@ template<typename addrType> std::string ptrToStr(addrType toConv);
 
 namespace gNC {
 
+
+    static auto to_ImVec2 = [](pos2d toConv) { return ImVec2(toConv.x, toConv.y); };
+    static auto to_pos2d  = [](ImVec2 toConv){ return pos2d(toConv.x, toConv.y); };
+
     struct gNODE;
 
     struct gLINK {
