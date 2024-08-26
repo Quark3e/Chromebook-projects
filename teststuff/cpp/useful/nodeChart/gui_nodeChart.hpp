@@ -59,6 +59,17 @@ namespace gNC {
         ImVec2 Pos_d1;      // coordinates of intermediary point 1: dest side
         ImVec2 Pos_center;  // 2d coordinate of the point between Pos_src and Pos_dest
 
+        /**
+         * [0] - src
+         * 
+         * [.size()-1] - dest
+         * 
+         * make it avoid going through the node.
+         * if x or y axis between two points are same then it's a straight line.
+         */
+        std::vector<ImVec2> link_points;
+
+
         gLINK(
             int par_type_src, int par_type_dest,
             gNC::gNODE* par_src, gNC::gNODE* par_dest,

@@ -473,17 +473,11 @@ int gNC::guiNodeChart::NODE_move(
             ImVec2& connectPos = (delta1 < delta2? connectPos1 : connectPos2);
 
             if(v==0 || v==2) { //in
-                lnk->move_link(
-                    ImVec2(-2, -2),
-                    connectPos
-                );
+                lnk->move_link(ImVec2(-2, -2), connectPos);
                 if(moveMode!=-1) NODE_move(lnk->src,  0, 0, -1);
             }
             else if(v==1 || v==3) { //out
-                lnk->move_link(
-                    connectPos,
-                    ImVec2(-2, -2)
-                );
+                lnk->move_link(connectPos, ImVec2(-2, -2) );
                 if(moveMode!=-1) NODE_move(lnk->dest, 0, 0, -1);
             }
         }
