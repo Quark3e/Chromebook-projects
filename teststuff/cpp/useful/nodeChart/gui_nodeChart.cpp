@@ -133,6 +133,13 @@ void gNC::gLINK::move_link(
 
     // ImVec2 pos_cross( )
 
+    /// Same offset side specific values
+
+    float offs_bigger   = findVal(std::vector<float>(connDir*min__connect, smallestDelta), 0);
+    float offs_smaller  = findVal(std::vector<float>(connDir*min__connect, smallestDelta), 1);
+    float y_bigger  = findVal(std::vector<float>{Pos_src.y, Pos_dest.y}, (connDir==1? 0 : 1));
+
+
     if(type_src==1) {
         if(layout==0 || layout==1) {
             link_points.push_back(ImVec2(Pos_src.x + (type_dest==0? pos_delta.x/2 : pos_delta.x) - smallestDelta, Pos_src.y));
@@ -145,82 +152,95 @@ void gNC::gLINK::move_link(
             if(type_dest==0) link_points.push_back(pos_middle);
         }
     }
-    else if(type_src==3) {
+    else /*if(type_src==3) */ {
         if(layout==0 || layout==1) {
 
-            if(type_dest==0) link_points.push_back(ImVec2(Pos_src.x, Pos_src.y + (pos_delta.y - smallestDelta)));
-            else if(type_dest==2) {
+            if(type_dest==0) {
+                link_points.push_back(ImVec2(Pos_src.x, Pos_src.y + (pos_delta.y - smallestDelta)));
+                link_points.push_back(ImVec2(Pos_src.x, Pos_src.y + pos_delta.y));
+            }
+            else if(type_dest==(type_src==3? 2 : 4)) {
+
                 link_points.push_back(ImVec2(
                     Pos_src.x,
-                    findVal(std::vector<float>{Pos_src.y, Pos_dest.y}, (connDir==1? 0 : 1)) +
-                    findVal(std::vector<float>{connDir*min__connect, smallestDelta}, 0) - 
-                    findVal(std::vector<float>{connDir*min__connect, smallestDelta}, 1)
+                    y_bigger + offs_bigger - offs_smaller
                 ));
                 link_points.push_back(ImVec2(
                     Pos_src.x,
-
-                ))
+                    y_bigger + offs_bigger
+                ));
+                link_points.push_back(ImVec2(
+                    pos_delta.x,
+                    y_bigger + offs_bigger
+                ));
             }
-            else {
+            else { //type_dest==4 if type_src==3; else type_dest==2
                 link_points.push_back(ImVec2(
                     Pos_src.x,
                     Pos_src.y + (pos_delta.y/2 - smallestDelta)
                 ));
+                link_points.push_back(ImVec2(
+                    Pos_src.x,
+                    Pos_src.y + pos_delta.y/2
+                ));
+                link_points.push_back(pos_middle);
             }
         }
         else {
 
         }
     }
-    else if(type_src==5) {
-        if(layout==0 || layout==1) {
-            if(type_dest==0) link_points.push_back(ImVec2(Pos_src.x, Pos_src.y + (pos_delta.y - smallestDelta)));
-            else if(type_dest==4) {
-                link_points.push_back(ImVec2(
-                    Pos_src.x,
-                    findVal(std::vector<float>{Pos_src.y, Pos_dest.y}, (connDir==-1? 0 : 1)) +
-                    findVal(std::vector<float>{connDir*min__connect, smallestDelta}, 0) -
-                    findVal(std::vector<float>{connDir*min__connect, smallestDelta}, 1)
-                ));
-            }
-            else {
-                link_points.push_back(ImVec2(
-                    Pos_src.x,
-                    Pos_src.y + (pos_delta.y/2 - smallestDelta)
-                ));
-            }
-        }
-        else {
-
-        }
-    }
+    // else if(type_src==5) {
+    //     if(layout==0 || layout==1) {
+    //         if(type_dest==0) link_points.push_back(ImVec2(Pos_src.x, Pos_src.y + (pos_delta.y - smallestDelta)));
+    //         else if(type_dest==4) {
+    //             link_points.push_back(ImVec2(
+    //                 Pos_src.x,
+    //                 findVal(std::vector<float>{Pos_src.y, Pos_dest.y}, (connDir==-1? 0 : 1)) +
+    //                 findVal(std::vector<float>{connDir*min__connect, smallestDelta}, 0) -
+    //                 findVal(std::vector<float>{connDir*min__connect, smallestDelta}, 1)
+    //             ));
+    //         }
+    //         else {
+    //             link_points.push_back(ImVec2(
+    //                 Pos_src.x,
+    //                 Pos_src.y + (pos_delta.y/2 - smallestDelta)
+    //             ));
+    //         }
+    //     }
+    //     else {
+    //     }
+    // }
 
     if(type_dest==0) {
         if(layout==0||layout==1) {
-            if(type_src==1) link_points.push_back(ImVec2(pos_middle.x, pos_middle.y + smallestDelta));
+            if(type_src==1) {
+                link_points.push_back(ImVec2(pos_middle.x, Pos_dest.y));
+            }
             link_points.push_back(ImVec2(link_points.back().x + smallestDelta, Pos_dest.y));
         }
         else {
-            if(type_src==1) link_points.push_back(ImVec2(pos_middle.x + smallestDelta, pos_middle.y));
-            link_points.push_back(ImVec2(Pos_dest.x, link_points.back().y + smallestDelta));
+            // if(type_src==1) link_points.push_back(ImVec2(pos_middle.x + smallestDelta, pos_middle.y));
+            // link_points.push_back(ImVec2(Pos_dest.x, link_points.back().y + smallestDelta));
         }
     }
-    else if(type_dest==2) {
+    else {
         if(layout==0 || layout==1) {
-
+            if(type_src!=1) link_points.push_back(ImVec2(Pos_dest.x, link_points.back().y));
+            link_points.push_back(ImVec2(Pos_dest.x, y_bigger + (type_src-type_dest==1? offs_bigger : smallestDelta)));
         }
         else {
 
         }
     }
-    else if(type_dest==4){
-        if(layout==0 || layout==1) {
+    // else if(type_dest==4){
+    //     if(layout==0 || layout==1) {
 
-        }
-        else {
+    //     }
+    //     else {
 
-        }
-    }
+    //     }
+    // }
 
     link_points.push_back(Pos_dest);
 
