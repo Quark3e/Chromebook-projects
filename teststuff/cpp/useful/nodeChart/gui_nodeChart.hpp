@@ -53,6 +53,8 @@ namespace gNC {
          */
         int layout = 0;
 
+        float min__connect = 50;
+
         ImVec2 Pos_src;     // 2d coordinates of src connection: By defualt this is at the src node's out point
         ImVec2 Pos_dest;    // 2d coordinates of dest connection: By default this is at the dest node's in point
         ImVec2 Pos_s1;      // coordinates of intermediary point 1: src side

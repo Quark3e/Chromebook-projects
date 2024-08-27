@@ -106,11 +106,126 @@ void gNC::gLINK::move_link(
     ImVec2 pos_middle= ImVec2(Pos_src.x + pos_delta.x/2, Pos_src.y + pos_delta.y/2);
     this->Pos_center = pos_middle;
 
+
+
+    /// @brief half of the smallest delta
+    float smallestDelta = findVal(std::vector<float>{abs(pos_delta.x), abs(pos_delta.y)}, 1)/2;
+    /// @brief `0`- x is smallest; `1`- y is smallest
+    int smallestType    = (pos_delta.x < pos_delta.y? 0 : 1);
+
+    /**
+     * The direction which the connectionPos is located relative to the center. Only used if both type_src and type_dest are in the same direction
+     * ` 1` - positive down
+     * `-1` - negative up
+    */
+    int connDir = 0;
+    if(type_dest!= 0) connDir = (dest->getConnectionPos(type_dest).y - dest->height/2) / abs(dest->getConnectionPos(type_dest).y - dest->height/2);
+    if(type_src != 1) connDir = (src->getConnectionPos(type_src).y - src->height/2) / abs(src->getConnectionPos(type_src).y - src->height/2);
+
+    /**
+     * Assumptions:
+     * - connectionPoints for _src and _dest have been correctly defined from the beginning;
+     * 
+     */
+
     link_points.clear();
     link_points.push_back(Pos_src);
-    
 
-    float smallestDelta = findVal(std::vector<float>{(pos_delta.x), (pos_delta.y)}, 1);
+    // ImVec2 pos_cross( )
+
+    if(type_src==1) {
+        if(layout==0 || layout==1) {
+            link_points.push_back(ImVec2(Pos_src.x + (type_dest==0? pos_delta.x/2 : pos_delta.x) - smallestDelta, Pos_src.y));
+            link_points.push_back(ImVec2(Pos_src.x + (type_dest==0? pos_delta.x/2 : pos_delta.x), Pos_src.y));
+            if(type_dest==0) link_points.push_back(pos_middle);
+        }
+        else {
+            link_points.push_back(ImVec2(Pos_src.x, Pos_src.y + (type_dest==0? pos_delta.y/2 : pos_delta.y) - smallestDelta));
+            link_points.push_back(ImVec2(Pos_src.x, Pos_src.y + (type_dest==0? pos_delta.y/2 : pos_delta.y)));
+            if(type_dest==0) link_points.push_back(pos_middle);
+        }
+    }
+    else if(type_src==3) {
+        if(layout==0 || layout==1) {
+
+            if(type_dest==0) link_points.push_back(ImVec2(Pos_src.x, Pos_src.y + (pos_delta.y - smallestDelta)));
+            else if(type_dest==2) {
+                link_points.push_back(ImVec2(
+                    Pos_src.x,
+                    findVal(std::vector<float>{Pos_src.y, Pos_dest.y}, (connDir==1? 0 : 1)) +
+                    findVal(std::vector<float>{connDir*min__connect, smallestDelta}, 0) - 
+                    findVal(std::vector<float>{connDir*min__connect, smallestDelta}, 1)
+                ));
+                link_points.push_back(ImVec2(
+                    Pos_src.x,
+
+                ))
+            }
+            else {
+                link_points.push_back(ImVec2(
+                    Pos_src.x,
+                    Pos_src.y + (pos_delta.y/2 - smallestDelta)
+                ));
+            }
+        }
+        else {
+
+        }
+    }
+    else if(type_src==5) {
+        if(layout==0 || layout==1) {
+            if(type_dest==0) link_points.push_back(ImVec2(Pos_src.x, Pos_src.y + (pos_delta.y - smallestDelta)));
+            else if(type_dest==4) {
+                link_points.push_back(ImVec2(
+                    Pos_src.x,
+                    findVal(std::vector<float>{Pos_src.y, Pos_dest.y}, (connDir==-1? 0 : 1)) +
+                    findVal(std::vector<float>{connDir*min__connect, smallestDelta}, 0) -
+                    findVal(std::vector<float>{connDir*min__connect, smallestDelta}, 1)
+                ));
+            }
+            else {
+                link_points.push_back(ImVec2(
+                    Pos_src.x,
+                    Pos_src.y + (pos_delta.y/2 - smallestDelta)
+                ));
+            }
+        }
+        else {
+
+        }
+    }
+
+    if(type_dest==0) {
+        if(layout==0||layout==1) {
+            if(type_src==1) link_points.push_back(ImVec2(pos_middle.x, pos_middle.y + smallestDelta));
+            link_points.push_back(ImVec2(link_points.back().x + smallestDelta, Pos_dest.y));
+        }
+        else {
+            if(type_src==1) link_points.push_back(ImVec2(pos_middle.x + smallestDelta, pos_middle.y));
+            link_points.push_back(ImVec2(Pos_dest.x, link_points.back().y + smallestDelta));
+        }
+    }
+    else if(type_dest==2) {
+        if(layout==0 || layout==1) {
+
+        }
+        else {
+
+        }
+    }
+    else if(type_dest==4){
+        if(layout==0 || layout==1) {
+
+        }
+        else {
+
+        }
+    }
+
+    link_points.push_back(Pos_dest);
+
+
+
     for(int i=0; i<2; i++) {
         if(par_pos_s1[i]==-2) {}
         else if(par_pos_s1[i]==-1) {
