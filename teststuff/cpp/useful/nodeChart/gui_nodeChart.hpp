@@ -22,6 +22,9 @@ namespace gNC {
     static auto to_pos2d  = [](ImVec2 toConv){ return pos2d(toConv.x, toConv.y); };
 
     struct gNODE;
+    // struct gLINK;
+
+    // static auto add_nodePos = [](ImVec2 addTo, gNC::gNODE* toAdd) { return ImVec2(addTo.x+toAdd->pos[0], addTo.y+toAdd->pos[1]); };
 
     struct gLINK {
         std::string addr    = ""; // `std::string` of this `gNC::gLINK` instance/object address
@@ -53,12 +56,13 @@ namespace gNC {
          */
         int layout = 0;
 
-        float min__connect = 50;
+        float min__connect  = 50;
+        float min__node     = 100;
 
-        ImVec2 Pos_src;     // 2d coordinates of src connection: By defualt this is at the src node's out point
-        ImVec2 Pos_dest;    // 2d coordinates of dest connection: By default this is at the dest node's in point
-        ImVec2 Pos_s1;      // coordinates of intermediary point 1: src side
-        ImVec2 Pos_d1;      // coordinates of intermediary point 1: dest side
+        ImVec2 Pos_src;     // Absolute 2d coordinates of src connection: By defualt this is at the src node's out point
+        ImVec2 Pos_dest;    // Absolute 2d coordinates of dest connection: By default this is at the dest node's in point
+        // ImVec2 Pos_s1;      // coordinates of intermediary point 1: src side
+        // ImVec2 Pos_d1;      // coordinates of intermediary point 1: dest side
         ImVec2 Pos_center;  // 2d coordinate of the point between Pos_src and Pos_dest
 
         /**
@@ -76,7 +80,7 @@ namespace gNC {
             int par_type_src, int par_type_dest,
             gNC::gNODE* par_src, gNC::gNODE* par_dest,
             std::string par_label="",std::string par_desc=""
-        ): Pos_src(-1,-1), Pos_dest(-1,-1), Pos_s1(-1,-1), Pos_d1(-1,-1) {
+        ): Pos_src(-1,-1), Pos_dest(-1,-1)/*, Pos_s1(-1,-1), Pos_d1(-1,-1)*/ {
             if(searchVec<int>(std::vector<int>{1, 3, 5}, par_type_src)==-1 && searchVec<int>(std::vector<int>{0, 2, 4}, par_type_dest)==-1) std::runtime_error("ERROR: gNC::gLINK() constructor par_type_{..} is invalid");
             if(par_src==nullptr && par_dest==nullptr) std::runtime_error("ERROR: gNC::gLINK(): constructor: both `src` and `dest` can't be nullptr");
 
@@ -87,7 +91,7 @@ namespace gNC {
             this->label = par_label;
             this->desc  = par_desc;
         }
-        void move_link(ImVec2 par_pos_src=ImVec2(-1, -1), ImVec2 par_pos_dest=ImVec2(-1, -1), ImVec2 par_pos_s1=ImVec2(-1, -1), ImVec2 par_pos_d1=ImVec2(-1, -1));
+        void move_link(ImVec2 par_pos_src=ImVec2(-1, -1), ImVec2 par_pos_dest=ImVec2(-1, -1)/*, ImVec2 par_pos_s1=ImVec2(-1, -1), ImVec2 par_pos_d1=ImVec2(-1, -1)*/);
         void draw_link(std::vector<ImDrawList*> draw_win, ImVec2 screen_offset);
     };
 
@@ -118,7 +122,7 @@ namespace gNC {
         ImVec2 pos;
 
         ImVec2 pos_in       = ImVec2{0,  25}; // [unit: px] Position of the `ln_in` node bounding box
-        ImVec2 pos_out      = ImVec2{100, 25}; // [unit: px] Position of the `ln_out` node bounding box
+        ImVec2 pos_out      = ImVec2{100, 25};// [unit: px] Position of the `ln_out` node bounding box
         ImVec2 pos_add_0    = ImVec2{31,  0}; // [unit: px] Position of the `ln_add` node bounding box 
         ImVec2 pos_add_1    = ImVec2{31, 50};
         ImVec2 pos_share_0  = ImVec2{63,  0}; // [unit: px] Position of the `ln_share` node bounding box
@@ -201,6 +205,7 @@ namespace gNC {
             height  = h;
         }
         ImVec2 getConnectionPos(int connectionID);
+        int getConnectionType(int typeDef);
         void draw_connection(std::vector<ImDrawList*> draw_win, ImVec2 nodePos);
     };
 
@@ -234,7 +239,9 @@ namespace gNC {
         template<typename storedType> int _vecfind_ptr_idx(const std::vector<storedType>& toCheck, storedType toFind);
         template<typename storedType> auto _vecfind_ptr_itr( std::vector<storedType>& toCheck, storedType toFind);
 
+        void update_connect(gNC::gLINK* toCheck, ImVec2 srcPos=ImVec2(-1,-1), ImVec2 destPos=ImVec2(-1,-1));
 
+        ImVec2 add_nodePos(ImVec2 addTo, gNC::gNODE* toAdd) { return ImVec2(addTo.x+toAdd->pos[0], addTo.y+toAdd->pos[1]); }
 
         public:
         int screen_pos[2] = {0, 0};

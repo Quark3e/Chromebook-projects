@@ -19,16 +19,40 @@
 ImVec2 gNC::gNODE::getConnectionPos(int connectionID) {
 
     switch (connectionID) {
-    case 0: return pos_in;      break;
-    case 1: return pos_out;     break;
-    case 2: return pos_add_0;   break;
-    case 3: return pos_share_0; break;
-    case 4: return pos_add_1;   break;
-    case 5: return pos_share_1; break;
+    case  0: return pos_in;      break;
+    case  1: return pos_out;     break;
+    case  2: return pos_add_0;   break;
+    case  3: return pos_share_0; break;
+    case  4: return pos_add_1;   break;
+    case  5: return pos_share_1; break;
     default:
         std::runtime_error("ERROR: gNC::gNODE::getConnectionPos(): connectionID is incorrect");
     }
     return ImVec2();
+}
+
+/**
+ * 
+ * ### Parameters:
+ * `typeDef` integer identifier for what type to get.
+ *  - `2` - `add`   point positive from center (below center)
+ *  - `3` - `share` point positive from center (below center)
+ *  - `4` - `add`   point negative from center (above center)
+ *  - `5` - `share` point negative from center (above center)
+ * ### Return:
+ *  integer to type to return that's acceptible by `gNC::gNODE::getConnectionPos(..)`
+ */
+int gNC::gNODE::getConnectionType(int typeDef) {
+    
+    switch (typeDef) {
+    case 5: return 3; break;
+    case 4: return 2; break;
+    case 3: return 5; break;
+    case 2: return 4; break;
+    default:
+        std::runtime_error("ERROR: gNC::gNODE::getConnectionType(..): typeDef is incorrect");
+    }
+    return -1;
 }
 
 void gNC::gNODE::draw_connection(
@@ -75,14 +99,14 @@ void gNC::gNODE::draw_connection(
  * 
  * @param par_pos_src absolute 2d position of _src point
  * @param par_pos_dest absolute 2d position of _dest point
- * @param par_pos_s1 absolute 2d position of _s1 point
- * @param par_pos_d1 absolute 2d position of _d1 point
+//  * @param par_pos_s1 absolute 2d position of _s1 point
+//  * @param par_pos_d1 absolute 2d position of _d1 point
  */
 void gNC::gLINK::move_link(
     ImVec2 par_pos_src,
-    ImVec2 par_pos_dest,
-    ImVec2 par_pos_s1,
-    ImVec2 par_pos_d1
+    ImVec2 par_pos_dest
+    // ImVec2 par_pos_s1,
+    // ImVec2 par_pos_d1
 ) {
     /**
      * If value is -2, that value is kept.
@@ -97,15 +121,16 @@ void gNC::gLINK::move_link(
     //     !(par_pos_dest.y < 0 && par_pos_dest.y != -1 && par_pos_dest.y != -2)
     // );
 
+
     if(par_pos_src.x  != -2) Pos_src.x  = par_pos_src.x;
     if(par_pos_src.y  != -2) Pos_src.y  = par_pos_src.y;
     if(par_pos_dest.x != -2) Pos_dest.x = par_pos_dest.x;
     if(par_pos_dest.y != -2) Pos_dest.y = par_pos_dest.y;
 
+
     ImVec2 pos_delta = ImVec2(Pos_dest.x - Pos_src.x, Pos_dest.y - Pos_src.y);
     ImVec2 pos_middle= ImVec2(Pos_src.x + pos_delta.x/2, Pos_src.y + pos_delta.y/2);
     this->Pos_center = pos_middle;
-
 
 
     /// @brief half of the smallest delta
@@ -113,14 +138,16 @@ void gNC::gLINK::move_link(
     /// @brief `0`- x is smallest; `1`- y is smallest
     int smallestType    = (pos_delta.x < pos_delta.y? 0 : 1);
 
+
     /**
      * The direction which the connectionPos is located relative to the center. Only used if both type_src and type_dest are in the same direction
      * ` 1` - positive down
      * `-1` - negative up
     */
     int connDir = 0;
-    if(type_dest!= 0) connDir = (dest->getConnectionPos(type_dest).y - dest->height/2) / abs(dest->getConnectionPos(type_dest).y - dest->height/2);
-    if(type_src != 1) connDir = (src->getConnectionPos(type_src).y - src->height/2) / abs(src->getConnectionPos(type_src).y - src->height/2);
+    if(type_dest!= 0) connDir = PoN(dest->getConnectionPos(type_dest).y - dest->height/2); // / abs(dest->getConnectionPos(type_dest).y - dest->height/2);
+    if(type_src != 1) connDir = PoN(src->getConnectionPos(type_src).y - src->height/2); /// abs(src->getConnectionPos(type_src).y - src->height/2);
+
 
     /**
      * Assumptions:
@@ -131,13 +158,11 @@ void gNC::gLINK::move_link(
     link_points.clear();
     link_points.push_back(Pos_src);
 
-    // ImVec2 pos_cross( )
-
-    /// Same offset side specific values
-
-    float offs_bigger   = findVal(std::vector<float>(connDir*min__connect, smallestDelta), 0);
-    float offs_smaller  = findVal(std::vector<float>(connDir*min__connect, smallestDelta), 1);
-    float y_bigger  = findVal(std::vector<float>{Pos_src.y, Pos_dest.y}, (connDir==1? 0 : 1));
+    std::vector<float> tempVec{connDir*min__connect, smallestDelta};
+    float offs_bigger   = findVal(tempVec, 0);
+    float offs_smaller  = findVal(tempVec, 1);
+    tempVec = std::vector<float>{Pos_src.y, Pos_dest.y};
+    float y_bigger  = findVal(tempVec, (connDir==1? 0 : 1));
 
 
     if(type_src==1) {
@@ -156,28 +181,28 @@ void gNC::gLINK::move_link(
         if(layout==0 || layout==1) {
 
             if(type_dest==0) {
-                link_points.push_back(ImVec2(Pos_src.x, Pos_src.y + (pos_delta.y - smallestDelta)));
+                link_points.push_back(ImVec2(Pos_src.x, Pos_src.y + (pos_delta.y - connDir*smallestDelta)));
                 link_points.push_back(ImVec2(Pos_src.x, Pos_src.y + pos_delta.y));
             }
-            else if(type_dest==(type_src==3? 2 : 4)) {
+            else if(type_dest==(type_src==3? 2 : 4)) { // same side
 
                 link_points.push_back(ImVec2(
                     Pos_src.x,
-                    y_bigger + offs_bigger - offs_smaller
+                    y_bigger + offs_bigger*connDir - offs_smaller*connDir
                 ));
                 link_points.push_back(ImVec2(
                     Pos_src.x,
-                    y_bigger + offs_bigger
+                    y_bigger + offs_bigger*connDir
                 ));
                 link_points.push_back(ImVec2(
                     pos_delta.x,
-                    y_bigger + offs_bigger
+                    y_bigger + offs_bigger*connDir
                 ));
             }
             else { //type_dest==4 if type_src==3; else type_dest==2
                 link_points.push_back(ImVec2(
                     Pos_src.x,
-                    Pos_src.y + (pos_delta.y/2 - smallestDelta)
+                    Pos_src.y + (pos_delta.y/2 - smallestDelta*connDir)
                 ));
                 link_points.push_back(ImVec2(
                     Pos_src.x,
@@ -212,6 +237,7 @@ void gNC::gLINK::move_link(
     //     }
     // }
 
+
     if(type_dest==0) {
         if(layout==0||layout==1) {
             if(type_src==1) {
@@ -227,7 +253,7 @@ void gNC::gLINK::move_link(
     else {
         if(layout==0 || layout==1) {
             if(type_src!=1) link_points.push_back(ImVec2(Pos_dest.x, link_points.back().y));
-            link_points.push_back(ImVec2(Pos_dest.x, y_bigger + (type_src-type_dest==1? offs_bigger : smallestDelta)));
+            link_points.push_back(ImVec2(Pos_dest.x, link_points.back().y + (type_src-type_dest==1? offs_bigger : smallestDelta)*connDir));
         }
         else {
 
@@ -242,55 +268,55 @@ void gNC::gLINK::move_link(
     //     }
     // }
 
+
     link_points.push_back(Pos_dest);
 
 
-
-    for(int i=0; i<2; i++) {
-        if(par_pos_s1[i]==-2) {}
-        else if(par_pos_s1[i]==-1) {
-            if(type_src==1) {
-                if(layout==0 || layout==1) Pos_s1[i] = (i==0? pos_middle[i]-pos_delta[i]/4 : Pos_src[i]);
-                else Pos_s1[i] = (i==1? pos_middle[i]-pos_delta[i]/4 : Pos_src[i]);
-            }
-            else {
-                if(type_dest==0) {
-                    if(layout==0 || layout==1) {
-                        Pos_s1[i] = (i==0? Pos_src.x : Pos_dest.y-smallestDelta);
-                    }
-                    else {
-                        Pos_s1[i] = (i==1? Pos_src.y : Pos_dest.x-smallestDelta);
-                    }
-                    std::cout /*<<pos_delta.x<<", "<<pos_delta.y<<" | "*/<< smallestDelta << std::endl;
-                    // Pos_s1[i] = pos_middle[i];
-                }
-                else Pos_s1[i] = Pos_src[i];
-            }
-            // Pos_s1[i] = pos_middle[i] - pos_delta[i]/4;
-        }
-        else Pos_s1[i] = par_pos_s1[i];
-        if(par_pos_d1[i]==-2) {}
-        else if(par_pos_d1[i]==-1) {
-            if(type_dest==0) {
-                if(layout==0 || layout==1) Pos_d1[i] = (i==0? pos_middle[i]+pos_delta[i]/4 : Pos_dest[i]);
-                else Pos_d1[i] = (i==1? pos_middle[i]-pos_delta[i]/4 : Pos_dest[i]);
-            }
-            else {
-                if(type_src==1) {
-                    if(layout==0 || layout==1) {
-                        Pos_d1[i] = (i==0? Pos_dest.x : Pos_src.y-smallestDelta);
-                    }
-                    else {
-                        Pos_d1[i] = (i==1? Pos_dest.y : Pos_src.x-smallestDelta);
-                    }
-                    // Pos_d1[i] = pos_middle[i];
-                }
-                else Pos_d1[i] = Pos_dest[i];
-            }
-            // Pos_d1[i] = pos_middle[i] + pos_delta[i]/4;
-        }
-        else Pos_d1[i] = par_pos_d1[i];
-    }
+    // for(int i=0; i<2; i++) {
+    //     if(par_pos_s1[i]==-2) {}
+    //     else if(par_pos_s1[i]==-1) {
+    //         if(type_src==1) {
+    //             if(layout==0 || layout==1) Pos_s1[i] = (i==0? pos_middle[i]-pos_delta[i]/4 : Pos_src[i]);
+    //             else Pos_s1[i] = (i==1? pos_middle[i]-pos_delta[i]/4 : Pos_src[i]);
+    //         }
+    //         else {
+    //             if(type_dest==0) {
+    //                 if(layout==0 || layout==1) {
+    //                     Pos_s1[i] = (i==0? Pos_src.x : Pos_dest.y-smallestDelta);
+    //                 }
+    //                 else {
+    //                     Pos_s1[i] = (i==1? Pos_src.y : Pos_dest.x-smallestDelta);
+    //                 }
+    //                 std::cout /*<<pos_delta.x<<", "<<pos_delta.y<<" | "*/<< smallestDelta << std::endl;
+    //                 // Pos_s1[i] = pos_middle[i];
+    //             }
+    //             else Pos_s1[i] = Pos_src[i];
+    //         }
+    //         // Pos_s1[i] = pos_middle[i] - pos_delta[i]/4;
+    //     }
+    //     else Pos_s1[i] = par_pos_s1[i];
+    //     if(par_pos_d1[i]==-2) {}
+    //     else if(par_pos_d1[i]==-1) {
+    //         if(type_dest==0) {
+    //             if(layout==0 || layout==1) Pos_d1[i] = (i==0? pos_middle[i]+pos_delta[i]/4 : Pos_dest[i]);
+    //             else Pos_d1[i] = (i==1? pos_middle[i]-pos_delta[i]/4 : Pos_dest[i]);
+    //         }
+    //         else {
+    //             if(type_src==1) {
+    //                 if(layout==0 || layout==1) {
+    //                     Pos_d1[i] = (i==0? Pos_dest.x : Pos_src.y-smallestDelta);
+    //                 }
+    //                 else {
+    //                     Pos_d1[i] = (i==1? Pos_dest.y : Pos_src.x-smallestDelta);
+    //                 }
+    //                 // Pos_d1[i] = pos_middle[i];
+    //             }
+    //             else Pos_d1[i] = Pos_dest[i];
+    //         }
+    //         // Pos_d1[i] = pos_middle[i] + pos_delta[i]/4;
+    //     }
+    //     else Pos_d1[i] = par_pos_d1[i];
+    // }
 
 
 }
@@ -316,77 +342,96 @@ void gNC::gLINK::draw_link(
     int bezierSegs = 10;
 
 
-    pos2d point_C_src, point_C_dest;
-    if(layout==0 || layout==1) {
-        if(type_src==1) point_C_src = pos2d(Pos_center.x, Pos_s1.y);
-        else            point_C_src = pos2d(Pos_s1.x, Pos_center.y);
-        if(type_dest==0)point_C_dest= pos2d(Pos_center.x, Pos_d1.y);
-        else            point_C_dest= pos2d(Pos_d1.x, Pos_center.y);
-    }
-    else {
-        if(type_src==1) point_C_src = pos2d(Pos_s1.x, Pos_center.y);
-        else            point_C_src = pos2d(Pos_center.x, Pos_s1.y);
-        if(type_dest==0)point_C_dest= pos2d(Pos_d1.x, Pos_center.y);
-        else            point_C_dest= pos2d(Pos_center.x, Pos_d1.y);
-    }
-
-
-    std::vector<pos2d> curveSrc = quadratic_bezier(
-        to_pos2d(Pos_s1),
-        (
-            (type_src==1 && (type_dest==2||type_dest==4)) || (type_dest==0 && (type_src==3 || type_src==5)) ?
-            to_pos2d(Pos_d1) : to_pos2d(Pos_center)
-        ),
-        point_C_src,
-        // ((layout==0 || layout==1)? pos2d(Pos_center.x, Pos_s1.y) : pos2d(Pos_s1.x, Pos_center.y)),
-        bezierSegs
-    );
-    std::vector<pos2d> curveDest(1, pos2d(-1, -1));
-    if((type_src==1 && (type_dest==2 || type_dest==4)) || (type_dest==0 && (type_src==3 || type_src==5))) {
-        // curveDest = std::vector<pos2d>{to_pos2d(Pos_d1)};
-        std::cout << " [non veryiable] ";
-    }
-    else {
-        curveDest = quadratic_bezier(
-            to_pos2d(Pos_d1),
-            to_pos2d(Pos_center),
-            point_C_dest,
-            // ((layout==0 || layout==1)? pos2d(Pos_center.x, Pos_d1.y) : pos2d(Pos_d1.x, Pos_center.y)),
-            bezierSegs
-        );
-    }
-
-    for(ImDrawList* el: draw_win) {
-
-        el->AddLine(addOffs(Pos_src),  addOffs(Pos_s1), colour_border, 12);
-        el->AddLine(addOffs(Pos_dest), addOffs(Pos_d1), colour_border, 12);
-
-        // el->AddLine(addOffs(Pos_s1),   addOffs(Pos_d1), colour_border, 10);
-        for(size_t i=0; i<curveSrc.size()-1; i++) {
-            el->AddLine(addOffs(to_ImVec2(curveSrc[i])),  addOffs(to_ImVec2(curveSrc[i+1])),  colour_border, 12);
+    for(int i=0; i<link_points.size()-1; i++) {
+        if(link_points[i].x == link_points[i+1].x && link_points[i].y == link_points[i+1].y) {
+            auto itr = link_points.begin();
+            advance(itr, i);
+            link_points.erase(itr);
+            i--;
         }
-        for(size_t i=0; i<curveDest.size()-1; i++) {
-            el->AddLine(addOffs(to_ImVec2(curveDest[i])), addOffs(to_ImVec2(curveDest[i+1])), colour_border, 12);
-        }
-        // std::cout << "-----"<<std::endl;
-        // el->AddLine(addOffs(to_ImVec2(curveSrc[bezierSegs-1])), addOffs(Pos_center), colour_border, 10);
-        // el->AddCircle(addOffs(Pos_center), 10, colour_border, 10);
-        // el->AddCircleFilled(addOffs(to_ImVec2(curveSrc.back())), 20, IM_COL32(255, 0, 0, 255), 10);
-        // std::cout << (&curveSrc.back())->getStr() << std::endl;
-        // std::cout << "---------" << std::endl;
-
-
-        el->AddLine(addOffs(Pos_src),  addOffs(Pos_s1), colour_bg, 8);
-        el->AddLine(addOffs(Pos_dest), addOffs(Pos_d1), colour_bg, 8);
-
-        for(size_t i=0; i<curveSrc.size()-1; i++) {
-            el->AddLine(addOffs(to_ImVec2(curveSrc[i])),  addOffs(to_ImVec2(curveSrc[i+1])),  colour_bg, 8);
-        }
-        for(size_t i=0; i<curveDest.size()-1; i++) {
-            el->AddLine(addOffs(to_ImVec2(curveDest[i])), addOffs(to_ImVec2(curveDest[i+1])), colour_bg, 8);
-        }
-        // el->AddLine(addOffs(Pos_s1),   addOffs(Pos_d1), colour_bg, 8);
     }
+
+    for(int i=0; i<link_points.size()-1; i++) {
+
+        for(ImDrawList* el: draw_win) {
+            el->AddCircle(addOffs(link_points[i]), 3, colour_bg, 10, 3);
+            el->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), colour_bg);
+        }
+    }
+
+    return;
+
+    // pos2d point_C_src, point_C_dest;
+    // if(layout==0 || layout==1) {
+    //     if(type_src==1) point_C_src = pos2d(Pos_center.x, Pos_s1.y);
+    //     else            point_C_src = pos2d(Pos_s1.x, Pos_center.y);
+    //     if(type_dest==0)point_C_dest= pos2d(Pos_center.x, Pos_d1.y);
+    //     else            point_C_dest= pos2d(Pos_d1.x, Pos_center.y);
+    // }
+    // else {
+    //     if(type_src==1) point_C_src = pos2d(Pos_s1.x, Pos_center.y);
+    //     else            point_C_src = pos2d(Pos_center.x, Pos_s1.y);
+    //     if(type_dest==0)point_C_dest= pos2d(Pos_d1.x, Pos_center.y);
+    //     else            point_C_dest= pos2d(Pos_center.x, Pos_d1.y);
+    // }
+
+
+    // std::vector<pos2d> curveSrc = quadratic_bezier(
+    //     to_pos2d(Pos_s1),
+    //     (
+    //         (type_src==1 && (type_dest==2||type_dest==4)) || (type_dest==0 && (type_src==3 || type_src==5)) ?
+    //         to_pos2d(Pos_d1) : to_pos2d(Pos_center)
+    //     ),
+    //     point_C_src,
+    //     // ((layout==0 || layout==1)? pos2d(Pos_center.x, Pos_s1.y) : pos2d(Pos_s1.x, Pos_center.y)),
+    //     bezierSegs
+    // );
+    // std::vector<pos2d> curveDest(1, pos2d(-1, -1));
+    // if((type_src==1 && (type_dest==2 || type_dest==4)) || (type_dest==0 && (type_src==3 || type_src==5))) {
+    //     // curveDest = std::vector<pos2d>{to_pos2d(Pos_d1)};
+    //     std::cout << " [non veryiable] ";
+    // }
+    // else {
+    //     curveDest = quadratic_bezier(
+    //         to_pos2d(Pos_d1),
+    //         to_pos2d(Pos_center),
+    //         point_C_dest,
+    //         // ((layout==0 || layout==1)? pos2d(Pos_center.x, Pos_d1.y) : pos2d(Pos_d1.x, Pos_center.y)),
+    //         bezierSegs
+    //     );
+    // }
+
+    // for(ImDrawList* el: draw_win) {
+
+    //     el->AddLine(addOffs(Pos_src),  addOffs(Pos_s1), colour_border, 12);
+    //     el->AddLine(addOffs(Pos_dest), addOffs(Pos_d1), colour_border, 12);
+
+    //     // el->AddLine(addOffs(Pos_s1),   addOffs(Pos_d1), colour_border, 10);
+    //     for(size_t i=0; i<curveSrc.size()-1; i++) {
+    //         el->AddLine(addOffs(to_ImVec2(curveSrc[i])),  addOffs(to_ImVec2(curveSrc[i+1])),  colour_border, 12);
+    //     }
+    //     for(size_t i=0; i<curveDest.size()-1; i++) {
+    //         el->AddLine(addOffs(to_ImVec2(curveDest[i])), addOffs(to_ImVec2(curveDest[i+1])), colour_border, 12);
+    //     }
+    //     // std::cout << "-----"<<std::endl;
+    //     // el->AddLine(addOffs(to_ImVec2(curveSrc[bezierSegs-1])), addOffs(Pos_center), colour_border, 10);
+    //     // el->AddCircle(addOffs(Pos_center), 10, colour_border, 10);
+    //     // el->AddCircleFilled(addOffs(to_ImVec2(curveSrc.back())), 20, IM_COL32(255, 0, 0, 255), 10);
+    //     // std::cout << (&curveSrc.back())->getStr() << std::endl;
+    //     // std::cout << "---------" << std::endl;
+
+
+    //     el->AddLine(addOffs(Pos_src),  addOffs(Pos_s1), colour_bg, 8);
+    //     el->AddLine(addOffs(Pos_dest), addOffs(Pos_d1), colour_bg, 8);
+
+    //     for(size_t i=0; i<curveSrc.size()-1; i++) {
+    //         el->AddLine(addOffs(to_ImVec2(curveSrc[i])),  addOffs(to_ImVec2(curveSrc[i+1])),  colour_bg, 8);
+    //     }
+    //     for(size_t i=0; i<curveDest.size()-1; i++) {
+    //         el->AddLine(addOffs(to_ImVec2(curveDest[i])), addOffs(to_ImVec2(curveDest[i+1])), colour_bg, 8);
+    //     }
+    //     // el->AddLine(addOffs(Pos_s1),   addOffs(Pos_d1), colour_bg, 8);
+    // }
 
 }
 
@@ -442,6 +487,75 @@ auto gNC::guiNodeChart::_vecfind_ptr_itr( std::vector<storedType>& toCheck, stor
     }
     return toCheck.end();
 }
+
+
+/**
+ * @brief 
+ * 
+ * @param toCheck 
+ * @param srcPos absolute 2d position of src connecting pos in reference with node's outer reference frame
+ * @param destPos absolute 2d position of dest connecting pos in reference with node's outer reference frame
+ */
+void gNC::guiNodeChart::update_connect(
+    gNC::gLINK* toCheck,
+    ImVec2 srcPos,
+    ImVec2 destPos
+) {
+    std::vector<gNC::gNODE*> node = {toCheck->src, toCheck->dest};
+
+    if(srcPos[0]==-1) srcPos[0] = toCheck->Pos_src.x;
+    if(srcPos[1]==-1) srcPos[1] = toCheck->Pos_src.y;
+    if(destPos[0]==-1) destPos[0] = toCheck->Pos_dest.x;
+    if(destPos[1]==-1) destPos[1] = toCheck->Pos_dest.y;
+
+    if((toCheck->type_src==3 && toCheck->type_dest==4) || (toCheck->type_src==5 && toCheck->type_dest==2)) { // if connPoints are on opposite sides
+
+        if(
+            (abs(node[0]->pos.y+node[0]->height - destPos.y) < toCheck->min__node) ||
+            (abs(node[1]->pos.y+node[1]->height - srcPos.y)  < toCheck->min__node)
+        ) {
+            std::cout << "type changed"<<std::endl;
+            toCheck->type_dest = (toCheck->type_src==3? 2 : 4);
+        }
+    }
+    else if((toCheck->type_src==3 && toCheck->type_dest==2) || (toCheck->type_src==5 && toCheck->type_dest==4)) { // if connPoints are on the same side
+        if(
+            !((abs(node[0]->pos.y+node[0]->height - destPos.y) < toCheck->min__node) ||
+            (abs(node[1]->pos.y+node[1]->height - srcPos.y)  < toCheck->min__node))
+        ) {
+            std::cout << "type_changed"<<std::endl;
+            toCheck->type_dest = (toCheck->type_src==3? 4 : 2);
+        }
+    }
+    else if(((toCheck->type_src ==3 || toCheck->type_src ==5) && toCheck->type_dest==0)) { // one side is share, other is in
+        // std::cout <<"type check: ";
+        if(toCheck->src->pos[1]+toCheck->src->height/2 < destPos[1]) {
+            toCheck->type_src = toCheck->src->getConnectionType(3);
+            // std::cout << toCheck->type_src;
+            // std::cout << "src_smaller ";
+        }
+        else if(toCheck->src->pos[1]+toCheck->src->height/2 > destPos[1]) {
+            toCheck->type_src = toCheck->src->getConnectionType(5);
+            // std::cout << toCheck->type_src;
+            // std::cout << "src_bigger ";
+        }  
+    }
+    else if(((toCheck->type_dest==2 || toCheck->type_dest==4) && toCheck->type_src ==1)) { // one side is add, other is out
+        if(toCheck->dest->pos[1]+toCheck->dest->height/2 < srcPos[1]) {
+            toCheck->type_dest= toCheck->dest->getConnectionType(2);
+            std::cout << toCheck->type_dest;
+            std::cout << "dest_smaller ";
+        }
+        else if(toCheck->dest->pos[1]+toCheck->dest->height/2 > srcPos[1]) {
+            toCheck->type_dest= toCheck->dest->getConnectionType(4);
+            std::cout << toCheck->type_dest;
+            std::cout << "dest_bigger ";
+        }
+    }
+
+    std::cout<<std::endl;
+}
+
 
 gNC::guiNodeChart::guiNodeChart(/* args */) {
 
@@ -623,6 +737,11 @@ int gNC::guiNodeChart::NODE_move(
     }
     else if(moveMode==-1) {}
 
+
+    auto addNODE = [NODE_toMove](ImVec2 toChange) {
+        return ImVec2(toChange.x+NODE_toMove->pos[0], toChange.y+NODE_toMove->pos[1]);
+    };
+
     for(int v=0; v<4; v++) {
         std::vector<gNC::gLINK*>& checkVec = (
             v==0?  NODE_toMove->ln_in :
@@ -631,27 +750,38 @@ int gNC::guiNodeChart::NODE_move(
                    NODE_toMove->ln_share
             ))
         );
-        ImVec2 connectPos1 = NODE_toMove->getConnectionPos(v);
-        ImVec2 connectPos2 = (v==2 || v==3? NODE_toMove->getConnectionPos(v+2) : connectPos1);
+
+    
+        // ImVec2 connectPos1 = NODE_toMove->getConnectionPos(v);
+        // ImVec2 connectPos2 = (v==2 || v==3? NODE_toMove->getConnectionPos(v+2) : connectPos1);
         
-        for(int n=0; n<2; n++) {
-            connectPos1[n]+=NODE_toMove->pos[n];
-            connectPos2[n]+=NODE_toMove->pos[n];
-        }
+        // for(int n=0; n<2; n++) {
+        //     connectPos1[n]+=NODE_toMove->pos[n];
+        //     connectPos2[n]+=NODE_toMove->pos[n];
+        // }
 
         for(gNC::gLINK* lnk: checkVec) {
-            float delta2, delta1;
-            delta2 = getNDimDistance<ImVec2>(2, connectPos2, (v==0||v==2? lnk->Pos_src : lnk->Pos_dest));
-            delta1 = getNDimDistance<ImVec2>(2, connectPos1, (v==0||v==2? lnk->Pos_src : lnk->Pos_dest));
-            // std::cout << "["<<delta1<<", "<<delta2<<"] ";
-            ImVec2& connectPos = (delta1 < delta2? connectPos1 : connectPos2);
+
+            update_connect(
+                lnk,
+                (v==1 || v==3? addNODE(NODE_toMove->getConnectionPos(lnk->type_src)) : ImVec2(-1, -1)),
+                (v==0 || v==2? addNODE(NODE_toMove->getConnectionPos(lnk->type_dest)): ImVec2(-1, -1)) 
+            );
+
+            // float delta2, delta1;
+            // delta2 = getNDimDistance<ImVec2>(2, connectPos2, (v==0||v==2? lnk->Pos_src : lnk->Pos_dest));
+            // delta1 = getNDimDistance<ImVec2>(2, connectPos1, (v==0||v==2? lnk->Pos_src : lnk->Pos_dest));
+            // // std::cout << "["<<delta1<<", "<<delta2<<"] ";
+            // ImVec2& connectPos = (delta1 < delta2? connectPos1 : connectPos2);
+            ImVec2 connectPos(NODE_toMove->getConnectionPos((v==1||v==3? lnk->type_src : lnk->type_dest)));
+
 
             if(v==0 || v==2) { //in
-                lnk->move_link(ImVec2(-2, -2), connectPos);
+                lnk->move_link(ImVec2(-2, -2), addNODE(connectPos));
                 if(moveMode!=-1) NODE_move(lnk->src,  0, 0, -1);
             }
             else if(v==1 || v==3) { //out
-                lnk->move_link(connectPos, ImVec2(-2, -2));
+                lnk->move_link(addNODE(connectPos), ImVec2(-2, -2));
                 if(moveMode!=-1) NODE_move(lnk->dest, 0, 0, -1);
             }
         }
@@ -715,9 +845,11 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create(
         );
     }
 
+
     this->_links.push_back(gNC::gLINK(type_src, type_dest, NODE_src, NODE_dest, label, desc));
     this->_lastAddedLink = &(this->_links.back());
     this->_lastAddedLink->addr = ptrToStr<gNC::gLINK*>(this->_lastAddedLink);
+
 
     if(type_src==1) _lastAddedLink->src->ln_out.push_back(_lastAddedLink);
     else            _lastAddedLink->src->ln_share.push_back(_lastAddedLink);
@@ -726,7 +858,17 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create(
     else            _lastAddedLink->dest->ln_add.push_back(_lastAddedLink);
 
 
-    ImVec2 srcPos = NODE_src->getConnectionPos(type_src);
+    if((type_src==3 && type_dest==4) || (type_src==5 && type_dest==2)) {
+        if(
+            abs(NODE_src->pos.y+NODE_src->height - NODE_dest->pos.y) < _lastAddedLink->min__node ||
+            abs(NODE_dest->pos.y+NODE_dest->height - NODE_src->pos.y) <_lastAddedLink->min__node
+        ) {
+            _lastAddedLink->type_dest = (type_src==3? 2 : 4);
+            type_dest = _lastAddedLink->type_dest;
+        }
+    }
+
+    ImVec2 srcPos  = NODE_src->getConnectionPos(type_src);
     ImVec2 destPos = NODE_dest->getConnectionPos(type_dest);
 
     // _lastAddedLink->Pos_src = ImVec2(NODE_src->pos[0]+srcPos.x, NODE_src->pos[1]+srcPos.y);
@@ -742,12 +884,14 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create(
     // if(type_src==3 || type_src==5)  _lastAddedLink->Pos_s1 = _lastAddedLink->Pos_src;   //type_src is `share`
     // if(type_dest==2 || type_dest==4)_lastAddedLink->Pos_d1 = _lastAddedLink->Pos_dest;  //type_dest is `add`
 
-
+    update_connect(_lastAddedLink, srcPos, destPos);
     _lastAddedLink->move_link(
-        ImVec2(NODE_src->pos[0]+srcPos.x,   NODE_src->pos[1]+srcPos.y),
-        ImVec2(NODE_dest->pos[0]+destPos.x, NODE_dest->pos[1]+destPos.y),
-        (type_src!=1?  ImVec2(NODE_src->pos[0]+srcPos.x,   NODE_src->pos[1]+srcPos.y)   : ImVec2(-1, -1)),
-        (type_dest!=0? ImVec2(NODE_dest->pos[0]+destPos.x, NODE_dest->pos[1]+destPos.y) : ImVec2(-1, -1))
+        add_nodePos(srcPos,  NODE_src),
+        add_nodePos(destPos, NODE_dest)
+        // ImVec2(NODE_src->pos[0]+srcPos.x,   NODE_src->pos[1]+srcPos.y),
+        // ImVec2(NODE_dest->pos[0]+destPos.x, NODE_dest->pos[1]+destPos.y)
+        // (type_src!=1?  ImVec2(NODE_src->pos[0]+srcPos.x,   NODE_src->pos[1]+srcPos.y)   : ImVec2(-1, -1)),
+        // (type_dest!=0? ImVec2(NODE_dest->pos[0]+destPos.x, NODE_dest->pos[1]+destPos.y) : ImVec2(-1, -1))
     );
 
     return this->_lastAddedLink;
@@ -796,36 +940,22 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create_loose(
     );
     refVec.push_back(_lastAddedLink);
 
+
     ImVec2 connecPos = _NODE->getConnectionPos(type_NODE_connection);
 
     if(nType==1)  {
-        _lastAddedLink->Pos_src = ImVec2(_NODE->pos[0]+connecPos.x, _NODE->pos[1]+connecPos.y);
+        _lastAddedLink->Pos_src = add_nodePos(connecPos, _NODE); //ImVec2(_NODE->pos[0]+connecPos.x, _NODE->pos[1]+connecPos.y);
         _lastAddedLink->Pos_dest= loosePos;
-        _lastAddedLink->Pos_s1  = pos_interm_NODE;
+        // _lastAddedLink->Pos_s1  = pos_interm_NODE;
     }
     else {
-        _lastAddedLink->Pos_dest= ImVec2(_NODE->pos[0]+connecPos.x, _NODE->pos[1]+connecPos.y);
+        _lastAddedLink->Pos_dest= add_nodePos(connecPos, _NODE); //ImVec2(_NODE->pos[0]+connecPos.x, _NODE->pos[1]+connecPos.y);
         _lastAddedLink->Pos_src = loosePos;
-        _lastAddedLink->Pos_d1  = pos_interm_NODE;
+        // _lastAddedLink->Pos_d1  = pos_interm_NODE;
     }
 
-
-    ImVec2 pos_delta = ImVec2(_lastAddedLink->Pos_dest.x - _lastAddedLink->Pos_src.x, _lastAddedLink->Pos_dest.y - _lastAddedLink->Pos_src.y);
-    ImVec2 halfWayPoint = ImVec2(_lastAddedLink->Pos_src.x + pos_delta.x/2, _lastAddedLink->Pos_src.y + pos_delta.y/2);
-
-
-    if(nType==1) {
-        _lastAddedLink->Pos_d1  = ImVec2(halfWayPoint.x - pos_delta.x/4, halfWayPoint.y - pos_delta.y/4);
-
-        if(pos_interm_NODE.x==-1) _lastAddedLink->Pos_s1.x =  halfWayPoint.x - pos_delta.x/4;
-        if(pos_interm_NODE.y==-1) _lastAddedLink->Pos_s1.y =  halfWayPoint.y - pos_delta.y/4;
-    }
-    if(nType==0) {
-        _lastAddedLink->Pos_s1  = ImVec2(halfWayPoint.x - pos_delta.x/4, halfWayPoint.y - pos_delta.y/4);
-
-        if(pos_interm_NODE.x==-1) _lastAddedLink->Pos_d1.x =  halfWayPoint.x + pos_delta.x/4;
-        if(pos_interm_NODE.y==-1) _lastAddedLink->Pos_d1.y =  halfWayPoint.y + pos_delta.y/4;
-    }
+    // ImVec2 pos_delta = ImVec2(_lastAddedLink->Pos_dest.x - _lastAddedLink->Pos_src.x, _lastAddedLink->Pos_dest.y - _lastAddedLink->Pos_src.y);
+    // ImVec2 halfWayPoint = ImVec2(_lastAddedLink->Pos_src.x + pos_delta.x/2, _lastAddedLink->Pos_src.y + pos_delta.y/2);
 
     
     return this->_lastAddedLink;
@@ -854,9 +984,11 @@ int gNC::guiNodeChart::LINK_swapSrc(gNC::gLINK* toSwap, gNC::gNODE* newSrc, int 
     else           newSrc->ln_share.push_back(toSwap);
 
     ImVec2 srcPos = newSrc->getConnectionPos(srcType);
+    update_connect(toSwap, add_nodePos(srcPos, newSrc), ImVec2(-1, -1));
     toSwap->move_link(
-        ImVec2(newSrc->pos[0]+srcPos.x, newSrc->pos[1]+srcPos.y),
-        ImVec2(-2, -2), ImVec2(-1, -1), ImVec2(-1, -1)
+        add_nodePos(srcPos, newSrc),
+        // ImVec2(newSrc->pos[0]+srcPos.x, newSrc->pos[1]+srcPos.y),
+        ImVec2(-2, -2)
     );
 
     return 0;
@@ -886,10 +1018,11 @@ int gNC::guiNodeChart::LINK_swapDest(gNC::gLINK* toSwap, gNC::gNODE* newDest, in
 
 
     ImVec2 destPos = newDest->getConnectionPos(destType);
+    update_connect(toSwap, ImVec2(-1, -1), add_nodePos(destPos, newDest));
     toSwap->move_link(
         ImVec2(-2, -2),
-        ImVec2(newDest->pos[0]+destPos.x, newDest->pos[1]+destPos.y),
-        ImVec2(-1, -1), ImVec2(-1, -1)
+        add_nodePos(destPos, newDest)
+        // ImVec2(newDest->pos[0]+destPos.x, newDest->pos[1]+destPos.y)
     );
 
     return 0;
@@ -985,7 +1118,6 @@ int gNC::guiNodeChart::draw() {
 
 
     for(auto itr=_links.begin(); itr!=this->_links.end(); ++itr) {
-
         if(
             ((*itr).Pos_src.x < 0 && (*itr).Pos_dest.x < 0) || ((*itr).Pos_src.y < 0 && (*itr).Pos_dest.y < 0) ||
             ((*itr).Pos_src.x > screen_dim[0] && (*itr).Pos_dest.x > screen_dim[0]) || ((*itr).Pos_src.y > screen_dim[1] && (*itr).Pos_dest.y > screen_dim[1])

@@ -150,6 +150,7 @@ int main(int argc, char** argv) {
                     draw_list->PopClipRect();
                 }
 
+
                 if(cnt==0) {
                     proj0.NODE_create(100, 100, "node0", "desc0", "body0");
                     proj0.NODE_create(300, 300, "node1", "desc1", "body1");

@@ -341,16 +341,15 @@ struct pos2d {
     inline float findVal(std::vector<float> toCheck, int toFind) {
         int index = 0;
         float val = toCheck[0];
-        std::cout<<toCheck[0]<<", "<<toCheck[1];
         for(int i=0; i<toCheck.size(); i++) {
             if(toFind==0 || toFind==2) {     if(toCheck[i]>val) { val=toCheck[i]; index=i; } }
             else if(toFind==1 || toFind==3){ if(toCheck[i]<val) { val=toCheck[i]; index=i; } }
         }
-        std::cout << " » "<<val<<" | ";
         if(toFind==0 || toFind==1) return val;
         else if(toFind==2 || toFind==3) return index;
         else return -1;
     }
+
 
     static inline std::string dummyRef_stringOfVector_resultStrRef;
     /**
