@@ -553,6 +553,9 @@ void gNC::guiNodeChart::update_connect(
     if(destPos[0]==-1) destPos[0] = toCheck->Pos_dest.x;
     if(destPos[1]==-1) destPos[1] = toCheck->Pos_dest.y;
 
+
+
+
     if((toCheck->type_src==3 && toCheck->type_dest==4) || (toCheck->type_src==5 && toCheck->type_dest==2)) { // if connPoints are on opposite sides
 
         if(
@@ -560,16 +563,26 @@ void gNC::guiNodeChart::update_connect(
             (abs(node[1]->pos.y+node[1]->height - srcPos.y)  < toCheck->min__node)
         ) {
             // std::cout << "type changed"<<std::endl;
-            toCheck->type_dest = (toCheck->type_src==3? 2 : 4);
+            toCheck->type_dest = (toCheck->type_src==3? 2 : 4); //convert them to same side
+
         }
     }
     else if((toCheck->type_src==3 && toCheck->type_dest==2) || (toCheck->type_src==5 && toCheck->type_dest==4)) { // if connPoints are on the same side
         if(
             !((abs(node[0]->pos.y+node[0]->height - destPos.y) < toCheck->min__node) ||
             (abs(node[1]->pos.y+node[1]->height - srcPos.y)  < toCheck->min__node))
-        ) {
+        ) { //if connPoints are on the same side and have not reached minimal distance: convert to opposide side
             // std::cout << "type_changed"<<std::endl;
-            toCheck->type_dest = (toCheck->type_src==3? 4 : 2);
+
+            // toCheck->type_dest = (toCheck->type_src==3? 4 : 2);
+            if(node[0]->pos.y<node[1]->pos.y) {
+                toCheck->type_src  = node[0]->getConnectionType(3);
+                toCheck->type_dest = node[1]->getConnectionType(4);
+            }
+            else {
+                toCheck->type_src  = node[0]->getConnectionType(5);
+                toCheck->type_dest = node[1]->getConnectionType(2);
+            }
         }
     }
     else if(((toCheck->type_src ==3 || toCheck->type_src ==5) && toCheck->type_dest==0)) { // one side is share, other is in
