@@ -3,7 +3,7 @@
 #include "globals_includes.hpp"
 
 /**
- * Get the relative position of a node's connection point from the connection id
+ * Get the relative (to node subspace) position of a node's connection point from the connection id
  * 
  * ### Parameters:
  * `connectionID` integer identifier for each of the connection points:
@@ -134,7 +134,8 @@ void gNC::gLINK::move_link(
 
 
     /// @brief half of the smallest delta
-    float smallestDelta = findVal(std::vector<float>{abs(pos_delta.x), abs(pos_delta.y)}, 1)/2;
+    std::vector<float> tempVec{abs(pos_delta.x), abs(pos_delta.y)};
+    float smallestDelta = findVal(tempVec, 1)/2;
     /// @brief `0`- x is smallest; `1`- y is smallest
     int smallestType    = (pos_delta.x < pos_delta.y? 0 : 1);
 
@@ -144,9 +145,10 @@ void gNC::gLINK::move_link(
      * ` 1` - positive down
      * `-1` - negative up
     */
-    int connDir = 0;
-    if(type_dest!= 0) connDir = PoN(dest->getConnectionPos(type_dest).y - dest->height/2); // / abs(dest->getConnectionPos(type_dest).y - dest->height/2);
-    if(type_src != 1) connDir = PoN(src->getConnectionPos(type_src).y - src->height/2); /// abs(src->getConnectionPos(type_src).y - src->height/2);
+    int connDir_dest= -1;
+    int connDir_src = -1;
+    if(type_dest!= 0) connDir_dest= PoN(dest->getConnectionPos(type_dest).y - dest->height/2); // / abs(dest->getConnectionPos(type_dest).y - dest->height/2);
+    if(type_src != 1) connDir_src = PoN(src->getConnectionPos(type_src).y - src->height/2); /// abs(src->getConnectionPos(type_src).y - src->height/2);
 
 
     /**
@@ -158,17 +160,28 @@ void gNC::gLINK::move_link(
     link_points.clear();
     link_points.push_back(Pos_src);
 
-    std::vector<float> tempVec{connDir*min__connect, smallestDelta};
+    // Values for same side connectionPos methods
+
+    tempVec = std::vector<float>{min__connect, smallestDelta};
     float offs_bigger   = findVal(tempVec, 0);
     float offs_smaller  = findVal(tempVec, 1);
     tempVec = std::vector<float>{Pos_src.y, Pos_dest.y};
-    float y_bigger  = findVal(tempVec, (connDir==1? 0 : 1));
+    /**
+     * The y value of the link node that is the furthest away from median line between the link nodes,
+     * in the direction of the link relative to conenctionPos's
+     * 
+     * i.e.
+     * - is the link facing positive y (down)? find the biggest y value
+     * - is the link facing negative y (up)? find the smallest y value
+     */
+    float y_bigger = findVal(tempVec, (connDir_src==1? 0 : 1));
 
 
     if(type_src==1) {
         if(layout==0 || layout==1) {
             link_points.push_back(ImVec2(Pos_src.x + (type_dest==0? pos_delta.x/2 : pos_delta.x) - smallestDelta, Pos_src.y));
             link_points.push_back(ImVec2(Pos_src.x + (type_dest==0? pos_delta.x/2 : pos_delta.x), Pos_src.y));
+            link_points.push_back(ImVec2(pos_middle.x, Pos_src.y+PoN(pos_delta.y)*smallestDelta));
             if(type_dest==0) link_points.push_back(pos_middle);
         }
         else {
@@ -181,32 +194,42 @@ void gNC::gLINK::move_link(
         if(layout==0 || layout==1) {
 
             if(type_dest==0) {
-                link_points.push_back(ImVec2(Pos_src.x, Pos_src.y + (pos_delta.y - connDir*smallestDelta)));
+                link_points.push_back(ImVec2(Pos_src.x, Pos_src.y + (pos_delta.y - connDir_src*smallestDelta)));
                 link_points.push_back(ImVec2(Pos_src.x, Pos_src.y + pos_delta.y));
             }
             else if(type_dest==(type_src==3? 2 : 4)) { // same side
 
+                // if delta_x is bigger: use min__connect: else use smallestDelta
+
                 link_points.push_back(ImVec2(
                     Pos_src.x,
-                    y_bigger + offs_bigger*connDir - offs_smaller*connDir
+                    y_bigger + offs_bigger*connDir_src - (pos_delta.x>pos_delta.y? offs_bigger : offs_smaller)*connDir_src
                 ));
                 link_points.push_back(ImVec2(
                     Pos_src.x,
-                    y_bigger + offs_bigger*connDir
+                    y_bigger + offs_bigger*connDir_src
                 ));
                 link_points.push_back(ImVec2(
-                    pos_delta.x,
-                    y_bigger + offs_bigger*connDir
+                    Pos_src.x + (pos_delta.x>pos_delta.y? offs_bigger : offs_smaller)*PoN(pos_delta.x),
+                    link_points.back().y
+                ));
+                link_points.push_back(ImVec2(
+                    pos_middle.x,
+                    y_bigger + offs_bigger*connDir_src
                 ));
             }
             else { //type_dest==4 if type_src==3; else type_dest==2
                 link_points.push_back(ImVec2(
                     Pos_src.x,
-                    Pos_src.y + (pos_delta.y/2 - smallestDelta*connDir)
+                    Pos_src.y + (pos_delta.y/2 - smallestDelta*connDir_src)
                 ));
                 link_points.push_back(ImVec2(
                     Pos_src.x,
                     Pos_src.y + pos_delta.y/2
+                ));
+                link_points.push_back(ImVec2(
+                    Pos_src.x + PoN(pos_delta.x)*smallestDelta,
+                    pos_middle.y
                 ));
                 link_points.push_back(pos_middle);
             }
@@ -241,6 +264,7 @@ void gNC::gLINK::move_link(
     if(type_dest==0) {
         if(layout==0||layout==1) {
             if(type_src==1) {
+                link_points.push_back(ImVec2(pos_middle.x, Pos_dest.y - PoN(pos_delta.y)*smallestDelta));
                 link_points.push_back(ImVec2(pos_middle.x, Pos_dest.y));
             }
             link_points.push_back(ImVec2(link_points.back().x + smallestDelta, Pos_dest.y));
@@ -252,8 +276,29 @@ void gNC::gLINK::move_link(
     }
     else {
         if(layout==0 || layout==1) {
-            if(type_src!=1) link_points.push_back(ImVec2(Pos_dest.x, link_points.back().y));
-            link_points.push_back(ImVec2(Pos_dest.x, link_points.back().y + (type_src-type_dest==1? offs_bigger : smallestDelta)*connDir));
+            if(type_src==1) {
+                link_points.push_back(ImVec2(Pos_dest.x, link_points.back().y - (type_src-type_dest==1? offs_bigger : smallestDelta)*connDir_dest));
+            }
+            if(type_src-type_dest==1) { //same side
+                link_points.push_back(ImVec2(
+                    Pos_dest.x - PoN(pos_delta.x)*(pos_delta.x>pos_delta.y? offs_bigger : offs_smaller),
+                    link_points.back().y
+                ));
+                link_points.push_back(ImVec2(Pos_dest.x, link_points.back().y));
+                link_points.push_back(ImVec2(
+                    Pos_dest.x, link_points.back().y - (connDir_dest)*(pos_delta.x>pos_delta.y? offs_bigger : offs_smaller)
+                ));
+            }
+            else { //opposite side
+                link_points.push_back(ImVec2(
+                    Pos_dest.x - PoN(pos_delta.x)*smallestDelta,
+                    pos_middle.y
+                ));
+                link_points.push_back(ImVec2(Pos_dest.x, link_points.back().y));
+                link_points.push_back(ImVec2(
+                    Pos_dest.x, link_points.back().y - (connDir_dest)*(smallestDelta)
+                ));
+            }
         }
         else {
 
@@ -514,7 +559,7 @@ void gNC::guiNodeChart::update_connect(
             (abs(node[0]->pos.y+node[0]->height - destPos.y) < toCheck->min__node) ||
             (abs(node[1]->pos.y+node[1]->height - srcPos.y)  < toCheck->min__node)
         ) {
-            std::cout << "type changed"<<std::endl;
+            // std::cout << "type changed"<<std::endl;
             toCheck->type_dest = (toCheck->type_src==3? 2 : 4);
         }
     }
@@ -523,7 +568,7 @@ void gNC::guiNodeChart::update_connect(
             !((abs(node[0]->pos.y+node[0]->height - destPos.y) < toCheck->min__node) ||
             (abs(node[1]->pos.y+node[1]->height - srcPos.y)  < toCheck->min__node))
         ) {
-            std::cout << "type_changed"<<std::endl;
+            // std::cout << "type_changed"<<std::endl;
             toCheck->type_dest = (toCheck->type_src==3? 4 : 2);
         }
     }
@@ -543,17 +588,16 @@ void gNC::guiNodeChart::update_connect(
     else if(((toCheck->type_dest==2 || toCheck->type_dest==4) && toCheck->type_src ==1)) { // one side is add, other is out
         if(toCheck->dest->pos[1]+toCheck->dest->height/2 < srcPos[1]) {
             toCheck->type_dest= toCheck->dest->getConnectionType(2);
-            std::cout << toCheck->type_dest;
-            std::cout << "dest_smaller ";
+            // std::cout << toCheck->type_dest;
+            // std::cout << "dest_smaller ";
         }
         else if(toCheck->dest->pos[1]+toCheck->dest->height/2 > srcPos[1]) {
             toCheck->type_dest= toCheck->dest->getConnectionType(4);
-            std::cout << toCheck->type_dest;
-            std::cout << "dest_bigger ";
+            // std::cout << toCheck->type_dest;
+            // std::cout << "dest_bigger ";
         }
     }
 
-    std::cout<<std::endl;
 }
 
 
