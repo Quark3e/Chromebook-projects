@@ -706,6 +706,7 @@ struct pos2d {
         if(var>0) return 1;
         else if(var<0) return -1;
         else {
+            return 1;
             std::cout << "PoN(): \"" << var << "\" is not a number\n";
             return 0;
         }

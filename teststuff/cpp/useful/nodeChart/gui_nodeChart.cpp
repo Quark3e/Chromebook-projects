@@ -380,12 +380,19 @@ void gNC::gLINK::draw_link(
     static ImU32 colour_border  = IM_COL32(100, 100, 100, 255); //IM_COL32(102,  99, 28, 204);
 
 
+
+    /**
+     * @brief add the relative drag screen offset
+     * @param toAdd `ImVec2` container for the 2d coordinate to add the screen_offset to
+     * @return `ImVec2` of the 2d coordinate with the screen_offset added
+     */
     auto addOffs = [screen_offset](ImVec2 toAdd) {
         return ImVec2(toAdd.x + screen_offset.x, toAdd.y + screen_offset.y);
     };
 
-    int bezierSegs = 10;
 
+    /// number of segments to create for the quadratic bezier curve
+    int bezierSegs = 10;
 
     for(int i=0; i<link_points.size()-1; i++) {
         if(link_points[i].x == link_points[i+1].x && link_points[i].y == link_points[i+1].y) {
@@ -396,13 +403,63 @@ void gNC::gLINK::draw_link(
         }
     }
 
-    for(int i=0; i<link_points.size()-1; i++) {
+    static auto _define_prevAxis = [](ImVec2 p0, ImVec2 p1) {
+        assert(!(p0.x==p1.x && p0.y==p1.y));
+        ImVec2 delta(p1.x-p0.x, p1.y-p0.y);
+        if(delta.x>0) return 0;
+        if(delta.y>0) return 1;
+        if(delta.x<0) return 2;
+        if(delta.y<0) return 3;
+        return -1;
+    };
 
-        for(ImDrawList* el: draw_win) {
-            el->AddCircle(addOffs(link_points[i]), 3, colour_bg, 10, 3);
-            el->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), colour_bg);
+    /**
+     * Identifier for the direction at which the previous two points went in.
+     *  used to distinguish when a point is not in the same direction as the previous ones.
+     *  - `0` - positive x
+     *  - `1` - positive y
+     *  - `2` - negative x
+     *  - `3` - negative y
+     */
+    static int prevAxis = 0;
+
+    
+    for(int i=0; i<link_points.size()-2; i++) {
+
+        prevAxis = _define_prevAxis(link_points[i], link_points[i+1]);
+        if(_define_prevAxis(link_points[i+1], link_points[i+2]) != prevAxis) {
+            // std::vector<pos2d> curve = quadratic_bezier(to_pos2d(link_points[i]), to_pos2d(link_points[i+2]), to_pos2d(link_points[i+1]), bezierSegs);
+
+            draw_win[0]->AddBezierQuadratic(addOffs(link_points[i]), addOffs(link_points[i+1]), addOffs(link_points[i+2]), colour_border, 12, bezierSegs);
+            draw_win[0]->AddBezierQuadratic(addOffs(link_points[i]), addOffs(link_points[i+1]), addOffs(link_points[i+2]), colour_bg, 8, bezierSegs);
+            i+=1;
         }
+        else {
+            draw_win[0]->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), colour_border, 12);
+            draw_win[0]->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), colour_bg, 8);
+        }
+
     }
+    if(
+        _define_prevAxis(link_points[link_points.size()-3], link_points[link_points.size()-2]) ==
+        _define_prevAxis(link_points[link_points.size()-2], link_points[link_points.size()-1])    
+    ) {
+        draw_win[0]->AddLine(addOffs(link_points[link_points.size()-2]), addOffs(link_points[link_points.size()-1]), colour_border, 12);
+        draw_win[0]->AddLine(addOffs(link_points[link_points.size()-2]), addOffs(link_points[link_points.size()-1]), colour_bg, 8);
+    }
+
+    // for(int i=0; i<link_points.size()-1; i++) {
+    //     for(ImDrawList* el: draw_win) {
+    //         el->AddCircle(addOffs(link_points[i]), 10, IM_COL32(255, 10, 10, 255), 10, 2);
+    //         el->AddCircle(addOffs(link_points[i]), 3, colour_bg, 10, 3);
+    //         el->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), colour_bg);
+    //     }
+    // }
+    // for(ImDrawList* el: draw_win) {
+    //     el->AddCircle(addOffs(link_points[link_points.size()-1]), 10, IM_COL32(255, 10, 10, 255), 10, 2);
+    //     el->AddCircle(addOffs(link_points[link_points.size()-1]), 3, colour_bg, 10, 3);
+    // }
+    
 
     return;
 
@@ -554,10 +611,10 @@ void gNC::guiNodeChart::update_connect(
     if(destPos[1]==-1) destPos[1] = toCheck->Pos_dest.y;
 
 
+    ImVec2 pos_delta_node(node[1]->pos[0]-node[0]->pos[0], node[1]->pos[1]-node[0]->pos[1]);
 
 
     if((toCheck->type_src==3 && toCheck->type_dest==4) || (toCheck->type_src==5 && toCheck->type_dest==2)) { // if connPoints are on opposite sides
-
         if(
             (abs(node[0]->pos.y+node[0]->height - destPos.y) < toCheck->min__node) ||
             (abs(node[1]->pos.y+node[1]->height - srcPos.y)  < toCheck->min__node)
@@ -567,13 +624,12 @@ void gNC::guiNodeChart::update_connect(
 
         }
     }
-    else if((toCheck->type_src==3 && toCheck->type_dest==2) || (toCheck->type_src==5 && toCheck->type_dest==4)) { // if connPoints are on the same side
+    if(toCheck->type_src-toCheck->type_dest==1) { // if connPoints are on the same side
         if(
-            !((abs(node[0]->pos.y+node[0]->height - destPos.y) < toCheck->min__node) ||
-            (abs(node[1]->pos.y+node[1]->height - srcPos.y)  < toCheck->min__node))
+            ((abs(pos_delta_node.y) > (toCheck->min__node)*2))
         ) { //if connPoints are on the same side and have not reached minimal distance: convert to opposide side
             // std::cout << "type_changed"<<std::endl;
-
+            
             // toCheck->type_dest = (toCheck->type_src==3? 4 : 2);
             if(node[0]->pos.y<node[1]->pos.y) {
                 toCheck->type_src  = node[0]->getConnectionType(3);
@@ -583,9 +639,10 @@ void gNC::guiNodeChart::update_connect(
                 toCheck->type_src  = node[0]->getConnectionType(5);
                 toCheck->type_dest = node[1]->getConnectionType(2);
             }
+            
         }
     }
-    else if(((toCheck->type_src ==3 || toCheck->type_src ==5) && toCheck->type_dest==0)) { // one side is share, other is in
+    if(((toCheck->type_src ==3 || toCheck->type_src ==5) && toCheck->type_dest==0)) { // one side is share, other is in
         // std::cout <<"type check: ";
         if(toCheck->src->pos[1]+toCheck->src->height/2 < destPos[1]) {
             toCheck->type_src = toCheck->src->getConnectionType(3);
@@ -598,7 +655,7 @@ void gNC::guiNodeChart::update_connect(
             // std::cout << "src_bigger ";
         }  
     }
-    else if(((toCheck->type_dest==2 || toCheck->type_dest==4) && toCheck->type_src ==1)) { // one side is add, other is out
+    if(((toCheck->type_dest==2 || toCheck->type_dest==4) && toCheck->type_src ==1)) { // one side is add, other is out
         if(toCheck->dest->pos[1]+toCheck->dest->height/2 < srcPos[1]) {
             toCheck->type_dest= toCheck->dest->getConnectionType(2);
             // std::cout << toCheck->type_dest;
@@ -1175,11 +1232,15 @@ int gNC::guiNodeChart::draw() {
 
 
     for(auto itr=_links.begin(); itr!=this->_links.end(); ++itr) {
+        std::vector<ImVec2> linkPos{
+            ImVec2((*itr).Pos_src.x  + screen_pos[0], (*itr).Pos_src.y  + screen_pos[1]),
+            ImVec2((*itr).Pos_dest.x + screen_pos[0], (*itr).Pos_dest.y + screen_pos[1])
+        };
         if(
-            ((*itr).Pos_src.x < 0 && (*itr).Pos_dest.x < 0) || ((*itr).Pos_src.y < 0 && (*itr).Pos_dest.y < 0) ||
-            ((*itr).Pos_src.x > screen_dim[0] && (*itr).Pos_dest.x > screen_dim[0]) || ((*itr).Pos_src.y > screen_dim[1] && (*itr).Pos_dest.y > screen_dim[1])
+            (linkPos[0].x < 0 && linkPos[1].x < 0) || (linkPos[0].x > screen_dim[0] && linkPos[1].x > screen_dim[0]) ||
+            (linkPos[0].y < 0 && linkPos[1].y < 0) || (linkPos[0].y > screen_dim[1] && linkPos[1].y > screen_dim[1])
         ) continue;
-
+        
         (*itr).draw_link(std::vector<ImDrawList*>{draw_list}, ImVec2(screen_pos[0], screen_pos[1]));
     }
     for(auto itr=_nodes.begin(); itr!=this->_nodes.end(); ++itr) {

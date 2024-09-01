@@ -58,6 +58,7 @@ namespace gNC {
 
         float min__connect  = 50;
         float min__node     = 100;
+        float lim__sameSide = 150;
 
         ImVec2 Pos_src;     // Absolute 2d coordinates of src connection: By defualt this is at the src node's out point
         ImVec2 Pos_dest;    // Absolute 2d coordinates of dest connection: By default this is at the dest node's in point
