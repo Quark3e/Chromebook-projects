@@ -1091,7 +1091,7 @@ int gNC::guiNodeChart::draw() {
     std::cout<< "{"<<std::setw(2)<< mouseAction<<","<<std::setw(3)<<mouseClick_left<<"} ";
     #endif
 
-    static bool bool_toHover_menu_node_clicked = false;
+    bool bool_toHover_menu_node_clicked = false;
 
     for(auto itr=_links.begin(); itr!=this->_links.end(); ++itr) {
         std::vector<ImVec2> linkPos{
@@ -1204,9 +1204,9 @@ int gNC::guiNodeChart::draw() {
         ImGui::End();
     }
 
+    if(!bool_toHover_menu_node_clicked) toHover_menu__node_details = nullptr;
     if(toHover_menu__node_details != nullptr) _menu__node_details(toHover_menu__node_details);
     // std::cout << std::boolalpha << bool_toHover_menu_node_clicked<<std::endl;
-    // if(!bool_toHover_menu_node_clicked) toHover_menu__node_details = nullptr;
 
 
     if((mouseAction==0 || mouseAction==-1) && isKeyPressed(655, pressed_keys)) {
