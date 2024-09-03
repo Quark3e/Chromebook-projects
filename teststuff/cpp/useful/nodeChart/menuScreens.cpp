@@ -1,14 +1,14 @@
 
-#include "menuScreens.hpp"
 #include "globals_includes.hpp"
 
 
-void _menu__node_details(
-    gNC::guiNodeChart& _NC,
+void gNC::_menu__node_details(
     gNC::gNODE* toDetail
 ) {
+    if(toDetail==nullptr) return;
 
     static ImGuiWindowFlags win_flags = 0;
+    win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
 
     static ImGuiInputFlags inpBuff_flags_title  = 0;
     static ImGuiInputFlags inpBuff_flags_desc   = 0;

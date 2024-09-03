@@ -1091,7 +1091,7 @@ int gNC::guiNodeChart::draw() {
     std::cout<< "{"<<std::setw(2)<< mouseAction<<","<<std::setw(3)<<mouseClick_left<<"} ";
     #endif
 
-
+    static bool bool_toHover_menu_node_clicked = false;
 
     for(auto itr=_links.begin(); itr!=this->_links.end(); ++itr) {
         std::vector<ImVec2> linkPos{
@@ -1188,7 +1188,10 @@ int gNC::guiNodeChart::draw() {
 
 
         if(ImGui::IsWindowFocused() || !local_init) {
-            if(!lockMove_node && pressed_keys->size() > 0 && searchVec<int>(*pressed_keys, 655) != -1) {
+            // _menu__node_details(&(*itr));
+            toHover_menu__node_details  = &(*itr);
+            bool_toHover_menu_node_clicked   = true;
+            if(!lockMove_node && pressed_keys->size() > 0 && isKeyPressed(655, pressed_keys)) {
                 NODE_move(&(*itr), io.MouseDelta.x, io.MouseDelta.y, 1);
                 ImGui::SetWindowPos(ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]));
             }
@@ -1200,6 +1203,11 @@ int gNC::guiNodeChart::draw() {
 
         ImGui::End();
     }
+
+    if(toHover_menu__node_details != nullptr) _menu__node_details(toHover_menu__node_details);
+    // std::cout << std::boolalpha << bool_toHover_menu_node_clicked<<std::endl;
+    // if(!bool_toHover_menu_node_clicked) toHover_menu__node_details = nullptr;
+
 
     if((mouseAction==0 || mouseAction==-1) && isKeyPressed(655, pressed_keys)) {
         lockMove_screen = false;

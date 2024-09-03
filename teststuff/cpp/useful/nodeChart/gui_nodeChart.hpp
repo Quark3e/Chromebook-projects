@@ -245,6 +245,7 @@ namespace gNC {
         ImVec2 add_nodePos(ImVec2 addTo, gNC::gNODE* toAdd) { return ImVec2(addTo.x+toAdd->pos[0], addTo.y+toAdd->pos[1]); }
 
         public:
+        gNC::guiNodeChart* thisPtr = nullptr;
         int screen_pos[2] = {0, 0};
         int screen_pos_delta[2] = {0, 0};
 
@@ -323,7 +324,16 @@ namespace gNC {
             bool overwrite = false
         );
     };
-    
+
+
+    /**
+     * "Static"/Global value for displaying menu: node_details
+     *  - `nullptr`: dont display node details menu
+     *  - `{addr}` : display that address
+     */
+    inline gNC::gNODE* toHover_menu__node_details = nullptr;
+    void _menu__node_details(gNC::gNODE* toDetail);
+
 }
 
 

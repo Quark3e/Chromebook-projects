@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
 
 
     gNC::guiNodeChart proj0;
-
+    proj0.thisPtr = &proj0;
 
     static int cnt = 0;
 

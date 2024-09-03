@@ -5,12 +5,9 @@
 
 #include "globals_includes.hpp"
 
+namespace gNC_xtra {
+        
 
-void _menu__node_details(
-    gNC::guiNodeChart& _NC,
-    gNC::gNODE* toDetail
-);
-
-
+}
 
 #endif
