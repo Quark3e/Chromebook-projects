@@ -161,6 +161,8 @@ int main(int argc, char** argv) {
                     proj0.LINK_create(&proj0[1], &proj0[2], 3, 0, "link1");
                     proj0.LINK_create(&proj0[3], &proj0[1], 3, 2, "link2");
 
+                    // proj0.NODE_delete(&proj0[1], true);
+
                 }
                 style.WindowRounding = 15.0f;
                 proj0.draw();

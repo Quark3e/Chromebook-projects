@@ -178,15 +178,16 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "gui_nodeChart C/C++: g++ build active file and run build",
+			"label": "gui_nodeChart C/C++: g++ build dedicated file and run build",
 			"command": "/usr/bin/g++",
 			"args": [
 				"-DIMGUI_USER_CONFIG=\\\"/usr/local/include/imgui/examples/example_allegro5/imconfig_allegro5.h\\\"",
 				"-fdiagnostics-color=always",
 				"-I/usr/local/include/imgui/",
 				"-I${fileDirname}",
+				"-I/home/berkhme/github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/",
 				"-g",
-				"${file}",
+				"/home/berkhme/github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/main.cpp",
 				"/usr/local/include/HC_useful/nodeChart/gui_nodeChart.cpp",
 				"${fileDirname}/globals_variables.cpp",
 				"/usr/local/include/imgui/backends/imgui_impl_allegro5.cpp",

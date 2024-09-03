@@ -99,27 +99,16 @@ void gNC::gNODE::draw_connection(
  * 
  * @param par_pos_src absolute 2d position of _src point
  * @param par_pos_dest absolute 2d position of _dest point
-//  * @param par_pos_s1 absolute 2d position of _s1 point
-//  * @param par_pos_d1 absolute 2d position of _d1 point
  */
 void gNC::gLINK::move_link(
     ImVec2 par_pos_src,
     ImVec2 par_pos_dest
-    // ImVec2 par_pos_s1,
-    // ImVec2 par_pos_d1
 ) {
     /**
      * If value is -2, that value is kept.
      * If value is -1, that value allowed to change (applies only to s1 and d1)
      * else: update it
      */
-
-    // assert(
-    //     !(par_pos_src.x  < 0 && par_pos_src.x  != -1 && par_pos_src.x  != -2) ||
-    //     !(par_pos_src.y  < 0 && par_pos_src.y  != -1 && par_pos_src.y  != -2) ||
-    //     !(par_pos_dest.x < 0 && par_pos_dest.x != -1 && par_pos_dest.x != -2) ||
-    //     !(par_pos_dest.y < 0 && par_pos_dest.y != -1 && par_pos_dest.y != -2)
-    // );
 
 
     if(par_pos_src.x  != -2) Pos_src.x  = par_pos_src.x;
@@ -304,65 +293,8 @@ void gNC::gLINK::move_link(
 
         }
     }
-    // else if(type_dest==4){
-    //     if(layout==0 || layout==1) {
-
-    //     }
-    //     else {
-
-    //     }
-    // }
-
 
     link_points.push_back(Pos_dest);
-
-
-    // for(int i=0; i<2; i++) {
-    //     if(par_pos_s1[i]==-2) {}
-    //     else if(par_pos_s1[i]==-1) {
-    //         if(type_src==1) {
-    //             if(layout==0 || layout==1) Pos_s1[i] = (i==0? pos_middle[i]-pos_delta[i]/4 : Pos_src[i]);
-    //             else Pos_s1[i] = (i==1? pos_middle[i]-pos_delta[i]/4 : Pos_src[i]);
-    //         }
-    //         else {
-    //             if(type_dest==0) {
-    //                 if(layout==0 || layout==1) {
-    //                     Pos_s1[i] = (i==0? Pos_src.x : Pos_dest.y-smallestDelta);
-    //                 }
-    //                 else {
-    //                     Pos_s1[i] = (i==1? Pos_src.y : Pos_dest.x-smallestDelta);
-    //                 }
-    //                 std::cout /*<<pos_delta.x<<", "<<pos_delta.y<<" | "*/<< smallestDelta << std::endl;
-    //                 // Pos_s1[i] = pos_middle[i];
-    //             }
-    //             else Pos_s1[i] = Pos_src[i];
-    //         }
-    //         // Pos_s1[i] = pos_middle[i] - pos_delta[i]/4;
-    //     }
-    //     else Pos_s1[i] = par_pos_s1[i];
-    //     if(par_pos_d1[i]==-2) {}
-    //     else if(par_pos_d1[i]==-1) {
-    //         if(type_dest==0) {
-    //             if(layout==0 || layout==1) Pos_d1[i] = (i==0? pos_middle[i]+pos_delta[i]/4 : Pos_dest[i]);
-    //             else Pos_d1[i] = (i==1? pos_middle[i]-pos_delta[i]/4 : Pos_dest[i]);
-    //         }
-    //         else {
-    //             if(type_src==1) {
-    //                 if(layout==0 || layout==1) {
-    //                     Pos_d1[i] = (i==0? Pos_dest.x : Pos_src.y-smallestDelta);
-    //                 }
-    //                 else {
-    //                     Pos_d1[i] = (i==1? Pos_dest.y : Pos_src.x-smallestDelta);
-    //                 }
-    //                 // Pos_d1[i] = pos_middle[i];
-    //             }
-    //             else Pos_d1[i] = Pos_dest[i];
-    //         }
-    //         // Pos_d1[i] = pos_middle[i] + pos_delta[i]/4;
-    //     }
-    //     else Pos_d1[i] = par_pos_d1[i];
-    // }
-
 
 }
 void gNC::gLINK::draw_link(
@@ -379,7 +311,8 @@ void gNC::gLINK::draw_link(
     static ImU32 colour_bg      = IM_COL32(250, 241,  58, 204);
     static ImU32 colour_border  = IM_COL32(100, 100, 100, 255); //IM_COL32(102,  99, 28, 204);
 
-
+    static bool draw__lines = false;
+    static bool draw__points= false;
 
     /**
      * @brief add the relative drag screen offset
@@ -394,6 +327,7 @@ void gNC::gLINK::draw_link(
     /// number of segments to create for the quadratic bezier curve
     int bezierSegs = 10;
 
+    /// erase points with the same position
     for(int i=0; i<link_points.size()-1; i++) {
         if(link_points[i].x == link_points[i+1].x && link_points[i].y == link_points[i+1].y) {
             auto itr = link_points.begin();
@@ -403,6 +337,16 @@ void gNC::gLINK::draw_link(
         }
     }
 
+    /**
+     * @brief Dedicated function for solving direction identifier
+     * @param p0 `ImVec2` value of point 0
+     * @param p1 `Imvec2` value of point 1
+     * @return dedicated integer for the directions:
+     *  - `0` - positive x
+     *  - `1` - positive y
+     *  - `2` - negative x
+     *  - `3` - negative y
+     */
     static auto _define_prevAxis = [](ImVec2 p0, ImVec2 p1) {
         assert(!(p0.x==p1.x && p0.y==p1.y));
         ImVec2 delta(p1.x-p0.x, p1.y-p0.y);
@@ -448,92 +392,23 @@ void gNC::gLINK::draw_link(
         draw_win[0]->AddLine(addOffs(link_points[link_points.size()-2]), addOffs(link_points[link_points.size()-1]), colour_bg, 8);
     }
 
-    // for(int i=0; i<link_points.size()-1; i++) {
-    //     for(ImDrawList* el: draw_win) {
-    //         el->AddCircle(addOffs(link_points[i]), 10, IM_COL32(255, 10, 10, 255), 10, 2);
-    //         el->AddCircle(addOffs(link_points[i]), 3, colour_bg, 10, 3);
-    //         el->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), colour_bg);
-    //     }
-    // }
-    // for(ImDrawList* el: draw_win) {
-    //     el->AddCircle(addOffs(link_points[link_points.size()-1]), 10, IM_COL32(255, 10, 10, 255), 10, 2);
-    //     el->AddCircle(addOffs(link_points[link_points.size()-1]), 3, colour_bg, 10, 3);
-    // }
-    
-
-    return;
-
-    // pos2d point_C_src, point_C_dest;
-    // if(layout==0 || layout==1) {
-    //     if(type_src==1) point_C_src = pos2d(Pos_center.x, Pos_s1.y);
-    //     else            point_C_src = pos2d(Pos_s1.x, Pos_center.y);
-    //     if(type_dest==0)point_C_dest= pos2d(Pos_center.x, Pos_d1.y);
-    //     else            point_C_dest= pos2d(Pos_d1.x, Pos_center.y);
-    // }
-    // else {
-    //     if(type_src==1) point_C_src = pos2d(Pos_s1.x, Pos_center.y);
-    //     else            point_C_src = pos2d(Pos_center.x, Pos_s1.y);
-    //     if(type_dest==0)point_C_dest= pos2d(Pos_d1.x, Pos_center.y);
-    //     else            point_C_dest= pos2d(Pos_center.x, Pos_d1.y);
-    // }
-
-
-    // std::vector<pos2d> curveSrc = quadratic_bezier(
-    //     to_pos2d(Pos_s1),
-    //     (
-    //         (type_src==1 && (type_dest==2||type_dest==4)) || (type_dest==0 && (type_src==3 || type_src==5)) ?
-    //         to_pos2d(Pos_d1) : to_pos2d(Pos_center)
-    //     ),
-    //     point_C_src,
-    //     // ((layout==0 || layout==1)? pos2d(Pos_center.x, Pos_s1.y) : pos2d(Pos_s1.x, Pos_center.y)),
-    //     bezierSegs
-    // );
-    // std::vector<pos2d> curveDest(1, pos2d(-1, -1));
-    // if((type_src==1 && (type_dest==2 || type_dest==4)) || (type_dest==0 && (type_src==3 || type_src==5))) {
-    //     // curveDest = std::vector<pos2d>{to_pos2d(Pos_d1)};
-    //     std::cout << " [non veryiable] ";
-    // }
-    // else {
-    //     curveDest = quadratic_bezier(
-    //         to_pos2d(Pos_d1),
-    //         to_pos2d(Pos_center),
-    //         point_C_dest,
-    //         // ((layout==0 || layout==1)? pos2d(Pos_center.x, Pos_d1.y) : pos2d(Pos_d1.x, Pos_center.y)),
-    //         bezierSegs
-    //     );
-    // }
-
-    // for(ImDrawList* el: draw_win) {
-
-    //     el->AddLine(addOffs(Pos_src),  addOffs(Pos_s1), colour_border, 12);
-    //     el->AddLine(addOffs(Pos_dest), addOffs(Pos_d1), colour_border, 12);
-
-    //     // el->AddLine(addOffs(Pos_s1),   addOffs(Pos_d1), colour_border, 10);
-    //     for(size_t i=0; i<curveSrc.size()-1; i++) {
-    //         el->AddLine(addOffs(to_ImVec2(curveSrc[i])),  addOffs(to_ImVec2(curveSrc[i+1])),  colour_border, 12);
-    //     }
-    //     for(size_t i=0; i<curveDest.size()-1; i++) {
-    //         el->AddLine(addOffs(to_ImVec2(curveDest[i])), addOffs(to_ImVec2(curveDest[i+1])), colour_border, 12);
-    //     }
-    //     // std::cout << "-----"<<std::endl;
-    //     // el->AddLine(addOffs(to_ImVec2(curveSrc[bezierSegs-1])), addOffs(Pos_center), colour_border, 10);
-    //     // el->AddCircle(addOffs(Pos_center), 10, colour_border, 10);
-    //     // el->AddCircleFilled(addOffs(to_ImVec2(curveSrc.back())), 20, IM_COL32(255, 0, 0, 255), 10);
-    //     // std::cout << (&curveSrc.back())->getStr() << std::endl;
-    //     // std::cout << "---------" << std::endl;
-
-
-    //     el->AddLine(addOffs(Pos_src),  addOffs(Pos_s1), colour_bg, 8);
-    //     el->AddLine(addOffs(Pos_dest), addOffs(Pos_d1), colour_bg, 8);
-
-    //     for(size_t i=0; i<curveSrc.size()-1; i++) {
-    //         el->AddLine(addOffs(to_ImVec2(curveSrc[i])),  addOffs(to_ImVec2(curveSrc[i+1])),  colour_bg, 8);
-    //     }
-    //     for(size_t i=0; i<curveDest.size()-1; i++) {
-    //         el->AddLine(addOffs(to_ImVec2(curveDest[i])), addOffs(to_ImVec2(curveDest[i+1])), colour_bg, 8);
-    //     }
-    //     // el->AddLine(addOffs(Pos_s1),   addOffs(Pos_d1), colour_bg, 8);
-    // }
+    if(draw__lines || draw__points) {
+        for(int i=0; i<link_points.size()-1; i++) {
+            for(ImDrawList* el: draw_win) {
+                if(draw__points) {
+                    el->AddCircle(addOffs(link_points[i]), 10, IM_COL32(255, 10, 10, 255), 10, 2);
+                    el->AddCircle(addOffs(link_points[i]), 3, colour_bg, 10, 3);
+                }
+                if(draw__lines) el->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), colour_bg);
+            }
+        }
+        for(ImDrawList* el: draw_win) {
+            if(draw__points) {
+                el->AddCircle(addOffs(link_points[link_points.size()-1]), 10, IM_COL32(255, 10, 10, 255), 10, 2);
+                el->AddCircle(addOffs(link_points[link_points.size()-1]), 3, colour_bg, 10, 3);
+            }
+        }
+    }
 
 }
 
@@ -865,14 +740,6 @@ int gNC::guiNodeChart::NODE_move(
             ))
         );
 
-    
-        // ImVec2 connectPos1 = NODE_toMove->getConnectionPos(v);
-        // ImVec2 connectPos2 = (v==2 || v==3? NODE_toMove->getConnectionPos(v+2) : connectPos1);
-        
-        // for(int n=0; n<2; n++) {
-        //     connectPos1[n]+=NODE_toMove->pos[n];
-        //     connectPos2[n]+=NODE_toMove->pos[n];
-        // }
 
         for(gNC::gLINK* lnk: checkVec) {
 
@@ -882,11 +749,6 @@ int gNC::guiNodeChart::NODE_move(
                 (v==0 || v==2? addNODE(NODE_toMove->getConnectionPos(lnk->type_dest)): ImVec2(-1, -1)) 
             );
 
-            // float delta2, delta1;
-            // delta2 = getNDimDistance<ImVec2>(2, connectPos2, (v==0||v==2? lnk->Pos_src : lnk->Pos_dest));
-            // delta1 = getNDimDistance<ImVec2>(2, connectPos1, (v==0||v==2? lnk->Pos_src : lnk->Pos_dest));
-            // // std::cout << "["<<delta1<<", "<<delta2<<"] ";
-            // ImVec2& connectPos = (delta1 < delta2? connectPos1 : connectPos2);
             ImVec2 connectPos(NODE_toMove->getConnectionPos((v==1||v==3? lnk->type_src : lnk->type_dest)));
 
 
@@ -1325,11 +1187,10 @@ int gNC::guiNodeChart::draw() {
         }
 
 
-        if(ImGui::IsWindowFocused()) {
+        if(ImGui::IsWindowFocused() || !local_init) {
             if(!lockMove_node && pressed_keys->size() > 0 && searchVec<int>(*pressed_keys, 655) != -1) {
                 NODE_move(&(*itr), io.MouseDelta.x, io.MouseDelta.y, 1);
                 ImGui::SetWindowPos(ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]));
-
             }
         }
         else {
