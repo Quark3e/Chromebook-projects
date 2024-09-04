@@ -33,10 +33,21 @@ extern int mouseClick_right;
  */
 extern int mouseAction;
 
+/**
+ * whether left button click is dragging (left click is pressed and mousec coords are changing)
+ */
+extern bool mouseDrag_left;
 
 /// @brief rate at which the mouse lock value decays per iteration/frame 
 extern int mouseTimer_decay;
 
+/**
+ * Global variable to hold the current mouse action in an absolute state:
+ *  i.e. it's the same as `mouseAction`  but the state changes only if the new state isn't registered 
+ *  as `-1`, meaning this variable will hold the previous state even if the button is no longer pressed
+ * 
+ */
+extern int static_mouseAction;
 
 
 #endif

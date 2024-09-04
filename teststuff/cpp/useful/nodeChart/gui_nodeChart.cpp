@@ -1176,10 +1176,8 @@ int gNC::guiNodeChart::draw() {
             }
         }
 
-
         ImGui::Begin((*itr).addr.c_str(), NULL, win_flags);
         ImGui::SetWindowSize(ImVec2(((*itr).width), (*itr).height));
-
 
         if(!(*itr).init) {
             ImGui::SetWindowPos(ImVec2((*itr).pos[0], (*itr).pos[1]));
@@ -1204,10 +1202,9 @@ int gNC::guiNodeChart::draw() {
         ImGui::End();
     }
 
-    if(!bool_toHover_menu_node_clicked) toHover_menu__node_details = nullptr;
-    if(toHover_menu__node_details != nullptr) _menu__node_details(toHover_menu__node_details);
-    // std::cout << std::boolalpha << bool_toHover_menu_node_clicked<<std::endl;
 
+    if(toHover_menu__node_details != nullptr) _menu__node_details(toHover_menu__node_details);
+    if(!bool_toHover_menu_node_clicked && static_mouseAction!=1 && mouseDrag_left) toHover_menu__node_details = nullptr;
 
     if((mouseAction==0 || mouseAction==-1) && isKeyPressed(655, pressed_keys)) {
         lockMove_screen = false;
@@ -1227,6 +1224,7 @@ int gNC::guiNodeChart::draw() {
         }
     }
 
+    if(mouseAction!=-1) static_mouseAction = mouseAction;
     if(mouseAction!=0 || mouseAction==2) lockMove_screen  = true;
     if(mouseAction!=1 || mouseAction==2) lockMove_node    = true;
 

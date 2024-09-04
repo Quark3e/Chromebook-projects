@@ -129,6 +129,10 @@ int main(int argc, char** argv) {
                 if(ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
                     if(!lockMove_screen && isKeyPressed(655, pressed_keys)) {
                         proj0.setScreen_pos(io.MouseDelta.x, io.MouseDelta.y, 1);
+                        mouseDrag_left = true;
+                    }
+                    else {
+                        mouseDrag_left = false;
                     }
                 }
 

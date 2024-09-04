@@ -15,7 +15,11 @@ int mouseClick_right    = 0;
 
 int mouseAction         = -1;
 
+bool mouseDrag_left      = false;
 
 int mouseTimer_decay    = 20;
+
+
+int static_mouseAction= -1;
 
 
