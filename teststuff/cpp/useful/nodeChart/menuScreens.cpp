@@ -21,6 +21,10 @@ void gNC::_menu__node_details(
     static char inpBuff_desc[256];
     static char inpBuff_bodyT[256];
 
+    snprintf(inpBuff_title, IM_ARRAYSIZE(inpBuff_title), "%s", toDetail->label.c_str());
+    snprintf(inpBuff_desc,  IM_ARRAYSIZE(inpBuff_desc),  "%s", toDetail->desc.c_str());
+    snprintf(inpBuff_bodyT, IM_ARRAYSIZE(inpBuff_bodyT), "%s", toDetail->bodyText.c_str());
+
 
     if(ImGui::Begin(("Node details: "+toDetail->addr).c_str(), NULL, win_flags)) {
         ImGui::SetWindowSize(dim__menu__node_detail);
@@ -53,5 +57,8 @@ void gNC::_menu__node_details(
         ImGui::End();
     }
 
+    toDetail->label = inpBuff_title;
+    toDetail->desc  = inpBuff_desc;
+    toDetail->bodyText = inpBuff_bodyT;
 
 }
