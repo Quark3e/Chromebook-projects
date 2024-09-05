@@ -16,6 +16,8 @@ void gNC::_menu__node_details(
     static ImGuiInputTextFlags inpBuff_flags_desc   = 0;
     static ImGuiInputTextFlags inpBuff_flags_bodyT  = 0;
 
+    static ImGuiStyleVar inputText_flags_title  = 0;
+
 
     static char inpBuff_title[256];
     static char inpBuff_desc[256];
@@ -26,33 +28,36 @@ void gNC::_menu__node_details(
     snprintf(inpBuff_bodyT, IM_ARRAYSIZE(inpBuff_bodyT), "%s", toDetail->bodyText.c_str());
 
 
+
     if(ImGui::Begin(("Node details: "+toDetail->addr).c_str(), NULL, win_flags)) {
         ImGui::SetWindowSize(dim__menu__node_detail);
-        
-        ImGui::PushItemWidth(dim__menu__node_detail[0]);
-        ImGui::InputText("Test", inpBuff_title, sizeof(inpBuff_title));
-        ImGui::PopItemWidth();
 
-        ImGui::BeginChild("Title");
         ImGui::PushID("_title");
-        ImGui::SetCursorPosY(dim__menu__node_detail.y*0.01);
-        ImGui::InputText("Title:", inpBuff_title, sizeof(inpBuff_title), inpBuff_flags_title);
+        // ImGui::SetCursorPosY(dim__menu__node_detail.y*0.01);
+        ImGui::PushItemWidth(dim__menu__node_detail[0]-20);
+        ImGui::InputText("", inpBuff_title, sizeof(inpBuff_title), inpBuff_flags_title);
+        ImGui::PopItemWidth();
         ImGui::PopID();
-        ImGui::EndChild();
     
-        ImGui::BeginChild("Description");
         ImGui::PushID("_desc");
-        ImGui::SetCursorPosY(dim__menu__node_detail.y*0);
+        // ImGui::SetCursorPosY(dim__menu__node_detail.y*0);
+        ImGui::PushItemWidth(dim__menu__node_detail[0]-20);
         ImGui::InputText("", inpBuff_desc, sizeof(inpBuff_desc), inpBuff_flags_desc);
         ImGui::PopID();
-        ImGui::EndChild();
         
-        ImGui::BeginChild("BodyText");
         ImGui::PushID("_bodyText");
-        ImGui::SetCursorPosY(dim__menu__node_detail.y*0.2);
+        // ImGui::SetCursorPosY(dim__menu__node_detail.y*0.2);
+        ImGui::PushItemWidth(dim__menu__node_detail[0]-20);
         ImGui::InputText("", inpBuff_bodyT, sizeof(inpBuff_bodyT), inpBuff_flags_bodyT);
         ImGui::PopID();
+
+        // ImGui::PushStyleVar(inputText_flags_title, ImVec2(dim__menu__node_detail[0], 200));
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(10, 10, 10, 255));
+        ImGui::BeginChild("test", ImVec2(dim__menu__node_detail[0], 200));
+
         ImGui::EndChild();
+        ImGui::PopStyleColor();
+        // ImGui::PopStyleVar();
         
         ImGui::End();
     }
