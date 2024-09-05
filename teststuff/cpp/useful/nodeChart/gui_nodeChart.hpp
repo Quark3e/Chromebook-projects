@@ -331,7 +331,8 @@ namespace gNC {
      *  - `nullptr`: dont display node details menu
      *  - `{addr}` : display that address
      */
-    inline gNC::gNODE* toHover_menu__node_details = nullptr;
+    extern gNODE* toHover_menu__node_details;
+
     void _menu__node_details(gNC::gNODE* toDetail);
 
 }

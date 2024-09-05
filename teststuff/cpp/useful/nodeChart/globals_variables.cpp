@@ -22,4 +22,3 @@ int mouseTimer_decay    = 20;
 
 int static_mouseAction= -1;
 
-

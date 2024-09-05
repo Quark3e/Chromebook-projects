@@ -2,6 +2,9 @@
 
 #include "globals_includes.hpp"
 
+
+gNC::gNODE* gNC::toHover_menu__node_details = nullptr;
+
 /**
  * Get the relative (to node subspace) position of a node's connection point from the connection id
  * 
