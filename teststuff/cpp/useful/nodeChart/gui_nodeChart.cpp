@@ -1037,9 +1037,11 @@ bool _draw__node_cosmetics(
     ImDrawList* local_drawList = ImGui::GetWindowDrawList();
 
     ImGui::TextUnformatted((*itr).label.c_str());
+    ImGui::Separator();
     ImGui::TextUnformatted((*itr).desc.c_str());
-    ImGui::TextUnformatted((*itr).bodyText.c_str());
-    
+    ImGui::Separator();
+    ImGui::Text((*itr).bodyText.c_str());
+    ImGui::TextWrapped((*itr).bodyText.c_str());
 
     (*itr).draw_connection(std::vector<ImDrawList*>{local_drawList, win_draw_list}, nodePos);
 

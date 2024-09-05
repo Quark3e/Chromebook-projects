@@ -33,11 +33,6 @@ void gNC::_menu__node_details(
     static char inpBuff_desc[256];
     static char inpBuff_bodyT[1024 * 16];
 
-    snprintf(inpBuff_title, IM_ARRAYSIZE(inpBuff_title), "%s", toDetail->label.c_str());
-    snprintf(inpBuff_desc,  IM_ARRAYSIZE(inpBuff_desc),  "%s", toDetail->desc.c_str());
-    snprintf(inpBuff_bodyT, IM_ARRAYSIZE(inpBuff_bodyT), "%s", toDetail->bodyText.c_str());
-
-
 
     if(ImGui::Begin(("Node details: "+toDetail->addr).c_str(), NULL, win_flags)) {
         ImGui::SetWindowPos(ImGui::GetWindowPos());
@@ -45,15 +40,18 @@ void gNC::_menu__node_details(
         ImGui::SetWindowSize(dim__menu__node_detail);
 
         ImGui::PushItemWidth(-FLT_MIN);
-        ImGui::InputText("##_title", inpBuff_title, sizeof(inpBuff_title), inpBuff_flags_title);
+        ImGui::InputText("##_title", &(toDetail->label), inpBuff_flags_title);
     
+
+        ImGui::Separator();
         ImGui::PushItemWidth(-FLT_MIN);
-        ImGui::InputText("##_desc", inpBuff_desc, sizeof(inpBuff_desc), inpBuff_flags_desc);
+        ImGui::InputText("##_desc", &(toDetail->desc), inpBuff_flags_desc);
         
+        ImGui::Separator();
         ImGui::InputTextMultiline(
             "##_bodyText",
             &(toDetail->bodyText),
-            ImVec2(-FLT_MIN, ImGui::GetTextLineHeight()*5),
+            ImVec2(-FLT_MIN, ImGui::GetTextLineHeight()*10),
             inpBuff_flags_bodyT
         );
 
@@ -69,8 +67,5 @@ void gNC::_menu__node_details(
         ImGui::End();
     }
 
-    toDetail->label = inpBuff_title;
-    toDetail->desc  = inpBuff_desc;
-    // toDetail->bodyText = inpBuff_bodyT;
 
 }
