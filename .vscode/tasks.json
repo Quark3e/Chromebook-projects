@@ -193,6 +193,7 @@
 				"${fileDirname}/menuScreens.cpp",
 				"/usr/local/include/imgui/backends/imgui_impl_allegro5.cpp",
 				"/usr/local/include/imgui/imgui*.cpp",
+				"/usr/local/include/imgui/misc/cpp/imgui_stdlib.cpp",
 				"-lallegro",
 				"-lallegro_main",
 				"-lallegro_primitives",

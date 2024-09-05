@@ -2,6 +2,14 @@
 #include "globals_includes.hpp"
 
 
+ImGuiInputTextCallback resizeTest(
+    ImGuiInputTextCallbackData* data
+) {
+
+    std::cout<<"callback: "<<data->Buf << " size:"<<data->BufSize<<std::endl;
+    return 0;
+}
+
 void gNC::_menu__node_details(
     gNC::gNODE* toDetail
 ) {
@@ -9,14 +17,14 @@ void gNC::_menu__node_details(
 
     static ImGuiWindowFlags win_flags = 0;
     win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
-    win_flags |= ImGuiWindowFlags_NoMove;
+    // win_flags |= ImGuiWindowFlags_NoMove;
     win_flags |= ImGuiWindowFlags_NoCollapse;
 
     static ImGuiInputTextFlags inpBuff_flags_title  = 0;
     static ImGuiInputTextFlags inpBuff_flags_desc   = 0;
     static ImGuiInputTextFlags inpBuff_flags_bodyT  = 0;
 
-    
+
 
     static ImGuiStyleVar inputText_flags_title  = 0;
 
@@ -32,29 +40,22 @@ void gNC::_menu__node_details(
 
 
     if(ImGui::Begin(("Node details: "+toDetail->addr).c_str(), NULL, win_flags)) {
+        ImGui::SetWindowPos(ImGui::GetWindowPos());
+
         ImGui::SetWindowSize(dim__menu__node_detail);
 
-        ImGui::PushID("_title");
-        // ImGui::SetCursorPosY(dim__menu__node_detail.y*0.01);
         ImGui::PushItemWidth(-FLT_MIN);
-        ImGui::InputText("", inpBuff_title, sizeof(inpBuff_title), inpBuff_flags_title);
-        // ImGui::PopItemWidth();
-        ImGui::PopID();
+        ImGui::InputText("##_title", inpBuff_title, sizeof(inpBuff_title), inpBuff_flags_title);
     
-        ImGui::PushID("_desc");
-        // ImGui::SetCursorPosY(dim__menu__node_detail.y*0);
         ImGui::PushItemWidth(-FLT_MIN);
-        ImGui::InputText("", inpBuff_desc, sizeof(inpBuff_desc), inpBuff_flags_desc);
-        ImGui::PopID();
+        ImGui::InputText("##_desc", inpBuff_desc, sizeof(inpBuff_desc), inpBuff_flags_desc);
         
-        ImGui::PushID("_bodyText");
-        // ImGui::SetCursorPosY(dim__menu__node_detail.y*0.2);
-        // ImGui::PushItemWidth(dim__menu__node_detail[0]-20);
-        // ImGui::InputText("", inpBuff_bodyT, sizeof(inpBuff_bodyT), inpBuff_flags_bodyT);
-        ImGui::InputTextMultiline("##_bodyText", inpBuff_bodyT, IM_ARRAYSIZE(inpBuff_bodyT), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight()*16), inpBuff_flags_bodyT);
-
-        ImGui::PopID();
-
+        ImGui::InputTextMultiline(
+            "##_bodyText",
+            &(toDetail->bodyText),
+            ImVec2(-FLT_MIN, ImGui::GetTextLineHeight()*5),
+            inpBuff_flags_bodyT
+        );
 
 
         // ImGui::PushStyleVar(inputText_flags_title, ImVec2(dim__menu__node_detail[0], 200));
@@ -70,6 +71,6 @@ void gNC::_menu__node_details(
 
     toDetail->label = inpBuff_title;
     toDetail->desc  = inpBuff_desc;
-    toDetail->bodyText = inpBuff_bodyT;
+    // toDetail->bodyText = inpBuff_bodyT;
 
 }
