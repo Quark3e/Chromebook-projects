@@ -16,12 +16,14 @@ void gNC::_menu__node_details(
     static ImGuiInputTextFlags inpBuff_flags_desc   = 0;
     static ImGuiInputTextFlags inpBuff_flags_bodyT  = 0;
 
+    
+
     static ImGuiStyleVar inputText_flags_title  = 0;
 
 
     static char inpBuff_title[256];
     static char inpBuff_desc[256];
-    static char inpBuff_bodyT[256];
+    static char inpBuff_bodyT[1024 * 16];
 
     snprintf(inpBuff_title, IM_ARRAYSIZE(inpBuff_title), "%s", toDetail->label.c_str());
     snprintf(inpBuff_desc,  IM_ARRAYSIZE(inpBuff_desc),  "%s", toDetail->desc.c_str());
@@ -34,22 +36,26 @@ void gNC::_menu__node_details(
 
         ImGui::PushID("_title");
         // ImGui::SetCursorPosY(dim__menu__node_detail.y*0.01);
-        ImGui::PushItemWidth(dim__menu__node_detail[0]-20);
+        ImGui::PushItemWidth(-FLT_MIN);
         ImGui::InputText("", inpBuff_title, sizeof(inpBuff_title), inpBuff_flags_title);
-        ImGui::PopItemWidth();
+        // ImGui::PopItemWidth();
         ImGui::PopID();
     
         ImGui::PushID("_desc");
         // ImGui::SetCursorPosY(dim__menu__node_detail.y*0);
-        ImGui::PushItemWidth(dim__menu__node_detail[0]-20);
+        ImGui::PushItemWidth(-FLT_MIN);
         ImGui::InputText("", inpBuff_desc, sizeof(inpBuff_desc), inpBuff_flags_desc);
         ImGui::PopID();
         
         ImGui::PushID("_bodyText");
         // ImGui::SetCursorPosY(dim__menu__node_detail.y*0.2);
-        ImGui::PushItemWidth(dim__menu__node_detail[0]-20);
-        ImGui::InputText("", inpBuff_bodyT, sizeof(inpBuff_bodyT), inpBuff_flags_bodyT);
+        // ImGui::PushItemWidth(dim__menu__node_detail[0]-20);
+        // ImGui::InputText("", inpBuff_bodyT, sizeof(inpBuff_bodyT), inpBuff_flags_bodyT);
+        ImGui::InputTextMultiline("##_bodyText", inpBuff_bodyT, IM_ARRAYSIZE(inpBuff_bodyT), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight()*16), inpBuff_flags_bodyT);
+
         ImGui::PopID();
+
+
 
         // ImGui::PushStyleVar(inputText_flags_title, ImVec2(dim__menu__node_detail[0], 200));
         ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(10, 10, 10, 255));
