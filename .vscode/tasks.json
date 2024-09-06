@@ -93,7 +93,7 @@
 			],
 			"group": {
 				"kind": "build",
-				"isDefault": true
+				"isDefault": false
 			},
 			"detail": "compiler: /usr/bin/g++\nadds \"_EXE\" at the end to denote as executable"
 		},
@@ -149,7 +149,7 @@
 			],
 			"group": {
 				"kind": "build",
-				"isDefault": true
+				"isDefault": false
 			},
 			"detail": "compiler: /usr/bin/g++"
 		},

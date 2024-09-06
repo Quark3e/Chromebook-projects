@@ -14,7 +14,6 @@ template<typename _varType> int checkExistence(_varType toFind, _varType toSearc
 template<typename addrType> std::string ptrToStr(addrType toConv);
 
 
-
 namespace gNC {
 
 
@@ -331,12 +330,13 @@ namespace gNC {
      *  - `nullptr`: dont display node details menu
      *  - `{addr}` : display that address
      */
-    extern gNODE* toHover_menu__node_details;
+    extern gNODE* nodePtr_menu__node_details;
+
+
 
     void _menu__node_details(gNC::gNODE* toDetail);
-
+    void _menu__rightClick_default();
 }
-
 
 
 template<typename _varType> int checkExistence(_varType toFind, const std::vector<_varType>& toSearch) {

@@ -2,14 +2,6 @@
 #include "globals_includes.hpp"
 
 
-ImGuiInputTextCallback resizeTest(
-    ImGuiInputTextCallbackData* data
-) {
-
-    std::cout<<"callback: "<<data->Buf << " size:"<<data->BufSize<<std::endl;
-    return 0;
-}
-
 void gNC::_menu__node_details(
     gNC::gNODE* toDetail
 ) {
@@ -23,7 +15,6 @@ void gNC::_menu__node_details(
     static ImGuiInputTextFlags inpBuff_flags_title  = 0;
     static ImGuiInputTextFlags inpBuff_flags_desc   = 0;
     static ImGuiInputTextFlags inpBuff_flags_bodyT  = 0;
-
 
 
     static ImGuiStyleVar inputText_flags_title  = 0;
@@ -48,12 +39,7 @@ void gNC::_menu__node_details(
         ImGui::InputText("##_desc", &(toDetail->desc), inpBuff_flags_desc);
         
         ImGui::Separator();
-        ImGui::InputTextMultiline(
-            "##_bodyText",
-            &(toDetail->bodyText),
-            ImVec2(-FLT_MIN, ImGui::GetTextLineHeight()*10),
-            inpBuff_flags_bodyT
-        );
+        ImGui::InputTextMultiline("##_bodyText", &(toDetail->bodyText), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight()*10), inpBuff_flags_bodyT);
 
 
         // ImGui::PushStyleVar(inputText_flags_title, ImVec2(dim__menu__node_detail[0], 200));
@@ -67,5 +53,35 @@ void gNC::_menu__node_details(
         ImGui::End();
     }
 
+}
+
+
+void gNC::_menu__rightClick_default() {
+
+
+    if(ImGui::BeginMenu("RightClick menu")) {
+
+        ImGui::MenuItem("test", NULL, false, false);
+        if(ImGui::MenuItem("New")) {}
+        if(ImGui::MenuItem("Open", "Ctrl+O")) {}
+        if(ImGui::BeginMenu("Open Recent")) {
+            if(ImGui::MenuItem("sub0")) { std::cout << " sub0 "; }
+            if(ImGui::MenuItem("sub1")) { std::cout << " sub1 "; }
+            if(ImGui::BeginMenu("More..")) {
+                if(ImGui::MenuItem("subsub0")) { std::cout << " subsub0 "; }
+                if(ImGui::MenuItem("subsub1")) { std::cout << " subsub1 "; }
+                if(ImGui::MenuItem("subsub2")) { std::cout << " subsub2 "; }
+                ImGui::EndMenu();
+            }
+        }
+        if(ImGui::MenuItem("Save", "Ctrl+S")) {}
+        if(ImGui::MenuItem("Save As..")) {}
+
+        
+
+
+        ImGui::EndMenu();
+    }
 
 }
+

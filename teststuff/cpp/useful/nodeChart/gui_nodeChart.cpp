@@ -3,7 +3,7 @@
 #include "globals_includes.hpp"
 
 
-gNC::gNODE* gNC::toHover_menu__node_details = nullptr;
+gNC::gNODE* gNC::nodePtr_menu__node_details = nullptr;
 
 /**
  * Get the relative (to node subspace) position of a node's connection point from the connection id
@@ -1043,7 +1043,6 @@ bool _draw__node_cosmetics(
     ImGui::Separator();
     ImGui::TextUnformatted((*itr).desc.c_str());
     ImGui::Separator();
-    ImGui::Text((*itr).bodyText.c_str());
     ImGui::TextWrapped((*itr).bodyText.c_str());
 
     (*itr).draw_connection(std::vector<ImDrawList*>{local_drawList, win_draw_list}, nodePos);
@@ -1196,7 +1195,7 @@ int gNC::guiNodeChart::draw() {
 
         if(ImGui::IsWindowFocused() || !local_init) {
             // _menu__node_details(&(*itr));
-            toHover_menu__node_details  = &(*itr);
+            nodePtr_menu__node_details  = &(*itr);
             bool_toHover_menu_node_clicked   = true;
             if(!lockMove_node && pressed_keys->size() > 0 && isKeyPressed(655, pressed_keys)) {
                 NODE_move(&(*itr), io.MouseDelta.x, io.MouseDelta.y, 1);
@@ -1212,8 +1211,8 @@ int gNC::guiNodeChart::draw() {
     }
 
 
-    if(toHover_menu__node_details != nullptr) _menu__node_details(toHover_menu__node_details);
-    if(!bool_toHover_menu_node_clicked && static_mouseAction!=1 && mouseDrag_left) toHover_menu__node_details = nullptr;
+    if(nodePtr_menu__node_details != nullptr) _menu__node_details(nodePtr_menu__node_details);
+    if(!bool_toHover_menu_node_clicked && static_mouseAction!=1 && mouseDrag_left) nodePtr_menu__node_details = nullptr;
 
     if((mouseAction==0 || mouseAction==-1) && isKeyPressed(655, pressed_keys)) {
         lockMove_screen = false;
@@ -1237,6 +1236,10 @@ int gNC::guiNodeChart::draw() {
     if(mouseAction!=0 || mouseAction==2) lockMove_screen  = true;
     if(mouseAction!=1 || mouseAction==2) lockMove_node    = true;
 
+
+    if(isKeyPressed(656, pressed_keys)) {
+        _menu__rightClick_default();
+    }
 
     if(!local_init) local_init = true;
     return 0;
