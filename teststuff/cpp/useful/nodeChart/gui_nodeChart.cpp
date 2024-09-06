@@ -1096,7 +1096,7 @@ int gNC::guiNodeChart::draw() {
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
     #if _DEBUG
-    std::cout<< "{"<<std::setw(2)<< mouseAction<<","<<std::setw(3)<<mouseClick_left<<"} ";
+    std::cout<< "{"<<std::setw(2)<< mouseAction_left<<","<<std::setw(3)<<decay_mouseClick_left<<"} ";
     #endif
 
     bool bool_toHover_menu_node_clicked = false;
@@ -1131,58 +1131,52 @@ int gNC::guiNodeChart::draw() {
 
         int node_connect = _draw_NODEcheckConnects(itr, nodePos);
 
+
         if(isKeyPressed(655, pressed_keys)) {
-            #if _DEBUG
-            std::cout << "Mouse left pressed: ";
-            std::cout << std::setw(2) << node_connect << " ";
-            #endif
             if(node_connect==-1) {
-                if(inRegion(
-                    io.MousePos,
-                    nodePos,
-                    ImVec2(nodePos.x+(*itr).width, nodePos.y+(*itr).height)
-                )) {
-                    #if _DEBUG
-                    std::cout << "in region ";
-                    #endif
-                    if(mouseAction==1 || mouseAction==-1) {
+                if(inRegion(io.MousePos, nodePos, ImVec2(nodePos.x+(*itr).width, nodePos.y+(*itr).height))) { //region: Node
+                    if(mouseAction_left==1 || mouseAction_left==-1) {
                         lockMove_node = false;
-                        mouseAction = 1;
-                        mouseClick_left = 100;
-                        #if _DEBUG
-                        std::cout << " [node] ";
-                        #endif
+                        mouseAction_left = 1;
+                        decay_mouseClick_left = 100;
                     }
                 }
             }
-            else if(node_connect!=-1) {
-                if(mouseAction==2 || mouseAction==-1) {
+            else if(node_connect!=-1) { //region: Node connection
+                if(mouseAction_left==2 || mouseAction_left==-1) {
                     (*itr).state_connections[node_connect] = 2;
-                    #if _DEBUG
-                    switch (node_connect) {
-                    case 0: std::cout<<"["<<(*itr).addr<<" _in       ]"; break;
-                    case 1: std::cout<<"["<<(*itr).addr<<" _out      ]"; break;
-                    case 2: std::cout<<"["<<(*itr).addr<<" _add_0    ]"; break;
-                    case 3: std::cout<<"["<<(*itr).addr<<" _share_0  ]"; break;
-                    case 4: std::cout<<"["<<(*itr).addr<<" _add_1    ]"; break;
-                    case 5: std::cout<<"["<<(*itr).addr<<" _share_1  ]"; break;
-                    default:
-                        break;
-                    }
-                    #endif
-                    mouseAction = 2;
-                    mouseClick_left = 100;
+                    mouseAction_left = 2;
+                    decay_mouseClick_left = 100;
                 }
             }
         }
         else {
-            if(node_connect!=-1) {
-                (*itr).state_connections[node_connect] = 1;
+            if(node_connect!=-1) { (*itr).state_connections[node_connect] = 1; }
+            else if(mouseAction_left!=2) { for(int i=0; i<6; i++) if((*itr).state_connections[i]!=0) {(*itr).state_connections[i]=0;} }
+        }
+
+        if(isKeyPressed(656, pressed_keys)) {
+            if(node_connect==-1) {
+                if(inRegion(io.MousePos, nodePos, ImVec2(nodePos.x+(*itr).width, nodePos.y+(*itr).height))) {
+                    if(mouseAction_right==1 || mouseAction_right==-1) {
+                        mouseAction_right = 1;
+                        decay_mouseClick_right = 100;
+                    }
+                }
             }
-            else if(mouseAction!=2) {
-                for(int i=0; i<6; i++) if((*itr).state_connections[i]!=0) (*itr).state_connections[i]=0;
+            else if(node_connect!=-1) {
+                if(mouseAction_right==2 || mouseAction_right==-1) {
+                    (*itr).state_connections[node_connect] = 2;
+                    mouseAction_right = 2;
+                    decay_mouseClick_right = 100;
+                }
             }
         }
+        else {
+            if(node_connect!=-1) { (*itr).state_connections[node_connect] = 1; }
+            else if(mouseAction_right!=2) { for(int i=0; i<6; i+++) {if((*itr).state_connections[i]!=0) (*itr).state_connections[i]=0;} }
+        }
+
 
         ImGui::Begin((*itr).addr.c_str(), NULL, win_flags);
         ImGui::SetWindowSize(ImVec2(((*itr).width), (*itr).height));
@@ -1212,34 +1206,43 @@ int gNC::guiNodeChart::draw() {
 
 
     if(nodePtr_menu__node_details != nullptr) _menu__node_details(nodePtr_menu__node_details);
-    if(!bool_toHover_menu_node_clicked && static_mouseAction!=1 && mouseDrag_left) nodePtr_menu__node_details = nullptr;
+    if(!bool_toHover_menu_node_clicked && static_mouseAction_left!=1 && mouseDrag_left) nodePtr_menu__node_details = nullptr;
 
-    if((mouseAction==0 || mouseAction==-1) && isKeyPressed(655, pressed_keys)) {
+    if((mouseAction_left==0 || mouseAction_left==-1) && isKeyPressed(655, pressed_keys)) {
         lockMove_screen = false;
-        mouseAction = 0;
-        mouseClick_left = 100;
+        mouseAction_left = 0;
+        decay_mouseClick_left = 100;
         #if _DEBUG
         std::cout << " [screen]";
         #endif
     }
-    if(mouseAction!=-1) {
-        if(mouseClick_left>0) {
-            if(!isKeyPressed(655, pressed_keys)) mouseClick_left -= mouseTimer_decay;
+    if(mouseAction_left!=-1) {
+        if(decay_mouseClick_left>0) {
+            if(!isKeyPressed(655, pressed_keys)) decay_mouseClick_left -= mouseTimer_decay;
         }
         else {
-            mouseClick_left = 0;
-            mouseAction = -1;
+            decay_mouseClick_left = 0;
+            mouseAction_left = -1;
         }
     }
 
-    if(mouseAction!=-1) static_mouseAction = mouseAction;
-    if(mouseAction!=0 || mouseAction==2) lockMove_screen  = true;
-    if(mouseAction!=1 || mouseAction==2) lockMove_node    = true;
-
+    if(mouseAction_left!=-1) static_mouseAction_left = mouseAction_left;
+    if(mouseAction_left!=0 || mouseAction_left==2) lockMove_screen  = true;
+    if(mouseAction_left!=1 || mouseAction_left==2) lockMove_node    = true;
 
     if(isKeyPressed(656, pressed_keys)) {
-        _menu__rightClick_default();
+        if(mouseAction_right==-1 || mouseAction_right==0) {
+            ImGui::OpenPopup("_menu__rightClick__default");
+            // mouseAction_right = 0;
+        }
+        else if(mouseAction_right==1) {
+            ImGui::OpenPopup("_menu__rightClick__node");
+            // mouseAction_right =
+        }
     }
+    
+    _menu__rightClick(thisPtr);
+
 
     if(!local_init) local_init = true;
     return 0;

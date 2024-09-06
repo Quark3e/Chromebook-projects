@@ -56,32 +56,56 @@ void gNC::_menu__node_details(
 }
 
 
-void gNC::_menu__rightClick_default() {
+void gNC::_menu__rightClick(
+    guiNodeChart* chart,
+    gNODE* _node
+) {
+    static bool init = false;
 
+    static ImGuiIO& io = ImGui::GetIO();
 
-    if(ImGui::BeginMenu("RightClick menu")) {
+    if(ImGui::BeginPopup("_menu__rightClick__default")) {
 
-        ImGui::MenuItem("test", NULL, false, false);
-        if(ImGui::MenuItem("New")) {}
-        if(ImGui::MenuItem("Open", "Ctrl+O")) {}
-        if(ImGui::BeginMenu("Open Recent")) {
-            if(ImGui::MenuItem("sub0")) { std::cout << " sub0 "; }
-            if(ImGui::MenuItem("sub1")) { std::cout << " sub1 "; }
-            if(ImGui::BeginMenu("More..")) {
-                if(ImGui::MenuItem("subsub0")) { std::cout << " subsub0 "; }
-                if(ImGui::MenuItem("subsub1")) { std::cout << " subsub1 "; }
-                if(ImGui::MenuItem("subsub2")) { std::cout << " subsub2 "; }
-                ImGui::EndMenu();
-            }
+        ImGui::MenuItem("Default menu", NULL, false, false);
+        if(ImGui::MenuItem("Create Node")) {
+            chart->NODE_create(
+                io.MousePos.x + chart->screen_pos[0],
+                io.MousePos.y + chart->screen_pos[1],
+                "", "", ""
+            );
+            nodePtr_menu__node_details = chart->lastAdded_NODE();
         }
-        if(ImGui::MenuItem("Save", "Ctrl+S")) {}
-        if(ImGui::MenuItem("Save As..")) {}
-
-        
-
-
-        ImGui::EndMenu();
+        // if(ImGui::MenuItem("New")) {}
+        // if(ImGui::MenuItem("Open", "Ctrl+O")) {}
+        // if(ImGui::BeginMenu("Open Recent")) {
+        //     if(ImGui::MenuItem("sub0")) { }
+        //     if(ImGui::MenuItem("sub1")) { }
+        //     if(ImGui::BeginMenu("More..")) {
+        //         if(ImGui::MenuItem("subsub0")) { }
+        //         if(ImGui::MenuItem("subsub1")) { }
+        //         if(ImGui::MenuItem("subsub2")) { }
+        //         ImGui::EndMenu();
+        //     }
+        //     ImGui::EndMenu();
+        // }
+        // if(ImGui::MenuItem("Save", "Ctrl+S")) {}
+        // if(ImGui::MenuItem("Save As..")) {}
+            
+        ImGui::EndPopup();
+    }
+    if(ImGui::BeginPopup("_menu__rightClick__node")) {
+        assert(_node != nullptr);
+        ImGui::MenuItem("Node menu", NULL, false, false);
+        if(ImGui::MenuItem("Delete node")) {
+            
+        }
+        ImGui::EndPopup();
+    }
+    else {
+        mouseAction_right = -1;
     }
 
+
+    if(!init) init=true;
 }
 

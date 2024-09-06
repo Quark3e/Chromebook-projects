@@ -18,20 +18,29 @@ extern bool lockMove_node;
 /**
  * Left_mouse click decay lock
  */
-extern int mouseClick_left;
+extern int decay_mouseClick_left;
 /**
  * Right_mouse click decay lock
  */
-extern int mouseClick_right;
+extern int decay_mouseClick_right;
 
 /**
- * Global variable to hold the current mouse action:
+ * Global variable to hold current left mouse button action:
  *  `-1` default: no action
- *  ` 0` drag mouse: move screen
- *  ` 1` left mouse: move node
- *  ` 2` left mouse: drag node connection
+ *  ` 0` screen (drag mouse: move)
+ *  ` 1` node (left mouse: move)
+ *  ` 2` node connection (left mouse: drag)
  */
-extern int mouseAction;
+extern int mouseAction_left;
+
+/**
+ * Global variable to hold current right mouse button action
+ *  `-1` default: no action
+ *  ` 0` screen (default rightClick menu)
+ *  ` 1` node (node rightClick menu)
+ *  ` 2` node connection (node connection rightClick menu)
+ */
+extern int mouseAction_right;
 
 /**
  * whether left button click is dragging (left click is pressed and mousec coords are changing)
@@ -43,11 +52,11 @@ extern int mouseTimer_decay;
 
 /**
  * Global variable to hold the current mouse action in an absolute state:
- *  i.e. it's the same as `mouseAction`  but the state changes only if the new state isn't registered 
+ *  i.e. it's the same as `mouseAction_left`  but the state changes only if the new state isn't registered 
  *  as `-1`, meaning this variable will hold the previous state even if the button is no longer pressed
  * 
  */
-extern int static_mouseAction;
+extern int static_mouseAction_left;
 
 
 #endif
