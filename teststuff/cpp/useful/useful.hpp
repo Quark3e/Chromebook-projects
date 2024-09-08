@@ -350,6 +350,18 @@ struct pos2d {
         else return -1;
     }
 
+    template<typename varType>
+    inline varType findVal(std::vector<varType> toCheck, int toFind) {
+        int index = 0;
+        varType val = toCheck[0];
+        for(int i=0; i<toCheck.size(); i++) {
+            if(toFind==0 || toFind==2) {    if(toCheck[i]>val) { val=toCheck[i]; index=i; } }
+            else if(toFind==1 || toFind==3){if(toCheck[i]<val) { val=toCheck[i]; index=i; } }
+        }
+        if(toFind==0 || toFind==1) return val;
+        else if(toFind==2 || toFind==3) return index;
+        else return -1;
+    }
 
     static inline std::string dummyRef_stringOfVector_resultStrRef;
     /**

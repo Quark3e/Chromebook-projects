@@ -690,7 +690,8 @@ void tab_0(void) {
         ImGui::Separator();
 
         if(ImGui::BeginTable("IK_out", 6, table_flags_IK_out)) {
-            for(int i=0; i<6; i++) ImGui::TableSetupColumn(std::string("q["+std::to_string(i)+"]").c_str());
+            for(int i=0; i<6; i++)
+                ImGui::TableSetupColumn(std::string("q["+std::to_string(i)+"]").c_str());
             ImGui::TableHeadersRow();
             ImGui::TableNextRow();
             for(int i=0; i<6; i++) {

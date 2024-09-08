@@ -4,6 +4,8 @@
 
 
 gNC::gNODE* gNC::nodePtr_menu__node_details = nullptr;
+gNC::gNODE* gNC::nodePtr_menu__rightClick   = nullptr;
+
 
 /**
  * Get the relative (to node subspace) position of a node's connection point from the connection id
@@ -269,9 +271,9 @@ void gNC::gLINK::move_link(
     else {
         if(layout==0 || layout==1) {
             if(type_src==1) {
-                link_points.push_back(ImVec2(Pos_dest.x, link_points.back().y - (type_src-type_dest==1? offs_bigger : smallestDelta)*connDir_dest));
+                link_points.push_back(ImVec2(Pos_dest.x, link_points.back().y - (type_src-type_dest==1 && type_src!=1? offs_bigger : smallestDelta)*connDir_dest));
             }
-            if(type_src-type_dest==1) { //same side
+            if(type_src-type_dest==1 && type_src!=1) { //same side
                 link_points.push_back(ImVec2(
                     Pos_dest.x - PoN(pos_delta.x)*(pos_delta.x>pos_delta.y? offs_bigger : offs_smaller),
                     link_points.back().y
@@ -502,7 +504,7 @@ void gNC::guiNodeChart::update_connect(
 
         }
     }
-    if(toCheck->type_src-toCheck->type_dest==1) { // if connPoints are on the same side
+    if((toCheck->type_src-toCheck->type_dest==1) && toCheck->type_src!=1) { // if connPoints are on the same side
         if(
             ((abs(pos_delta_node.y) > (toCheck->min__node)*2))
         ) { //if connPoints are on the same side and have not reached minimal distance: convert to opposide side
@@ -655,6 +657,7 @@ int gNC::guiNodeChart::NODE_delete(gNC::gNODE* NODE_toDelete, bool leaveFloating
         " arg for node address does not exist in stored nodes."
     );
 
+
     if(!leaveFloating) {
         for(size_t i=0; i<4; i++) {
             const std::vector<gNC::gLINK*> linkVec = (
@@ -668,20 +671,26 @@ int gNC::guiNodeChart::NODE_delete(gNC::gNODE* NODE_toDelete, bool leaveFloating
 
             for(gNC::gLINK* plink: linkVec) {
                 if(NODE_toDelete==plink->src) {
-                    std::vector<gNC::gLINK*>& plink_type = (plink->type_dest==0? plink->dest->ln_in : plink->dest->ln_add);
+                    std::vector<gNC::gLINK*>& plink_type = (plink->type_dest==0? plink->dest->ln_in : plink->dest->ln_add); //corresponding opposite vector
                     for(gNC::gLINK* pplink: plink_type) {
-                        if(pplink==plink) plink_type.erase(this->_vecfind_ptr_itr<gNC::gLINK*>(plink_type, plink));
+                        if(pplink==plink) {
+                            plink_type.erase(this->_vecfind_ptr_itr<gNC::gLINK*>(plink_type, plink));
+                        }
                     }
                 }
                 else if(NODE_toDelete==plink->dest) {
                     std::vector<gNC::gLINK*>& plink_type = (plink->type_src==1? plink->src->ln_out : plink->src->ln_share);
                     for(gNC::gLINK* pplink: plink_type) {
-                        if(pplink==plink) plink_type.erase(this->_vecfind_ptr_itr<gNC::gLINK*>(plink_type, plink));
+                        if(pplink==plink) {
+                            plink_type.erase(this->_vecfind_ptr_itr<gNC::gLINK*>(plink_type, plink));
+                        }
                     }
                 }
                 itrToErase.push_back(this->_find_ptr_itr<gNC::gLINK>(this->_links, plink));
             }
-            for(auto itrs: itrToErase) this->_links.erase(itrs);
+            for(auto itrs: itrToErase) {
+                this->_links.erase(itrs);
+            }
         }
     }
     else if(leaveFloating) {
@@ -718,7 +727,6 @@ int gNC::guiNodeChart::NODE_move(
         " arg for gNC::gNODE address is invalid"
     );
 
-
     if(moveMode==0) {
         NODE_toMove->pos[0] = new_X;
         NODE_toMove->pos[1] = new_Y;
@@ -743,17 +751,13 @@ int gNC::guiNodeChart::NODE_move(
             ))
         );
 
-
         for(gNC::gLINK* lnk: checkVec) {
-
             update_connect(
                 lnk,
                 (v==1 || v==3? addNODE(NODE_toMove->getConnectionPos(lnk->type_src)) : ImVec2(-1, -1)),
                 (v==0 || v==2? addNODE(NODE_toMove->getConnectionPos(lnk->type_dest)): ImVec2(-1, -1)) 
             );
-
             ImVec2 connectPos(NODE_toMove->getConnectionPos((v==1||v==3? lnk->type_src : lnk->type_dest)));
-
 
             if(v==0 || v==2) { //in
                 lnk->move_link(ImVec2(-2, -2), addNODE(connectPos));
@@ -1160,6 +1164,7 @@ int gNC::guiNodeChart::draw() {
                 if(inRegion(io.MousePos, nodePos, ImVec2(nodePos.x+(*itr).width, nodePos.y+(*itr).height))) {
                     if(mouseAction_right==1 || mouseAction_right==-1) {
                         mouseAction_right = 1;
+                        nodePtr_menu__rightClick = &(*itr);
                         decay_mouseClick_right = 100;
                     }
                 }
@@ -1174,7 +1179,7 @@ int gNC::guiNodeChart::draw() {
         }
         else {
             if(node_connect!=-1) { (*itr).state_connections[node_connect] = 1; }
-            else if(mouseAction_right!=2) { for(int i=0; i<6; i+++) {if((*itr).state_connections[i]!=0) (*itr).state_connections[i]=0;} }
+            else if(mouseAction_right!=2) { for(int i=0; i<6; i++) {if((*itr).state_connections[i]!=0) (*itr).state_connections[i]=0;} }
         }
 
 
@@ -1231,17 +1236,23 @@ int gNC::guiNodeChart::draw() {
     if(mouseAction_left!=1 || mouseAction_left==2) lockMove_node    = true;
 
     if(isKeyPressed(656, pressed_keys)) {
-        if(mouseAction_right==-1 || mouseAction_right==0) {
+        if(mouseAction_right==0 || mouseAction_right==-1) {
             ImGui::OpenPopup("_menu__rightClick__default");
             // mouseAction_right = 0;
+            mouseAction_right = 0;
         }
         else if(mouseAction_right==1) {
             ImGui::OpenPopup("_menu__rightClick__node");
             // mouseAction_right =
         }
     }
-    
     _menu__rightClick(thisPtr);
+
+    // std::cout << mouseAction_left << " " << static_mouseAction_left << std::endl;
+
+    mouseAction_right = -1;
+    // nodePtr_menu__rightClick = nullptr;
+    
 
 
     if(!local_init) local_init = true;

@@ -332,9 +332,11 @@ namespace gNC {
      */
     extern gNODE* nodePtr_menu__node_details;
 
+    extern gNODE* nodePtr_menu__rightClick;
 
     void _menu__node_details(gNC::gNODE* toDetail);
-    void _menu__rightClick(guiNodeChart* chart, gNODE* _node = nullptr);
+    void _menu__link_details(gNC::gLINK* toDetail);
+    void _menu__rightClick(gNC::guiNodeChart* chart);
 }
 
 

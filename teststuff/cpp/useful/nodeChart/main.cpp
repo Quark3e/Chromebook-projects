@@ -172,7 +172,8 @@ int main(int argc, char** argv) {
                         "and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
                     ;
 
-                    proj0.LINK_create(&proj0[0], &proj0[2], 1, 0, "link0");
+                    proj0.LINK_create(0, 2, 1, 0, "link0");
+                    // proj0.LINK_create(&proj0[0], &proj0[2], 1, 0, "link0");
                     proj0.LINK_create(&proj0[1], &proj0[2], 3, 0, "link1");
                     proj0.LINK_create(&proj0[3], &proj0[1], 3, 2, "link2");
 
