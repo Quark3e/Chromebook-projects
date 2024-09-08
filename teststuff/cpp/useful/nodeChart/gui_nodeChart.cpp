@@ -490,11 +490,14 @@ void gNC::guiNodeChart::update_connect(
     if(destPos[0]==-1) destPos[0] = toCheck->Pos_dest.x;
     if(destPos[1]==-1) destPos[1] = toCheck->Pos_dest.y;
 
+    //error
+    ImVec2 pos_delta_node(
+        (node[1]!=nullptr? node[1]->pos[0] : destPos[0]) - (node[0]!=nullptr? node[0]->pos[0] : srcPos[0]),
+        (node[1]!=nullptr? node[1]->pos[1] : destPos[1]) - (node[0]!=nullptr? node[0]->pos[1] : srcPos[1])
+    );
 
-    ImVec2 pos_delta_node(node[1]->pos[0]-node[0]->pos[0], node[1]->pos[1]-node[0]->pos[1]);
 
-
-    if((toCheck->type_src==3 && toCheck->type_dest==4) || (toCheck->type_src==5 && toCheck->type_dest==2)) { // if connPoints are on opposite sides
+    if(node[1]!=nullptr && ((toCheck->type_src==3 && toCheck->type_dest==4) || (toCheck->type_src==5 && toCheck->type_dest==2))) { // if connPoints are on opposite sides
         if(
             (abs(node[0]->pos.y+node[0]->height - destPos.y) < toCheck->min__node) ||
             (abs(node[1]->pos.y+node[1]->height - srcPos.y)  < toCheck->min__node)
