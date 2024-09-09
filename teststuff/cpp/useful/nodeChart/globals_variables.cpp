@@ -24,3 +24,6 @@ int mouseTimer_decay    = 20;
 int static_mouseAction_left= -1;
 
 
+// int keyHistory_len = 100;
+// std::vector<int> keyHistory;
+// std::vector<int> keyHistory_mouseLeft;

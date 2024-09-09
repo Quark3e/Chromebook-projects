@@ -156,6 +156,7 @@ void gNC::_menu__rightClick(
         mouseAction_right = -1;
     }
 
+    // if(ImGui::MenuItem("_menu__rightClick_"))
 
     if(!init) init=true;
 }

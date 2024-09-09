@@ -5,6 +5,7 @@
 
 gNC::gNODE* gNC::nodePtr_menu__node_details = nullptr;
 gNC::gNODE* gNC::nodePtr_menu__rightClick   = nullptr;
+gNC::gNODE* gNC::nodePtr__dragConnect_nodeStart = nullptr;
 
 
 /**
@@ -1145,7 +1146,6 @@ int gNC::guiNodeChart::draw() {
             (nodePos.y + (*itr).height < 0  || nodePos.y > screen_dim[1])
         ) continue;
 
-
         ImGuiWindowFlags win_flags = 0;
         win_flags |= ImGuiWindowFlags_NoResize;
         win_flags |= ImGuiWindowFlags_NoCollapse;
@@ -1171,12 +1171,21 @@ int gNC::guiNodeChart::draw() {
                     (*itr).state_connections[node_connect] = 2;
                     mouseAction_left = 2;
                     decay_mouseClick_left = 100;
+                    if(nodePtr__dragConnect_nodeStart != &(*itr)) nodePtr__dragConnect_nodeStart = &(*itr);
                 }
             }
         }
         else {
-            if(node_connect!=-1) { (*itr).state_connections[node_connect] = 1; }
+            if(node_connect!=-1) {
+                (*itr).state_connections[node_connect] = 1;
+                if(mouseAction_left==2) {
+                    if(nodePtr__dragConnect_nodeStart != &(*itr)) {
+                        // this->LINK_create()
+                    }
+                }
+            }
             else if(mouseAction_left!=2) { for(int i=0; i<6; i++) if((*itr).state_connections[i]!=0) {(*itr).state_connections[i]=0;} }
+
         }
 
         if(isKeyPressed(656, pressed_keys)) {

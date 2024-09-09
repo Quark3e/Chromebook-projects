@@ -334,6 +334,12 @@ namespace gNC {
 
     extern gNODE* nodePtr_menu__rightClick;
 
+    /**
+     * Address to the start node in connection point drag
+     */
+    extern gNODE* nodePtr__dragConnect_nodeStart;
+
+
     void _menu__node_details(gNC::gNODE* toDetail);
     void _menu__link_details(gNC::gLINK* toDetail);
     void _menu__rightClick(gNC::guiNodeChart* chart);
