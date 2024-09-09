@@ -485,6 +485,16 @@ void gNC::guiNodeChart::update_connect(
 ) {
     std::vector<gNC::gNODE*> node = {toCheck->src, toCheck->dest};
 
+    /**
+     * Boolean array to check whether either node of the link `toCheck` is a "loose" end, i.e. a nullptr
+     * `[0]` - src
+     * `[1]` - dest
+     */
+    bool isNULL[2] = {
+        (node[0]==nullptr? true : false),
+        (node[1]==nullptr? true : false)
+    };
+
     if(srcPos[0]==-1) srcPos[0] = toCheck->Pos_src.x;
     if(srcPos[1]==-1) srcPos[1] = toCheck->Pos_src.y;
     if(destPos[0]==-1) destPos[0] = toCheck->Pos_dest.x;
@@ -492,12 +502,12 @@ void gNC::guiNodeChart::update_connect(
 
     //error
     ImVec2 pos_delta_node(
-        (node[1]!=nullptr? node[1]->pos[0] : destPos[0]) - (node[0]!=nullptr? node[0]->pos[0] : srcPos[0]),
-        (node[1]!=nullptr? node[1]->pos[1] : destPos[1]) - (node[0]!=nullptr? node[0]->pos[1] : srcPos[1])
+        (!isNULL[1]? node[1]->pos[0] : destPos[0]) - (!isNULL[0]? node[0]->pos[0] : srcPos[0]),
+        (!isNULL[1]? node[1]->pos[1] : destPos[1]) - (!isNULL[0]? node[0]->pos[1] : srcPos[1])
     );
 
 
-    if(node[1]!=nullptr && ((toCheck->type_src==3 && toCheck->type_dest==4) || (toCheck->type_src==5 && toCheck->type_dest==2))) { // if connPoints are on opposite sides
+    if(!isNULL[1] && ((toCheck->type_src==3 && toCheck->type_dest==4) || (toCheck->type_src==5 && toCheck->type_dest==2))) { // if connPoints are on opposite sides
         if(
             (abs(node[0]->pos.y+node[0]->height - destPos.y) < toCheck->min__node) ||
             (abs(node[1]->pos.y+node[1]->height - srcPos.y)  < toCheck->min__node)
@@ -514,40 +524,34 @@ void gNC::guiNodeChart::update_connect(
             // std::cout << "type_changed"<<std::endl;
             
             // toCheck->type_dest = (toCheck->type_src==3? 4 : 2);
-            if(node[0]->pos.y<node[1]->pos.y) {
-                toCheck->type_src  = node[0]->getConnectionType(3);
-                toCheck->type_dest = node[1]->getConnectionType(4);
+            if(
+                (isNULL[0]? srcPos[1]  : node[0]->pos.y) < 
+                (isNULL[1]? destPos[1] : node[1]->pos.y)
+            ) {
+                if(!isNULL[0]) toCheck->type_src  = node[0]->getConnectionType(3);
+                if(!isNULL[1]) toCheck->type_dest = node[1]->getConnectionType(4);
             }
             else {
-                toCheck->type_src  = node[0]->getConnectionType(5);
-                toCheck->type_dest = node[1]->getConnectionType(2);
+                if(!isNULL[0]) toCheck->type_src  = node[0]->getConnectionType(5);
+                if(!isNULL[1]) toCheck->type_dest = node[1]->getConnectionType(2);
             }
             
         }
     }
-    if(((toCheck->type_src ==3 || toCheck->type_src ==5) && toCheck->type_dest==0)) { // one side is share, other is in
-        // std::cout <<"type check: ";
-        if(toCheck->src->pos[1]+toCheck->src->height/2 < destPos[1]) {
+    if(!isNULL[0] && ((toCheck->type_src ==3 || toCheck->type_src ==5) && toCheck->type_dest==0)) { // one side is share, other is in
+        if(toCheck->src->pos[1] + toCheck->src->height/2 < destPos[1]) {
             toCheck->type_src = toCheck->src->getConnectionType(3);
-            // std::cout << toCheck->type_src;
-            // std::cout << "src_smaller ";
         }
         else if(toCheck->src->pos[1]+toCheck->src->height/2 > destPos[1]) {
             toCheck->type_src = toCheck->src->getConnectionType(5);
-            // std::cout << toCheck->type_src;
-            // std::cout << "src_bigger ";
         }  
     }
-    if(((toCheck->type_dest==2 || toCheck->type_dest==4) && toCheck->type_src ==1)) { // one side is add, other is out
+    if(!isNULL[1] && ((toCheck->type_dest==2 || toCheck->type_dest==4) && toCheck->type_src ==1)) { // one side is add, other is out
         if(toCheck->dest->pos[1]+toCheck->dest->height/2 < srcPos[1]) {
             toCheck->type_dest= toCheck->dest->getConnectionType(2);
-            // std::cout << toCheck->type_dest;
-            // std::cout << "dest_smaller ";
         }
         else if(toCheck->dest->pos[1]+toCheck->dest->height/2 > srcPos[1]) {
             toCheck->type_dest= toCheck->dest->getConnectionType(4);
-            // std::cout << toCheck->type_dest;
-            // std::cout << "dest_bigger ";
         }
     }
 
