@@ -49,6 +49,11 @@ void gNC::_menu__node_details(
         ImGui::BeginGroup();
         if(ImGui::BeginChild("##window_node_links", ImVec2(-FLT_MIN, 0))) {
             if(ImGui::BeginTable("node_links", 3, node_links_table_flags, ImVec2(dim__menu__node_detail.x-_win_widthOffset, 0))) {
+                ImGui::TableSetupColumn("Type");
+                ImGui::TableSetupColumn("Link");
+                ImGui::TableSetupColumn("Node");
+                ImGui::TableHeadersRow();
+                
                 for(int v=0; v<4; v++) {
                     std::vector<gNC::gLINK*>& vecRef = (v==0? toDetail->ln_in : (v==1? toDetail->ln_out : (v==2? toDetail->ln_add : toDetail->ln_share)));
                     ImGui::TableNextRow();

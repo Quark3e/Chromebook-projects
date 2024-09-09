@@ -130,7 +130,7 @@
 			"detail": "compiler: /usr/bin/g++\nadds \"_EXE\" at the end to denote as executable"
 		}, {
 			"type": "cppbuild",
-			"label": "gui_NodeChart C/C++: g++ build dedicated file and run build",
+			"label": "gui_NodeChart C/C++: g++ build dedicated file with library",
 			"command": "/usr/bin/g++",
 			"args": [
 				"-DIMGUI_USER_CONFIG=\\\"/usr/local/include/imgui/examples/example_allegro5/imconfig_allegro5.h\\\"",

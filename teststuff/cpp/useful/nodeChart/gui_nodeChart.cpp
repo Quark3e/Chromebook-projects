@@ -115,7 +115,6 @@ void gNC::gLINK::move_link(
      * else: update it
      */
 
-
     if(par_pos_src.x  != -2) Pos_src.x  = par_pos_src.x;
     if(par_pos_src.y  != -2) Pos_src.y  = par_pos_src.y;
     if(par_pos_dest.x != -2) Pos_dest.x = par_pos_dest.x;
@@ -141,8 +140,8 @@ void gNC::gLINK::move_link(
     */
     int connDir_dest= -1;
     int connDir_src = -1;
-    if(type_dest!= 0) connDir_dest= PoN(dest->getConnectionPos(type_dest).y - dest->height/2); // / abs(dest->getConnectionPos(type_dest).y - dest->height/2);
-    if(type_src != 1) connDir_src = PoN(src->getConnectionPos(type_src).y - src->height/2); /// abs(src->getConnectionPos(type_src).y - src->height/2);
+    if(type_dest!= 0 && dest) connDir_dest= PoN(dest->getConnectionPos(type_dest).y - dest->height/2); // / abs(dest->getConnectionPos(type_dest).y - dest->height/2);
+    if(type_src != 1 && src) connDir_src = PoN(src->getConnectionPos(type_src).y - src->height/2); /// abs(src->getConnectionPos(type_src).y - src->height/2);
 
 
     /**
@@ -483,16 +482,29 @@ void gNC::guiNodeChart::update_connect(
     ImVec2 srcPos,
     ImVec2 destPos
 ) {
-    std::vector<gNC::gNODE*> node = {toCheck->src, toCheck->dest};
+
+
+    std::vector<gNC::gNODE*> node = {
+        toCheck->src, toCheck->dest
+    };
+
+    // if(!node[0]) {
+    //     std::cout<<"is nullptr: ";
+    //     std::cout.flush();
+    //     // std::cout << std::endl;
+    // }
+    // // std::cout << "nullptr="<<nullptr<<" : ";
+    // std::cout << node[0] << " | " <<node[1] << std::endl;
+
 
     /**
      * Boolean array to check whether either node of the link `toCheck` is a "loose" end, i.e. a nullptr
      * `[0]` - src
      * `[1]` - dest
      */
-    bool isNULL[2] = {
-        (node[0]==nullptr? true : false),
-        (node[1]==nullptr? true : false)
+    std::vector<bool> isNULL{
+        (!node[0]? true : false),
+        (!node[1]? true : false)
     };
 
     if(srcPos[0]==-1) srcPos[0] = toCheck->Pos_src.x;
@@ -512,7 +524,6 @@ void gNC::guiNodeChart::update_connect(
             (abs(node[0]->pos.y+node[0]->height - destPos.y) < toCheck->min__node) ||
             (abs(node[1]->pos.y+node[1]->height - srcPos.y)  < toCheck->min__node)
         ) {
-            // std::cout << "type changed"<<std::endl;
             toCheck->type_dest = (toCheck->type_src==3? 2 : 4); //convert them to same side
 
         }
@@ -521,7 +532,6 @@ void gNC::guiNodeChart::update_connect(
         if(
             ((abs(pos_delta_node.y) > (toCheck->min__node)*2))
         ) { //if connPoints are on the same side and have not reached minimal distance: convert to opposide side
-            // std::cout << "type_changed"<<std::endl;
             
             // toCheck->type_dest = (toCheck->type_src==3? 4 : 2);
             if(
@@ -712,6 +722,7 @@ int gNC::guiNodeChart::NODE_delete(gNC::gNODE* NODE_toDelete, bool leaveFloating
             for(gNC::gLINK* plink: linkVec) {
                 if(NODE_toDelete==plink->src)       plink->src  = nullptr;
                 else if(NODE_toDelete==plink->dest) plink->dest = nullptr;
+
             }
         }
     }
@@ -734,6 +745,7 @@ int gNC::guiNodeChart::NODE_move(
         " arg for gNC::gNODE address is invalid"
     );
 
+
     if(moveMode==0) {
         NODE_toMove->pos[0] = new_X;
         NODE_toMove->pos[1] = new_Y;
@@ -744,10 +756,10 @@ int gNC::guiNodeChart::NODE_move(
     }
     else if(moveMode==-1) {}
 
-
     auto addNODE = [NODE_toMove](ImVec2 toChange) {
         return ImVec2(toChange.x+NODE_toMove->pos[0], toChange.y+NODE_toMove->pos[1]);
     };
+
 
     for(int v=0; v<4; v++) {
         std::vector<gNC::gLINK*>& checkVec = (
@@ -759,6 +771,7 @@ int gNC::guiNodeChart::NODE_move(
         );
 
         for(gNC::gLINK* lnk: checkVec) {
+
             update_connect(
                 lnk,
                 (v==1 || v==3? addNODE(NODE_toMove->getConnectionPos(lnk->type_src)) : ImVec2(-1, -1)),
@@ -768,11 +781,11 @@ int gNC::guiNodeChart::NODE_move(
 
             if(v==0 || v==2) { //in
                 lnk->move_link(ImVec2(-2, -2), addNODE(connectPos));
-                if(moveMode!=-1) NODE_move(lnk->src,  0, 0, -1);
+                if(moveMode!=-1 && lnk->src) NODE_move(lnk->src,  0, 0, -1);
             }
             else if(v==1 || v==3) { //out
                 lnk->move_link(addNODE(connectPos), ImVec2(-2, -2));
-                if(moveMode!=-1) NODE_move(lnk->dest, 0, 0, -1);
+                if(moveMode!=-1 && lnk->dest) NODE_move(lnk->dest, 0, 0, -1);
             }
         }
     }
