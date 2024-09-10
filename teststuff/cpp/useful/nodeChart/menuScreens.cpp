@@ -162,5 +162,3 @@ void gNC::_menu__rightClick(
     if(!init) init=true;
 }
 
-
-
