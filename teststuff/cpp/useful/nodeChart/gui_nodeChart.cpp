@@ -491,20 +491,9 @@ void gNC::guiNodeChart::update_connect(
     ImVec2 srcPos,
     ImVec2 destPos
 ) {
-
-
     std::vector<gNC::gNODE*> node = {
         toCheck->src, toCheck->dest
     };
-
-    // if(!node[0]) {
-    //     std::cout<<"is nullptr: ";
-    //     std::cout.flush();
-    //     // std::cout << std::endl;
-    // }
-    // // std::cout << "nullptr="<<nullptr<<" : ";
-    // std::cout << node[0] << " | " <<node[1] << std::endl;
-
 
     /**
      * Boolean array to check whether either node of the link `toCheck` is a "loose" end, i.e. a nullptr
@@ -883,28 +872,15 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create(
     ImVec2 srcPos  = NODE_src->getConnectionPos(type_src);
     ImVec2 destPos = NODE_dest->getConnectionPos(type_dest);
 
-    // _lastAddedLink->Pos_src = ImVec2(NODE_src->pos[0]+srcPos.x, NODE_src->pos[1]+srcPos.y);
-    // _lastAddedLink->Pos_dest = ImVec2(NODE_dest->pos[0]+destPos.x, NODE_dest->pos[1]+destPos.y);
-    // ImVec2 pos_delta = ImVec2(_lastAddedLink->Pos_dest.x - _lastAddedLink->Pos_src.x, _lastAddedLink->Pos_dest.y - _lastAddedLink->Pos_src.y);
-    // ImVec2 halfWayPoint = ImVec2(_lastAddedLink->Pos_src.x + pos_delta.x/2, _lastAddedLink->Pos_src.y + pos_delta.y/2);
-    // _lastAddedLink->Pos_s1 = pos_interm_src;
-    // _lastAddedLink->Pos_d1 = pos_interm_dest;
-    // if(pos_interm_src.x==-1) _lastAddedLink->Pos_s1.x =  halfWayPoint.x - pos_delta.x/4;
-    // if(pos_interm_src.y==-1) _lastAddedLink->Pos_s1.y =  halfWayPoint.y - pos_delta.y/4;
-    // if(pos_interm_dest.x==-1) _lastAddedLink->Pos_d1.x =  halfWayPoint.x + pos_delta.x/4;
-    // if(pos_interm_dest.y==-1) _lastAddedLink->Pos_d1.y =  halfWayPoint.y + pos_delta.y/4;
-    // if(type_src==3 || type_src==5)  _lastAddedLink->Pos_s1 = _lastAddedLink->Pos_src;   //type_src is `share`
-    // if(type_dest==2 || type_dest==4)_lastAddedLink->Pos_d1 = _lastAddedLink->Pos_dest;  //type_dest is `add`
 
     update_connect(_lastAddedLink, srcPos, destPos);
     _lastAddedLink->move_link(
         add_nodePos(srcPos,  NODE_src),
         add_nodePos(destPos, NODE_dest)
-        // ImVec2(NODE_src->pos[0]+srcPos.x,   NODE_src->pos[1]+srcPos.y),
-        // ImVec2(NODE_dest->pos[0]+destPos.x, NODE_dest->pos[1]+destPos.y)
-        // (type_src!=1?  ImVec2(NODE_src->pos[0]+srcPos.x,   NODE_src->pos[1]+srcPos.y)   : ImVec2(-1, -1)),
-        // (type_dest!=0? ImVec2(NODE_dest->pos[0]+destPos.x, NODE_dest->pos[1]+destPos.y) : ImVec2(-1, -1))
     );
+    
+    NODE_move(NODE_src,  0, 0, -1);
+    NODE_move(NODE_dest, 0, 0, -1);
 
     return this->_lastAddedLink;
 }
@@ -1185,7 +1161,6 @@ int gNC::guiNodeChart::draw() {
                             dragConnectCreate_tempLink.type_dest= node_connect;
                             dragConnectCreate_tempLink.Pos_dest  = add_nodePos((*itr).getConnectionPos(node_connect), &(*itr));
                             dragConnectCreate_startedEnd = 0;
-                            std::cout << "init: dest: ";
 
                         }
                         else { //started at src node point
@@ -1193,7 +1168,6 @@ int gNC::guiNodeChart::draw() {
                             dragConnectCreate_tempLink.type_src = node_connect;
                             dragConnectCreate_tempLink.Pos_src = add_nodePos((*itr).getConnectionPos(node_connect), &(*itr));
                             dragConnectCreate_startedEnd = 1;
-                            std::cout << "init: src: ";
                         }
                     }
                     mouseAction_left = 2;
@@ -1223,9 +1197,6 @@ int gNC::guiNodeChart::draw() {
                                 dragConnectCreate_tempLink.dest = &(*itr);
                                 dragConnectCreate_tempLink.type_dest = node_connect;
                             }
-
-                            std::cout<< "type:["<< dragConnectCreate_tempLink.type_src<<", "<<dragConnectCreate_tempLink.type_dest<<"] ";
-                            std::cout<<dragConnectCreate_tempLink.src << ", "<<dragConnectCreate_tempLink.dest<<std::endl;
 
                             this->LINK_create(
                                 dragConnectCreate_tempLink.src,

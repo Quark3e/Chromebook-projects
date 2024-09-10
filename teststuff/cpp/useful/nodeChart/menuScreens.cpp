@@ -120,14 +120,15 @@ void gNC::_menu__rightClick(
     static bool init = false;
 
     static ImGuiIO& io = ImGui::GetIO();
+    ImVec2 mousePos_temp = io.MousePos;
 
     if(ImGui::BeginPopup("_menu__rightClick__default")) {
 
         ImGui::MenuItem("Default menu", NULL, false, false);
         if(ImGui::MenuItem("Create Node")) {
             chart->NODE_create(
-                io.MousePos.x + chart->screen_pos[0],
-                io.MousePos.y + chart->screen_pos[1],
+                mousePos_temp.x - chart->screen_pos[0],
+                mousePos_temp.y - chart->screen_pos[1],
                 "", "", ""
             );
             nodePtr_menu__node_details = chart->lastAdded_NODE();
