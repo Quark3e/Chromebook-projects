@@ -139,17 +139,21 @@ void gNC::_menu__rightClick(
     if(ImGui::BeginPopup("_menu__rightClick__node")) {
         assert(nodePtr_menu__rightClick != nullptr);
         ImGui::MenuItem("Node menu", NULL, false, false);
-        if(ImGui::BeginMenu("Delete node")) {
-            if(ImGui::MenuItem("complete delete")) {
-                if(nodePtr_menu__node_details == nodePtr_menu__rightClick) nodePtr_menu__node_details = nullptr;
-                chart->NODE_delete(nodePtr_menu__rightClick);
-            }
-            if(ImGui::MenuItem("loose delete")) {
-                if(nodePtr_menu__node_details == nodePtr_menu__rightClick) nodePtr_menu__node_details = nullptr;
-                chart->NODE_delete(nodePtr_menu__rightClick, true);
-            }
-            ImGui::EndMenu();
+        if(ImGui::MenuItem("Delete node")) {
+            if(nodePtr_menu__node_details == nodePtr_menu__rightClick) nodePtr_menu__node_details = nullptr;
+            chart->NODE_delete(nodePtr_menu__rightClick);
         }
+        // if(ImGui::BeginMenu("Delete node")) {
+        //     if(ImGui::MenuItem("complete delete")) {
+        //         if(nodePtr_menu__node_details == nodePtr_menu__rightClick) nodePtr_menu__node_details = nullptr;
+        //         chart->NODE_delete(nodePtr_menu__rightClick);
+        //     }
+        //     if(ImGui::MenuItem("loose delete")) {
+        //         if(nodePtr_menu__node_details == nodePtr_menu__rightClick) nodePtr_menu__node_details = nullptr;
+        //         chart->NODE_delete(nodePtr_menu__rightClick, true);
+        //     }
+        //     ImGui::EndMenu();
+        // }
         // if(ImGui::MenuItem("Delete node")) {}
         ImGui::EndPopup();
     }
