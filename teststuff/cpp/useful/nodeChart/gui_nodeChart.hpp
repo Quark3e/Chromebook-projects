@@ -8,10 +8,10 @@
 
 
 
-template<typename _varType> int checkExistence(_varType toFind, const std::vector<_varType>& toSearch);
-template<typename _varType> int checkExistence(_varType toFind, const std::list<_varType>& toSearch);
-template<typename _varType> int checkExistence(_varType toFind, _varType toSearch[], int arrLen);
-template<typename addrType> std::string ptrToStr(addrType toConv);
+// extern template<typename _varType> int checkExistence(_varType toFind, const std::vector<_varType>& toSearch);
+// extern template<typename _varType> int checkExistence(_varType toFind, const std::list<_varType>& toSearch);
+// extern template<typename _varType> int checkExistence(_varType toFind, _varType toSearch[], int arrLen);
+// extern template<typename addrType> std::string ptrToStr(addrType toConv);
 
 
 namespace gNC {
@@ -26,6 +26,7 @@ namespace gNC {
     // static auto add_nodePos = [](ImVec2 addTo, gNC::gNODE* toAdd) { return ImVec2(addTo.x+toAdd->pos[0], addTo.y+toAdd->pos[1]); };
 
     struct gLINK {
+        bool _init = false;
         std::string addr    = ""; // `std::string` of this `gNC::gLINK` instance/object address
 
         std::string label   = ""; //[optional]
@@ -35,15 +36,15 @@ namespace gNC {
          * Integer code for source type: Whether it's "out" or "share":
          * - {`out`: `1`, `share_0`: `3`, `share_1`: `5`}
          */
-        int type_src;
+        int type_src    = -1;
         /**
          * Integer code for dest type: WHether it's "in" our "add"
          * - {`in`: `0`, `add_0`: `2`, `add_1`: `4`}
          */
-        int type_dest;
+        int type_dest   = -0;
 
-        gNC::gNODE* src;    // link source
-        gNC::gNODE* dest;   // link destination
+        gNC::gNODE* src = nullptr;  // link source
+        gNC::gNODE* dest= nullptr;  // link destination
 
 
         /**
@@ -75,7 +76,16 @@ namespace gNC {
          */
         std::vector<ImVec2> link_points;
 
-
+        /**
+         * @brief Construct a new gLINK object
+         * 
+         * @param par_type_src type of src connection: {`out`: `1`, `share0`: `3`, `share1`: `5`}
+         * @param par_type_dest type of dest conneciton: {`in`: `0`, `add0`: `2`, `add1`: `4`}
+         * @param par_src `gNC::gNODE*` to src node
+         * @param par_dest `gNC::gNODE*` to dest node
+         * @param par_label `std::string` of link label
+         * @param par_desc `std::string` of link desc
+         */
         gLINK(
             int par_type_src, int par_type_dest,
             gNC::gNODE* par_src, gNC::gNODE* par_dest,
@@ -90,7 +100,13 @@ namespace gNC {
             this->dest = par_dest;
             this->label = par_label;
             this->desc  = par_desc;
+            _init = true;
         }
+        /**
+         * @brief Default constructor for gNC::gLINK
+         * 
+         */
+        gLINK() {};
         void move_link(ImVec2 par_pos_src=ImVec2(-1, -1), ImVec2 par_pos_dest=ImVec2(-1, -1)/*, ImVec2 par_pos_s1=ImVec2(-1, -1), ImVec2 par_pos_d1=ImVec2(-1, -1)*/);
         void draw_link(std::vector<ImDrawList*> draw_win, ImVec2 screen_offset);
     };
@@ -335,40 +351,34 @@ namespace gNC {
     extern gNODE* nodePtr_menu__rightClick;
 
     /**
-     * Address to the start node in connection point drag
+     * Address to the start node which a dragConnectCreate action has been started
      */
-    extern gNODE* nodePtr__dragConnect_nodeStart;
+    extern gNODE* nodePtr__dragConnectCreate_start;
 
+
+
+    /**
+     * Intermediate link object for creating links with drag and connect/drop.
+     * Link end nodes `src` and `dest` are set to `nullptr` and type_{`src`/`dest`} are set to -1.
+     * No member functions can/should be called with this link.
+     * When a drag and connect action has started at the start node, the member variable `_init` will be set to `true`.
+     */
+    extern gLINK dragConnectCreate_tempLink;
+
+    /**
+     * `dragConnectCreate_tempLink` link formation option:
+     * "`Whether a likn creation should be snapped into creation without the user having to specifically drop the link
+     * at the correct connection point, but instead only have to drop it on the node and it'll auto snap to place`"
+     * `0` - `false`: do not use this feature. The user has to drop the link correctly
+     * `1` - `true` : do use this feature, and have it snap in on either `in` or `out`
+     * `>1`- `true` : do use this feature, and have it snap in on either `add` or `share`
+     */
+    extern int option_dragConnectCreate_tempLink_snapIn;
 
     void _menu__node_details(gNC::gNODE* toDetail);
     void _menu__link_details(gNC::gLINK* toDetail);
     void _menu__rightClick(gNC::guiNodeChart* chart);
 }
-
-
-template<typename _varType> int checkExistence(_varType toFind, const std::vector<_varType>& toSearch) {
-    for(size_t i=0; i<toSearch.size(); i++) {
-        if(toSearch.at(i)==toFind) return static_cast<int>(i);
-    }
-    return -1;
-}
-template<typename _varType> int checkExistence(_varType toFind, const std::list<_varType>& toSearch) {
-    int count=0;
-    for(auto itr=toSearch.begin(); itr!=toSearch.end(); ++itr) {
-        if(*itr==toFind) return count;
-
-        count++;
-    }
-
-    return -1;
-}
-template<typename _varType> int checkExistence(_varType toFind, _varType toSearch[], int arrLen) {
-    for(int i=0; i<arrLen; i++) {
-        if(toSearch[i]==toFind) return i;
-    }
-    return -1;
-}
-
 
 
 

@@ -103,4 +103,40 @@ inline bool inRegion(
 }
 
 
+
+template<typename _varType> inline int checkExistence(_varType toFind, std::initializer_list<_varType> toSearch) {
+    int count=0;
+    for(auto itr=toSearch.begin(); itr!=toSearch.end(); ++itr) {
+        if(*itr==toFind) return count;
+        count++;
+    }
+    return -1;
+}
+template<typename _varType> inline int checkExistence(_varType toFind, const std::vector<_varType>& toSearch) {
+    for(size_t i=0; i<toSearch.size(); i++) {
+        if(toSearch.at(i)==toFind) return static_cast<int>(i);
+    }
+    return -1;
+}
+template<typename _varType> inline int checkExistence(_varType toFind, const std::list<_varType>& toSearch) {
+    int count=0;
+    for(auto itr=toSearch.begin(); itr!=toSearch.end(); ++itr) {
+        if(*itr==toFind) return count;
+
+        count++;
+    }
+
+    return -1;
+}
+template<typename _varType> inline int checkExistence(_varType toFind, _varType toSearch[], int arrLen) {
+    for(int i=0; i<arrLen; i++) {
+        if(toSearch[i]==toFind) return i;
+    }
+    return -1;
+}
+
+
+
+
+
 #endif

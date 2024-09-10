@@ -5,8 +5,10 @@
 
 gNC::gNODE* gNC::nodePtr_menu__node_details = nullptr;
 gNC::gNODE* gNC::nodePtr_menu__rightClick   = nullptr;
-gNC::gNODE* gNC::nodePtr__dragConnect_nodeStart = nullptr;
+gNC::gNODE* gNC::nodePtr__dragConnectCreate_start = nullptr;
 
+gNC::gLINK  gNC::dragConnectCreate_tempLink;
+int         gNC::option_dragConnectCreate_tempLink_snapIn = 0;
 
 /**
  * Get the relative (to node subspace) position of a node's connection point from the connection id
@@ -115,6 +117,8 @@ void gNC::gLINK::move_link(
      * If value is -1, that value allowed to change (applies only to s1 and d1)
      * else: update it
      */
+
+    assert(_init);
 
     if(par_pos_src.x  != -2) Pos_src.x  = par_pos_src.x;
     if(par_pos_src.y  != -2) Pos_src.y  = par_pos_src.y;
@@ -313,6 +317,7 @@ void gNC::gLINK::draw_link(
      * 
      * when drawing the line on the node, only draw to the first intermediary point.
      */
+    assert(_init);
     static ImU32 colour_bg      = IM_COL32(250, 241,  58, 204);
     static ImU32 colour_border  = IM_COL32(100, 100, 100, 255); //IM_COL32(102,  99, 28, 204);
 
@@ -1169,22 +1174,64 @@ int gNC::guiNodeChart::draw() {
             else if(node_connect!=-1) { //region: Node connection
                 if(mouseAction_left==2 || mouseAction_left==-1) {
                     (*itr).state_connections[node_connect] = 2;
+                    if(mouseAction_left!=2) { //mouseAction is performed in this program iteration
+                        // dragConnectCreate_tempLink = gNC::gLINK();
+                        dragConnectCreate_tempLink._init = true;
+                        if(node_connect%2==0) { //started at dest node point
+                            dragConnectCreate_tempLink.dest = &(*itr);
+                            dragConnectCreate_tempLink.type_dest= node_connect;
+                            dragConnectCreate_tempLink.Pos_src  = add_nodePos((*itr).getConnectionPos(node_connect), &(*itr));
+                        }
+                        else { //started at src node point
+                            dragConnectCreate_tempLink.src  = &(*itr);
+                            dragConnectCreate_tempLink.type_src = node_connect;
+                            dragConnectCreate_tempLink.Pos_dest = add_nodePos((*itr).getConnectionPos(node_connect), &(*itr));
+                        }
+                    }
                     mouseAction_left = 2;
                     decay_mouseClick_left = 100;
-                    if(nodePtr__dragConnect_nodeStart != &(*itr)) nodePtr__dragConnect_nodeStart = &(*itr);
+                    if(nodePtr__dragConnectCreate_start != &(*itr)) nodePtr__dragConnectCreate_start = &(*itr);
                 }
             }
         }
         else {
             if(node_connect!=-1) {
                 (*itr).state_connections[node_connect] = 1;
-                if(mouseAction_left==2) {
-                    if(nodePtr__dragConnect_nodeStart != &(*itr)) {
-                        // this->LINK_create()
+                if(
+                    static_mouseAction_left==2 && dragConnectCreate_tempLink._init
+                ) {
+                    //form a proper new link if node_connect is not the same as prev and node address is new
+                    
+                    /**
+                     * type of node that has been added:
+                     * `1` - src was start node
+                     * `0` - dest was start node
+                     */
+                    int typeStarted = (dragConnectCreate_tempLink.src? 1 : 0);
+                    if((typeStarted==1? dragConnectCreate_tempLink.src : dragConnectCreate_tempLink.dest) != &(*itr)) {
+                        if(
+                            !option_dragConnectCreate_tempLink_snapIn &&
+                            (typeStarted==1? node_connect%2==0 : node_connect%2!=0)
+                        ) {
+                            (typeStarted==1? dragConnectCreate_tempLink.type_dest : dragConnectCreate_tempLink.type_src) = node_connect;
+                            this->LINK_create(
+                                dragConnectCreate_tempLink.src,
+                                dragConnectCreate_tempLink.dest,
+                                dragConnectCreate_tempLink.type_src,
+                                dragConnectCreate_tempLink.type_dest
+                            );
+                            dragConnectCreate_tempLink = gNC::gLINK();
+                        }
                     }
                 }
             }
-            else if(mouseAction_left!=2) { for(int i=0; i<6; i++) if((*itr).state_connections[i]!=0) {(*itr).state_connections[i]=0;} }
+            else {
+
+            }
+            
+            if(mouseAction_left!=2) {
+                for(int i=0; i<6; i++) if((*itr).state_connections[i]!=0) { (*itr).state_connections[i]=0; }
+            }
 
         }
 

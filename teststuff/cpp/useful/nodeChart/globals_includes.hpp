@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <list>
+#include <initializer_list>
 
 #include <algorithm>
 
