@@ -9,6 +9,7 @@ gNC::gNODE* gNC::nodePtr__dragConnectCreate_start = nullptr;
 
 gNC::gLINK  gNC::dragConnectCreate_tempLink;
 int         gNC::option_dragConnectCreate_tempLink_snapIn = 0;
+int         gNC::dragConnectCreate_startedEnd;
 
 /**
  * Get the relative (to node subspace) position of a node's connection point from the connection id
@@ -179,8 +180,10 @@ void gNC::gLINK::move_link(
         if(layout==0 || layout==1) {
             link_points.push_back(ImVec2(Pos_src.x + (type_dest==0? pos_delta.x/2 : pos_delta.x) - smallestDelta, Pos_src.y));
             link_points.push_back(ImVec2(Pos_src.x + (type_dest==0? pos_delta.x/2 : pos_delta.x), Pos_src.y));
-            link_points.push_back(ImVec2(pos_middle.x, Pos_src.y+PoN(pos_delta.y)*smallestDelta));
-            if(type_dest==0) link_points.push_back(pos_middle);
+            if(type_dest==0) {
+                link_points.push_back(ImVec2(pos_middle.x, Pos_src.y+PoN(pos_delta.y)*smallestDelta));
+                link_points.push_back(pos_middle);
+            }
         }
         else {
             link_points.push_back(ImVec2(Pos_src.x, Pos_src.y + (type_dest==0? pos_delta.y/2 : pos_delta.y) - smallestDelta));
@@ -260,7 +263,7 @@ void gNC::gLINK::move_link(
 
 
     if(type_dest==0) {
-        if(layout==0||layout==1) {
+        if(layout==0 || layout==1) {
             if(type_src==1) {
                 link_points.push_back(ImVec2(pos_middle.x, Pos_dest.y - PoN(pos_delta.y)*smallestDelta));
                 link_points.push_back(ImVec2(pos_middle.x, Pos_dest.y));
@@ -274,10 +277,10 @@ void gNC::gLINK::move_link(
     }
     else {
         if(layout==0 || layout==1) {
-            if(type_src==1) {
+            if(type_src==1) { // 1 - 2/4
                 link_points.push_back(ImVec2(Pos_dest.x, link_points.back().y - (type_src-type_dest==1 && type_src!=1? offs_bigger : smallestDelta)*connDir_dest));
             }
-            if(type_src-type_dest==1 && type_src!=1) { //same side
+            else if(type_src-type_dest==1 && type_src!=1) { //same side
                 link_points.push_back(ImVec2(
                     Pos_dest.x - PoN(pos_delta.x)*(pos_delta.x>pos_delta.y? offs_bigger : offs_smaller),
                     link_points.back().y
@@ -1180,12 +1183,17 @@ int gNC::guiNodeChart::draw() {
                         if(node_connect%2==0) { //started at dest node point
                             dragConnectCreate_tempLink.dest = &(*itr);
                             dragConnectCreate_tempLink.type_dest= node_connect;
-                            dragConnectCreate_tempLink.Pos_src  = add_nodePos((*itr).getConnectionPos(node_connect), &(*itr));
+                            dragConnectCreate_tempLink.Pos_dest  = add_nodePos((*itr).getConnectionPos(node_connect), &(*itr));
+                            dragConnectCreate_startedEnd = 0;
+                            std::cout << "init: dest: ";
+
                         }
                         else { //started at src node point
                             dragConnectCreate_tempLink.src  = &(*itr);
                             dragConnectCreate_tempLink.type_src = node_connect;
-                            dragConnectCreate_tempLink.Pos_dest = add_nodePos((*itr).getConnectionPos(node_connect), &(*itr));
+                            dragConnectCreate_tempLink.Pos_src = add_nodePos((*itr).getConnectionPos(node_connect), &(*itr));
+                            dragConnectCreate_startedEnd = 1;
+                            std::cout << "init: src: ";
                         }
                     }
                     mouseAction_left = 2;
@@ -1201,21 +1209,24 @@ int gNC::guiNodeChart::draw() {
                     static_mouseAction_left==2 && dragConnectCreate_tempLink._init
                 ) {
                     //form a proper new link if node_connect is not the same as prev and node address is new
-                    
-                    /**
-                     * type of node that has been added:
-                     * `1` - src was start node
-                     * `0` - dest was start node
-                     */
-                    int typeStarted = (dragConnectCreate_tempLink.src? 1 : 0);
-                    if((typeStarted==1? dragConnectCreate_tempLink.src : dragConnectCreate_tempLink.dest) != &(*itr)) {
+
+                    if((dragConnectCreate_startedEnd==1? dragConnectCreate_tempLink.src : dragConnectCreate_tempLink.dest) != &(*itr)) {
                         if(
                             !option_dragConnectCreate_tempLink_snapIn &&
-                            (typeStarted==1? node_connect%2==0 : node_connect%2!=0)
+                            (dragConnectCreate_startedEnd==1? node_connect%2==0 : node_connect%2!=0)
                         ) {
-                            (typeStarted==1? dragConnectCreate_tempLink.dest : dragConnectCreate_tempLink.src) = &(*itr);
+                            if(dragConnectCreate_startedEnd==0) {
+                                dragConnectCreate_tempLink.src = &(*itr);
+                                dragConnectCreate_tempLink.type_src = node_connect;
+                            }
+                            else {
+                                dragConnectCreate_tempLink.dest = &(*itr);
+                                dragConnectCreate_tempLink.type_dest = node_connect;
+                            }
+
+                            std::cout<< "type:["<< dragConnectCreate_tempLink.type_src<<", "<<dragConnectCreate_tempLink.type_dest<<"] ";
                             std::cout<<dragConnectCreate_tempLink.src << ", "<<dragConnectCreate_tempLink.dest<<std::endl;
-                            (typeStarted==1? dragConnectCreate_tempLink.type_dest : dragConnectCreate_tempLink.type_src) = node_connect;
+
                             this->LINK_create(
                                 dragConnectCreate_tempLink.src,
                                 dragConnectCreate_tempLink.dest,

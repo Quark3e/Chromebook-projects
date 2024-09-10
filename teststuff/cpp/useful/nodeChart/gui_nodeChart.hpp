@@ -374,6 +374,12 @@ namespace gNC {
      * `>1`- `true` : do use this feature, and have it snap in on either `add` or `share`
      */
     extern int option_dragConnectCreate_tempLink_snapIn;
+    /**
+     * Which end was first created during a dragConnectCreate action start
+     * `0` - dest
+     * `1` - src
+     */
+    extern int dragConnectCreate_startedEnd;
 
     void _menu__node_details(gNC::gNODE* toDetail);
     void _menu__link_details(gNC::gLINK* toDetail);
