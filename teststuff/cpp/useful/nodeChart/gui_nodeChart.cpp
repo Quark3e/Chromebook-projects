@@ -1213,6 +1213,8 @@ int gNC::guiNodeChart::draw() {
                             !option_dragConnectCreate_tempLink_snapIn &&
                             (typeStarted==1? node_connect%2==0 : node_connect%2!=0)
                         ) {
+                            (typeStarted==1? dragConnectCreate_tempLink.dest : dragConnectCreate_tempLink.src) = &(*itr);
+                            std::cout<<dragConnectCreate_tempLink.src << ", "<<dragConnectCreate_tempLink.dest<<std::endl;
                             (typeStarted==1? dragConnectCreate_tempLink.type_dest : dragConnectCreate_tempLink.type_src) = node_connect;
                             this->LINK_create(
                                 dragConnectCreate_tempLink.src,
