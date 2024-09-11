@@ -150,14 +150,14 @@ void gNC::gLINK::move_link(
     if(type_src != 1 && src) connDir_src = PoN(src->getConnectionPos(type_src).y - src->height/2); /// abs(src->getConnectionPos(type_src).y - src->height/2);
 
 
+    link_points.clear();
+    link_points.push_back(Pos_src);
+
     /**
      * Assumptions:
      * - connectionPoints for _src and _dest have been correctly defined from the beginning;
      * 
      */
-
-    link_points.clear();
-    link_points.push_back(Pos_src);
 
     // Values for same side connectionPos methods
 
@@ -306,6 +306,7 @@ void gNC::gLINK::move_link(
         }
     }
 
+
     link_points.push_back(Pos_dest);
 
 }
@@ -380,20 +381,29 @@ void gNC::gLINK::draw_link(
      */
     static int prevAxis = 0;
 
-    
+    link_points_raw.clear();
+    // link_points_raw.push_back(link_points[0]);
+
+    /// Draw the points onto the window(s)
     for(int i=0; i<link_points.size()-2; i++) {
 
         prevAxis = _define_prevAxis(link_points[i], link_points[i+1]);
         if(_define_prevAxis(link_points[i+1], link_points[i+2]) != prevAxis) {
-            // std::vector<pos2d> curve = quadratic_bezier(to_pos2d(link_points[i]), to_pos2d(link_points[i+2]), to_pos2d(link_points[i+1]), bezierSegs);
+            std::vector<pos2d> curve = quadratic_bezier(to_pos2d(link_points[i]), to_pos2d(link_points[i+2]), to_pos2d(link_points[i+1]), bezierSegs);
+            for(int ii=1; ii<curve.size(); ii++) {
+                // draw_win[0]->AddLine(addOffs(to_ImVec2(curve[ii-1])), addOffs(to_ImVec2(curve[ii])), IM_COL32(255, 10, 10, 200), link_lineWidth);
+                link_points_raw.push_back(to_ImVec2(curve[ii]));
+            }
 
-            draw_win[0]->AddBezierQuadratic(addOffs(link_points[i]), addOffs(link_points[i+1]), addOffs(link_points[i+2]), colour_border, 12, bezierSegs);
-            draw_win[0]->AddBezierQuadratic(addOffs(link_points[i]), addOffs(link_points[i+1]), addOffs(link_points[i+2]), colour_bg, 8, bezierSegs);
+            draw_win[0]->AddBezierQuadratic(addOffs(link_points[i]), addOffs(link_points[i+1]), addOffs(link_points[i+2]), colour_border, link_lineWidth, bezierSegs);
+            draw_win[0]->AddBezierQuadratic(addOffs(link_points[i]), addOffs(link_points[i+1]), addOffs(link_points[i+2]), colour_bg, link_lineWidth*0.7, bezierSegs);
+            
             i+=1;
         }
         else {
-            draw_win[0]->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), colour_border, 12);
-            draw_win[0]->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), colour_bg, 8);
+            draw_win[0]->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), colour_border, link_lineWidth);
+            draw_win[0]->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), colour_bg, link_lineWidth*0.7);
+            link_points_raw.push_back(link_points[i]);
         }
 
     }
@@ -401,9 +411,15 @@ void gNC::gLINK::draw_link(
         _define_prevAxis(link_points[link_points.size()-3], link_points[link_points.size()-2]) ==
         _define_prevAxis(link_points[link_points.size()-2], link_points[link_points.size()-1])    
     ) {
-        draw_win[0]->AddLine(addOffs(link_points[link_points.size()-2]), addOffs(link_points[link_points.size()-1]), colour_border, 12);
-        draw_win[0]->AddLine(addOffs(link_points[link_points.size()-2]), addOffs(link_points[link_points.size()-1]), colour_bg, 8);
+        link_points_raw.push_back(link_points[link_points.size()-1]);
+        draw_win[0]->AddLine(addOffs(link_points[link_points.size()-2]), addOffs(link_points[link_points.size()-1]), colour_border, link_lineWidth);
+        draw_win[0]->AddLine(addOffs(link_points[link_points.size()-2]), addOffs(link_points[link_points.size()-1]), colour_bg, link_lineWidth*0.7);
     }
+    link_points_raw__updated = false;
+
+    // for(int i=1; i<link_points_raw.size(); i++) {
+    //     draw_win[0]->AddLine(addOffs(link_points_raw[i-1]), addOffs(link_points_raw[i]), IM_COL32(20, 250, 20, 200), link_lineWidth);
+    // }
 
     if(draw__lines || draw__points) {
         for(int i=0; i<link_points.size()-1; i++) {
@@ -424,7 +440,24 @@ void gNC::gLINK::draw_link(
     }
 
 }
+bool gNC::gLINK::region(
+    ImVec2 pos
+) {
+    bool is_in_region = false;
 
+    if(!link_points_raw__updated) {
+        link_lims = {
+            std::vector<float>{idx_findVal<ImVec2, float>(link_points_raw, 1, 0), idx_findVal<ImVec2, float>(link_points_raw, 0, 0)},
+            std::vector<float>{idx_findVal<ImVec2, float>(link_points_raw, 1, 1), idx_findVal<ImVec2, float>(link_points_raw, 0, 1)}
+        };
+        link_points_raw__updated = true;
+    }
+    
+    
+
+
+    return is_in_region;
+}
 
 const gNC::gNODE gNC::guiNodeChart::default_gNODE = {
     0, 0,

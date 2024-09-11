@@ -363,6 +363,38 @@ struct pos2d {
         else return -1;
     }
 
+    /**
+     * @brief 
+     * 
+     * @tparam idx_varType type of the variable that's searched for
+     * @tparam idx_type type of the return value, i.e. the value that is given by indexing `index_varType`
+     * @param toCheck `std::vector<idx_varType>` container that is to be searched, i.e. the hay stack
+     * @param toFind what to find:
+     * - `0` - biggest value
+     * - `1` - smallest value
+     * - `2` - index of biggest value
+     * - `3` - index of smallest value
+     * @param idx index of the data type to search: `toCheck[element][idx]`
+     * @return idx_varType of the returned type
+     */
+    template<typename idx_varType, typename idx_type>
+    inline idx_type idx_findVal(
+        std::vector<idx_varType> toCheck,
+        int toFind,
+        size_t idx
+    ) {
+        int index = 0;
+        idx_type val = toCheck[0][idx];
+        for(int i=0; i<toCheck.size(); i++) {
+            if(toFind==0 || toFind==2)      { if(toCheck[i][idx]>val) { val=toCheck[i][idx]; index=i; } }
+            else if(toFind==1 || toFind==3) { if(toCheck[i][idx]<val) { val=toCheck[i][idx]; index=i; } }
+        }
+        if(toFind==0 || toFind==1)      return val;
+        else if(toFind==2 || toFind==3) return index;
+        else return -1;
+    }
+
+
     static inline std::string dummyRef_stringOfVector_resultStrRef;
     /**
      * @brief find specific std::string from `std::std::vector<std::string>` parameter

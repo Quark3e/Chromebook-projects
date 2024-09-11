@@ -66,15 +66,39 @@ namespace gNC {
         // ImVec2 Pos_d1;      // coordinates of intermediary point 1: dest side
         ImVec2 Pos_center;  // 2d coordinate of the point between Pos_src and Pos_dest
 
+        int link_lineWidth = 12;
+
         /**
+         * Container for all the points that form the link as drawn
+         *
          * [0] - src
-         * 
          * [.size()-1] - dest
          * 
          * make it avoid going through the node.
          * if x or y axis between two points are same then it's a straight line.
          */
         std::vector<ImVec2> link_points;
+
+        /**
+         * Container for **all** the points that form the link, including the points
+         * that form the bezier curve(s)
+         * 
+         */
+        std::vector<ImVec2> link_points_raw;
+        bool link_points_raw__updated = true;
+
+        /**
+         * Container with the xy limits:
+         * lims = {
+         *     {x_min, x_max},
+         *     {y_min, y_max}
+         * }
+         * 
+         * lims[0] = {x_min, x_max},
+         * lims[1] = {y_min, y_max}
+         */
+        std::vector<std::vector<float>> link_lims;
+
 
         /**
          * @brief Construct a new gLINK object
@@ -104,11 +128,11 @@ namespace gNC {
         }
         /**
          * @brief Default constructor for gNC::gLINK
-         * 
          */
         gLINK() {};
         void move_link(ImVec2 par_pos_src=ImVec2(-1, -1), ImVec2 par_pos_dest=ImVec2(-1, -1)/*, ImVec2 par_pos_s1=ImVec2(-1, -1), ImVec2 par_pos_d1=ImVec2(-1, -1)*/);
         void draw_link(std::vector<ImDrawList*> draw_win, ImVec2 screen_offset);
+        bool region(ImVec2 pos);
     };
 
     struct gNODE {
@@ -354,7 +378,6 @@ namespace gNC {
      * Address to the start node which a dragConnectCreate action has been started
      */
     extern gNODE* nodePtr__dragConnectCreate_start;
-
 
 
     /**
