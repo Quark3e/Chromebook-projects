@@ -85,7 +85,15 @@ namespace gNC {
          * 
          */
         std::vector<ImVec2> link_points_raw;
-        bool link_points_raw__updated = true;
+        /**
+         * Container of container for the polynomial coefficients (linear) for each line that forms `link_points_raw`:
+         * format: {
+         *     {`a0`, `a1`},
+         *     {`a0`, `a1`}
+         * }
+         */
+        std::vector<std::vector<float>> link_points_coeffs;
+        bool link_points_raw__updated = false;
 
         /**
          * Container with the xy limits:
@@ -132,7 +140,7 @@ namespace gNC {
         gLINK() {};
         void move_link(ImVec2 par_pos_src=ImVec2(-1, -1), ImVec2 par_pos_dest=ImVec2(-1, -1)/*, ImVec2 par_pos_s1=ImVec2(-1, -1), ImVec2 par_pos_d1=ImVec2(-1, -1)*/);
         void draw_link(std::vector<ImDrawList*> draw_win, ImVec2 screen_offset);
-        bool region(ImVec2 pos);
+        bool region(ImVec2 cursor);
     };
 
     struct gNODE {

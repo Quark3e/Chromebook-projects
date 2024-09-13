@@ -325,8 +325,8 @@ void gNC::gLINK::draw_link(
     static ImU32 colour_bg      = IM_COL32(250, 241,  58, 204);
     static ImU32 colour_border  = IM_COL32(100, 100, 100, 255); //IM_COL32(102,  99, 28, 204);
 
-    static bool draw__lines = false;
-    static bool draw__points= false;
+    static bool draw__lines = true;
+    static bool draw__points= true;
 
     /**
      * @brief add the relative drag screen offset
@@ -382,6 +382,7 @@ void gNC::gLINK::draw_link(
     static int prevAxis = 0;
 
     link_points_raw.clear();
+    link_points_coeffs.clear();
     // link_points_raw.push_back(link_points[0]);
 
     /// Draw the points onto the window(s)
@@ -389,37 +390,47 @@ void gNC::gLINK::draw_link(
 
         prevAxis = _define_prevAxis(link_points[i], link_points[i+1]);
         if(_define_prevAxis(link_points[i+1], link_points[i+2]) != prevAxis) {
-            std::vector<pos2d> curve = quadratic_bezier(to_pos2d(link_points[i]), to_pos2d(link_points[i+2]), to_pos2d(link_points[i+1]), bezierSegs);
+            std::vector<pos2d> curve = quadratic_bezier(to_pos2d(link_points[i]), to_pos2d(link_points[i+2]), to_pos2d(link_points[i+1]), bezierSegs, &link_points_coeffs, "1");
+            // std::cout << "----------"<<std::endl;
+            // std::cout << curve[0].getStr() << std::endl;
+            link_points_raw.push_back(to_ImVec2(curve[0]));
             for(int ii=1; ii<curve.size(); ii++) {
                 // draw_win[0]->AddLine(addOffs(to_ImVec2(curve[ii-1])), addOffs(to_ImVec2(curve[ii])), IM_COL32(255, 10, 10, 200), link_lineWidth);
                 link_points_raw.push_back(to_ImVec2(curve[ii]));
+                // std::cout << curve[ii].getStr() << std::endl;
             }
+            // std::cout << "----------   ----------"<<std::endl;
 
-            draw_win[0]->AddBezierQuadratic(addOffs(link_points[i]), addOffs(link_points[i+1]), addOffs(link_points[i+2]), colour_border, link_lineWidth, bezierSegs);
-            draw_win[0]->AddBezierQuadratic(addOffs(link_points[i]), addOffs(link_points[i+1]), addOffs(link_points[i+2]), colour_bg, link_lineWidth*0.7, bezierSegs);
+            // draw_win[0]->AddBezierQuadratic(addOffs(link_points[i]), addOffs(link_points[i+1]), addOffs(link_points[i+2]), colour_border, link_lineWidth, bezierSegs);
+            // draw_win[0]->AddBezierQuadratic(addOffs(link_points[i]), addOffs(link_points[i+1]), addOffs(link_points[i+2]), colour_bg, link_lineWidth*0.7, bezierSegs);
             
             i+=1;
         }
         else {
-            draw_win[0]->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), colour_border, link_lineWidth);
-            draw_win[0]->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), colour_bg, link_lineWidth*0.7);
+            // draw_win[0]->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), colour_border, link_lineWidth);
+            // draw_win[0]->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), colour_bg, link_lineWidth*0.7);
             link_points_raw.push_back(link_points[i]);
+            link_points_coeffs.push_back(getCoef_linear(to_pos2d(link_points[i]), to_pos2d(link_points[i+1])));
         }
 
     }
     if(
         _define_prevAxis(link_points[link_points.size()-3], link_points[link_points.size()-2]) ==
-        _define_prevAxis(link_points[link_points.size()-2], link_points[link_points.size()-1])    
+        _define_prevAxis(link_points[link_points.size()-2], link_points[link_points.size()-1])
     ) {
-        link_points_raw.push_back(link_points[link_points.size()-1]);
-        draw_win[0]->AddLine(addOffs(link_points[link_points.size()-2]), addOffs(link_points[link_points.size()-1]), colour_border, link_lineWidth);
-        draw_win[0]->AddLine(addOffs(link_points[link_points.size()-2]), addOffs(link_points[link_points.size()-1]), colour_bg, link_lineWidth*0.7);
+        size_t lineIDX[2] = {link_points.size()-2, link_points.size()-1};
+        link_points_raw.push_back(link_points[lineIDX[1]]);
+        link_points_coeffs.push_back(getCoef_linear(to_pos2d(link_points[lineIDX[0]]), to_pos2d(link_points[lineIDX[1]])));
+
+        // draw_win[0]->AddLine(addOffs(link_points[lineIDX[0]]), addOffs(link_points[lineIDX[1]]), colour_border, link_lineWidth);
+        // draw_win[0]->AddLine(addOffs(link_points[lineIDX[0]]), addOffs(link_points[lineIDX[1]]), colour_bg, link_lineWidth*0.7);
     }
     link_points_raw__updated = false;
 
-    // for(int i=1; i<link_points_raw.size(); i++) {
-    //     draw_win[0]->AddLine(addOffs(link_points_raw[i-1]), addOffs(link_points_raw[i]), IM_COL32(20, 250, 20, 200), link_lineWidth);
-    // }
+    for(int i=1; i<link_points_raw.size(); i++) {
+        draw_win[0]->AddLine(addOffs(link_points_raw[i-1]), addOffs(link_points_raw[i]), colour_border, link_lineWidth);
+        draw_win[0]->AddLine(addOffs(link_points_raw[i-1]), addOffs(link_points_raw[i]), colour_bg, link_lineWidth*0.7);
+    }
 
     if(draw__lines || draw__points) {
         for(int i=0; i<link_points.size()-1; i++) {
@@ -441,7 +452,7 @@ void gNC::gLINK::draw_link(
 
 }
 bool gNC::gLINK::region(
-    ImVec2 pos
+    ImVec2 cursor
 ) {
     bool is_in_region = false;
 
@@ -453,6 +464,9 @@ bool gNC::gLINK::region(
         link_points_raw__updated = true;
     }
     
+    /// check if cursor is outside the outer bounding box: if it is outside, return false and exit the function
+    if(!(cursor.x > link_lims[0][0] && cursor.x < link_lims[0][1] && cursor.y > link_lims[1][0] && cursor.y < link_lims[1][1])) return false;
+
     
 
 
