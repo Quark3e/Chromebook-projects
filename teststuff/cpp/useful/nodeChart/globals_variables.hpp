@@ -7,9 +7,11 @@
 
 #include "globals_includes.hpp"
 
-
+/**
+ * Pointer to main "global" ImDrawList for the currently show projects draw window
+ * 
+ */
 extern ImDrawList* project_draw_list;
-
 
 
 extern ImVec2 dim__main;
@@ -18,7 +20,7 @@ extern ImVec2 dim__menu__node_detail;
 extern bool lockMove_screen;
 extern bool lockMove_node;
 
-//state checks
+// State checks
 /**
  * Left_mouse click decay lock
  */
@@ -32,8 +34,9 @@ extern int decay_mouseClick_right;
  * Global variable to hold current left mouse button action:
  *  `-1` default: no action
  *  ` 0` screen (drag mouse: move)
- *  ` 1` node (left mouse: move)
+ *  ` 1` node main
  *  ` 2` node connection (left mouse: drag)
+ *  ` 3` link main
  */
 extern int mouseAction_left;
 

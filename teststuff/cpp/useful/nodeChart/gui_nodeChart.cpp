@@ -7,6 +7,9 @@ gNC::gNODE* gNC::nodePtr_menu__node_details = nullptr;
 gNC::gNODE* gNC::nodePtr_menu__rightClick   = nullptr;
 gNC::gNODE* gNC::nodePtr__dragConnectCreate_start = nullptr;
 
+gNC::gLINK* gNC::linkPtr_menu__link_details = nullptr;
+gNC::gLINK* gNC::linkPtr_menu__rightClick   = nullptr;
+
 gNC::gLINK  gNC::dragConnectCreate_tempLink;
 int         gNC::option_dragConnectCreate_tempLink_snapIn = 0;
 int         gNC::dragConnectCreate_startedEnd;
@@ -1207,7 +1210,12 @@ int gNC::guiNodeChart::draw() {
     std::cout<< "{"<<std::setw(2)<< mouseAction_left<<","<<std::setw(3)<<decay_mouseClick_left<<"} ";
     #endif
 
-    bool bool_toHover_menu_node_clicked = false;
+    /// @brief whether a node has been focused when they're iterated.
+    bool node_focused = false;
+    /// @brief whether a link has been focused when they're iterated.
+    bool link_focused = false;
+
+    static gLINK* focused_link{nullptr};
 
     for(auto itr=_links.begin(); itr!=this->_links.end(); ++itr) {
         std::vector<ImVec2> linkPos{
@@ -1224,6 +1232,20 @@ int gNC::guiNodeChart::draw() {
             ImVec2(screen_pos[0], screen_pos[1])
         )) {
             (*itr).draw__state = 1;
+            
+            if(isKeyPressed(655, pressed_keys)) {
+                link_focused = true;
+                focused_link = &(*itr);
+
+                if(mouseAction_left==3 || mouseAction_left==-1) {
+                    linkPtr_menu__link_details = &(*itr);
+                    mouseAction_left = 3;
+                    decay_mouseClick_left = 100;
+                }
+            }
+            else {
+
+            }
         }
         else {
             (*itr).draw__state = 0;
@@ -1235,10 +1257,7 @@ int gNC::guiNodeChart::draw() {
     for(auto itr=_nodes.begin(); itr!=this->_nodes.end(); ++itr) {
         ImVec2 nodePos = ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]);
 
-        if(
-            (nodePos.x + (*itr).width  < 0  || nodePos.x > screen_dim[0]) ||
-            (nodePos.y + (*itr).height < 0  || nodePos.y > screen_dim[1])
-        ) continue;
+        if((nodePos.x + (*itr).width  < 0  || nodePos.x > screen_dim[0]) || (nodePos.y + (*itr).height < 0  || nodePos.y > screen_dim[1])) continue;
 
         ImGuiWindowFlags win_flags = 0;
         win_flags |= ImGuiWindowFlags_NoResize;
@@ -1365,7 +1384,7 @@ int gNC::guiNodeChart::draw() {
         if(ImGui::IsWindowFocused() || !local_init) {
             // _menu__node_details(&(*itr));
             nodePtr_menu__node_details  = &(*itr);
-            bool_toHover_menu_node_clicked   = true;
+            node_focused   = true;
             if(!lockMove_node && pressed_keys->size() > 0 && isKeyPressed(655, pressed_keys)) {
                 NODE_move(&(*itr), io.MouseDelta.x, io.MouseDelta.y, 1);
                 ImGui::SetWindowPos(ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]));
@@ -1380,13 +1399,22 @@ int gNC::guiNodeChart::draw() {
     }
 
 
-    if(nodePtr_menu__node_details != nullptr) _menu__node_details(nodePtr_menu__node_details);
-    if(!bool_toHover_menu_node_clicked && static_mouseAction_left!=1 && mouseDrag_left) nodePtr_menu__node_details = nullptr;
+    if(nodePtr_menu__node_details) _menu__node_details(nodePtr_menu__node_details);
+    if(linkPtr_menu__link_details) _menu__link_details(linkPtr_menu__link_details);
+
+    if(static_mouseAction_left!=1 && (mouseDrag_left || linkPtr_menu__link_details)) {
+        if(!node_focused) nodePtr_menu__node_details = nullptr;
+    }
+    if(static_mouseAction_left!=3 && (mouseDrag_left || nodePtr_menu__node_details)) {
+        if(!link_focused) linkPtr_menu__link_details = nullptr;
+
+    }
 
     if((mouseAction_left==0 || mouseAction_left==-1) && isKeyPressed(655, pressed_keys)) {
         lockMove_screen = false;
         mouseAction_left = 0;
         decay_mouseClick_left = 100;
+        if(mouseDrag_left) focused_link = nullptr;
         #if _DEBUG
         std::cout << " [screen]";
         #endif

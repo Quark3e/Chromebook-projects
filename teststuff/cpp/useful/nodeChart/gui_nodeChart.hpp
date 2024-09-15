@@ -14,7 +14,6 @@
 // extern template<typename addrType> std::string ptrToStr(addrType toConv);
 
 
-
 namespace gNC {
 
 
@@ -69,7 +68,7 @@ namespace gNC {
 
         int link_lineWidth = 12;
 
-        int link_gui__lineWidth = 14;
+        int link_gui__lineWidth = 12;
 
         /**
          * 
@@ -385,12 +384,15 @@ namespace gNC {
 
 
     /**
-     * "Static"/Global value for displaying menu: node_details
+     * "Static"/"Global" value/address for displaying menu: node_details
      *  - `nullptr`: dont display node details menu
      *  - `{addr}` : display that address
      */
     extern gNODE* nodePtr_menu__node_details;
-
+    /**
+     * "Global" address for `gNC::gLINK` object to call for right Click link menu
+     * 
+     */
     extern gNODE* nodePtr_menu__rightClick;
 
     /**
@@ -399,8 +401,12 @@ namespace gNC {
     extern gNODE* nodePtr__dragConnectCreate_start;
 
 
+    extern gLINK* linkPtr_menu__link_details;
+
+    extern gLINK* linkPtr_menu__rightClick;
+
     /**
-     * Intermediate link object for creating links with drag and connect/drop.
+     * Temporary intermediate link object for creating links with drag and connect/drop.
      * Link end nodes `src` and `dest` are set to `nullptr` and type_{`src`/`dest`} are set to -1.
      * No member functions can/should be called with this link.
      * When a drag and connect action has started at the start node, the member variable `_init` will be set to `true`.

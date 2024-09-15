@@ -30,7 +30,7 @@ void gNC::_menu__node_details(
     
     static int _win_widthOffset = 20;
 
-    if(ImGui::Begin(("node: "+toDetail->addr).c_str(), NULL, win_flags)) {
+    if(ImGui::Begin((" node: "+toDetail->addr).c_str(), NULL, win_flags)) {
         ImGui::SetWindowPos(ImGui::GetWindowPos());
         if(init_node!=toDetail) ImGui::SetWindowSize(dim__menu__node_detail);
 
@@ -92,17 +92,19 @@ void gNC::_menu__link_details(
     static gNC::gLINK* init_link = nullptr;
 
     static ImGuiWindowFlags win_flags = 0;
+    win_flags |= ImGuiWindowFlags_NoResize;
     win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
     win_flags |= ImGuiWindowFlags_NoCollapse;
     win_flags |= ImGuiWindowFlags_HorizontalScrollbar;
 
+    
 
     static ImGuiInputTextFlags inpText_flags_label  = 0;
     static ImGuiInputTextFlags inpText_flags_desc   = 0;
 
     static int _win_widthOffset = 20;
 
-    if(ImGui::Begin(("link: "+toDetail->addr).c_str()), NULL, win_flags) {
+    if(ImGui::Begin((" link: "+toDetail->addr).c_str()), NULL, win_flags) {
         ImGui::SetWindowPos(ImGui::GetWindowPos());
         if(init_link!=toDetail) ImGui::SetWindowSize(dim__menu__node_detail);
 
