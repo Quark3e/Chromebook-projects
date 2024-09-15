@@ -432,6 +432,9 @@ namespace gNC {
     void _menu__node_details(gNC::gNODE* toDetail);
     void _menu__link_details(gNC::gLINK* toDetail);
     void _menu__rightClick(gNC::guiNodeChart* chart);
+
+    extern bool _winFocused__node_details;
+    extern bool _winFocused__link_details;
 }
 
 

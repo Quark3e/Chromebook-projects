@@ -1217,6 +1217,8 @@ int gNC::guiNodeChart::draw() {
 
     static gLINK* focused_link{nullptr};
 
+    std::cout <<"winFocus: node/link: "<<std::boolalpha<<_winFocused__node_details<<" "<< _winFocused__link_details<<std::endl;
+
     for(auto itr=_links.begin(); itr!=this->_links.end(); ++itr) {
         std::vector<ImVec2> linkPos{
             ImVec2((*itr).Pos_src.x  + screen_pos[0], (*itr).Pos_src.y  + screen_pos[1]),
@@ -1231,24 +1233,29 @@ int gNC::guiNodeChart::draw() {
             io.MousePos,
             ImVec2(screen_pos[0], screen_pos[1])
         )) {
-            (*itr).draw__state = 1;
             
-            if(isKeyPressed(655, pressed_keys)) {
+            if(isKeyPressed(655, pressed_keys) && !_winFocused__node_details) {
+
                 link_focused = true;
                 focused_link = &(*itr);
 
                 if(mouseAction_left==3 || mouseAction_left==-1) {
-                    linkPtr_menu__link_details = &(*itr);
+                    // linkPtr_menu__link_details = &(*itr);
                     mouseAction_left = 3;
                     decay_mouseClick_left = 100;
                 }
             }
             else {
+                (*itr).draw__state = 1;
 
             }
         }
         else {
             (*itr).draw__state = 0;
+        }
+
+        if(!_winFocused__link_details && !_winFocused__node_details && link_focused && focused_link == &(*itr)) {
+            linkPtr_menu__link_details = &(*itr);
         }
 
 
