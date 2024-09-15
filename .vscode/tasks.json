@@ -165,24 +165,6 @@
 				"isDefault": true
 			},
 			"detail": "Dedicated build task for gui_NodeChart"
-		}, {
-			"type": "cppbuild",
-			"label": "gui_NodeChart: g++ build and run the file",
-			"command": "",
-			"dependsOn": [
-				"gui_NodeChart C/C++: g++ build dedicated file and run build"
-			],
-			"options": {
-				"cwd": "${fileDirname"
-			},
-			"problemMatcher": [
-				"$gcc"
-			],
-			"group": {
-				"kind": "test",
-				"isDefault": true
-			},
-			"detail": "Dedicated build and run task for gui_NodeChart"
 		}
 	]
 }

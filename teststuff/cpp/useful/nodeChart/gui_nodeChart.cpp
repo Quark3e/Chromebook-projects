@@ -322,11 +322,17 @@ void gNC::gLINK::draw_link(
      * when drawing the line on the node, only draw to the first intermediary point.
      */
     assert(_init);
-    static ImU32 colour_bg      = IM_COL32(250, 241,  58, 204);
-    static ImU32 colour_border  = IM_COL32(100, 100, 100, 255); //IM_COL32(102,  99, 28, 204);
+    static ImU32 colour_bg      = IM_COL32(250, 241, 58, 204);
+    static ImU32 colour_bg_hover= IM_COL32(250, 241, 150,204);
 
-    static bool draw__lines = true;
-    static bool draw__points= true;
+    static ImU32 colour_border  = IM_COL32(100, 100, 100, 255); 
+
+
+    ImU32 linkColour = (draw__state? colour_bg_hover : colour_bg);
+
+
+    static bool draw__lines = false;
+    static bool draw__points= false;
 
     /**
      * @brief add the relative drag screen offset
@@ -423,13 +429,16 @@ void gNC::gLINK::draw_link(
         link_points_coeffs.push_back(getCoef_linear(to_pos2d(link_points[lineIDX[0]]), to_pos2d(link_points[lineIDX[1]])));
 
         // draw_win[0]->AddLine(addOffs(link_points[lineIDX[0]]), addOffs(link_points[lineIDX[1]]), colour_border, link_lineWidth);
-        // draw_win[0]->AddLine(addOffs(link_points[lineIDX[0]]), addOffs(link_points[lineIDX[1]]), colour_bg, link_lineWidth*0.7);
+        // draw_win[0]->AddLine(addOffs(link_points[lineIDX[0]]), addOffs(link_points[lineIDX[1]]), linkColour, link_lineWidth*0.7);
     }
     link_points_raw__updated = false;
 
+    // draw_win[0]->AddCircle(addOffs(link_points_raw[0]), 10, IM_COL32(255, 20, 20, 250), 10, 2);
     for(int i=1; i<link_points_raw.size(); i++) {
         draw_win[0]->AddLine(addOffs(link_points_raw[i-1]), addOffs(link_points_raw[i]), colour_border, link_lineWidth);
-        draw_win[0]->AddLine(addOffs(link_points_raw[i-1]), addOffs(link_points_raw[i]), colour_bg, link_lineWidth*0.7);
+        draw_win[0]->AddLine(addOffs(link_points_raw[i-1]), addOffs(link_points_raw[i]), linkColour, link_lineWidth*0.7);
+        draw_win[0]->AddCircle(addOffs(link_points_raw[i]), 10, IM_COL32(255, 20, 20, 250), 10, 2);
+        draw_win[0]->AddLine(addOffs(link_points_raw[i-1]), addOffs(link_points_raw[i]), IM_COL32(255, 20, 20, 250), 2);
     }
 
     if(draw__lines || draw__points) {
@@ -437,24 +446,26 @@ void gNC::gLINK::draw_link(
             for(ImDrawList* el: draw_win) {
                 if(draw__points) {
                     el->AddCircle(addOffs(link_points[i]), 10, IM_COL32(255, 10, 10, 255), 10, 2);
-                    el->AddCircle(addOffs(link_points[i]), 3, colour_bg, 10, 3);
+                    el->AddCircle(addOffs(link_points[i]), 3, linkColour, 10, 3);
                 }
-                if(draw__lines) el->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), colour_bg);
+                if(draw__lines) el->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), linkColour);
             }
         }
         for(ImDrawList* el: draw_win) {
             if(draw__points) {
                 el->AddCircle(addOffs(link_points[link_points.size()-1]), 10, IM_COL32(255, 10, 10, 255), 10, 2);
-                el->AddCircle(addOffs(link_points[link_points.size()-1]), 3, colour_bg, 10, 3);
+                el->AddCircle(addOffs(link_points[link_points.size()-1]), 3, linkColour, 10, 3);
             }
         }
     }
 
 }
 bool gNC::gLINK::region(
-    ImVec2 cursor
+    ImVec2 cursor,
+    ImVec2 _offset
 ) {
     bool is_in_region = false;
+    if(link_points_raw.size()==0) return false;
 
     if(!link_points_raw__updated) {
         link_lims = {
@@ -465,10 +476,55 @@ bool gNC::gLINK::region(
     }
     
     /// check if cursor is outside the outer bounding box: if it is outside, return false and exit the function
-    if(!(cursor.x > link_lims[0][0] && cursor.x < link_lims[0][1] && cursor.y > link_lims[1][0] && cursor.y < link_lims[1][1])) return false;
+    if(!(
+        cursor.x-_offset.x > link_lims[0][0]-link_gui__lineWidth && cursor.x-_offset.x < link_lims[0][1]+link_gui__lineWidth &&
+        cursor.y-_offset.y > link_lims[1][0]-link_gui__lineWidth && cursor.y-_offset.y < link_lims[1][1]+link_gui__lineWidth
+    )) return false;
 
-    
+    assert(link_points_coeffs.size()>0 && link_points_coeffs[0].size()==2);
 
+    for(size_t i=0; i<link_points_raw.size()-1; i++) {
+        /**
+         * [0] x
+         * [1] y
+         */
+        int nextDir[2] = {
+            (link_points_raw[i+1].x > link_points_raw[i].x? 1 : -1),
+            (link_points_raw[i+1].y > link_points_raw[i].y? 1 : -1)
+        };
+
+        std::vector<ImVec2> _boxs_lim{
+            ImVec2(link_points_raw[i].x   - nextDir[0]*link_gui__lineWidth + _offset.x, link_points_raw[i].y   - nextDir[1]*link_gui__lineWidth + _offset.y),
+            ImVec2(link_points_raw[i+1].x + nextDir[0]*link_gui__lineWidth + _offset.x, link_points_raw[i+1].y + nextDir[1]*link_gui__lineWidth + _offset.y)
+        };
+
+        if(_boxs_lim[0].x > _boxs_lim[1].x) {
+            float temp = _boxs_lim[0].x;
+            _boxs_lim[0].x = _boxs_lim[1].x;
+            _boxs_lim[1].x = temp;
+        }
+        if(_boxs_lim[0].y > _boxs_lim[1].y) {
+            float temp = _boxs_lim[0].y;
+            _boxs_lim[0].y = _boxs_lim[1].y;
+            _boxs_lim[1].y = temp;
+        }
+
+        if(inRegion(cursor, _boxs_lim[0], _boxs_lim[1])) {
+
+            project_draw_list->AddRect(
+                _boxs_lim[0], _boxs_lim[1],
+                IM_COL32(30, 30, 250, 240)
+            );
+            return true;
+        }
+
+
+        project_draw_list->AddRect(
+            _boxs_lim[0], _boxs_lim[1],
+            IM_COL32(30, 250, 30, 240)
+        );
+
+    }
 
     return is_in_region;
 }
@@ -1167,6 +1223,17 @@ int gNC::guiNodeChart::draw() {
             (linkPos[0].y < 0 && linkPos[1].y < 0) || (linkPos[0].y > screen_dim[1] && linkPos[1].y > screen_dim[1])
         ) continue;
         
+        if((*itr).region(
+            io.MousePos,
+            ImVec2(screen_pos[0], screen_pos[1])
+        )) {
+            (*itr).draw__state = 1;
+        }
+        else {
+            (*itr).draw__state = 0;
+        }
+
+
         (*itr).draw_link(std::vector<ImDrawList*>{draw_list}, ImVec2(screen_pos[0], screen_pos[1]));
     }
     for(auto itr=_nodes.begin(); itr!=this->_nodes.end(); ++itr) {
@@ -1360,6 +1427,7 @@ int gNC::guiNodeChart::draw() {
     mouseAction_right = -1;
     // nodePtr_menu__rightClick = nullptr;
     
+    draw_list->AddCircle(io.MousePos, 10, IM_COL32(20, 240, 20, 200), 5, 2);
 
 
     if(!local_init) local_init = true;

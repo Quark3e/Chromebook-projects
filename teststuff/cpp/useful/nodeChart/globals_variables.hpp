@@ -8,6 +8,10 @@
 #include "globals_includes.hpp"
 
 
+extern ImDrawList* project_draw_list;
+
+
+
 extern ImVec2 dim__main;
 extern ImVec2 dim__menu__node_detail;
 

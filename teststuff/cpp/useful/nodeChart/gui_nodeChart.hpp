@@ -14,6 +14,7 @@
 // extern template<typename addrType> std::string ptrToStr(addrType toConv);
 
 
+
 namespace gNC {
 
 
@@ -67,6 +68,16 @@ namespace gNC {
         ImVec2 Pos_center;  // 2d coordinate of the point between Pos_src and Pos_dest
 
         int link_lineWidth = 12;
+
+        int link_gui__lineWidth = 14;
+
+        /**
+         * 
+         *  - `0` - off: default
+         *  - `1` - off: hover
+         *  - `2` - on : click/press
+         */
+        int draw__state = 0;
 
         /**
          * Container for all the points that form the link as drawn
@@ -140,7 +151,7 @@ namespace gNC {
         gLINK() {};
         void move_link(ImVec2 par_pos_src=ImVec2(-1, -1), ImVec2 par_pos_dest=ImVec2(-1, -1)/*, ImVec2 par_pos_s1=ImVec2(-1, -1), ImVec2 par_pos_d1=ImVec2(-1, -1)*/);
         void draw_link(std::vector<ImDrawList*> draw_win, ImVec2 screen_offset);
-        bool region(ImVec2 cursor);
+        bool region(ImVec2 cursor, ImVec2 _offset = ImVec2(0, 0));
     };
 
     struct gNODE {
@@ -192,7 +203,7 @@ namespace gNC {
          *  - [5] - `share_1`
          * 
          * index integer value to state correlation:
-         *  - `0` - off: defauult
+         *  - `0` - off: default
          *  - `1` - off: hover
          *  - `2` - on : click
         */

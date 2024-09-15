@@ -24,9 +24,7 @@ inline std::vector<float> getCoef_linear(
     float k, c;
     pos2d delta = pos2d(point_B.x-point_A.x, point_B.y-point_A.y);
     if(delta.x==0) {
-        // std::cout<< "same: ";
         delta.x+=1; //basic solution to deal with completely vertical linear functions (im lazy)
-        // std::cout << point_A.getStr() << " | " << point_B.getStr() << std::endl;
     }
     k = delta.y/delta.x;
     c = point_A.y - point_A.x*k;

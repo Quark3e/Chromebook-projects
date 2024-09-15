@@ -40,10 +40,34 @@ struct pos2d {
     pos2d(float X, float Y): x{X}, y{Y} { }
     pos2d() {}
     std::string getStr() { return std::string(std::to_string(x)+", "+std::to_string(y)); }
+    pos2d rounded(int decimals) {
+        return pos2d(
+            round(x*pow(10, decimals)) / pow(10, decimals),
+            round(y*pow(10, decimals)) / pow(10, decimals)
+        );
+    }
 };
 
 
 // namespace USEFUL {
+
+    /**
+     * @brief Round the indexable numbers of a data type container to a specific decimal.
+     * 
+     * @tparam `_cont` data type of the container to round its indices/member variables.
+     * @param toRound the container to round.
+     * @param decimals number-of-decimals/precision to round to.
+     * @param _contsSize innate size of the container. ex: `pos2d`/`ImVec2` has a size of two
+     * @return _cont of `toRound` that's been rounded to `decimals` precision
+     */
+    template<typename _cont>
+    inline _cont container_round(_cont toRound, int decimals, size_t _contsSize) {
+        _cont tempCont;
+        for(size_t i=0; i<_contsSize; i++) {
+            tempCont[i] = round(toRound[i]*pow(10, decimals)) / pow(10, decimals);
+        }
+        return tempCont;
+    }
 
     /// @brief return the sum of elements in an array of type `T`
     /// @tparam T 

@@ -21,6 +21,8 @@ bool opt__enable_grid = true;
 
 int main(int argc, char** argv) {
 
+
+
     al_init();
     al_install_keyboard();
     al_install_mouse();
@@ -37,6 +39,9 @@ int main(int argc, char** argv) {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); //(void)io;
     ImGuiStyle& style = ImGui::GetStyle();
+
+
+
 
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
@@ -119,6 +124,7 @@ int main(int argc, char** argv) {
 
         if(ImGui::BeginTabBar("Tabs")) {
             if(ImGui::BeginTabItem("project 0")) {
+                project_draw_list = ImGui::GetWindowDrawList();
 
                 ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
                 ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 0));

@@ -3,6 +3,9 @@
 #include "globals_includes.hpp"
 
 
+ImDrawList* project_draw_list = nullptr;
+
+
 ImVec2 dim__main        = ImVec2(1280, 700);
 ImVec2 dim__menu__node_detail = ImVec2(300, 500);
 
