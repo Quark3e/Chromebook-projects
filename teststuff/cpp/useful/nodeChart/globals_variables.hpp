@@ -17,6 +17,9 @@ extern ImDrawList* project_draw_list;
 extern ImVec2 dim__main;
 extern ImVec2 dim__menu__node_detail;
 
+extern ImVec2 dim__menu__detail__offset;
+
+
 extern bool lockMove_screen;
 extern bool lockMove_node;
 

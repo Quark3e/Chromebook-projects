@@ -16,7 +16,7 @@ void gNC::_menu__node_details(
     static ImGuiWindowFlags win_flags = 0;
     win_flags |= ImGuiWindowFlags_NoResize;
     win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
-    // win_flags |= ImGuiWindowFlags_NoMove;
+    win_flags |= ImGuiWindowFlags_NoMove;
     win_flags |= ImGuiWindowFlags_NoCollapse;
     win_flags |= ImGuiWindowFlags_HorizontalScrollbar;
     // win_flags |= ImGuiWindowFlags_Verti
@@ -35,10 +35,18 @@ void gNC::_menu__node_details(
     static int _win_widthOffset = 20;
 
     if(ImGui::Begin((" node: "+toDetail->addr).c_str(), NULL, win_flags)) {
-        std::cout <<std::boolalpha << ImGui::IsWindowFocused()<<" | ";
+        // std::cout <<std::boolalpha << ImGui::IsWindowFocused()<<" | ";
         _winFocused__node_details = ImGui::IsWindowFocused();
-        ImGui::SetWindowPos(ImGui::GetWindowPos());
-        if(init_node!=toDetail) ImGui::SetWindowSize(dim__menu__node_detail);
+        // ImGui::SetWindowPos(ImGui::GetWindowPos());
+        // if(init_node!=toDetail) {
+        ImGui::SetWindowPos(dim__menu__detail__offset);
+        if(linkPtr_menu__link_details) {
+            ImGui::SetWindowSize(ImVec2(dim__menu__node_detail[0], dim__menu__node_detail[1]*0.5));
+        }
+        else {
+            ImGui::SetWindowSize(dim__menu__node_detail);
+        }
+        // }
 
         ImGui::PushItemWidth(dim__menu__node_detail.x-_win_widthOffset);
         ImGui::InputText("##_ttle", &(toDetail->label), inpText_flags_label);
@@ -49,7 +57,7 @@ void gNC::_menu__node_details(
         ImGui::InputText("##_desc", &(toDetail->desc), inpText_flags_desc);
         
         ImGui::Separator();
-        ImGui::InputTextMultiline("##_bodyText", &(toDetail->bodyText), ImVec2(dim__menu__node_detail.x-_win_widthOffset, ImGui::GetTextLineHeight()*10), inpText_flags_bodyT);
+        ImGui::InputTextMultiline("##_bodyText", &(toDetail->bodyText), ImVec2(dim__menu__node_detail.x-_win_widthOffset, ImGui::GetTextLineHeight()*5), inpText_flags_bodyT);
 
 
         ImGui::BeginGroup();
@@ -97,9 +105,11 @@ void gNC::_menu__link_details(
     assert(toDetail!=nullptr);
     static gNC::gLINK* init_link = nullptr;
 
+
     static ImGuiWindowFlags win_flags = 0;
     win_flags |= ImGuiWindowFlags_NoResize;
     win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
+    win_flags |= ImGuiWindowFlags_NoMove;
     win_flags |= ImGuiWindowFlags_NoCollapse;
     win_flags |= ImGuiWindowFlags_HorizontalScrollbar;
 
@@ -111,8 +121,17 @@ void gNC::_menu__link_details(
 
     if(ImGui::Begin((" link: "+toDetail->addr).c_str()), NULL, win_flags) {
         _winFocused__link_details = ImGui::IsWindowFocused();
-        ImGui::SetWindowPos(ImGui::GetWindowPos());
-        if(init_link!=toDetail) ImGui::SetWindowSize(dim__menu__node_detail);
+        // ImGui::SetWindowPos(ImGui::GetWindowPos());
+        // if(init_link!=toDetail) {
+        if(nodePtr_menu__node_details) {
+            ImGui::SetWindowPos(ImVec2(dim__menu__detail__offset.x, dim__menu__detail__offset.y+dim__menu__node_detail[1]*0.5));
+            ImGui::SetWindowSize(ImVec2(dim__menu__node_detail[0], dim__menu__node_detail[1]*0.5));
+        }
+        else {
+            ImGui::SetWindowPos(dim__menu__detail__offset);
+            ImGui::SetWindowSize(dim__menu__node_detail);
+        }
+        // }
 
         ImGui::End();
     }

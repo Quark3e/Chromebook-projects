@@ -7,7 +7,9 @@ ImDrawList* project_draw_list = nullptr;
 
 
 ImVec2 dim__main        = ImVec2(1280, 700);
-ImVec2 dim__menu__node_detail = ImVec2(300, 500);
+ImVec2 dim__menu__node_detail = ImVec2(300, 600);
+
+ImVec2 dim__menu__detail__offset    = ImVec2(20, 60);
 
 bool lockMove_screen    = true;
 bool lockMove_node      = true;

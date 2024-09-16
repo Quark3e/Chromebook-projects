@@ -1196,7 +1196,7 @@ int _draw_NODEcheckConnects(
 
 int gNC::guiNodeChart::draw() {
     static bool local_init = false;
-    static std::vector<int>* pressed_keys;
+    static std::vector<std::vector<int>>* pressed_keys;
 
     if(!local_init) pressed_keys = update_keys();
 
@@ -1217,7 +1217,6 @@ int gNC::guiNodeChart::draw() {
 
     static gLINK* focused_link{nullptr};
 
-    std::cout <<"winFocus: node/link: "<<std::boolalpha<<_winFocused__node_details<<" "<< _winFocused__link_details<<std::endl;
 
     for(auto itr=_links.begin(); itr!=this->_links.end(); ++itr) {
         std::vector<ImVec2> linkPos{
@@ -1234,13 +1233,18 @@ int gNC::guiNodeChart::draw() {
             ImVec2(screen_pos[0], screen_pos[1])
         )) {
             
-            if(isKeyPressed(655, pressed_keys) && !_winFocused__node_details) {
-
-                link_focused = true;
-                focused_link = &(*itr);
+            if(
+                isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-1]) &&
+                !isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-2])
+                // !_winFocused__node_details
+            ) {
 
                 if(mouseAction_left==3 || mouseAction_left==-1) {
-                    // linkPtr_menu__link_details = &(*itr);
+                    (*itr).draw__state = 2;
+
+                    link_focused = true;
+                    focused_link = &(*itr);
+                    linkPtr_menu__link_details = &(*itr);
                     mouseAction_left = 3;
                     decay_mouseClick_left = 100;
                 }
@@ -1254,9 +1258,13 @@ int gNC::guiNodeChart::draw() {
             (*itr).draw__state = 0;
         }
 
-        if(!_winFocused__link_details && !_winFocused__node_details && link_focused && focused_link == &(*itr)) {
-            linkPtr_menu__link_details = &(*itr);
-        }
+        // if(
+        //     // !_winFocused__link_details &&
+        //     // !_winFocused__node_details &&
+        //     link_focused && focused_link == &(*itr)
+        // ) {
+        //     linkPtr_menu__link_details = &(*itr);
+        // }
 
 
         (*itr).draw_link(std::vector<ImDrawList*>{draw_list}, ImVec2(screen_pos[0], screen_pos[1]));
@@ -1276,7 +1284,7 @@ int gNC::guiNodeChart::draw() {
         int node_connect = _draw_NODEcheckConnects(itr, nodePos);
 
 
-        if(isKeyPressed(655, pressed_keys)) {
+        if(isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-1])) {
             if(node_connect==-1) {
                 if(inRegion(io.MousePos, nodePos, ImVec2(nodePos.x+(*itr).width, nodePos.y+(*itr).height))) { //region: Node
                     if(mouseAction_left==1 || mouseAction_left==-1) {
@@ -1355,7 +1363,7 @@ int gNC::guiNodeChart::draw() {
 
         }
 
-        if(isKeyPressed(656, pressed_keys)) {
+        if(isKeyPressed(656, &(*pressed_keys)[pressed_keys->size()-1])) {
             if(node_connect==-1) {
                 if(inRegion(io.MousePos, nodePos, ImVec2(nodePos.x+(*itr).width, nodePos.y+(*itr).height))) {
                     if(mouseAction_right==1 || mouseAction_right==-1) {
@@ -1392,7 +1400,7 @@ int gNC::guiNodeChart::draw() {
             // _menu__node_details(&(*itr));
             nodePtr_menu__node_details  = &(*itr);
             node_focused   = true;
-            if(!lockMove_node && pressed_keys->size() > 0 && isKeyPressed(655, pressed_keys)) {
+            if(!lockMove_node && ((*pressed_keys)[pressed_keys->size()-1]).size() > 0 && isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-1])) {
                 NODE_move(&(*itr), io.MouseDelta.x, io.MouseDelta.y, 1);
                 ImGui::SetWindowPos(ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]));
             }
@@ -1406,18 +1414,23 @@ int gNC::guiNodeChart::draw() {
     }
 
 
+
+    // std::cout <<"winFocus: ["<< (nodePtr_menu__node_details? ptrToStr<gNC::gNODE*>(nodePtr_menu__node_details) : "nullptr")<<", "<< (linkPtr_menu__link_details? ptrToStr<gNC::gLINK*>(linkPtr_menu__link_details) : "nullptr")<<"]";
+    // std::cout <<std::boolalpha<<" "<<link_focused<<" ";
+    // std::cout <<"mouseAction_left:"<<mouseAction_left;
+
     if(nodePtr_menu__node_details) _menu__node_details(nodePtr_menu__node_details);
     if(linkPtr_menu__link_details) _menu__link_details(linkPtr_menu__link_details);
 
-    if(static_mouseAction_left!=1 && (mouseDrag_left || linkPtr_menu__link_details)) {
+    if(static_mouseAction_left!=1 && (mouseDrag_left)) {
         if(!node_focused) nodePtr_menu__node_details = nullptr;
     }
-    if(static_mouseAction_left!=3 && (mouseDrag_left || nodePtr_menu__node_details)) {
+    if(static_mouseAction_left!=3 && (mouseDrag_left)) {
         if(!link_focused) linkPtr_menu__link_details = nullptr;
 
     }
 
-    if((mouseAction_left==0 || mouseAction_left==-1) && isKeyPressed(655, pressed_keys)) {
+    if((mouseAction_left==0 || mouseAction_left==-1) && isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-1])) {
         lockMove_screen = false;
         mouseAction_left = 0;
         decay_mouseClick_left = 100;
@@ -1428,7 +1441,7 @@ int gNC::guiNodeChart::draw() {
     }
     if(mouseAction_left!=-1) {
         if(decay_mouseClick_left>0) {
-            if(!isKeyPressed(655, pressed_keys)) decay_mouseClick_left -= mouseTimer_decay;
+            if(!isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-1])) decay_mouseClick_left -= mouseTimer_decay;
         }
         else {
             decay_mouseClick_left = 0;
@@ -1440,7 +1453,7 @@ int gNC::guiNodeChart::draw() {
     if(mouseAction_left!=0 || mouseAction_left==2) lockMove_screen  = true;
     if(mouseAction_left!=1 || mouseAction_left==2) lockMove_node    = true;
 
-    if(isKeyPressed(656, pressed_keys)) {
+    if(isKeyPressed(656, &(*pressed_keys)[pressed_keys->size()-1])) {
         if(mouseAction_right==0 || mouseAction_right==-1) {
             ImGui::OpenPopup("_menu__rightClick__default");
             // mouseAction_right = 0;
@@ -1458,6 +1471,7 @@ int gNC::guiNodeChart::draw() {
     mouseAction_right = -1;
     // nodePtr_menu__rightClick = nullptr;
     
+    // std::cout << std::endl;
 
     if(!local_init) local_init = true;
     return 0;

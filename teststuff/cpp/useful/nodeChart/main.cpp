@@ -21,8 +21,6 @@ bool opt__enable_grid = true;
 
 int main(int argc, char** argv) {
 
-
-
     al_init();
     al_install_keyboard();
     al_install_mouse();
@@ -39,8 +37,6 @@ int main(int argc, char** argv) {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); //(void)io;
     ImGuiStyle& style = ImGui::GetStyle();
-
-
 
 
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -69,10 +65,13 @@ int main(int argc, char** argv) {
     gNC::guiNodeChart proj0;
     proj0.thisPtr = &proj0;
 
+    DIY::typed_dict<std::string, gNC::guiNodeChart> projects({"project 0"}, {gNC::guiNodeChart()});
+    proj0.thisPtr = projects.getPtr_idx(0);
+
     static int cnt = 0;
 
     while(running_main) {
-        static std::vector<int>* pressed_keys = update_keys();
+        static std::vector<std::vector<int>>* pressed_keys = update_keys();
         update_keys();
 
         ALLEGRO_EVENT al_event;
@@ -97,6 +96,7 @@ int main(int argc, char** argv) {
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 0));
+
         ImGui::Begin(" ", NULL, window0_flags);
         ImGui::PopStyleColor();
         ImGui::PopStyleVar();
@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
         }
 
         if(ImGui::BeginTabBar("Tabs")) {
-            if(ImGui::BeginTabItem("project 0")) {
+            if(ImGui::BeginTabItem(projects.keys()[0].c_str())) {
                 project_draw_list = ImGui::GetWindowDrawList();
 
                 ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
                 ImGui::PopStyleVar();
                 
                 if(ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
-                    if(!lockMove_screen && isKeyPressed(655, pressed_keys)) {
+                    if(!lockMove_screen && isKeyPressed(655, &((*pressed_keys)[pressed_keys->size()-1]))) {
                         proj0.setScreen_pos(io.MouseDelta.x, io.MouseDelta.y, 1);
                         mouseDrag_left = true;
                     }
@@ -199,7 +199,9 @@ int main(int argc, char** argv) {
         }
         cnt++;
 
-        ImGui::SetCursorPos(ImVec2(10, dim__main[1]-25));
+        ImGui::SetCursorPos(ImVec2(10, dim__main[1] - 25 - ImGui::GetTextLineHeight()));
+        ImGui::Text("Mouse pos: x:%3.1f y:%3.1f", io.MousePos.x, io.MousePos.y);
+        ImGui::SetCursorPosX(10);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f/io.Framerate, io.Framerate);
         ImGui::End();
         //--------------------

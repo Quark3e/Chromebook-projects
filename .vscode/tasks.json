@@ -141,6 +141,7 @@
 				"-g",
 				"/home/berkhme/github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/main.cpp",
 				"/usr/local/include/HC_useful/nodeChart/gui_nodeChart.cpp",
+				"/usr/local/include/HC_useful/diy_dictionary.cpp",
 				"${fileDirname}/globals_variables.cpp",
 				"${fileDirname}/menuScreens.cpp",
 				"/usr/local/include/imgui/backends/imgui_impl_allegro5.cpp",

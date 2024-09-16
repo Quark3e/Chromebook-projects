@@ -1,6 +1,6 @@
 #pragma once
-#ifndef HPP_dictIONARY
-#define HPP_dictIONARY
+#ifndef HPP_DICTIONARY
+#define HPP_DICTIONARY
 
 
 /**
@@ -531,7 +531,13 @@ namespace DIY {
 
     };
 
-
+    /**
+     * @brief Store custom types in a dictionary system.
+     * Can not store container types as `_key_type` has to be comparable with different instances of same type
+     * 
+     * @tparam _key_type data type of the key in the key/value pair
+     * @tparam _store_type data type of the value in the key/value pair
+     */
     template<class _key_type, class _store_type>
     class typed_dict {
         private:
@@ -568,11 +574,12 @@ namespace DIY {
             if(pos==-1) throw std::runtime_error("ERROR: "+this->_info_name+"::` _store_type`& operator[](): argument for `key` was not found in dictionary.");
             return const_cast<_store_type&>(_values.at(pos));
         }
-        _store_type _from_idx(size_t idx) {
+        _store_type& _from_idx(size_t idx) {
             return _values.at(idx);
         }
 
         _store_type* getPtr(_key_type key);
+        _store_type* getPtr_idx(int idx);
 
         size_t find(_key_type key);
 
@@ -663,12 +670,31 @@ namespace DIY {
     _store_type* typed_dict<_key_type, _store_type>::getPtr(_key_type key) {
         int pos = check_existence<_key_type>(key, this->_keys);
         if(pos<0) this->_call_error(0, "::getPtr(_key_type)");
+        return this->getPtr(pos);
+    }
+    /**
+     * @brief get pointer to a stored value
+     * @warning If size of stored values are changed (either by addition or removal) the previously gotten pointers may become invalid
+     * because of how pointers change.
+     * @tparam _key_type type for the stored "keys"
+     * @param idx index to the value to get the pointer to
+     * @return `const _store_type*` to element stored with key `key`.
+     */
+    template<class _key_type, class _store_type>
+    _store_type* typed_dict<_key_type, _store_type>::getPtr_idx(int idx) {
+        if(idx>=_keys.size()) this->_call_error(0, "::getPtr(int)", "idx is bigger than stored number of elements");
+        if(idx<0) {
+            if(abs(idx)>_keys.size()) this->_call_error(0, "::getPtr(int)", "argument for `idx` goes too far into the negative. There are "+std::to_string(_keys.size())+" stored. Input arg was: "+std::to_string(idx));
+            else {
+                idx = static_cast<int>(_keys.size()) + idx;
+            }
+        }
         if(_values_modified) {
             this->_valuesL = std::list<_store_type>(_values.begin(), _values.end());
             _values_modified = false;
         }
         typename std::list<_store_type>::iterator it = _valuesL.begin();
-        std::advance(it, pos);
+        std::advance(it, idx);
         // for(int i=0; i<pos; i++) it++;
         return &*it;
     }
