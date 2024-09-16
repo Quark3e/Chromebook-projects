@@ -68,7 +68,7 @@ namespace gNC {
 
         int link_lineWidth = 12;
 
-        int link_gui__lineWidth = 12;
+        int link_gui__lineWidth = 5;
 
         /**
          * 

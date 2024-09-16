@@ -54,19 +54,25 @@ int main(int argc, char** argv) {
     window0_flags |= ImGuiWindowFlags_NoMove;
     window0_flags |= ImGuiWindowFlags_NoResize;
     window0_flags |= ImGuiWindowFlags_NoCollapse;
-    window0_flags |= ImGuiWindowFlags_MenuBar;
+    // window0_flags |= ImGuiWindowFlags_MenuBar;
     window0_flags |= ImGuiWindowFlags_NoTitleBar;
     window0_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
     
-
+    window1_flags |= ImGuiWindowFlags_NoMove;
     window1_flags |= ImGuiWindowFlags_NoResize;
-
+    window1_flags |= ImGuiWindowFlags_NoCollapse;
+    window1_flags |= ImGuiWindowFlags_MenuBar;
+    window1_flags |= ImGuiWindowFlags_NoTitleBar;
+    
 
     gNC::guiNodeChart proj0;
     proj0.thisPtr = &proj0;
 
-    DIY::typed_dict<std::string, gNC::guiNodeChart> projects({"project 0"}, {gNC::guiNodeChart()});
-    proj0.thisPtr = projects.getPtr_idx(0);
+    // DIY::typed_dict<std::string, gNC::guiNodeChart> projects({"project 0"}, {gNC::guiNodeChart()});
+    // proj0.thisPtr = projects.getPtr_idx(0);
+
+    int selected = 0;
+
 
     static int cnt = 0;
 
@@ -96,35 +102,16 @@ int main(int argc, char** argv) {
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 0));
-
-        ImGui::Begin(" ", NULL, window0_flags);
+        ImGui::Begin("main__content", NULL, window0_flags);
         ImGui::PopStyleColor();
         ImGui::PopStyleVar();
-
         ImGui::SetWindowPos(ImVec2(0, 0));
         ImGui::SetWindowSize(dim__main);
 
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-        // proj0.screen_pos[0]=cnt;
-        // proj0.screen_pos[1]=cnt;
-
-        if(ImGui::BeginMenuBar()) {
-            if(ImGui::BeginMenu("File")) {
-                if(ImGui::MenuItem("Open")) { }
-                if(ImGui::MenuItem("Save")) { }
-                ImGui::EndMenu();
-            }
-            if(ImGui::BeginMenu("Program")) {
-                if(ImGui::MenuItem("Close")){ running_main = false; }
-                ImGui::EndMenu();
-            }
-            ImGui::EndMenuBar();
-        }
-
-        if(ImGui::BeginTabBar("Tabs")) {
-            if(ImGui::BeginTabItem(projects.keys()[0].c_str())) {
-                project_draw_list = ImGui::GetWindowDrawList();
+        if(selected==0) {
+            project_draw_list = ImGui::GetWindowDrawList();
 
                 ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
                 ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 0));
@@ -193,16 +180,56 @@ int main(int argc, char** argv) {
                 
                 ImGui::EndChild();
 
-                ImGui::EndTabItem();
-            }
-            ImGui::EndTabBar();
         }
-        cnt++;
 
         ImGui::SetCursorPos(ImVec2(10, dim__main[1] - 25 - ImGui::GetTextLineHeight()));
         ImGui::Text("Mouse pos: x:%3.1f y:%3.1f", io.MousePos.x, io.MousePos.y);
         ImGui::SetCursorPosX(10);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f/io.Framerate, io.Framerate);
+        ImGui::End();
+
+        cnt++;
+
+        // ----------
+
+        style.WindowRounding = 0;
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 0));
+        ImGui::Begin("main__overlay", NULL, window1_flags);
+        ImGui::PopStyleColor();
+        ImGui::PopStyleVar();
+
+        ImGui::SetWindowPos(ImVec2(0, 0));
+        ImGui::SetWindowSize(ImVec2(dim__main[0], 45));
+
+        // ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+        // proj0.screen_pos[0]=cnt;
+        // proj0.screen_pos[1]=cnt;
+
+        if(ImGui::BeginMenuBar()) {
+            if(ImGui::BeginMenu("File")) {
+                if(ImGui::MenuItem("Open")) { }
+                if(ImGui::MenuItem("Save")) { }
+                ImGui::EndMenu();
+            }
+            if(ImGui::BeginMenu("Program")) {
+                if(ImGui::MenuItem("Close")){ running_main = false; }
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenuBar();
+        }
+
+        if(ImGui::BeginTabBar("Tabs")) {
+            if(ImGui::BeginTabItem("project 0")) {
+                selected = 0;
+                
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
+        }
+
         ImGui::End();
         //--------------------
         ImGui::Render();

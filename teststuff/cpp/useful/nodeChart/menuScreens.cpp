@@ -119,7 +119,7 @@ void gNC::_menu__link_details(
 
     static int _win_widthOffset = 20;
 
-    if(ImGui::Begin((" link: "+toDetail->addr).c_str()), NULL, win_flags) {
+    if(ImGui::Begin((" link: "+toDetail->addr).c_str(), NULL, win_flags)) {
         _winFocused__link_details = ImGui::IsWindowFocused();
         // ImGui::SetWindowPos(ImGui::GetWindowPos());
         // if(init_link!=toDetail) {
