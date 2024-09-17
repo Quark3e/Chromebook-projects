@@ -467,7 +467,7 @@ bool gNC::gLINK::region(
     ImVec2 cursor,
     ImVec2 _offset
 ) {
-    static bool draw__pointRect = true;
+    static bool draw__pointRect = false;
 
     bool is_in_region = false;
     if(link_points_raw.size()==0) return false;

@@ -186,6 +186,27 @@ namespace DIY_SEARCH_MULTITHREAD
         return repeated;
     }
 
+    /**
+     * @brief Check if there are repetitions of an element inside a `std::list` container,
+     * i.e. check if any element value occurs more than once
+     * 
+     * @tparam T data type of the values stored inside `std::list`
+     * @param lst the `std::list` container to search through
+     * @return true if there are occurrences
+     * @return false if there aren't any occurrences
+     */
+    template<typename T>
+    bool hasRepetitions(std::list<T> lst) {
+        bool repeated = false;
+        for(T elem: lst) {
+            int foundCount = 0;
+            for(T var: lst) {
+                if(elem==var) foundCount++;
+            }
+            if(foundCount>1) return true;
+        }
+        return repeated;
+    }
 
     /**
      * @brief Check if a value of type `_check` exists in given `std::vector<_check>` container
@@ -211,8 +232,24 @@ namespace DIY_SEARCH_MULTITHREAD
     ) {
         std::vector<int> pos = DIY_SEARCH_MULTITHREAD::multithread_searchVec<_check>(
             vec, key, numThreads, threadLen, false, checkSpacing, verbose);
+            
         return pos.at(0);
     }
+
+
+    template<typename _check>
+    int check_existence(
+        _check key,
+        std::list<_check> lst
+    ) {
+        int idx=0;
+        for(auto itr=lst.begin(); itr!=lst.end(); ++itr) {
+            if(key==*itr) return idx;
+            idx++;
+        }
+        return -1;
+    }
+
 
     template<typename _check>
     int check_existence(

@@ -65,11 +65,11 @@ int main(int argc, char** argv) {
     window1_flags |= ImGuiWindowFlags_NoTitleBar;
     
 
-    gNC::guiNodeChart proj0;
-    proj0.thisPtr = &proj0;
+    // gNC::guiNodeChart proj0;
+    // proj0.thisPtr = &proj0;
 
-    // DIY::typed_dict<std::string, gNC::guiNodeChart> projects({"project 0"}, {gNC::guiNodeChart()});
-    // proj0.thisPtr = projects.getPtr_idx(0);
+    DIY::typed_dict<std::string, gNC::guiNodeChart> projects({"project 0"}, {gNC::guiNodeChart()});
+    projects[0].thisPtr = projects.getPtr_idx(0);
 
     int selected = 0;
 
@@ -88,10 +88,10 @@ int main(int argc, char** argv) {
                 ImGui_ImplAllegro5_InvalidateDeviceObjects();
                 al_acknowledge_resize(display);
                 ImGui_ImplAllegro5_CreateDeviceObjects();
-                proj0.screen_dim[0] = al_get_display_width(display);
-                proj0.screen_dim[1] = al_get_display_height(display);
-                dim__main.x = proj0.screen_dim[0];
-                dim__main.y = proj0.screen_dim[1];
+                projects[0].screen_dim[0] = al_get_display_width(display);
+                projects[0].screen_dim[1] = al_get_display_height(display);
+                dim__main.x = projects[0].screen_dim[0];
+                dim__main.y = projects[0].screen_dim[1];
             }
         }
         ImGui_ImplAllegro5_NewFrame();
@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
                 
                 if(ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
                     if(!lockMove_screen && isKeyPressed(655, &((*pressed_keys)[pressed_keys->size()-1]))) {
-                        proj0.setScreen_pos(io.MouseDelta.x, io.MouseDelta.y, 1);
+                        projects[0].setScreen_pos(io.MouseDelta.x, io.MouseDelta.y, 1);
                         mouseDrag_left = true;
                     }
                     else {
@@ -138,23 +138,23 @@ int main(int argc, char** argv) {
 
                 static const int GRID_STEP = 64;
                 if(opt__enable_grid) {
-                    draw_list->PushClipRect(ImVec2(0, 20), ImVec2(proj0.screen_dim[0], proj0.screen_dim[1]), true);
-                    for(float x=0; x<proj0.screen_dim[0]; x+=GRID_STEP)
-                        draw_list->AddLine(ImVec2(x+(proj0.screen_pos[0] % GRID_STEP), 0+canvas_p0.y), ImVec2(x+(proj0.screen_pos[0]%GRID_STEP), canvas_p1.y), IM_COL32(200, 200, 200, 40));
+                    draw_list->PushClipRect(ImVec2(0, 20), ImVec2(projects[0].screen_dim[0], projects[0].screen_dim[1]), true);
+                    for(float x=0; x<projects[0].screen_dim[0]; x+=GRID_STEP)
+                        draw_list->AddLine(ImVec2(x+(projects[0].screen_pos[0] % GRID_STEP), 0+canvas_p0.y), ImVec2(x+(projects[0].screen_pos[0]%GRID_STEP), canvas_p1.y), IM_COL32(200, 200, 200, 40));
 
-                    for(float y=0; y<proj0.screen_dim[1]; y+=GRID_STEP)
-                        draw_list->AddLine(ImVec2(canvas_p0.x, y+(proj0.screen_pos[1] % GRID_STEP)), ImVec2(canvas_p1.x, y+(proj0.screen_pos[1]%GRID_STEP)), IM_COL32(200, 200, 200, 40));
+                    for(float y=0; y<projects[0].screen_dim[1]; y+=GRID_STEP)
+                        draw_list->AddLine(ImVec2(canvas_p0.x, y+(projects[0].screen_pos[1] % GRID_STEP)), ImVec2(canvas_p1.x, y+(projects[0].screen_pos[1]%GRID_STEP)), IM_COL32(200, 200, 200, 40));
                     draw_list->PopClipRect();
                 }
 
 
                 if(cnt==0) {
-                    proj0.NODE_create(100, 100, "node0", "desc0", "body0");
-                    proj0.NODE_create(300, 300, "node1", "desc1", "body1");
-                    proj0.NODE_create(500, 500, "node2", "desc2", "body2");
-                    proj0.NODE_create(800, 300, "node3", "desc3", "body3");
+                    projects[0].NODE_create(100, 100, "node0", "desc0", "body0");
+                    projects[0].NODE_create(300, 300, "node1", "desc1", "body1");
+                    projects[0].NODE_create(500, 500, "node2", "desc2", "body2");
+                    projects[0].NODE_create(800, 300, "node3", "desc3", "body3");
 
-                    proj0[1].bodyText = std::string("")+
+                    projects[0][1].bodyText = std::string("")+
                         "What is Lorem Ipsum? "+
                         "Lorem Ipsum is simply dummy text of the printing and typesetting industry. "+
                         "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, \n"+
@@ -165,17 +165,17 @@ int main(int argc, char** argv) {
                         "and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\n"
                     ;
 
-                    proj0.LINK_create(0, 2, 1, 0, "link0");
-                    // proj0.LINK_create(&proj0[0], &proj0[2], 1, 0, "link0");
-                    proj0.LINK_create(&proj0[1], &proj0[2], 3, 0, "link1");
-                    proj0.LINK_create(&proj0[3], &proj0[1], 3, 2, "link2");
+                    projects[0].LINK_create(0, 2, 1, 0, "link0");
+                    // projects[0].LINK_create(&proj0[0], &proj0[2], 1, 0, "link0");
+                    projects[0].LINK_create(&projects[0][1], &projects[0][2], 3, 0, "link1");
+                    projects[0].LINK_create(&projects[0][3], &projects[0][1], 3, 2, "link2");
 
 
-                    // proj0.NODE_delete(&proj0[1], true);
+                    // projects[0].NODE_delete(&proj0[1], true);
 
                 }
                 style.WindowRounding = 15.0f;
-                proj0.draw();
+                projects[0].draw();
 
                 
                 ImGui::EndChild();
@@ -205,8 +205,8 @@ int main(int argc, char** argv) {
 
         // ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-        // proj0.screen_pos[0]=cnt;
-        // proj0.screen_pos[1]=cnt;
+        // projects[0].screen_pos[0]=cnt;
+        // projects[0].screen_pos[1]=cnt;
 
         if(ImGui::BeginMenuBar()) {
             if(ImGui::BeginMenu("File")) {

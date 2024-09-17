@@ -543,9 +543,10 @@ namespace DIY {
         private:
         std::string _info_name = "DIY::typed_dict";
 
+        
         std::vector<_key_type>      _keys;
-        std::vector<_store_type>    _values;
-        std::list<_store_type>      _valuesL;
+        std::vector<_store_type*>   _lookup;
+        std::list<_store_type>      _values;
         bool _values_modified = true;
 
         _key_type   _nullKey;
@@ -555,38 +556,37 @@ namespace DIY {
 
         void _call_error(int code, std::string from_member="", std::string custom_error="");
 
+        // auto _getItr_key(size_t idx);
+        auto _getItr(int idx);
+        auto _getItr_rev(int idx);
+
         public:
-        typed_dict() {} //empty default constructor
-        typed_dict(std::vector<_key_type> keys, std::vector<_store_type> values);
+        typed_dict() {}; //empty default constructor
+        typed_dict(std::vector<_key_type> keys, std::list<_store_type> values);
         typed_dict(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values);
 
-        _store_type& operator[] (_key_type key) {
-            if(!_init_container) throw std::runtime_error("ERROR: "+this->_info_name+"::` _store_type`& operator[](): class containers hasn't been initialized/(are empty)");
-            std::vector<int> idx = DIY_SEARCH_MULTITHREAD::multithread_searchVec<_key_type>(
-            _keys, key, -1, -1, true, -1, false);
-            int pos = check_existence<_key_type>(key, _keys);
-            if(pos==-1) throw std::runtime_error("ERROR: "+this->_info_name+"::` _store_type`& operator[](): argument for `key` was not found in dictionary.");
-            return _values.at(pos);
-        }
-        _store_type  operator[] (_key_type key) const {
-            if(!_init_container) throw std::runtime_error("ERROR: "+this->_info_name+"::` _store_type`& operator[](): class containers hasn't been initialized/(are empty)");
-            int pos =  check_existence<_key_type>(key, _keys);
-            if(pos==-1) throw std::runtime_error("ERROR: "+this->_info_name+"::` _store_type`& operator[](): argument for `key` was not found in dictionary.");
-            return const_cast<_store_type&>(_values.at(pos));
-        }
-        _store_type& _from_idx(size_t idx) {
-            return _values.at(idx);
-        }
+        _store_type& operator[] (int idx);
+        _store_type  operator[] (int idx) const;
+
+        _store_type& get(_key_type key);
+        _store_type  get(_key_type key) const;
+
 
         _store_type* getPtr(_key_type key);
         _store_type* getPtr_idx(int idx);
 
-        size_t find(_key_type key);
+        /**
+         * @brief Find the element index/position of given `key`
+         * 
+         * @param key the key to find index/position of
+         * @return size_t the index
+         */
+        int find(_key_type key, bool _call_except=true);
 
         size_t size() { return this->_keys.size(); }
 
         std::vector<_key_type> keys() { return _keys; }
-        std::vector<_store_type> values() { return _values; }
+        std::list<_store_type> values() { return _values; }
 
         std::string str_export(_key_type key, int width=0, int precision=2, std::string align="right", bool useBoolAlpha=false);
 
@@ -594,11 +594,11 @@ namespace DIY {
         int add(_key_type key, _store_type value);
 
         int append(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values);
-        int append(std::vector<_key_type> keys, std::vector<_store_type> values);
+        int append(std::vector<_key_type> keys, std::list<_store_type> values);
 
         int insert(size_t pos, _key_type key, _store_type value);
         int insert(size_t pos, std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values);
-        int insert(size_t pos, std::vector<_key_type> keys, std::vector<_store_type> values);
+        int insert(size_t pos, std::vector<_key_type> keys, std::list<_store_type> values);
 
         int replace(_key_type key, _store_type new_value);
 
@@ -607,6 +607,9 @@ namespace DIY {
         int erase(_key_type key);
     };
     
+
+
+
     /**
      * @brief private member function for `throw`:ing specific errors
      *  
@@ -618,6 +621,7 @@ namespace DIY {
      * @note (2):
      * @note  `0`- "input key argument not found in _keys storage"
      * @note  `1`- "input key argument already exists in _keys storage"
+     * @note  `2`- "class hasn't been initialized"
      */
     template<class _key_type, class _store_type>
     void typed_dict<_key_type, _store_type>::_call_error(int code, std::string from_member, std::string custom_error) {
@@ -631,6 +635,9 @@ namespace DIY {
             case 1: //key already exists
                 callStr += " input key argument already exists in _keys storage";
                 break;
+            case 2: //_init_containers is false
+                callStr += " class cotnainers hasn't been initialized";
+                break;
             default:
                 break;
             }
@@ -639,71 +646,122 @@ namespace DIY {
     }
 
 
-
     template<class _key_type, class _store_type>
-    typed_dict<_key_type, _store_type>::typed_dict(std::vector<_key_type> keys, std::vector<_store_type> values) {
-        if(keys.size()!=values.size()) this->_call_error(0,"::typed_dict(std::vector<_key_type>, std::vector<_store_type>)","input containers for `keys` and `values` aren't same size.");
-        if(hasRepetitions<_key_type>(keys)) this->_call_error(0,"::typed_dict(std::vector<_key_type>, std::vector<_store_type>)","there are repetitions inside input argument for `keys`");
+    auto typed_dict<_key_type, _store_type>::_getItr(int idx) {
+        if(idx>=_keys.size()) this->_call_error(0, "::_getItr(size_t)", "arg for `idx` is too large");
+        else if(abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
+        else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
+        
+        auto itr = _values.begin();
+        advance(itr, idx);
+
+        return itr;
+    }
+    template<class _key_type, class _store_type>
+    auto typed_dict<_key_type, _store_type>::_getItr_rev(int idx) {
+        if(idx>=_keys.size()) this->_call_error(0, "::_getItr(size_t)", "arg for `idx` is too large");
+        else if(abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
+        else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
+        
+        auto itr = _values.rbegin();
+        advance(itr, idx);
+
+        return itr;
+    }
+
+
+    // template<class _key_type, class _store_type>
+    // typed_dict<_key_type, _store_type>::typed_dict() {}
+    
+    template<class _key_type, class _store_type>
+    typed_dict<_key_type, _store_type>::typed_dict(std::vector<_key_type> keys, std::list<_store_type> values) {
+        if(keys.size()!=values.size()) this->_call_error(0, "::typed_dict(std::vector<_key_type>, std::list<_store_type>)", "input containers for `keys` and `values` aren't same size.");
+        if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::typed_dict(std::vector<_key_type>, std::list<_store_type>)", "there are repetitions inside input argument for `keys`");
         this->_keys = keys;
         this->_values = values;
+        for(auto itr=_values.begin(); itr!=_values.end(); ++itr) _lookup.push_back(&(*itr));
         this->_init_container = true;
     }
     template<class _key_type, class _store_type>
     typed_dict<_key_type, _store_type>::typed_dict(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values) {
-        if(keys.size()!=values.size()) this->_call_error(0,"::typed_dict(std::initializer_list<_key_type>, std::initializer_list<_store_type>)","input containers for `keys` and `values` aren't same size.");
-        if(hasRepetitions<_key_type>(keys)) this->_call_error(0,"::typed_dict(std::initializer_list<_key_type>, std::initializer_list<_store_type>)","there are repetitions inside input argument for `keys`");
+        if(keys.size()!=values.size()) this->_call_error(0, "::typed_dict(std::initializer_list<_key_type>, std::initializer_list<_store_type>)", "input containers for `keys` and `values` aren't same size.");
+        if(hasRepetitions<_key_type>(std::vector<_key_type>(keys))) this->_call_error(0, "::typed_dict(std::initializer_list<_key_type>, std::initializer_list<_store_type>)", "there are repetitions inside input argument for `keys`");
         this->_keys = keys;
         this->_values = values;
+        for(auto itr=_values.begin(); itr!=_values.end(); ++itr) _lookup.push_back(&(*itr));
         this->_init_container = true;
     }
 
 
-    /**
-     * @brief get pointer to a stored value
-     * @warning If size of stored values are changed (either by addition or removal) the previously gotten pointers may become invalid
-     * because of how pointers change.
-     * @tparam _key_type type for the stored "keys"
-     * @param key `key` to value to get the pointer to
-     * @return `const _store_type*` to element stored with key `key`.
-     */
+    template<class _key_type, class _store_type>
+    _store_type& typed_dict<_key_type, _store_type>::operator[] (int idx) {
+        if(!_init_container) this->_call_error(2, "::_operator[] (int)");
+
+        if(idx>=_keys.size()) this->_call_error(0, "::_operator[] (int)", " arg for index `idx` is bigger than available number of keys: "+std::to_string(_keys.size()));
+        else if(abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
+        else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
+
+        return *(this->_getItr(idx));
+    }
+    template<class _key_type, class _store_type>
+    _store_type typed_dict<_key_type, _store_type>::operator[] (int idx) const {
+        if(!_init_container) this->_call_error(2, "::_operator[] (int) const");
+
+        if(idx>=_keys.size()) this->_call_error(0, "::_operator[] (int)", " arg for index `idx` is bigger than available number of keys: "+std::to_string(_keys.size()));
+        else if(abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
+        else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
+
+        return const_cast<_store_type&>(*(this->_getItr(idx)));
+    }
+    
+    template<class _key_type, class _store_type>
+    _store_type& typed_dict<_key_type, _store_type>::get(_key_type key) {
+        if(!_init_container) this->_call_error(2, "::get(_key_type)");
+
+        for(size_t i=0; i<_keys.size(); i++) {
+            if(_keys[i]==key) return *(this->_getItr(i));
+        }
+        this->_call_error(0, "::get(_key_type)");
+    }
+    template<class _key_type, class _store_type>
+    _store_type  typed_dict<_key_type, _store_type>::get(_key_type key) const {
+        if(!_init_container) this->_call_error(2, "::get(_key_type) const"); 
+
+        for(size_t i=0; i<_keys.size(); i++) {
+            if(_keys[i]==key) return const_cast<_store_type&>(*(this->_getItr(i)));
+        }
+        this->_call_error(0, "::get(_key_type)");
+    }
+
+
+
     template<class _key_type, class _store_type>
     _store_type* typed_dict<_key_type, _store_type>::getPtr(_key_type key) {
-        int pos = check_existence<_key_type>(key, this->_keys);
-        if(pos<0) this->_call_error(0, "::getPtr(_key_type)");
-        return this->getPtr(pos);
+        if(!_init_container) this->_call_error(2, "::getPtr(_key_type)");
+
+        for(size_t i=0; i<_keys.size(); i++) {
+            if(_keys[i]==key) return _lookup[i];
+        }
+        this->_call_error(0, "::getPtr(_key_type)");
     }
-    /**
-     * @brief get pointer to a stored value
-     * @warning If size of stored values are changed (either by addition or removal) the previously gotten pointers may become invalid
-     * because of how pointers change.
-     * @tparam _key_type type for the stored "keys"
-     * @param idx index to the value to get the pointer to
-     * @return `const _store_type*` to element stored with key `key`.
-     */
     template<class _key_type, class _store_type>
     _store_type* typed_dict<_key_type, _store_type>::getPtr_idx(int idx) {
-        if(idx>=_keys.size()) this->_call_error(0, "::getPtr(int)", "idx is bigger than stored number of elements");
-        if(idx<0) {
-            if(abs(idx)>_keys.size()) this->_call_error(0, "::getPtr(int)", "argument for `idx` goes too far into the negative. There are "+std::to_string(_keys.size())+" stored. Input arg was: "+std::to_string(idx));
-            else {
-                idx = static_cast<int>(_keys.size()) + idx;
-            }
-        }
-        if(_values_modified) {
-            this->_valuesL = std::list<_store_type>(_values.begin(), _values.end());
-            _values_modified = false;
-        }
-        typename std::list<_store_type>::iterator it = _valuesL.begin();
-        std::advance(it, idx);
-        // for(int i=0; i<pos; i++) it++;
-        return &*it;
+        if(!_init_container) this->_call_error(2, "::getPtr_idx(int)");
+        
+        if(idx>=_keys.size()) this->_call_error(0, "::getPtr_idx(int)", "idx is bigger than stored number of keys");
+        else if(abs(idx)>_keys.size()) this->_call_error(0, "::getPtr_idx(int)", "argument for `idx` goes too far into the negative. There are "+std::to_string(_keys.size())+" stored. Input arg was: "+std::to_string(idx));
+        else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
+
+        return this->_lookup[idx];
     }
 
     template<class _key_type, class _store_type>
-    size_t typed_dict<_key_type, _store_type>::find(_key_type key) {
-        int pos = check_existence<_key_type>(key, this->_keys);
-        if(pos<0) this->_call_error(0, "::find(_key_type)");
-        return static_cast<size_t>(pos);
+    int typed_dict<_key_type, _store_type>::find(_key_type key, bool _call_except) {
+        for(int i=0; i<_keys.size(); i++) {
+            if(_keys[i]==key) return i;
+        }
+        if(_call_except) this->_call_error(0, "::find(_key_type)");
+        return -1;
     }
 
     template<class _key_type, class _store_type>
@@ -715,8 +773,8 @@ namespace DIY {
         bool useBoolAlpha
     ) {
         int pos = check_existence<_key_type>(key, _keys);
-        if(pos<0) this->_call_error(0, "::str_export(_key_type)");
-        return formatNumber<_store_type>(_values.at(pos),width,precision,align,useBoolAlpha);
+        if(pos<0) this->_call_error(0, "::str_export(_key_type, int, int, std::string, bool)");
+        return formatNumber<_store_type>(*(_lookup[pos]), width, precision, align, useBoolAlpha);
     }
 
     template<class _key_type, class _store_type>
@@ -724,30 +782,30 @@ namespace DIY {
         if(check_existence<_key_type>(key, this->_keys)!=-1) this->_call_error(1, "::add(_key_type, _store_type)");
         this->_keys.push_back(key);
         this->_values.push_back(value);
+        this->_lookup.push_back(&*(this->_getItr(-1)));
+
         if(this->_init_container) this->_init_container = true;
         this->_values_modified = true;
         return 0;
     }
-
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::append(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values) {
         if(keys.size()!=values.size()) this->_call_error(0, "::append(std::initializer_list<_key_type>, std::initializer_list<_store_type>)", " arguments aren't the same size");
         if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::append(std::initializer_list<_key_type>, std::initializer_list<_store_type>)", " input argument for keys has repetitions of elements");
-        for(auto elem: keys) { if(check_existence<_key_type>(elem, keys)!=-1) { return 1; } }
-        this->_keys.insert(this->_keys.end(), keys.begin(), keys.end());
-        this->_values.insert(this->_values.end(), values.begin(), values.end());
-        this->_values_modified = true;
+        
+        for(auto elem: keys) { if(check_existence<_key_type>(elem, _keys)!=-1) { this->_call_error(1,"::append(std::initializer_list<_key_type>, std::initializer_list<_store_type>)"); } } //check if any of the new keys exist in _keys container
+
+        this->insert(this->size(), std::vector<_key_type>(keys), std::list<_store_type>(values));
+
         return 0;
     }
-
     template<class _key_type, class _store_type>
-    int typed_dict<_key_type, _store_type>::append(std::vector<_key_type> keys, std::vector<_store_type> values) {
-        if(keys.size()!=values.size()) this->_call_error(0, "::append(std::vector<_key_type>, std::vector<_store_type>)", " arguments aren't the same size");
-        if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::append(std::vector<_key_type>, std::vector<_store_type>)", " input argument for keys has repetitions of elements");
-        for(auto elem: keys) { if(check_existence<_key_type>(elem, keys)!=-1) { return 1; } }
-        this->_keys.insert(this->_keys.end(), keys.begin(), keys.end());
-        this->_values.insert(this->_values.end(), values.begin(), values.end());
-        this->_values_modified = true;
+    int typed_dict<_key_type, _store_type>::append(std::vector<_key_type> keys, std::list<_store_type> values) {
+        if(keys.size()!=values.size()) this->_call_error(0, "::append(std::vector<_key_type>, std::list<_store_type>)", " arguments aren't the same size");
+        if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::append(std::vector<_key_type>, std::list<_store_type>)", " input argument for keys has repetitions of elements");
+        for(auto elem: keys) { if(check_existence<_key_type>(elem, _keys)!=-1) { this->_call_error(1,"::append(std::vector<_key_type>, std::list<_store_type>)"); } }
+        this->insert(this->size(), keys, values);
+        
         return 0;
     }
 
@@ -756,31 +814,50 @@ namespace DIY {
         if(check_existence<_key_type>(key, this->_keys)!=-1) this->_call_error(1, "::insert(size_t, _key_type, _store_type)");
         this->_keys.insert(this->_keys.begin()+pos, key);
         this->_values.insert(this->_values.begin()+pos, value);
+        this->_lookup.insert(this->_lookup.begin()+pos, &_getItr(pos));
         this->_values_modified = true;
         return 0;
     }
-
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::insert(size_t pos, std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values) {
-        if(keys.size()!=values.size()) this->_call_error(0, "::insert(std::initializer_list<_key_type>, std::initializer_list<_store_type>)", " arguments aren't the same size");
-        if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::insert(std::initializer_list<_key_type>, std::initializer_list<_store_type>)", " input argument for keys has repetitions of elements");
-        for(auto elem: keys) { if(check_existence<_key_type>(elem, this->_keys)!=-1) { this->_call_error(1,"::insert(std::initializer_list<_key_type>, std::initializer_list<_store_type>)"); } }
+        if(keys.size()!=values.size()) this->_call_error(0, "::insert(size_t, std::initializer_list<_key_type>, std::initializer_list<_store_type>)", " arguments aren't the same size");
+        if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::insert(size_t, std::initializer_list<_key_type>, std::initializer_list<_store_type>)", " input argument for keys has repetitions of elements");
+        for(auto elem: keys) { if(check_existence<_key_type>(elem, this->_keys)!=-1) { this->_call_error(1,"::insert(size_t, std::initializer_list<_key_type>, std::initializer_list<_store_type>)"); } }
         
-        this->_keys.insert(this->_keys.begin()+pos, keys.begin(), keys.end());
-        this->_values.insert(this->_values.begin()+pos, values.begin(), values.end());
+        this->insert(pos, std::vector<_key_type>(keys), std::list<_store_type>(values));
 
-        this->_values_modified = true;
+        // this->_keys.insert(this->_keys.begin()+pos, keys.begin(), keys.end());
+        // this->_values.insert(this->_values.begin()+pos, values.begin(), values.end());
+        // std::vector<_store_type*> tmpPtr(values.size(), nullptr);
+        // auto itr = _values.begin();
+        // advance(itr, pos);
+        // for(size_t i=0; i<values.size(); i++) {
+        //     tmpPtr[i] = &*itr;
+        //     ++itr;
+        // }
+        // this->_lookup.insert(this->_lookup.begin()+pos, tmpPtr.begin(), tmpPtr.end());
+        // this->_values_modified = true;
         return 0;
     }
-
     template<class _key_type, class _store_type>
-    int typed_dict<_key_type, _store_type>::insert(size_t pos, std::vector<_key_type> keys, std::vector<_store_type> values) {
-        if(keys.size()!=values.size()) this->_call_error(0, "::insert(std::vector<_key_type>, std::vector<_store_type>)", " arguments aren't the same size");
-        if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::insert(std::vector<_key_type>, std::vector<_store_type>)", " input argument for keys has repetitions of elements");
+    int typed_dict<_key_type, _store_type>::insert(size_t pos, std::vector<_key_type> keys, std::list<_store_type> values) {
+        /// Core function for overloads and similar
+        if(keys.size()!=values.size()) this->_call_error(0, "::insert(size_t, std::vector<_key_type>, std::vector<_store_type>)", " arguments aren't the same size");
+        if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::insert(size_t, std::vector<_key_type>, std::vector<_store_type>)", " input argument for keys has repetitions of elements");
         for(auto elem: keys) { if(check_existence<_key_type>(elem, this->_keys)!=-1) { this->_call_error(1,"::insert(std::vector<_key_type>, std::vector<_store_type>)"); } }
+
 
         this->_keys.insert(this->_keys.begin()+pos, keys.begin(), keys.end());
         this->_values.insert(this->_values.begin()+pos, values.begin(), values.end());
+
+        std::vector<_store_type*> tmpPtr(values.size(), nullptr);
+        auto itr = _values.begin();
+        advance(itr, pos);
+        for(size_t i=0; i<values.size(); i++) {
+            tmpPtr[i] = &*itr;
+            ++itr;
+        }
+        this->_lookup.insert(this->_lookup.begin()+pos, tmpPtr.begin(), tmpPtr.end());
 
         this->_values_modified = true;
         return 0;
@@ -790,9 +867,10 @@ namespace DIY {
     int typed_dict<_key_type, _store_type>::replace(_key_type key, _store_type new_value) {
         int pos = check_existence<_key_type>(key, this->_keys);
         if(pos<0) this->_call_error(0, "::replace(_key_type, _store_type)");
-        this->_values.at(pos) = new_value;
+        // this->_values.at(pos) = new_value;
 
-        this->_values_modified = true;
+        *(this->_lookup[pos]) = new_value;
+
         return 0;
     }
 
@@ -812,7 +890,7 @@ namespace DIY {
         if(pos==-1) this->_call_error(0, "::erase(_key_type)");
         this->_keys.erase(this->_keys.begin()+pos);
         this->_values.erase(this->_values.begin()+pos);
-
+        this->_lookup.erase(this->_lookup.begin()+pos);
         this->_vector_modified = true;
         return 0;
     }
