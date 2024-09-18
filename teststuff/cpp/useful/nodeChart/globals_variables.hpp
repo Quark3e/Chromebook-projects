@@ -7,6 +7,9 @@
 
 #include "globals_includes.hpp"
 
+
+extern DIY::typed_dict<std::string, gNC::guiNodeChart> projects;
+
 /**
  * Pointer to main "global" ImDrawList for the currently show projects draw window
  * 

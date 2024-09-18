@@ -36,9 +36,10 @@
 
 #include <HC_useful/diy_dictionary.hpp>
 
+
+#include "gui_nodeChart.hpp"
 #include "globals_variables.hpp"
 #include "extra_imgui.hpp"
-#include "gui_nodeChart.hpp"
 
 
 

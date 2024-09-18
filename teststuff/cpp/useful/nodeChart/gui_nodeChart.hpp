@@ -117,7 +117,7 @@ namespace gNC {
          */
         std::vector<std::vector<float>> link_lims;
 
-
+        gLINK();
         /**
          * @brief Construct a new gLINK object
          * 
@@ -132,22 +132,10 @@ namespace gNC {
             int par_type_src, int par_type_dest,
             gNC::gNODE* par_src, gNC::gNODE* par_dest,
             std::string par_label="",std::string par_desc=""
-        ): Pos_src(-1,-1), Pos_dest(-1,-1)/*, Pos_s1(-1,-1), Pos_d1(-1,-1)*/ {
-            if(searchVec<int>(std::vector<int>{1, 3, 5}, par_type_src)==-1 && searchVec<int>(std::vector<int>{0, 2, 4}, par_type_dest)==-1) std::runtime_error("ERROR: gNC::gLINK() constructor par_type_{..} is invalid");
-            if(par_src==nullptr && par_dest==nullptr) std::runtime_error("ERROR: gNC::gLINK(): constructor: both `src` and `dest` can't be nullptr");
-
-            this->type_src  = par_type_src;
-            this->type_dest = par_type_dest;
-            this->src  = par_src;
-            this->dest = par_dest;
-            this->label = par_label;
-            this->desc  = par_desc;
-            _init = true;
-        }
+        );
         /**
          * @brief Default constructor for gNC::gLINK
          */
-        gLINK() {};
         void move_link(ImVec2 par_pos_src=ImVec2(-1, -1), ImVec2 par_pos_dest=ImVec2(-1, -1)/*, ImVec2 par_pos_s1=ImVec2(-1, -1), ImVec2 par_pos_d1=ImVec2(-1, -1)*/);
         void draw_link(std::vector<ImDrawList*> draw_win, ImVec2 screen_offset);
         bool region(ImVec2 cursor, ImVec2 _offset = ImVec2(0, 0));
@@ -225,43 +213,35 @@ namespace gNC {
             float par_posX_out=160, float par_posY_out=70,
             float par_posX_add=51,  float par_posY_add=0,
             float par_posX_share=110,float par_posY_share=0
+        ); // {
+        //     if(checkExistence<int>(par_layout, std::vector<int>{0,1,2,3})==-1) std::runtime_error("ERROR: gNC::gNODE constructor: par_layout is an invalid value");
+        //     layout = par_layout;
+        //     width   = par_width;
+        //     height  = par_height;
+        //     pos[0]  = par_posX;
+        //     pos[1]  = par_posY;
+        //     pos_in[0]   = par_posX_in;  pos_in[1]   = par_posY_in;
+        //     pos_out[0]  = par_posX_out; pos_out[1]  = par_posY_out;
+        //     pos_add_0[0]    = par_posX_add;     pos_add_0[1]    = par_posY_add;
+        //     pos_share_0[0]  = par_posX_share;   pos_share_0[1]  = par_posY_share;
+        //     // std::cout<<pos_add_0[0]<< " "<<pos_add_0[1]<<" | " <<pos_share_0[0]<< " "<<pos_share_0[1] << " - ";
+        //     if(layout==0 || layout==1) { //define the opposing connection points positions
+        //         pos_add_1[0]    = pos_add_0[0];
+        //         pos_add_1[1]    = height-pos_add_0[1];
+        //         pos_share_1[0]  = pos_share_0[0];
+        //         pos_share_1[1]  = height-pos_share_0[1];
+        //     }
+        //     else if(layout==2 || layout==3) {
+        //         pos_add_1[1]    = pos_add_0[1];
+        //         pos_add_1[0]    = width-pos_add_0[0];
+        //         pos_share_1[1]  = pos_share_0[1];
+        //         pos_share_1[0]  = width-pos_share_0[0];
+        //     }
+        //     // std::cout<<pos_add_1[0]<< " "<<pos_add_1[1]<<" | " <<pos_share_1[0]<< " "<<pos_share_1[1] << std::endl;
+        // }
 
-        ): label{par_label}, desc{par_desc}, bodyText{par_bodyText}, ln_in{par_ln_in}, ln_out{par_ln_out}, ln_add{par_ln_add}, ln_share{par_ln_share} {
-            if(checkExistence<int>(par_layout, std::vector<int>{0,1,2,3})==-1) std::runtime_error("ERROR: gNC::gNODE constructor: par_layout is an invalid value");
-            layout = par_layout;
-            width   = par_width;
-            height  = par_height;
-            pos[0]  = par_posX;
-            pos[1]  = par_posY;
-            pos_in[0]   = par_posX_in;  pos_in[1]   = par_posY_in;
-            pos_out[0]  = par_posX_out; pos_out[1]  = par_posY_out;
-            pos_add_0[0]    = par_posX_add;     pos_add_0[1]    = par_posY_add;
-            pos_share_0[0]  = par_posX_share;   pos_share_0[1]  = par_posY_share;
-            // std::cout<<pos_add_0[0]<< " "<<pos_add_0[1]<<" | " <<pos_share_0[0]<< " "<<pos_share_0[1] << " - ";
-            if(layout==0 || layout==1) { //define the opposing connection points positions
-                pos_add_1[0]    = pos_add_0[0];
-                pos_add_1[1]    = height-pos_add_0[1];
-                pos_share_1[0]  = pos_share_0[0];
-                pos_share_1[1]  = height-pos_share_0[1];
-            }
-            else if(layout==2 || layout==3) {
-                pos_add_1[1]    = pos_add_0[1];
-                pos_add_1[0]    = width-pos_add_0[0];
-                pos_share_1[1]  = pos_share_0[1];
-                pos_share_1[0]  = width-pos_share_0[0];
-            }
-            // std::cout<<pos_add_1[0]<< " "<<pos_add_1[1]<<" | " <<pos_share_1[0]<< " "<<pos_share_1[1] << std::endl;
-
-        }
-
-        void setPos(int x, int y) {
-            pos[0] = x;
-            pos[1] = y;
-        }
-        void setDim(int w, int h) {
-            width   = w;
-            height  = h;
-        }
+        void setPos(int x, int y);
+        void setDim(int w, int h);
         ImVec2 getConnectionPos(int connectionID);
         int getConnectionType(int typeDef);
         void draw_connection(std::vector<ImDrawList*> draw_win, ImVec2 nodePos);

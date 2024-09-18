@@ -67,8 +67,9 @@ int main(int argc, char** argv) {
 
     // gNC::guiNodeChart proj0;
     // proj0.thisPtr = &proj0;
-
-    DIY::typed_dict<std::string, gNC::guiNodeChart> projects({"project 0"}, {gNC::guiNodeChart()});
+    
+    
+    projects.add("project 0", gNC::guiNodeChart());
     projects[0].thisPtr = projects.getPtr_idx(0);
 
     int selected = 0;
@@ -222,7 +223,7 @@ int main(int argc, char** argv) {
         }
 
         if(ImGui::BeginTabBar("Tabs")) {
-            if(ImGui::BeginTabItem("project 0")) {
+            if(ImGui::BeginTabItem(projects.key(0).c_str())) {
                 selected = 0;
                 
                 ImGui::EndTabItem();

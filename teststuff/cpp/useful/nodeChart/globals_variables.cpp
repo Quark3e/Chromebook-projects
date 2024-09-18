@@ -3,6 +3,9 @@
 #include "globals_includes.hpp"
 
 
+DIY::typed_dict<std::string, gNC::guiNodeChart> projects;
+
+
 ImDrawList* project_draw_list = nullptr;
 
 

@@ -14,6 +14,56 @@ gNC::gLINK  gNC::dragConnectCreate_tempLink;
 int         gNC::option_dragConnectCreate_tempLink_snapIn = 0;
 int         gNC::dragConnectCreate_startedEnd;
 
+
+gNC::gNODE::gNODE(
+    float par_posX, float par_posY,
+    std::string par_label, std::string par_desc, std::string par_bodyText,
+    std::vector<gNC::gLINK*> par_ln_in,  std::vector<gNC::gLINK*> par_ln_out,
+    std::vector<gNC::gLINK*> par_ln_add, std::vector<gNC::gLINK*> par_ln_share,
+    int par_layout,
+    float par_width,     float par_height,
+    float par_posX_in,   float par_posY_in,
+    float par_posX_out,  float par_posY_out,
+    float par_posX_add,  float par_posY_add,
+    float par_posX_share,float par_posY_share
+
+): label{par_label}, desc{par_desc}, bodyText{par_bodyText}, ln_in{par_ln_in}, ln_out{par_ln_out}, ln_add{par_ln_add}, ln_share{par_ln_share} {
+    if(checkExistence<int>(par_layout, std::vector<int>{0,1,2,3})==-1) std::runtime_error("ERROR: gNC::gNODE constructor: par_layout is an invalid value");
+    layout = par_layout;
+    width   = par_width;
+    height  = par_height;
+    pos[0]  = par_posX;
+    pos[1]  = par_posY;
+    pos_in[0]   = par_posX_in;  pos_in[1]   = par_posY_in;
+    pos_out[0]  = par_posX_out; pos_out[1]  = par_posY_out;
+    pos_add_0[0]    = par_posX_add;     pos_add_0[1]    = par_posY_add;
+    pos_share_0[0]  = par_posX_share;   pos_share_0[1]  = par_posY_share;
+    // std::cout<<pos_add_0[0]<< " "<<pos_add_0[1]<<" | " <<pos_share_0[0]<< " "<<pos_share_0[1] << " - ";
+    if(layout==0 || layout==1) { //define the opposing connection points positions
+        pos_add_1[0]    = pos_add_0[0];
+        pos_add_1[1]    = height-pos_add_0[1];
+        pos_share_1[0]  = pos_share_0[0];
+        pos_share_1[1]  = height-pos_share_0[1];
+    }
+    else if(layout==2 || layout==3) {
+        pos_add_1[1]    = pos_add_0[1];
+        pos_add_1[0]    = width-pos_add_0[0];
+        pos_share_1[1]  = pos_share_0[1];
+        pos_share_1[0]  = width-pos_share_0[0];
+    }
+    // std::cout<<pos_add_1[0]<< " "<<pos_add_1[1]<<" | " <<pos_share_1[0]<< " "<<pos_share_1[1] << std::endl;
+
+}
+
+void gNC::gNODE::setPos(int x, int y) {
+    this->pos[0]= x;
+    this->pos[1]= y;
+}
+void gNC::gNODE::setDim(int w, int h) {
+    this->width = w;
+    this->height= h;
+}
+
 /**
  * Get the relative (to node subspace) position of a node's connection point from the connection id
  * 
@@ -104,6 +154,25 @@ void gNC::gNODE::draw_connection(
         }
     }
 
+}
+
+
+gNC::gLINK::gLINK() {}
+gNC::gLINK::gLINK(
+    int par_type_src, int par_type_dest,
+    gNC::gNODE* par_src, gNC::gNODE* par_dest,
+    std::string par_label, std::string par_desc
+): Pos_src(-1,-1), Pos_dest(-1,-1)/*, Pos_s1(-1,-1), Pos_d1(-1,-1)*/ {
+    if(searchVec<int>(std::vector<int>{1, 3, 5}, par_type_src)==-1 && searchVec<int>(std::vector<int>{0, 2, 4}, par_type_dest)==-1) std::runtime_error("ERROR: gNC::gLINK() constructor par_type_{..} is invalid");
+    if(par_src==nullptr && par_dest==nullptr) std::runtime_error("ERROR: gNC::gLINK(): constructor: both `src` and `dest` can't be nullptr");
+
+    this->type_src  = par_type_src;
+    this->type_dest = par_type_dest;
+    this->src  = par_src;
+    this->dest = par_dest;
+    this->label = par_label;
+    this->desc  = par_desc;
+    _init = true;
 }
 
 /**
