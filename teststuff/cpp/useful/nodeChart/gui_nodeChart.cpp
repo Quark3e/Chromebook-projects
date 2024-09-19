@@ -151,11 +151,11 @@ void gNC::gNODE::draw_connection(
                 break;
             }
 
-            el->AddRect(
-                ImVec2(tempPos.x-ROI_attach.x*0.5, tempPos.y-ROI_attach.y*0.5),
-                ImVec2(tempPos.x+ROI_attach.x*0.5, tempPos.y+ROI_attach.y*0.5),
-                IM_COL32(250, 40, 40, 240)
-            );
+            // el->AddRect(
+            //     ImVec2(tempPos.x-ROI_attach.x*0.5, tempPos.y-ROI_attach.y*0.5),
+            //     ImVec2(tempPos.x+ROI_attach.x*0.5, tempPos.y+ROI_attach.y*0.5),
+            //     IM_COL32(250, 40, 40, 240)
+            // );
         }
     }
 
@@ -541,8 +541,8 @@ bool gNC::gLINK::region(
     ImVec2 cursor,
     ImVec2 _offset
 ) {
-    static bool draw__pointRect = true;
-    static bool draw__linkCutoff= true;
+    static bool draw__pointRect = false;
+    static bool draw__linkCutoff= false;
 
     bool is_in_region = false;
     if(link_points_raw.size()==0) return false;
@@ -563,6 +563,19 @@ bool gNC::gLINK::region(
 
     assert(link_points_coeffs.size()>0 && link_points_coeffs[0].size()==2);
 
+
+    if(inRegion( //check if cursor is inside src connecting point
+        ImVec2(cursor.x-_offset.x, cursor.y-_offset.y),
+        ImVec2(Pos_src.x - src->ROI_attach.x*0.5,  Pos_src.y  - src->ROI_attach.y*0.5),
+        ImVec2(Pos_src.x + src->ROI_attach.x*0.5,  Pos_src.y  + src->ROI_attach.y*0.5)
+    )) return false;
+    if(inRegion( //check if cursor is inside dest connecting point
+        ImVec2(cursor.x-_offset.x, cursor.y-_offset.y),
+        ImVec2(Pos_dest.x- dest->ROI_attach.x*0.5, Pos_dest.y - dest->ROI_attach.y*0.5),
+        ImVec2(Pos_dest.x+ dest->ROI_attach.x*0.5, Pos_dest.y + dest->ROI_attach.y*0.5)
+    )) return false;
+
+
     for(size_t i=0; i<link_points_raw.size()-1; i++) {
         /**
          * [0] x
@@ -575,7 +588,7 @@ bool gNC::gLINK::region(
 
         std::vector<ImVec2> _boxs_lim{
             ImVec2(
-                link_points_raw[i].x   - nextDir[0]*link_gui__lineWidth + _offset.x - nextDir[0]*(1),
+                link_points_raw[i].x   - nextDir[0]*link_gui__lineWidth + _offset.x,
                 link_points_raw[i].y   - nextDir[1]*link_gui__lineWidth + _offset.y
             ),
             ImVec2(
@@ -583,43 +596,7 @@ bool gNC::gLINK::region(
                 link_points_raw[i+1].y + nextDir[1]*link_gui__lineWidth + _offset.y
             )
         };
-        if(i==0) { //drawing src
-            if(type_src==1) {
-                _boxs_lim[0].x += nextDir[0]*src->ROI_attach.x;
-                if(draw__linkCutoff) project_draw_list->AddLine(
-                                        ImVec2(_boxs_lim[0].x, link_points_raw[i].y+100 +_offset.y),
-                                        ImVec2(_boxs_lim[0].x, link_points_raw[i].y-100 +_offset.y),
-                                        IM_COL32(50, 50, 200, 200)
-                                    );
-            }
-            else {
-                _boxs_lim[0].y += nextDir[1]*src->ROI_attach.y;
-                if(draw__linkCutoff) project_draw_list->AddLine(
-                                        ImVec2(link_points_raw[i].x+100 +_offset.x, _boxs_lim[0].y),
-                                        ImVec2(link_points_raw[i].x-100 +_offset.x, _boxs_lim[0].y),
-                                        IM_COL32(50, 50, 200, 200)
-                                    );
-            }
-        }
-        else if(i==link_points_raw.size()-2) { //drawing dest
-            if(type_dest==0) {
-                _boxs_lim[1].x -= nextDir[0]*dest->ROI_attach.x;
-                if(draw__linkCutoff) project_draw_list->AddLine(
-                                        ImVec2(_boxs_lim[1].x, link_points_raw[i+1].y+100 +_offset.y),
-                                        ImVec2(_boxs_lim[1].x, link_points_raw[i+1].y-100 +_offset.y),
-                                        IM_COL32(50, 50, 200, 200)
-                                    );
-            }
-            else {
-                _boxs_lim[1].y -= nextDir[1]*dest->ROI_attach.y;
-                if(draw__linkCutoff) project_draw_list->AddLine(
-                                        ImVec2(link_points_raw[i+1].x+100 +_offset.x, _boxs_lim[1].y),
-                                        ImVec2(link_points_raw[i+1].x-100 +_offset.x, _boxs_lim[1].y),
-                                        IM_COL32(50, 50, 200, 200)
-                                    );
-            }
-        }
-
+        
 
         if(_boxs_lim[0].x > _boxs_lim[1].x) {
             float temp = _boxs_lim[0].x;
@@ -633,7 +610,6 @@ bool gNC::gLINK::region(
         }
 
         if(inRegion(cursor, _boxs_lim[0], _boxs_lim[1])) {
-            
             if(draw__pointRect) project_draw_list->AddRect(_boxs_lim[0], _boxs_lim[1], IM_COL32(30, 30, 250, 240));
             
             return true;
