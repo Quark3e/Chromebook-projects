@@ -151,9 +151,11 @@ int main(int argc, char** argv) {
 
                 if(cnt==0) {
                     projects[0].NODE_create(100, 100, "node0", "desc0", "body0");
-                    projects[0].NODE_create(300, 300, "node1", "desc1", "body1");
-                    projects[0].NODE_create(500, 500, "node2", "desc2", "body2");
-                    projects[0].NODE_create(800, 300, "node3", "desc3", "body3");
+                    projects[0].NODE_create(400, 200, "node1", "desc1", "body1");
+                    projects[0].NODE_create(600, 500, "node2", "desc2", "body2");
+                    projects[0].NODE_create(900, 300, "node3", "desc3", "body3");
+                    projects[0].NODE_create(100, 300, "node4", "desc4", "body4");
+                    projects[0].NODE_create(100, 600, "node5", "desc5", "body5");
 
                     projects[0][1].bodyText = std::string("")+
                         "What is Lorem Ipsum? "+
@@ -166,11 +168,12 @@ int main(int argc, char** argv) {
                         "and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\n"
                     ;
 
-                    projects[0].LINK_create(0, 2, 1, 0, "link0");
+                    projects[0].LINK_create(0, 1, 1, 0, "link: 0->1", "a link that goes out from node0 in to node 1");
                     // projects[0].LINK_create(&proj0[0], &proj0[2], 1, 0, "link0");
-                    projects[0].LINK_create(&projects[0][1], &projects[0][2], 3, 0, "link1");
-                    projects[0].LINK_create(&projects[0][3], &projects[0][1], 3, 2, "link2");
-
+                    projects[0].LINK_create(4, 1, 1, 0, "link: 4->1", "a link that goes out from node0 in to node 1");
+                    projects[0].LINK_create(5, 1, 1, 0, "link: 5->2", "a link that goes out from node0 in to node 1");
+                    projects[0].LINK_create(1, 2, 1, 2, "link: 1->2", "a link that goes out from node1 added to node 2");
+                    projects[0].LINK_create(1, 3, 1, 0, "link: 1->3", "a link that goes out from node1 in to node3");
 
                     // projects[0].NODE_delete(&proj0[1], true);
 
