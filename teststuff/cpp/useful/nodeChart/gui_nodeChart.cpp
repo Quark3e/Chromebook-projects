@@ -467,17 +467,23 @@ void gNC::gLINK::draw_link(
     link_points_raw.clear();
     link_points_coeffs.clear();
     // link_points_raw.push_back(link_points[0]);
+    
+    std::vector<float> _distances;
+    for(size_t i=0; i<link_points.size()-2; i++) {
+        _distances.push_back(getNDimDistance<ImVec2>(2, link_points[i], link_points[i+1]));
+    }
+    float _minDist = findVal(_distances, 1);
 
     /// Draw the points onto the window(s)
     for(int i=0; i<link_points.size()-2; i++) {
 
         prevAxis = _define_prevAxis(link_points[i], link_points[i+1]);
-        if(_define_prevAxis(link_points[i+1], link_points[i+2]) != prevAxis) {
+        if(_define_prevAxis(link_points[i+1], link_points[i+2]) != prevAxis /*&& _minDist > _gui__bezier_min*/) {
             std::vector<pos2d> curve = quadratic_bezier(to_pos2d(link_points[i]), to_pos2d(link_points[i+2]), to_pos2d(link_points[i+1]), bezierSegs, &link_points_coeffs, "1");
             // std::cout << "----------"<<std::endl;
             // std::cout << curve[0].getStr() << std::endl;
             link_points_raw.push_back(to_ImVec2(curve[0]));
-            for(int ii=1; ii<curve.size(); ii++) {
+            for(int ii=0; ii<curve.size(); ii++) {
                 // draw_win[0]->AddLine(addOffs(to_ImVec2(curve[ii-1])), addOffs(to_ImVec2(curve[ii])), IM_COL32(255, 10, 10, 200), link_lineWidth);
                 link_points_raw.push_back(to_ImVec2(curve[ii]));
                 // std::cout << curve[ii].getStr() << std::endl;
@@ -512,11 +518,13 @@ void gNC::gLINK::draw_link(
 
     // draw_win[0]->AddCircle(addOffs(link_points_raw[0]), 10, IM_COL32(255, 20, 20, 250), 10, 2);
     for(int i=1; i<link_points_raw.size(); i++) {
+
         draw_win[0]->AddLine(addOffs(link_points_raw[i-1]), addOffs(link_points_raw[i]), colour_border, link_lineWidth);
         draw_win[0]->AddLine(addOffs(link_points_raw[i-1]), addOffs(link_points_raw[i]), linkColour, link_lineWidth*0.7);
         // draw_win[0]->AddCircle(addOffs(link_points_raw[i]), 10, IM_COL32(255, 20, 20, 250), 10, 2);
         // draw_win[0]->AddLine(addOffs(link_points_raw[i-1]), addOffs(link_points_raw[i]), IM_COL32(255, 20, 20, 250), 2);
     }
+
 
     if(draw__lines || draw__points) {
         for(int i=0; i<link_points.size()-1; i++) {

@@ -20,12 +20,13 @@ inline std::vector<float> getCoef_linear(
     pos2d point_B
 ) {
     assert(!(point_A.x==point_B.x && point_A.y==point_B.y));
+    // assert(point_A.x != point_B.x);
 
     float k, c;
     pos2d delta = pos2d(point_B.x-point_A.x, point_B.y-point_A.y);
-    if(delta.x==0) {
-        delta.x+=1; //basic solution to deal with completely vertical linear functions (im lazy)
-    }
+    // if(delta.x==0) {
+    //     delta.x+=1; //basic solution to deal with completely vertical linear functions (im lazy)
+    // }
     k = delta.y/delta.x;
     c = point_A.y - point_A.x*k;
 
@@ -143,13 +144,21 @@ inline std::vector<pos2d> quadratic_bezier(
     curvePoints[0] = point_A;
     // std::cout << "++++++"<<std::endl;
     for(int i=1; i<=segNum; i++) {
-
-        curvePoints[i] = getIntersect(AC[i], CB[i], AC[i-1], CB[i-1], (_coeffs? &(temp_coeffs[i]) : nullptr), ((_coeffs && i==1? &(temp_coeffs[i-1]) : nullptr)));
-
+        pos2d _temp;
+        try {
+            _temp = getIntersect(AC[i], CB[i], AC[i-1], CB[i-1], (_coeffs? &(temp_coeffs[i]) : nullptr), ((_coeffs && i==1? &(temp_coeffs[i-1]) : nullptr)));
+        }
+        catch(const std::exception& e) {
+            // std::cerr << e.what() << '\n';
+            _temp = curvePoints[i-1];
+        }
+        if(isnan(_temp.x) || isnan(_temp.y)) _temp = curvePoints[i-1];
+        
+        curvePoints[i] = _temp;
         // std::cout << "AC["<<i<<"]:"<<AC[i].getStr() << " CB["<<i<<"]:"<< CB[i].getStr() << " | AC["<<i-1<<"]:"<< AC[i-1].getStr() << " CB["<<i-1<<"]:" << CB[i-1].getStr() << std::endl;
     }
-    // std::cout << "------"<<std::endl;
     curvePoints[segNum+1] = point_B;
+
 
     if(_coeffs) {
         switch (_coeffs_option[0]) {
