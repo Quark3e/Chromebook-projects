@@ -77,6 +77,17 @@ inline bool isKeyPressed(int keyID, std::vector<int>* pressed_keys) {
     return false;
 }
 
+inline bool isKeyPressed(int keyID, std::vector<std::vector<int>>* pressed_keys_history, int history_idx=-1) {
+    size_t _history_size = (*pressed_keys_history).size();
+    assert(_history_size > 0);
+    assert(history_idx < static_cast<int>(_history_size));
+    assert(abs(history_idx) < _history_size);
+
+    if(history_idx < 0) history_idx = static_cast<int>(_history_size) + history_idx;
+
+    return isKeyPressed(keyID, &pressed_keys_history[history_idx]);
+}
+
 /**
  * @brief Convert pointer address to std::string
  * 

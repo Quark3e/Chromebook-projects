@@ -96,15 +96,16 @@ namespace gNC {
          * 
          */
         std::vector<ImVec2> link_points_raw;
-        /**
-         * Container of container for the polynomial coefficients (linear) for each line that forms `link_points_raw`:
-         * format: {
-         *     {`a0`, `a1`},
-         *     {`a0`, `a1`}
-         * }
-         */
-        std::vector<std::vector<float>> link_points_coeffs;
         bool link_points_raw__updated = false;
+
+        // /**
+        //  * Container of container for the polynomial coefficients (linear) for each line that forms `link_points_raw`:
+        //  * format: {
+        //  *     {`a0`, `a1`},
+        //  *     {`a0`, `a1`}
+        //  * }
+        //  */
+        // std::vector<std::vector<float>> link_points_coeffs;
 
         /**
          * Container with the xy limits:
@@ -137,7 +138,7 @@ namespace gNC {
         /**
          * @brief Default constructor for gNC::gLINK
          */
-        void move_link(ImVec2 par_pos_src=ImVec2(-1, -1), ImVec2 par_pos_dest=ImVec2(-1, -1)/*, ImVec2 par_pos_s1=ImVec2(-1, -1), ImVec2 par_pos_d1=ImVec2(-1, -1)*/);
+        void move_link(ImVec2 par_pos_src=ImVec2(-2, -2), ImVec2 par_pos_dest=ImVec2(-2, -2)/*, ImVec2 par_pos_s1=ImVec2(-1, -1), ImVec2 par_pos_d1=ImVec2(-1, -1)*/);
         void draw_link(std::vector<ImDrawList*> draw_win, ImVec2 screen_offset);
         bool region(ImVec2 cursor, ImVec2 _offset = ImVec2(0, 0));
     };
@@ -396,7 +397,7 @@ namespace gNC {
 
     /**
      * `dragConnectCreate_tempLink` link formation option:
-     * "`Whether a likn creation should be snapped into creation without the user having to specifically drop the link
+     * "`Whether a link creation should be snapped into creation without the user having to specifically drop the link
      * at the correct connection point, but instead only have to drop it on the node and it'll auto snap to place`"
      * `0` - `false`: do not use this feature. The user has to drop the link correctly
      * `1` - `true` : do use this feature, and have it snap in on either `in` or `out`

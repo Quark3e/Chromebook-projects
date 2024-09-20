@@ -18,7 +18,7 @@ extern ImDrawList* project_draw_list;
 
 
 extern ImVec2 dim__main;
-extern ImVec2 dim__menu__node_detail;
+extern ImVec2 dim__menu__detail;
 
 extern ImVec2 dim__menu__detail__offset;
 
@@ -52,6 +52,7 @@ extern int mouseAction_left;
  *  ` 0` screen (default rightClick menu)
  *  ` 1` node (node rightClick menu)
  *  ` 2` node connection (node connection rightClick menu)
+ *  ` 3` link (link rightClick menu)
  */
 extern int mouseAction_right;
 

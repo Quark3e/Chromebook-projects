@@ -41,28 +41,28 @@ void gNC::_menu__node_details(
         // if(init_node!=toDetail) {
         ImGui::SetWindowPos(dim__menu__detail__offset);
         if(linkPtr_menu__link_details) {
-            ImGui::SetWindowSize(ImVec2(dim__menu__node_detail[0], dim__menu__node_detail[1]*0.5));
+            ImGui::SetWindowSize(ImVec2(dim__menu__detail[0], dim__menu__detail[1]*0.5));
         }
         else {
-            ImGui::SetWindowSize(dim__menu__node_detail);
+            ImGui::SetWindowSize(dim__menu__detail);
         }
         // }
 
-        ImGui::PushItemWidth(dim__menu__node_detail.x-_win_widthOffset);
-        ImGui::InputText("##_ttle", &(toDetail->label), inpText_flags_label);
+        ImGui::PushItemWidth(dim__menu__detail.x-_win_widthOffset);
+        ImGui::InputText("##_title", &(toDetail->label), inpText_flags_label);
     
 
         ImGui::Separator();
-        ImGui::PushItemWidth(dim__menu__node_detail.x-_win_widthOffset);
+        ImGui::PushItemWidth(dim__menu__detail.x-_win_widthOffset);
         ImGui::InputText("##_desc", &(toDetail->desc), inpText_flags_desc);
         
         ImGui::Separator();
-        ImGui::InputTextMultiline("##_bodyText", &(toDetail->bodyText), ImVec2(dim__menu__node_detail.x-_win_widthOffset, ImGui::GetTextLineHeight()*5), inpText_flags_bodyT);
+        ImGui::InputTextMultiline("##_bodyText", &(toDetail->bodyText), ImVec2(dim__menu__detail.x-_win_widthOffset, ImGui::GetTextLineHeight()*5), inpText_flags_bodyT);
 
 
         ImGui::BeginGroup();
         if(ImGui::BeginChild("##window_node_links", ImVec2(-FLT_MIN, 0))) {
-            if(ImGui::BeginTable("node_links", 3, node_links_table_flags, ImVec2(dim__menu__node_detail.x-_win_widthOffset, 0))) {
+            if(ImGui::BeginTable("node_links", 3, node_links_table_flags, ImVec2(dim__menu__detail.x-_win_widthOffset, 0))) {
                 ImGui::TableSetupColumn("Type");
                 ImGui::TableSetupColumn("Link");
                 ImGui::TableSetupColumn("Node");
@@ -117,21 +117,67 @@ void gNC::_menu__link_details(
     static ImGuiInputTextFlags inpText_flags_label  = 0;
     static ImGuiInputTextFlags inpText_flags_desc   = 0;
 
+
+    static ImGuiTableFlags links_table_flags = 0;
+    links_table_flags |= ImGuiTableFlags_Borders;
+    links_table_flags |= ImGuiTableFlags_SizingFixedSame;
+    links_table_flags |= ImGuiTableFlags_SizingFixedFit;
+
+
     static int _win_widthOffset = 20;
 
     if(ImGui::Begin((" link: "+toDetail->addr).c_str(), NULL, win_flags)) {
         _winFocused__link_details = ImGui::IsWindowFocused();
         // ImGui::SetWindowPos(ImGui::GetWindowPos());
-        // if(init_link!=toDetail) {
         if(nodePtr_menu__node_details) {
-            ImGui::SetWindowPos(ImVec2(dim__menu__detail__offset.x, dim__menu__detail__offset.y+dim__menu__node_detail[1]*0.5));
-            ImGui::SetWindowSize(ImVec2(dim__menu__node_detail[0], dim__menu__node_detail[1]*0.5));
+            ImGui::SetWindowPos(ImVec2(dim__menu__detail__offset.x, dim__menu__detail__offset.y+dim__menu__detail[1]*0.5));
+            ImGui::SetWindowSize(ImVec2(dim__menu__detail[0], dim__menu__detail[1]*0.5));
         }
         else {
             ImGui::SetWindowPos(dim__menu__detail__offset);
-            ImGui::SetWindowSize(dim__menu__node_detail);
+            ImGui::SetWindowSize(dim__menu__detail);
         }
-        // }
+
+        ImGui::PushItemWidth(dim__menu__detail.x-_win_widthOffset);
+        ImGui::InputText("##_title", &(toDetail->label), inpText_flags_label);
+
+        ImGui::Separator();
+        ImGui::PushItemWidth(dim__menu__detail.x-_win_widthOffset);
+        ImGui::InputText("##_desc", &(toDetail->desc), inpText_flags_desc);
+
+        ImGui::BeginGroup();
+        if(ImGui::BeginChild("##window_link_nodes", ImVec2(-FLT_MIN, 0))) {
+            if(ImGui::BeginTable("link_nodes", 3, links_table_flags, ImVec2(dim__menu__detail.x-_win_widthOffset, 0))) {
+                // ImGui::TableSetupColumn("type");
+                // ImGui::TableSetupColumn("Src");
+                // ImGui::TableSetupColumn("type");
+                // ImGui::TableSetupColumn("Dest");
+                ImGui::TableSetupColumn("##_LCorner");
+                ImGui::TableSetupColumn("Address");
+                ImGui::TableSetupColumn("Type");
+                ImGui::TableHeadersRow();
+
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("src:");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text((toDetail->src? ptrToStr<gNC::gNODE*>(toDetail->src).c_str() : "nullptr"));
+                ImGui::TableSetColumnIndex(2);
+                ImGui::Text((toDetail->type_src==1? "out" : "share"));
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("dest:");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text((toDetail->dest? ptrToStr<gNC::gNODE*>(toDetail->dest).c_str() : "nullptr"));
+                ImGui::TableSetColumnIndex(2);
+                ImGui::Text((toDetail->type_dest==0? "in" : "add"));
+
+
+                ImGui::EndTable();
+            }
+            ImGui::EndChild();
+        }
+        ImGui::EndGroup();
 
         ImGui::End();
     }
@@ -164,24 +210,21 @@ void gNC::_menu__rightClick(
         ImGui::EndPopup();
     }
     if(ImGui::BeginPopup("_menu__rightClick__node")) {
-        assert(nodePtr_menu__rightClick != nullptr);
+        assert(nodePtr_menu__rightClick);
         ImGui::MenuItem("Node menu", NULL, false, false);
         if(ImGui::MenuItem("Delete node")) {
             if(nodePtr_menu__node_details == nodePtr_menu__rightClick) nodePtr_menu__node_details = nullptr;
             chart->NODE_delete(nodePtr_menu__rightClick);
         }
-        // if(ImGui::BeginMenu("Delete node")) {
-        //     if(ImGui::MenuItem("complete delete")) {
-        //         if(nodePtr_menu__node_details == nodePtr_menu__rightClick) nodePtr_menu__node_details = nullptr;
-        //         chart->NODE_delete(nodePtr_menu__rightClick);
-        //     }
-        //     if(ImGui::MenuItem("loose delete")) {
-        //         if(nodePtr_menu__node_details == nodePtr_menu__rightClick) nodePtr_menu__node_details = nullptr;
-        //         chart->NODE_delete(nodePtr_menu__rightClick, true);
-        //     }
-        //     ImGui::EndMenu();
-        // }
-        // if(ImGui::MenuItem("Delete node")) {}
+        ImGui::EndPopup();
+    }
+    if(ImGui::BeginPopup("_menu__rightClick__link")) {
+        assert(linkPtr_menu__rightClick);
+        ImGui::MenuItem("Link menu", NULL, false, false);
+        if(ImGui::MenuItem("Delete link")) {
+            if(linkPtr_menu__link_details == linkPtr_menu__rightClick) linkPtr_menu__link_details = nullptr;
+            chart->LINK_delete(linkPtr_menu__rightClick);
+        }
         ImGui::EndPopup();
     }
     else {

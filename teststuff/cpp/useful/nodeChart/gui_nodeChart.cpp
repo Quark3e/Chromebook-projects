@@ -465,21 +465,22 @@ void gNC::gLINK::draw_link(
     static int prevAxis = 0;
 
     link_points_raw.clear();
-    link_points_coeffs.clear();
+    // link_points_coeffs.clear();
     // link_points_raw.push_back(link_points[0]);
     
-    std::vector<float> _distances;
-    for(size_t i=0; i<link_points.size()-2; i++) {
-        _distances.push_back(getNDimDistance<ImVec2>(2, link_points[i], link_points[i+1]));
-    }
-    float _minDist = findVal(_distances, 1);
+    // std::vector<float> _distances;
+    // for(size_t i=0; i<link_points.size()-2; i++) {
+    //     _distances.push_back(getNDimDistance<ImVec2>(2, link_points[i], link_points[i+1]));
+    // }
+    // float _minDist = findVal(_distances, 1);
 
     /// Draw the points onto the window(s)
     for(int i=0; i<link_points.size()-2; i++) {
 
         prevAxis = _define_prevAxis(link_points[i], link_points[i+1]);
         if(_define_prevAxis(link_points[i+1], link_points[i+2]) != prevAxis /*&& _minDist > _gui__bezier_min*/) {
-            std::vector<pos2d> curve = quadratic_bezier(to_pos2d(link_points[i]), to_pos2d(link_points[i+2]), to_pos2d(link_points[i+1]), bezierSegs, &link_points_coeffs, "1");
+            // std::vector<pos2d> curve = quadratic_bezier(to_pos2d(link_points[i]), to_pos2d(link_points[i+2]), to_pos2d(link_points[i+1]), bezierSegs, &link_points_coeffs, "1");
+            std::vector<pos2d> curve = quadratic_bezier(to_pos2d(link_points[i]), to_pos2d(link_points[i+2]), to_pos2d(link_points[i+1]), bezierSegs);
             // std::cout << "----------"<<std::endl;
             // std::cout << curve[0].getStr() << std::endl;
             link_points_raw.push_back(to_ImVec2(curve[0]));
@@ -499,7 +500,7 @@ void gNC::gLINK::draw_link(
             // draw_win[0]->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), colour_border, link_lineWidth);
             // draw_win[0]->AddLine(addOffs(link_points[i]), addOffs(link_points[i+1]), colour_bg, link_lineWidth*0.7);
             link_points_raw.push_back(link_points[i]);
-            link_points_coeffs.push_back(getCoef_linear(to_pos2d(link_points[i]), to_pos2d(link_points[i+1])));
+            // link_points_coeffs.push_back(getCoef_linear(to_pos2d(link_points[i]), to_pos2d(link_points[i+1])));
         }
 
     }
@@ -509,7 +510,7 @@ void gNC::gLINK::draw_link(
     ) {
         size_t lineIDX[2] = {link_points.size()-2, link_points.size()-1};
         link_points_raw.push_back(link_points[lineIDX[1]]);
-        link_points_coeffs.push_back(getCoef_linear(to_pos2d(link_points[lineIDX[0]]), to_pos2d(link_points[lineIDX[1]])));
+        // link_points_coeffs.push_back(getCoef_linear(to_pos2d(link_points[lineIDX[0]]), to_pos2d(link_points[lineIDX[1]])));
 
         // draw_win[0]->AddLine(addOffs(link_points[lineIDX[0]]), addOffs(link_points[lineIDX[1]]), colour_border, link_lineWidth);
         // draw_win[0]->AddLine(addOffs(link_points[lineIDX[0]]), addOffs(link_points[lineIDX[1]]), linkColour, link_lineWidth*0.7);
@@ -569,7 +570,7 @@ bool gNC::gLINK::region(
         cursor.y-_offset.y > link_lims[1][0]-link_gui__lineWidth && cursor.y-_offset.y < link_lims[1][1]+link_gui__lineWidth
     )) return false;
 
-    assert(link_points_coeffs.size()>0 && link_points_coeffs[0].size()==2);
+    // assert(link_points_coeffs.size()>0 && link_points_coeffs[0].size()==2);
 
 
     if(inRegion( //check if cursor is inside src connecting point
@@ -1334,13 +1335,11 @@ int gNC::guiNodeChart::draw() {
             io.MousePos,
             ImVec2(screen_pos[0], screen_pos[1])
         )) {
-            
             if(
                 isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-1]) &&
                 !isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-2])
                 // !_winFocused__node_details
             ) {
-
                 if(mouseAction_left==3 || mouseAction_left==-1) {
                     (*itr).draw__state = 2;
 
@@ -1355,19 +1354,19 @@ int gNC::guiNodeChart::draw() {
                 (*itr).draw__state = 1;
 
             }
+
+            if(isKeyPressed(656, &(*pressed_keys)[pressed_keys->size()-1])) {
+            // if(isKeyPressed(656, pressed_keys, -1)) {
+                if(mouseAction_right==3 || mouseAction_right==-1) {
+                    mouseAction_right = 3;
+                    linkPtr_menu__rightClick = &(*itr);
+                    decay_mouseClick_right = 100;
+                }
+            }
         }
         else {
             (*itr).draw__state = 0;
         }
-
-        // if(
-        //     // !_winFocused__link_details &&
-        //     // !_winFocused__node_details &&
-        //     link_focused && focused_link == &(*itr)
-        // ) {
-        //     linkPtr_menu__link_details = &(*itr);
-        // }
-
 
         (*itr).draw_link(std::vector<ImDrawList*>{draw_list}, ImVec2(screen_pos[0], screen_pos[1]));
     }
@@ -1395,6 +1394,16 @@ int gNC::guiNodeChart::draw() {
                         decay_mouseClick_left = 100;
                     }
                 }
+                if(mouseAction_left==2 && dragConnectCreate_tempLink._init) {
+                    if(dragConnectCreate_startedEnd==1) { // started at src
+                        dragConnectCreate_tempLink.move_link(ImVec2(-2,-2), ImVec2(io.MousePos.x - screen_pos[0], io.MousePos.y - screen_pos[1]));
+                    }
+                    else { // started at dest
+                        dragConnectCreate_tempLink.move_link(ImVec2(io.MousePos.x - screen_pos[0], io.MousePos.y - screen_pos[1]), ImVec2(-2,-2));
+                    }
+                    // dragConnectCreate_tempLink.move_link()
+                    dragConnectCreate_tempLink.draw_link(std::vector<ImDrawList*>{draw_list}, ImVec2(screen_pos[0], screen_pos[1]));
+                }
             }
             else if(node_connect!=-1) { //region: Node connection
                 if(mouseAction_left==2 || mouseAction_left==-1) {
@@ -1405,14 +1414,14 @@ int gNC::guiNodeChart::draw() {
                         if(node_connect%2==0) { //started at dest node point
                             dragConnectCreate_tempLink.dest = &(*itr);
                             dragConnectCreate_tempLink.type_dest= node_connect;
-                            dragConnectCreate_tempLink.Pos_dest  = add_nodePos((*itr).getConnectionPos(node_connect), &(*itr));
+                            dragConnectCreate_tempLink.Pos_dest = add_nodePos((*itr).getConnectionPos(node_connect), &(*itr));
                             dragConnectCreate_startedEnd = 0;
 
                         }
                         else { //started at src node point
                             dragConnectCreate_tempLink.src  = &(*itr);
                             dragConnectCreate_tempLink.type_src = node_connect;
-                            dragConnectCreate_tempLink.Pos_src = add_nodePos((*itr).getConnectionPos(node_connect), &(*itr));
+                            dragConnectCreate_tempLink.Pos_src  = add_nodePos((*itr).getConnectionPos(node_connect), &(*itr));
                             dragConnectCreate_startedEnd = 1;
                         }
                     }
@@ -1529,7 +1538,6 @@ int gNC::guiNodeChart::draw() {
     }
     if(static_mouseAction_left!=3 && (mouseDrag_left)) {
         if(!link_focused) linkPtr_menu__link_details = nullptr;
-
     }
 
     if((mouseAction_left==0 || mouseAction_left==-1) && isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-1])) {
@@ -1555,16 +1563,27 @@ int gNC::guiNodeChart::draw() {
     if(mouseAction_left!=0 || mouseAction_left==2) lockMove_screen  = true;
     if(mouseAction_left!=1 || mouseAction_left==2) lockMove_node    = true;
 
+
+    if(mouseAction_right!=-1) {
+        if(decay_mouseClick_right>0) {
+            if(!isKeyPressed(656, &(*pressed_keys)[pressed_keys->size()-1])) decay_mouseClick_right -= mouseTimer_decay;
+        }
+        else {
+            decay_mouseClick_right = 0;
+            mouseAction_right = -1;
+        }
+    }
+
     if(isKeyPressed(656, &(*pressed_keys)[pressed_keys->size()-1])) {
-        if(mouseAction_right==0 || mouseAction_right==-1) {
-            ImGui::OpenPopup("_menu__rightClick__default");
-            // mouseAction_right = 0;
-            mouseAction_right = 0;
-        }
-        else if(mouseAction_right==1) {
-            ImGui::OpenPopup("_menu__rightClick__node");
-            // mouseAction_right =
-        }
+
+        switch (mouseAction_right) {
+            case -1:
+            case 0: ImGui::OpenPopup("_menu__rightClick__default"); break;
+            case 1: ImGui::OpenPopup("_menu__rightClick__node");    break;
+            case 2: break;
+            case 3: ImGui::OpenPopup("_menu__rightClick__link");    break;
+            default: break;
+        };
     }
     _menu__rightClick(thisPtr);
 
