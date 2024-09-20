@@ -31,14 +31,19 @@ void gNC::_menu__node_details(
     node_links_table_flags |= ImGuiTableFlags_SizingFixedSame;
     node_links_table_flags |= ImGuiTableFlags_SizingFixedFit;
 
+    static ImGuiButtonFlags links_tableCell_flags = 0;
+    links_tableCell_flags |= ImGuiButtonFlags_MouseButtonDefault_;
+
     
     static int _win_widthOffset = 20;
 
     if(ImGui::Begin((" node: "+toDetail->addr).c_str(), NULL, win_flags)) {
         // std::cout <<std::boolalpha << ImGui::IsWindowFocused()<<" | ";
+        if(init_node!=toDetail) {
+            // ImGui::SetWindowFocus((" node: "+toDetail->addr).c_str());
+        }
         _winFocused__node_details = ImGui::IsWindowFocused();
         // ImGui::SetWindowPos(ImGui::GetWindowPos());
-        // if(init_node!=toDetail) {
         ImGui::SetWindowPos(dim__menu__detail__offset);
         if(linkPtr_menu__link_details) {
             ImGui::SetWindowSize(ImVec2(dim__menu__detail[0], dim__menu__detail[1]*0.5));
@@ -77,12 +82,21 @@ void gNC::_menu__node_details(
                     // ImGui::TableSetColumnIndex(1);
                     ImGui::TableSetColumnIndex(1);
                     for(auto _link : vecRef) {
-                        ImGui::Text((_link==nullptr? "nullptr" : ptrToStr<gNC::gLINK*>(_link).c_str()));
+                        if(ImGui::Button((_link? ptrToStr<gNC::gLINK*>(_link).c_str() : "nullptr"))) {
+                            linkPtr_menu__link_details = _link;
+                        }
+                        // ImGui::Text((_link==nullptr? "nullptr" : ptrToStr<gNC::gLINK*>(_link).c_str()));
                     }
                     ImGui::TableSetColumnIndex(2);
                     for(auto _link : vecRef) {
                         gNC::gNODE* _printPtr = (v%2==0? _link->src : _link->dest);
-                        ImGui::Text((_printPtr==nullptr? "nullptr" : ptrToStr<gNC::gNODE*>(_printPtr).c_str()));
+                        if(ImGui::Button((_printPtr? ptrToStr<gNC::gNODE*>(_printPtr).c_str() : "nullptr"))) {
+                            nodePtr_menu__node_details = _printPtr;
+                            if(_printPtr) {
+                                ImGui::SetWindowFocus(_printPtr->addr.c_str());
+                            }
+                        }
+                        // ImGui::Text((_printPtr==nullptr? "nullptr" : ptrToStr<gNC::gNODE*>(_printPtr).c_str()));
                     }
                 }
 
@@ -127,6 +141,9 @@ void gNC::_menu__link_details(
     static int _win_widthOffset = 20;
 
     if(ImGui::Begin((" link: "+toDetail->addr).c_str(), NULL, win_flags)) {
+        if(toDetail != init_link) {
+            // ImGui::SetWindowFocus((" link: "+toDetail->addr).c_str());
+        }
         _winFocused__link_details = ImGui::IsWindowFocused();
         // ImGui::SetWindowPos(ImGui::GetWindowPos());
         if(nodePtr_menu__node_details) {
@@ -148,10 +165,6 @@ void gNC::_menu__link_details(
         ImGui::BeginGroup();
         if(ImGui::BeginChild("##window_link_nodes", ImVec2(-FLT_MIN, 0))) {
             if(ImGui::BeginTable("link_nodes", 3, links_table_flags, ImVec2(dim__menu__detail.x-_win_widthOffset, 0))) {
-                // ImGui::TableSetupColumn("type");
-                // ImGui::TableSetupColumn("Src");
-                // ImGui::TableSetupColumn("type");
-                // ImGui::TableSetupColumn("Dest");
                 ImGui::TableSetupColumn("##_LCorner");
                 ImGui::TableSetupColumn("Address");
                 ImGui::TableSetupColumn("Type");
@@ -161,14 +174,26 @@ void gNC::_menu__link_details(
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("src:");
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text((toDetail->src? ptrToStr<gNC::gNODE*>(toDetail->src).c_str() : "nullptr"));
+                if(ImGui::Button((toDetail->src? ptrToStr<gNC::gNODE*>(toDetail->src).c_str() : "nullptr"))) {
+                    nodePtr_menu__node_details = toDetail->src;
+                    if(toDetail->src) {
+                        ImGui::SetWindowFocus(toDetail->src->addr.c_str());
+                    }
+                }
+                // ImGui::Text((toDetail->src? ptrToStr<gNC::gNODE*>(toDetail->src).c_str() : "nullptr"));
                 ImGui::TableSetColumnIndex(2);
                 ImGui::Text((toDetail->type_src==1? "out" : "share"));
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("dest:");
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text((toDetail->dest? ptrToStr<gNC::gNODE*>(toDetail->dest).c_str() : "nullptr"));
+                // ImGui::Text((toDetail->dest? ptrToStr<gNC::gNODE*>(toDetail->dest).c_str() : "nullptr"));
+                if(ImGui::Button((toDetail->dest? ptrToStr<gNC::gNODE*>(toDetail->dest).c_str() : "nullptr"))) {
+                    nodePtr_menu__node_details = toDetail->dest;
+                    if(toDetail->dest) {
+                        ImGui::SetWindowFocus(toDetail->dest->addr.c_str());
+                    }
+                }
                 ImGui::TableSetColumnIndex(2);
                 ImGui::Text((toDetail->type_dest==0? "in" : "add"));
 
