@@ -31,9 +31,6 @@ void gNC::_menu__node_details(
     node_links_table_flags |= ImGuiTableFlags_SizingFixedSame;
     node_links_table_flags |= ImGuiTableFlags_SizingFixedFit;
 
-    static ImGuiButtonFlags links_tableCell_flags = 0;
-    links_tableCell_flags |= ImGuiButtonFlags_MouseButtonDefault_;
-
     
     static int _win_widthOffset = 20;
 
