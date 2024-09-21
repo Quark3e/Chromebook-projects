@@ -50,9 +50,12 @@ void gNC::_menu__node_details(
         }
         // }
 
-        ImGui::PushItemWidth(dim__menu__detail.x-_win_widthOffset);
+        ImGui::PushItemWidth(dim__menu__detail.x - _win_widthOffset - 110);
         ImGui::InputText("##_title", &(toDetail->label), inpText_flags_label);
-    
+        
+        ImGui::SameLine();
+        ImGui::PushItemWidth(100);
+        ImGui::DateChooser(("##"+ptrToStr<gNC::gNODE*>(toDetail)+"_date").c_str(), toDetail->date);
 
         ImGui::Separator();
         ImGui::PushItemWidth(dim__menu__detail.x-_win_widthOffset);
@@ -109,7 +112,6 @@ void gNC::_menu__node_details(
     if(init_node!=toDetail) init_node = toDetail;
 }
 
-
 void gNC::_menu__link_details(
     gNC::gLINK* toDetail
 ) {
@@ -127,6 +129,7 @@ void gNC::_menu__link_details(
 
     static ImGuiInputTextFlags inpText_flags_label  = 0;
     static ImGuiInputTextFlags inpText_flags_desc   = 0;
+    static ImGuiInputTextFlags inpText_flags_bodyT  = 0;
 
 
     static ImGuiTableFlags links_table_flags = 0;
@@ -152,12 +155,21 @@ void gNC::_menu__link_details(
             ImGui::SetWindowSize(dim__menu__detail);
         }
 
-        ImGui::PushItemWidth(dim__menu__detail.x-_win_widthOffset);
+        ImGui::PushItemWidth(dim__menu__detail.x - _win_widthOffset - 110);
         ImGui::InputText("##_title", &(toDetail->label), inpText_flags_label);
+
+        ImGui::SameLine();
+        ImGui::PushItemWidth(100);
+        ImGui::DateChooser(("##"+ptrToStr<gNC::gLINK*>(toDetail)+"_date").c_str(), toDetail->date);
+
 
         ImGui::Separator();
         ImGui::PushItemWidth(dim__menu__detail.x-_win_widthOffset);
         ImGui::InputText("##_desc", &(toDetail->desc), inpText_flags_desc);
+
+        ImGui::Separator();
+        ImGui::InputTextMultiline("##_bodyText", &(toDetail->bodyText), ImVec2(dim__menu__detail.x-_win_widthOffset, ImGui::GetTextLineHeight()*5), inpText_flags_bodyT);
+
 
         ImGui::BeginGroup();
         if(ImGui::BeginChild("##window_link_nodes", ImVec2(-FLT_MIN, 0))) {

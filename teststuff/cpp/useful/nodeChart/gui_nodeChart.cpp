@@ -51,6 +51,7 @@ gNC::gNODE::gNODE(
         pos_share_1[1]  = pos_share_0[1];
         pos_share_1[0]  = width-pos_share_0[0];
     }
+    date = ImGui::GetDateZero();
     // std::cout<<pos_add_1[0]<< " "<<pos_add_1[1]<<" | " <<pos_share_1[0]<< " "<<pos_share_1[1] << std::endl;
 
 }
@@ -166,8 +167,8 @@ gNC::gLINK::gLINK() {}
 gNC::gLINK::gLINK(
     int par_type_src, int par_type_dest,
     gNC::gNODE* par_src, gNC::gNODE* par_dest,
-    std::string par_label, std::string par_desc
-): Pos_src(-1,-1), Pos_dest(-1,-1)/*, Pos_s1(-1,-1), Pos_d1(-1,-1)*/ {
+    std::string par_label, std::string par_desc, std::string par_bodyText
+): Pos_src(-1,-1), Pos_dest(-1,-1), label{par_label}, desc{par_desc}, bodyText{par_bodyText} {
     if(searchVec<int>(std::vector<int>{1, 3, 5}, par_type_src)==-1 && searchVec<int>(std::vector<int>{0, 2, 4}, par_type_dest)==-1) std::runtime_error("ERROR: gNC::gLINK() constructor par_type_{..} is invalid");
     if(par_src==nullptr && par_dest==nullptr) std::runtime_error("ERROR: gNC::gLINK(): constructor: both `src` and `dest` can't be nullptr");
 
@@ -175,9 +176,8 @@ gNC::gLINK::gLINK(
     this->type_dest = par_type_dest;
     this->src  = par_src;
     this->dest = par_dest;
-    this->label = par_label;
-    this->desc  = par_desc;
     _init = true;
+    date = ImGui::GetDateZero();
 }
 
 /**
@@ -1254,6 +1254,12 @@ bool _draw__node_cosmetics(
     ImDrawList* local_drawList = ImGui::GetWindowDrawList();
 
     ImGui::TextUnformatted((*itr).label.c_str());
+    ImGui::SameLine();
+    // if(ImGui::Button("D", ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight()))) {
+        // ImGui::TestDateChooser("%d/%m/%Y", true);
+    
+    // }
+
     ImGui::Separator();
     ImGui::TextUnformatted((*itr).desc.c_str());
     ImGui::Separator();

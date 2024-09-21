@@ -31,6 +31,10 @@ namespace gNC {
 
         std::string label   = ""; //[optional]
         std::string desc    = ""; //[optional]
+        std::string bodyText= ""; //[optional]
+
+        tm date; //[optional]
+
 
         /**
          * Integer code for source type: Whether it's "out" or "share":
@@ -133,7 +137,7 @@ namespace gNC {
         gLINK(
             int par_type_src, int par_type_dest,
             gNC::gNODE* par_src, gNC::gNODE* par_dest,
-            std::string par_label="",std::string par_desc=""
+            std::string par_label="",std::string par_desc="", std::string par_bodyText=""
         );
         /**
          * @brief Default constructor for gNC::gLINK
@@ -149,6 +153,8 @@ namespace gNC {
         std::string label   = ""; //[optional]
         std::string desc    = ""; //[optional]
         std::string bodyText= ""; //[optional]
+
+        tm date; //[optional]
 
         bool init = false;
 
@@ -215,32 +221,7 @@ namespace gNC {
             float par_posX_out=160, float par_posY_out=70,
             float par_posX_add=51,  float par_posY_add=0,
             float par_posX_share=110,float par_posY_share=0
-        ); // {
-        //     if(checkExistence<int>(par_layout, std::vector<int>{0,1,2,3})==-1) std::runtime_error("ERROR: gNC::gNODE constructor: par_layout is an invalid value");
-        //     layout = par_layout;
-        //     width   = par_width;
-        //     height  = par_height;
-        //     pos[0]  = par_posX;
-        //     pos[1]  = par_posY;
-        //     pos_in[0]   = par_posX_in;  pos_in[1]   = par_posY_in;
-        //     pos_out[0]  = par_posX_out; pos_out[1]  = par_posY_out;
-        //     pos_add_0[0]    = par_posX_add;     pos_add_0[1]    = par_posY_add;
-        //     pos_share_0[0]  = par_posX_share;   pos_share_0[1]  = par_posY_share;
-        //     // std::cout<<pos_add_0[0]<< " "<<pos_add_0[1]<<" | " <<pos_share_0[0]<< " "<<pos_share_0[1] << " - ";
-        //     if(layout==0 || layout==1) { //define the opposing connection points positions
-        //         pos_add_1[0]    = pos_add_0[0];
-        //         pos_add_1[1]    = height-pos_add_0[1];
-        //         pos_share_1[0]  = pos_share_0[0];
-        //         pos_share_1[1]  = height-pos_share_0[1];
-        //     }
-        //     else if(layout==2 || layout==3) {
-        //         pos_add_1[1]    = pos_add_0[1];
-        //         pos_add_1[0]    = width-pos_add_0[0];
-        //         pos_share_1[1]  = pos_share_0[1];
-        //         pos_share_1[0]  = width-pos_share_0[0];
-        //     }
-        //     // std::cout<<pos_add_1[0]<< " "<<pos_add_1[1]<<" | " <<pos_share_1[0]<< " "<<pos_share_1[1] << std::endl;
-        // }
+        );
 
         void setPos(int x, int y);
         void setDim(int w, int h);
