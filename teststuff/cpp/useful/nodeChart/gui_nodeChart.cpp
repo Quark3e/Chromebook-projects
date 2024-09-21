@@ -399,13 +399,18 @@ void gNC::gLINK::draw_link(
      * when drawing the line on the node, only draw to the first intermediary point.
      */
     assert(_init);
+    if(Pos_src.x==Pos_dest.x && Pos_src.y==Pos_dest.y) return;
+
     static ImU32 colour_bg      = IM_COL32(250, 241, 58, 204);
     static ImU32 colour_bg_hover= IM_COL32(250, 241, 150,204);
+    static ImU32 colour_bg_Cl   = IM_COL32(250, 241, 200,204);
 
     static ImU32 colour_border  = IM_COL32(100, 100, 100, 255); 
+    static ImU32 colour_borderCl= IM_COL32(90 ,  90,  50, 240);
 
 
-    ImU32 linkColour = (draw__state? colour_bg_hover : colour_bg);
+    ImU32 linkColour = (draw__state? (draw__state==2? colour_bg_Cl : colour_bg_hover) : colour_bg);
+    ImU32 linkColour_border = (draw__state==2? colour_borderCl : colour_border);
 
 
     static bool draw__lines = false;
@@ -520,7 +525,7 @@ void gNC::gLINK::draw_link(
     // draw_win[0]->AddCircle(addOffs(link_points_raw[0]), 10, IM_COL32(255, 20, 20, 250), 10, 2);
     for(int i=1; i<link_points_raw.size(); i++) {
 
-        draw_win[0]->AddLine(addOffs(link_points_raw[i-1]), addOffs(link_points_raw[i]), colour_border, link_lineWidth);
+        draw_win[0]->AddLine(addOffs(link_points_raw[i-1]), addOffs(link_points_raw[i]), linkColour_border, link_lineWidth);
         draw_win[0]->AddLine(addOffs(link_points_raw[i-1]), addOffs(link_points_raw[i]), linkColour, link_lineWidth*0.7);
         // draw_win[0]->AddCircle(addOffs(link_points_raw[i]), 10, IM_COL32(255, 20, 20, 250), 10, 2);
         // draw_win[0]->AddLine(addOffs(link_points_raw[i-1]), addOffs(link_points_raw[i]), IM_COL32(255, 20, 20, 250), 2);
@@ -1347,7 +1352,6 @@ int gNC::guiNodeChart::draw() {
                 // !_winFocused__node_details
             ) {
                 if(mouseAction_left==3 || mouseAction_left==-1) {
-                    (*itr).draw__state = 2;
 
                     link_focused = true;
                     focused_link = &(*itr);
@@ -1358,7 +1362,6 @@ int gNC::guiNodeChart::draw() {
             }
             else {
                 (*itr).draw__state = 1;
-
             }
 
             if(isKeyPressed(656, &(*pressed_keys)[pressed_keys->size()-1])) {
@@ -1373,6 +1376,8 @@ int gNC::guiNodeChart::draw() {
         else {
             (*itr).draw__state = 0;
         }
+
+        if(linkPtr_menu__link_details == &(*itr)) (*itr).draw__state = 2;
 
         (*itr).draw_link(std::vector<ImDrawList*>{draw_list}, ImVec2(screen_pos[0], screen_pos[1]));
     }
@@ -1604,12 +1609,18 @@ int gNC::guiNodeChart::draw() {
     return 0;
 }
 
-int gNC::guiNodeChart::save(
+int gNC::guiNodeChart::saveToFile(
     std::string filename,
     bool overwrite
+) {
+    
+
+    return 0;
+}
+int gNC::guiNodeChart::loadFile(
+    std::string filename
 ) {
 
 
     return 0;
 }
-

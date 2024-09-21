@@ -1,0 +1,70 @@
+{
+    "projects": [
+        {
+            "date"      : "220924",
+            "label"     : "test nodechart",
+            "screen_pos": [0, 0],
+            "screen_dim": [1280, 720],
+            "nodes": [
+                {
+                    "addr"      : "#addr0",
+                    "label"     : "node0 label",
+                    "desc"      : "node0 desc",
+                    "bodyT"     : "node0 bodyText",
+                    "date"      : "020924",
+                    "init"      : true,
+                    "layout"    : 0,
+                    "width"     : 160,
+                    "height"    : 140,
+                    "pos"       : [0, 0],
+                    "pos_in"    : [  0,  70],
+                    "pos_out"   : [160,  70],
+                    "pos_add"   : [ 51,   0],
+                    "pos_share" : [110,   0],
+                    "ROI_attach": [ 14,  14],
+                    "fillet_rad": 0
+                }, {
+                    "addr"      : "#addr1",
+                    "label"     : "node1 label",
+                    "desc"      : "node1 desc",
+                    "bodyT"     : "node1 bodyText",
+                    "date"      : "010924",
+                    "init"      : true,
+                    "layout"    : 0,
+                    "width"     : 200,
+                    "height"    : 150,
+                    "pos"       : [0, 0],
+                    "pos_in"    : [  0,  70],
+                    "pos_out"   : [160,  70],
+                    "pos_add"   : [ 51,   0],
+                    "pos_share" : [110,   0],
+                    "ROI_attach": [14, 14],
+                    "fillet_rad": 0
+                }
+            ],
+            "links": [
+                {
+                    "addr"      : "",
+                    "label"     : "link0 label",
+                    "desc"      : "link0 desc",
+                    "bodyText"  : "link0 bodyText",
+                    "date"      : "020924",
+                    "type_src"  : 1,
+                    "type_dest" : 0,
+                    "src"       : "#addr0",
+                    "dest"      : "#addr1",
+                    "layout"    : 0,
+                    "min__connect"  : 50,
+                    "min__node"     : 100,
+                    "lim__sameSide" : 150,
+                    "_gui__bezier_min"  : 10,
+                    "Pos_src"   : [0, 0],
+                    "Pos_dest"  : [0, 0],
+                    "Pos_center": [0, 0],
+                    "link_lineWidth"    : 12,
+                    "link_gui__lineWidth"   : 5
+                }
+            ]
+        }
+    ]
+}

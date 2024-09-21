@@ -165,22 +165,22 @@ namespace gNC {
          *  - `2` - vertical:   top->down
          *  - `3` - vertical:   down->top
          */
-        int layout;
+        int layout = 0;
 
         /// @details GUI related
-        float width = 200; /// [unit: px] width of the bounding box ROI
-        float height= 150; /// [unit: px] height of the bounding box ROI
+        float width = 160; /// [unit: px] width of the bounding box ROI
+        float height= 140; /// [unit: px] height of the bounding box ROI
 
 
         /// [unit: px] Absolute(relative to screen) {x, y} coordinate of the top left corner of this NODE ROI.
         ImVec2 pos;
 
-        ImVec2 pos_in       = ImVec2{0,  25}; // [unit: px] Position of the `ln_in` node bounding box
-        ImVec2 pos_out      = ImVec2{100, 25};// [unit: px] Position of the `ln_out` node bounding box
-        ImVec2 pos_add_0    = ImVec2{31,  0}; // [unit: px] Position of the `ln_add` node bounding box 
-        ImVec2 pos_add_1    = ImVec2{31, 50};
-        ImVec2 pos_share_0  = ImVec2{63,  0}; // [unit: px] Position of the `ln_share` node bounding box
-        ImVec2 pos_share_1  = ImVec2{63, 50};
+        ImVec2 pos_in       = ImVec2{  0, 70}; // [unit: px] Position of the `ln_in` node bounding box
+        ImVec2 pos_out      = ImVec2{160, 70};// [unit: px] Position of the `ln_out` node bounding box
+        ImVec2 pos_add_0    = ImVec2{ 51,  0}; // [unit: px] Position of the `ln_add` node bounding box 
+        ImVec2 pos_add_1    = ImVec2{ 51,140};
+        ImVec2 pos_share_0  = ImVec2{110,  0}; // [unit: px] Position of the `ln_share` node bounding box
+        ImVec2 pos_share_1  = ImVec2{110,140};
         
         ImVec2 ROI_attach = ImVec2{14, 14};   // [unit: px] Width and Height of the `in`, `out`, `add`, `share` connect point bounding boxes
 
@@ -339,9 +339,12 @@ namespace gNC {
 
         int draw();
 
-        int save(
+        int saveToFile(
             std::string filename,
             bool overwrite = false
+        );
+        int loadFile(
+            std::string filename
         );
     };
 
@@ -394,7 +397,8 @@ namespace gNC {
 
     void _menu__node_details(gNC::gNODE* toDetail);
     void _menu__link_details(gNC::gLINK* toDetail);
-    void _menu__rightClick(gNC::guiNodeChart* chart);
+    void _menu__rightClick(gNC::guiNodeChart* _chart);
+    void _menu__timeline(gNC::guiNodeChart* _chart);
 
     extern bool _winFocused__node_details;
     extern bool _winFocused__link_details;

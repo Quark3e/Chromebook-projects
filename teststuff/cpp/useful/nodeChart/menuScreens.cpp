@@ -222,7 +222,7 @@ void gNC::_menu__link_details(
 
 
 void gNC::_menu__rightClick(
-    gNC::guiNodeChart* chart
+    gNC::guiNodeChart* _chart
 ) {
     static bool init = false;
 
@@ -233,12 +233,12 @@ void gNC::_menu__rightClick(
 
         ImGui::MenuItem("Default menu", NULL, false, false);
         if(ImGui::MenuItem("Create Node")) {
-            chart->NODE_create(
-                mousePos_temp.x - chart->screen_pos[0],
-                mousePos_temp.y - chart->screen_pos[1],
+            _chart->NODE_create(
+                mousePos_temp.x - _chart->screen_pos[0],
+                mousePos_temp.y - _chart->screen_pos[1],
                 "", "", ""
             );
-            nodePtr_menu__node_details = chart->lastAdded_NODE();
+            nodePtr_menu__node_details = _chart->lastAdded_NODE();
         }
             
         ImGui::EndPopup();
@@ -248,7 +248,7 @@ void gNC::_menu__rightClick(
         ImGui::MenuItem("Node menu", NULL, false, false);
         if(ImGui::MenuItem("Delete node")) {
             if(nodePtr_menu__node_details == nodePtr_menu__rightClick) nodePtr_menu__node_details = nullptr;
-            chart->NODE_delete(nodePtr_menu__rightClick);
+            _chart->NODE_delete(nodePtr_menu__rightClick);
         }
         ImGui::EndPopup();
     }
@@ -257,7 +257,7 @@ void gNC::_menu__rightClick(
         ImGui::MenuItem("Link menu", NULL, false, false);
         if(ImGui::MenuItem("Delete link")) {
             if(linkPtr_menu__link_details == linkPtr_menu__rightClick) linkPtr_menu__link_details = nullptr;
-            chart->LINK_delete(linkPtr_menu__rightClick);
+            _chart->LINK_delete(linkPtr_menu__rightClick);
         }
         ImGui::EndPopup();
     }
@@ -270,3 +270,13 @@ void gNC::_menu__rightClick(
     if(!init) init=true;
 }
 
+
+void gNC::_menu__timeline(
+    gNC::guiNodeChart* _chart
+) {
+    assert(_chart);
+
+    
+
+
+}
