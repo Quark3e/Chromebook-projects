@@ -265,6 +265,8 @@ namespace gNC {
         ImVec2 add_nodePos(ImVec2 addTo, gNC::gNODE* toAdd) { return ImVec2(addTo.x+toAdd->pos[0], addTo.y+toAdd->pos[1]); }
 
         public:
+        std::string project_name = "";
+
         gNC::guiNodeChart* thisPtr = nullptr;
         int screen_pos[2] = {0, 0};
         int screen_pos_delta[2] = {0, 0};

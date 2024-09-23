@@ -51,6 +51,25 @@ struct pos2d {
 
 // namespace USEFUL {
 
+    /// @brief Convert decimal number to std::string with set decimal numbers and minimum total width
+    /// @tparam T 
+    /// @param value decimal number to convert
+    /// @param strWidth minimum width for the string
+    /// @param varPrecision decimal precision
+    /// @param align whether to align value with left or right side: {`"left"`, `"right"`},
+    /// @param numberFill whether to add 0's before the number to complete missing strWidth 
+    /// @return returns formatted string
+    template<class T>
+    inline std::string formatNumber(
+        T value,
+        int strWidth,
+        int varPrecision,
+        std::string align="right",
+        bool numberFill= false
+    );
+
+
+
     /**
      * @brief Round the indexable numbers of a data type container to a specific decimal.
      * 
@@ -501,10 +520,24 @@ struct pos2d {
         return 0;
     }
 
-    inline std::string getDate() {
+    inline std::string getDate(bool addNewline = true) {
         time_t currDate = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        return ctime(&currDate);
+        std::string _out = ctime(&currDate);
+        if(addNewline) return _out;
+        else {
+            return _out.substr(0, _out.length()-1);
+        }
     }
+
+    inline std::string dateToStr(
+        tm _date
+    ) {
+        return (
+            formatNumber(_date.tm_mday, 2, 0, "right", true) + "-" +
+            formatNumber(_date.tm_mon , 2, 0, "right", true) + "-" +
+            formatNumber(_date.tm_year, 4, 0, "right", true)
+        );
+    } 
 
     /**
      * @brief method to allow ANSI printing string with newlines
@@ -977,6 +1010,7 @@ struct pos2d {
         ss << std::fixed << value;
         return replaceSubstr(ss.str(), ",", formatSymbol);
     }
+    
     /// @brief Convert decimal number to std::string with set preicision
     /// @tparam T 
     /// @param value decimal number to convert/type-cast
@@ -988,26 +1022,67 @@ struct pos2d {
         tempStream << std::fixed << std::setprecision(varPrecision) << value;
         return tempStream.str();
     }
-    /// @brief Convert decimal number to std::string with set decimal numbers and minimum total width
-    /// @tparam T 
-    /// @param value decimal number to convert
-    /// @param strWidth minimum width for the string
-    /// @param varPrecision decimal precision
-    /// @param align whether to align value with left or right side: {`"left"`, `"right"`},
-    /// @return returns formatted string
     template<class T>
     inline std::string formatNumber(
         T value,
         int strWidth,
         int varPrecision,
-        std::string align="right"
+        std::string align,
+        bool numberFill
     ) {
-        std::stringstream outStream;
+        std::stringstream outStream, _temp;
+        int fillZeros = 0;
+        if(numberFill && align=="right") {
+            _temp << std::fixed;
+            _temp << std::setprecision(varPrecision) << value;
+            if(static_cast<int>(_temp.str().length()) < strWidth) fillZeros = strWidth - static_cast<int>(_temp.str().length());
+        }
         outStream << std::fixed;
         if(align=="left") outStream<<std::left;
         else if(align=="right") outStream<<std::right;
-        outStream << std::setw(strWidth) << std::setprecision(varPrecision) << value;
+        outStream << std::setw(strWidth - fillZeros);
+        if(numberFill && align=="right") outStream << std::string(fillZeros, '0');
+        // outStream << (align=="left"? std::left : std::right);
+        outStream << std::setprecision(varPrecision) << value;
+
         return outStream.str();
+    }
+
+    template<class T>
+    inline std::string formatContainer(
+        T _container,
+        int strWidth,
+        int varPrecision,
+        std::string align = "right",
+        bool numberFill = false,
+        char openSymb = '(',
+        char closeSymb= ')'
+    ) {
+        std::string _out(1, openSymb);
+        for(auto itr=_container.begin(); itr!=_container.end(); ++itr) {
+            _out += formatNumber(*itr, strWidth, varPrecision, align, numberFill);
+            if(!itr!=--_container.end()) openSymb += ',';
+        }
+        return _out + closeSymb;
+    }
+
+    template<class T>
+    inline std::string formatContainer(
+        T _container,
+        size_t contSize,
+        int strWidth,
+        int varPrecision,
+        std::string align = "right",
+        bool numberFill = false,
+        char openSymb = '(',
+        char closeSymb= ')'
+    ) {
+        std::string _out(1, openSymb);
+        for(size_t i=0; i<contSize; i++) {
+            _out += formatNumber(_container[i], strWidth, varPrecision, align, numberFill);
+            if(i<contSize-1) _out += ',';
+        }
+        return _out + closeSymb;
     }
 
 

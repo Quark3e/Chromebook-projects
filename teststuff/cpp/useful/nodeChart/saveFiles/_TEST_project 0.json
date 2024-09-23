@@ -1,0 +1,117 @@
+{
+    "projects": [
+        {
+            "date"      : "Mon Sep 23 02:02:00 2024",
+            "name"      : "project 0",
+            "screen_pos": [  301,  -54],
+            "screen_dim": [ 1280,  698],
+            "nodes"	: [
+                {
+                    "addr"      : "0x55a7547927f0",
+                    "label"     : "node0",
+                    "desc"      : "desc0",
+                    "bodyT"     : "(*itr).bodyText",
+                    "date"      : "01-08-  0124",
+                    "init"      : true,
+                    "layout"    : 0,
+                    "width"     : 160,
+                    "height"    : 140,
+                    "pos"       : [ 100, 100],
+                    "pos_in"    : [   0,  70],
+                    "pos_out"   : [ 160,  70],
+                    "pos_add"   : [  51,   0],
+                    "pos_share" : [ 110,   0],
+                    "ROI_attach": [  14,  14],
+                    "fillet_rad": 0
+                }, {
+                    "addr"      : "0x55a754792990",
+                    "label"     : "node1",
+                    "desc"      : "desc1",
+                    "bodyT"     : "(*itr).bodyText",
+                    "date"      : "  23-08-  0124",
+                    "init"      : true,
+                    "layout"    : 0,
+                    "width"     : 160,
+                    "height"    : 140,
+                    "pos"       : [ 400, 200],
+                    "pos_in"    : [   0,  70],
+                    "pos_out"   : [ 160,  70],
+                    "pos_add"   : [  51,   0],
+                    "pos_share" : [ 110,   0],
+                    "ROI_attach": [  14,  14],
+                    "fillet_rad": 0
+                }, {
+                    "addr"      : "0x55a754792b30",
+                    "label"     : "node2",
+                    "desc"      : "desc2",
+                    "bodyT"     : "(*itr).bodyText",
+                    "date"      : "00-00-0000",
+                    "init"      : true,
+                    "layout"    : 0,
+                    "width"     : 160,
+                    "height"    : 140,
+                    "pos"       : [ 600, 500],
+                    "pos_in"    : [   0,  70],
+                    "pos_out"   : [ 160,  70],
+                    "pos_add"   : [  51,   0],
+                    "pos_share" : [ 110,   0],
+                    "ROI_attach": [  14,  14],
+                    "fillet_rad": 0
+                }, {
+                    "addr"      : "0x55a7547917a0",
+                    "label"     : "node3",
+                    "desc"      : "desc3",
+                    "bodyT"     : "(*itr).bodyText",
+                    "date"      : "00-00-0000",
+                    "init"      : true,
+                    "layout"    : 0,
+                    "width"     : 160,
+                    "height"    : 140,
+                    "pos"       : [ 900, 300],
+                    "pos_in"    : [   0,  70],
+                    "pos_out"   : [ 160,  70],
+                    "pos_add"   : [  51,   0],
+                    "pos_share" : [ 110,   0],
+                    "ROI_attach": [  14,  14],
+                    "fillet_rad": 0
+                }, {
+                    "addr"      : "0x55a754799270",
+                    "label"     : "node4",
+                    "desc"      : "desc4",
+                    "bodyT"     : "(*itr).bodyText",
+                    "date"      : "  30-08-  0124",
+                    "init"      : true,
+                    "layout"    : 0,
+                    "width"     : 160,
+                    "height"    : 140,
+                    "pos"       : [ -22, 300],
+                    "pos_in"    : [   0,  70],
+                    "pos_out"   : [ 160,  70],
+                    "pos_add"   : [  51,   0],
+                    "pos_share" : [ 110,   0],
+                    "ROI_attach": [  14,  14],
+                    "fillet_rad": 0
+                }, {
+                    "addr"      : "0x55a754799410",
+                    "label"     : "node5",
+                    "desc"      : "desc5",
+                    "bodyT"     : "(*itr).bodyText",
+                    "date"      : "  23-08-  0124",
+                    "init"      : true,
+                    "layout"    : 0,
+                    "width"     : 160,
+                    "height"    : 140,
+                    "pos"       : [ 100, 600],
+                    "pos_in"    : [   0,  70],
+                    "pos_out"   : [ 160,  70],
+                    "pos_add"   : [  51,   0],
+                    "pos_share" : [ 110,   0],
+                    "ROI_attach": [  14,  14],
+                    "fillet_rad": 0
+                }
+            ],
+            "links"	: [
+            ]
+        }
+    ]
+}

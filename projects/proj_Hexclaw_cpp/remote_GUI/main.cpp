@@ -180,7 +180,7 @@ int main(int argc, char** argv) {
     guiSettings_desc.add("Link to server", std::string("whether to attempt to connect to Hexclaw Server at intervals"));
     guiSettings_desc.add("findOrient", std::string("whether to look for a valid orient if a given pos+orient gives invalid `getAngles` error"));
 
-    std::vector<bool*> vecPtr;
+    std::list<bool*> vecPtr;
     for(const std::string key: HW_KINEMATICS::settings.keys()) vecPtr.push_back(HW_KINEMATICS::settings.getPtr(key));
 
 
@@ -509,11 +509,11 @@ void tab_0(void) {
         ImGui::SeparatorText("Settings");
 
         std::vector<std::string> temp_keys = guiSettings.keys();
-        std::vector<bool*> temp_settingPtr = guiSettings.values();
+        std::list<bool*> temp_settingPtr = guiSettings.values();
         for(int _i=0; _i<temp_keys.size(); _i++) {
-            ImGui::Checkbox(DIY::formatNumber<std::string>(temp_keys[_i],15,0,"left").c_str(), temp_settingPtr[_i]);
+            ImGui::Checkbox(DIY::formatNumber<std::string>(temp_keys[_i],15,0,"left").c_str(), guiSettings[_i]);
             ImGui::SameLine();
-            HelpMarker(guiSettings_desc._from_idx(_i).c_str());
+            HelpMarker(guiSettings_desc[_i].c_str());
             ImGui::SameLine();
             // if(_i<HW_KINEMATICS::setting_default.size()) {
             //     HelpMarker(("default:["+))
@@ -664,7 +664,7 @@ void tab_0(void) {
         )) {
             outMsg = "found solution for given pos and orient";
         }
-        else if(*guiSettings["findOrient"]) {
+        else if(*guiSettings.get("findOrient")) {
             if(HW_KINEMATICS::findValidOrient(input_IK_pos, input_IK_orient, input_IK_orient, output_IK_angles)) { //find replacement
                 outMsg = "note: No solution found for given orient:\nfound solution for different orient.";
             }

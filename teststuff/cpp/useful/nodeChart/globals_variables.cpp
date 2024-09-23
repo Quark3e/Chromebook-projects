@@ -3,6 +3,8 @@
 #include "globals_includes.hpp"
 
 
+std::string programCWD;
+
 DIY::typed_dict<std::string, gNC::guiNodeChart> projects;
 
 

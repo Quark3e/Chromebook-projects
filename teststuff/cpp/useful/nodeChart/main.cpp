@@ -21,6 +21,9 @@ bool opt__enable_grid = true;
 
 int main(int argc, char** argv) {
 
+    programCWD = getFileCWD(true);
+
+
     al_init();
     al_install_keyboard();
     al_install_mouse();
@@ -71,6 +74,7 @@ int main(int argc, char** argv) {
     
     projects.add("project 0", gNC::guiNodeChart());
     projects[0].thisPtr = projects.getPtr_idx(0);
+    projects[0].project_name = projects.key(0);
 
     int selected = 0;
 
@@ -84,7 +88,10 @@ int main(int argc, char** argv) {
         ALLEGRO_EVENT al_event;
         while (al_get_next_event(queue, &al_event)) {
             ImGui_ImplAllegro5_ProcessEvent(&al_event);
-            if(al_event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) running_main = false;
+            if(al_event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+                std::cout << "\n----------\n closing..\n----------\n"<<std::endl;
+                running_main = false;
+            }
             if(al_event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
                 ImGui_ImplAllegro5_InvalidateDeviceObjects();
                 al_acknowledge_resize(display);
@@ -207,15 +214,20 @@ int main(int argc, char** argv) {
         ImGui::SetWindowPos(ImVec2(0, 0));
         ImGui::SetWindowSize(ImVec2(dim__main[0], 45));
 
-        // ImDrawList* draw_list = ImGui::GetWindowDrawList();
-
-        // projects[0].screen_pos[0]=cnt;
-        // projects[0].screen_pos[1]=cnt;
 
         if(ImGui::BeginMenuBar()) {
             if(ImGui::BeginMenu("File")) {
-                if(ImGui::MenuItem("Open")) { }
-                if(ImGui::MenuItem("Save")) { }
+                if(ImGui::MenuItem("Open project")) {
+
+                }
+                if(ImGui::MenuItem("Save project")) {
+                    /**
+                     * @brief Normally this would open a dedicated "file dialog" window but now for testing sake it'll just
+                     * directly call the `gNC::guiNodeChart::saveToFile` member function
+                     * 
+                     */
+                    projects[selected].saveToFile(programCWD+"saveFiles/_TEST_" + projects.key(0).c_str() + ".json", true);
+                }
                 ImGui::EndMenu();
             }
             if(ImGui::BeginMenu("Program")) {
@@ -226,10 +238,11 @@ int main(int argc, char** argv) {
         }
 
         if(ImGui::BeginTabBar("Tabs")) {
-            if(ImGui::BeginTabItem(projects.key(0).c_str())) {
-                selected = 0;
-                
-                ImGui::EndTabItem();
+            for(size_t i=0; i<projects.size(); i++) {
+                if(ImGui::BeginTabItem(projects.key(0).c_str())) {
+                    selected = i;
+                    ImGui::EndTabItem();
+                }
             }
             ImGui::EndTabBar();
         }

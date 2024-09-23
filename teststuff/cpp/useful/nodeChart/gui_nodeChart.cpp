@@ -1613,7 +1613,68 @@ int gNC::guiNodeChart::saveToFile(
     std::string filename,
     bool overwrite
 ) {
+    std::fstream _file;
+    std::ios_base::openmode fileMode = std::fstream::out;
+    if(!overwrite) fileMode |= std::fstream::app;
+    _file.open(filename, fileMode);
+
+    if(!_file.is_open()) {
+        std::runtime_error("ERROR: "+this->_info_name+"::saveToFile(std::string, bool): could not open file \""+filename+"\"");
+    }
+    else {
+        std::cout << "opened file: "<<filename<<std::endl;
+    }
+
+    int ind = 0;
+    _file << "{" << "\n"; ind++;
+    _file << std::string(ind*4, ' ') << "\"projects\": [" << "\n"; ind++;
+    _file << std::string(ind*4, ' ') << "{"<<"\n"; ind++;
+    _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"date\"", 12, 0, "left") << ": " << "\""+getDate(false)+"\"" << ",\n";
+    _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"name\"", 12, 0, "left") << ": " << "\""+project_name+"\"" << ",\n";
+    _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"screen_pos\"", 12, 0, "left") << ": " << formatContainer(screen_pos, 2, 5, 0, "right", false, '[', ']') << ",\n";
+    _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"screen_dim\"", 12, 0, "left") << ": " << formatContainer(screen_dim, 2, 5, 0, "right", false, '[', ']') << ",\n";
+    _file << std::string(ind*4, ' ') << "\"nodes\"" << "\t: [\n"; ind++;
+
+    for(auto itr=_nodes.begin(); itr!=_nodes.end(); ++itr) {
+        if(itr==_nodes.begin())  _file << std::string(ind*4, ' ');
+        _file << "{\n"; ind++;
+
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"addr\""  , 12, 0, "left") << ": \"" << (*itr).addr    << "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"label\"" , 12, 0, "left") << ": \"" << (*itr).label   << "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"desc\""  , 12, 0, "left") << ": \"" << (*itr).desc    << "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"bodyT\"" , 12, 0, "left") << ": \"" << "(*itr).bodyText"<< "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"date\""  , 12, 0, "left") << ": \"" << dateToStr((*itr).date) << "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"init\""  , 12, 0, "left") << ": "   << ((*itr).init? "true" : "false") << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"layout\"", 12, 0, "left") << ": "   << (*itr).layout  << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"width\"" , 12, 0, "left") << ": "   << (*itr).width   << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"height\"", 12, 0, "left") << ": "   << (*itr).height  << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"pos\""   , 12, 0, "left") << ": "   << formatContainer((*itr).pos      , 2, 4, 0, "right", false, '[', ']') << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"pos_in\"", 12, 0, "left") << ": "   << formatContainer((*itr).pos_in   , 2, 4, 0, "right", false, '[', ']') << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"pos_out\"", 12, 0, "left") << ": "  << formatContainer((*itr).pos_out  , 2, 4, 0, "right", false, '[', ']') << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"pos_add\"", 12, 0, "left") << ": "   << formatContainer((*itr).pos_add_0 , 2, 4, 0, "right", false, '[', ']') << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"pos_share\"", 12, 0, "left") << ": " << formatContainer((*itr).pos_share_0, 2, 4, 0, "right", false, '[', ']') << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"ROI_attach\"", 12, 0, "left") << ": "   << formatContainer((*itr).ROI_attach, 2, 4, 0, "right", false, '[', ']') << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"fillet_rad\"", 12, 0, "left") << ": " << (*itr).fillet_radius << "\n";
+
+        ind--;
+        _file << std::string(ind*4, ' ') << "}";
+        if(itr != --_nodes.end()) {
+            _file << ", ";
+        }
+        else {
+            _file << "\n";
+            ind--;
+        }
+    }
     
+    _file << std::string(ind*4, ' ') << "],\n";
+    _file << std::string(ind*4, ' ') << "\"links\"" << "\t: [\n";
+
+
+    _file << std::string(ind*4, ' ') << "]\n"; ind--;
+    _file << std::string(ind*4, ' ') << "}\n"; ind--;
+    _file << std::string(ind*4, ' ') << "]\n"; ind--;
+    _file << std::string(ind*4, ' ') << "}\n"; ind--;
 
     return 0;
 }

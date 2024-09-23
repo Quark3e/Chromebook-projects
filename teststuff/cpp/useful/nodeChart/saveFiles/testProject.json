@@ -2,7 +2,7 @@
     "projects": [
         {
             "date"      : "220924",
-            "label"     : "test nodechart",
+            "name"      : "test nodechart",
             "screen_pos": [0, 0],
             "screen_dim": [1280, 720],
             "nodes": [
@@ -38,7 +38,7 @@
                     "pos_out"   : [160,  70],
                     "pos_add"   : [ 51,   0],
                     "pos_share" : [110,   0],
-                    "ROI_attach": [14, 14],
+                    "ROI_attach": [ 14,  14],
                     "fillet_rad": 0
                 }
             ],
