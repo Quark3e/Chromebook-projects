@@ -1259,7 +1259,7 @@ bool _draw__node_cosmetics(
     ImDrawList* local_drawList = ImGui::GetWindowDrawList();
 
     ImGui::TextUnformatted((*itr).label.c_str());
-    ImGui::SameLine();
+    // ImGui::SameLine();
     // if(ImGui::Button("D", ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight()))) {
         // ImGui::TestDateChooser("%d/%m/%Y", true);
     
@@ -1622,7 +1622,7 @@ int gNC::guiNodeChart::saveToFile(
         std::runtime_error("ERROR: "+this->_info_name+"::saveToFile(std::string, bool): could not open file \""+filename+"\"");
     }
     else {
-        std::cout << "opened file: "<<filename<<std::endl;
+        std::cout << "Opened file to: save: \""<<filename<<"\""<<std::endl;
     }
 
     int ind = 0;
@@ -1642,7 +1642,7 @@ int gNC::guiNodeChart::saveToFile(
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"addr\""  , 12, 0, "left") << ": \"" << (*itr).addr    << "\",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"label\"" , 12, 0, "left") << ": \"" << (*itr).label   << "\",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"desc\""  , 12, 0, "left") << ": \"" << (*itr).desc    << "\",\n";
-        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"bodyT\"" , 12, 0, "left") << ": \"" << "(*itr).bodyText"<< "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"bodyText\"", 12, 0, "left")<< ": \""<< "(*itr).bodyText"<< "\",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"date\""  , 12, 0, "left") << ": \"" << dateToStr((*itr).date) << "\",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"init\""  , 12, 0, "left") << ": "   << ((*itr).init? "true" : "false") << ",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"layout\"", 12, 0, "left") << ": "   << (*itr).layout  << ",\n";
@@ -1668,8 +1668,42 @@ int gNC::guiNodeChart::saveToFile(
     }
     
     _file << std::string(ind*4, ' ') << "],\n";
-    _file << std::string(ind*4, ' ') << "\"links\"" << "\t: [\n";
+    _file << std::string(ind*4, ' ') << "\"links\"" << "\t: [\n"; ind++;
 
+    for(auto itr=_links.begin(); itr!=_links.end(); ++itr) {
+        if(itr==_links.begin()) _file << std::string(ind*4, ' ');
+        _file << "{\n"; ind++;
+
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"addr\""        , 22, 0, "left") << ": \""  << (*itr).addr          << "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"label\""       , 22, 0, "left") << ": \""  << (*itr).label         << "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"desc\""        , 22, 0, "left") << ": \""  << (*itr).desc          << "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"bodyText\""    , 22, 0, "left") << ": \""  << (*itr).bodyText      << "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"date\""        , 22, 0, "left") << ": \""  << dateToStr((*itr).date) << "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"type_src\""    , 22, 0, "left") << ": "    << (*itr).type_src      << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"type_dest\""   , 22, 0, "left") << ": "    << (*itr).type_dest     << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"src\""         , 22, 0, "left") << ": \""  << (*itr).src           << "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"dest\""        , 22, 0, "left") << ": \""  << (*itr).dest          << "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"layout\""      , 22, 0, "left") << ": "    << (*itr).layout        << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"min__connect\"", 22, 0, "left") << ": "    << (*itr).min__connect  << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"min__node\""   , 22, 0, "left") << ": "    << (*itr).min__node     << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"lim__sameSide\"",22, 0, "left") << ": "    << (*itr).lim__sameSide << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"_gui__bezier_min\"",22,0, "left")<<": "    << (*itr)._gui__bezier_min<<",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"Pos_src\""     , 22, 0, "left") << ": "    << formatContainer((*itr).Pos_src       , 2, 4, 0, "right", false, '[', ']') << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"Pos_dest\""    , 22, 0, "left") << ": "    << formatContainer((*itr).Pos_dest      , 2, 4, 0, "right", false, '[', ']') << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"Pos_center\""  , 22, 0, "left") << ": "    << formatContainer((*itr).Pos_center    , 2, 4, 0, "right", false, '[', ']') << ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"link_lineWidth\"",22,0, "left") << ": "    << (*itr).link_lineWidth<< ",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"link_gui__lineWidth\"",22,0,"left")<<": "  << (*itr).link_gui__lineWidth<< "\n";
+
+        ind--;
+        _file << std::string(ind*4, ' ') << "}";
+        if(itr != --_links.end()) {
+            _file << ", ";
+        }
+        else {
+            _file << "\n";
+            ind--;
+        }
+    }
 
     _file << std::string(ind*4, ' ') << "]\n"; ind--;
     _file << std::string(ind*4, ' ') << "}\n"; ind--;
@@ -1681,7 +1715,85 @@ int gNC::guiNodeChart::saveToFile(
 int gNC::guiNodeChart::loadFile(
     std::string filename
 ) {
+    gNC::guiNodeChart _temp;
+    std::fstream _file;
+    _file.open(filename, std::fstream::in);
 
+    if(!_file.is_open()) {
+        std::runtime_error("ERROR: "+this->_info_name+"::loadFile(std::string): could not open file \""+filename+"\"");
+    }
+    else {
+        std::cout << "Opened file to: read: \"" << filename << "\"" << std::endl;
+    }
+
+    // int ind     = 0;
+    bool inStr  = false;
+    bool isKey  = true;
+    bool ignoreChar = false;
+    std::string _key, _value;
+
+    std::string _word = "";
+
+    std::string line;
+
+    int lvl_cBr = 0; //lvl of curly braces
+    int lvl_sBr = 0; //lvl of square braces
+
+    while(getline(_file, line)) {
+        for(int i=0; i<line.length(); i++) {
+            char c=line[i];
+            if(c=='\n') continue;
+            if(c==' ' && !inStr) continue;
+            if(c=='\\') {
+                if(ignoreChar) {
+                    _word += '\\';
+                    ignoreChar = false;
+                    continue;
+                }
+                else {
+                    ignoreChar = true;
+                }
+                continue;
+            }
+            if(c=='\"') {
+                if(ignoreChar) _word += "\"";
+                else if(inStr) { //ending an existing word
+                    if(isKey) {
+                        _key = _word;
+                    }
+                    else {
+                        _value = _word;
+
+                        /*CALL SPECIFIC FUNCTION*/
+                    }
+
+                    isKey   = !isKey;
+                    inStr   = false;
+                }
+                else if(!inStr) { //starting a new word
+                    _word   = "";
+                    inStr   = true;
+                }
+                continue;
+            }
+
+            if(c=='{') {
+                if(inStr) _word += '{';
+                else lvl_cBr++;
+                continue;
+            }
+            else if(c=='}') {
+                if(inStr) {
+                    _word += '}';
+                }
+                else {
+                    lvl_cBr--;
+                }
+                continue;
+            }
+
+        }
+    }
 
     return 0;
 }

@@ -11,7 +11,8 @@ void gNC::_menu__node_details(
 ) {
     assert(toDetail!=nullptr);
     static gNC::gNODE* init_node = nullptr;
-
+    static bool init_prev = false;
+    if(init_node) init_prev = true;
 
     static ImGuiWindowFlags win_flags = 0;
     win_flags |= ImGuiWindowFlags_NoResize;
@@ -38,6 +39,10 @@ void gNC::_menu__node_details(
         // std::cout <<std::boolalpha << ImGui::IsWindowFocused()<<" | ";
         if(init_node!=toDetail) {
             // ImGui::SetWindowFocus((" node: "+toDetail->addr).c_str());
+            // init_prev = false;
+        }
+        else {
+            if(!init_prev) mouseAction_left = 1;
         }
         _winFocused__node_details = ImGui::IsWindowFocused();
         // ImGui::SetWindowPos(ImGui::GetWindowPos());
@@ -239,6 +244,7 @@ void gNC::_menu__rightClick(
                 "", "", ""
             );
             nodePtr_menu__node_details = _chart->lastAdded_NODE();
+            // mouseAction_left = 0;
         }
             
         ImGui::EndPopup();
