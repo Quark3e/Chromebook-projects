@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
     projects[0].thisPtr = projects.getPtr_idx(0);
     projects[0].project_name = projects.key(0);
 
-    int selected = 0;
+    int _selected = 0;
 
 
     static int cnt = 0;
@@ -96,10 +96,10 @@ int main(int argc, char** argv) {
                 ImGui_ImplAllegro5_InvalidateDeviceObjects();
                 al_acknowledge_resize(display);
                 ImGui_ImplAllegro5_CreateDeviceObjects();
-                projects[0].screen_dim[0] = al_get_display_width(display);
-                projects[0].screen_dim[1] = al_get_display_height(display);
-                dim__main.x = projects[0].screen_dim[0];
-                dim__main.y = projects[0].screen_dim[1];
+                projects[_selected].screen_dim[0] = al_get_display_width(display);
+                projects[_selected].screen_dim[1] = al_get_display_height(display);
+                dim__main.x = projects[_selected].screen_dim[0];
+                dim__main.y = projects[_selected].screen_dim[1];
             }
         }
         ImGui_ImplAllegro5_NewFrame();
@@ -118,78 +118,77 @@ int main(int argc, char** argv) {
 
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-        if(selected==0) {
+        if(_selected==0) {
             project_draw_list = ImGui::GetWindowDrawList();
 
-                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-                ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 0));
-                assert(ImGui::BeginChild("tab0: contents", ImVec2(0, 0), ImGuiChildFlags_Border, ImGuiWindowFlags_NoMove));
-                ImGui::PopStyleColor();
-                ImGui::PopStyleVar();
-                
-                if(ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
-                    if(!lockMove_screen && isKeyPressed(655, &((*pressed_keys)[pressed_keys->size()-1]))) {
-                        projects[0].setScreen_pos(io.MouseDelta.x, io.MouseDelta.y, 1);
-                        mouseDrag_left = true;
-                    }
-                    else {
-                        mouseDrag_left = false;
-                    }
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 0));
+            assert(ImGui::BeginChild("tab0: contents", ImVec2(0, 0), ImGuiChildFlags_Border, ImGuiWindowFlags_NoMove));
+            ImGui::PopStyleColor();
+            ImGui::PopStyleVar();
+            
+            if(ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
+                if(!lockMove_screen && isKeyPressed(655, &((*pressed_keys)[pressed_keys->size()-1]))) {
+                    projects[_selected].setScreen_pos(io.MouseDelta.x, io.MouseDelta.y, 1);
+                    mouseDrag_left = true;
                 }
-
-                ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
-                ImVec2 canvas_sz = ImGui::GetContentRegionAvail();
-                if(canvas_sz.x < 50.0f) canvas_sz.x = 50.0f;
-                if(canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
-                ImVec2 canvas_p1 = ImVec2(canvas_p0.x+canvas_sz.x, canvas_p0.y+canvas_sz.y);
-
-
-                static const int GRID_STEP = 64;
-                if(opt__enable_grid) {
-                    draw_list->PushClipRect(ImVec2(0, 20), ImVec2(projects[0].screen_dim[0], projects[0].screen_dim[1]), true);
-                    for(float x=0; x<projects[0].screen_dim[0]; x+=GRID_STEP)
-                        draw_list->AddLine(ImVec2(x+(projects[0].screen_pos[0] % GRID_STEP), 0+canvas_p0.y), ImVec2(x+(projects[0].screen_pos[0]%GRID_STEP), canvas_p1.y), IM_COL32(200, 200, 200, 40));
-
-                    for(float y=0; y<projects[0].screen_dim[1]; y+=GRID_STEP)
-                        draw_list->AddLine(ImVec2(canvas_p0.x, y+(projects[0].screen_pos[1] % GRID_STEP)), ImVec2(canvas_p1.x, y+(projects[0].screen_pos[1]%GRID_STEP)), IM_COL32(200, 200, 200, 40));
-                    draw_list->PopClipRect();
+                else {
+                    mouseDrag_left = false;
                 }
+            }
+
+            ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
+            ImVec2 canvas_sz = ImGui::GetContentRegionAvail();
+            if(canvas_sz.x < 50.0f) canvas_sz.x = 50.0f;
+            if(canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
+            ImVec2 canvas_p1 = ImVec2(canvas_p0.x+canvas_sz.x, canvas_p0.y+canvas_sz.y);
 
 
-                if(cnt==0) {
-                    projects[0].NODE_create(100, 100, "node0", "desc0", "body0");
-                    projects[0].NODE_create(400, 200, "node1", "desc1", "body1");
-                    projects[0].NODE_create(600, 500, "node2", "desc2", "body2");
-                    projects[0].NODE_create(900, 300, "node3", "desc3", "body3");
-                    projects[0].NODE_create(100, 300, "node4", "desc4", "body4");
-                    projects[0].NODE_create(100, 600, "node5", "desc5", "body5");
+            static const int GRID_STEP = 64;
+            if(opt__enable_grid) {
+                draw_list->PushClipRect(ImVec2(0, 20), ImVec2(projects[_selected].screen_dim[0], projects[_selected].screen_dim[1]), true);
+                for(float x=0; x<projects[_selected].screen_dim[0]; x+=GRID_STEP)
+                    draw_list->AddLine(ImVec2(x+(projects[_selected].screen_pos[0] % GRID_STEP), 0+canvas_p0.y), ImVec2(x+(projects[_selected].screen_pos[0]%GRID_STEP), canvas_p1.y), IM_COL32(200, 200, 200, 40));
 
-                    projects[0][1].bodyText = std::string("")+
-                        "What is Lorem Ipsum? "+
-                        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. "+
-                        "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, \n"+
-                        "when an unknown printer took a galley of type and scrambled it to make a type specimen book. \n"+
-                        "It has survived not only five centuries, but also the leap into electronic typesetting, \n"+
-                        "remaining essentially unchanged. \n"+
-                        "It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, \n"+
-                        "and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\n"
-                    ;
+                for(float y=0; y<projects[_selected].screen_dim[1]; y+=GRID_STEP)
+                    draw_list->AddLine(ImVec2(canvas_p0.x, y+(projects[_selected].screen_pos[1] % GRID_STEP)), ImVec2(canvas_p1.x, y+(projects[_selected].screen_pos[1]%GRID_STEP)), IM_COL32(200, 200, 200, 40));
+                draw_list->PopClipRect();
+            }
 
-                    projects[0].LINK_create(0, 1, 1, 0, "link: 0->1", "a link that goes out from node0 in to node 1");
-                    // projects[0].LINK_create(&proj0[0], &proj0[2], 1, 0, "link0");
-                    projects[0].LINK_create(4, 1, 1, 0, "link: 4->1", "a link that goes out from node0 in to node 1");
-                    projects[0].LINK_create(5, 1, 1, 0, "link: 5->2", "a link that goes out from node0 in to node 1");
-                    projects[0].LINK_create(1, 2, 1, 2, "link: 1->2", "a link that goes out from node1 added to node 2");
-                    projects[0].LINK_create(1, 3, 1, 0, "link: 1->3", "a link that goes out from node1 in to node3");
 
-                    // projects[0].NODE_delete(&proj0[1], true);
+            if(cnt==0) {
+                projects[_selected].NODE_create(100, 100, "node0", "desc0", "body0");
+                projects[_selected].NODE_create(400, 200, "node1", "desc1", "body1");
+                projects[_selected].NODE_create(600, 500, "node2", "desc2", "body2");
+                projects[_selected].NODE_create(900, 300, "node3", "desc3", "body3");
+                projects[_selected].NODE_create(100, 300, "node4", "desc4", "body4");
+                projects[_selected].NODE_create(100, 600, "node5", "desc5", "body5");
 
-                }
-                style.WindowRounding = 15.0f;
-                projects[0].draw();
+                projects[_selected][1].bodyText = std::string("")+
+                    "What is Lorem Ipsum? "+
+                    "Lorem Ipsum is simply dummy text of the printing and typesetting industry. "+
+                    "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, \n"+
+                    "when an unknown printer took a galley of type and scrambled it to make a type specimen book. \n"+
+                    "It has survived not only five centuries, but also the leap into electronic typesetting, \n"+
+                    "remaining essentially unchanged. \n"+
+                    "It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, \n"+
+                    "and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\n";
 
-                
-                ImGui::EndChild();
+                projects[_selected].LINK_create(0, 1, 1, 0, "link: 0->1", "a link that goes out from node0 in to node 1");
+                // projects[_selected].LINK_create(&proj0[0], &proj0[2], 1, 0, "link0");
+                projects[_selected].LINK_create(4, 1, 1, 0, "link: 4->1", "a link that goes out from node0 in to node 1");
+                projects[_selected].LINK_create(5, 1, 1, 0, "link: 5->2", "a link that goes out from node0 in to node 1");
+                projects[_selected].LINK_create(1, 2, 1, 2, "link: 1->2", "a link that goes out from node1 added to node 2");
+                projects[_selected].LINK_create(1, 3, 1, 0, "link: 1->3", "a link that goes out from node1 in to node3");
+
+                // projects[_selected].NODE_delete(&proj0[1], true);
+
+            }
+            style.WindowRounding = 15.0f;
+            projects[_selected].draw();
+
+            
+            ImGui::EndChild();
 
         }
 
@@ -218,7 +217,9 @@ int main(int argc, char** argv) {
         if(ImGui::BeginMenuBar()) {
             if(ImGui::BeginMenu("File")) {
                 if(ImGui::MenuItem("Open project")) {
-
+                    projects.add(("project "+std::to_string(projects.size()-1)).c_str(), gNC::guiNodeChart());
+                    projects[-1].loadFile(programCWD+"saveFiles/_TEST_"+projects.key(0) + ".json");
+                    _selected = projects.size()-1;
                 }
                 if(ImGui::MenuItem("Save project")) {
                     /**
@@ -226,7 +227,7 @@ int main(int argc, char** argv) {
                      * directly call the `gNC::guiNodeChart::saveToFile` member function
                      * 
                      */
-                    projects[selected].saveToFile(programCWD+"saveFiles/_TEST_" + projects.key(0).c_str() + ".json", true);
+                    projects[_selected].saveToFile(programCWD+"saveFiles/_TEST_" + projects.key(0) + ".json", true);
                 }
                 ImGui::EndMenu();
             }
@@ -240,7 +241,7 @@ int main(int argc, char** argv) {
         if(ImGui::BeginTabBar("Tabs")) {
             for(size_t i=0; i<projects.size(); i++) {
                 if(ImGui::BeginTabItem(projects.key(0).c_str())) {
-                    selected = i;
+                    _selected = i;
                     ImGui::EndTabItem();
                 }
             }

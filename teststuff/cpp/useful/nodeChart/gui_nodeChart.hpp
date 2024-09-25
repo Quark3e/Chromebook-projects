@@ -289,6 +289,7 @@ namespace gNC {
         gNC::gLINK* lastAdded_LINK();
 
         gNC::gNODE& operator[](size_t i) const;
+        gNC::gNODE& last();
 
 
         gNC::gNODE* NODE_create(
@@ -346,7 +347,8 @@ namespace gNC {
             bool overwrite = false
         );
         int loadFile(
-            std::string filename
+            std::string filename,
+            bool verbose = false
         );
     };
 

@@ -838,7 +838,11 @@ gNC::gNODE& gNC::guiNodeChart::operator[](size_t i) const {
     advance(itr, i);
     return const_cast<gNC::gNODE&>(*itr);
 }
+gNC::gNODE& gNC::guiNodeChart::last() {
+    if(this->_nodes.size()==0) std::runtime_error("ERROR: "+_info_name+"last(): there doesn't exist any nodes in this nodechart");
 
+    return _nodes.back();
+}
 
 std::list<gNC::gNODE> gNC::guiNodeChart::NODES() {
     return this->_nodes;
@@ -1713,7 +1717,8 @@ int gNC::guiNodeChart::saveToFile(
     return 0;
 }
 int gNC::guiNodeChart::loadFile(
-    std::string filename
+    std::string filename,
+    bool verbose
 ) {
     gNC::guiNodeChart _temp;
     std::fstream _file;
@@ -1726,15 +1731,23 @@ int gNC::guiNodeChart::loadFile(
         std::cout << "Opened file to: read: \"" << filename << "\"" << std::endl;
     }
 
+    DIY::typed_dict<std::string, std::string> _depths;
+
     // int ind     = 0;
-    bool inStr  = false;
-    bool isKey  = true;
-    bool ignoreChar = false;
+    bool inStr  = false;        // whether it's currently recording a string, so a `"` will set the opposite boolean, and if true: `{[]},:` will not be interpreted as json "methods"
+    bool isKey  = true;         // whether it's currently recording characters for the key/name. If true: key/name; else: value
+    bool ignoreChar = false;    // whether the previous character was `\`, meaning any special case symbols like `\n` and `"` will be ignored and not "parsed"/interpreted
+    bool valIsArray = false;    // whether the current recordings are stored in an array or not, meaning each every value is part of an array and "their" key is common
     std::string _key, _value;
 
     std::string _word = "";
 
     std::string line;
+
+    /// @brief keys/names for different objects, clarified by the "indents" or `lvl_cBr`
+    std::vector<std::string> _objects(1, "");
+    /// @brief storage for values that are to be sorted in an array
+    std::vector<std::string> _valArray(1, "");
 
     int lvl_cBr = 0; //lvl of curly braces
     int lvl_sBr = 0; //lvl of square braces
@@ -1743,6 +1756,7 @@ int gNC::guiNodeChart::loadFile(
         for(int i=0; i<line.length(); i++) {
             char c=line[i];
             if(c=='\n') continue;
+            if(c==':')  continue; //we don't use `:` as an indicator of recording values because the keys/names has to be strings
             if(c==' ' && !inStr) continue;
             if(c=='\\') {
                 if(ignoreChar) {
@@ -1756,12 +1770,16 @@ int gNC::guiNodeChart::loadFile(
                 continue;
             }
             if(c=='\"') {
-                if(ignoreChar) _word += "\"";
+                if(ignoreChar) {
+                    _word += "\"";
+                    continue;
+                }
                 else if(inStr) { //ending an existing word
-                    if(isKey) {
+                    if(isKey) { // Set the key
                         _key = _word;
+                        _objects[_objects.size()-1];
                     }
-                    else {
+                    else {      // Set the value
                         _value = _word;
 
                         /*CALL SPECIFIC FUNCTION*/
@@ -1779,18 +1797,60 @@ int gNC::guiNodeChart::loadFile(
 
             if(c=='{') {
                 if(inStr) _word += '{';
-                else lvl_cBr++;
+                else {
+                    _depths.add(_key, "{");
+                    lvl_cBr++;
+                    _objects.push_back("");
+                    valIsArray = false;
+                }
                 continue;
             }
             else if(c=='}') {
-                if(inStr) {
-                    _word += '}';
-                }
+                if(inStr) _word += '}';
                 else {
                     lvl_cBr--;
+                    _objects.erase(--_objects.end());
+
+                    /*CALL SPECIFIC FUNCTION*/
+                    _depths.eraseIdx(-1);
                 }
                 continue;
             }
+            if(c=='[') {
+                if(inStr) _word += '[';
+                else {
+                    _depths.add(_key, "[");
+                    lvl_sBr++;
+                    valIsArray = true;
+                }
+                continue;
+            }
+            else if(c==']') {
+                if(inStr) _word += ']';
+                else {
+                    lvl_sBr--;
+                    valIsArray = false;
+                    
+                    
+                    _depths.eraseIdx(-1);
+                }
+                continue;
+            }
+
+            if(c==',' && !inStr) { //finished "recording" the characters for a value
+                _value  = _word;
+                _word   = "";
+                if(valIsArray) {
+
+                }
+                else {
+                    isKey = true;
+                }
+                /*CALL SPECIFIC FUNCTION*/
+                continue;
+            }
+
+            _word += c;
 
         }
     }

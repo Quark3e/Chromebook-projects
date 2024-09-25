@@ -541,71 +541,72 @@ namespace DIY {
     template<class _key_type, class _store_type>
     class typed_dict {
         private:
-        std::string _info_name = "DIY::typed_dict";
+            std::string _info_name = "DIY::typed_dict";
 
-        
-        std::vector<_key_type>      _keys;
-        std::vector<_store_type*>   _lookup;
-        std::list<_store_type>      _values;
-        bool _values_modified = true;
+            
+            std::vector<_key_type>      _keys;
+            std::vector<_store_type*>   _lookup;
+            std::list<_store_type>      _values;
+            bool _values_modified = true;
 
-        _key_type   _nullKey;
-        _store_type _nullValue;
+            _key_type   _nullKey;
+            _store_type _nullValue;
 
-        bool _init_container = false;
+            bool _init_container = false;
 
-        void _call_error(int code, std::string from_member="", std::string custom_error="");
+            void _call_error(int code, std::string from_member="", std::string custom_error="");
 
-        // auto _getItr_key(size_t idx);
-        auto _getItr(int idx);
-        auto _getItr_rev(int idx);
+            // auto _getItr_key(size_t idx);
+            auto _getItr(int idx);
+            auto _getItr_rev(int idx);
 
         public:
-        typed_dict() {}; //empty default constructor
-        typed_dict(std::vector<_key_type> keys, std::list<_store_type> values);
-        typed_dict(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values);
+            typed_dict() {}; //empty default constructor
+            typed_dict(std::vector<_key_type> keys, std::list<_store_type> values);
+            typed_dict(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values);
 
-        _store_type& operator[] (int idx);
-        _store_type  operator[] (int idx) const;
+            _store_type& operator[] (int idx);
+            _store_type  operator[] (int idx) const;
 
-        _store_type& get(_key_type key);
-        _store_type  get(_key_type key) const;
-
-
-        _store_type* getPtr(_key_type key);
-        _store_type* getPtr_idx(int idx);
-
-        /**
-         * @brief Find the element index/position of given `key`
-         * 
-         * @param key the key to find index/position of
-         * @return size_t the index
-         */
-        int find(_key_type key, bool _call_except=true);
-
-        size_t size();
-
-        _key_type key(int idx);
-        std::vector<_key_type> keys();
-        std::list<_store_type> values();
-
-        std::string str_export(_key_type key, int width=0, int precision=2, std::string align="right", bool useBoolAlpha=false);
+            _store_type& get(_key_type key);
+            _store_type  get(_key_type key) const;
 
 
-        int add(_key_type key, _store_type value);
+            _store_type* getPtr(_key_type key);
+            _store_type* getPtr_idx(int idx);
 
-        int append(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values);
-        int append(std::vector<_key_type> keys, std::list<_store_type> values);
+            /**
+             * @brief Find the element index/position of given `key`
+             * 
+             * @param key the key to find index/position of
+             * @return size_t the index
+             */
+            int find(_key_type key, bool _call_except=true);
 
-        int insert(size_t pos, _key_type key, _store_type value);
-        int insert(size_t pos, std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values);
-        int insert(size_t pos, std::vector<_key_type> keys, std::list<_store_type> values);
+            size_t size();
 
-        int replace(_key_type key, _store_type new_value);
+            _key_type key(int idx);
+            std::vector<_key_type> keys();
+            std::list<_store_type> values();
 
-        int rename(_key_type key, _key_type new_key);
+            std::string str_export(_key_type key, int width=0, int precision=2, std::string align="right", bool useBoolAlpha=false);
 
-        int erase(_key_type key);
+
+            int add(_key_type key, _store_type value);
+
+            int append(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values);
+            int append(std::vector<_key_type> keys, std::list<_store_type> values);
+
+            int insert(size_t pos, _key_type key, _store_type value);
+            int insert(size_t pos, std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values);
+            int insert(size_t pos, std::vector<_key_type> keys, std::list<_store_type> values);
+
+            int replace(_key_type key, _store_type new_value);
+
+            int rename(_key_type key, _key_type new_key);
+
+            int erase(_key_type key);
+            int eraseIdx(int idx);
     };
     
 
@@ -910,13 +911,27 @@ namespace DIY {
     int typed_dict<_key_type, _store_type>::erase(_key_type key) {
         int pos = check_existence<_key_type>(key, this->_keys);
         if(pos==-1) this->_call_error(0, "::erase(_key_type)");
+        
         this->_keys.erase(this->_keys.begin()+pos);
         this->_values.erase(this->_values.begin()+pos);
         this->_lookup.erase(this->_lookup.begin()+pos);
         this->_vector_modified = true;
         return 0;
     }
+    template<class _key_type, class _store_type>
+    int typed_dict<_key_type, _store_type>::eraseIdx(int idx) {
+        if(!_init_container) this->_call_error(2, "::eraseIdx(int)");
 
+        if(idx>=static_cast<int>(_keys.size())) this->_call_error(0, "::eraseIdx(int)", " arg for index `idx` is bigger than available number of keys: "+std::to_string(_keys.size()));
+        else if(abs(idx)>_keys.size()) this->_call_error(0, "::eraseIdx(int)", " value for reverse indexing is too small");
+        else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
+
+        this->_keys.erase(this->_keys.begin()+idx);
+        this->_values.erase(this->_values.begin()+idx);
+        this->_lookup.erase(this->_lookup.begin()+idx);
+        this->_vector_modified = true;
+        return 0;
+    }
 }
 
 
