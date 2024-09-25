@@ -1782,6 +1782,13 @@ int gNC::guiNodeChart::loadFile(
                     else {      // Set the value
                         _value = _word;
 
+
+                        if(_key=="date") {
+
+                        }
+                        else if(_key=="name") {
+                            _temp.project_name = _value;
+                        }
                         /*CALL SPECIFIC FUNCTION*/
                     }
 

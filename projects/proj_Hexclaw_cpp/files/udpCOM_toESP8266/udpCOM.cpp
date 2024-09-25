@@ -37,8 +37,8 @@ int resolvehelper(const char* hostname, int family, const char* service, sockadd
 }
 
 
-int main()
-{
+
+int main() {
     int result = 0;
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
     fcntl(sock, F_SETFL, O_NONBLOCK);
@@ -57,7 +57,7 @@ int main()
     }
 
     sockaddr_storage addrDest = {};
-    result = resolvehelper("192.168.1.117", AF_INET, PORT, &addrDest);
+    result = resolvehelper("192.168.1.231", AF_INET, PORT, &addrDest);
     if (result != 0) {
        int lasterror = errno;
        std::cout << "error: " << lasterror;
