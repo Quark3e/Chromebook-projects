@@ -10,10 +10,15 @@
 #include <math.h>
 
 #include <fstream>
-
 #include <memory>
-
 #include <cassert>
+
+#include <HC_useful/useful.hpp>
+
+
+#define _WIDTH_AUTO     -69420      // Width of the value it holds
+#define _WIDTH_MAX      -69421      // Number of characters for the width: Of the maximum value/element this is applied to
+#define _WIDTH_MAX_KEY  -69422      // Max len of the keys in container
 
 
 namespace JSON_P {
@@ -60,11 +65,11 @@ namespace JSON_P {
         public:
             std::string key;
 
+
             jsonPair(std::string _key="", std::string _value);
             jsonPair(std::string _key="", int _value);
             jsonPair(std::string _key="", float _value);
             jsonPair(std::string _key="", double _value);
-            // jsonPair(std::string _key="", jsonPair* _value);
             jsonPair(std::string _key="", std::initializer_list<jsonPair> _value, bool isArray);
             jsonPair(std::string _key="", std::vector<jsonPair> _value, bool isArray);
             jsonPair(std::string _key="", bool _value);
@@ -84,7 +89,30 @@ namespace JSON_P {
              */
             const int type();
 
-            std::string const& toStr() const;
+            int _str_decimal_precision = 3;
+            
+            /**
+             * @brief Convert the jsonPair contents into a single `std::string`
+             * 
+             * @param _styleOpt different options for how to style the contents (0).
+             * @param _indent number of space char's `' '` to use as indent from left side
+             * @param _only_value whether to only display the values
+             * @return std::string const& 
+             * @note (0):
+             * @note  - `0` - no line-breaks/newline. All in the same line.
+             * @note  - `1` - line-breaks/newline on every "level" except the "last"/"deepest" array/set of elements
+             * @note  - `2` - line-breaks/newline on every "level".
+             * @note  - `3` - same as `1` but add newline if "last"/"deepest" "level" is a json object literal regardless if it's the "deepest" level
+             */
+            std::string const& toStr(
+                int _styleOpt   = 3,
+                int _indent     = 4,
+                bool _only_value= false,
+                int _width_key  = _WIDTH_AUTO,
+                int _width_val  = _WIDTH_MAX_KEY
+            ) const;
+            mutable std::string _toStr = "";
+
             friend std::ostream& operator<<(std::ostream &os, const JSON_P::jsonPair& jP);
 
             jsonPair& operator[] (std::string _key);
