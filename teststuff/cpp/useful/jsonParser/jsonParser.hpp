@@ -27,6 +27,7 @@ namespace JSON_P {
      * 
      */
     class jsonPair {
+            std::string _info_name = "JSON_P::jsonPair";
 
             /**
              * @brief Whether the instance of this class will be passed as purely value
@@ -86,6 +87,8 @@ namespace JSON_P {
             std::string const& toStr() const;
             friend std::ostream& operator<<(std::ostream &os, const JSON_P::jsonPair& jP);
 
+            jsonPair& operator[] (std::string _key);
+            jsonPair& operator[] (int _idx);
 
             std::string&            get0();
             int&                    get10();
