@@ -149,26 +149,35 @@ std::string const& JSON_P::jsonPair::toStr(
     }
 
     switch (this->_type) {
-    case 0:     out += "\""+_value_0+"\","; break;
-    case 10:    out += formatNumber(_value_10, _width_val, 0); break;
-    case 11:    out += formatNumber(_value_11, _width_val, _str_decimal_precision); break;
-    case 12:    out += formatNumber(_value_12, _width_val, _str_decimal_precision); break;
-    case 2:
-        for(const JSON_P::jsonPair& el : _value_2) {
-            out += std::string(_indent, ' ');
-            out += el.toStr(_styleOpt, _indent, _only_value, len1_key, len1_val);
-            
-            out += ",";
-            if(val_LineB) out += "\n";
-        }
-        break;
-    case 3:
+        case 0:     out += "\""+_value_0+"\","; break;
+        case 10:    out += formatNumber(_value_10, _width_val, 0); break;
+        case 11:    out += formatNumber(_value_11, _width_val, _str_decimal_precision); break;
+        case 12:    out += formatNumber(_value_12, _width_val, _str_decimal_precision); break;
+        case 2:
+            for(size_t i=0; i<_value_2.size(); i++) {
+                if(val_LineB) out += std::string(_indent, ' ');
+                out += _value_2[i].toStr(_styleOpt, _indent, _only_value, len1_key, len1_val);
 
-        break;
-    case 4:     out += formatNumber(std::string((_value_4? "true" : "false")), _width_val); break;
-    default:
-        break;
+                if(i<_value_2.size()-1) out += ",";
+                if(val_LineB) out += "\n";
+            }
+            break;
+        case 3:
+            for(size_t i=0; i<_value_3.size(); i++) {
+                if(val_LineB) out += std::string(_indent, ' ');
+                out += _value_3[i].toStr(_styleOpt, _indent, _only_value, len1_key, len1_val);
+
+                if(i<_value_3.size()-1) out += ",";
+                if(val_LineB) out += "\n";
+            }
+            break;
+        case 4:     out += formatNumber(std::string((_value_4? "true" : "false")), _width_val); break;
+        default:
+            break;
     }
+
+    if(val_LineB) out += std::string(_indent, ' ');
+    out += (_type==2? "}" : (_type==3? "]" : ""));
 
 
     this->_toStr = out;
