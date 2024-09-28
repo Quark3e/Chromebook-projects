@@ -66,13 +66,13 @@ namespace JSON_P {
             std::string key;
 
 
-            jsonPair(std::string _key="", std::string _value);
-            jsonPair(std::string _key="", int _value);
-            jsonPair(std::string _key="", float _value);
-            jsonPair(std::string _key="", double _value);
-            jsonPair(std::string _key="", std::initializer_list<jsonPair> _value, bool isArray);
-            jsonPair(std::string _key="", std::vector<jsonPair> _value, bool isArray);
-            jsonPair(std::string _key="", bool _value);
+            jsonPair(std::string _key, std::string _value);
+            jsonPair(std::string _key, int _value);
+            jsonPair(std::string _key, float _value);
+            jsonPair(std::string _key, double _value);
+            jsonPair(std::string _key, std::initializer_list<jsonPair> _value, bool isArray);
+            jsonPair(std::string _key, std::vector<jsonPair> _value, bool isArray);
+            jsonPair(std::string _key, bool _value);
 
             /**
              * type of the value
@@ -90,26 +90,32 @@ namespace JSON_P {
             const int type();
 
             int _str_decimal_precision = 3;
-            
+
             /**
              * @brief Convert the jsonPair contents into a single `std::string`
              * 
              * @param _styleOpt different options for how to style the contents (0).
              * @param _indent number of space char's `' '` to use as indent from left side
              * @param _only_value whether to only display the values
+             * @param _width_key width of the key. Will extend with space char `' '` if key doesn't fill that width.
+             * @param _width_val width of the value. Will extend with space char `' '` if value doesn't fill that width.
+             * @param _no_key whether to not display the key(s).
+             * @param _indent_pair whether to add indent from left-side on that pair (mainly the key part)
              * @return std::string const& 
              * @note (0):
              * @note  - `0` - no line-breaks/newline. All in the same line.
-             * @note  - `1` - line-breaks/newline on every "level" except the "last"/"deepest" array/set of elements
+             * @note  - `1` - line-breaks/newline on every "level" except the "last"/"deepest" array/json-object
              * @note  - `2` - line-breaks/newline on every "level".
              * @note  - `3` - same as `1` but add newline if "last"/"deepest" "level" is a json object literal regardless if it's the "deepest" level
              */
             std::string const& toStr(
-                int _styleOpt   = 3,
-                int _indent     = 4,
-                bool _only_value= false,
-                int _width_key  = _WIDTH_AUTO,
-                int _width_val  = _WIDTH_MAX_KEY
+                int     _styleOpt   = 3,
+                int     _indent     = 4,
+                bool    _only_value = false,
+                int     _width_key  = _WIDTH_AUTO,
+                int     _width_val  = _WIDTH_MAX_KEY,
+                bool    _no_key     = false,
+                bool    _indent_pair= true
             ) const;
             mutable std::string _toStr = "";
 
@@ -117,6 +123,13 @@ namespace JSON_P {
 
             jsonPair& operator[] (std::string _key);
             jsonPair& operator[] (int _idx);
+            
+            jsonPair& operator= (std::string _newVal);
+            jsonPair& operator= (int _newVal);
+            jsonPair& operator= (float _newVal);
+            jsonPair& operator= (double _newVal);
+            jsonPair& operator= (std::vector<jsonPair> _newVal);
+            jsonPair& operator= (bool _newVal);
 
             std::string&            get0();
             int&                    get10();
