@@ -126,7 +126,7 @@ std::string const& JSON_P::jsonPair::toStr(
     if(!_no_key) {
         int keyLen = (_width_key<0?
             (_width_key==_WIDTH_AUTO? this->key.length() : 0) :
-            this->key.length()
+            _width_key
         );
         out += formatNumber("\""+this->key+"\"", keyLen+2, 0, "left") + ": ";
     }
@@ -139,19 +139,20 @@ std::string const& JSON_P::jsonPair::toStr(
 
     int len1_key    = 0;
     int len1_val    = 0;
-    if(_width_val<0) {
-        switch (_width_val) {
-        case _WIDTH_MAX: break;
-        case _WIDTH_MAX_KEY:
+    // if(_width_val<0) {
+    //     switch (_width_val) {
+    //     case _WIDTH_MAX: break;
+    //     case _WIDTH_MAX_KEY:
             if(_type==2) {
                 std::vector<size_t> key1Len{0};
 
                 for(auto el: _value_2) key1Len.push_back(el.key.length());
                 len1_key = findVal<size_t>(key1Len, 0);
+                std::cout << "max: " << len1_key << std::endl;
             }
-            break;
-        }
-    }
+    //         break;
+    //     }
+    // }
 
     if(_type==2 || _type==3) {
         if(const_cast<JSON_P::jsonPair&>((_type==2? _value_2 : _value_3)[0]).type()==4) {
@@ -173,7 +174,7 @@ std::string const& JSON_P::jsonPair::toStr(
         }    
     }
 
-    std::cout << "_type: "<<_type<<": " << std::boolalpha << val_LineB << std::endl;
+    if(_verbose) std::cout << "_type: "<<_type<<": " << std::boolalpha << val_LineB << std::endl;
     switch (this->_type) {
         case 0:     out += "\""+_value_0+"\""; break;
         case 10:    out += formatNumber(_value_10, _width_val, 0); break;
