@@ -34,10 +34,6 @@ namespace JSON_P {
     class jsonPair {
             std::string _info_name = "JSON_P::jsonPair";
 
-            /**
-             * @brief Whether the instance of this class will be passed as purely value
-             */
-            bool _onlyVal = false;
 
             std::string                 _value_0;
             int                         _value_10;
@@ -60,12 +56,19 @@ namespace JSON_P {
              * - `4` - `boolean`    true/false
              * - `5` - `null`
              */
-            int _type = -1;
+            int _type   = -1;
+            const bool _init  = false;
 
         public:
+            /**
+             * @brief Whether the instance of this class will be passed as purely value
+             */
+            bool _onlyVal = false;
+            
             std::string key;
 
-
+            jsonPair() = default;
+            jsonPair(std::string _key);
             jsonPair(std::string _key, std::string _value);
             jsonPair(std::string _key, int _value);
             jsonPair(std::string _key, float _value);
@@ -145,6 +148,7 @@ namespace JSON_P {
     class Parser {
         private:
 
+            jsonPair _json;
 
         public:
             Parser() = default;

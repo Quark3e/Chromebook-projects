@@ -3,36 +3,42 @@
 
 
 
+JSON_P::jsonPair::jsonPair(
+    std::string _key
+): _init(true), key(_key) {
+
+
+}
 
 JSON_P::jsonPair::jsonPair(
     std::string _key,
     std::string _value
-): key(_key), _type(0) {
+): _init(true), key(_key), _type(0) {
     _value_0    = _value;
 }
 JSON_P::jsonPair::jsonPair(
     std::string _key,
     int _value
-): key(_key), _type(10) {
+): _init(true), key(_key), _type(10) {
     _value_10   = _value;
 }
 JSON_P::jsonPair::jsonPair(
     std::string _key,
     float _value
-): key(_key), _type(11) {
+): _init(true), key(_key), _type(11) {
     _value_11   = _value;
 }
 JSON_P::jsonPair::jsonPair(
     std::string _key,
     double _value
-): key(_key), _type(12) {
+): _init(true), key(_key), _type(12) {
     _value_12   = _value;
 }
 JSON_P::jsonPair::jsonPair(
     std::string _key,
     std::initializer_list<jsonPair> _value,
     bool isArray
-): key(_key), _type((isArray? 3 : 2)) {
+): _init(true), key(_key), _type((isArray? 3 : 2)) {
     if(isArray) {
         _value_3    = _value;
         _onlyVal    = true;
@@ -46,7 +52,7 @@ JSON_P::jsonPair::jsonPair(
     std::string _key,
     std::vector<jsonPair> _value,
     bool isArray
-): key(_key), _type((isArray? 3 : 2)) {
+): _init(true), key(_key), _type((isArray? 3 : 2)) {
     if(isArray) {
         _value_3    = _value;
         _onlyVal    = true;
@@ -58,7 +64,7 @@ JSON_P::jsonPair::jsonPair(
 JSON_P::jsonPair::jsonPair(
     std::string _key,
     bool _value
-): key(_key), _type(4) {
+): _init(true), key(_key), _type(4) {
     _value_4     = _value;
 }
 
@@ -123,7 +129,7 @@ std::string const& JSON_P::jsonPair::toStr(
     if(_verbose) std::cout << formatNumber("val_LineB",10,0,"left")<<":" << std::boolalpha << val_LineB << std::endl;
 
     if(_indent_pair) out += std::string(_indent, ' ');
-    if(!_no_key) {
+    if(!(_no_key || _onlyVal)) {
         int keyLen = (_width_key<0?
             (_width_key==_WIDTH_AUTO? this->key.length() : 0) :
             _width_key
@@ -148,7 +154,6 @@ std::string const& JSON_P::jsonPair::toStr(
 
                 for(auto el: _value_2) key1Len.push_back(el.key.length());
                 len1_key = findVal<size_t>(key1Len, 0);
-                std::cout << "max: " << len1_key << std::endl;
             }
     //         break;
     //     }
@@ -268,6 +273,8 @@ JSON_P::jsonPair& JSON_P::jsonPair::operator[] (int _idx) {
 }
 
 JSON_P::jsonPair& JSON_P::jsonPair::operator= (std::string _newVal) {
+    assert(_init);
+
     switch (_type) {
         case 2: _value_2.clear(); break;
         case 3: _value_3.clear(); break;
@@ -277,6 +284,7 @@ JSON_P::jsonPair& JSON_P::jsonPair::operator= (std::string _newVal) {
     return *this;
 }
 JSON_P::jsonPair& JSON_P::jsonPair::operator= (int _newVal) {
+    assert(_init);
     switch (_type) {
         case 2: _value_2.clear(); break;
         case 3: _value_3.clear(); break;
@@ -286,6 +294,7 @@ JSON_P::jsonPair& JSON_P::jsonPair::operator= (int _newVal) {
     return *this;
 }
 JSON_P::jsonPair& JSON_P::jsonPair::operator= (float _newVal) {
+    assert(_init);
     switch (_type) {
         case 2: _value_2.clear(); break;
         case 3: _value_3.clear(); break;
@@ -295,6 +304,7 @@ JSON_P::jsonPair& JSON_P::jsonPair::operator= (float _newVal) {
     return *this;
 }
 JSON_P::jsonPair& JSON_P::jsonPair::operator= (double _newVal) {
+    assert(_init);
     switch (_type) {
         case 2: _value_2.clear(); break;
         case 3: _value_3.clear(); break;
@@ -304,6 +314,7 @@ JSON_P::jsonPair& JSON_P::jsonPair::operator= (double _newVal) {
     return *this;
 }
 JSON_P::jsonPair& JSON_P::jsonPair::operator= (std::vector<JSON_P::jsonPair> _newVal) {
+    assert(_init);
     assert(_newVal.size()>0);
 
     int _vecType = _newVal[0].type();
@@ -324,6 +335,7 @@ JSON_P::jsonPair& JSON_P::jsonPair::operator= (std::vector<JSON_P::jsonPair> _ne
     return *this;
 }
 JSON_P::jsonPair& JSON_P::jsonPair::operator= (bool _newVal) {
+    assert(_init);
     switch (_type) {
         case 2: _value_2.clear(); break;
         case 3: _value_3.clear(); break;
@@ -373,14 +385,144 @@ JSON_P::Parser::Parser(
     bool _verbose
 ) {
 
+    this->loadFile(filename, _verbose);
+
 }
-
-
 
 void JSON_P::Parser::loadFile(
     std::string filename,
     bool _verbose
 ) {
+    std::vector<JSON_P::jsonPair>   _tempPairs;
+    /**
+     *  {
+     *      pair0,
+     *      {
+     *          subPair1,
+     *          subPair2,
+     *      }
+     *  }
+     * 
+     * Location of the jsonPair in `_tempPairs[i]` relative to itself in two dim format:
+     *    - [0]/.x - is the "absolute" "depth"/"index", as in the value of [i]
+     *    - [1]/.y - if [0] value is an array or a json object (which it has to be if another jsonPair/_tempPairs-element is indexed to it), [1] refers to the element indenx
+     * 
+     */
+    std::vector<pos2d> _pairLoc;
+
+    std::fstream _file;
+    _file.open(filename, std::fstream::in);
+    if(!_file.is_open()) {
+        throw std::invalid_argument("file \""+filename+"\" could not be opened");
+    }
+    else {
+
+    }
+
+    /**
+     * Type of the json pair that is currently read:
+     *  - ` 0` - `std::string`
+     *  - `10` - `int`
+     *  - `11` - `float`
+     *  - `12` - `double`
+     *  - ` 2` - `json object`
+     *  - ` 3` - `array`
+     *  - ` 4` - `bool`
+     *  - ` 5` - `null`
+     */
+    int     pairType    = -1;
+    // bool    show_key    = true;
+    bool    inStr       = false;    // whether the characters are inside a string
+    bool    ignChar     = false;    // whether the preceding character was `'\'`
+    bool    isKey       = true;     // whether the current reading is of the `key` in key-value pair
+
+    int     lvlDepth    = -1;       // number of "levels" the current reading is stored
+    int     lvlElement  =  0;       // index to the element of the json object/array that *this* jsonPair is stored at
+
+    std::string line;
+    std::string strPiece = "";
+    char c;
+
+    while(getline(_file, line)) {
+        for(int i=0; i<line.length(); i++) {
+            c = line[i];
+
+            if(ignChar) {
+                if(!inStr) {
+                    ignChar = false;
+                    continue;
+                }
+                switch (c) {
+                    case 'n':   strPiece += '\n'; break;
+                    case '\"':  strPiece += '\"'; break;
+                    case '\\':  strPiece += '\\'; break;
+                    default: strPiece += c; break;
+                }
+            }
+
+            if(inStr) {
+                if(c=='\"' && !ignChar) { //closing strPiece
+                    if(isKey) {
+                        _tempPairs.push_back(JSON_P::jsonPair(strPiece));
+                        _pairLoc.push_back(pos2d(lvlDepth, lvlElement));
+                        // isKey=false;
+
+                        // lvlDepth++;
+                        // lvlElement++;
+                        lvlDepth = _tempPairs.size()-1;
+                        isKey = false;
+                    }
+                    else {
+
+                        // isKey=true;
+                    }
+                    inStr = false;
+                    strPiece.clear();
+                }
+
+                strPiece += c;
+                continue;
+            }
+            
+
+            switch (c) {
+                case ' ':
+                case '\n':
+                    continue;
+                    break;
+                case '\\':
+                    ignChar = true;
+                    break;
+                case '\"':
+                    inStr = true;
+                    break;
+                case '{': //create json object jsonPair
+                    pairType = 2;
+                    // _tempPairs[_tempPairs.size()-1]
+                    break;
+                case '[': //create json array jsonPair
+                    pairType = 3;
+                    break;
+                case '}': //close json object jsonPair
+
+                    break;
+                case ']': //close json array jsonPair
+
+                    break;
+                case ',': //new element in either json-array or json-object
+                    
+
+                    break;
+                case ':': //define jsonPair value (though must not rely on this to detect whether something is to be defined as a value)
+
+                    break;
+                default:
+                    strPiece += c;
+                    break;
+            }
+
+        }
+    }
 
 }
 
