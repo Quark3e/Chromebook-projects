@@ -2,70 +2,161 @@
 #include "jsonParser.hpp"
 
 
+bool JSON_P::jsonPair::init() const {
+    return this->_init;
+}
+
+JSON_P::jsonPair* JSON_P::jsonPair::getParent() {
+    return this->_parent;
+}
+int JSON_P::jsonPair::getSiblingIdx() {
+    return this->_siblingIndex;
+}
+
+void JSON_P::jsonPair::setParent(jsonPair* parent) {
+    assert(parent);
+    this->_parent = parent;
+}
+void JSON_P::jsonPair::setSiblingIndex(int idx) {
+    assert(idx>0);
+    this->_siblingIndex = idx;
+}
+
+void JSON_P::jsonPair::isArray(bool isArray) {
+    assert(_type==2 || _type==3);
+    
+    _type = (isArray? 3 : 2);
+}
 
 JSON_P::jsonPair::jsonPair(
-    std::string _key
-): _init(true), key(_key) {
+    std::string _key,
+    JSON_P::jsonPair* parent
+): _init(true), _parent(parent), key(_key) {
 
 
 }
 
 JSON_P::jsonPair::jsonPair(
     std::string _key,
-    std::string _value
-): _init(true), key(_key), _type(0) {
+    std::string _value,
+    bool onlyVal,
+    JSON_P::jsonPair* parent
+): _init(true), _parent(parent), key(_key), _onlyVal(onlyVal), _type(0) {
     _value_0    = _value;
 }
 JSON_P::jsonPair::jsonPair(
     std::string _key,
-    int _value
-): _init(true), key(_key), _type(10) {
+    int _value,
+    bool onlyVal,
+    JSON_P::jsonPair* parent
+): _init(true), _parent(parent), key(_key), _onlyVal(onlyVal), _type(10) {
     _value_10   = _value;
 }
 JSON_P::jsonPair::jsonPair(
     std::string _key,
-    float _value
-): _init(true), key(_key), _type(11) {
+    float _value,
+    bool onlyVal,
+    JSON_P::jsonPair* parent
+): _init(true), _parent(parent), key(_key), _onlyVal(onlyVal), _type(11) {
     _value_11   = _value;
 }
 JSON_P::jsonPair::jsonPair(
     std::string _key,
-    double _value
-): _init(true), key(_key), _type(12) {
+    double _value,
+    bool onlyVal,
+    JSON_P::jsonPair* parent
+): _init(true), _parent(parent), key(_key), _onlyVal(onlyVal), _type(12) {
     _value_12   = _value;
 }
 JSON_P::jsonPair::jsonPair(
     std::string _key,
     std::initializer_list<jsonPair> _value,
-    bool isArray
-): _init(true), key(_key), _type((isArray? 3 : 2)) {
+    bool isArray,
+    JSON_P::jsonPair* parent
+): _init(true), _parent(parent), key(_key), _type((isArray? 3 : 2)) {
     if(isArray) {
         _value_3    = _value;
         _onlyVal    = true;
+        for(jsonPair& _pair : _value_3) _pair.setParent(this);
     }
     else {
         _value_2    = _value;
+        for(jsonPair& _pair : _value_2) _pair.setParent(this);
     }
     
 }
 JSON_P::jsonPair::jsonPair(
     std::string _key,
     std::vector<jsonPair> _value,
-    bool isArray
-): _init(true), key(_key), _type((isArray? 3 : 2)) {
+    bool isArray,
+    JSON_P::jsonPair* parent
+): _init(true), _parent(parent), key(_key), _type((isArray? 3 : 2)) {
     if(isArray) {
-        _value_3    = _value;
+        _value_3    = std::list<jsonPair>(_value.begin(), _value.end());
         _onlyVal    = true;
+        for(jsonPair& _pair : _value_3) _pair.setParent(this);
     }
     else {
-        _value_2    = _value;
+        _value_2    = std::list<jsonPair>(_value.begin(), _value.end());
+        for(jsonPair& _pair : _value_2) _pair.setParent(this);
     }
 }
 JSON_P::jsonPair::jsonPair(
     std::string _key,
-    bool _value
-): _init(true), key(_key), _type(4) {
+    std::list<jsonPair> _value,
+    bool isArray,
+    JSON_P::jsonPair* parent
+): _init(true), _parent(parent), key(_key), _type((isArray? 3 : 2)) {
+    if(isArray) {
+        _value_3    = _value;
+        _onlyVal    = true;
+        for(jsonPair& _pair : _value_3) _pair.setParent(this);
+    }
+    else {
+        _value_2    = _value;
+        for(jsonPair& _pair : _value_2) _pair.setParent(this);
+    }
+}
+JSON_P::jsonPair::jsonPair(
+    std::string _key,
+    bool _value,
+    bool onlyVal,
+    JSON_P::jsonPair* parent
+): _init(true), _parent(parent), key(_key), _onlyVal(onlyVal), _type(4) {
     _value_4     = _value;
+}
+
+void JSON_P::jsonPair::append(jsonPair newPair) {
+    assert(_type==2 || _type==3);
+    this->insert(-1, newPair);
+}
+void JSON_P::jsonPair::insert(int idx, jsonPair newPair) {
+    assert(_type==2 || _type==3);
+
+    std::list<jsonPair>& lePair = (_type==2? _value_2 : _value_3);
+    int _Lsize = static_cast<int>(lePair.size());
+    assert(idx < _Lsize);
+    if(idx<0) {
+        assert(abs(idx) <= _Lsize);
+        idx = _Lsize += idx;
+    }
+    auto itr = lePair.begin();
+    std::advance(itr, idx);
+    lePair.insert(itr, newPair);
+}
+void JSON_P::jsonPair::erase(int idx) {
+    assert(_type==2 || _type==3);
+
+    std::list<jsonPair>& lePair = (_type==2? _value_2 : _value_3);
+    int _Lsize = static_cast<int>(lePair.size());
+    assert(idx < _Lsize);
+    if(idx<0) {
+        assert(abs(idx) <= _Lsize);
+        idx = _Lsize += idx;
+    }
+    auto itr = lePair.begin();
+    std::advance(itr, idx);
+    lePair.erase(itr);
 }
 
 const int JSON_P::jsonPair::type() {
@@ -84,7 +175,7 @@ std::string const& JSON_P::jsonPair::toStr(
 ) const {
 
     //check if there are any other arrays/object-literals in any of the "elements"/values
-    static auto hasCont = [](const std::vector<jsonPair>& _vec) {
+    static auto hasCont = [](const std::list<jsonPair>& _vec) {
         for(auto el: _vec) {
             if(el.type()==2 || el.type()==3) return true;
         }
@@ -107,7 +198,7 @@ std::string const& JSON_P::jsonPair::toStr(
             case 0: val_LineB = false; break;
             case 1:
                 for(int _=0; _<2; _++) {
-                    const std::vector<JSON_P::jsonPair>& _ref = (_==0? _value_2 : _value_3);
+                    const std::list<JSON_P::jsonPair>& _ref = (_==0? _value_2 : _value_3);
                     if(hasCont(_ref)) {
                         val_LineB = true;
                         indentSub = true;
@@ -160,7 +251,7 @@ std::string const& JSON_P::jsonPair::toStr(
     // }
 
     if(_type==2 || _type==3) {
-        if(const_cast<JSON_P::jsonPair&>((_type==2? _value_2 : _value_3)[0]).type()==4) {
+        if(const_cast<JSON_P::jsonPair&>(*((_type==2? _value_2 : _value_3).begin())).type()==4) {
             // if(_width_val==_WIDTH_MAX)
             len1_val = 5; //"false"
         }
@@ -186,8 +277,9 @@ std::string const& JSON_P::jsonPair::toStr(
         case 11:    out += formatNumber(_value_11, _width_val, _str_decimal_precision); break;
         case 12:    out += formatNumber(_value_12, _width_val, _str_decimal_precision); break;
         case 2:
+            auto itr = _value_2.begin();
             for(size_t i=0; i<_value_2.size(); i++) {
-                std::string _temp = _value_2[i].toStr(_styleOpt, _indent, _only_value, len1_key, len1_val, false, indentSub);
+                std::string _temp = (*itr).toStr(_styleOpt, _indent, _only_value, len1_key, len1_val, false, indentSub);
                 if(_verbose) std::cout << formatNumber("_temp",10,0,"left")<<": \"" <<_temp << "\"" << std::endl;
                 
                 if(val_LineB) {
@@ -205,12 +297,14 @@ std::string const& JSON_P::jsonPair::toStr(
                 if(i<_value_2.size()-1) out += ",";
                 if(val_LineB) { out += "\n"; }
                 else if(i<_value_2.size()-1) out += " ";
+                ++itr;
             }
             break;
         case 3:
+            auto itr = _value_3.begin();
             for(size_t i=0; i<_value_3.size(); i++) {
                 
-                std::string _temp = _value_3[i].toStr(_styleOpt, _indent, _only_value, len1_key, len1_val, true, indentSub);
+                std::string _temp = (*itr).toStr(_styleOpt, _indent, _only_value, len1_key, len1_val, true, indentSub);
                 
                 if(val_LineB) {
                     out += std::string(_indent, ' ');
@@ -226,6 +320,7 @@ std::string const& JSON_P::jsonPair::toStr(
                 if(i<_value_3.size()-1) out += ",";
                 if(val_LineB) out += "\n";
                 else if(i<_value_3.size()-1) out += " ";
+                ++itr;
             }
             break;
         case 4:     out += formatNumber(std::string((_value_4? "true" : "false")), _width_val); break;
@@ -260,7 +355,7 @@ JSON_P::jsonPair& JSON_P::jsonPair::operator[] (std::string _key) {
 JSON_P::jsonPair& JSON_P::jsonPair::operator[] (int _idx) {
     assert(_type==2 || _type==3);
 
-    std::vector<JSON_P::jsonPair>& toReturn = (_type==2? _value_2 : _value_3);
+    std::list<JSON_P::jsonPair>& toReturn = (_type==2? _value_2 : _value_3);
 
     int valSize = toReturn.size();
     assert(_idx<valSize);
@@ -268,8 +363,9 @@ JSON_P::jsonPair& JSON_P::jsonPair::operator[] (int _idx) {
         assert(abs(_idx)<=valSize);
         _idx = static_cast<int>(valSize) + _idx;
     }
-
-    return toReturn[_idx];
+    auto itr = toReturn.begin();
+    std::advance(itr, _idx);
+    return *itr;
 }
 
 JSON_P::jsonPair& JSON_P::jsonPair::operator= (std::string _newVal) {
@@ -313,25 +409,70 @@ JSON_P::jsonPair& JSON_P::jsonPair::operator= (double _newVal) {
     _value_12 = _newVal;
     return *this;
 }
-JSON_P::jsonPair& JSON_P::jsonPair::operator= (std::vector<JSON_P::jsonPair> _newVal) {
+JSON_P::jsonPair& JSON_P::jsonPair::operator= (std::initializer_list<JSON_P::jsonPair> _newVal) {
     assert(_init);
-    assert(_newVal.size()>0);
 
-    int _vecType = _newVal[0].type();
+    int _vecType;
+    if(_newVal.size()>0) _vecType = ((*(_newVal.begin()))._onlyVal? 3 : 2);
+    else _vecType = 2;
 
-    if(_vecType==_type) {
-        if(_vecType==2) _value_2 = _newVal;
-        else _value_3 = _newVal;
-    }
-    else {
+    if(_vecType!=_type) {
         switch (_type) {
             case 2: _value_2.clear(); break;
             case 3: _value_3.clear(); break;
         }
         _type = _vecType;
-        if(_vecType==2) _value_2 = _newVal;
-        else _value_3 = _newVal;
     }
+
+    std::list<jsonPair>* _contR = (_vecType==2? &_value_2 : &_value_3);
+    (*_contR) = _newVal;
+
+    for(jsonPair& _pair : *_contR) _pair.setParent(this);
+
+    return *this;
+}
+JSON_P::jsonPair& JSON_P::jsonPair::operator= (std::vector<JSON_P::jsonPair> _newVal) {
+    assert(_init);
+
+    int _vecType;
+    if(_newVal.size()>0) _vecType = (_newVal[0]._onlyVal? 3 : 2);
+    else _vecType = 2;
+
+    if(_vecType!=_type) {
+        switch (_type) {
+            case 2: _value_2.clear(); break;
+            case 3: _value_3.clear(); break;
+        }
+        _type = _vecType;
+    }
+
+    std::list<jsonPair>* _contR = (_vecType==2? &_value_2 : &_value_3);
+    (*_contR) = std::list<jsonPair>(_newVal.begin(), _newVal.end());
+
+    for(jsonPair& _pair : *_contR) _pair.setParent(this);
+
+    return *this;
+}
+JSON_P::jsonPair& JSON_P::jsonPair::operator= (std::list<JSON_P::jsonPair> _newVal) {
+    assert(_init);
+
+    int _vecType;
+    if(_newVal.size()>0) _vecType = (_newVal.front()._onlyVal? 3 : 2);
+    else _vecType = 2;
+
+    if(_vecType!=_type) {
+        switch (_type) {
+            case 2: _value_2.clear(); break;
+            case 3: _value_3.clear(); break;
+        }
+        _type = _vecType;
+    }
+
+    std::list<jsonPair>* _contR = (_vecType==2? &_value_2 : &_value_3);
+    (*_contR) = _newVal;
+
+    for(jsonPair& _pair : *_contR) _pair.setParent(this);
+
     return *this;
 }
 JSON_P::jsonPair& JSON_P::jsonPair::operator= (bool _newVal) {
@@ -361,11 +502,11 @@ double& JSON_P::jsonPair::get12() {
     assert(_type==12);
     return this->_value_12;
 }
-std::vector<JSON_P::jsonPair>& JSON_P::jsonPair::get2() {
+std::list<JSON_P::jsonPair>& JSON_P::jsonPair::get2() {
     assert(_type==2);
     return this->_value_2;
 }
-std::vector<JSON_P::jsonPair>& JSON_P::jsonPair::get3() {
+std::list<JSON_P::jsonPair>& JSON_P::jsonPair::get3() {
     assert(_type==3);
     return this->_value_3;
 }
@@ -373,8 +514,6 @@ bool& JSON_P::jsonPair::get4() {
     assert(_type==4);
     return this->_value_4;
 }
-
-
 
 
 // JSON_P::Parser::Parser() {
@@ -393,7 +532,10 @@ void JSON_P::Parser::loadFile(
     std::string filename,
     bool _verbose
 ) {
-    std::vector<JSON_P::jsonPair>   _tempPairs;
+    JSON_P::jsonPair    _temp;
+    JSON_P::jsonPair*   _curr = &_temp;
+    
+    std::list<JSON_P::jsonPair>   _tempPairs;
     /**
      *  {
      *      pair0,
@@ -415,113 +557,216 @@ void JSON_P::Parser::loadFile(
     if(!_file.is_open()) {
         throw std::invalid_argument("file \""+filename+"\" could not be opened");
     }
-    else {
+    else {}
 
-    }
+    // bool    show_key    = true;     // whether the json "container" that where this is currently located is a json object (=true) or a json array (=false)
+    bool    inStr       = false;    // whether the characters are inside a string
+    // // bool    ignChar     = false;    // whether the preceding character was `'\'`
+    // bool    isKey       = true;     // whether the current reading is of the `key` in key-value pair
+    // /**
+    //  * Type of the json pair that is currently read:
+    //  *  - ` 0` - `std::string`
+    //  *  - `10` - `int`
+    //  *  - `11` - `float`
+    //  *  - `12` - `double`
+    //  *  - ` 2` - `json object`
+    //  *  - ` 3` - `array`
+    //  *  - ` 4` - `bool`
+    //  *  - ` 5` - `null`
+    //  * 
+    //  * Contains all the types of the current and everything "above" jsonPair's
+    //  */
+    // std::vector<int> pairType;
+
+    // std::vector<JSON_P::jsonPair*>  storedAt;
+    // std::vector<int> pairDepth;     // number of "levels" the current reading is stored
+    // std::vector<int> pairElement;   // index to the element of the json object/array that *this* jsonPair is stored at
+
+    int absIdx      = -1; // depth of the current _curr
+
+    // int currDepth   = -1;
+    // int currElem    =  0;
+    // int currType    = -1;
+
+    // bool isDef_key  = false;    // isDefined: key
+    // bool isDef_val  = false;    // isDefined: value
+
+    // bool pairCreat  = false;    // whether the jsonPair hass been created
 
     /**
-     * Type of the json pair that is currently read:
-     *  - ` 0` - `std::string`
-     *  - `10` - `int`
-     *  - `11` - `float`
-     *  - `12` - `double`
-     *  - ` 2` - `json object`
-     *  - ` 3` - `array`
-     *  - ` 4` - `bool`
-     *  - ` 5` - `null`
+     * Whether a new jsonPair is to be created but hasn't been created yet.
+     *  - if `=false` then the jsonPair has been created and `_curr` is updated to it.
+     * 
+     * @warning DOES NOT DEFINE WHETHER VALUE HAS BEEN DEFINED.
+     * To check if the value is defined then check if `JSON_P::jsonPair::type()` returns -1 (this'd mean it's not defiend)
      */
-    int     pairType    = -1;
-    // bool    show_key    = true;
-    bool    inStr       = false;    // whether the characters are inside a string
-    bool    ignChar     = false;    // whether the preceding character was `'\'`
-    bool    isKey       = true;     // whether the current reading is of the `key` in key-value pair
+    bool newPair    = true;
 
-    int     lvlDepth    = -1;       // number of "levels" the current reading is stored
-    int     lvlElement  =  0;       // index to the element of the json object/array that *this* jsonPair is stored at
-
-    std::string line;
+    // std::string Key = "";
     std::string strPiece = "";
     char c;
 
-    while(getline(_file, line)) {
-        for(int i=0; i<line.length(); i++) {
-            c = line[i];
+    while(_file.get(c)) {
 
-            if(ignChar) {
-                if(!inStr) {
-                    ignChar = false;
-                    continue;
-                }
+        // if(isKey && inStr) {
+        // }
+
+        if(inStr) {
+            if(c=='\\') {
+                _file.get(c);
                 switch (c) {
-                    case 'n':   strPiece += '\n'; break;
-                    case '\"':  strPiece += '\"'; break;
-                    case '\\':  strPiece += '\\'; break;
-                    default: strPiece += c; break;
+                    case 'n':   strPiece += '\n';   break;
+                    case '\"':  strPiece += '\"';   break;
+                    case '\\':  strPiece += '\\';   break;
+                    default:    strPiece += c;      break;
                 }
-            }
-
-            if(inStr) {
-                if(c=='\"' && !ignChar) { //closing strPiece
-                    if(isKey) {
-                        _tempPairs.push_back(JSON_P::jsonPair(strPiece));
-                        _pairLoc.push_back(pos2d(lvlDepth, lvlElement));
-                        // isKey=false;
-
-                        // lvlDepth++;
-                        // lvlElement++;
-                        lvlDepth = _tempPairs.size()-1;
-                        isKey = false;
-                    }
-                    else {
-
-                        // isKey=true;
-                    }
-                    inStr = false;
-                    strPiece.clear();
-                }
-
-                strPiece += c;
                 continue;
             }
-            
+            if(c=='\"') { //closing strPiece
+                if(newPair) { //create first instance of jsonPair WITH keys
+                    if(_curr->type()==2)_curr->append(JSON_P::jsonPair(strPiece));
+                    else                _curr->append(JSON_P::jsonPair("", strPiece, true));
+                    _curr = &_curr->operator[](-1);
+                    newPair = false;
+                }
+                else { //a json string value has been "read"
+                    *_curr = strPiece;
 
-            switch (c) {
-                case ' ':
-                case '\n':
-                    continue;
-                    break;
-                case '\\':
-                    ignChar = true;
-                    break;
-                case '\"':
-                    inStr = true;
-                    break;
-                case '{': //create json object jsonPair
-                    pairType = 2;
-                    // _tempPairs[_tempPairs.size()-1]
-                    break;
-                case '[': //create json array jsonPair
-                    pairType = 3;
-                    break;
-                case '}': //close json object jsonPair
-
-                    break;
-                case ']': //close json array jsonPair
-
-                    break;
-                case ',': //new element in either json-array or json-object
-                    
-
-                    break;
-                case ':': //define jsonPair value (though must not rely on this to detect whether something is to be defined as a value)
-
-                    break;
-                default:
-                    strPiece += c;
-                    break;
+                    /**
+                     * `newPair` will only be set to `true` during a clear indicator of a new jsonPair, example:
+                     *  - `','`
+                     */
+                }
+                inStr = false;
+                strPiece.clear();
+                
+                continue;
             }
 
+            strPiece += c;
+            continue;
         }
+        
+
+        switch (c) { //outside string in json object/array
+            case ' ': //we ignore space characters that aren't inside strings.
+            case '\n': continue; break; //we ignore newline characters that aren't inside strings
+            case '\"':
+                inStr = true;
+                break;
+            case '{': //create json object jsonPair
+                //vec creations::
+                if(newPair) {
+                    // storedAt.push_back(&*(--_tempPairs.end())); //iterator to jsonPair that this new one is stored at
+                    // /**
+                    //  * Create the new jsonPair element in _tempPairs and update all the related variables/containers
+                    //  * 
+                    //  */
+                    // _tempPairs.push_back(JSON_P::jsonPair("", {}, false));
+                    // _pairLoc.push_back(pos2d(currDepth, currElem)); //update where the "new" jsonPair is located (index to "parent" jsonPair)
+                    // // current++;
+                    // currDepth++;
+
+                    if(_temp.init()) {
+                        _curr->append(JSON_P::jsonPair("", {}, false));
+                        _curr = &_curr->operator[](-1);
+                    }
+                    else {
+                        _temp = jsonPair("", {}, false);
+                        _temp._onlyVal = true;
+                    }
+                }
+                else {
+                    /**
+                     * Update pre-existing json (_tempPairs[current])
+                     * 
+                     */
+                    *_curr = std::vector<JSON_P::jsonPair>();
+                    newPair = true;
+                }
+                _curr->isArray(false);
+                break;
+            case '[': //create json array jsonPair
+                //vec creations::
+
+                if(newPair) {
+                    if(_temp.init()) {
+                        _curr->append(JSON_P::jsonPair("", {}, true));
+                        _curr = &_curr->operator[](-1);
+                    }
+                    else {
+                        _temp = jsonPair("", {}, true);
+                        _temp._onlyVal = true;
+                    }
+                }
+                else {
+                    *_curr = std::vector<JSON_P::jsonPair>();
+                    newPair = true;
+                }
+                _curr->isArray(true);
+
+                // pairType.push_back(3);
+                // isKey = false;
+                break;
+            case '}': //close json object jsonPair
+                newPair = false;
+                
+                _curr = _curr->getParent();
+                // pairType.erase(--pairType.end());
+                // pairDepth.erase(--pairDepth.end());
+                // pairElement.erase(--pairElement.end());
+                break;
+            case ']': //close json array jsonPair
+                newPair = false;
+
+                _curr = _curr->getParent();
+                // pairType.erase(--pairType.end());
+                // pairDepth.erase(--pairDepth.end());
+                // pairElement.erase(--pairElement.end());
+                break;
+            case ',': //new element in either json-array or json-object
+                if(newPair) { //a value hasn't been defined/set/given
+                    //main method of defining non-string, non-json-array/object to jsonPair
+                    if(strPiece=="false")       *_curr = false;
+                    else if(strPiece=="true")   *_curr = true;
+                    else {
+                        static std::string numberesque = ".-+012345679";
+                        std::string numberStr = "";
+                        int numType = 10;
+                        int numDecimals = 0;
+                        for(char cc : strPiece) {
+                            for(char ccc : numberesque) {
+                                if(cc == ccc) {
+                                    numberStr += cc;
+                                    if(numType!=10) numDecimals++;
+                                    if(cc=='.') numType = 11;
+                                    break;
+                                }
+                            }
+
+                        }
+                        if(numDecimals>7) numType = 12;
+                        switch (numType) {
+                        case 10: *_curr = std::stoi(numberStr); break;
+                        case 11: *_curr = std::stof(numberStr); break;
+                        case 12: *_curr = std::stod(numberStr); break;
+                        default:
+                            break;
+                        }
+                    }
+                }
+                newPair = true;
+                // pairElement.back()++;
+                // isKey = (pairType.back()==3? false : true);
+                break;
+            case ':': //define jsonPair value (though must not rely on this to detect whether something is to be defined as a value)
+                // isKey = false;
+                break;
+            default:
+                strPiece += c;
+                break;
+        }
+
     }
 
 }

@@ -23,8 +23,6 @@
 
 namespace JSON_P {
 
-    struct jsonPair;
-
 
     /**
      * A class to represent the "key-value" pair found in JSON syntax/string.
@@ -39,8 +37,8 @@ namespace JSON_P {
             int                         _value_10;
             float                       _value_11;
             double                      _value_12;
-            std::vector<jsonPair>       _value_2;   // object(/s) `{}`
-            std::vector<jsonPair>       _value_3;   // array `[]`
+            std::list<jsonPair>         _value_2;   // object(/s) `{}`
+            std::list<jsonPair>         _value_3;   // array `[]`
             bool                        _value_4;
 
             /**
@@ -57,25 +55,112 @@ namespace JSON_P {
              * - `5` - `null`
              */
             int _type   = -1;
-            const bool _init  = false;
+            bool _init  = false;
+
+            jsonPair* _parent = nullptr;
+            int _siblingIndex = 0;
 
         public:
+            bool init() const;
+
             /**
              * @brief Whether the instance of this class will be passed as purely value
+             * @note does not necessarily mean the stored type is a json array. The only way
+             * to define if value is a json array or object is via `_type` or type()` for public
+             * access
              */
             bool _onlyVal = false;
             
             std::string key;
 
+            /**
+             * @brief Construct a new jsonPair object.
+             * This is the default constructor.
+             */
             jsonPair() = default;
-            jsonPair(std::string _key);
-            jsonPair(std::string _key, std::string _value);
-            jsonPair(std::string _key, int _value);
-            jsonPair(std::string _key, float _value);
-            jsonPair(std::string _key, double _value);
-            jsonPair(std::string _key, std::initializer_list<jsonPair> _value, bool isArray);
-            jsonPair(std::string _key, std::vector<jsonPair> _value, bool isArray);
-            jsonPair(std::string _key, bool _value);
+            /**
+             * @brief Construct a new jsonPair object
+             * 
+             * @param _key `std::string` of the json pair key
+             * @param parent address to the parent jsonPair that this jsonPair is stored in.
+             */
+            jsonPair(std::string _key, jsonPair* parent=nullptr);
+            /**
+             * @brief Construct a new jsonPair object.
+             * 
+             * @param _key `std::string` of the json pair key
+             * @param _value `std::string` value to store
+             * @param onlyVal whether to only display/use the value of the key-value pair
+             * @param parent address to the parent jsonPair that this jsonPair is stored in.
+             */
+            jsonPair(std::string _key, std::string _value, bool onlyVal=false, jsonPair* parent=nullptr);
+            /**
+             * @brief Construct a new jsonPair object.
+             * 
+             * @param _key `std::string` of the json pair key
+             * @param _value `int` value to store
+             * @param onlyVal whether to only display/use the value of the key-value pair
+             * @param parent address to the parent jsonPair that this jsonPair is stored in.
+             */
+            jsonPair(std::string _key, int _value, bool onlyVal=false, jsonPair* parent=nullptr);
+            /**
+             * @brief Construct a new jsonPair object.
+             * 
+             * @param _key `std::string` of the json pair key
+             * @param _value `float` value to store
+             * @param onlyVal whether to only display/use the value of the key-value pair
+             * @param parent address to the parent jsonPair that this jsonPair is stored in.
+             */
+            jsonPair(std::string _key, float _value, bool onlyVal=false, jsonPair* parent=nullptr);
+            /**
+             * @brief Construct a new jsonPair object.
+             * 
+             * @param _key `std::string` of the json pair key
+             * @param _value `double` value to store
+             * @param onlyVal whether to only display/use the value of the key-value pair
+             * @param parent address to the parent jsonPair that this jsonPair is stored in.
+             */
+            jsonPair(std::string _key, double _value, bool onlyVal=false, jsonPair* parent=nullptr);
+            /**
+             * @brief Construct a new jsonPair object.
+             * 
+             * @param _key `std::string` of the json pair key
+             * @param _value `std::initializer_list<JSON_P::jsonPair>` json object/array to store
+             * @param isArray whether `_value` is a json array (=true) or a json object (=false)
+             * @param parent address to the parent jsonPair that this jsonPair is stored in
+             */
+            jsonPair(std::string _key, std::initializer_list<jsonPair> _value, bool isArray, jsonPair* parent=nullptr);
+            /**
+             * @brief Construct a new jsonPair object.
+             * 
+             * @param _key `std::string` of the json pair key
+             * @param _value `std::vector<JSON_P::jsonPair>` json object/array to store
+             * @param isArray whether `_value` is a json array (=true) or a json object (=false)
+             * @param parent address to the parent jsonPair that this jsonPair is stored in
+             */
+            jsonPair(std::string _key, std::vector<jsonPair> _value, bool isArray, jsonPair* parent=nullptr);
+            /**
+             * @brief Construct a new jsonPair object
+             * 
+             * @param _key `std::string` of the json pair key
+             * @param _value `std::list<JSON_P::jsonPair>` json object/array to store
+             * @param isArray whether `_value` is a jsonPair that this jsonPair is stored in
+             * @param parent address to the parent jsonpair that this jsonPair is stored in
+             */
+            jsonPair(std::string _key, std::list<jsonPair> _value, bool isArray, jsonPair* parent=nullptr);
+            /**
+             * @brief Construct a new jsonPair object.
+             * 
+             * @param _key `std::string` of the json pair key
+             * @param _value `bool` value to store
+             * @param onlyVal whether to only display/use the value of the key-value pair
+             * @param parent address to the parent jsonPair that this jsonPair is stored in.
+             */
+            jsonPair(std::string _key, bool _value, bool onlyVal=false, jsonPair* parent=nullptr);
+
+            void append(jsonPair newPair);
+            void insert(int idx, jsonPair newPair);
+            void erase(int idx);
 
             /**
              * type of the value
@@ -131,26 +216,42 @@ namespace JSON_P {
             jsonPair& operator= (int _newVal);
             jsonPair& operator= (float _newVal);
             jsonPair& operator= (double _newVal);
+            jsonPair& operator= (std::initializer_list<jsonPair> _newVal);
             jsonPair& operator= (std::vector<jsonPair> _newVal);
+            jsonPair& operator= (std::list<jsonPair> _newVal);
             jsonPair& operator= (bool _newVal);
 
             std::string&            get0();
             int&                    get10();
             float&                  get11();
             double&                 get12();
-            std::vector<jsonPair>&  get2();
-            std::vector<jsonPair>&  get3();
+            std::list<jsonPair>&    get2();
+            std::list<jsonPair>&    get3();
             bool&                   get4();
 
+            jsonPair* getParent();
+            int getSiblingIdx();
+
+            void setParent(jsonPair* parent);
+            void setSiblingIndex(int idx);
+            
+            /**
+             * @brief Boolean access function to set whether the current stored container is a
+             * json object (`isArray`=false, _type=2) or a json array (`isArray`=true, _type=3)
+             * 
+             * @param isArray true (json array) or false (json object)
+             */
+            void isArray(bool isArray);
     };
     
 
     class Parser {
         private:
 
+        public:
             jsonPair _json;
 
-        public:
+
             Parser() = default;
             Parser(std::string filename, bool _verbose=false);
 

@@ -13,11 +13,11 @@ int main(int argc, char** argv) {
     );
 
     JSON_P::jsonPair subPair1 = subPair;
-    // subPair1["sub0"] = std::vector<JSON_P::jsonPair>{
-    //     JSON_P::jsonPair("subsub0", 69),
-    //     JSON_P::jsonPair("subsub1", "420")
-    // };
-    subPair1["sub0"] = 420;
+    subPair1["sub0"] = std::vector<JSON_P::jsonPair>{
+        JSON_P::jsonPair("subsub0", 69, true),
+        JSON_P::jsonPair("subsub1", "420", true)
+    };
+    // subPair1["sub0"] = 420;
     subPair1.key = "amogus";
     subPair1["sub0"].key = "chungus0";
 
@@ -32,6 +32,13 @@ int main(int argc, char** argv) {
     );
 
     std::cout << mainPair.toStr() << std::endl;
+
+    std::cout << "-------------" << std::endl;
+
+    // JSON_P::Parser _parsed("/home/berkhme/github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/saveFiles/_TEST_project 0.json");
+    JSON_P::Parser _parsed("testJSON.json");
+    std::cout << _parsed._json.toStr() << std::endl;
+
 
     return 0;
 }
