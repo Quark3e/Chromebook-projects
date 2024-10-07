@@ -129,6 +129,7 @@ JSON_P::jsonPair::jsonPair(
 void JSON_P::jsonPair::append(jsonPair newPair) {
     assert(_type==2 || _type==3);
     this->insert(-1, newPair);
+
 }
 void JSON_P::jsonPair::insert(int idx, jsonPair newPair) {
     assert(_type==2 || _type==3);
@@ -137,12 +138,13 @@ void JSON_P::jsonPair::insert(int idx, jsonPair newPair) {
     int _Lsize = static_cast<int>(lePair.size());
     assert(idx < _Lsize);
     if(idx<0) {
-        assert(abs(idx) <= _Lsize);
+        if(idx!=-1) assert(abs(idx) <= _Lsize);
         idx = _Lsize += idx;
     }
     auto itr = lePair.begin();
     std::advance(itr, idx);
     lePair.insert(itr, newPair);
+    lePair.back().setParent(this);
 }
 void JSON_P::jsonPair::erase(int idx) {
     assert(_type==2 || _type==3);
@@ -163,6 +165,16 @@ const int JSON_P::jsonPair::type() {
     return this->_type;
 }
 
+const size_t JSON_P::jsonPair::size() {
+    switch (_type) {
+    case 2: return _value_2.size(); break;
+    case 3: return _value_3.size(); break;
+    default:
+        assert(false);
+        break;
+    }
+    return 0;
+}
 
 std::string const& JSON_P::jsonPair::toStr(
     int     _styleOpt,
@@ -276,7 +288,7 @@ std::string const& JSON_P::jsonPair::toStr(
         case 10:    out += formatNumber(_value_10, _width_val, 0); break;
         case 11:    out += formatNumber(_value_11, _width_val, _str_decimal_precision); break;
         case 12:    out += formatNumber(_value_12, _width_val, _str_decimal_precision); break;
-        case 2:
+        case 2: {
             auto itr = _value_2.begin();
             for(size_t i=0; i<_value_2.size(); i++) {
                 std::string _temp = (*itr).toStr(_styleOpt, _indent, _only_value, len1_key, len1_val, false, indentSub);
@@ -300,7 +312,8 @@ std::string const& JSON_P::jsonPair::toStr(
                 ++itr;
             }
             break;
-        case 3:
+        }
+        case 3: {
             auto itr = _value_3.begin();
             for(size_t i=0; i<_value_3.size(); i++) {
                 
@@ -323,6 +336,7 @@ std::string const& JSON_P::jsonPair::toStr(
                 ++itr;
             }
             break;
+        }
         case 4:     out += formatNumber(std::string((_value_4? "true" : "false")), _width_val); break;
         default:
             break;
@@ -532,8 +546,8 @@ void JSON_P::Parser::loadFile(
     std::string filename,
     bool _verbose
 ) {
-    JSON_P::jsonPair    _temp;
-    JSON_P::jsonPair*   _curr = &_temp;
+    // JSON_P::jsonPair    _json;
+    JSON_P::jsonPair*   _curr = &_json;
     
     std::list<JSON_P::jsonPair>   _tempPairs;
     /**
@@ -610,6 +624,9 @@ void JSON_P::Parser::loadFile(
 
         // if(isKey && inStr) {
         // }
+        std::cerr << "\n \"" << (c=='\n'? "\\n" : std::string(1, c)) << "\" init: ";
+        std::cerr << " type:"<<_curr->type();
+        std::cerr << " inStr:"<<std::boolalpha << inStr;
 
         if(inStr) {
             if(c=='\\') {
@@ -622,16 +639,31 @@ void JSON_P::Parser::loadFile(
                 }
                 continue;
             }
+            std::cerr << " c0";
             if(c=='\"') { //closing strPiece
+                std::cerr << " " << std::boolalpha << newPair;
                 if(newPair) { //create first instance of jsonPair WITH keys
+                    // std::cout << "-- -- -- --" << _curr->type() << std::endl;
+
+                    std::cerr << " c0.1";
+
                     if(_curr->type()==2)_curr->append(JSON_P::jsonPair(strPiece));
-                    else                _curr->append(JSON_P::jsonPair("", strPiece, true));
+                    else                _curr->append(JSON_P::jsonPair("_\"_", strPiece, true));
+                    std::cerr << " »»="<<_curr->operator[](-1).getParent();
+
+                    std::cerr << " c0.2";
                     _curr = &_curr->operator[](-1);
+                    if(_curr->type()==2 || _curr->type()==3) {
+                        std::cerr << " size:"<<_curr->size();
+                    }
+                    else {
+                    }
+                    std::cerr << " VIA STR: NEW APPEND: " << _curr->type();
                     newPair = false;
                 }
                 else { //a json string value has been "read"
                     *_curr = strPiece;
-
+                    std::cout <<" "<< _curr->type() << "=TYPE "<<std::endl;
                     /**
                      * `newPair` will only be set to `true` during a clear indicator of a new jsonPair, example:
                      *  - `','`
@@ -642,11 +674,13 @@ void JSON_P::Parser::loadFile(
                 
                 continue;
             }
+            std::cerr << " c1";
 
             strPiece += c;
             continue;
         }
         
+        std::cerr << " c2";
 
         switch (c) { //outside string in json object/array
             case ' ': //we ignore space characters that aren't inside strings.
@@ -667,13 +701,15 @@ void JSON_P::Parser::loadFile(
                     // // current++;
                     // currDepth++;
 
-                    if(_temp.init()) {
-                        _curr->append(JSON_P::jsonPair("", {}, false));
+                    if(_json.init()) {
+                        _curr->append(JSON_P::jsonPair("_{_", {}, false));
                         _curr = &_curr->operator[](-1);
                     }
                     else {
-                        _temp = jsonPair("", {}, false);
-                        _temp._onlyVal = true;
+                        _json = jsonPair("", {}, false);
+                        std::cout << " "<<_curr->type() << "=TYPE "<<std::endl;
+                        _json._onlyVal = true;
+                        
                     }
                 }
                 else {
@@ -682,6 +718,7 @@ void JSON_P::Parser::loadFile(
                      * 
                      */
                     *_curr = std::vector<JSON_P::jsonPair>();
+                    std::cout << " "<<_curr->type() << "=TYPE "<<std::endl;
                     newPair = true;
                 }
                 _curr->isArray(false);
@@ -690,18 +727,20 @@ void JSON_P::Parser::loadFile(
                 //vec creations::
 
                 if(newPair) {
-                    if(_temp.init()) {
-                        _curr->append(JSON_P::jsonPair("", {}, true));
+                    if(_json.init()) {
+                        _curr->append(JSON_P::jsonPair("_[_", {}, true));
                         _curr = &_curr->operator[](-1);
+                        std::cout << " "<<_curr->type() << "=TYPE "<<std::endl;
                     }
                     else {
-                        _temp = jsonPair("", {}, true);
-                        _temp._onlyVal = true;
+                        _json = jsonPair("", {}, true);
+                        _json._onlyVal = true;
                     }
                 }
                 else {
                     *_curr = std::vector<JSON_P::jsonPair>();
                     newPair = true;
+                    std::cout << " "<<_curr->type() << "=TYPE "<<std::endl;
                 }
                 _curr->isArray(true);
 
@@ -715,6 +754,7 @@ void JSON_P::Parser::loadFile(
                 // pairType.erase(--pairType.end());
                 // pairDepth.erase(--pairDepth.end());
                 // pairElement.erase(--pairElement.end());
+
                 break;
             case ']': //close json array jsonPair
                 newPair = false;
@@ -725,7 +765,8 @@ void JSON_P::Parser::loadFile(
                 // pairElement.erase(--pairElement.end());
                 break;
             case ',': //new element in either json-array or json-object
-                if(newPair) { //a value hasn't been defined/set/given
+                std::cerr << " c','0";
+                if(_curr->type()==-1) { //a value hasn't been defined/set/given
                     //main method of defining non-string, non-json-array/object to jsonPair
                     if(strPiece=="false")       *_curr = false;
                     else if(strPiece=="true")   *_curr = true;
@@ -746,6 +787,7 @@ void JSON_P::Parser::loadFile(
 
                         }
                         if(numDecimals>7) numType = 12;
+                        std::cout << " \t\t[PARSED NUMBER:"<<numberStr<<"]";
                         switch (numType) {
                         case 10: *_curr = std::stoi(numberStr); break;
                         case 11: *_curr = std::stof(numberStr); break;
@@ -754,7 +796,15 @@ void JSON_P::Parser::loadFile(
                             break;
                         }
                     }
+                    std::cout << " "<<_curr->type() << "=TYPE "<<std::endl;
+                    strPiece.clear();
                 }
+                // if(_curr->operator[](-1).type() == 2 || _curr->operator[](-1).type() == 3) {}
+                // else
+                std::cerr << " *»" << _curr;
+                _curr = _curr->getParent();
+                std::cerr << " *»" << _curr;
+                std::cerr << " c','1";
                 newPair = true;
                 // pairElement.back()++;
                 // isKey = (pairType.back()==3? false : true);
@@ -768,6 +818,8 @@ void JSON_P::Parser::loadFile(
         }
 
     }
+    // std::cout << _temp.type() << std::endl;
+    // this->_json = _temp;
 
 }
 

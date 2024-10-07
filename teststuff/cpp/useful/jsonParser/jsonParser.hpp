@@ -177,6 +177,8 @@ namespace JSON_P {
              */
             const int type();
 
+            const size_t size();
+
             int _str_decimal_precision = 3;
 
             /**
