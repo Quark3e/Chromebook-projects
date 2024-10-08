@@ -1,10 +1,22 @@
 {
     "title": "amogus",
     "arrays": [
+        2,
+        3,
         {
             "object0": 420,
             "object1": 6.9,
-            "object2": false,
+            "object2": [
+                1,
+                "dos",
+                "tres"
+            ],
+            "object3": false,
+            "object4": {
+                "unos": 11,
+                "dosos": 22,
+                "tresos": 33
+            },
             "": "cool",
             "1": "coolio"
         },
@@ -12,6 +24,22 @@
         21,
         "amogus",
         "amogus",
-        true
+        true,
+        {
+            "obj0": {
+                "one": 1,
+                "two": 2,
+                "three": 3
+            },
+            "obj1": {
+                "one"   : 1,
+                "two"   : 2,
+                "three" : 3
+            }
+        }
+    ],
+    "arrays2": [
+        "one",
+        "three"
     ]
 }

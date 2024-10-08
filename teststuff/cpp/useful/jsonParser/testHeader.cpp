@@ -62,7 +62,8 @@ int main(int argc, char** argv) {
     // std::cout << _parsed._json.toStr() << std::endl;
 
     JSON_P::jsonPair newP;
-    newP.loadFile("testJSON.json");
+    newP.loadFile("testJSON.json", true);
+    // newP.loadFile("/home/berkhme/github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/saveFiles/_TEST_project 0.json", true);
     std::cout << newP << std::endl;
 
     return 0;

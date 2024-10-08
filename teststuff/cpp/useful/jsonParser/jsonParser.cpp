@@ -595,14 +595,21 @@ bool JSON_P::jsonPair::loadFile(
     std::string strPiece = "";
     char c, c_prev = ' ';
 
+    int lineCount = 0;
+
     while(_file.get(c)) {
 
         // if(isKey && inStr) {
         // }
+        // if(this->isContainer()) std::cout << this->size() << std::endl;
+        if(c=='\n') {
+            lineCount++;
+        }
         if(_verbose && !(
             (c==' ' || c=='\n') && !inStr
         )) {
             std::cout << std::endl;
+            std::cout << std::setw(3) << lineCount << "  ";
             std::cout << " \"" << (c=='\n'? "\\n" : std::string(1, c)) << "\" init: ";
             std::cout << " type:"<<_curr->type();
             std::cout << " inStr:"<<std::boolalpha << inStr;
