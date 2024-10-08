@@ -176,6 +176,13 @@ namespace JSON_P {
              * - `5` - `null`
              */
             const int type();
+            /**
+             * @brief `bool` for whether a json object (type==2)`{}` or json array (type==3)`[]` is stored in this jsonPair
+             * 
+             * @return true type of stored value is a json array or a json object
+             * @return false type of stored value is not a container type and is one of `0`-`std::string`, `10`-`int`, `11`-`float`, `12`-`double`, `4`-`bool`
+             */
+            const bool isContainer();
 
             const size_t size();
 
@@ -244,6 +251,8 @@ namespace JSON_P {
              * @param isArray true (json array) or false (json object)
              */
             void isArray(bool isArray);
+
+            bool loadFile(std::string filename, bool _verbose=false);
     };
     
 

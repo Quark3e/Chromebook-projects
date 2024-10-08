@@ -4,9 +4,13 @@
         {
             "object0": 420,
             "object1": 6.9,
-            "object2": false
+            "object2": false,
+            "": "cool",
+            "1": "coolio"
         },
         "test",
+        21,
+        "amogus",
         "amogus",
         true
     ]
