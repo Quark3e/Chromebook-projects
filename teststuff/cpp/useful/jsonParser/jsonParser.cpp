@@ -657,7 +657,9 @@ bool JSON_P::jsonPair::loadFile(
                             std::cout << "]";
                         }
                     }
-
+                    if(strPiece=="       addr") std::cout << "------------IS WRONG ADDR--------"<<std::endl;
+                    else if(strPiece=="addr") std::cout << "is correct addr"<<std::endl;
+                    // else if(strPiece=="addr")
                     _curr = &_curr->operator[](-1);
                     newPair = false;
                 }
@@ -733,6 +735,7 @@ bool JSON_P::jsonPair::loadFile(
             case ' ': //we ignore space characters that aren't inside strings.
             case '\n': continue; break; //we ignore newline characters that aren't inside strings
             case '\"':
+                strPiece.clear();
                 inStr = true;
                 break;
             case '{': //create json object jsonPair
@@ -801,6 +804,11 @@ bool JSON_P::jsonPair::loadFile(
                 _curr = _curr->getParent();
                 break;
             case ',': //new element in either json-array or json-object
+                if(_curr->type()==3 && newPair) {
+                    _curr->append(JSON_P::jsonPair(""));
+                    _curr = &_curr->operator[](-1);
+                    newPair = true;
+                }
                 if(_curr->type()==-1) {
                     if(_verbose) std::cout << " pV:\""<<strPiece<<"\"";
                     parseValue(strPiece, &_curr);
