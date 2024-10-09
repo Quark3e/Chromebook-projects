@@ -910,12 +910,12 @@ namespace DIY {
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::erase(_key_type key) {
         int pos = check_existence<_key_type>(key, this->_keys);
-        if(pos==-1) this->_call_error(0, "::erase(_key_type)");
+        if(pos<0) this->_call_error(0, "::erase(_key_type)");
         
         this->_keys.erase(this->_keys.begin()+pos);
         this->_values.erase(this->_values.begin()+pos);
         this->_lookup.erase(this->_lookup.begin()+pos);
-        this->_vector_modified = true;
+        this->_values_modified = true;
         return 0;
     }
     template<class _key_type, class _store_type>
@@ -929,7 +929,7 @@ namespace DIY {
         this->_keys.erase(this->_keys.begin()+idx);
         this->_values.erase(this->_values.begin()+idx);
         this->_lookup.erase(this->_lookup.begin()+idx);
-        this->_vector_modified = true;
+        this->_values_modified = true;
         return 0;
     }
 }

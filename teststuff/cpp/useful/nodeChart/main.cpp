@@ -217,7 +217,7 @@ int main(int argc, char** argv) {
         if(ImGui::BeginMenuBar()) {
             if(ImGui::BeginMenu("File")) {
                 if(ImGui::MenuItem("Open project")) {
-                    projects.add(("project "+std::to_string(projects.size()-1)).c_str(), gNC::guiNodeChart());
+                    projects.add(("project 69"+std::to_string(projects.size())).c_str(), gNC::guiNodeChart());
                     projects[-1].loadFile(programCWD+"saveFiles/_TEST_"+projects.key(0) + ".json");
                     _selected = projects.size()-1;
                 }

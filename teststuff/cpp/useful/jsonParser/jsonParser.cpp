@@ -657,8 +657,6 @@ bool JSON_P::jsonPair::loadFile(
                             std::cout << "]";
                         }
                     }
-                    if(strPiece=="       addr") std::cout << "------------IS WRONG ADDR--------"<<std::endl;
-                    else if(strPiece=="addr") std::cout << "is correct addr"<<std::endl;
                     // else if(strPiece=="addr")
                     _curr = &_curr->operator[](-1);
                     newPair = false;

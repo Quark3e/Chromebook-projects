@@ -1617,6 +1617,8 @@ int gNC::guiNodeChart::saveToFile(
     std::string filename,
     bool overwrite
 ) {
+
+
     std::fstream _file;
     std::ios_base::openmode fileMode = std::fstream::out;
     if(!overwrite) fileMode |= std::fstream::app;
@@ -1720,147 +1722,154 @@ int gNC::guiNodeChart::loadFile(
     std::string filename,
     bool verbose
 ) {
-    gNC::guiNodeChart _temp;
-    std::fstream _file;
-    _file.open(filename, std::fstream::in);
 
-    if(!_file.is_open()) {
-        std::runtime_error("ERROR: "+this->_info_name+"::loadFile(std::string): could not open file \""+filename+"\"");
-    }
-    else {
-        std::cout << "Opened file to: read: \"" << filename << "\"" << std::endl;
-    }
-
-    DIY::typed_dict<std::string, std::string> _depths;
-
-    // int ind     = 0;
-    bool inStr  = false;        // whether it's currently recording a string, so a `"` will set the opposite boolean, and if true: `{[]},:` will not be interpreted as json "methods"
-    bool isKey  = true;         // whether it's currently recording characters for the key/name. If true: key/name; else: value
-    bool ignoreChar = false;    // whether the previous character was `\`, meaning any special case symbols like `\n` and `"` will be ignored and not "parsed"/interpreted
-    bool valIsArray = false;    // whether the current recordings are stored in an array or not, meaning each every value is part of an array and "their" key is common
-    std::string _key, _value;
-
-    std::string _word = "";
-
-    std::string line;
-
-    /// @brief keys/names for different objects, clarified by the "indents" or `lvl_cBr`
-    std::vector<std::string> _objects(1, "");
-    /// @brief storage for values that are to be sorted in an array
-    std::vector<std::string> _valArray(1, "");
-
-    int lvl_cBr = 0; //lvl of curly braces
-    int lvl_sBr = 0; //lvl of square braces
-
-    while(getline(_file, line)) {
-        for(int i=0; i<line.length(); i++) {
-            char c=line[i];
-            if(c=='\n') continue;
-            if(c==':')  continue; //we don't use `:` as an indicator of recording values because the keys/names has to be strings
-            if(c==' ' && !inStr) continue;
-            if(c=='\\') {
-                if(ignoreChar) {
-                    _word += '\\';
-                    ignoreChar = false;
-                    continue;
-                }
-                else {
-                    ignoreChar = true;
-                }
-                continue;
-            }
-            if(c=='\"') {
-                if(ignoreChar) {
-                    _word += "\"";
-                    continue;
-                }
-                else if(inStr) { //ending an existing word
-                    if(isKey) { // Set the key
-                        _key = _word;
-                        _objects[_objects.size()-1];
-                    }
-                    else {      // Set the value
-                        _value = _word;
+    JSON_P::jsonPair _json;
+    _json.loadFile(filename, verbose);
 
 
-                        if(_key=="date") {
+    /*
+        gNC::guiNodeChart _temp;
+        std::fstream _file;
+        _file.open(filename, std::fstream::in);
 
-                        }
-                        else if(_key=="name") {
-                            _temp.project_name = _value;
-                        }
-                        /*CALL SPECIFIC FUNCTION*/
-                    }
-
-                    isKey   = !isKey;
-                    inStr   = false;
-                }
-                else if(!inStr) { //starting a new word
-                    _word   = "";
-                    inStr   = true;
-                }
-                continue;
-            }
-
-            if(c=='{') {
-                if(inStr) _word += '{';
-                else {
-                    _depths.add(_key, "{");
-                    lvl_cBr++;
-                    _objects.push_back("");
-                    valIsArray = false;
-                }
-                continue;
-            }
-            else if(c=='}') {
-                if(inStr) _word += '}';
-                else {
-                    lvl_cBr--;
-                    _objects.erase(--_objects.end());
-
-                    /*CALL SPECIFIC FUNCTION*/
-                    _depths.eraseIdx(-1);
-                }
-                continue;
-            }
-            if(c=='[') {
-                if(inStr) _word += '[';
-                else {
-                    _depths.add(_key, "[");
-                    lvl_sBr++;
-                    valIsArray = true;
-                }
-                continue;
-            }
-            else if(c==']') {
-                if(inStr) _word += ']';
-                else {
-                    lvl_sBr--;
-                    valIsArray = false;
-                    
-                    
-                    _depths.eraseIdx(-1);
-                }
-                continue;
-            }
-
-            if(c==',' && !inStr) { //finished "recording" the characters for a value
-                _value  = _word;
-                _word   = "";
-                if(valIsArray) {
-
-                }
-                else {
-                    isKey = true;
-                }
-                /*CALL SPECIFIC FUNCTION*/
-                continue;
-            }
-
-            _word += c;
-
+        if(!_file.is_open()) {
+            std::runtime_error("ERROR: "+this->_info_name+"::loadFile(std::string): could not open file \""+filename+"\"");
         }
-    }
+        else {
+            std::cout << "Opened file to: read: \"" << filename << "\"" << std::endl;
+        }
+
+        DIY::typed_dict<std::string, std::string> _depths;
+
+        // int ind     = 0;
+        bool inStr  = false;        // whether it's currently recording a string, so a `"` will set the opposite boolean, and if true: `{[]},:` will not be interpreted as json "methods"
+        bool isKey  = true;         // whether it's currently recording characters for the key/name. If true: key/name; else: value
+        bool ignoreChar = false;    // whether the previous character was `\`, meaning any special case symbols like `\n` and `"` will be ignored and not "parsed"/interpreted
+        bool valIsArray = false;    // whether the current recordings are stored in an array or not, meaning each every value is part of an array and "their" key is common
+        std::string _key, _value;
+
+        std::string _word = "";
+
+        std::string line;
+
+        /// @brief keys/names for different objects, clarified by the "indents" or `lvl_cBr`
+        std::vector<std::string> _objects(1, "");
+        /// @brief storage for values that are to be sorted in an array
+        std::vector<std::string> _valArray(1, "");
+
+        int lvl_cBr = 0; //lvl of curly braces
+        int lvl_sBr = 0; //lvl of square braces
+
+        while(getline(_file, line)) {
+            for(int i=0; i<line.length(); i++) {
+                char c=line[i];
+                if(c=='\n') continue;
+                if(c==':')  continue; //we don't use `:` as an indicator of recording values because the keys/names has to be strings
+                if(c==' ' && !inStr) continue;
+                if(c=='\\') {
+                    if(ignoreChar) {
+                        _word += '\\';
+                        ignoreChar = false;
+                        continue;
+                    }
+                    else {
+                        ignoreChar = true;
+                    }
+                    continue;
+                }
+                if(c=='\"') {
+                    if(ignoreChar) {
+                        _word += "\"";
+                        continue;
+                    }
+                    else if(inStr) { //ending an existing word
+                        if(isKey) { // Set the key
+                            _key = _word;
+                            _objects[_objects.size()-1];
+                        }
+                        else {      // Set the value
+                            _value = _word;
+
+
+                            if(_key=="date") {
+
+                            }
+                            else if(_key=="name") {
+                                _temp.project_name = _value;
+                            }
+                            //CALL SPECIFIC FUNCTION
+                        }
+
+                        isKey   = !isKey;
+                        inStr   = false;
+                    }
+                    else if(!inStr) { //starting a new word
+                        _word   = "";
+                        inStr   = true;
+                    }
+                    continue;
+                }
+
+                if(c=='{') {
+                    if(inStr) _word += '{';
+                    else {
+                        _depths.add(_key, "{");
+                        lvl_cBr++;
+                        _objects.push_back("");
+                        valIsArray = false;
+                    }
+                    continue;
+                }
+                else if(c=='}') {
+                    if(inStr) _word += '}';
+                    else {
+                        lvl_cBr--;
+                        _objects.erase(--_objects.end());
+
+                        //CALL SPECIFIC FUNCTION
+                        _depths.eraseIdx(-1);
+                    }
+                    continue;
+                }
+                if(c=='[') {
+                    if(inStr) _word += '[';
+                    else {
+                        _depths.add(_key, "[");
+                        lvl_sBr++;
+                        valIsArray = true;
+                    }
+                    continue;
+                }
+                else if(c==']') {
+                    if(inStr) _word += ']';
+                    else {
+                        lvl_sBr--;
+                        valIsArray = false;
+                        
+                        
+                        _depths.eraseIdx(-1);
+                    }
+                    continue;
+                }
+
+                if(c==',' && !inStr) { //finished "recording" the characters for a value
+                    _value  = _word;
+                    _word   = "";
+                    if(valIsArray) {
+
+                    }
+                    else {
+                        isKey = true;
+                    }
+                    //CALL SPECIFIC FUNCTION
+                    continue;
+                }
+
+                _word += c;
+
+            }
+        }
+    */
 
     return 0;
 }
