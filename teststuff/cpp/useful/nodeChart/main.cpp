@@ -118,7 +118,7 @@ int main(int argc, char** argv) {
 
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-        if(_selected==0) {
+        if(_selected!=-1) {
             project_draw_list = ImGui::GetWindowDrawList();
 
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
@@ -218,6 +218,7 @@ int main(int argc, char** argv) {
             if(ImGui::BeginMenu("File")) {
                 if(ImGui::MenuItem("Open project")) {
                     projects.add(("project 69"+std::to_string(projects.size())).c_str(), gNC::guiNodeChart());
+                    projects[-1].thisPtr = projects.getPtr_idx(-1);
                     projects[-1].loadFile(programCWD+"saveFiles/_TEST_"+projects.key(0) + ".json");
                     _selected = projects.size()-1;
                 }

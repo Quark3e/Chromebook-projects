@@ -34,10 +34,14 @@ gNC::gNODE::gNODE(
     height  = par_height;
     pos[0]  = par_posX;
     pos[1]  = par_posY;
-    pos_in[0]   = par_posX_in;  pos_in[1]   = par_posY_in;
-    pos_out[0]  = par_posX_out; pos_out[1]  = par_posY_out;
-    pos_add_0[0]    = par_posX_add;     pos_add_0[1]    = par_posY_add;
-    pos_share_0[0]  = par_posX_share;   pos_share_0[1]  = par_posY_share;
+    pos_in[0]   = par_posX_in;
+    pos_in[1]   = par_posY_in;
+    pos_out[0]  = par_posX_out;
+    pos_out[1]  = par_posY_out;
+    pos_add_0[0]    = par_posX_add;
+    pos_add_0[1]    = par_posY_add;
+    pos_share_0[0]  = par_posX_share;
+    pos_share_0[1]  = par_posY_share;
     // std::cout<<pos_add_0[0]<< " "<<pos_add_0[1]<<" | " <<pos_share_0[0]<< " "<<pos_share_0[1] << " - ";
     if(layout==0 || layout==1) { //define the opposing connection points positions
         pos_add_1[0]    = pos_add_0[0];
@@ -1013,6 +1017,7 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create(
     int type_dest,
     std::string label,
     std::string desc,
+    std::string bodyText,
     ImVec2 pos_interm_src,
     ImVec2 pos_interm_dest
 ) {
@@ -1031,7 +1036,7 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create(
     advance(itr, NODE_dest_idx);
     ptrDest = &*itr;
 
-    return this->LINK_create(ptrSrc, ptrDest, type_src, type_dest, label, desc);
+    return this->LINK_create(ptrSrc, ptrDest, type_src, type_dest, label, desc, bodyText);
 }
 gNC::gLINK* gNC::guiNodeChart::LINK_create(
     gNC::gNODE* NODE_src,
@@ -1040,6 +1045,7 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create(
     int type_dest,
     std::string label,
     std::string desc,
+    std::string bodyText,
     ImVec2 pos_interm_src,
     ImVec2 pos_interm_dest
 ) {
@@ -1061,7 +1067,7 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create(
     }
 
 
-    this->_links.push_back(gNC::gLINK(type_src, type_dest, NODE_src, NODE_dest, label, desc));
+    this->_links.push_back(gNC::gLINK(type_src, type_dest, NODE_src, NODE_dest, label, desc, bodyText));
     this->_lastAddedLink = &(this->_links.back());
     this->_lastAddedLink->addr = ptrToStr<gNC::gLINK*>(this->_lastAddedLink);
 
@@ -1104,6 +1110,7 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create_loose(
     int type_NODE_connection,
     std::string label,
     std::string desc,
+    std::string bodyText,
     ImVec2 pos_interm_NODE
 ) {
     std::list<gNC::gNODE>::const_iterator checkItr = this->_find_ptr_itr<gNC::gNODE>(this->_nodes, _NODE);
@@ -1123,11 +1130,11 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create_loose(
 
     int nType = 0; //`1`-src; `0`-dest
     if(searchVec<int>(std::vector<int>{1,3,5}, type_NODE_connection)!=-1) { //node is src (out, share)
-        this->_links.push_back(gNC::gLINK(type_NODE_connection, 0, _NODE, nullptr, label, desc));
+        this->_links.push_back(gNC::gLINK(type_NODE_connection, 0, _NODE, nullptr, label, desc, bodyText));
         nType = 1;
     }
     else { //node is dest (in, add)
-        this->_links.push_back(gNC::gLINK(1, type_NODE_connection, nullptr, _NODE, label, desc));
+        this->_links.push_back(gNC::gLINK(1, type_NODE_connection, nullptr, _NODE, label, desc, bodyText));
         nType = 0;
     }
 
@@ -1726,6 +1733,122 @@ int gNC::guiNodeChart::loadFile(
     JSON_P::jsonPair _json;
     _json.loadFile(filename, verbose);
 
+    // _json["projects"][0]
+
+    // DIY::typed_dict<std::string, std::string> _refr;
+    assert(_json["projects"].isContainer());
+    DIY::typed_dict<std::string, gNC::gNODE*> _refrs;
+    std::string _refr;
+
+    for(JSON_P::jsonPair _pair : _json["projects"][0].get2()) {
+        // if(_pair.key=="date") 
+        if(_pair.key=="name")       this->project_name = _pair.get0();
+        if(_pair.key=="screen_pos") {
+            this->screen_pos[0] = _pair[0].get10();
+            this->screen_pos[1] = _pair[1].get10();
+        }
+        if(_pair.key=="screen_dim") {
+            this->screen_dim[0] = _pair[0].get10();
+            this->screen_dim[1] = _pair[1].get10();
+        }
+        if(_pair.key=="nodes") {
+            for(JSON_P::jsonPair _node : _pair.get3()) {
+                assert(_node.type()==2);
+                gNC::gNODE _tempN(0, 0);
+                for(JSON_P::jsonPair _attr : _node.get2()) {
+                    if(_attr.key=="addr")   { _refr = _attr.get0(); }
+                    if(_attr.key=="label")  { _tempN.label  = _attr.get0(); }
+                    if(_attr.key=="desc")   { _tempN.desc   = _attr.get0(); }
+                    if(_attr.key=="bodyText"){_tempN.bodyText=_attr.get0(); }
+                    if(_attr.key=="date")   { /**/ }
+                    if(_attr.key=="init")   { _tempN.init   = _attr.get4(); }
+                    if(_attr.key=="layout") { _tempN.layout = _attr.get10();}
+                    if(_attr.key=="width")  { _tempN.width  = _attr.get10();}
+                    if(_attr.key=="height") { _tempN.height = _attr.get10();}
+                    if(_attr.key=="pos")    {
+                        _tempN.pos.x = _attr[0].get10();
+                        _tempN.pos.y = _attr[1].get10();
+                    }
+                    if(_attr.key=="pos_in") {
+                        _tempN.pos_in.x = _attr[0].get10();
+                        _tempN.pos_in.y = _attr[1].get10();
+                    }
+                    if(_attr.key=="pos_out")    {
+                        _tempN.pos_out.x = _attr[0].get10();
+                        _tempN.pos_out.y = _attr[1].get10();
+                    }
+                    if(_attr.key=="pos_add")    {
+                        _tempN.pos_add_0.x = _attr[0].get10();
+                        _tempN.pos_add_0.y = _attr[1].get10();
+                        if(_tempN.layout==0 || _tempN.layout==1) {
+                            _tempN.pos_add_1[0] = _tempN.pos_add_0[0];
+                            _tempN.pos_add_1[1] = _tempN.height-_tempN.pos_add_0[1];
+                        }
+                        else if(_tempN.layout==2 || _tempN.layout==3) {
+                            _tempN.pos_add_1[1] = _tempN.pos_add_0[1];
+                            _tempN.pos_add_1[0] = _tempN.width-_tempN.pos_add_0[0];
+                        }
+                    }
+                    if(_attr.key=="pos_share")  {
+                        _tempN.pos_share_0.x = _attr[0].get10();
+                        _tempN.pos_share_0.y = _attr[0].get10();
+                        if(_tempN.layout==0 || _tempN.layout==1) {
+                            _tempN.pos_share_1[0] = _tempN.pos_share_0[0];
+                            _tempN.pos_share_1[1] = _tempN.height-_tempN.pos_share_0[1];
+                        }
+                        else if(_tempN.layout==2 || _tempN.layout==3) {
+                            _tempN.pos_share_1[1] = _tempN.pos_share_0[1];
+                            _tempN.pos_share_1[0] = _tempN.width-_tempN.pos_share_0[0];
+                        }
+                    }
+                    if(_attr.key=="ROI_attach") {
+                        _tempN.ROI_attach.x = _attr[0].get10();
+                        _tempN.ROI_attach.y = _attr[1].get10();
+                    }
+                    if(_attr.key=="fillet_rad") { _tempN.fillet_radius = _attr.get10(); }
+                }
+                _refrs.add(
+                    _refr,
+                    this->NODE_create(
+                        _tempN.pos[0], _tempN.pos[1],
+                        _tempN.label, _tempN.desc, _tempN.bodyText,
+                        _tempN.width, _tempN.height
+                    )
+                );
+            }
+        }
+        if(_pair.key=="links") {
+            for(JSON_P::jsonPair _link : _pair.get3()) {
+                assert(_link.type()==2);
+                gNC::gLINK _tempL;
+                DIY::typed_dict<std::string, gNC::gNODE*> _tempEnds;
+                for(JSON_P::jsonPair _attr : _link.get2()) {
+
+                    if(_attr.key=="label")  { _tempL.label  = _attr.get0(); }
+                    if(_attr.key=="desc")   { _tempL.desc   = _attr.get0(); }
+                    if(_attr.key=="bodyText"){_tempL.bodyText=_attr.get0(); }
+                    if(_attr.key=="date")   { /**/ }
+                    if(_attr.key=="type_src")   { _tempL.type_src   = _attr.get10(); }
+                    if(_attr.key=="type_dest")  { _tempL.type_dest  = _attr.get10(); }
+                    if(_attr.key=="src")    { _tempEnds.add("src", _refrs.get(_attr.get0())); }
+                    if(_attr.key=="dest")   { _tempEnds.add("dest",_refrs.get(_attr.get0())); }
+                    if(_attr.key=="layout") { _tempL.layout = _attr.get10(); }
+                    if(_attr.key=="min__connect")   { _tempL.min__connect   = _attr.get10(); }
+                    if(_attr.key=="min__node")      { _tempL.min__node      = _attr.get10(); }
+                    if(_attr.key=="lim__sameSide")  { _tempL.lim__sameSide  = _attr.get10(); }
+                    if(_attr.key=="_gui__bezier_min") { _tempL._gui__bezier_min = _attr.get10(); }
+                    // if(_attr) // Pos_src/dest stuff
+                    if(_attr.key=="link_lineWidth") { _tempL.link_lineWidth = _attr.get10(); }
+                    if(_attr.key=="link_gui__lineWidth") { _tempL.link_gui__lineWidth = _attr.get10(); }
+                }
+                this->LINK_create(
+                    _tempEnds.get("src"), _tempEnds.get("dest"),
+                    _tempL.type_src, _tempL.type_dest,
+                    _tempL.label, _tempL.desc, _tempL.bodyText
+                );
+            }
+        }
+    }
 
     /*
         gNC::guiNodeChart _temp;

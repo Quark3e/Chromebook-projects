@@ -314,6 +314,7 @@ namespace gNC {
             int type_dest,
             std::string label   = "",
             std::string desc    = "",
+            std::string bodyText= "",
             ImVec2 pos_interm_src = ImVec2(-1, -1),
             ImVec2 pos_interm_dest= ImVec2(-1, -1)
         );
@@ -322,8 +323,9 @@ namespace gNC {
             gNC::gNODE* NODE_dest,
             int type_src,
             int type_dest,
-            std::string label   =  "",
-            std::string desc    =  "",
+            std::string label   = "",
+            std::string desc    = "",
+            std::string bodyText= "",
             ImVec2 pos_interm_src = ImVec2(-1, -1),
             ImVec2 pos_interm_dest= ImVec2(-1, -1)
         );
@@ -333,6 +335,7 @@ namespace gNC {
             int type_NODE_connection,
             std::string label   = "",
             std::string desc    = "",
+            std::string bodyText= "",
             ImVec2 pos_interm_NODE = ImVec2(-1, -1)
         );
         int LINK_swapSrc(gNC::gLINK* toSwap, gNC::gNODE* newSrc, int srcType);
