@@ -74,10 +74,14 @@ int main(int argc, char** argv) {
     
     projects.add("project 0", gNC::guiNodeChart());
     projects[0].thisPtr = projects.getPtr_idx(0);
-    projects[0].project_name = projects.key(0);
+    // projects[0].project_name = projects.key(0);
+    projects.rename("project 0", ptrToStr<gNC::guiNodeChart*>(projects[0].thisPtr));
 
-    int _selected = 0;
+    std::cout << projects[0].thisPtr << " " << &(projects[0])<< std::endl;
 
+
+    int _selected = 0, _selected_prev = 0;
+    int tabAddNew = 0;
 
     static int cnt = 0;
 
@@ -89,7 +93,6 @@ int main(int argc, char** argv) {
         while (al_get_next_event(queue, &al_event)) {
             ImGui_ImplAllegro5_ProcessEvent(&al_event);
             if(al_event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-                std::cout << "\n----------\n closing..\n----------\n"<<std::endl;
                 running_main = false;
             }
             if(al_event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
@@ -217,10 +220,16 @@ int main(int argc, char** argv) {
         if(ImGui::BeginMenuBar()) {
             if(ImGui::BeginMenu("File")) {
                 if(ImGui::MenuItem("Open project")) {
-                    projects.add(("project 69"+std::to_string(projects.size())).c_str(), gNC::guiNodeChart());
+
+                    projects.add("_temp", gNC::guiNodeChart());
                     projects[-1].thisPtr = projects.getPtr_idx(-1);
-                    projects[-1].loadFile(programCWD+"saveFiles/_TEST_"+projects.key(0) + ".json");
+                    projects.rename("_temp", ptrToStr<gNC::guiNodeChart*>(&(projects[-1])));
+                    projects[-1].loadFile(programCWD+"saveFiles/_TEST_"+""+ "project 0.json");
                     _selected = projects.size()-1;
+                    // nodePtr_menu__node_details  = nullptr;
+                    // linkPtr_menu__link_details  = nullptr;
+                    // nodePtr_menu__rightClick    = nullptr;
+                    // linkPtr_menu__rightClick    = nullptr;
                 }
                 if(ImGui::MenuItem("Save project")) {
                     /**
@@ -228,7 +237,7 @@ int main(int argc, char** argv) {
                      * directly call the `gNC::guiNodeChart::saveToFile` member function
                      * 
                      */
-                    projects[_selected].saveToFile(programCWD+"saveFiles/_TEST_" + projects.key(0) + ".json", true);
+                    projects[_selected].saveToFile(programCWD+"saveFiles/_TEST_" + "" + "project 0.json", true);
                 }
                 ImGui::EndMenu();
             }
@@ -239,15 +248,50 @@ int main(int argc, char** argv) {
             ImGui::EndMenuBar();
         }
 
-        if(ImGui::BeginTabBar("Tabs")) {
+        if(ImGui::BeginTabBar("Tabs", ImGuiTabBarFlags_AutoSelectNewTabs)) {
             for(size_t i=0; i<projects.size(); i++) {
-                if(ImGui::BeginTabItem(projects.key(0).c_str())) {
+                bool open = true;
+                if(ImGui::BeginTabItem(("project "+std::to_string(i)).c_str(), &open)) {
+                    _selected_prev = _selected;
                     _selected = i;
                     ImGui::EndTabItem();
                 }
+                if(!open) {
+                    projects.eraseIdx(i);
+                    if(_selected>=i) _selected--;
+                    if(_selected_prev>=i) _selected_prev--;
+                }
+            }
+            // if(ImGui::BeginTabItem("+")) { //create new empty project
+            //     // projects.add(("project "+std::to_string(projects.size())).c_str(), gNC::guiNodeChart());
+            //     // projects[-1].thisPtr = projects.getPtr_idx(-1);
+            //     // _selected = projects.size()-1;
+            //     // tabAddNew = true;
+            //     if(tabAddNew==0) tabAddNew = 3;
+            //     tabAddNew--;
+            //     ImGui::EndTabItem();
+            // }
+            if(ImGui::TabItemButton("+", ImGuiTabItemFlags_Trailing)) {
+                projects.add("_temp", gNC::guiNodeChart());
+                projects[-1].thisPtr = &(projects[-1]);
+                projects.rename("_temp", ptrToStr<gNC::guiNodeChart*>(&(projects[-1])));
+                _selected = projects.size()-1;
             }
             ImGui::EndTabBar();
         }
+        if(_selected != _selected_prev) {
+            gNC::nodePtr_menu__node_details = nullptr;
+            gNC::linkPtr_menu__link_details = nullptr;
+            gNC::nodePtr_menu__rightClick = nullptr;
+            gNC::linkPtr_menu__rightClick = nullptr;
+        }
+        // if(tabAddNew==2) {
+        //     projects.add(("project "+std::to_string(projects.size())).c_str(), gNC::guiNodeChart());
+        //     projects[-1].thisPtr = projects.getPtr_idx(-1);
+        //     _selected = projects.size()-1;
+
+        //     tabAddNew--;
+        // }
 
         ImGui::End();
         //--------------------

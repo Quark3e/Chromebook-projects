@@ -688,7 +688,7 @@ bool JSON_P::jsonPair::loadFile(
             if(str=="false")       **_jp = false;
             else if(str=="true")   **_jp = true;
             else {
-                static std::string numberesque = ".-+012345679";
+                static std::string numberesque = ".-+0123456789";
                 std::string numberStr = "";
                 int numType = 10;
                 int numDecimals = 0;

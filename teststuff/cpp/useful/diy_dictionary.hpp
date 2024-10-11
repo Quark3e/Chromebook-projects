@@ -836,7 +836,10 @@ namespace DIY {
     int typed_dict<_key_type, _store_type>::insert(size_t pos, _key_type key, _store_type value) {
         if(check_existence<_key_type>(key, this->_keys)!=-1) this->_call_error(1, "::insert(size_t, _key_type, _store_type)");
         this->_keys.insert(this->_keys.begin()+pos, key);
-        this->_values.insert(this->_values.begin()+pos, value);
+        auto itr = _values.begin();
+        std::advance(itr, pos);
+        this->_values.insert(itr, value);
+        // itr = _look
         this->_lookup.insert(this->_lookup.begin()+pos, &_getItr(pos));
         this->_values_modified = true;
         return 0;
@@ -871,10 +874,12 @@ namespace DIY {
 
 
         this->_keys.insert(this->_keys.begin()+pos, keys.begin(), keys.end());
-        this->_values.insert(this->_values.begin()+pos, values.begin(), values.end());
+        auto itr = _values.begin();
+        std::advance(itr, pos);
+        this->_values.insert(itr, values.begin(), values.end());
 
         std::vector<_store_type*> tmpPtr(values.size(), nullptr);
-        auto itr = _values.begin();
+        itr = _values.begin();
         advance(itr, pos);
         for(size_t i=0; i<values.size(); i++) {
             tmpPtr[i] = &*itr;
@@ -902,8 +907,8 @@ namespace DIY {
         int pos = check_existence<_key_type>(key, this->_keys);
         if(pos<0) this->_call_error(0, "::rename(_key_type, _key_type)");
         int pos2= check_existence<_key_type>(new_key, this->_keys);
-        if(pos!=-1) this->_call_error(0, "::rename(_key_type, _key_type)", "second parameter argument for `new_key` already exists in dictionary keys");
-        this->_keys.at(0) = new_key;
+        if(pos2!=-1) this->_call_error(0, "::rename(_key_type, _key_type)", "second parameter argument for `new_key` \""+new_key+"\" already exists in dictionary keys");
+        this->_keys.at(pos) = new_key;
         return 0;
     }
 
@@ -913,7 +918,9 @@ namespace DIY {
         if(pos<0) this->_call_error(0, "::erase(_key_type)");
         
         this->_keys.erase(this->_keys.begin()+pos);
-        this->_values.erase(this->_values.begin()+pos);
+        auto itr = _values.begin();
+        std::advance(itr, pos);
+        this->_values.erase(itr);
         this->_lookup.erase(this->_lookup.begin()+pos);
         this->_values_modified = true;
         return 0;
@@ -927,7 +934,9 @@ namespace DIY {
         else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
 
         this->_keys.erase(this->_keys.begin()+idx);
-        this->_values.erase(this->_values.begin()+idx);
+        auto itr = _values.begin();
+        std::advance(itr, idx);
+        this->_values.erase(itr);
         this->_lookup.erase(this->_lookup.begin()+idx);
         this->_values_modified = true;
         return 0;

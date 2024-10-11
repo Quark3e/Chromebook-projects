@@ -1740,6 +1740,7 @@ int gNC::guiNodeChart::loadFile(
     DIY::typed_dict<std::string, gNC::gNODE*> _refrs;
     std::string _refr;
 
+
     for(JSON_P::jsonPair _pair : _json["projects"][0].get2()) {
         // if(_pair.key=="date") 
         if(_pair.key=="name")       this->project_name = _pair.get0();
@@ -1849,6 +1850,7 @@ int gNC::guiNodeChart::loadFile(
             }
         }
     }
+    std::cout << "finished loading." << std::endl;
 
     /*
         gNC::guiNodeChart _temp;
