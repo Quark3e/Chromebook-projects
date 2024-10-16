@@ -339,9 +339,10 @@ int __getPWD_stats(
 std::string gNC::_file__fileExplorer = "";
 int         gNC::_mode__fileExplorer = 0;
 int         gNC::_mode__fileExplorer_prev = 0;
+std::vector<std::string> gNC::_valid__extensions;
 
 void gNC::_menu__fileExplorer() {
-    static const std::string defaultDir = getFileCWD(true);
+    static const std::string defaultDir = "/home/berkhme/github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/saveFiles/"; //getFileCWD(true);
     static std::string currDir = defaultDir;
     
     static std::vector<dirent*>     _pwdCont;
@@ -353,6 +354,8 @@ void gNC::_menu__fileExplorer() {
 
     static bool win_open = true;
 
+
+    bool valid_selection = false;
 
     if(!_mode__fileExplorer) {
         _mode__fileExplorer_prev = _mode__fileExplorer;
@@ -366,7 +369,7 @@ void gNC::_menu__fileExplorer() {
         currDir     = defaultDir;
         selected    = -1;
         win_open    = true;
-
+        _file__fileExplorer = "";
         // init stuff
         // if(__getPWD_content(currDir, _pwdCont)) { //error occured
         // }
@@ -378,10 +381,18 @@ void gNC::_menu__fileExplorer() {
     }
     if(__getPWD_stats(currDir, _pwdCont, _pwdCont_stat)) { //error occured
     }
-    _mode__fileExplorer_prev = _mode__fileExplorer;
-    // std::string selectFile;
+    static std::vector<bool> table_selections(_pwdCont.size(), false);
+    static std::string enterBarFileStr = "";
+    static bool mode2_inpCorrect = false; //whether the input text in mode 2 is valid (to prevent it from disappearing)
 
-    std::vector<bool> table_selections(_pwdCont.size(), false);
+
+    if(!_mode__fileExplorer_prev) {
+        table_selections = std::vector<bool>(_pwdCont.size(), false);
+        enterBarFileStr = "";
+    }
+
+
+    _mode__fileExplorer_prev = _mode__fileExplorer;
 
     static ImGuiWindowFlags win_flags = 0;
     win_flags |= ImGuiWindowFlags_NoResize;
@@ -396,19 +407,14 @@ void gNC::_menu__fileExplorer() {
     static ImGuiTableFlags table_flags_headings = 0;
     static ImGuiTableFlags table_flags_contents = 0;
     table_flags_contents |=
-        // ImGuiTableFlags_BordersV |
-        // ImGuiTableFlags_BordersOuterH |
         ImGuiTableFlags_NoBordersInBody |
         ImGuiTableFlags_Reorderable |
         ImGuiTableFlags_Hideable |
         ImGuiTableFlags_Sortable |
-        // ImGuiTableFlags_Vertical
         ImGuiTableFlags_SortMulti |
         ImGuiTableFlags_SizingStretchProp |
         ImGuiTableFlags_ScrollY;
-    // table_flags |= ImGuiTableFlags_
 
-    // for(size_t i=0; i<_pwdCont.size(); i++) std::cout << " - " <<_pwdCont[i]->d_name << std::endl;
 
     if(ImGui::Begin("File Explorer", &win_open, win_flags)) {
         if(!_mode__fileExplorer_prev) {
@@ -427,28 +433,9 @@ void gNC::_menu__fileExplorer() {
 
             ImGui::EndChild();
         }
-        // ImGui::SetCursorPos(_pos__sub_fileExplorer_headings()[0]);
-        // if(ImGui::BeginChild("headings", _pos__sub_fileExplorer_headings(false)[2], child_flags)) {
-        //     if(ImGui::BeginTable("_headings", 4, table_flags_headings, _pos__sub_fileExplorer_headings(false)[2])) {
-        //         ImGui::TableSetupColumn("Name");
-        //         ImGui::TableSetupColumn("Size");
-        //         ImGui::TableSetupColumn("Type");
-        //         ImGui::TableSetupColumn("Date");
-        //         ImGui::EndTable();
-        //     }
-        //     ImGui::EndChild();
-        // }
         ImGui::SetCursorPos(_pos__sub_fileExplorer_contents()[0]);
         if(ImGui::BeginChild("contents", _pos__sub_fileExplorer_contents(false)[2], child_flags, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
 
-            // for(size_t i=0; i<_pwdCont.size(); i++) {
-            //     // std::string _temp(_pwdCont[i]->d_name);
-            //     ImGui::SetCursorPos(ImVec2(
-            //         padding__content_fileExplorer.x,
-            //         i*(ImGui::GetTextLineHeight()+10) + padding__content_fileExplorer.y
-            //     ));
-            //     ImGui::TextUnformatted(std::string(_pwdCont[i]->d_name).c_str());
-            // }
             ImGui::SetCursorPos(ImVec2(0, 0));
             if(ImGui::BeginTable("_currDir", 4, table_flags_contents, ImVec2(_pos__sub_fileExplorer_contents(false)[2].x-2, _pos__sub_fileExplorer_contents(false)[2].y-2))) {
                 
@@ -480,11 +467,9 @@ void gNC::_menu__fileExplorer() {
                         ImGuiSelectableFlags selectable_flags = ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap;
                         if(ImGui::Selectable(_pwdCont[i]->d_name, item_is_selected, selectable_flags, ImVec2(0, 0))) {
                             if(ImGui::GetIO().KeyCtrl) {
-                                std::cout << "marked"<<std::endl;
                                 table_selections[i] = !item_is_selected;
                             }
                             else {
-                                std::cout << "selected" << std::endl;
                                 for(size_t i=0; i<table_selections.size(); i++) table_selections[i] = false;
                                 table_selections[i] = true;
                             }
@@ -518,11 +503,33 @@ void gNC::_menu__fileExplorer() {
         if(ImGui::BeginChild("details_panel", _pos__sub_fileExplorer_detailsPanel(false)[2], child_flags)) {
             for(int i=0; i<table_selections.size(); i++) { if(table_selections[i]) { selected = i; break;} }
 
-            std::string enterBarFileStr = "";
-
             if(selected!=-1) {
+                std::string f_ext = "";
+                std::string selectName(_pwdCont[selected]->d_name); //std::string of the selected filename
+                size_t dotPos = selectName.find('.');
+
+                //check if file extension of the selected file is valid according to _valid__extensions
+                if(dotPos==std::string::npos) { //filename doesn't have an extension
+                    for(auto el : _valid__extensions) {
+                        if(el=="") {
+                            valid_selection = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    for(size_t i=dotPos+1; i<selectName.length(); i++) f_ext+=selectName[i];
+
+                    for(auto el : _valid__extensions) {
+                        if(el==f_ext) {
+                            valid_selection = true;
+                            break;
+                        }
+                    }
+                }
+
                 ImGui::SetCursorPos(padding__content_fileExplorer);
-                ImGui::TextUnformatted(_pwdCont[selected]->d_name);
+                ImGui::TextUnformatted(selectName.c_str());
                 
                 static std::string _strLabel_size   = formatNumber<std::string>("Size", 15, 0, "left");
                 static std::string _strLabel_path   = formatNumber<std::string>("Path", 15, 0, "left");
@@ -538,7 +545,7 @@ void gNC::_menu__fileExplorer() {
                 ImGui::SetCursorPosX(padding__content_fileExplorer.x);
                 ImGui::TextUnformatted((
                     _strLabel_path + ": " +
-                    currDir + _pwdCont[selected]->d_name
+                    currDir + selectName
                 ).c_str());
                 ImGui::SetCursorPosX(padding__content_fileExplorer.x);
                 ImGui::TextUnformatted((
@@ -551,28 +558,73 @@ void gNC::_menu__fileExplorer() {
                     ctime(&_pwdCont_stat[selected].st_mtime)
                 ).c_str());
 
-                enterBarFileStr = _pwdCont[selected]->d_name;
+                enterBarFileStr = selectName;
             }
-            ImVec2 _currPos(padding__content_fileExplorer.x, _pos__sub_fileExplorer_detailsPanel(false)[2].y - ImGui::GetTextLineHeightWithSpacing() - padding__content_fileExplorer.y);
+            ImVec2 _currPos(padding__content_fileExplorer.x, _pos__sub_fileExplorer_detailsPanel(true)[2].y - ImGui::GetTextLineHeightWithSpacing() - padding__content_fileExplorer.y);
             ImGui::SetCursorPos(_currPos);
             ImGui::SetNextItemWidth((_pos__sub_fileExplorer_detailsPanel(false)[2].x-padding__content_fileExplorer.x)*0.6);
-            if(ImGui::InputText("##fileInput", &enterBarFileStr, ImGuiInputTextFlags_EnterReturnsTrue)) {
+            if(ImGui::InputText("##fileInput", &enterBarFileStr, ImGuiInputTextFlags_EnterReturnsTrue)) { //sends true when enter is pressed
+
+                mode2_inpCorrect = false;
+                bool existingMatch = false;
                 for(int i=0; i<_pwdCont.size(); i++) {
-                    if(enterBarFileStr==std::string(_pwdCont[i]->d_name)) {
-                        for(int ii=0; ii<table_selections.size(); ii++) table_selections[ii] = (ii==i? true : false);
+                    if(enterBarFileStr==std::string(_pwdCont[i]->d_name)) { //set every table_selections to false except the one that is entered by InputText
+                        for(int ii=0; ii<table_selections.size(); ii++) { table_selections[ii] = (ii==i? true : false); }
+                        existingMatch = true;
+                        selected = i;
                         break;
+                    }
+                }
+
+                if(_mode__fileExplorer==2 && enterBarFileStr.size()>0) {
+                    std::string f_ext = "";
+                    size_t dotPos = enterBarFileStr.find('.');
+
+                    valid_selection = false;
+                    //check if file extension of the selected file is valid according to _valid__extensions
+                    if(dotPos==std::string::npos) { //filename doesn't have an extension
+                        for(auto el : _valid__extensions) {
+                            if(el=="") {
+                                valid_selection = true;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        for(size_t i=dotPos+1; i<enterBarFileStr.length(); i++) f_ext+=enterBarFileStr[i];
+
+                        for(auto el : _valid__extensions) {
+                            if(el==f_ext) {
+                                valid_selection = true;
+                                break;
+                            }
+                        }
+                    }
+                    if(valid_selection && !existingMatch) {
+                        selected = -1;
+                        for(int ii=0; ii<table_selections.size(); ii++) { table_selections[ii] = false; }
+                        mode2_inpCorrect = true;
+                    }
+                    else {
+
                     }
                 }
             }
             _currPos.x += padding__content_fileExplorer.x + (_pos__sub_fileExplorer_detailsPanel(false)[2].x-padding__content_fileExplorer.x)*0.6;
-            ImVec2 buttonSize(
-                (_pos__sub_fileExplorer_detailsPanel(false)[2].x - _currPos.x - padding__content_fileExplorer.x*2/*times two because spacing between buttons is padd[..]*/)*0.5,
-                0
-            );
+            ImVec2 buttonSize((_pos__sub_fileExplorer_detailsPanel(false)[2].x - _currPos.x - padding__content_fileExplorer.x*2/*times two because spacing between buttons is padd[..]*/)*0.5, 0);
             ImGui::SetCursorPos(_currPos);
+            
+            ImGui::BeginDisabled(
+                (_mode__fileExplorer==1 && !valid_selection) ||
+                (_mode__fileExplorer==2 && (!mode2_inpCorrect && !valid_selection))
+            );
             if(ImGui::Button((_mode__fileExplorer==1? "open" : "save"), buttonSize)) {
-
+                _file__fileExplorer = currDir + enterBarFileStr;
+                win_open = false;
             }
+            ImGui::EndDisabled();
+            
+            // ImGui::PopStyleVar();
             _currPos.x += buttonSize.x + padding__content_fileExplorer.x;
             ImGui::SetCursorPos(_currPos);
             if(ImGui::Button("Cancel", buttonSize)) {

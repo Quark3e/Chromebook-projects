@@ -219,7 +219,10 @@ int main(int argc, char** argv) {
             if(ImGui::BeginMenu("File")) {
                 if(ImGui::MenuItem("Open project")) {
 
-                    if(gNC::_mode__fileExplorer==0) gNC::_mode__fileExplorer = 1;
+                    if(gNC::_mode__fileExplorer==0) {
+                        gNC::_mode__fileExplorer = 1;
+                        gNC::_valid__extensions = std::vector<std::string>{"json"};
+                    }
 
                     
                     // nodePtr_menu__node_details  = nullptr;
@@ -233,7 +236,11 @@ int main(int argc, char** argv) {
                      * directly call the `gNC::guiNodeChart::saveToFile` member function
                      * 
                      */
-                    projects[_selected].saveToFile(programCWD+"saveFiles/_TEST_" + "" + "project 0.json", true);
+                    // projects[_selected].saveToFile(programCWD+"saveFiles/_TEST_" + "" + "project 0.json", true);
+                    if(gNC::_mode__fileExplorer==0) {
+                        gNC::_mode__fileExplorer = 2;
+                        gNC::_valid__extensions = std::vector<std::string>{"json"};
+                    }
                 }
                 ImGui::EndMenu();
             }
@@ -281,16 +288,9 @@ int main(int argc, char** argv) {
             gNC::nodePtr_menu__rightClick = nullptr;
             gNC::linkPtr_menu__rightClick = nullptr;
         }
-        // if(tabAddNew==2) {
-        //     projects.add(("project "+std::to_string(projects.size())).c_str(), gNC::guiNodeChart());
-        //     projects[-1].thisPtr = projects.getPtr_idx(-1);
-        //     _selected = projects.size()-1;
 
-        //     tabAddNew--;
-        // }
 
         gNC::_menu__fileExplorer();
-
         if(!gNC::_mode__fileExplorer && gNC::_file__fileExplorer.length()!=0) {
             if(gNC::_mode__fileExplorer_prev==1) { //open project/file
                 projects.add("_temp", gNC::guiNodeChart());
@@ -301,7 +301,7 @@ int main(int argc, char** argv) {
                 _selected = projects.size()-1;
             }
             if(gNC::_mode__fileExplorer_prev==2) { //save project/file
-
+                projects[_selected].saveToFile(gNC::_file__fileExplorer, true);
             }
         }
 

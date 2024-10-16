@@ -410,6 +410,7 @@ namespace gNC {
     extern std::string _file__fileExplorer;
     extern int         _mode__fileExplorer;        //`1`-open, `2`-save
     extern int         _mode__fileExplorer_prev;   //`1`-open, `2`-save
+    extern std::vector<std::string> _valid__extensions;
     void        _menu__fileExplorer();
 
     extern bool _winFocused__node_details;
