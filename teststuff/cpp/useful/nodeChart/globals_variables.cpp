@@ -37,7 +37,7 @@ std::vector<ImVec2>& _pos__sub_fileExplorer_addressBar(bool _update) {
         0
     );
     _retur[1] = ImVec2(
-        _retur[0].x + dim__win_fileExplorer().x*0.6,
+        _retur[0].x + ImGui::GetWindowSize().x*0.6,
         _retur[0].y + 100
     );
     _retur[2] = ImVec2(_retur[1].x-_retur[0].x, _retur[1].y-_retur[0].y);
@@ -52,7 +52,7 @@ std::vector<ImVec2>& _pos__sub_fileExplorer_searchBar(bool _update) {
         _pos__sub_fileExplorer_addressBar()[0].y
     );
     _retur[1] = ImVec2(
-        dim__win_fileExplorer().x,
+        ImGui::GetWindowSize().x,
         _pos__sub_fileExplorer_addressBar()[1].y
     );
     _retur[2] = ImVec2(_retur[1].x-_retur[0].x, _retur[1].y-_retur[0].y);
@@ -67,7 +67,7 @@ std::vector<ImVec2>& _pos__sub_fileExplorer_headings(bool _update) {
         _pos__sub_fileExplorer_addressBar()[1].y
     );
     _retur[1] = ImVec2(
-        dim__win_fileExplorer().x,
+        ImGui::GetWindowSize().x,
         _retur[0].y + 50
     );
     _retur[2] = ImVec2(_retur[1].x-_retur[0].x, _retur[1].y-_retur[0].y);
@@ -83,8 +83,8 @@ std::vector<ImVec2>& _pos__sub_fileExplorer_contents(bool _update) {
         // _pos__sub_fileExplorer_headings()[1].y
     );
     _retur[1] = ImVec2(
-        dim__win_fileExplorer().x,
-        dim__win_fileExplorer().y - 150
+        ImGui::GetWindowSize().x,
+        ImGui::GetWindowSize().y - 150
     );
     _retur[2] = ImVec2(_retur[1].x-_retur[0].x, _retur[1].y-_retur[0].y);
     return _retur;
@@ -98,8 +98,8 @@ std::vector<ImVec2>& _pos__sub_fileExplorer_detailsPanel(bool _update) {
         _pos__sub_fileExplorer_contents()[1].y
     );
     _retur[1] = ImVec2(
-        dim__win_fileExplorer().x,
-        dim__win_fileExplorer().y
+        ImGui::GetWindowSize().x,
+        ImGui::GetWindowSize().y
     );
     _retur[2] = ImVec2(_retur[1].x-_retur[0].x, _retur[1].y-_retur[0].y);
     return _retur;
@@ -111,7 +111,7 @@ std::vector<ImVec2>& _pos__sub_fileExplorer_navPanel(bool _update) {
     _retur[0] = ImVec2(0, 0);
     _retur[1] = ImVec2(
         _retur[0].x + 200,
-        dim__win_fileExplorer().y
+        ImGui::GetWindowSize().y
     );
     _retur[2] = ImVec2(_retur[1].x-_retur[0].x, _retur[1].y-_retur[0].y);
     return _retur;
