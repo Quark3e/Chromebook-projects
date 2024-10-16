@@ -77,8 +77,6 @@ int main(int argc, char** argv) {
     // projects[0].project_name = projects.key(0);
     projects.rename("project 0", ptrToStr<gNC::guiNodeChart*>(projects[0].thisPtr));
 
-    std::cout << projects[0].thisPtr << " " << &(projects[0])<< std::endl;
-
 
     int _selected = 0, _selected_prev = 0;
     int tabAddNew = 0;
@@ -221,11 +219,9 @@ int main(int argc, char** argv) {
             if(ImGui::BeginMenu("File")) {
                 if(ImGui::MenuItem("Open project")) {
 
-                    projects.add("_temp", gNC::guiNodeChart());
-                    projects[-1].thisPtr = projects.getPtr_idx(-1);
-                    projects.rename("_temp", ptrToStr<gNC::guiNodeChart*>(&(projects[-1])));
-                    projects[-1].loadFile(programCWD+"saveFiles/_TEST_"+""+ "project 0.json");
-                    _selected = projects.size()-1;
+                    if(gNC::_mode__fileExplorer==0) gNC::_mode__fileExplorer = 1;
+
+                    
                     // nodePtr_menu__node_details  = nullptr;
                     // linkPtr_menu__link_details  = nullptr;
                     // nodePtr_menu__rightClick    = nullptr;
@@ -292,6 +288,22 @@ int main(int argc, char** argv) {
 
         //     tabAddNew--;
         // }
+
+        gNC::_menu__fileExplorer();
+
+        if(!gNC::_mode__fileExplorer && gNC::_file__fileExplorer.length()!=0) {
+            if(gNC::_mode__fileExplorer_prev==1) { //open project/file
+                projects.add("_temp", gNC::guiNodeChart());
+                projects[-1].thisPtr = projects.getPtr_idx(-1);
+                projects.rename("_temp", ptrToStr<gNC::guiNodeChart*>(&(projects[-1])));
+                // projects[-1].loadFile(programCWD+"saveFiles/_TEST_"+""+ "project 0.json");
+                projects[-1].loadFile(gNC::_file__fileExplorer);
+                _selected = projects.size()-1;
+            }
+            if(gNC::_mode__fileExplorer_prev==2) { //save project/file
+
+            }
+        }
 
         ImGui::End();
         //--------------------

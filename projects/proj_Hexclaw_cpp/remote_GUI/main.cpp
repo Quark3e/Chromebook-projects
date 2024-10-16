@@ -167,6 +167,7 @@ int main(int argc, char** argv) {
         while((ent=readdir(dir))!=NULL) {
             // std::cout<<ent->d_type<<": ";
             std::cout<<ent->d_name<<"\n";
+            
         }
         closedir(dir);
     }

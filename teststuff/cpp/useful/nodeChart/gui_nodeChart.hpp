@@ -407,6 +407,11 @@ namespace gNC {
     void _menu__rightClick(gNC::guiNodeChart* _chart);
     void _menu__timeline(gNC::guiNodeChart* _chart);
 
+    extern std::string _file__fileExplorer;
+    extern int         _mode__fileExplorer;        //`1`-open, `2`-save
+    extern int         _mode__fileExplorer_prev;   //`1`-open, `2`-save
+    void        _menu__fileExplorer();
+
     extern bool _winFocused__node_details;
     extern bool _winFocused__link_details;
 }
