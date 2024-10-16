@@ -639,8 +639,10 @@ void gNC::_menu__fileExplorer() {
             ImGui::EndChild();
         }
 
+        std::cout << "{"<< ImGui::GetWindowSize().x<<", "<<ImGui::GetWindowSize().y <<"}, {" << dim__win_fileExplorer().x << ", "<<dim__win_fileExplorer().y << "}" << std::endl;
         ImGui::End();
     }
+
 
     // for(size_t i=0; i<_pwdCont.size(); i++) std::cout << " - " <<_pwdCont[i]->d_name << std::endl;
 
