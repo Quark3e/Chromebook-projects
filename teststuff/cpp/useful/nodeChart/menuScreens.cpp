@@ -639,7 +639,6 @@ void gNC::_menu__fileExplorer() {
             ImGui::EndChild();
         }
 
-        std::cout << "{"<< ImGui::GetWindowSize().x<<", "<<ImGui::GetWindowSize().y <<"}, {" << dim__win_fileExplorer().x << ", "<<dim__win_fileExplorer().y << "}" << std::endl;
         ImGui::End();
     }
 
