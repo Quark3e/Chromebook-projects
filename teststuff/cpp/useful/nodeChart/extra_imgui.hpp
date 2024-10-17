@@ -14,41 +14,38 @@
 #include <HC_useful/useful.hpp>
 
 
+
 inline bool IsLegacyNativeDupe(ImGuiKey key) {
     return key >= 0 && key < 512 && ImGui::GetIO().KeyMap[key] != -1;
 }
 
-/**
- * @brief update `pressed_keys` std::vector<std::vector<int>> container with the keys that has been pressed with `ImGuiKey`
- * 
- * @return std::vector<std::vector<int>*> of the local static container.
- */
-inline std::vector<std::vector<int>>* update_keys() {
-    static int maxSize_history_pressed_keys = 2;
-    static std::vector<std::vector<int>> pressed_keys;
-
-    static size_t num_keys_pressed = 0;
-    ImGuiKey start_key = (ImGuiKey)0;
-
-    if(pressed_keys.size()>=maxSize_history_pressed_keys ) {
-        // pressed_keys.clear();
-        for(size_t i=1; i<pressed_keys.size(); i++) {
-            pressed_keys[i-1] = pressed_keys[i];
-        }
-    }
-    else {
-        pressed_keys.push_back(std::vector<int>());
-    }
-    pressed_keys[pressed_keys.size()-1].clear();
-    for(ImGuiKey key=start_key; key<ImGuiKey_NamedKey_END; key=(ImGuiKey)(key+1)) {
-        if(IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) continue;
-        
-        pressed_keys[pressed_keys.size()-1].push_back(key);
-    }
-    num_keys_pressed = pressed_keys[pressed_keys.size()-1].size();
-
-    return &pressed_keys;
-}
+// /**
+//  * @brief update `pressed_keys` std::vector<std::vector<int>> container with the keys that has been pressed with `ImGuiKey`
+//  * 
+//  * @return std::vector<std::vector<int>*> of the local static container.
+//  */
+// inline std::vector<std::vector<int>>* update_keys() {
+//     static int maxSize_history_pressed_keys = 2;
+//     static std::vector<std::vector<int>> pressed_keys;
+//     static size_t num_keys_pressed = 0;
+//     ImGuiKey start_key = (ImGuiKey)0;
+//     if(pressed_keys.size()>=maxSize_history_pressed_keys ) {
+//         // pressed_keys.clear();
+//         for(size_t i=1; i<pressed_keys.size(); i++) {
+//             pressed_keys[i-1] = pressed_keys[i];
+//         }
+//     }
+//     else {
+//         pressed_keys.push_back(std::vector<int>());
+//     }
+//     pressed_keys[pressed_keys.size()-1].clear();
+//     for(ImGuiKey key=start_key; key<ImGuiKey_NamedKey_END; key=(ImGuiKey)(key+1)) {
+//         if(IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) continue;
+//         pressed_keys[pressed_keys.size()-1].push_back(key);
+//     }
+//     num_keys_pressed = pressed_keys[pressed_keys.size()-1].size();
+//     return &pressed_keys;
+// }
 
 inline std::vector<int>* update_mouse() {
     static std::vector<int> pressed_mouse;
@@ -59,6 +56,18 @@ inline std::vector<int>* update_mouse() {
     
     return &pressed_mouse;
 }
+
+
+struct pressed_key__struct {
+    int maxSize_history_pressed_keys = 10;
+    static std::vector<std::vector<int>> pressed;
+    // std::vector<
+    size_t num_keys_pressed = 0;
+
+    void update();
+};
+
+inline pressed_key__struct guiKeys;
 
 /**
  * @brief Check if a single key is pressed (includes mouse buttons). i.e check if container contains a certain value.

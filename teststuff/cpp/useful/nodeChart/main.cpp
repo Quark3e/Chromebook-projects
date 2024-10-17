@@ -84,8 +84,10 @@ int main(int argc, char** argv) {
     static int cnt = 0;
 
     while(running_main) {
-        static std::vector<std::vector<int>>* pressed_keys = update_keys();
-        update_keys();
+        static std::vector<std::vector<int>>* pressed_keys;
+        pressed_keys = &guiKeys.pressed;
+        guiKeys.update();
+        // update_keys();
 
         ALLEGRO_EVENT al_event;
         while (al_get_next_event(queue, &al_event)) {

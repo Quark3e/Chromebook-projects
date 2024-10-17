@@ -290,10 +290,11 @@ std::vector<std::string> __parsePath(std::string __path, char sep_symb) {
     assert(__path[0]==sep_symb);
     std::vector<std::string> _parsed;
     for(int i=0; i<__path.length(); i++) {
-        if(__path[i]==sep_symb && i!=__path.length()-1) {
+        if(__path[i]==sep_symb && i<__path.length()-1) {
             _parsed.push_back("");
             continue;
         }
+        else if(__path[i]==sep_symb) break;
         _parsed[_parsed.size()-1] += __path[i];
     }
     return _parsed;
@@ -344,6 +345,7 @@ std::vector<std::string> gNC::_valid__extensions;
 void gNC::_menu__fileExplorer() {
     static const std::string defaultDir = "/home/berkhme/github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/saveFiles/"; //getFileCWD(true);
     static std::string currDir = defaultDir;
+    static std::string dir_history;
     
     static std::vector<dirent*>     _pwdCont;
     static std::vector<struct stat> _pwdCont_stat;
@@ -354,6 +356,10 @@ void gNC::_menu__fileExplorer() {
 
     static bool win_open = true;
 
+    bool isInit = false;
+
+    static bool newDir  = true;
+    static std::string newDirStr = "";
 
     bool valid_selection = false;
 
@@ -362,6 +368,7 @@ void gNC::_menu__fileExplorer() {
         return;
     }
     if(!_mode__fileExplorer_prev) {
+        isInit = true;
         //This is the "first"/init iteration of the new fileExplorer call.
         //This is the init call
         scr_width   = dim__win_fileExplorer().x;
@@ -370,25 +377,33 @@ void gNC::_menu__fileExplorer() {
         selected    = -1;
         win_open    = true;
         _file__fileExplorer = "";
-        // init stuff
-        // if(__getPWD_content(currDir, _pwdCont)) { //error occured
-        // }
-        // if(__getPWD_stats(currDir, _pwdCont, _pwdCont_stat)) { //error occured
-        // }
-        // std::cout << "init called: ";
     }
     if(__getPWD_content(currDir, _pwdCont)) { //error occured
     }
     if(__getPWD_stats(currDir, _pwdCont, _pwdCont_stat)) { //error occured
     }
+
+    /**
+     * @brief container for the selected items/(files/folders) in current directory
+     * @note needs to be updated whenever directory is changed
+     */
     static std::vector<bool> table_selections(_pwdCont.size(), false);
+    /**
+     * @brief string that's stored/passed to inputtext fields for the selected files
+     * @note needs to be updated whenever directory is changed
+     */
     static std::string enterBarFileStr = "";
     static bool mode2_inpCorrect = false; //whether the input text in mode 2 is valid (to prevent it from disappearing)
 
+    static std::vector<std::string> _parsed_path = __parsePath(currDir);
 
-    if(!_mode__fileExplorer_prev) {
+    if(!_mode__fileExplorer_prev || newDir) {
         table_selections = std::vector<bool>(_pwdCont.size(), false);
         enterBarFileStr = "";
+        _parsed_path = __parsePath(currDir);
+
+        mode2_inpCorrect = false;
+        newDir = false;
     }
 
 
@@ -417,15 +432,38 @@ void gNC::_menu__fileExplorer() {
 
 
     if(ImGui::Begin("File Explorer", &win_open, win_flags)) {
-        if(!_mode__fileExplorer_prev) {
+        if(isInit) {
             //window init stuff
             ImGui::SetWindowSize(dim__win_fileExplorer());
-
         }
         ImGui::SetWindowFocus("File Explorer");
         ImGui::SetCursorPos(_pos__sub_fileExplorer_addressBar()[0]);
         if(ImGui::BeginChild("address_bar", _pos__sub_fileExplorer_addressBar(false)[2], child_flags)) {
-            
+            ImVec2 strPath_pos(padding__content_fileExplorer.x, _pos__sub_fileExplorer_addressBar(false)[2].y*0.5);
+            ImGui::SetCursorPos(strPath_pos);
+
+            ImGui::TextUnformatted("/");
+            strPath_pos.x += ImGui::GetFontSize()-5;
+            for(int i=0; i<_parsed_path.size(); i++) {
+                ImGui::PushID(i);
+                ImGui::SetCursorPos(strPath_pos);
+                ImGui::SetNextItemWidth(_parsed_path[i].length());
+                if(ImGui::Button(_parsed_path[i].c_str(), ImVec2(_parsed_path[i].length()*(ImGui::GetFontSize()-6)+7, 0))) {
+
+                    std::string _tempDir = "/";
+                    for(int ii=0; ii<=i; ii++) _tempDir += _parsed_path[ii] + "/"; 
+                    newDirStr = _tempDir;
+                    // std::cout << "newPath: \""<<newDirStr << "\""<<std::endl;
+                    newDir = true;
+                }
+                strPath_pos.x += _parsed_path[i].length()*(ImGui::GetFontSize()-6)+7;
+                ImGui::PopID();
+                ImGui::SetCursorPos(strPath_pos);
+                ImGui::TextUnformatted("/");
+                strPath_pos.x +=ImGui::GetFontSize()-5;
+            }
+            if(isInit) ImGui::SetScrollX(strPath_pos.x);
+
             ImGui::EndChild();
         }
         ImGui::SetCursorPos(_pos__sub_fileExplorer_searchBar()[0]);
@@ -642,6 +680,7 @@ void gNC::_menu__fileExplorer() {
         ImGui::End();
     }
 
+    if(newDir) currDir = newDirStr;
 
     // for(size_t i=0; i<_pwdCont.size(); i++) std::cout << " - " <<_pwdCont[i]->d_name << std::endl;
 

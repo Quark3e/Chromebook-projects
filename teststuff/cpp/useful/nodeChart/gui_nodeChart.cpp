@@ -3,6 +3,25 @@
 #include "globals_includes.hpp"
 
 
+std::vector<std::vector<int>> pressed_key__struct::pressed;
+void pressed_key__struct::update() {
+    ImGuiKey start_key = (ImGuiKey)0;
+    if(pressed.size()>=maxSize_history_pressed_keys) {
+        for(size_t i=1; i<pressed.size(); i++) {
+            pressed[i-1] = pressed[i];
+        }
+    }
+    else {
+        pressed.push_back(std::vector<int>());
+    }
+    pressed[pressed.size()-1].clear();
+    for(ImGuiKey key=start_key; key<ImGuiKey_NamedKey_END; key=(ImGuiKey)(key+1)) {
+        if(IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) continue;
+        pressed[pressed.size()-1].push_back(key);
+    }
+    num_keys_pressed = pressed[pressed.size()-1].size();
+}
+
 gNC::gNODE* gNC::nodePtr_menu__node_details = nullptr;
 gNC::gNODE* gNC::nodePtr_menu__rightClick   = nullptr;
 gNC::gNODE* gNC::nodePtr__dragConnectCreate_start = nullptr;
@@ -1323,7 +1342,7 @@ int gNC::guiNodeChart::draw() {
     static bool local_init = false;
     static std::vector<std::vector<int>>* pressed_keys;
 
-    if(!local_init) pressed_keys = update_keys();
+    if(!local_init) pressed_keys = &guiKeys.pressed;
 
 
     ImGuiIO& io = ImGui::GetIO(); //(void)io;
@@ -1358,8 +1377,9 @@ int gNC::guiNodeChart::draw() {
             ImVec2(screen_pos[0], screen_pos[1])
         )) {
             if(
-                isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-1]) &&
-                !isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-2])
+                isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-1]) && //current frame has leftclick pressed
+                !isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-2]) && //prev frame doesn't have leftclick pressed
+                !_mode__fileExplorer
                 // !_winFocused__node_details
             ) {
                 if(mouseAction_left==3 || mouseAction_left==-1) {
@@ -1375,7 +1395,7 @@ int gNC::guiNodeChart::draw() {
                 (*itr).draw__state = 1;
             }
 
-            if(isKeyPressed(656, &(*pressed_keys)[pressed_keys->size()-1])) {
+            if(isKeyPressed(656, &(*pressed_keys)[pressed_keys->size()-1]) && !_mode__fileExplorer) {
             // if(isKeyPressed(656, pressed_keys, -1)) {
                 if(mouseAction_right==3 || mouseAction_right==-1) {
                     mouseAction_right = 3;
@@ -1407,7 +1427,7 @@ int gNC::guiNodeChart::draw() {
         int node_connect = _draw_NODEcheckConnects(itr, nodePos);
 
 
-        if(isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-1])) {
+        if(isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-1]) && !_mode__fileExplorer) {
             if(node_connect==-1) {
                 if(inRegion(io.MousePos, nodePos, ImVec2(nodePos.x+(*itr).width, nodePos.y+(*itr).height))) { //region: Node
                     if(mouseAction_left==1 || mouseAction_left==-1) {
@@ -1496,7 +1516,7 @@ int gNC::guiNodeChart::draw() {
 
         }
 
-        if(isKeyPressed(656, &(*pressed_keys)[pressed_keys->size()-1])) {
+        if(isKeyPressed(656, &(*pressed_keys)[pressed_keys->size()-1]) && !_mode__fileExplorer) {
             if(node_connect==-1) {
                 if(inRegion(io.MousePos, nodePos, ImVec2(nodePos.x+(*itr).width, nodePos.y+(*itr).height))) {
                     if(mouseAction_right==1 || mouseAction_right==-1) {
@@ -1562,7 +1582,7 @@ int gNC::guiNodeChart::draw() {
         if(!link_focused) linkPtr_menu__link_details = nullptr;
     }
 
-    if((mouseAction_left==0 || mouseAction_left==-1) && isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-1])) {
+    if((mouseAction_left==0 || mouseAction_left==-1) && isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-1]) && !_mode__fileExplorer) {
         lockMove_screen = false;
         mouseAction_left = 0;
         decay_mouseClick_left = 100;
@@ -1596,7 +1616,7 @@ int gNC::guiNodeChart::draw() {
         }
     }
 
-    if(isKeyPressed(656, &(*pressed_keys)[pressed_keys->size()-1])) {
+    if(isKeyPressed(656, &(*pressed_keys)[pressed_keys->size()-1]) && !_mode__fileExplorer) {
 
         switch (mouseAction_right) {
             case -1:
