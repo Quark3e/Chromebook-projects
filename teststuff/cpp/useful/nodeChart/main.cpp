@@ -256,7 +256,7 @@ int main(int argc, char** argv) {
         if(ImGui::BeginTabBar("Tabs", ImGuiTabBarFlags_AutoSelectNewTabs)) {
             for(size_t i=0; i<projects.size(); i++) {
                 bool open = true;
-                if(ImGui::BeginTabItem(("project "+std::to_string(i)).c_str(), &open)) {
+                if(ImGui::BeginTabItem(("project "+std::to_string(i)).c_str(), &open, ImGuiTabItemFlags_UnsavedDocument)) {
                     _selected_prev = _selected;
                     _selected = i;
                     ImGui::EndTabItem();
