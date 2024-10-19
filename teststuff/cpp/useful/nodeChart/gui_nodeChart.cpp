@@ -4,22 +4,58 @@
 
 
 std::vector<std::vector<int>> pressed_key__struct::pressed;
+std::vector<std::chrono::_V2::steady_clock::time_point> pressed_key__struct::timePoints;
+
 void pressed_key__struct::update() {
     ImGuiKey start_key = (ImGuiKey)0;
+    auto timeNow = std::chrono::steady_clock::now();
     if(pressed.size()>=maxSize_history_pressed_keys) {
         for(size_t i=1; i<pressed.size(); i++) {
-            pressed[i-1] = pressed[i];
+            pressed[i-1]    = pressed[i];
+            timePoints[i-1] = timePoints[i];
         }
+        timePoints[timePoints.size()-1] = timeNow;
     }
     else {
         pressed.push_back(std::vector<int>());
+        timePoints.push_back(timeNow);
     }
     pressed[pressed.size()-1].clear();
+    
     for(ImGuiKey key=start_key; key<ImGuiKey_NamedKey_END; key=(ImGuiKey)(key+1)) {
         if(IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) continue;
         pressed[pressed.size()-1].push_back(key);
     }
     num_keys_pressed = pressed[pressed.size()-1].size();
+}
+
+float pressed_key__struct::keyPeriod(int keyID, bool mustAlone, int blankFrame, float msLim) {
+    if(pressed.size()==0) return -1;
+    float period = -1;
+
+    std::chrono::_V2::steady_clock::time_point _t1, _t2;
+
+    int found1 = -1;
+    int found2 = -1;
+    for(int i=pressed.size()-1; i>=0; i--) {
+        for(auto _key : pressed[i]) {
+            if(_key==keyID && (!mustAlone || (mustAlone && pressed[i].size()==1))) {
+                if(found1 != -1 && abs(i-found1) > blankFrame) {
+                    found2 = i;
+                    _t2 = timePoints[i];
+                }
+                else {
+                    found1 = i;
+                    _t1 = timePoints[i];
+                }
+            }
+        }
+        if(found2>-1) {
+            period = std::chrono::duration_cast<std::chrono::milliseconds>(_t1-_t2).count();
+            return (period<=msLim? period : -1);
+        }
+    }
+    return period;
 }
 
 gNC::gNODE* gNC::nodePtr_menu__node_details = nullptr;

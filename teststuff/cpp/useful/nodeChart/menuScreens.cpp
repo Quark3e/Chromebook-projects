@@ -436,7 +436,10 @@ void gNC::_menu__fileExplorer() {
             //window init stuff
             ImGui::SetWindowSize(dim__win_fileExplorer());
         }
-        ImGui::SetWindowFocus("File Explorer");
+        if(!ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
+            ImGui::SetWindowFocus("File Explorer");
+        }
+
         ImGui::SetCursorPos(_pos__sub_fileExplorer_addressBar()[0]);
         if(ImGui::BeginChild("address_bar", _pos__sub_fileExplorer_addressBar(false)[2], child_flags)) {
             ImVec2 strPath_pos(padding__content_fileExplorer.x, _pos__sub_fileExplorer_addressBar(false)[2].y*0.5);
@@ -449,11 +452,9 @@ void gNC::_menu__fileExplorer() {
                 ImGui::SetCursorPos(strPath_pos);
                 ImGui::SetNextItemWidth(_parsed_path[i].length());
                 if(ImGui::Button(_parsed_path[i].c_str(), ImVec2(_parsed_path[i].length()*(ImGui::GetFontSize()-6)+7, 0))) {
-
                     std::string _tempDir = "/";
                     for(int ii=0; ii<=i; ii++) _tempDir += _parsed_path[ii] + "/"; 
                     newDirStr = _tempDir;
-                    // std::cout << "newPath: \""<<newDirStr << "\""<<std::endl;
                     newDir = true;
                 }
                 strPath_pos.x += _parsed_path[i].length()*(ImGui::GetFontSize()-6)+7;
@@ -473,8 +474,10 @@ void gNC::_menu__fileExplorer() {
         }
         ImGui::SetCursorPos(_pos__sub_fileExplorer_contents()[0]);
         if(ImGui::BeginChild("contents", _pos__sub_fileExplorer_contents(false)[2], child_flags, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
-
+            // ImGui::SetWindowFocus("contents");
+            if(isInit) ImGui::SetKeyboardFocusHere();
             ImGui::SetCursorPos(ImVec2(0, 0));
+            
             if(ImGui::BeginTable("_currDir", 4, table_flags_contents, ImVec2(_pos__sub_fileExplorer_contents(false)[2].x-2, _pos__sub_fileExplorer_contents(false)[2].y-2))) {
                 
                 ImGui::SetCursorPosX(padding__content_fileExplorer.x);
@@ -508,8 +511,32 @@ void gNC::_menu__fileExplorer() {
                                 table_selections[i] = !item_is_selected;
                             }
                             else {
-                                for(size_t i=0; i<table_selections.size(); i++) table_selections[i] = false;
+                                for(size_t ii=0; ii<table_selections.size(); ii++) table_selections[ii] = false;
                                 table_selections[i] = true;
+                            }
+                            if(guiKeys.keyPeriod(655)>0) { //check if a file/folder has been double-clicked
+                                switch (_pwdCont[i]->d_type) {
+                                    case DT_REG:
+                                        if(validExtension(_pwdCont[i]->d_name, _valid__extensions)) {
+                                            _file__fileExplorer = currDir + std::string(_pwdCont[i]->d_name);
+                                            win_open = false;
+                                        }
+                                        break;
+                                    case DT_DIR:
+                                        if(std::string(_pwdCont[i]->d_name)==".") {}
+                                        else if(std::string(_pwdCont[i]->d_name)=="..") {
+                                            std::string _tempDir = "/";
+                                            for(int ii=0; ii<_parsed_path.size()-1; ii++) _tempDir += _parsed_path[ii] + "/";
+                                            newDirStr = _tempDir;
+                                            newDir = true;
+                                        }
+                                        else {
+                                            newDirStr = currDir + std::string(_pwdCont[i]->d_name) + "/";
+                                            newDir = true;
+                                        }
+
+                                        break;
+                                }
                             }
                         }
                     }
@@ -542,32 +569,10 @@ void gNC::_menu__fileExplorer() {
             for(int i=0; i<table_selections.size(); i++) { if(table_selections[i]) { selected = i; break;} }
 
             if(selected!=-1) {
-                std::string f_ext = "";
-                std::string selectName(_pwdCont[selected]->d_name); //std::string of the selected filename
-                size_t dotPos = selectName.find('.');
-
-                //check if file extension of the selected file is valid according to _valid__extensions
-                if(dotPos==std::string::npos) { //filename doesn't have an extension
-                    for(auto el : _valid__extensions) {
-                        if(el=="") {
-                            valid_selection = true;
-                            break;
-                        }
-                    }
-                }
-                else {
-                    for(size_t i=dotPos+1; i<selectName.length(); i++) f_ext+=selectName[i];
-
-                    for(auto el : _valid__extensions) {
-                        if(el==f_ext) {
-                            valid_selection = true;
-                            break;
-                        }
-                    }
-                }
+                valid_selection = validExtension(_pwdCont[selected]->d_name, _valid__extensions);
 
                 ImGui::SetCursorPos(padding__content_fileExplorer);
-                ImGui::TextUnformatted(selectName.c_str());
+                ImGui::TextUnformatted(std::string(_pwdCont[selected]->d_name).c_str());
                 
                 static std::string _strLabel_size   = formatNumber<std::string>("Size", 15, 0, "left");
                 static std::string _strLabel_path   = formatNumber<std::string>("Path", 15, 0, "left");
@@ -583,7 +588,7 @@ void gNC::_menu__fileExplorer() {
                 ImGui::SetCursorPosX(padding__content_fileExplorer.x);
                 ImGui::TextUnformatted((
                     _strLabel_path + ": " +
-                    currDir + selectName
+                    currDir + std::string(_pwdCont[selected]->d_name)
                 ).c_str());
                 ImGui::SetCursorPosX(padding__content_fileExplorer.x);
                 ImGui::TextUnformatted((
@@ -596,7 +601,32 @@ void gNC::_menu__fileExplorer() {
                     ctime(&_pwdCont_stat[selected].st_mtime)
                 ).c_str());
 
-                enterBarFileStr = selectName;
+                enterBarFileStr = _pwdCont[selected]->d_name;
+                if(areKeysPressed(std::vector<int>{662, 525}, &(guiKeys.pressed)) && !areKeysPressed(std::vector<int>{662, 525}, &(guiKeys.pressed), -2)) { //check if `mod-ctrl`+`enter` is pressed
+                // if(isKeyPressed(525, &(guiKeys.pressed)) && !isKeyPressed(525, &(guiKeys.pressed), -2)) {
+                    switch (_pwdCont[selected]->d_type) {
+                        case DT_REG:
+                            if(valid_selection) {
+                                _file__fileExplorer = currDir + std::string(_pwdCont[selected]->d_name);
+                                win_open = false;
+                            }
+                            break;
+                        case DT_DIR:
+                            if(std::string(_pwdCont[selected]->d_name)==".") {}
+                            else if(std::string(_pwdCont[selected]->d_name)=="..") {
+                                std::string _tempDir = "/";
+                                for(int i=0; i<_parsed_path.size()-1; i++) _tempDir += _parsed_path[i] + "/";
+                                newDirStr = _tempDir;
+                                newDir = true;
+                            }
+                            else {
+                                newDirStr = currDir + std::string(_pwdCont[selected]->d_name) + "/";
+                                newDir = true;
+                            }
+
+                            break;
+                    }
+                }
             }
             ImVec2 _currPos(padding__content_fileExplorer.x, _pos__sub_fileExplorer_detailsPanel(true)[2].y - ImGui::GetTextLineHeightWithSpacing() - padding__content_fileExplorer.y);
             ImGui::SetCursorPos(_currPos);
@@ -615,29 +645,8 @@ void gNC::_menu__fileExplorer() {
                 }
 
                 if(_mode__fileExplorer==2 && enterBarFileStr.size()>0) {
-                    std::string f_ext = "";
-                    size_t dotPos = enterBarFileStr.find('.');
+                    valid_selection = validExtension(enterBarFileStr, _valid__extensions);
 
-                    valid_selection = false;
-                    //check if file extension of the selected file is valid according to _valid__extensions
-                    if(dotPos==std::string::npos) { //filename doesn't have an extension
-                        for(auto el : _valid__extensions) {
-                            if(el=="") {
-                                valid_selection = true;
-                                break;
-                            }
-                        }
-                    }
-                    else {
-                        for(size_t i=dotPos+1; i<enterBarFileStr.length(); i++) f_ext+=enterBarFileStr[i];
-
-                        for(auto el : _valid__extensions) {
-                            if(el==f_ext) {
-                                valid_selection = true;
-                                break;
-                            }
-                        }
-                    }
                     if(valid_selection && !existingMatch) {
                         selected = -1;
                         for(int ii=0; ii<table_selections.size(); ii++) { table_selections[ii] = false; }

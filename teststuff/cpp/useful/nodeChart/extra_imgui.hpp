@@ -59,15 +59,25 @@ inline std::vector<int>* update_mouse() {
 
 
 struct pressed_key__struct {
-    int maxSize_history_pressed_keys = 10;
+    int maxSize_history_pressed_keys = 20;
     static std::vector<std::vector<int>> pressed;
-    // std::vector<
+    static std::vector<std::chrono::_V2::steady_clock::time_point> timePoints;
     size_t num_keys_pressed = 0;
 
-    void update();
+    void    update();
+    /**
+     * @brief Get the time period between two presses (in pressed keys history) for a given key
+     * 
+     * @param keyID the id/integer-id of the key to find the time "period" of
+     * @param mustAlone whether the key has to be pressed alone for it to be counted as a valid instance
+     * @param blankFrame how many frames/iterations in key history `pressed` must not contain the searched `keyID`
+     * @param msLim minimum millisecond limit for the period to return the value (recommended to 200ms for a double click)
+     * @return float milliseconds for the period
+     */
+    float   keyPeriod(int keyID, bool mustAlone=false, int blankFrame=1, float msLim=200);
 };
-
 inline pressed_key__struct guiKeys;
+
 
 /**
  * @brief Check if a single key is pressed (includes mouse buttons). i.e check if container contains a certain value.
@@ -85,16 +95,36 @@ inline bool isKeyPressed(int keyID, std::vector<int>* pressed_keys) {
         return true;
     return false;
 }
-
 inline bool isKeyPressed(int keyID, std::vector<std::vector<int>>* pressed_keys_history, int history_idx=-1) {
-    size_t _history_size = (*pressed_keys_history).size();
+    size_t _history_size = pressed_keys_history->size();
     assert(_history_size > 0);
     assert(history_idx < static_cast<int>(_history_size));
     assert(abs(history_idx) < _history_size);
 
     if(history_idx < 0) history_idx = static_cast<int>(_history_size) + history_idx;
 
-    return isKeyPressed(keyID, &pressed_keys_history[history_idx]);
+    return isKeyPressed(keyID, &(pressed_keys_history->operator[](history_idx)));
+}
+
+inline bool areKeysPressed(std::vector<int> keyIDs, std::vector<std::vector<int>>* pressed_keys_history, int history_idx=-1) {
+    size_t _history_size = pressed_keys_history->size();
+    assert(_history_size > 0);
+    assert(history_idx < static_cast<int>(_history_size));
+    assert(abs(history_idx) < _history_size);
+    assert(keyIDs.size()>0);
+
+    if(history_idx < 0) history_idx = static_cast<int>(_history_size) + history_idx;
+    std::vector<int>* keysVec = &(pressed_keys_history->operator[](history_idx));
+
+    if(keysVec->size() < keyIDs.size()) return false;
+
+    int matchCount = 0;
+
+    for(int _key : keyIDs) {
+        if(isKeyPressed(_key, keysVec)) matchCount++;
+    }
+
+    return (matchCount == static_cast<int>(keyIDs.size())? true : false);
 }
 
 /**
@@ -111,7 +141,6 @@ inline std::string ptrToStr(addrType toConv) {
     ss << address;
     return ss.str();
 }
-
 
 /**
  * @brief Check if the `cursor` position is inside region noted by the bounding box corners
@@ -134,7 +163,32 @@ inline bool inRegion(
     return false;
 }
 
+inline bool validExtension(
+    std::string checkStr,
+    std::vector<std::string> validExt
+) {
+    std::string f_ext = "";
+    size_t dotPos = checkStr.find('.');
 
+    //check if file extension of the selected file is valid according to _valid__extensions
+    if(dotPos==std::string::npos) { //filename doesn't have an extension
+        for(auto ext : validExt) {
+            if(ext=="") {
+                return true;
+            }
+        }
+    }
+    else {
+        for(size_t i=dotPos+1; i<checkStr.length(); i++) f_ext+=checkStr[i];
+
+        for(auto ext : validExt) {
+            if(ext==f_ext) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 template<typename _varType> inline int checkExistence(_varType toFind, std::initializer_list<_varType> toSearch) {
     int count=0;
