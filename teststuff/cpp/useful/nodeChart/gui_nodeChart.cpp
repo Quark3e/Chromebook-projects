@@ -70,6 +70,14 @@ int         gNC::option_dragConnectCreate_tempLink_snapIn = 0;
 int         gNC::dragConnectCreate_startedEnd;
 
 
+void gNC::reset_Ptr_menus() {
+    nodePtr_menu__node_details = nullptr;
+    linkPtr_menu__link_details = nullptr;
+    nodePtr_menu__rightClick = nullptr;
+    linkPtr_menu__rightClick = nullptr;
+}
+
+
 gNC::gNODE::gNODE(
     float par_posX, float par_posY,
     std::string par_label, std::string par_desc, std::string par_bodyText,
@@ -1718,7 +1726,7 @@ int gNC::guiNodeChart::saveToFile(
         std::runtime_error("ERROR: "+this->_info_name+"::saveToFile(std::string, bool): could not open file \""+filename+"\"");
     }
     else {
-        std::cout << "Opened file to: save: \""<<filename<<"\""<<std::endl;
+        // std::cout << "Opened file to: save: \""<<filename<<"\""<<std::endl;
     }
 
     int ind = 0;
@@ -1933,7 +1941,7 @@ int gNC::guiNodeChart::loadFile(
             }
         }
     }
-    std::cout << "finished loading." << std::endl;
+    // std::cout << "finished loading." << std::endl;
 
     /*
         gNC::guiNodeChart _temp;

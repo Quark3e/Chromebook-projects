@@ -22,6 +22,7 @@ bool opt__enable_grid = true;
 int main(int argc, char** argv) {
 
     programCWD = getFileCWD(true);
+    std::string default_proj_file = "/home/berkhme/github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/saveFiles/default_chart.json";
 
 
     al_init();
@@ -76,13 +77,14 @@ int main(int argc, char** argv) {
     projects[0].chart.thisPtr = &(projects[0].chart);
     // projects[0].chart.project_name = projects.key(0);
     projects.rename("project 0", ptrToStr<gNC::guiNodeChart*>(projects[0].chart.thisPtr));
-
+    projects[0].chart.loadFile(default_proj_file, false);
+    projects[0].fileLinked = true;
+    projects[0].filename = default_proj_file;
 
     int _selected = 0, _selected_prev = 0;
     int tabAddNew = 0;
 
     static int cnt = 0;
-
 
     bool setting_autosave = true;
     int setting_autosave_iterCount = 0;
@@ -164,34 +166,31 @@ int main(int argc, char** argv) {
             }
 
 
-            if(cnt==0) {
-                projects[_selected].chart.NODE_create(100, 100, "node0", "desc0", "body0");
-                projects[_selected].chart.NODE_create(400, 200, "node1", "desc1", "body1");
-                projects[_selected].chart.NODE_create(600, 500, "node2", "desc2", "body2");
-                projects[_selected].chart.NODE_create(900, 300, "node3", "desc3", "body3");
-                projects[_selected].chart.NODE_create(100, 300, "node4", "desc4", "body4");
-                projects[_selected].chart.NODE_create(100, 600, "node5", "desc5", "body5");
+            // if(cnt==0) {
+            //     projects[_selected].chart.NODE_create(100, 100, "node0", "desc0", "body0");
+            //     projects[_selected].chart.NODE_create(400, 200, "node1", "desc1", "body1");
+            //     projects[_selected].chart.NODE_create(600, 500, "node2", "desc2", "body2");
+            //     projects[_selected].chart.NODE_create(900, 300, "node3", "desc3", "body3");
+            //     projects[_selected].chart.NODE_create(100, 300, "node4", "desc4", "body4");
+            //     projects[_selected].chart.NODE_create(100, 600, "node5", "desc5", "body5");
+            //     projects[_selected].chart[1].bodyText = std::string("")+
+            //         "What is Lorem Ipsum? "+
+            //         "Lorem Ipsum is simply dummy text of the printing and typesetting industry. "+
+            //         "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, \n"+
+            //         "when an unknown printer took a galley of type and scrambled it to make a type specimen book. \n"+
+            //         "It has survived not only five centuries, but also the leap into electronic typesetting, \n"+
+            //         "remaining essentially unchanged. \n"+
+            //         "It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, \n"+
+            //         "and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\n";
 
-                projects[_selected].chart[1].bodyText = std::string("")+
-                    "What is Lorem Ipsum? "+
-                    "Lorem Ipsum is simply dummy text of the printing and typesetting industry. "+
-                    "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, \n"+
-                    "when an unknown printer took a galley of type and scrambled it to make a type specimen book. \n"+
-                    "It has survived not only five centuries, but also the leap into electronic typesetting, \n"+
-                    "remaining essentially unchanged. \n"+
-                    "It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, \n"+
-                    "and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\n";
-
-                projects[_selected].chart.LINK_create(0, 1, 1, 0, "link: 0->1", "a link that goes out from node0 in to node 1");
-                // projects[_selected].chart.LINK_create(&proj0[0], &proj0[2], 1, 0, "link0");
-                projects[_selected].chart.LINK_create(4, 1, 1, 0, "link: 4->1", "a link that goes out from node0 in to node 1");
-                projects[_selected].chart.LINK_create(5, 1, 1, 0, "link: 5->2", "a link that goes out from node0 in to node 1");
-                projects[_selected].chart.LINK_create(1, 2, 1, 2, "link: 1->2", "a link that goes out from node1 added to node 2");
-                projects[_selected].chart.LINK_create(1, 3, 1, 0, "link: 1->3", "a link that goes out from node1 in to node3");
-
-                // projects[_selected].chart.NODE_delete(&proj0[1], true);
-
-            }
+            //     projects[_selected].chart.LINK_create(0, 1, 1, 0, "link: 0->1", "a link that goes out from node0 in to node 1");
+            //     // projects[_selected].chart.LINK_create(&proj0[0], &proj0[2], 1, 0, "link0");
+            //     projects[_selected].chart.LINK_create(4, 1, 1, 0, "link: 4->1", "a link that goes out from node0 in to node 1");
+            //     projects[_selected].chart.LINK_create(5, 1, 1, 0, "link: 5->2", "a link that goes out from node0 in to node 1");
+            //     projects[_selected].chart.LINK_create(1, 2, 1, 2, "link: 1->2", "a link that goes out from node1 added to node 2");
+            //     projects[_selected].chart.LINK_create(1, 3, 1, 0, "link: 1->3", "a link that goes out from node1 in to node3");
+            //     // projects[_selected].chart.NODE_delete(&proj0[1], true);
+            // }
             style.WindowRounding = 15.0f;
             projects[_selected].chart.draw();
 
@@ -284,6 +283,7 @@ int main(int argc, char** argv) {
                         projects[_selected].chart.thisPtr = &(projects[_selected].chart);
                         projects.rename(projects.key(_selected), ptrToStr<gNC::guiNodeChart*>(&(projects[_selected].chart)));
                     }
+                    gNC::reset_Ptr_menus();
                 }
                 ImGui::EndMenu();
             }

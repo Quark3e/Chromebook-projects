@@ -382,6 +382,8 @@ namespace gNC {
     };
 
 
+    void reset_Ptr_menus();
+
     /**
      * "Static"/"Global" value/address for displaying menu: node_details
      *  - `nullptr`: dont display node details menu
