@@ -1703,7 +1703,12 @@ int gNC::guiNodeChart::saveToFile(
     bool overwrite
 ) {
 
-
+    time_t tempTime;
+    static auto getDateLambda = [](tm* param_date) {
+        time_t tempTime;
+        std::string _tempStr(ctime(&(tempTime = mktime(param_date))));
+        return _tempStr.substr(0, _tempStr.find('\n'));
+    };
     std::fstream _file;
     std::ios_base::openmode fileMode = std::fstream::out;
     if(!overwrite) fileMode |= std::fstream::app;
@@ -1734,7 +1739,7 @@ int gNC::guiNodeChart::saveToFile(
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"label\"" , 12, 0, "left") << ": \"" << (*itr).label   << "\",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"desc\""  , 12, 0, "left") << ": \"" << (*itr).desc    << "\",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"bodyText\"", 12, 0, "left")<< ": \""<< "(*itr).bodyText"<< "\",\n";
-        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"date\""  , 12, 0, "left") << ": \"" << dateToStr((*itr).date) << "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"date\""  , 12, 0, "left") << ": \"" << getDateLambda(&((*itr).date)) << "\",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"init\""  , 12, 0, "left") << ": "   << ((*itr).init? "true" : "false") << ",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"layout\"", 12, 0, "left") << ": "   << (*itr).layout  << ",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"width\"" , 12, 0, "left") << ": "   << (*itr).width   << ",\n";
@@ -1769,7 +1774,7 @@ int gNC::guiNodeChart::saveToFile(
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"label\""       , 22, 0, "left") << ": \""  << (*itr).label         << "\",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"desc\""        , 22, 0, "left") << ": \""  << (*itr).desc          << "\",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"bodyText\""    , 22, 0, "left") << ": \""  << (*itr).bodyText      << "\",\n";
-        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"date\""        , 22, 0, "left") << ": \""  << dateToStr((*itr).date) << "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"date\""        , 22, 0, "left") << ": \""  << getDateLambda(&((*itr).date)) /*dateToStr((*itr).date)*/ << "\",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"type_src\""    , 22, 0, "left") << ": "    << (*itr).type_src      << ",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"type_dest\""   , 22, 0, "left") << ": "    << (*itr).type_dest     << ",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"src\""         , 22, 0, "left") << ": \""  << (*itr).src           << "\",\n";

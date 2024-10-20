@@ -308,15 +308,6 @@ int main(int argc, char** argv) {
                     if(_selected_prev>=i) _selected_prev--;
                 }
             }
-            // if(ImGui::BeginTabItem("+")) { //create new empty project
-            //     // projects.add(("project "+std::to_string(projects.size())).c_str(), gNC::guiNodeChart());
-            //     // projects[-1.chart].thisPtr = projects.getPtr_idx(-1);
-            //     // _selected = projects.size()-1;
-            //     // tabAddNew = true;
-            //     if(tabAddNew==0) tabAddNew = 3;
-            //     tabAddNew--;
-            //     ImGui::EndTabItem();
-            // }
             if(ImGui::TabItemButton("+", ImGuiTabItemFlags_Trailing)) {
                 projects.add("_temp", nc_proj{"", false, gNC::guiNodeChart()});
                 projects[-1].chart.thisPtr = &(projects[-1].chart);
