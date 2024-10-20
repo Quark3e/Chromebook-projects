@@ -843,7 +843,7 @@ void gNC::guiNodeChart::update_connect(
 }
 
 
-gNC::guiNodeChart::guiNodeChart(/* args */) {
+gNC::guiNodeChart::guiNodeChart(/* args */): thisPtr(this) {
 
 }
 
@@ -920,7 +920,7 @@ gNC::gNODE& gNC::guiNodeChart::operator[](size_t i) const {
 }
 gNC::gNODE& gNC::guiNodeChart::last() {
     if(this->_nodes.size()==0) std::runtime_error("ERROR: "+_info_name+"last(): there doesn't exist any nodes in this nodechart");
-
+    this->modified = true;
     return _nodes.back();
 }
 
@@ -946,6 +946,7 @@ gNC::gNODE* gNC::guiNodeChart::NODE_create(
 
     this->_lastAddedNode = &(this->_nodes.back());
     this->_lastAddedNode->addr = ptrToStr<gNC::gNODE*>(this->_lastAddedNode);
+    this->_lastAddedNode->inChart = this;
 
     this->modified = true;
 
@@ -1182,6 +1183,7 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create(
     NODE_move(NODE_src,  0, 0, -1);
     NODE_move(NODE_dest, 0, 0, -1);
 
+    this->_lastAddedLink->inChart = this;
     this->modified = true;
 
     return this->_lastAddedLink;
@@ -1248,6 +1250,7 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create_loose(
     // ImVec2 pos_delta = ImVec2(_lastAddedLink->Pos_dest.x - _lastAddedLink->Pos_src.x, _lastAddedLink->Pos_dest.y - _lastAddedLink->Pos_src.y);
     // ImVec2 halfWayPoint = ImVec2(_lastAddedLink->Pos_src.x + pos_delta.x/2, _lastAddedLink->Pos_src.y + pos_delta.y/2);
 
+    this->_lastAddedLink->inChart = this;
     this->modified = true;
     return this->_lastAddedLink;
 }
@@ -1717,6 +1720,20 @@ int gNC::guiNodeChart::saveToFile(
         std::string _tempStr(ctime(&(tempTime = mktime(param_date))));
         return _tempStr.substr(0, _tempStr.find('\n'));
     };
+    static auto prepString = [](std::string str) {
+        std::string _out = "";
+        for(int i=0; i<str.length(); i++) {
+            switch (str[i]) {
+                case '\n': _out+="\\n";  break;
+                case '\t': _out+="\\t";  break;
+                case '\"': _out+="\\\""; break;
+                case '\r': _out+="\\r";  break;
+                case '\\': _out+="\\\\"; break;
+                default: _out+=str[i]; break;
+            }
+        }
+        return _out;
+    };
     std::fstream _file;
     std::ios_base::openmode fileMode = std::fstream::out;
     if(!overwrite) fileMode |= std::fstream::app;
@@ -1743,10 +1760,10 @@ int gNC::guiNodeChart::saveToFile(
         if(itr==_nodes.begin())  _file << std::string(ind*4, ' ');
         _file << "{\n"; ind++;
 
-        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"addr\""  , 12, 0, "left") << ": \"" << (*itr).addr    << "\",\n";
-        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"label\"" , 12, 0, "left") << ": \"" << (*itr).label   << "\",\n";
-        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"desc\""  , 12, 0, "left") << ": \"" << (*itr).desc    << "\",\n";
-        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"bodyText\"", 12, 0, "left")<< ": \""<< "(*itr).bodyText"<< "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"addr\""  , 12, 0, "left") << ": \"" << prepString((*itr).addr)     << "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"label\"" , 12, 0, "left") << ": \"" << prepString((*itr).label)    << "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"desc\""  , 12, 0, "left") << ": \"" << prepString((*itr).desc)     << "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"bodyText\"", 12, 0, "left")<< ": \""<< prepString((*itr).bodyText) << "\",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"date\""  , 12, 0, "left") << ": \"" << getDateLambda(&((*itr).date)) << "\",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"init\""  , 12, 0, "left") << ": "   << ((*itr).init? "true" : "false") << ",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"layout\"", 12, 0, "left") << ": "   << (*itr).layout  << ",\n";
@@ -1778,10 +1795,10 @@ int gNC::guiNodeChart::saveToFile(
         if(itr==_links.begin()) _file << std::string(ind*4, ' ');
         _file << "{\n"; ind++;
 
-        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"addr\""        , 22, 0, "left") << ": \""  << (*itr).addr          << "\",\n";
-        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"label\""       , 22, 0, "left") << ": \""  << (*itr).label         << "\",\n";
-        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"desc\""        , 22, 0, "left") << ": \""  << (*itr).desc          << "\",\n";
-        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"bodyText\""    , 22, 0, "left") << ": \""  << (*itr).bodyText      << "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"addr\""        , 22, 0, "left") << ": \""  << prepString((*itr).addr)<< "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"label\""       , 22, 0, "left") << ": \""  << prepString((*itr).label)<< "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"desc\""        , 22, 0, "left") << ": \""  << prepString((*itr).desc)<< "\",\n";
+        _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"bodyText\""    , 22, 0, "left") << ": \""  << prepString((*itr).bodyText)<< "\",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"date\""        , 22, 0, "left") << ": \""  << getDateLambda(&((*itr).date)) /*dateToStr((*itr).date)*/ << "\",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"type_src\""    , 22, 0, "left") << ": "    << (*itr).type_src      << ",\n";
         _file << std::string(ind*4, ' ') << formatNumber<std::string>("\"type_dest\""   , 22, 0, "left") << ": "    << (*itr).type_dest     << ",\n";
@@ -1899,13 +1916,15 @@ int gNC::guiNodeChart::loadFile(
                     }
                     if(_attr.key=="fillet_rad") { _tempN.fillet_radius = _attr.get10(); }
                 }
+                gNC::gNODE* _tempNode = this->NODE_create(
+                    _tempN.pos[0], _tempN.pos[1],
+                    _tempN.label, _tempN.desc, _tempN.bodyText,
+                    _tempN.width, _tempN.height
+                );
+                _tempNode->inChart = this;
                 _refrs.add(
                     _refr,
-                    this->NODE_create(
-                        _tempN.pos[0], _tempN.pos[1],
-                        _tempN.label, _tempN.desc, _tempN.bodyText,
-                        _tempN.width, _tempN.height
-                    )
+                    _tempNode
                 );
             }
         }
@@ -1937,7 +1956,7 @@ int gNC::guiNodeChart::loadFile(
                     _tempEnds.get("src"), _tempEnds.get("dest"),
                     _tempL.type_src, _tempL.type_dest,
                     _tempL.label, _tempL.desc, _tempL.bodyText
-                );
+                )->inChart = this;
             }
         }
     }

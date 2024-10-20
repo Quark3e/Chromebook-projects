@@ -56,18 +56,26 @@ void gNC::_menu__node_details(
         // }
 
         ImGui::PushItemWidth(dim__menu__detail.x - _win_widthOffset - 110);
-        ImGui::InputText("##_title", &(toDetail->label), inpText_flags_label);
+        if(ImGui::InputText("##_title", &(toDetail->label), inpText_flags_label | ImGuiInputTextFlags_EnterReturnsTrue)) {
+            toDetail->inChart->modified = true;
+        }
         
         ImGui::SameLine();
         ImGui::PushItemWidth(100);
-        ImGui::DateChooser(("##"+ptrToStr<gNC::gNODE*>(toDetail)+"_date").c_str(), toDetail->date);
+        if(ImGui::DateChooser(("##"+ptrToStr<gNC::gNODE*>(toDetail)+"_date").c_str(), toDetail->date)) {
+            toDetail->inChart->modified;
+        }
 
         ImGui::Separator();
         ImGui::PushItemWidth(dim__menu__detail.x-_win_widthOffset);
-        ImGui::InputText("##_desc", &(toDetail->desc), inpText_flags_desc);
+        if(ImGui::InputText("##_desc", &(toDetail->desc), inpText_flags_desc | ImGuiInputTextFlags_EnterReturnsTrue)) {
+            toDetail->inChart->modified = true;
+        }
         
         ImGui::Separator();
-        ImGui::InputTextMultiline("##_bodyText", &(toDetail->bodyText), ImVec2(dim__menu__detail.x-_win_widthOffset, ImGui::GetTextLineHeight()*5), inpText_flags_bodyT);
+        if(ImGui::InputTextMultiline("##_bodyText", &(toDetail->bodyText), ImVec2(dim__menu__detail.x-_win_widthOffset, ImGui::GetTextLineHeight()*5), inpText_flags_bodyT | ImGuiInputTextFlags_EnterReturnsTrue)) {
+            toDetail->inChart->modified = true;
+        }
 
 
         ImGui::BeginGroup();
@@ -161,19 +169,27 @@ void gNC::_menu__link_details(
         }
 
         ImGui::PushItemWidth(dim__menu__detail.x - _win_widthOffset - 110);
-        ImGui::InputText("##_title", &(toDetail->label), inpText_flags_label);
+        if(ImGui::InputText("##_title", &(toDetail->label), inpText_flags_label | ImGuiInputTextFlags_EnterReturnsTrue)) {
+            toDetail->inChart->modified = true;
+        }
 
         ImGui::SameLine();
         ImGui::PushItemWidth(100);
-        ImGui::DateChooser(("##"+ptrToStr<gNC::gLINK*>(toDetail)+"_date").c_str(), toDetail->date);
+        if(ImGui::DateChooser(("##"+ptrToStr<gNC::gLINK*>(toDetail)+"_date").c_str(), toDetail->date)) {
+            toDetail->inChart->modified = true;
+        }
 
 
         ImGui::Separator();
         ImGui::PushItemWidth(dim__menu__detail.x-_win_widthOffset);
-        ImGui::InputText("##_desc", &(toDetail->desc), inpText_flags_desc);
+        if(ImGui::InputText("##_desc", &(toDetail->desc), inpText_flags_desc | ImGuiInputTextFlags_EnterReturnsTrue)) {
+            toDetail->inChart->modified = true;
+        }
 
         ImGui::Separator();
-        ImGui::InputTextMultiline("##_bodyText", &(toDetail->bodyText), ImVec2(dim__menu__detail.x-_win_widthOffset, ImGui::GetTextLineHeight()*5), inpText_flags_bodyT);
+        if(ImGui::InputTextMultiline("##_bodyText", &(toDetail->bodyText), ImVec2(dim__menu__detail.x-_win_widthOffset, ImGui::GetTextLineHeight()*5), inpText_flags_bodyT | ImGuiInputTextFlags_EnterReturnsTrue)) {
+            toDetail->inChart->modified = true;
+        }
 
 
         ImGui::BeginGroup();

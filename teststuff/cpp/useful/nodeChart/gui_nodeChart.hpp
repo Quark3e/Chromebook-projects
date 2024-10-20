@@ -20,12 +20,14 @@ namespace gNC {
     static auto to_ImVec2 = [](pos2d toConv) { return ImVec2(toConv.x, toConv.y); };
     static auto to_pos2d  = [](ImVec2 toConv){ return pos2d(toConv.x, toConv.y); };
 
+    class guiNodeChart;
     struct gNODE;
     // struct gLINK;
 
     // static auto add_nodePos = [](ImVec2 addTo, gNC::gNODE* toAdd) { return ImVec2(addTo.x+toAdd->pos[0], addTo.y+toAdd->pos[1]); };
 
     struct gLINK {
+        guiNodeChart* inChart;
         bool _init = false;
         std::string addr    = ""; // `std::string` of this `gNC::gLINK` instance/object address
 
@@ -161,6 +163,7 @@ namespace gNC {
     };
 
     struct gNODE {
+        gNC::guiNodeChart* inChart;
         std::string addr    = ""; // `std::string` of this `gNC::gNODE` instance/object address
 
         std::string label   = ""; //[optional]
@@ -294,6 +297,7 @@ namespace gNC {
         std::string project_name = "";
 
         gNC::guiNodeChart* thisPtr = nullptr;
+        
         int screen_pos[2] = {0, 0};
         int screen_pos_delta[2] = {0, 0};
 
