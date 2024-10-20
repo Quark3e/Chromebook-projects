@@ -5,7 +5,7 @@ import socket
 
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-client_socket.settimeout(0.5)
+client_socket.settimeout(1.5)
 message = b'test'
 addr = ("192.168.1.231", 53)
 

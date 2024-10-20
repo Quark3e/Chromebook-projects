@@ -142,32 +142,32 @@ udpCOM/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/udpCOM.dir/build.make CMakeFiles/udpCOM.dir/build
 .PHONY : udpCOM/fast
 
-udpCOM_2.o: udpCOM_2.cpp.o
+udpCOM.o: udpCOM.cpp.o
 
-.PHONY : udpCOM_2.o
+.PHONY : udpCOM.o
 
 # target to build an object file
-udpCOM_2.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/udpCOM.dir/build.make CMakeFiles/udpCOM.dir/udpCOM_2.cpp.o
-.PHONY : udpCOM_2.cpp.o
+udpCOM.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/udpCOM.dir/build.make CMakeFiles/udpCOM.dir/udpCOM.cpp.o
+.PHONY : udpCOM.cpp.o
 
-udpCOM_2.i: udpCOM_2.cpp.i
+udpCOM.i: udpCOM.cpp.i
 
-.PHONY : udpCOM_2.i
+.PHONY : udpCOM.i
 
 # target to preprocess a source file
-udpCOM_2.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/udpCOM.dir/build.make CMakeFiles/udpCOM.dir/udpCOM_2.cpp.i
-.PHONY : udpCOM_2.cpp.i
+udpCOM.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/udpCOM.dir/build.make CMakeFiles/udpCOM.dir/udpCOM.cpp.i
+.PHONY : udpCOM.cpp.i
 
-udpCOM_2.s: udpCOM_2.cpp.s
+udpCOM.s: udpCOM.cpp.s
 
-.PHONY : udpCOM_2.s
+.PHONY : udpCOM.s
 
 # target to generate assembly for a file
-udpCOM_2.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/udpCOM.dir/build.make CMakeFiles/udpCOM.dir/udpCOM_2.cpp.s
-.PHONY : udpCOM_2.cpp.s
+udpCOM.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/udpCOM.dir/build.make CMakeFiles/udpCOM.dir/udpCOM.cpp.s
+.PHONY : udpCOM.cpp.s
 
 # Help Target
 help:
@@ -178,9 +178,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... udpCOM"
-	@echo "... udpCOM_2.o"
-	@echo "... udpCOM_2.i"
-	@echo "... udpCOM_2.s"
+	@echo "... udpCOM.o"
+	@echo "... udpCOM.i"
+	@echo "... udpCOM.s"
 .PHONY : help
 
 

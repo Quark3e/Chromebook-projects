@@ -1,5 +1,5 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/udpCOM.dir/udpCOM_2.cpp.o"
+  "CMakeFiles/udpCOM.dir/udpCOM.cpp.o"
   "udpCOM"
   "udpCOM.pdb"
 )

@@ -31,4 +31,4 @@ while True:
 
         msg = "Message from Server: \"{}\"".format(msgFromServer[0])
         print(msg)
-    time.sleep(0.1)
+    time.sleep(0.01)

@@ -76,27 +76,27 @@ include CMakeFiles/udpCOM.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/udpCOM.dir/flags.make
 
-CMakeFiles/udpCOM.dir/udpCOM_2.cpp.o: CMakeFiles/udpCOM.dir/flags.make
-CMakeFiles/udpCOM.dir/udpCOM_2.cpp.o: ../udpCOM_2.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/udpCOM_toESP8266/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/udpCOM.dir/udpCOM_2.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/udpCOM.dir/udpCOM_2.cpp.o -c /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/udpCOM_toESP8266/udpCOM_2.cpp
+CMakeFiles/udpCOM.dir/udpCOM.cpp.o: CMakeFiles/udpCOM.dir/flags.make
+CMakeFiles/udpCOM.dir/udpCOM.cpp.o: ../udpCOM.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/udpCOM_toESP8266/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/udpCOM.dir/udpCOM.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/udpCOM.dir/udpCOM.cpp.o -c /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/udpCOM_toESP8266/udpCOM.cpp
 
-CMakeFiles/udpCOM.dir/udpCOM_2.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/udpCOM.dir/udpCOM_2.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/udpCOM_toESP8266/udpCOM_2.cpp > CMakeFiles/udpCOM.dir/udpCOM_2.cpp.i
+CMakeFiles/udpCOM.dir/udpCOM.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/udpCOM.dir/udpCOM.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/udpCOM_toESP8266/udpCOM.cpp > CMakeFiles/udpCOM.dir/udpCOM.cpp.i
 
-CMakeFiles/udpCOM.dir/udpCOM_2.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/udpCOM.dir/udpCOM_2.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/udpCOM_toESP8266/udpCOM_2.cpp -o CMakeFiles/udpCOM.dir/udpCOM_2.cpp.s
+CMakeFiles/udpCOM.dir/udpCOM.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/udpCOM.dir/udpCOM.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/udpCOM_toESP8266/udpCOM.cpp -o CMakeFiles/udpCOM.dir/udpCOM.cpp.s
 
 # Object files for target udpCOM
 udpCOM_OBJECTS = \
-"CMakeFiles/udpCOM.dir/udpCOM_2.cpp.o"
+"CMakeFiles/udpCOM.dir/udpCOM.cpp.o"
 
 # External object files for target udpCOM
 udpCOM_EXTERNAL_OBJECTS =
 
-udpCOM: CMakeFiles/udpCOM.dir/udpCOM_2.cpp.o
+udpCOM: CMakeFiles/udpCOM.dir/udpCOM.cpp.o
 udpCOM: CMakeFiles/udpCOM.dir/build.make
 udpCOM: CMakeFiles/udpCOM.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/files/udpCOM_toESP8266/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable udpCOM"
