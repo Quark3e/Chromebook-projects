@@ -3,9 +3,11 @@
 #include "globals_includes.hpp"
 
 
+
 std::string programCWD;
 
-DIY::typed_dict<std::string, gNC::guiNodeChart> projects;
+// DIY::typed_dict<std::string, gNC::guiNodeChart> projects;
+DIY::typed_dict<std::string, nc_proj> projects;
 
 
 ImDrawList* project_draw_list = nullptr;
@@ -116,7 +118,6 @@ std::vector<ImVec2>& _pos__sub_fileExplorer_navPanel(bool _update) {
     _retur[2] = ImVec2(_retur[1].x-_retur[0].x, _retur[1].y-_retur[0].y);
     return _retur;
 }
-
 
 
 bool lockMove_screen    = true;

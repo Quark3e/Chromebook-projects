@@ -338,6 +338,7 @@ int __getPWD_stats(
 
 
 std::string gNC::_file__fileExplorer = "";
+std::vector<std::string> gNC::_mode__types{"NULL", "Open", "Save", "Load", "Save As.."};
 int         gNC::_mode__fileExplorer = 0;
 int         gNC::_mode__fileExplorer_prev = 0;
 std::vector<std::string> gNC::_valid__extensions;
@@ -662,10 +663,10 @@ void gNC::_menu__fileExplorer() {
             ImGui::SetCursorPos(_currPos);
             
             ImGui::BeginDisabled(
-                (_mode__fileExplorer==1 && !valid_selection) ||
-                (_mode__fileExplorer==2 && (!mode2_inpCorrect && !valid_selection))
+                ((_mode__fileExplorer-1)%2==0 && !valid_selection) ||
+                (_mode__fileExplorer%2==2 && (!mode2_inpCorrect && !valid_selection))
             );
-            if(ImGui::Button((_mode__fileExplorer==1? "open" : "save"), buttonSize)) {
+            if(ImGui::Button(_mode__types[_mode__fileExplorer].c_str(), buttonSize)) {
                 _file__fileExplorer = currDir + enterBarFileStr;
                 win_open = false;
             }

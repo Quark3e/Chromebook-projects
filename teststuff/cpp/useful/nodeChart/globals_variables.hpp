@@ -10,9 +10,26 @@
 #include "globals_includes.hpp"
 
 
+/**
+ * @brief Struct for holding each project info
+ * 
+ */
+struct nc_proj{
+    /**
+     * @brief fullpath filename to the file assosciated with this project
+     */
+    std::string filename = "";
+    /**
+     * @brief whether the project has a file assosciated/linked to it.
+     * 
+     */
+    bool fileLinked = false;
+    gNC::guiNodeChart chart;
+};
+
 extern std::string programCWD;
 
-extern DIY::typed_dict<std::string, gNC::guiNodeChart> projects;
+extern DIY::typed_dict<std::string, nc_proj> projects;
 
 /**
  * Pointer to main "global" ImDrawList for the currently show projects draw window

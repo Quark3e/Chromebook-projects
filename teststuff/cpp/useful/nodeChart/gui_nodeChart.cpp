@@ -851,6 +851,7 @@ gNC::guiNodeChart::guiNodeChart(/* args */) {
  */
 int gNC::guiNodeChart::setScreen_pos(int x, int y, int moveMode) {
     assert(moveMode>0 && moveMode<2);
+    static int prev_x = 0, prev_y = 0;
 
     switch (moveMode) {
     case 0:
@@ -869,11 +870,23 @@ int gNC::guiNodeChart::setScreen_pos(int x, int y, int moveMode) {
         break;
     }
 
+    if(x!=prev_x || y!=prev_y) {
+        this->modified = true;
+        prev_x = x;
+        prev_y = y;
+    }
+
     return 0;
 }
 int gNC::guiNodeChart::setScreen_dim(int w, int h) {
     this->screen_dim[0] = w;
     this->screen_dim[1] = h;
+    static int prev_w = 0, prev_h = 0;
+    if(w!=prev_w || h!=prev_h) {
+        this->modified = true;
+        prev_w = w;
+        prev_h = h;
+    }
     return 0;
 }
 
@@ -925,6 +938,8 @@ gNC::gNODE* gNC::guiNodeChart::NODE_create(
 
     this->_lastAddedNode = &(this->_nodes.back());
     this->_lastAddedNode->addr = ptrToStr<gNC::gNODE*>(this->_lastAddedNode);
+
+    this->modified = true;
 
     return this->_lastAddedNode;
 }
@@ -999,7 +1014,8 @@ int gNC::guiNodeChart::NODE_delete(gNC::gNODE* NODE_toDelete, bool leaveFloating
     }
 
     this->_nodes.erase(this->_find_ptr_itr<gNC::gNODE>(this->_nodes, NODE_toDelete));
-
+    
+    this->modified = true;
     return 0;
 }
 
@@ -1061,6 +1077,7 @@ int gNC::guiNodeChart::NODE_move(
         }
     }
 
+    this->modified = true; //might be incorrect
 
     return 0;
 }
@@ -1157,6 +1174,8 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create(
     NODE_move(NODE_src,  0, 0, -1);
     NODE_move(NODE_dest, 0, 0, -1);
 
+    this->modified = true;
+
     return this->_lastAddedLink;
 }
 gNC::gLINK* gNC::guiNodeChart::LINK_create_loose(
@@ -1221,7 +1240,7 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create_loose(
     // ImVec2 pos_delta = ImVec2(_lastAddedLink->Pos_dest.x - _lastAddedLink->Pos_src.x, _lastAddedLink->Pos_dest.y - _lastAddedLink->Pos_src.y);
     // ImVec2 halfWayPoint = ImVec2(_lastAddedLink->Pos_src.x + pos_delta.x/2, _lastAddedLink->Pos_src.y + pos_delta.y/2);
 
-    
+    this->modified = true;
     return this->_lastAddedLink;
 }
 
@@ -1255,6 +1274,7 @@ int gNC::guiNodeChart::LINK_swapSrc(gNC::gLINK* toSwap, gNC::gNODE* newSrc, int 
         ImVec2(-2, -2)
     );
 
+    this->modified = true;
     return 0;
 }
 int gNC::guiNodeChart::LINK_swapDest(gNC::gLINK* toSwap, gNC::gNODE* newDest, int destType) {
@@ -1289,6 +1309,7 @@ int gNC::guiNodeChart::LINK_swapDest(gNC::gLINK* toSwap, gNC::gNODE* newDest, in
         // ImVec2(newDest->pos[0]+destPos.x, newDest->pos[1]+destPos.y)
     );
 
+    this->modified = true;
     return 0;
 }
 int gNC::guiNodeChart::LINK_delete(gNC::gLINK* LINK_toDelete) {
@@ -1309,6 +1330,7 @@ int gNC::guiNodeChart::LINK_delete(gNC::gLINK* LINK_toDelete) {
 
     this->_links.erase(linkItr);
 
+    this->modified = true;
     return 0;
 }
 
@@ -2052,5 +2074,6 @@ int gNC::guiNodeChart::loadFile(
         }
     */
 
+   this->modified = true;
     return 0;
 }

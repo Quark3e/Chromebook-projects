@@ -906,8 +906,9 @@ namespace DIY {
     int typed_dict<_key_type, _store_type>::rename(_key_type key, _key_type new_key) {
         int pos = check_existence<_key_type>(key, this->_keys);
         if(pos<0) this->_call_error(0, "::rename(_key_type, _key_type)");
+        // if(key==new_key) this->_call_error(0, "::rename(_key_type, _key_type)", "new_key is the same as key");
         int pos2= check_existence<_key_type>(new_key, this->_keys);
-        if(pos2!=-1) this->_call_error(0, "::rename(_key_type, _key_type)", "second parameter argument for `new_key` \""+new_key+"\" already exists in dictionary keys");
+        if(key!=new_key && pos2!=-1) this->_call_error(0, "::rename(_key_type, _key_type)", "second parameter argument for `new_key` \""+new_key+"\" already exists in dictionary keys");
         this->_keys.at(pos) = new_key;
         return 0;
     }

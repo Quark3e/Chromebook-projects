@@ -265,6 +265,7 @@ namespace gNC {
         ImVec2 add_nodePos(ImVec2 addTo, gNC::gNODE* toAdd) { return ImVec2(addTo.x+toAdd->pos[0], addTo.y+toAdd->pos[1]); }
 
         public:
+        bool modified = true;
         std::string project_name = "";
 
         gNC::guiNodeChart* thisPtr = nullptr;
@@ -408,8 +409,9 @@ namespace gNC {
     void _menu__timeline(gNC::guiNodeChart* _chart);
 
     extern std::string _file__fileExplorer;
-    extern int         _mode__fileExplorer;        //`1`-open, `2`-save
-    extern int         _mode__fileExplorer_prev;   //`1`-open, `2`-save
+    extern std::vector<std::string> _mode__types;
+    extern int         _mode__fileExplorer;        //`1`-open, `2`-save, `3`-load, `4`-save as
+    extern int         _mode__fileExplorer_prev;
     extern std::vector<std::string> _valid__extensions;
     void        _menu__fileExplorer();
 
