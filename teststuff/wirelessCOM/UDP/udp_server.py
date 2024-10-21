@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
 import socket
+import datetime
 
 localIP = "127.0.0.1"
-localPort = 20001
+localIP = "192.168.1.177"
+localPort = 2001
 bufferSize = 1024
 
 msgFromServer = "Hello UDP Client"
@@ -26,8 +28,12 @@ while(True):
     clientMsg = "Message from Client:{}".format(message)
     clientIP  = "Client IP Address:{}".format(address)
     
-    print(clientMsg)
-    print(clientIP)
+    # ct stores current time
+    ct = datetime.datetime.now()
+    print(ct)
+    
+    print("\t", clientMsg)
+    print("\t", clientIP)
 
     # Sending a reply to client
     UDPServerSocket.sendto(bytesToSend, address)
