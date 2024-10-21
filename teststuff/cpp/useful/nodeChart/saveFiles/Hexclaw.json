@@ -1,13 +1,13 @@
 {
     "projects": [
         {
-            "date"      : "Mon Oct 21 02:04:48 2024",
+            "date"      : "Mon Oct 21 02:55:02 2024",
             "name"      : "",
             "screen_pos": [-2578, -680],
             "screen_dim": [ 1300,  730],
             "nodes"	: [
                 {
-                    "addr"      : "0x55a28fe3d830",
+                    "addr"      : "0x556c24f16350",
                     "label"     : "Introduction",
                     "desc"      : "First news",
                     "bodyText"  : "First introduction to the school project",
@@ -24,7 +24,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55a28fc6b8c0",
+                    "addr"      : "0x556c25179c80",
                     "label"     : "initial idea",
                     "desc"      : "What i first presented",
                     "bodyText"  : "(*itr).bodyText",
@@ -41,7 +41,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55a28ff9e620",
+                    "addr"      : "0x556c25179e60",
                     "label"     : "Arcane",
                     "desc"      : "Watched Arcane",
                     "bodyText"  : "(*itr).bodyText",
@@ -58,7 +58,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55a28ff9e8f0",
+                    "addr"      : "0x556c2517a130",
                     "label"     : "Robot arm",
                     "desc"      : "Built a 2d robot arm",
                     "bodyText"  : "(*itr).bodyText",
@@ -75,7 +75,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55a28ff9eb80",
+                    "addr"      : "0x556c2517a3c0",
                     "label"     : "Teacher recommend",
                     "desc"      : "Idea for robot arm",
                     "bodyText"  : "(*itr).bodyText",
@@ -92,7 +92,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55a28ff9edc0",
+                    "addr"      : "0x556c2517a600",
                     "label"     : "Planning",
                     "desc"      : "Start planning",
                     "bodyText"  : "(*itr).bodyText",
@@ -109,7 +109,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55a28ff9efb0",
+                    "addr"      : "0x556c2517a7f0",
                     "label"     : "Parts",
                     "desc"      : "Create list of parts",
                     "bodyText"  : "",
@@ -126,7 +126,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55a28ff9f160",
+                    "addr"      : "0x556c2517a9a0",
                     "label"     : "Sent parts List",
                     "desc"      : "",
                     "bodyText"  : "",
@@ -143,7 +143,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55a28ff9f390",
+                    "addr"      : "0x556c2517abf0",
                     "label"     : "First delivery",
                     "desc"      : "Receiv. half of parts",
                     "bodyText"  : "",
@@ -160,7 +160,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55a28ff9f580",
+                    "addr"      : "0x556c2517ade0",
                     "label"     : "News #2",
                     "desc"      : "\"Budget limit\"",
                     "bodyText"  : "No more parts. Second half of list won't be received.",
@@ -177,7 +177,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55a28ff9f7d0",
+                    "addr"      : "0x556c2517b030",
                     "label"     : "Sent printer names",
                     "desc"      : "",
                     "bodyText"  : "",
@@ -194,7 +194,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55a28ff9f980",
+                    "addr"      : "0x556c2517b1e0",
                     "label"     : "News #1",
                     "desc"      : "\"No printer\"",
                     "bodyText"  : "",
@@ -211,7 +211,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55a28ff9fb70",
+                    "addr"      : "0x556c2517b3d0",
                     "label"     : "Sketch #1",
                     "desc"      : "",
                     "bodyText"  : "",
@@ -228,7 +228,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55a28ffa01c0",
+                    "addr"      : "0x556c2517ba20",
                     "label"     : "Build #1",
                     "desc"      : "First model",
                     "bodyText"  : "6dof robot arm with sg90 motors, grill sticks,\nplastic sheet as connecting plates, hot glue, superglue.\n\nMotors are controlled by the arduino uno, but movement commands\nare sent from laptop via serial communication",
@@ -245,7 +245,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55a28ffa0370",
+                    "addr"      : "0x556c2517bbd0",
                     "label"     : "Math",
                     "desc"      : "6dof math",
                     "bodyText"  : "",
@@ -262,7 +262,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55a28ffa0520",
+                    "addr"      : "0x556c2517bd80",
                     "label"     : "Sketch #0",
                     "desc"      : "",
                     "bodyText"  : "",
@@ -279,7 +279,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55a28ffa0b90",
+                    "addr"      : "0x556c2517c3f0",
                     "label"     : "Build",
                     "desc"      : "With mg995 + psu",
                     "bodyText"  : "",
@@ -296,7 +296,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55a28ffa1150",
+                    "addr"      : "0x556c2517c9b0",
                     "label"     : "Panikk",
                     "desc"      : "",
                     "bodyText"  : "",
@@ -313,7 +313,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55a28ffa1570",
+                    "addr"      : "0x556c2517ce40",
                     "label"     : "COMIC CON BABYYY",
                     "desc"      : "Issa comicconnn time babyyyy",
                     "bodyText"  : "",
@@ -333,15 +333,15 @@
             ],
             "links"	: [
                 {
-                    "addr"                : "0x55a28fe3ea90",
+                    "addr"                : "0x556c2502dd90",
                     "label"               : "trying to come up with an initial idea",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55a28fe3d830",
-                    "dest"                : "0x55a28fc6b8c0",
+                    "src"                 : "0x556c24f16350",
+                    "dest"                : "0x556c25179c80",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -353,15 +353,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55a28fc69780",
+                    "addr"                : "0x556c24f24500",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55a28fc6b8c0",
-                    "dest"                : "0x55a28ff9eb80",
+                    "src"                 : "0x556c25179c80",
+                    "dest"                : "0x556c2517a3c0",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -373,15 +373,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55a28fc55250",
+                    "addr"                : "0x556c24f896c0",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55a28ff9e620",
-                    "dest"                : "0x55a28ff9e8f0",
+                    "src"                 : "0x556c25179e60",
+                    "dest"                : "0x556c2517a130",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -393,15 +393,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55a28fc63810",
+                    "addr"                : "0x556c24f89840",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 4,
-                    "src"                 : "0x55a28ff9e8f0",
-                    "dest"                : "0x55a28ff9eb80",
+                    "src"                 : "0x556c2517a130",
+                    "dest"                : "0x556c2517a3c0",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -413,15 +413,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55a28fc64840",
+                    "addr"                : "0x556c25152da0",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55a28ff9eb80",
-                    "dest"                : "0x55a28ff9edc0",
+                    "src"                 : "0x556c2517a3c0",
+                    "dest"                : "0x556c2517a600",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -433,15 +433,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55a28fce2af0",
+                    "addr"                : "0x556c25152fb0",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55a28ff9edc0",
-                    "dest"                : "0x55a28ff9efb0",
+                    "src"                 : "0x556c2517a600",
+                    "dest"                : "0x556c2517a7f0",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -453,15 +453,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55a28fce2d00",
+                    "addr"                : "0x556c251531c0",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55a28ff9f160",
-                    "dest"                : "0x55a28ff9f390",
+                    "src"                 : "0x556c2517a9a0",
+                    "dest"                : "0x556c2517abf0",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -473,15 +473,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55a28ff77680",
+                    "addr"                : "0x556c2517d240",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55a28ff9edc0",
-                    "dest"                : "0x55a28ffa0370",
+                    "src"                 : "0x556c2517a600",
+                    "dest"                : "0x556c2517bbd0",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -493,15 +493,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55a28ff77890",
+                    "addr"                : "0x556c2517d3c0",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55a28ff9edc0",
-                    "dest"                : "0x55a28ff9f7d0",
+                    "src"                 : "0x556c2517a600",
+                    "dest"                : "0x556c2517b030",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -513,15 +513,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55a28ff77aa0",
+                    "addr"                : "0x556c2517d540",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55a28ff9efb0",
-                    "dest"                : "0x55a28ff9f160",
+                    "src"                 : "0x556c2517a7f0",
+                    "dest"                : "0x556c2517a9a0",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -533,15 +533,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55a28ffa1970",
+                    "addr"                : "0x556c2517d6c0",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55a28ff9f7d0",
-                    "dest"                : "0x55a28ff9f980",
+                    "src"                 : "0x556c2517b030",
+                    "dest"                : "0x556c2517b1e0",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -553,15 +553,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55a28ffa1af0",
+                    "addr"                : "0x556c2517d840",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55a28ff9f390",
-                    "dest"                : "0x55a28ff9f580",
+                    "src"                 : "0x556c2517abf0",
+                    "dest"                : "0x556c2517ade0",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -573,15 +573,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55a28ffa1c70",
+                    "addr"                : "0x556c2517d9c0",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55a28ff9edc0",
-                    "dest"                : "0x55a28ff9fb70",
+                    "src"                 : "0x556c2517a600",
+                    "dest"                : "0x556c2517b3d0",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -593,15 +593,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55a28ffa1df0",
+                    "addr"                : "0x556c2517db40",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55a28ffa0370",
-                    "dest"                : "0x55a28ffa01c0",
+                    "src"                 : "0x556c2517bbd0",
+                    "dest"                : "0x556c2517ba20",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -613,15 +613,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55a28ffa1f70",
+                    "addr"                : "0x556c2517dcc0",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55a28ff9fb70",
-                    "dest"                : "0x55a28ffa01c0",
+                    "src"                 : "0x556c2517b3d0",
+                    "dest"                : "0x556c2517ba20",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -633,15 +633,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55a28ffa20f0",
+                    "addr"                : "0x556c2517de40",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55a28ff9e8f0",
-                    "dest"                : "0x55a28ffa0520",
+                    "src"                 : "0x556c2517a130",
+                    "dest"                : "0x556c2517bd80",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -653,15 +653,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55a28ffa2270",
+                    "addr"                : "0x556c2517dfc0",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55a28ffa1150",
-                    "dest"                : "0x55a28ffa0b90",
+                    "src"                 : "0x556c2517c9b0",
+                    "dest"                : "0x556c2517c3f0",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -673,15 +673,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55a28ffa23f0",
+                    "addr"                : "0x556c2517e140",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55a28ff9f580",
-                    "dest"                : "0x55a28ffa1150",
+                    "src"                 : "0x556c2517ade0",
+                    "dest"                : "0x556c2517c9b0",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -693,15 +693,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55a28ffa2570",
+                    "addr"                : "0x556c2517e2c0",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "2020-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55a28ff9f980",
-                    "dest"                : "0x55a28ffa1150",
+                    "src"                 : "0x556c2517b1e0",
+                    "dest"                : "0x556c2517c9b0",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
