@@ -92,6 +92,11 @@ gNC::gNODE::gNODE(
 
 ): label{par_label}, desc{par_desc}, bodyText{par_bodyText}, ln_in{par_ln_in}, ln_out{par_ln_out}, ln_add{par_ln_add}, ln_share{par_ln_share} {
     if(checkExistence<int>(par_layout, std::vector<int>{0,1,2,3})==-1) std::runtime_error("ERROR: gNC::gNODE constructor: par_layout is an invalid value");
+    date = tm{};
+    date.tm_mday= 1;
+    date.tm_mon = 0;
+    date.tm_year=2022-1900;
+
     layout = par_layout;
     width   = par_width;
     height  = par_height;
@@ -1716,8 +1721,11 @@ int gNC::guiNodeChart::saveToFile(
 
     time_t tempTime;
     static auto getDateLambda = [](tm* param_date) {
-        time_t tempTime;
-        std::string _tempStr(ctime(&(tempTime = mktime(param_date))));
+        char c_out[256];
+
+        strftime(c_out, 256, "%Y-%m-%d", param_date);
+
+        std::string _tempStr(c_out);
         return _tempStr.substr(0, _tempStr.find('\n'));
     };
     static auto prepString = [](std::string str) {
@@ -1848,7 +1856,6 @@ int gNC::guiNodeChart::loadFile(
     DIY::typed_dict<std::string, gNC::gNODE*> _refrs;
     std::string _refr;
 
-
     for(JSON_P::jsonPair _pair : _json["projects"][0].get2()) {
         // if(_pair.key=="date") 
         if(_pair.key=="name")       this->project_name = _pair.get0();
@@ -1869,7 +1876,10 @@ int gNC::guiNodeChart::loadFile(
                     if(_attr.key=="label")  { _tempN.label  = _attr.get0(); }
                     if(_attr.key=="desc")   { _tempN.desc   = _attr.get0(); }
                     if(_attr.key=="bodyText"){_tempN.bodyText=_attr.get0(); }
-                    if(_attr.key=="date")   { /**/ }
+                    if(_attr.key=="date")   {
+                        std::istringstream ss(_attr.get0());
+                        ss >> std::get_time(&_tempN.date, "%Y-%m-%d");
+                    }
                     if(_attr.key=="init")   { _tempN.init   = _attr.get4(); }
                     if(_attr.key=="layout") { _tempN.layout = _attr.get10();}
                     if(_attr.key=="width")  { _tempN.width  = _attr.get10();}
@@ -1921,6 +1931,7 @@ int gNC::guiNodeChart::loadFile(
                     _tempN.label, _tempN.desc, _tempN.bodyText,
                     _tempN.width, _tempN.height
                 );
+                _tempNode->date = _tempN.date;
                 _tempNode->inChart = this;
                 _refrs.add(
                     _refr,
@@ -1938,7 +1949,10 @@ int gNC::guiNodeChart::loadFile(
                     if(_attr.key=="label")  { _tempL.label  = _attr.get0(); }
                     if(_attr.key=="desc")   { _tempL.desc   = _attr.get0(); }
                     if(_attr.key=="bodyText"){_tempL.bodyText=_attr.get0(); }
-                    if(_attr.key=="date")   { /**/ }
+                    if(_attr.key=="date")   {
+                        std::istringstream ss(_attr.get0());
+                        ss >> std::get_time(&_tempL.date, "%Y-%m-%d");
+                    }
                     if(_attr.key=="type_src")   { _tempL.type_src   = _attr.get10(); }
                     if(_attr.key=="type_dest")  { _tempL.type_dest  = _attr.get10(); }
                     if(_attr.key=="src")    { _tempEnds.add("src", _refrs.get(_attr.get0())); }
@@ -1952,11 +1966,13 @@ int gNC::guiNodeChart::loadFile(
                     if(_attr.key=="link_lineWidth") { _tempL.link_lineWidth = _attr.get10(); }
                     if(_attr.key=="link_gui__lineWidth") { _tempL.link_gui__lineWidth = _attr.get10(); }
                 }
-                this->LINK_create(
+                gNC::gLINK* _tempLink = this->LINK_create(
                     _tempEnds.get("src"), _tempEnds.get("dest"),
                     _tempL.type_src, _tempL.type_dest,
                     _tempL.label, _tempL.desc, _tempL.bodyText
-                )->inChart = this;
+                );
+                _tempLink->date = _tempL.date;
+                _tempLink->inChart = this;
             }
         }
     }

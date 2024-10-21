@@ -182,7 +182,7 @@ namespace gNC {
          *   int tm_isdst;			 DST.		[-1/0/1]
          * 
          */
-        tm date{0, 0, 0, 1, 0, 2000-1900, 0, 0, 0}; //[optional]
+        tm date; //[optional]
 
         bool init = false;
 
