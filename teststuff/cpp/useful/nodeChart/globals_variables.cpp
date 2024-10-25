@@ -19,7 +19,7 @@ ImVec2 dim__menu__detail= ImVec2(300, 600);
 ImVec2 dim__menu__detail__offset    = ImVec2(20, 60);
 
 
-ImVec2 _coef_dim__win_fileExplorer = ImVec2(0.7, 0.8);
+ImVec2 _coef_dim__win_fileExplorer  = ImVec2(0.7, 0.8);
 ImVec2 dim__win_fileExplorer() {
     static ImVec2 _retur(-1, -1);
     _retur.x = dim__main[0] * _coef_dim__win_fileExplorer[0];
@@ -116,6 +116,14 @@ std::vector<ImVec2>& _pos__sub_fileExplorer_navPanel(bool _update) {
         ImGui::GetWindowSize().y
     );
     _retur[2] = ImVec2(_retur[1].x-_retur[0].x, _retur[1].y-_retur[0].y);
+    return _retur;
+}
+
+ImVec2 _coef_dim__win_timeline      = ImVec2(1, 140);
+ImVec2 dim__win_timeline() {
+    static ImVec2 _retur(-1, -1);
+    _retur.x = (_coef_dim__win_timeline[0]>1? _coef_dim__win_timeline[0] : _coef_dim__win_timeline[0] * dim__main[0]);
+    _retur.y = (_coef_dim__win_timeline[1]>1? _coef_dim__win_timeline[1] : _coef_dim__win_timeline[1] * dim__main[1]);
     return _retur;
 }
 

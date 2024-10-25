@@ -4,7 +4,7 @@ import socket
 import datetime
 
 localIP = "127.0.0.1"
-localIP = "192.168.1.177"
+localIP = "192.168.1.112"
 localPort = 2001
 bufferSize = 1024
 

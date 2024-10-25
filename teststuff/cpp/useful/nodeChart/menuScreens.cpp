@@ -119,8 +119,8 @@ void gNC::_menu__node_details(
         }
         ImGui::EndGroup();
         
-        ImGui::End();
     }
+    ImGui::End();
 
     if(init_node!=toDetail) init_node = toDetail;
 }
@@ -234,8 +234,8 @@ void gNC::_menu__link_details(
         }
         ImGui::EndGroup();
 
-        ImGui::End();
     }
+    ImGui::End();
 
 
     if(init_link!=toDetail) init_link = toDetail;
@@ -298,7 +298,46 @@ void gNC::_menu__timeline(
 ) {
     assert(_chart);
 
+    static bool open    = true;
+    static bool _init   = true;
+    static bool _collapse   = true;
+    static bool _collapse_prev  = true;
+
+    _collapse_prev = _collapse;
+    if(!open) {
+        _collapse = true;
+    }
+    else {}
+
+    open = true;
+    static ImGuiWindowFlags win_flags = 
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoResize;
     
+
+    ImGui::Begin("Timeline", &open, win_flags);
+    ImGui::SetWindowSize(dim__win_timeline());
+    // ImGui::SetWindowCollapsed(_collapse);
+    _collapse = ImGui::IsWindowCollapsed();
+
+    if(_collapse != _collapse_prev | _init) {
+        if(_collapse_prev) _init = true;
+        //this iteration had a state change for _collapse
+        ImGui::SetWindowPos(ImVec2(
+            dim__main.x - ImGui::GetWindowSize().x,
+            dim__main.y - ImGui::GetWindowSize().y
+        ));
+    }
+
+    if(!_collapse) {
+
+    }
+    else {
+
+    }
+    ImGui::End();
+
+    _init = false;
 }
 
 
@@ -703,8 +742,8 @@ void gNC::_menu__fileExplorer() {
             ImGui::EndChild();
         }
 
-        ImGui::End();
     }
+    ImGui::End();
 
     if(newDir) currDir = newDirStr;
 

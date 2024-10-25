@@ -67,6 +67,20 @@ std::vector<ImVec2>& _pos__sub_fileExplorer_contents(bool _update = true);
 std::vector<ImVec2>& _pos__sub_fileExplorer_detailsPanel(bool _update = true);
 std::vector<ImVec2>& _pos__sub_fileExplorer_navPanel(bool _update = true);
 
+/**
+ * Coefficients/scalars to solve the window dimensions of fileExplorer relative to
+ * absolute/program-window dim.
+ * 
+ * If values are bigger than `1`  then it'll use those values as actual dimensions
+ */
+extern ImVec2 _coef_dim__win_timeline;
+/**
+ * @brief width/height dimensions for the timeline window.
+ * By default the window is placed at the bottom row so position is always y_bottom-`height`
+ * 
+ * @return ImVec2  (width, height)
+ */
+ImVec2 dim__win_timeline();
 
 extern bool lockMove_screen;
 extern bool lockMove_node;

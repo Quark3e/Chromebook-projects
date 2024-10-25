@@ -323,7 +323,7 @@ int main(int argc, char** argv) {
             gNC::linkPtr_menu__rightClick = nullptr;
         }
 
-
+        gNC::_menu__timeline(&projects[_selected].chart);
         gNC::_menu__fileExplorer();
         if(!gNC::_mode__fileExplorer && gNC::_file__fileExplorer.length()!=0) {
             switch (gNC::_mode__fileExplorer_prev) {
