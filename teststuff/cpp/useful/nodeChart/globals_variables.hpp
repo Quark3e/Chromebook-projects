@@ -23,9 +23,9 @@ extern bool __ON_TERMINAL;
  */
 extern unsigned int __PROGRAM_FRAMES;
 
-extern std::chrono::_V2::system_clock::time_point __CURRENT__TIME_POINT;
-extern time_t __CURRENT__TIME_T;
-extern std::string __CURRENT__TIME_STRING;
+extern std::chrono::_V2::system_clock::time_point   __CURRENT__TIME_POINT;
+extern time_t                                       __CURRENT__TIME_T;
+extern std::string                                  __CURRENT__TIME_STRING;
 
 /**
  * @brief Get the current time object
@@ -38,9 +38,11 @@ inline std::string GET_CURRENT_TIME() {
     if(prev_frame!=__PROGRAM_FRAMES) {
         __CURRENT__TIME_POINT   = std::chrono::system_clock::now();
         __CURRENT__TIME_T       = std::chrono::system_clock::to_time_t(__CURRENT__TIME_POINT);
+        std::string _tempStr = ctime(&__CURRENT__TIME_T);
+        __CURRENT__TIME_STRING  = _tempStr.substr(0, _tempStr.length()-1);
         prev_frame = __PROGRAM_FRAMES;
     }
-    return std::string(ctime(&__CURRENT__TIME_T));
+    return __CURRENT__TIME_STRING;
 }
 
 // inline void TERMINAL_PRINT

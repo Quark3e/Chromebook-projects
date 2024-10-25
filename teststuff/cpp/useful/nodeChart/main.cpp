@@ -22,10 +22,21 @@ bool opt__enable_grid = true;
 int main(int argc, char** argv) {
 
     if(argc>1) {
+        std::cout << "program entered arguments:" << std::endl;
         for(int i=0; i<argc; i++) {
-            if(argv[i]=="-T" || argv[i]=="--TERMINAL") __ON_TERMINAL = true;
+            std::cout << "  \""<<argv[i]<<"\""<<std::endl;
+            if(strcmp(argv[i], "-T")==0 || strcmp(argv[i], "--TERMINAL")==0) {
+                __ON_TERMINAL = true;
+            }
         }
     }
+    std::cout << std::endl;
+
+    std::cout << "Program configuration: ";
+    if(__ON_TERMINAL) std::cout << "Terminal";
+    else std::cout << "Default";
+    std::cout << std::endl;
+
 
     programCWD = getFileCWD(true);
     std::string default_proj_file = "/home/berkhme/github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/saveFiles/default_chart.json";
@@ -119,15 +130,10 @@ int main(int argc, char** argv) {
                 dim__main.x = projects[_selected].chart.screen_dim[0];
                 dim__main.y = projects[_selected].chart.screen_dim[1];
                 if(__ON_TERMINAL) {
-                    std::cout << "["<<GET_CURRENT_TIME()<<"]: ";
+                    std::cout<<"["<<GET_CURRENT_TIME()<<"]: ";
                     std::cout << "window_resized: ["<<dim__main.x<< ", "<<dim__main.y<<"]"<< std::endl;
                 }
-            }
-            if(al_event.type == ALLEGRO_EVENT_DISPLAY_LOST) {
-                if(__ON_TERMINAL) {
-                    std::cout << "["<<GET_CURRENT_TIME()<<"]: ";
-                    std::cout << "window not in focus.." << std::endl;
-                }
+                
             }
         }
         ImGui_ImplAllegro5_NewFrame();

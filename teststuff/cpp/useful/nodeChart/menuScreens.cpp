@@ -317,6 +317,12 @@ void gNC::_menu__timeline(
 
     ImGui::Begin("Timeline", &open, win_flags);
     ImGui::SetWindowSize(dim__win_timeline());
+    if(__PROGRAM_FRAMES<=1) {
+        ImGui::SetWindowPos(ImVec2(
+            dim__main.x - ImGui::GetWindowSize().x,
+            dim__main.y - ImGui::GetWindowSize().y
+        ));
+    }
     // ImGui::SetWindowCollapsed(_collapse);
     _collapse = ImGui::IsWindowCollapsed();
 
