@@ -6,8 +6,44 @@
 #define _DEBUG false
 
 
-
 #include "globals_includes.hpp"
+
+/**
+ * Whether the program is running on the terminal.
+ * This includes quirks such as:
+ * - print the current time whenever something is printed to the console/terminal.
+ */
+extern bool __ON_TERMINAL;
+/**
+ * A value to hold the current iteration of ALL the frames since programs start.
+ * 
+ * Assuming the program runs at the capped 60 (allegro 5 on linux: Debian 12 "Bookworm"),
+ * this counter will overflow at earliest after ~828.5 days or 2.268 years ((2^31-1)/(60*60*60*24))
+ * 
+ */
+extern unsigned int __PROGRAM_FRAMES;
+
+extern std::chrono::_V2::system_clock::time_point __CURRENT__TIME_POINT;
+extern time_t __CURRENT__TIME_T;
+extern std::string __CURRENT__TIME_STRING;
+
+/**
+ * @brief Get the current time object
+ * 
+ * @return time_t
+ */
+inline std::string GET_CURRENT_TIME() {
+    static unsigned long prev_frame = __PROGRAM_FRAMES-1; //this is really un-optimised/bad but im lazy.
+
+    if(prev_frame!=__PROGRAM_FRAMES) {
+        __CURRENT__TIME_POINT   = std::chrono::system_clock::now();
+        __CURRENT__TIME_T       = std::chrono::system_clock::to_time_t(__CURRENT__TIME_POINT);
+        prev_frame = __PROGRAM_FRAMES;
+    }
+    return std::string(ctime(&__CURRENT__TIME_T));
+}
+
+// inline void TERMINAL_PRINT
 
 
 /**

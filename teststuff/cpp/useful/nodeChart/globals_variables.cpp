@@ -3,6 +3,12 @@
 #include "globals_includes.hpp"
 
 
+bool __ON_TERMINAL = false;
+unsigned int __PROGRAM_FRAMES = (unsigned int)-1;
+
+std::chrono::_V2::system_clock::time_point __CURRENT__TIME_POINT = std::chrono::system_clock::now();
+time_t __CURRENT__TIME_T = std::chrono::system_clock::to_time_t(__CURRENT__TIME_POINT);
+std::string
 
 std::string programCWD;
 

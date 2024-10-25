@@ -21,6 +21,12 @@ bool opt__enable_grid = true;
 
 int main(int argc, char** argv) {
 
+    if(argc>1) {
+        for(int i=0; i<argc; i++) {
+            if(argv[i]=="-T" || argv[i]=="--TERMINAL") __ON_TERMINAL = true;
+        }
+    }
+
     programCWD = getFileCWD(true);
     std::string default_proj_file = "/home/berkhme/github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/saveFiles/default_chart.json";
 
@@ -91,6 +97,8 @@ int main(int argc, char** argv) {
     int setting_autosave_iterWait = 60; //how many frames/iterations to wait before saving
 
     while(running_main) {
+        __PROGRAM_FRAMES++;
+
         static std::vector<std::vector<int>>* pressed_keys;
         pressed_keys = &guiKeys.pressed;
         guiKeys.update();
@@ -110,6 +118,16 @@ int main(int argc, char** argv) {
                 projects[_selected].chart.screen_dim[1] = al_get_display_height(display);
                 dim__main.x = projects[_selected].chart.screen_dim[0];
                 dim__main.y = projects[_selected].chart.screen_dim[1];
+                if(__ON_TERMINAL) {
+                    std::cout << "["<<GET_CURRENT_TIME()<<"]: ";
+                    std::cout << "window_resized: ["<<dim__main.x<< ", "<<dim__main.y<<"]"<< std::endl;
+                }
+            }
+            if(al_event.type == ALLEGRO_EVENT_DISPLAY_LOST) {
+                if(__ON_TERMINAL) {
+                    std::cout << "["<<GET_CURRENT_TIME()<<"]: ";
+                    std::cout << "window not in focus.." << std::endl;
+                }
             }
         }
         ImGui_ImplAllegro5_NewFrame();
@@ -384,6 +402,7 @@ int main(int argc, char** argv) {
         std::cout << "\n";
         std::cout.flush();
         #endif
+
     }
 
     ImGui_ImplAllegro5_Shutdown();

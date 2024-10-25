@@ -320,7 +320,7 @@ void gNC::_menu__timeline(
     // ImGui::SetWindowCollapsed(_collapse);
     _collapse = ImGui::IsWindowCollapsed();
 
-    if(_collapse != _collapse_prev | _init) {
+    if(_collapse != _collapse_prev || _init) {
         if(_collapse_prev) _init = true;
         //this iteration had a state change for _collapse
         ImGui::SetWindowPos(ImVec2(
