@@ -23,6 +23,13 @@ extern bool __ON_TERMINAL;
  */
 extern unsigned int __PROGRAM_FRAMES;
 
+
+// Global flags
+
+extern int __GLOBAL_FLAGS__WIN_RESIZED; //whether the main program window has been resized: 0 - false
+extern int __GLOBAL_FLAGS__WIN_CLOSING; //whether the program is closing (i.e. this is the last iteration/frame before the program closes): 1 = closing/true
+
+
 extern std::chrono::_V2::system_clock::time_point   __CURRENT__TIME_POINT;
 extern time_t                                       __CURRENT__TIME_T;
 extern std::string                                  __CURRENT__TIME_STRING;

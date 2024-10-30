@@ -119,6 +119,7 @@ int main(int argc, char** argv) {
             ImGui_ImplAllegro5_ProcessEvent(&al_event);
             if(al_event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
                 running_main = false;
+                __GLOBAL_FLAGS__WIN_CLOSING = 1;
             }
             if(al_event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
                 ImGui_ImplAllegro5_InvalidateDeviceObjects();
@@ -132,7 +133,7 @@ int main(int argc, char** argv) {
                     std::cout<<"["<<GET_CURRENT_TIME()<<"]: ";
                     std::cout << "window_resized: ["<<dim__main.x<< ", "<<dim__main.y<<"]"<< std::endl;
                 }
-                
+                __GLOBAL_FLAGS__WIN_RESIZED = 2;
             }
         }
         ImGui_ImplAllegro5_NewFrame();
@@ -408,6 +409,10 @@ int main(int argc, char** argv) {
         std::cout.flush();
         #endif
 
+
+        if(__GLOBAL_FLAGS__WIN_RESIZED>0) {
+            __GLOBAL_FLAGS__WIN_RESIZED = (__GLOBAL_FLAGS__WIN_RESIZED==1? 0 : __GLOBAL_FLAGS__WIN_RESIZED-1);
+        }
     }
 
     ImGui_ImplAllegro5_Shutdown();
