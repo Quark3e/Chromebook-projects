@@ -109,7 +109,6 @@ int main(int argc, char** argv) {
 
     while(running_main) {
         __PROGRAM_FRAMES++;
-
         static std::vector<std::vector<int>>* pressed_keys;
         pressed_keys = &guiKeys.pressed;
         guiKeys.update();
@@ -347,7 +346,7 @@ int main(int argc, char** argv) {
             gNC::linkPtr_menu__rightClick = nullptr;
         }
 
-        gNC::_menu__timeline(&projects[_selected].chart);
+        if(_selected!=-1) gNC::_menu__timeline(&projects[_selected].chart);
         gNC::_menu__fileExplorer();
         if(!gNC::_mode__fileExplorer && gNC::_file__fileExplorer.length()!=0) {
             switch (gNC::_mode__fileExplorer_prev) {

@@ -298,10 +298,13 @@ void gNC::_menu__timeline(
 ) {
     assert(_chart);
 
+    static gNC::guiNodeChart* prev_chart = nullptr;
     static bool open    = true;
     static bool _init   = true;
     static bool _collapse   = true;
     static bool _collapse_prev  = true;
+
+    if(_chart != prev_chart) _init = true;
 
     _collapse_prev = _collapse;
     if(!open) {
@@ -318,6 +321,7 @@ void gNC::_menu__timeline(
     ImGui::Begin("Timeline", &open, win_flags);
     ImGui::SetWindowSize(dim__win_timeline());
     if(__PROGRAM_FRAMES<=1) {
+        ImGui::SetWindowCollapsed(true);
         ImGui::SetWindowPos(ImVec2(
             dim__main.x - ImGui::GetWindowSize().x,
             dim__main.y - ImGui::GetWindowSize().y
@@ -344,6 +348,7 @@ void gNC::_menu__timeline(
     ImGui::End();
 
     _init = false;
+    prev_chart = _chart;
 }
 
 
