@@ -13,18 +13,24 @@
 
 #include "ResolveHelper.hpp"
 
-#define PORT    8080
-#define ADDR    INADDR_ANY
+#define DEFAULT__PORT    8080
+#define DEFAULT__ADDR    "192.168.1.177"
 #define MAXLINE 1024
 
 
 
 // Driver code
 int main(int argc, char** argv) {
-    std::string serverAddr = "";
+    std::string serverAddr = DEFAULT__ADDR;
+    int serverPort = DEFAULT__PORT;
     if(argc>1) {
-        serverAddr = argv[1];
+        for(int i=1; i<argc; i++) {
+            if(strcmp(argv[i], "-p")==0 && i<argc-1) serverPort = std::stoi(argv[i+1]);
+            if(strcmp(argv[i], "-a")==0 && i<argc-1) serverAddr = argv[i+1];
+        }
+        //serverAddr = argv[1];
     }
+
 
     int result = 0;
 	int sockfd;
@@ -54,18 +60,11 @@ int main(int argc, char** argv) {
         exit(1);
     }
 
-    if(argc<=1 && serverAddr.length()==0) {
-        servaddr.sin_family = AF_INET;
-        servaddr.sin_port = htons(PORT);
-        servaddr.sin_addr.s_addr = INADDR_ANY;
-    }
-    else {
-        result = resolvehelper(serverAddr.c_str(), AF_INET, std::to_string(PORT).c_str(), &addrDest);
-        if(result!=0) {
-            int lasterror = errno;
-            std::cout << "error: " << lasterror;
-            exit(1);
-        }
+    result = resolvehelper(serverAddr.c_str(), AF_INET, std::to_string(serverPort).c_str(), &addrDest);
+    if(result!=0) {
+        int lasterror = errno;
+        std::cout << "error: " << lasterror;
+        exit(1);
     }
 
 	int n;
