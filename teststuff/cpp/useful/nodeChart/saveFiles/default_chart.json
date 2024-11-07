@@ -1,13 +1,13 @@
 {
     "projects": [
         {
-            "date"      : "Tue Nov  5 19:00:08 2024",
+            "date"      : "Wed Nov  6 20:17:00 2024",
             "name"      : "",
-            "screen_pos": [  -43,   98],
-            "screen_dim": [ 1280,  698],
+            "screen_pos": [  580,   62],
+            "screen_dim": [ 1300,  730],
             "nodes"	: [
                 {
-                    "addr"      : "0x55f6efea7fa0",
+                    "addr"      : "0x55976cf72030",
                     "label"     : "node0test",
                     "desc"      : "desc0",
                     "bodyText"  : "(*itr).bodyText",
@@ -24,7 +24,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55f6efedc120",
+                    "addr"      : "0x55976cf722d0",
                     "label"     : "node1",
                     "desc"      : "desc1",
                     "bodyText"  : "(*itr).bodyText",
@@ -41,7 +41,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55f6efedc310",
+                    "addr"      : "0x55976cf72520",
                     "label"     : "node2",
                     "desc"      : "desc2",
                     "bodyText"  : "(*itr).bodyText",
@@ -58,7 +58,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55f6efedc5d0",
+                    "addr"      : "0x55976cf727e0",
                     "label"     : "node3",
                     "desc"      : "desc3",
                     "bodyText"  : "(*itr).bodyText",
@@ -75,7 +75,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55f6efedc7c0",
+                    "addr"      : "0x55976cf72ab0",
                     "label"     : "node4",
                     "desc"      : "desc4",
                     "bodyText"  : "(*itr).bodyText",
@@ -92,7 +92,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55f6efedc9b0",
+                    "addr"      : "0x55976cf72d30",
                     "label"     : "node5",
                     "desc"      : "desc5",
                     "bodyText"  : "(*itr).bodyText",
@@ -109,7 +109,7 @@
                     "ROI_attach": [  14,  14],
                     "fillet_rad": 0
                 }, {
-                    "addr"      : "0x55f6efedcca0",
+                    "addr"      : "0x55976cf730d0",
                     "label"     : "from file",
                     "desc"      : "this\"is\"\"a\"test\"cool\\n\"cool",
                     "bodyText"  : "This is a test Cool amogus\nsuper\nawesome\noof\npepega\nligma\n\"balls\"",
@@ -129,15 +129,15 @@
             ],
             "links"	: [
                 {
-                    "addr"                : "0x55f6efe9cd80",
+                    "addr"                : "0x55976cf75800",
                     "label"               : "link: 0->1",
                     "desc"                : "a link that goes out from node0 in to node 1",
                     "bodyText"            : "",
                     "date"                : "1969-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55f6efea7fa0",
-                    "dest"                : "0x55f6efedc120",
+                    "src"                 : "0x55976cf72030",
+                    "dest"                : "0x55976cf722d0",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -149,15 +149,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55f6efedf450",
+                    "addr"                : "0x55976cf75a00",
                     "label"               : "link: 4->1",
                     "desc"                : "a link that goes out from node0 in to node 1",
                     "bodyText"            : "",
                     "date"                : "2021-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55f6efedc7c0",
-                    "dest"                : "0x55f6efedc120",
+                    "src"                 : "0x55976cf72ab0",
+                    "dest"                : "0x55976cf722d0",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -169,15 +169,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55f6efedf630",
+                    "addr"                : "0x55976cf75be0",
                     "label"               : "link: 5->2",
                     "desc"                : "a link that goes out from node0 in to node 1",
                     "bodyText"            : "",
                     "date"                : "1969-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55f6efedc9b0",
-                    "dest"                : "0x55f6efedc120",
+                    "src"                 : "0x55976cf72d30",
+                    "dest"                : "0x55976cf722d0",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -189,15 +189,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55f6efedf7f0",
+                    "addr"                : "0x55976cf75da0",
                     "label"               : "link: 1->2",
                     "desc"                : "a link that goes out from node1 added to node 2",
                     "bodyText"            : "",
                     "date"                : "1969-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 2,
-                    "src"                 : "0x55f6efedc120",
-                    "dest"                : "0x55f6efedc310",
+                    "src"                 : "0x55976cf722d0",
+                    "dest"                : "0x55976cf72520",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -209,15 +209,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55f6efedf9f0",
+                    "addr"                : "0x55976cf75fa0",
                     "label"               : "link: 1->3",
                     "desc"                : "a link that goes out from node1 in to node3",
                     "bodyText"            : "",
                     "date"                : "1969-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55f6efedc120",
-                    "dest"                : "0x55f6efedc5d0",
+                    "src"                 : "0x55976cf722d0",
+                    "dest"                : "0x55976cf727e0",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -229,15 +229,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55f6efedfb90",
+                    "addr"                : "0x55976cf761d0",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "1969-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55f6efedcca0",
-                    "dest"                : "0x55f6efedc7c0",
+                    "src"                 : "0x55976cf730d0",
+                    "dest"                : "0x55976cf72ab0",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -249,15 +249,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55f6efedfd50",
+                    "addr"                : "0x55976cf76420",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "1969-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55f6efedcca0",
-                    "dest"                : "0x55f6efea7fa0",
+                    "src"                 : "0x55976cf730d0",
+                    "dest"                : "0x55976cf72030",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -269,15 +269,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55f6efedfef0",
+                    "addr"                : "0x55976cf76650",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "1969-01-01",
                     "type_src"            : 1,
                     "type_dest"           : 0,
-                    "src"                 : "0x55f6efedcca0",
-                    "dest"                : "0x55f6efedc9b0",
+                    "src"                 : "0x55976cf730d0",
+                    "dest"                : "0x55976cf72d30",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
@@ -289,15 +289,15 @@
                     "link_lineWidth"      : 12,
                     "link_gui__lineWidth" : 5
                 }, {
-                    "addr"                : "0x55f6efee0070",
+                    "addr"                : "0x55976cf76860",
                     "label"               : "",
                     "desc"                : "",
                     "bodyText"            : "",
                     "date"                : "1900-01-01",
                     "type_src"            : 3,
                     "type_dest"           : 2,
-                    "src"                 : "0x55f6efea7fa0",
-                    "dest"                : "0x55f6efedc5d0",
+                    "src"                 : "0x55976cf72030",
+                    "dest"                : "0x55976cf727e0",
                     "layout"              : 0,
                     "min__connect"        : 50,
                     "min__node"           : 100,
