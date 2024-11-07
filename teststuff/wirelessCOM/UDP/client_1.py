@@ -7,7 +7,7 @@ import socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client_socket.settimeout(1.5)
 message = b'test'
-addr = ("192.168.1.117", 53)
+addr = ("192.168.1.118", 1087)
 
 # for pings in range(10):
 while True:
