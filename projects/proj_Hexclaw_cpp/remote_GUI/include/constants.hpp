@@ -1,0 +1,33 @@
+
+#pragma once
+#ifndef HPP__HEXCLAW_REMOTE_GUI__CONSTANTS
+#define HPP__HEXCLAW_REMOTE_GUI__CONSTANTS
+
+
+#define WIN_WIDTH   600
+#define WIN_HEIGHT  600
+
+#define WIN_INPUT_IK_WIDTH  350
+#define WIN_INPUT_IK_HEIGHT 100
+#define WIN_INPUT_IK_POS  [0, 0]
+
+#define WIN_INPUT_SETTINGS_WIDTH    200
+#define WIN_INPUT_SETTINGS_HEIGHT   300
+#define WIN_INPUT_SETTINGS_POS  [WIN_INPUT_IK_POS[0]+WIN_INPUT_IK_WIDTH, 0]
+
+#define WIN_OUTPUT_ANGLES_WIDTH     350
+#define WIN_OUTPUT_ANGLES_HEIGHT    100
+#define WIN_OUTPUT_ANGLES_POS   [0, WIN_INPUT_IK_POS[1]+WIN_INPUT_IK_HEIGHT]
+
+#define WIN_OUTPUT_FK_WIDTH     350
+#define WIN_OUTPUT_FK_HEIGHT    100
+#define WIN_OUTPUT_FK_POS   [0, WIN_OUTPUT_ANGLES_POS[1]+WIN_INPUT_IK_HEIGHT]
+
+
+#define LIM_SHORTCUT_KEYS   8 //number of frames to wait after calling a boolean via key shortcut
+
+#define MAX_HISTORY_SIZE    10
+
+
+
+#endif

@@ -1,0 +1,7 @@
+#pragma once
+#ifndef HPP__HEXCLAW_REMOTE_GUI__GLOBAL_VARIABLES
+#define HPP__HEXCLAW_REMOTE_GUI__GLOBAL_VARIABLES
+
+
+
+#endif

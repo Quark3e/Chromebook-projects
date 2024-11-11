@@ -44,7 +44,7 @@ namespace HW_KINEMATICS  {
 
     DIY::typed_dict<std::string, bool> settings(
         setting_labels,
-        std::vector<bool>{
+        std::list<bool>{
             true,
             true,
             false,
@@ -64,7 +64,7 @@ namespace HW_KINEMATICS  {
 
     const DIY::typed_dict<std::string, std::string> setting_desc(
         setting_labels,
-        std::vector<std::string>{
+        std::list<std::string>{
             "frame1X = frame1X * cos(b)",
             "a1 = a1 * cos(b)",
             "q4 = atan(frame1X / frame1Y)",

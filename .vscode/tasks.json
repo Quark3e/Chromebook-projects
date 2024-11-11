@@ -29,7 +29,8 @@
 			],
 			"group": "build",
 			"detail": "compiler: /usr/bin/g++"
-		}, {
+		},
+		{
 			"type": "cppbuild",
 			"label": "C/C++: g++ build active file: \"{$file}_EXE\"",
 			"command": "/usr/bin/g++",
@@ -50,7 +51,8 @@
 				"kind": "build"
 			},
 			"detail": "compiler: /usr/bin/g++"
-		}, {
+		},
+		{
 			"type": "cppbuild",
 			"label": "C/C++: g++ build active file: \"{$file}_EXE\" and run it",
 			"command": "/usr/bin/g++",
@@ -74,16 +76,25 @@
 				"isDefault": false
 			},
 			"detail": "compiler: /usr/bin/g++\nadds \"_EXE\" at the end to denote as executable"
-		}, {
+		},
+		{
 			"type": "cppbuild",
 			"label": "HEXCLAW: remote_GUI - IMGUI-allegro5 - C/C++: g++ build active file",
 			"command": "/usr/bin/g++",
 			"args": [
+				// "-Wall",
 				"-DIMGUI_USER_CONFIG=\\\"/usr/local/include/imgui/examples/example_allegro5/imconfig_allegro5.h\\\"",
 				"-fdiagnostics-color=always",
 				"-I/usr/local/include/imgui/",
+				// "-I${fileDirname}",
+				"-I/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/include/",
+				// "-I//home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/src/",
+				// "-I/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/",
 				"-g",
-				"${file}",
+				// "${file}",
+				"/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/src/main.cpp",
+				"/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/src/global_variables.cpp",
+				// "/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/src/*",
 				"/usr/local/include/HC_useful/diy_dictionary.cpp",
 				"/usr/local/include/imgui/backends/imgui_impl_allegro5.cpp",
 				"/usr/local/include/imgui/imgui*.cpp",
@@ -91,9 +102,11 @@
 				"-lallegro_main",
 				"-lallegro_primitives",
 				"-o",
-				"${fileDirname}/EXE_${fileBasenameNoExtension}",
+				// "${fileDirname}/EXE_${fileBasenameNoExtension}",
+				"/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/bin/HexclawRemote_EXE",
 				"&&",
-				"${fileDirname}/EXE_${fileBasenameNoExtension}"
+				// "${fileDirname}/EXE_${fileBasenameNoExtension}"
+				"/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/bin/HexclawRemote_EXE"
 			],
 			"options": {
 				"cwd": "${fileDirname}"
@@ -103,10 +116,11 @@
 			],
 			"group": {
 				"kind": "build",
-				"isDefault": false
+				"isDefault": true
 			},
 			"detail": "compiler: /usr/bin/g++: basic build with imgui addons"
-		}, {
+		},
+		{
 			"type": "cppbuild",
 			"label": "CUSTOM [nodeChart] EXE_ C/C++: g++ build active file and run build",
 			"command": "/usr/bin/g++",
@@ -128,7 +142,8 @@
 			],
 			"group": "build",
 			"detail": "compiler: /usr/bin/g++\nadds \"_EXE\" at the end to denote as executable"
-		}, {
+		},
+		{
 			"type": "cppbuild",
 			"label": "gui_NodeChart C/C++: g++ build dedicated file with library",
 			"command": "/usr/bin/g++",
@@ -154,8 +169,6 @@
 				"-lallegro_primitives",
 				"-o",
 				"${fileDirname}/NODECHART_EXE"
-				// "&&",
-				// "${fileDirname}/NODECHART_EXE"
 			],
 			"options": {
 				"cwd": "${fileDirname}"
@@ -163,10 +176,7 @@
 			"problemMatcher": [
 				"$gcc"
 			],
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
+			"group": "build",
 			"detail": "Dedicated build task for gui_NodeChart"
 		}
 	]
