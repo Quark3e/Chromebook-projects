@@ -30,6 +30,6 @@
 
 #include "constants.hpp"
 #include "global_variables.hpp"
-
+#include "tab_options.hpp"
 
 #endif

@@ -29,5 +29,7 @@
 #define MAX_HISTORY_SIZE    10
 
 
+int __CHOSEN_LAYOUT = 0;
+
 
 #endif

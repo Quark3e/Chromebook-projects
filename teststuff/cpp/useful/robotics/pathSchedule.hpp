@@ -16,6 +16,7 @@
 #define NULL_POS_POINT 42069
 
 
+
 namespace IK_PATH {
 
     struct point_coord {
@@ -108,7 +109,7 @@ namespace IK_PATH {
         {"M30"},
         {"G00", "(X,Y,Z)/(U,V,W)"}, // Linear interpolation: instant motion. U V W = a b y //tilt change is assumed to be a constant
         {"G01", "(X,Y,Z)/(U,V,W)"}, // Linear interpolation: uses feedrate like G02 and G03
-        {"G02", "(X,Y,Z)", "(I,J)/(R)"}, // Circulat interpolation: CW
+        {"G02", "(X,Y,Z)", "(I,J)/(R)"}, // Circular interpolation: CW
         {"G03", "(X,Y,Z)", "(I,J)/(R)"}, // Circular interpolation: CCW
         {"G04", "(P)"}, // Dwell/Pause for `P` number of milliseconds
         {"G17+"}, // G_plane: XY

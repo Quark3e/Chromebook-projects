@@ -94,6 +94,7 @@
 				// "${file}",
 				"/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/src/main.cpp",
 				"/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/src/global_variables.cpp",
+				"/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/src/tab_options.cpp",
 				// "/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/src/*",
 				"/usr/local/include/HC_useful/diy_dictionary.cpp",
 				"/usr/local/include/imgui/backends/imgui_impl_allegro5.cpp",
