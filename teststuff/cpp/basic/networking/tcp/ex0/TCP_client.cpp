@@ -10,7 +10,7 @@
 #include <unistd.h>
 
 #define MAX     80
-#define PORT    2225 //8080
+#define PORT    1086 //8080
 #define SA struct sockaddr
 
 
