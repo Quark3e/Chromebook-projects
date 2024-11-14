@@ -11,7 +11,7 @@
 #include <iostream>
 
 #define MAX     80
-#define PORT    2225
+#define PORT    1086
 #define SA struct sockaddr
 
 bool runServer = false;
@@ -19,7 +19,6 @@ bool runServer = false;
 void func(int connfd) {
     char    buff_send[MAX];
     char    buff_recev[MAX];
-
     int     n;
     
     int read_bytes = 0;
