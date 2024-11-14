@@ -29,7 +29,15 @@
 #define MAX_HISTORY_SIZE    10
 
 
-int __CHOSEN_LAYOUT = 0;
+inline int __CHOSEN_LAYOUT = 0;
+
+/**
+ * ID for how the program was opened/started.
+ *  `0` - terminal mode: was opened from the terminal.
+ *  `1` - application mode: opened from an application shortcut.
+ */
+inline int __OPEN_MODE = 0;
+
 
 
 #endif

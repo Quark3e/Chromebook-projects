@@ -32,6 +32,14 @@
 
 int main(int argc, char** argv) {
 
+    if(argc>1) {
+        for(int i=0; i<argc; i++) {
+            if(strcmp(argv[i], "--APP")==0) {
+                __OPEN_MODE = 1;
+            }
+        }
+    }
+
     std::string path = getFileCWD(true);
     std::cout<<path<<std::endl;
     DIR* dir;
@@ -137,6 +145,10 @@ int main(int argc, char** argv) {
         if(ImGui::BeginTabBar("Tabs")) {
             if(ImGui::BeginTabItem("Control Panel")) {
                 tab_0();
+                ImGui::EndTabItem();
+            }
+            if(ImGui::BeginTabItem("Remote connec")) {
+                tab_1();
                 ImGui::EndTabItem();
             }
 
