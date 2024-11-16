@@ -1,5 +1,8 @@
 
 #pragma once
+#ifndef HPP__HEXCLAW_IK_HEADER
+#define HPP__HEXCLAW_IK_HEADER
+
 #include <unistd.h>
 #include <iostream>
 #include <string>
@@ -11,7 +14,7 @@
 #include "HW_headers/motion_control/motion_profiles.hpp"
 // #include "hexclaw_global.hpp"
 
-using namespace std;
+// using namespace std;
 
 
 
@@ -30,7 +33,7 @@ namespace HW_KINEMATICS  {
      *  "q5:d5"       : default: false  desc: getAngles: "q5 = atan( [...] / (frame1X / tan(a1) ))"
      *  "exceedState" : default: true   desc: getAnlges: "if [...]_exceeded: positionIsReachable[0] = False"
      */
-    const std::vector<std::string> setting_labels{
+    inline const std::vector<std::string> setting_labels{
         "al:frameX",
         "a1:a1",
         "q4:default",
@@ -42,7 +45,7 @@ namespace HW_KINEMATICS  {
         "exceedState"
     };
 
-    DIY::typed_dict<std::string, bool> settings(
+    inline DIY::typed_dict<std::string, bool> settings(
         setting_labels,
         std::list<bool>{
             true,
@@ -57,12 +60,12 @@ namespace HW_KINEMATICS  {
         }
     );
 
-    DIY::typed_dict<std::string, bool> setting_default(
+    inline DIY::typed_dict<std::string, bool> setting_default(
         setting_labels,
         settings.values()
     );
 
-    const DIY::typed_dict<std::string, std::string> setting_desc(
+    inline const DIY::typed_dict<std::string, std::string> setting_desc(
         setting_labels,
         std::list<std::string>{
             "frame1X = frame1X * cos(b)",
@@ -79,21 +82,21 @@ namespace HW_KINEMATICS  {
 
 
     /**Length of the six arms. unit: [mm]*/
-    float arm_link[6] = {145, 130, 75, 50, 25, 25};
+    inline float arm_link[6] = {145, 130, 75, 50, 25, 25};
 
     /**Weight of the load the motor at index [] is carrying. unit: [kg]*/
-    float sLoadWeight[6] = {0, 0.130, 0.085, 0.051, 0.03, 0.01};
+    inline float sLoadWeight[6] = {0, 0.130, 0.085, 0.051, 0.03, 0.01};
 
     /**Namespace scope array of values to store newly solved angles by HW_KINEMATICS::getAngles()*/
-    float solved_q[6] = {0, 0, 0, 0, 0, 0};
+    inline float solved_q[6] = {0, 0, 0, 0, 0, 0};
 
 
-    float _servo_lim[2] = {0, 180};
+    inline float _servo_lim[2] = {0, 180};
     
 
 
-    float toRadians(float degrees) { return (degrees*M_PI)/180; }
-    float toDegrees(float radians) { return (radians*180)/M_PI; }
+    inline float toRadians(float degrees) { return (degrees*M_PI)/180; }
+    inline float toDegrees(float radians) { return (radians*180)/M_PI; }
 
 
     // Inverse Kinematics - specific functions:
@@ -295,3 +298,4 @@ namespace HW_KINEMATICS  {
 }
 
 
+#endif

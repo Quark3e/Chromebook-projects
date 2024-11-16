@@ -444,4 +444,15 @@ void tab_0(void) {
 
 void tab_1(void) {
 
+
+    // // #include <GLFW
+
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+    ImGui::BeginGroup();
+    // ImGui::Image()
+    // al_draw_bitmap(bitmap_test, 5, 5, 0);
+    // al_flip_display();
+    ImGui::EndGroup();
+
 }

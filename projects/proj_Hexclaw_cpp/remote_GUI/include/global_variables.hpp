@@ -5,6 +5,8 @@
 #include "includes.hpp"
 
 
+// extern ALLEGRO_BITMAP *bitmap_test;
+
 extern int mode;
 
 
@@ -20,7 +22,7 @@ inline void HelpMarker(const char* desc, const char* symb="(?)") {
 }
 
 // boolean for whether the main program loop is to be running (this set to `false` will close the program)
-extern bool running = true;
+extern bool running;
 
 extern float input_IK_pos[3];
 extern float input_IK_orient[3];
@@ -48,11 +50,11 @@ extern DIY::typed_dict<std::string, std::string> guiSettings_desc;
 extern DIY::typed_dict<std::string, bool*> guiSettings;
 // extern DIY::typed_dict<std::string, std::string> guiSettings
 
-extern bool guisetting_link_to_server = true;
-extern bool guisetting_findOrient = true;
+extern bool guisetting_link_to_server;
+extern bool guisetting_findOrient;
 
 //whether to take and display performance/delays throughout the "checkpoints"/"segments"
-extern bool takePerf_tab_0 = false;
+extern bool takePerf_tab_0;
 
 /**
  * @brief Timeline/snapshot history "node"/change addition.
@@ -72,7 +74,7 @@ inline void basic_timeline_add(storeType& tmp, std::vector<storeType>& historyVe
         historyVec.erase(historyVec.begin()); //delete oldest
         historyVec.push_back(tmp); //add new
     }
-    else if(idx>=cast<int>(historyVec.size())-1) { //timeline addition: same branch: still whithin MAX lim
+    else if(idx>=static_cast<int>(historyVec.size())-1) { //timeline addition: same branch: still whithin MAX lim
         historyVec.push_back(tmp);
         idx+=1;
     }

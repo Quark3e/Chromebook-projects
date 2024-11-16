@@ -2,8 +2,9 @@
 #include "../include/includes.hpp"
 
 
-int mode = 0;
+// ALLEGRO_BITMAP *bitmap_test;
 
+int mode = 0;
 
 
 bool running = true;

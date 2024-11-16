@@ -29,7 +29,6 @@
 #include "../include/includes.hpp"
 
 
-
 int main(int argc, char** argv) {
 
     if(argc>1) {
@@ -71,11 +70,13 @@ int main(int argc, char** argv) {
     guiSettings.add("findOrient", &guisetting_findOrient);
 
 
+    // std::cout << "ALLEGRO_VERSION: " << ALLEGRO_VERSION_INT << std::endl;
 
-    al_init();
+    assert(al_init());
     al_install_keyboard();
     al_install_mouse();
     al_init_primitives_addon();
+    // assert(al_init_image_addon());
     al_set_new_display_flags(!ALLEGRO_RESIZABLE);
     ALLEGRO_DISPLAY* display = al_create_display(WIN_WIDTH, WIN_HEIGHT);
     al_set_window_title(display, "Hexclaw remoteGUI");
@@ -85,6 +86,8 @@ int main(int argc, char** argv) {
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_mouse_event_source());
 
+
+    // bitmap_test = al_load_bitmap("/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/media/MyImage01.jpg");
 
 
     IMGUI_CHECKVERSION();
@@ -147,7 +150,7 @@ int main(int argc, char** argv) {
                 tab_0();
                 ImGui::EndTabItem();
             }
-            if(ImGui::BeginTabItem("Remote connec")) {
+            if(ImGui::BeginTabItem("Remote connect")) {
                 tab_1();
                 ImGui::EndTabItem();
             }
@@ -168,6 +171,7 @@ int main(int argc, char** argv) {
     }
     ImGui_ImplAllegro5_Shutdown();
     ImGui::DestroyContext();
+    // al_destroy_bitmap(bitmap_test);
     al_destroy_event_queue(queue);
     al_destroy_display(display);
 

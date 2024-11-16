@@ -4,7 +4,7 @@
 #define H_HEXCLAW_MOTION_PROFILES
 
 
-float mp1(float x) {
+inline float mp1(float x) {
     float y=0, V_max=2, t3=1;
     float Pt1=0.5;
     float Pt2=Pt1;
