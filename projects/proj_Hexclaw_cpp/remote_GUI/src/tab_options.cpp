@@ -442,10 +442,10 @@ void tab_0(void) {
     tab0_init = true;
 }
 
+
+
 void tab_1(void) {
-
-
-    // // #include <GLFW
+    
 
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
@@ -453,6 +453,9 @@ void tab_1(void) {
     // ImGui::Image()
     // al_draw_bitmap(bitmap_test, 5, 5, 0);
     // al_flip_display();
+    ImGui::Text("pointer = %x", my_image_texture);
+    ImGui::Text("size = %d x %d", my_image_width, my_image_height);
+    ImGui::Image((ImTextureID)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
     ImGui::EndGroup();
 
 }

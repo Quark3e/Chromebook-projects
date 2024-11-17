@@ -126,6 +126,9 @@ RECENT REVISION HISTORY:
   of the credits.
 */
 
+// #ifndef H__STB_IMAGE
+// #define H__STB_IMAGE
+
 #ifndef STBI_INCLUDE_STB_IMAGE_H
 #define STBI_INCLUDE_STB_IMAGE_H
 
@@ -7760,6 +7763,7 @@ STBIDEF int stbi_is_16_bit_from_callbacks(stbi_io_callbacks const *c, void *user
 }
 
 #endif // STB_IMAGE_IMPLEMENTATION
+// #endif //H__STB_IMAGE
 
 /*
    revision history:
