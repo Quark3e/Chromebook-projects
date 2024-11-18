@@ -2,11 +2,11 @@
 #include "../include/includes.hpp"
 
 
-// ALLEGRO_BITMAP *bitmap_test;
+ALLEGRO_BITMAP *bitmap_test;
 
-int my_image_width = 0;
-int my_image_height = 0;
-GLuint my_image_texture = 0;
+// int my_image_width = 0;
+// int my_image_height = 0;
+// GLuint my_image_texture = 0;
 
 
 int mode = 0;

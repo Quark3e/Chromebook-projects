@@ -28,7 +28,7 @@
 
 #include "../include/includes.hpp"
 
-#include "textureHeader.h"
+// #include "textureHeader.h"
 
 // static void glfw_error_callback(int error, const char* description) {
 //     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
     al_install_keyboard();
     al_install_mouse();
     al_init_primitives_addon();
-    // assert(al_init_image_addon());
+    assert(al_init_image_addon());
     al_set_new_display_flags(!ALLEGRO_RESIZABLE | ALLEGRO_OPENGL_FORWARD_COMPATIBLE | ALLEGRO_OPENGL);
     ALLEGRO_DISPLAY* display = al_create_display(WIN_WIDTH, WIN_HEIGHT);
     al_set_window_title(display, "Hexclaw remoteGUI");
@@ -96,10 +96,10 @@ int main(int argc, char** argv) {
     // if (!glfwInit()) {
     //     return 1;
     // }
-    bool ret = LoadTextureFromFile("/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/media/MyImage01.jpg", &my_image_texture, &my_image_width, &my_image_height);
-    IM_ASSERT(ret);
+    // bool ret = LoadTextureFromFile("/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/media/MyImage01.jpg", &my_image_texture, &my_image_width, &my_image_height);
+    // IM_ASSERT(ret);
 
-    // bitmap_test = al_load_bitmap("/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/media/MyImage01.jpg");
+    bitmap_test = al_load_bitmap("/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/media/MyImage01.jpg");
 
 
     IMGUI_CHECKVERSION();
@@ -183,7 +183,7 @@ int main(int argc, char** argv) {
     }
     ImGui_ImplAllegro5_Shutdown();
     ImGui::DestroyContext();
-    // al_destroy_bitmap(bitmap_test);
+    al_destroy_bitmap(bitmap_test);
     al_destroy_event_queue(queue);
     al_destroy_display(display);
 

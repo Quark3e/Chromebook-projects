@@ -11,7 +11,7 @@
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
-// #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_image.h>
 // #include <allegro5/allegro_opengl.h>
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_allegro5.h>
@@ -20,8 +20,7 @@
 // #include <allegro5/internal/alconfig.h>
 
 // #include <GLES2/gl2.h>
-
-#include <GLFW/glfw3.h> // Will drag system OpenGL headers
+// #include <GLFW/glfw3.h> // Will drag system OpenGL headers
 
 
 #include <stdio.h>

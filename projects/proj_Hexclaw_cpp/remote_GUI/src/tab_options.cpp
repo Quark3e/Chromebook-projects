@@ -452,10 +452,16 @@ void tab_1(void) {
     ImGui::BeginGroup();
     // ImGui::Image()
     // al_draw_bitmap(bitmap_test, 5, 5, 0);
+    
     // al_flip_display();
-    ImGui::Text("pointer = %x", my_image_texture);
-    ImGui::Text("size = %d x %d", my_image_width, my_image_height);
-    ImGui::Image((ImTextureID)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
+    // ImGui::Text("pointer = %x", my_image_texture);
+    // ImGui::Text("size = %d x %d", my_image_width, my_image_height);
+    // ImGui::Image((ImTextureID)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
+
+    // al_draw_indexed_prim()
+    ImGui::SetCursorPos(io.MousePos);
+    ImGui::Image((ImTextureID)(intptr_t)bitmap_test, ImVec2(256, 256));
+
     ImGui::EndGroup();
 
 }
