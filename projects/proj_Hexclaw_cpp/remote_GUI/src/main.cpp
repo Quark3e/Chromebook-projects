@@ -101,6 +101,7 @@ int main(int argc, char** argv) {
 
     bitmap_test = al_load_bitmap("/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/media/MyImage01.jpg");
 
+    
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
