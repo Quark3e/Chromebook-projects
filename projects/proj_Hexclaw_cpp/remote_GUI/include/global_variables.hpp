@@ -17,6 +17,30 @@ extern ALLEGRO_DISPLAY* display;
 
 extern int mode;
 
+/**
+ * @brief Load assigned ALLEGRO_BITMAP with data/bits from a bit array
+ * 
+ * @param bm_toLoad pointer to the ALLEGRO_BITMAP to load the data into/onto
+ * @param bitArray the bit-array/std::vector<uint8_t> of bits to load into the bitmap
+ * @param colourForm_ID unique ID of the colour format/type to load the data as, which'll
+ *  also set the colour channels and bit separation [note 0].
+ * @param width number of pixels for the width
+ * @param height number of pixels for the height
+ * @return true if the data has been successfully loaded in
+ * @return false if an error occurred
+ */
+inline bool loadBitmap_fromBitArray(
+    ALLEGRO_BITMAP* bm_toLoad,
+    std::vector<uint8_t> bitArray,
+    int colourForm_ID,
+    int width,
+    int height
+) {
+
+
+
+}
+
 
 inline void HelpMarker(const char* desc, const char* symb="(?)") {
     ImGui::TextDisabled(symb);
