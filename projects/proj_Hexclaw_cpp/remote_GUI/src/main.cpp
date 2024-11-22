@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
     al_init_primitives_addon();
     assert(al_init_image_addon());
     al_set_new_display_flags(!ALLEGRO_RESIZABLE | ALLEGRO_OPENGL_FORWARD_COMPATIBLE | ALLEGRO_OPENGL);
-    ALLEGRO_DISPLAY* display = al_create_display(WIN_WIDTH, WIN_HEIGHT);
+    display = al_create_display(WIN_WIDTH, WIN_HEIGHT);
     al_set_window_title(display, "Hexclaw remoteGUI");
     al_set_window_position(display, 0, 0);
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
@@ -99,8 +99,18 @@ int main(int argc, char** argv) {
     // bool ret = LoadTextureFromFile("/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/media/MyImage01.jpg", &my_image_texture, &my_image_width, &my_image_height);
     // IM_ASSERT(ret);
 
-    bitmap_test = al_load_bitmap("/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/media/MyImage01.jpg");
 
+    std::cout << "before: " << al_get_target_bitmap() << std::endl;
+    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+    // bitmap_test = al_load_bitmap("/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/media/MyImage01.jpg");
+    bitmap_test = al_create_bitmap(640, 480);
+    
+
+
+    al_set_new_bitmap_flags(!ALLEGRO_MEMORY_BITMAP);
+    std::cout << "after : " << al_get_target_bitmap() << std::endl;
+    std::cout << "bitmap: " << bitmap_test << std::endl;
+    std::cout << "buff  : " << al_get_backbuffer(display) << std::endl;
     
 
     IMGUI_CHECKVERSION();

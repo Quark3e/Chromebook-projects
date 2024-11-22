@@ -7,6 +7,9 @@
 
 extern ALLEGRO_BITMAP *bitmap_test;
 
+
+extern ALLEGRO_DISPLAY* display;
+
 // extern int my_image_width;
 // extern int my_image_height;
 // extern GLuint my_image_texture;
