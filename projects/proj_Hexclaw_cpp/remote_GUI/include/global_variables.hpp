@@ -7,6 +7,39 @@
 
 extern ALLEGRO_BITMAP *bitmap_test;
 
+/**
+ * 
+ * typed dict to hold the different image formats and their properties with their format name as key, with case sensitive
+ * ex:
+ *  ```
+ *  imageFormats {
+ *      "HSV"   : {
+ *          "n-bytes" : int
+ *      },
+ *      "RGB"   : {
+ *          "n-bytes" : int
+ *      },
+ *      "RGBA"  : {
+ *          "n-bytes" : int
+ *      },
+ *      "GRAY"  : {
+ *          "n-bytes" : int
+ *      }
+ *  }
+ *  ```
+ */
+DIY::typed_dict<std::string, DIY::typed_dict<std::string, size_t>> imageFormats(
+    {"HSV", "RGB", "RGBA", "GRAY"}, {
+        DIY::typed_dict<std::string, size_t>(
+            {"n-bytes"}, {3}),
+        DIY::typed_dict<std::string, size_t>(
+            {"n-bytes"}, {3}),
+        DIY::typed_dict<std::string, size_t>(
+            {"n-bytes"}, {4}),
+        DIY::typed_dict<std::string, size_t>(
+            {"n-bytes"}, {1})
+    }
+);
 
 extern ALLEGRO_DISPLAY* display;
 
@@ -18,26 +51,76 @@ extern ALLEGRO_DISPLAY* display;
 extern int mode;
 
 /**
- * @brief Load assigned ALLEGRO_BITMAP with data/bits from a bit array
+ * @brief Load assigned ALLEGRO_BITMAP with uncompressed data/bits from a bit array
  * 
- * @param bm_toLoad pointer to the ALLEGRO_BITMAP to load the data into/onto
- * @param bitArray the bit-array/std::vector<uint8_t> of bits to load into the bitmap
- * @param colourForm_ID unique ID of the colour format/type to load the data as, which'll
- *  also set the colour channels and bit separation [note 0].
- * @param width number of pixels for the width
- * @param height number of pixels for the height
+ * @param _bm_toLoad pointer to the ALLEGRO_BITMAP to load the data into/onto
+ * @param _bitArray the bit-array/std::vector<uint8_t> of bits to load into the bitmap
+ * @param _colourFormat name of the colour format/type to load the data as, which'll
+ *  also set the colour channels and bit separation. Is defined according to `imageFormats`
+ * @param _width number of pixels for the width
+ * @param _height number of pixels for the height
+ * @param _incompleteArray whether the input bitArray is incomplete/not-the-full-size. Used
+ * as an indicator for whether the input `bitArray` is intentionally not the full expected size (n-channels * width * height).
+ * If this is set to `true` then the function will still load in the existing data and return true. If false and the input bitArray
+ * is not the expected size then it'll not load the data in and instead return false.
+ * this is set to `true` the function will load the
  * @return true if the data has been successfully loaded in
  * @return false if an error occurred
  */
 inline bool loadBitmap_fromBitArray(
-    ALLEGRO_BITMAP* bm_toLoad,
-    std::vector<uint8_t> bitArray,
-    int colourForm_ID,
-    int width,
-    int height
+    ALLEGRO_BITMAP* _bitmap,
+    std::vector<uint8_t> _bitArray,
+    std::string _colourFormat,
+    size_t _width,
+    size_t _height,
+    bool _incompleteArray = false
 ) {
+    assert(_bitmap);
+    size_t numBytes = imageFormats.get(_colourFormat).get("n-bytes");
+    if(
+        (!_incompleteArray && _bitArray.size() != numBytes * _width * _height)
+        // imageFormats.find(_colourFormat)
+    ) {
+        return false;
+    }
+
+    int pixel = 0;
+    size_t pos[2] = {0, 0};
+    ALLEGRO_COLOR col;
+    al_set_target_bitmap(_bitmap);
+    
+    for(size_t i=0; i<_bitArray.size(); i++) {
+        if(pixel>=numBytes) { //new pixel
+            int startIdx = i-numBytes;
+            if(_colourFormat=="HSV") {
+
+            }
+            else if(_colourFormat=="RGB") {
+                col = al_map_rgb(unsigned(startIdx), unsigned(startIdx+1), unsigned(startIdx+2));
+            }
+            else if(_colourFormat=="RGBA") {
+                col = al_map_rgba(unsigned(startIdx), unsigned(startIdx+1), unsigned(startIdx+2), unsigned(startIdx+3));
+            }
+            else if(_colourFormat=="GRAY") {
+                col = al_map_rgb(unsigned(startIdx), unsigned(startIdx), unsigned(startIdx));
+            }
+            al_put_pixel(pos[0], pos[1], col);
 
 
+            if(pos[0]>=_width) { //new row
+                pos[1]++;
+                pos[0]=0;
+            }
+            else {
+                pos[0]++;
+            }
+            pixel = 0;
+        }
+
+        pixel++;
+    }
+
+    al_set_target_backbuffer(display);
 
 }
 

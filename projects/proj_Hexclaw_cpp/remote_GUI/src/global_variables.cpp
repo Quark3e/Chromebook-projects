@@ -4,6 +4,7 @@
 
 ALLEGRO_BITMAP *bitmap_test;
 
+
 ALLEGRO_DISPLAY* display = nullptr;
 
 // int my_image_width = 0;
