@@ -460,38 +460,50 @@ void tab_1(void) {
 
     // al_draw_indexed_prim()
 
-    al_set_target_bitmap(bitmap_test);
-    static float w, h, w1, h1;
-    static ALLEGRO_COLOR col = al_map_rgba(200, 50, 50, 220);
-    static uint8_t frameCount = 0;
-    frameCount++;
-    static bool evens = false;
-    static int  intCnt= 0;
-    if(frameCount>2) {
-        evens = !evens;
-        frameCount = 0;
-        
-        for(int x_=intCnt*w1; x_<(intCnt+1)*w1; x_++) {
-            for(int y_=intCnt*h1; y_<(intCnt+1)*h1; y_++) {
-                al_put_pixel(x_, y_, al_map_rgba(0, 0, 0, 0));
-            }
-        }
-        intCnt++;
-        if(intCnt>=4) intCnt = 0;
-    }
+    static std::vector<uint8_t> imgBits;
+    static int imgSize[2] = {al_get_bitmap_width(bitmap_test), al_get_bitmap_height(bitmap_test)};
     if(init) {
-        w = al_get_bitmap_width(bitmap_test);
-        h = al_get_bitmap_height(bitmap_test);
-        w1= w/4;
-        h1= h/4;
-    }
-    for(int x_=intCnt*w1; x_<(intCnt+1)*w1; x_++) {
-        for(int y_=intCnt*h1; y_<(intCnt+1)*h1; y_++) {
-            al_put_pixel(x_, y_, col);
+        std::cout << "bitmap dim: " << imgSize[0] << ", " << imgSize[1] << std::endl;
+        int x, y;
+        for(int i=0; i<imgSize[0]*imgSize[1]*1; i++) {
+            y = floor(i/imgSize[1]);
+            x = i-y*imgSize[0];
+            imgBits.push_back((x/imgSize[0])*255);
         }
     }
 
-    al_set_target_backbuffer(display);
+    assert(loadBitmap_fromBitArray(bitmap_test, imgBits, "GRAY", static_cast<size_t>(imgSize[0]), static_cast<size_t>(imgSize[1])));
+
+    // al_set_target_bitmap(bitmap_test);
+    // static float w, h, w1, h1;
+    // static ALLEGRO_COLOR col = al_map_rgba(200, 50, 50, 220);
+    // static uint8_t frameCount = 0;
+    // frameCount++;
+    // static bool evens = false;
+    // static int  intCnt= 0;
+    // if(frameCount>2) {
+    //     evens = !evens;
+    //     frameCount = 0; 
+    //     for(int x_=intCnt*w1; x_<(intCnt+1)*w1; x_++) {
+    //         for(int y_=intCnt*h1; y_<(intCnt+1)*h1; y_++) {
+    //             al_put_pixel(x_, y_, al_map_rgba(0, 0, 0, 0));
+    //         }
+    //     }
+    //     intCnt++;
+    //     if(intCnt>=4) intCnt = 0;
+    // }
+    // if(init) {
+    //     w = al_get_bitmap_width(bitmap_test);
+    //     h = al_get_bitmap_height(bitmap_test);
+    //     w1= w/4;
+    //     h1= h/4;
+    // }
+    // for(int x_=intCnt*w1; x_<(intCnt+1)*w1; x_++) {
+    //     for(int y_=intCnt*h1; y_<(intCnt+1)*h1; y_++) {
+    //         al_put_pixel(x_, y_, col);
+    //     }
+    // }
+    // al_set_target_backbuffer(display);
 
 
     ImGui::SetCursorPos(io.MousePos);

@@ -4,6 +4,18 @@
 
 ALLEGRO_BITMAP *bitmap_test;
 
+DIY::typed_dict<std::string, DIY::typed_dict<std::string, size_t>> imageFormats(
+    {"HSV", "RGB", "RGBA", "GRAY"}, {
+        DIY::typed_dict<std::string, size_t>(
+            {"n-bytes"}, {3}),
+        DIY::typed_dict<std::string, size_t>(
+            {"n-bytes"}, {3}),
+        DIY::typed_dict<std::string, size_t>(
+            {"n-bytes"}, {4}),
+        DIY::typed_dict<std::string, size_t>(
+            {"n-bytes"}, {1})
+    }
+);
 
 ALLEGRO_DISPLAY* display = nullptr;
 
