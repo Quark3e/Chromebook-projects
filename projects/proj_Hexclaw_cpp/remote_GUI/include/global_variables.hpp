@@ -32,10 +32,6 @@ extern DIY::typed_dict<std::string, DIY::typed_dict<std::string, size_t>> imageF
 
 extern ALLEGRO_DISPLAY* display;
 
-// extern int my_image_width;
-// extern int my_image_height;
-// extern GLuint my_image_texture;
-
 
 extern int mode;
 
@@ -126,6 +122,12 @@ inline void HelpMarker(const char* desc, const char* symb="(?)") {
         ImGui::EndTooltip();
     }
 }
+
+//not sure if allegro5 is thread safe, so not sure if i can safely call al_put_pixel whilst runnign other allegro methods..
+// /// Mutex specificallyf or processing the bitArrays into ALLEGRO_BITMAP variable
+// std::mutex mtx_allegroBitmapProcess;
+// void threadTask_bitArrayProcess()
+
 
 // boolean for whether the main program loop is to be running (this set to `false` will close the program)
 extern bool running;

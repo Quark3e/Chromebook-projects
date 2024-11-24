@@ -65,7 +65,7 @@
 #include <HC_useful/stringToFunc.hpp>
 #include <HC_useful/terminalMenu.hpp>
 
-#include <HC_useful/getPerformance.hpp>
+#include <HC_useful/diy_performance.hpp>
 
 #include <HC_useful/diy_dictionary.hpp>
 
