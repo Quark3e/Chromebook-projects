@@ -30,8 +30,13 @@ namespace PERF {
 
         float delayFilter = 1;
 
-        std::vector<std::string>    _names;
-        std::vector<float>          _delays_ms;
+        std::vector<std::string>        _names;
+        /**
+         * Contains the read delays as well as a history which is averaged after a `::_readCnt[index]` number of times.
+         * The last element contains the lates data.
+         */
+        std::vector<std::vector<float>> _delays_ms;
+        std::vector<int>                _readCnt; //whether to save the read delays into a history and if so how many cycles until an update
         std::vector<std::vector<std::chrono::_V2::steady_clock::time_point>>    _times;
 
         
@@ -58,11 +63,19 @@ namespace PERF {
         float operator[](std::string name) {
             int pos = DIY_SEARCH_MULTITHREAD::check_existence<std::string>(name, this->_names);
             if(pos<0) this->_call_error(0, "operator[](std::string)");
-            return this->_delays_ms.at(pos);
+            return this->_delays_ms.at(pos).at(this->_delays_ms.at(pos).size()-1);
         }
         
-        std::vector<std::string>    names() { return this->_names; }
-        std::vector<float>         delays() { return this->_delays_ms; }
+        std::vector<std::string>        names() { return this->_names; }
+        std::vector<std::vector<float> delays() { return this->_delays_ms; }
+        std::vector<float>             delays() {
+            std::vector<float> _temp;
+            for(size_t i=0; i<_delays_ms; i++) {
+                _temp.push_back(_delays_ms[i].at(_delays_ms.size()-1);
+            }
+            return _temp;
+        }
+        std::vector<int>              readCnt() { return this->_readCnt; }
 
         perf_isolated() {}
         perf_isolated(std::initializer_list<std::string> init_names) {
@@ -70,6 +83,7 @@ namespace PERF {
             for(auto name: init_names) {
                 this->_names.push_back(name);
                 this->_delays_ms.push_back(0);
+                this->_readCnt.push_back(0);
                 this->_times.push_back(std::vector<std::chrono::_V2::steady_clock::time_point>(2,std::chrono::steady_clock::now()));
             }
         }
@@ -78,18 +92,20 @@ namespace PERF {
             for(auto name: init_names) {
                 this->_names.push_back(name);
                 this->_delays_ms.push_back(0);
+                this->_readCnt.push_back(0);
                 this->_times.push_back(std::vector<std::chrono::_V2::steady_clock::time_point>(2,std::chrono::steady_clock::now()));
             }
         }
         ~perf_isolated() {}
 
-        int set_T0(std::string name) {
+        int set_T0(std::string name, bool cycle_average = false, int cycle_count = 0) {
             std::chrono::_V2::steady_clock::time_point tempTime = std::chrono::steady_clock::now();
             int pos = DIY_SEARCH_MULTITHREAD::check_existence<std::string>(name, this->_names);
             if(pos<0) { //name already exists in system
                 this->_names.push_back(name);
                 this->_times.push_back(std::vector<std::chrono::_V2::steady_clock::time_point>{tempTime, tempTime});
                 // std::chrono::milliseconds elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(tempTime-tempTime);
+                this->_readCnt.push_back(0);
                 this->_delays_ms.push_back(0);
             }
             else { //name doesn't exist. create a new element(s) with said name
@@ -104,6 +120,7 @@ namespace PERF {
 
             this->_times[pos][1]    = tempTime;
             this->_delays_ms[pos]   = (std::chrono::duration_cast<std::chrono::milliseconds>(this->_times[pos][1]-this->_times[pos][0])).count();
+            this->_readCnt[pos]++;
         }
 
         float getDelay_ms(std::string name) {

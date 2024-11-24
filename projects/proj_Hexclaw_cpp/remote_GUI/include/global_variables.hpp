@@ -36,6 +36,11 @@ extern ALLEGRO_DISPLAY* display;
 extern int mode;
 
 /**
+ * performance check on the loadBitmap_fromBitArrray function
+ */
+extern PERF::perf_isolated perf_loadBitmap_func;
+
+/**
  * @brief Load assigned ALLEGRO_BITMAP with uncompressed data/bits from a bit array
  * 
  * @param _bm_toLoad pointer to the ALLEGRO_BITMAP to load the data into/onto
@@ -70,11 +75,16 @@ inline bool loadBitmap_fromBitArray(
         return false;
     }
 
+    perf_loadBitmap_func.set_T0("set_target()");
+
     int pixel = 0, currByte = 0;
     size_t pos[2] = {0, 0};
     ALLEGRO_COLOR col;
     al_set_target_bitmap(_bitmap);
     
+    perf_loadBitmap_func.set_T1("set_target()");
+    perf_loadBitmap_func.set_T0("loop start");
+
     for(size_t i=0; i<_bitArray.size(); i++) {
         if(currByte>=numBytes-1) { //new pixel
             pos[0] = i%_width;
@@ -82,6 +92,7 @@ inline bool loadBitmap_fromBitArray(
             int startIdx = i-numBytes;
             // if(init && _bitArray[startIdx]==250) std::cout << startIdx << std::endl;
             
+            perf_loadBitmap_func.set_T1
             if(_colourFormat=="HSV") {
 
             }
@@ -104,8 +115,10 @@ inline bool loadBitmap_fromBitArray(
             currByte++;
         }
     }
-
+    perf_loadBitmap_func.set_T1("loop start");
+    perf_loadBitmap_func.set_T0("set_target 2()");
     al_set_target_backbuffer(display);
+    perf_loadBitmap_func.set_T1("set_target 2()");
 
     if(init) init = false;
     return true;
