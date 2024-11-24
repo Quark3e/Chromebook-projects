@@ -64,6 +64,7 @@ inline bool loadBitmap_fromBitArray(
     size_t _height,
     bool _incompleteArray = false
 ) {
+    static bool init = true;
     assert(_bitmap);
     size_t numBytes = imageFormats.get(_colourFormat).get("n-bytes");
     if(
@@ -73,44 +74,44 @@ inline bool loadBitmap_fromBitArray(
         return false;
     }
 
-    int pixel = 0;
+    int pixel = 0, currByte = 0;
     size_t pos[2] = {0, 0};
     ALLEGRO_COLOR col;
     al_set_target_bitmap(_bitmap);
     
     for(size_t i=0; i<_bitArray.size(); i++) {
-        if(pixel>=numBytes) { //new pixel
+        if(currByte>=numBytes-1) { //new pixel
+            pos[0] = i%_width;
+            pos[1] = floor(float(i)/_height);
             int startIdx = i-numBytes;
+            // if(init && _bitArray[startIdx]==250) std::cout << startIdx << std::endl;
+            
             if(_colourFormat=="HSV") {
 
             }
             else if(_colourFormat=="RGB") {
-                col = al_map_rgb(unsigned(startIdx), unsigned(startIdx+1), unsigned(startIdx+2));
+                col = al_map_rgb(unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx+1]), unsigned(_bitArray[startIdx+2]));
             }
             else if(_colourFormat=="RGBA") {
-                col = al_map_rgba(unsigned(startIdx), unsigned(startIdx+1), unsigned(startIdx+2), unsigned(startIdx+3));
+                col = al_map_rgba(unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx+1]), unsigned(_bitArray[startIdx+2]), unsigned(_bitArray[startIdx+3]));
             }
             else if(_colourFormat=="GRAY") {
-                col = al_map_rgb(unsigned(startIdx), unsigned(startIdx), unsigned(startIdx));
+                col = al_map_rgb(unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx]));
+                // col = al_map_rgb(200, 200, 200);
             }
             al_put_pixel(pos[0], pos[1], col);
 
-
-            if(pos[0]>=_width) { //new row
-                pos[1]++;
-                pos[0]=0;
-            }
-            else {
-                pos[0]++;
-            }
-            pixel = 0;
+            pixel++;
+            currByte = 0;
         }
-
-        pixel++;
+        else {
+            currByte++;
+        }
     }
 
     al_set_target_backbuffer(display);
 
+    if(init) init = false;
     return true;
 }
 

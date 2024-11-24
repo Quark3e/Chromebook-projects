@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
 
     al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
     // bitmap_test = al_load_bitmap("/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/media/MyImage01.jpg");
-    bitmap_test = al_create_bitmap(640, 480);
+    bitmap_test = al_create_bitmap(300, 300);
     
     al_set_new_bitmap_flags(!ALLEGRO_MEMORY_BITMAP);
     

@@ -463,15 +463,17 @@ void tab_1(void) {
     static std::vector<uint8_t> imgBits;
     static int imgSize[2] = {al_get_bitmap_width(bitmap_test), al_get_bitmap_height(bitmap_test)};
     if(init) {
+        imgSize[0] = al_get_bitmap_width(bitmap_test);
+        imgSize[1] = al_get_bitmap_height(bitmap_test);
         std::cout << "bitmap dim: " << imgSize[0] << ", " << imgSize[1] << std::endl;
         int x, y;
+        int cnt = 0;
         for(int i=0; i<imgSize[0]*imgSize[1]*1; i++) {
             y = floor(i/imgSize[1]);
-            x = i-y*imgSize[0];
-            imgBits.push_back((x/imgSize[0])*255);
+            x = i%imgSize[0];
+            imgBits.push_back((float(x+y)/(imgSize[0]+imgSize[1]))*255);
         }
     }
-
     assert(loadBitmap_fromBitArray(bitmap_test, imgBits, "GRAY", static_cast<size_t>(imgSize[0]), static_cast<size_t>(imgSize[1])));
 
     // al_set_target_bitmap(bitmap_test);
@@ -507,7 +509,7 @@ void tab_1(void) {
 
 
     ImGui::SetCursorPos(io.MousePos);
-    ImGui::Image((ImTextureID)(intptr_t)bitmap_test, ImVec2(256, 256));
+    ImGui::Image((ImTextureID)(intptr_t)bitmap_test, ImVec2(imgSize[0], imgSize[1]));
 
     ImGui::EndGroup();
     if(init) init=false;
