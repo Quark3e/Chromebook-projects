@@ -42,6 +42,13 @@ extern PERF::perf_isolated perf_loadBitmap_func;
 
 #define _BM_DEFINE true
 
+inline void* getPixelPtr(
+    size_t x,
+    size_t y,
+    ALLEGRO_LOCKED_REGION* lockedReg
+) {
+    return (lockedReg->data + x*lockedReg->pixel_size + lockedReg->pitch*y);
+}
 
 /**
  * @brief Load assigned ALLEGRO_BITMAP with uncompressed data/bits from a bit array
@@ -85,7 +92,8 @@ inline bool loadBitmap_fromBitArray(
     ALLEGRO_COLOR col;
     al_set_target_bitmap(_bitmap);
 
-    al_lock_bitmap(_bitmap, al_get_bitmap_format(_bitmap), ALLEGRO_LOCK_WRITEONLY);
+    // ALLEGRO_LOCKED_REGION* lockedReg = al_lock_bitmap(_bitmap, al_get_bitmap_format(_bitmap), ALLEGRO_LOCK_WRITEONLY);
+    ALLEGRO_LOCKED_REGION* lockedReg = al_lock_bitmap(_bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
 
 
     if(_BM_DEFINE) perf_loadBitmap_func.set_T1("set_target()");
@@ -96,28 +104,31 @@ inline bool loadBitmap_fromBitArray(
         if(currByte>=numBytes-1) { //new pixel
             pos[0] = i%_width;
             pos[1] = floor(float(i)/_height);
-            int startIdx = i-numBytes;
-            // if(init && _bitArray[startIdx]==250) std::cout << startIdx << std::endl;
+            // int startIdx = i-numBytes;
+            // // if(init && _bitArray[startIdx]==250) std::cout << startIdx << std::endl;
             
-            // std::cout << "i: " << i << std::endl;
-            // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T0("al_map col", 60);
-            if(_colourFormat=="HSV") {
+            // // std::cout << "i: " << i << std::endl;
+            // // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T0("al_map col", 60);
+            // if(_colourFormat=="HSV") {
 
-            }
-            else if(_colourFormat=="RGB") {
-                col = al_map_rgb(unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx+1]), unsigned(_bitArray[startIdx+2]));
-            }
-            else if(_colourFormat=="RGBA") {
-                col = al_map_rgba(unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx+1]), unsigned(_bitArray[startIdx+2]), unsigned(_bitArray[startIdx+3]));
-            }
-            else if(_colourFormat=="GRAY") {
-                col = al_map_rgb(unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx]));
-                // col = al_map_rgb(200, 200, 200);
-            }
-            // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T1("al_map col");
-            // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T0("al_put pix", 60);
-            al_put_pixel(pos[0], pos[1], col);
-            // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T1("al_put pix");
+            // }
+            // else if(_colourFormat=="RGB") {
+            //     col = al_map_rgb(unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx+1]), unsigned(_bitArray[startIdx+2]));
+            // }
+            // else if(_colourFormat=="RGBA") {
+            //     col = al_map_rgba(unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx+1]), unsigned(_bitArray[startIdx+2]), unsigned(_bitArray[startIdx+3]));
+            // }
+            // else if(_colourFormat=="GRAY") {
+            //     col = al_map_rgb(unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx]));
+            //     // col = al_map_rgb(200, 200, 200);
+            // }
+            // // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T1("al_map col");
+            // // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T0("al_put pix", 60);
+            // al_put_pixel(pos[0], pos[1], col);
+            // // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T1("al_put pix");
+
+            *((uint32_t*)(getPixelPtr(pos[0], pos[1], lockedReg))) = 0xFF208CE0;
+
 
             pixel++;
             currByte = 0;
@@ -128,6 +139,13 @@ inline bool loadBitmap_fromBitArray(
     }
     if(_BM_DEFINE) perf_loadBitmap_func.set_T1("loop start");
     if(_BM_DEFINE) perf_loadBitmap_func.set_T0("set_target 2()");
+
+    // void* _temp = getPixelPtr(200, 200, lockedReg);
+    // uint32_t* _temp2 = (uint32_t*)(_temp);
+    // *_temp2 = 0xFF208CE0;
+
+    // *((uint32_t*)(getPixelPtr(201, 200, lockedReg))) = 0xFF208CE0;
+    // *((uint32_t*)(getPixelPtr(1, 1, lockedReg))) = 0xFF208CE0;
 
     al_unlock_bitmap(_bitmap);
 
