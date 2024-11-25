@@ -36,7 +36,7 @@ namespace PERF {
          * The last element contains the lates data.
          */
         std::vector<std::vector<float>> _delays_ms;
-        std::vector<int>                _readCnt; //whether to save the read delays into a history and if so how many cycles until an update
+        std::vector<size_t>               _readCnt; //whether to save the read delays into a history and if so how many cycles until an update
         std::vector<std::vector<std::chrono::_V2::steady_clock::time_point>>    _times;
 
         
@@ -67,23 +67,23 @@ namespace PERF {
         }
         
         std::vector<std::string>        names() { return this->_names; }
-        std::vector<std::vector<float> delays() { return this->_delays_ms; }
+        std::vector<std::vector<float>>delays_history() { return this->_delays_ms; }
         std::vector<float>             delays() {
             std::vector<float> _temp;
-            for(size_t i=0; i<_delays_ms; i++) {
-                _temp.push_back(_delays_ms[i].at(_delays_ms.size()-1);
+            for(size_t i=0; i<_delays_ms.size(); i++) {
+                _temp.push_back(_delays_ms.at(i).at(_delays_ms[i].size()-1));
             }
             return _temp;
         }
-        std::vector<int>              readCnt() { return this->_readCnt; }
+        std::vector<size_t>              readCnt() { return this->_readCnt; }
 
         perf_isolated() {}
         perf_isolated(std::initializer_list<std::string> init_names) {
             if(init_names.size()==0) throw std::runtime_error("ERROR: "+this->_info_name+"(std::initializer_list<std::string>): initializer list can't have the length of 0");
             for(auto name: init_names) {
                 this->_names.push_back(name);
-                this->_delays_ms.push_back(0);
-                this->_readCnt.push_back(0);
+                this->_delays_ms.push_back(std::vector<float>{0});
+                this->_readCnt.push_back(1);
                 this->_times.push_back(std::vector<std::chrono::_V2::steady_clock::time_point>(2,std::chrono::steady_clock::now()));
             }
         }
@@ -91,24 +91,25 @@ namespace PERF {
             if(init_names.size()==0) throw std::runtime_error("ERROR: "+this->_info_name+"(std::initializer_list<std::string>): initializer list can't have the length of 0");
             for(auto name: init_names) {
                 this->_names.push_back(name);
-                this->_delays_ms.push_back(0);
-                this->_readCnt.push_back(0);
+                this->_delays_ms.push_back(std::vector<float>{0});
+                this->_readCnt.push_back(1);
                 this->_times.push_back(std::vector<std::chrono::_V2::steady_clock::time_point>(2,std::chrono::steady_clock::now()));
             }
         }
         ~perf_isolated() {}
 
-        int set_T0(std::string name, bool cycle_average = false, int cycle_count = 0) {
+        int set_T0(std::string name, size_t cycle_count = 1) {
             std::chrono::_V2::steady_clock::time_point tempTime = std::chrono::steady_clock::now();
+            if(cycle_count<1) cycle_count = 1;
             int pos = DIY_SEARCH_MULTITHREAD::check_existence<std::string>(name, this->_names);
-            if(pos<0) { //name already exists in system
+            if(pos<0) { //name doesn't exist in system
                 this->_names.push_back(name);
                 this->_times.push_back(std::vector<std::chrono::_V2::steady_clock::time_point>{tempTime, tempTime});
                 // std::chrono::milliseconds elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(tempTime-tempTime);
-                this->_readCnt.push_back(0);
-                this->_delays_ms.push_back(0);
+                this->_readCnt.push_back(cycle_count);
+                this->_delays_ms.push_back(std::vector<float>{0});
             }
-            else { //name doesn't exist. create a new element(s) with said name
+            else { //name already exists. Just update start time
                 this->_times[pos][0] = tempTime;
             }
             return 0;
@@ -119,14 +120,22 @@ namespace PERF {
             if(pos<0) this->_call_error(0,"set_T1(std::string)","input `name` \""+name+"\" has not been initialised with perf_isolated::set_T0()");
 
             this->_times[pos][1]    = tempTime;
-            this->_delays_ms[pos]   = (std::chrono::duration_cast<std::chrono::milliseconds>(this->_times[pos][1]-this->_times[pos][0])).count();
+            float _tempDelay = (std::chrono::duration_cast<std::chrono::milliseconds>(this->_times[pos][1]-this->_times[pos][0])).count();
+            if(_delays_ms[pos].size()+1>=_readCnt[pos]) {
+                float sumDelay = _tempDelay;
+                for(auto delay : _delays_ms[pos]) sumDelay += delay;
+                _delays_ms[pos] = std::vector<float>{sumDelay/_readCnt[pos]};
+            }
+            else {
+                _delays_ms[pos].push_back(_tempDelay);
+            }
             this->_readCnt[pos]++;
         }
 
         float getDelay_ms(std::string name) {
             int pos = DIY_SEARCH_MULTITHREAD::check_existence<std::string>(name, this->_names);
             if(pos<0) this->_call_error(0, "getDelay_ms(std::string)");
-            return this->_delays_ms[pos];
+            return this->_delays_ms[pos][0];
         }
 
     };

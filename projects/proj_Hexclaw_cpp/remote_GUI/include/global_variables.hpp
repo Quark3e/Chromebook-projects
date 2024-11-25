@@ -40,6 +40,9 @@ extern int mode;
  */
 extern PERF::perf_isolated perf_loadBitmap_func;
 
+#define _BM_DEFINE true
+
+
 /**
  * @brief Load assigned ALLEGRO_BITMAP with uncompressed data/bits from a bit array
  * 
@@ -75,16 +78,20 @@ inline bool loadBitmap_fromBitArray(
         return false;
     }
 
-    perf_loadBitmap_func.set_T0("set_target()");
+    if(_BM_DEFINE) perf_loadBitmap_func.set_T0("set_target()");
 
     int pixel = 0, currByte = 0;
     size_t pos[2] = {0, 0};
     ALLEGRO_COLOR col;
     al_set_target_bitmap(_bitmap);
-    
-    perf_loadBitmap_func.set_T1("set_target()");
-    perf_loadBitmap_func.set_T0("loop start");
 
+    al_lock_bitmap(_bitmap, al_get_bitmap_format(_bitmap), ALLEGRO_LOCK_WRITEONLY);
+
+
+    if(_BM_DEFINE) perf_loadBitmap_func.set_T1("set_target()");
+    if(_BM_DEFINE) perf_loadBitmap_func.set_T0("loop start",  _bitArray.size());
+
+    int indexingNum = static_cast<int>(_bitArray.size())/60;
     for(size_t i=0; i<_bitArray.size(); i++) {
         if(currByte>=numBytes-1) { //new pixel
             pos[0] = i%_width;
@@ -92,7 +99,8 @@ inline bool loadBitmap_fromBitArray(
             int startIdx = i-numBytes;
             // if(init && _bitArray[startIdx]==250) std::cout << startIdx << std::endl;
             
-            perf_loadBitmap_func.set_T1
+            // std::cout << "i: " << i << std::endl;
+            // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T0("al_map col", 60);
             if(_colourFormat=="HSV") {
 
             }
@@ -106,7 +114,10 @@ inline bool loadBitmap_fromBitArray(
                 col = al_map_rgb(unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx]));
                 // col = al_map_rgb(200, 200, 200);
             }
+            // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T1("al_map col");
+            // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T0("al_put pix", 60);
             al_put_pixel(pos[0], pos[1], col);
+            // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T1("al_put pix");
 
             pixel++;
             currByte = 0;
@@ -115,10 +126,13 @@ inline bool loadBitmap_fromBitArray(
             currByte++;
         }
     }
-    perf_loadBitmap_func.set_T1("loop start");
-    perf_loadBitmap_func.set_T0("set_target 2()");
+    if(_BM_DEFINE) perf_loadBitmap_func.set_T1("loop start");
+    if(_BM_DEFINE) perf_loadBitmap_func.set_T0("set_target 2()");
+
+    al_unlock_bitmap(_bitmap);
+
     al_set_target_backbuffer(display);
-    perf_loadBitmap_func.set_T1("set_target 2()");
+    if(_BM_DEFINE) perf_loadBitmap_func.set_T1("set_target 2()");
 
     if(init) init = false;
     return true;

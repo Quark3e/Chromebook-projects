@@ -476,6 +476,9 @@ void tab_1(void) {
     }
     assert(loadBitmap_fromBitArray(bitmap_test, imgBits, "GRAY", static_cast<size_t>(imgSize[0]), static_cast<size_t>(imgSize[1])));
 
+    if(_BM_DEFINE) Delays_table(perf_loadBitmap_func,"Delays table","Tab1 delays","Delays table");
+
+
     // al_set_target_bitmap(bitmap_test);
     // static float w, h, w1, h1;
     // static ALLEGRO_COLOR col = al_map_rgba(200, 50, 50, 220);
