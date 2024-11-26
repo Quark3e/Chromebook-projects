@@ -40,7 +40,7 @@ extern int mode;
  */
 extern PERF::perf_isolated perf_loadBitmap_func;
 
-#define _BM_DEFINE true
+#define _BM_DEFINE false
 
 inline void* getPixelPtr(
     size_t x,
@@ -90,7 +90,7 @@ inline bool loadBitmap_fromBitArray(
     int pixel = 0, currByte = 0;
     size_t pos[2] = {0, 0};
     ALLEGRO_COLOR col;
-    al_set_target_bitmap(_bitmap);
+    // al_set_target_bitmap(_bitmap);
 
     // ALLEGRO_LOCKED_REGION* lockedReg = al_lock_bitmap(_bitmap, al_get_bitmap_format(_bitmap), ALLEGRO_LOCK_WRITEONLY);
     ALLEGRO_LOCKED_REGION* lockedReg = al_lock_bitmap(_bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
@@ -99,7 +99,10 @@ inline bool loadBitmap_fromBitArray(
     if(_BM_DEFINE) perf_loadBitmap_func.set_T1("set_target()");
     if(_BM_DEFINE) perf_loadBitmap_func.set_T0("loop start",  _bitArray.size());
 
-    int indexingNum = static_cast<int>(_bitArray.size())/60;
+    
+    size_t iCnt = 0;
+    size_t iLim = _bitArray.size() / 60;
+    bool iTrue = true;
     for(size_t i=0; i<_bitArray.size(); i++) {
         if(currByte>=numBytes-1) { //new pixel
             pos[0] = i%_width;
@@ -109,9 +112,17 @@ inline bool loadBitmap_fromBitArray(
             uint32_t _colour = 0;
     
             // if(init && _bitArray[startIdx]==250) std::cout << startIdx << std::endl;
-            
+            if(iCnt<iLim) {
+                iTrue = false;
+                iCnt++;
+            }
+            else {
+                iCnt = 0;
+                iTrue = true;
+            }
             // // std::cout << "i: " << i << std::endl;
-            // // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T0("al_map col", 60);
+            if(_BM_DEFINE && iTrue) perf_loadBitmap_func.set_T0("map colour", iLim);
+
             if(_colourFormat=="HSV") {
                 std::vector<int> _RGB = convert_HSV_RGB({_bitArray[startIdx], _bitArray[startIdx], _bitArray[startIdx]});
                 _colour = (255<<24) + (unsigned(_RGB[2])<<16) + (unsigned(_RGB[1])<<8) + (unsigned(_RGB[0]));
@@ -129,14 +140,14 @@ inline bool loadBitmap_fromBitArray(
                 // col = al_map_rgb(200, 200, 200);
                 _colour = (255<<24) + (unsigned(_bitArray[startIdx])<<16) + (unsigned(_bitArray[startIdx])<<8) + unsigned(_bitArray[startIdx]);
             }
-            // // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T1("al_map col");
-            // // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T0("al_put pix", 60);
+            if(_BM_DEFINE && iTrue) perf_loadBitmap_func.set_T1("map colour");
+            // // if(_BM_DEFINE && iTrue) perf_loadBitmap_func.set_T0("al_put pix", 60);
             // al_put_pixel(pos[0], pos[1], col);
-            // // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T1("al_put pix");
-
+            if(_BM_DEFINE && iTrue) perf_loadBitmap_func.set_T0("assign px", iLim);
 
             *((uint32_t*)(getPixelPtr(pos[0], pos[1], lockedReg))) = _colour; //0x208CE0; //BGR //00100000 10001100 11100000 //32 140 224
 
+            if(_BM_DEFINE && iTrue) perf_loadBitmap_func.set_T1("assign px");
 
             pixel++;
             currByte = 0;
@@ -157,7 +168,7 @@ inline bool loadBitmap_fromBitArray(
 
     al_unlock_bitmap(_bitmap);
 
-    al_set_target_backbuffer(display);
+    // al_set_target_backbuffer(display);
     if(_BM_DEFINE) perf_loadBitmap_func.set_T1("set_target 2()");
 
     if(init) init = false;
