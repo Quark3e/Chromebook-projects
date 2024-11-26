@@ -113,7 +113,8 @@ inline bool loadBitmap_fromBitArray(
             // // std::cout << "i: " << i << std::endl;
             // // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T0("al_map col", 60);
             if(_colourFormat=="HSV") {
-                
+                std::vector<int> _RGB = convert_HSV_RGB({_bitArray[startIdx], _bitArray[startIdx], _bitArray[startIdx]});
+                _colour = (255<<24) + (unsigned(_RGB[2])<<16) + (unsigned(_RGB[1])<<8) + (unsigned(_RGB[0]));
             }
             else if(_colourFormat=="RGB") {
                 // col = al_map_rgb(unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx+1]), unsigned(_bitArray[startIdx+2]));

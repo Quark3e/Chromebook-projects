@@ -7,6 +7,7 @@
 #include <cmath>
 #include <string>
 #include <vector>
+#include <initializer_list>
 #include <iostream>
 #include <bits/stdc++.h>
 #include <unistd.h>
@@ -27,6 +28,7 @@
 #include <mutex>
 
 // using namespace std;
+
 
 
 struct pos2d {
@@ -405,6 +407,45 @@ struct pos2d {
         else if(toFind==2 || toFind==3) return index;
         else return -1;
     }
+
+    /**
+     * @brief Get the index of a desired value
+     * 
+     * @tparam varType value type
+     * @param toCheck the container to check
+     * @param toFind what to find.
+     * ```
+     * - `0` - biggest value
+     * - `1` - smallest value
+     * ```
+     * @return size_t of the desired element index
+     */
+    template<typename varType>
+    inline size_t findIdx(std::vector<varType> toCheck, int toFind) {
+        size_t index = 0;
+        varType val = toCheck[0];
+        for(size_t i=1; i<toCheck.size(); i++) {
+            switch (toFind) {
+            case 0: //max
+                if(toCheck[i]>val) index = i;
+                break;
+            case 1: //min
+                if(toCheck[i]<val) index = i;
+                break;
+            default:
+                std::cerr << "Incorrect find integer set." << std::endl;
+                exit(1);
+                break;
+            }
+        }
+        return index;
+    }
+
+    template<typename varType>
+    inline size_t findIdx(std::initializer_list<varType> toCheck, int toFind) {
+        return findIdx<varType>(toCheck, toFind);
+    }
+
 
     /**
      * @brief 
@@ -1201,6 +1242,93 @@ struct pos2d {
 
         return percent;
     }
+
+
+    inline std::vector<int> convert_RGB_HSV(
+        std::vector<int> RGB
+    ) {
+        std::vector<float> RGB_p{
+            static_cast<float>(RGB[0])/255,
+            static_cast<float>(RGB[1])/255,
+            static_cast<float>(RGB[2])/255
+        };
+        std::vector<int> HSV(3, 0);
+        size_t maxIdx = findIdx<float>(RGB_p, 0);
+        size_t minIdx = findIdx<float>(RGB_p, 1);
+
+        int delta = RGB[maxIdx]-RGB[minIdx];
+
+        HSV[2] = static_cast<int>(100*RGB_p[maxIdx]);
+        HSV[1] = static_cast<int>(100*(HSV[2]==0? 0 : delta/RGB_p[maxIdx]));
+        switch (maxIdx) {
+            case 0:
+                HSV[0] = static_cast<int>(60*(delta==0? 0 : ((RGB_p[1]-RGB_p[2])/(delta)+0)));
+                break;
+            case 1:
+                HSV[0] = static_cast<int>(60*(delta==0? 0 : ((RGB_p[2]-RGB_p[0])/(delta)+2)));
+                break;
+            case 2:
+                HSV[0] = static_cast<int>(60*(delta==0? 0 : ((RGB_p[0]-RGB_p[1])/(delta)+4)));
+                break;
+        }
+        if(HSV[0]<0) HSV[0]+=360;
+
+        return HSV;
+    }
+
+    inline std::vector<int> convert_HSV_RGB(
+        std::vector<int> HSV
+    ) {
+        std::vector<int> RGB(3, 0);
+        std::vector<float> RGB_p(3, 0);
+        std::vector<float> HSV_p{
+            static_cast<float>(HSV[0]),
+            static_cast<float>(HSV[1])/100,
+            static_cast<float>(HSV[2])/100
+        };
+
+        float C = HSV_p[2] * HSV_p[1];
+        float X = C * (1 - abs((static_cast<int>(HSV_p[0])/60)%2 -1));
+        float m = HSV_p[2] - C;
+
+        if(HSV_p[0] < 60) {
+            RGB_p[0] = C;
+            RGB_p[1] = X;
+            RGB_p[2] = 0;
+        }
+        else if(HSV_p[0] < 120) {
+            RGB_p[0] = X;
+            RGB_p[1] = C;
+            RGB_p[2] = 0;
+        }
+        else if(HSV_p[0] < 180) {
+            RGB_p[0] = 0;
+            RGB_p[1] = C;
+            RGB_p[2] = X;
+        }
+        else if(HSV_p[0] < 240) {
+            RGB_p[0] = 0;
+            RGB_p[1] = X;
+            RGB_p[2] = C;
+        }
+        else if(HSV_p[0] < 300) {
+            RGB_p[0] = X;
+            RGB_p[1] = 0;
+            RGB_p[2] = C;
+        }
+        else {
+            RGB_p[0] = C;
+            RGB_p[1] = 0;
+            RGB_p[2] = X;
+        }
+
+        RGB[0] = (RGB_p[0]+m)*static_cast<float>(255);
+        RGB[1] = (RGB_p[1]+m)*static_cast<float>(255);
+        RGB[2] = (RGB_p[2]+m)*static_cast<float>(255);
+
+        return RGB;
+    }
+
 
 // }
 
