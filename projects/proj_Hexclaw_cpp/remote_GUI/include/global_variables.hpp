@@ -104,30 +104,37 @@ inline bool loadBitmap_fromBitArray(
         if(currByte>=numBytes-1) { //new pixel
             pos[0] = i%_width;
             pos[1] = floor(float(i)/_height);
-            // int startIdx = i-numBytes;
-            // // if(init && _bitArray[startIdx]==250) std::cout << startIdx << std::endl;
+            int startIdx = i-numBytes;
+
+            uint32_t _colour = 0;
+    
+            // if(init && _bitArray[startIdx]==250) std::cout << startIdx << std::endl;
             
             // // std::cout << "i: " << i << std::endl;
             // // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T0("al_map col", 60);
-            // if(_colourFormat=="HSV") {
-
-            // }
-            // else if(_colourFormat=="RGB") {
-            //     col = al_map_rgb(unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx+1]), unsigned(_bitArray[startIdx+2]));
-            // }
-            // else if(_colourFormat=="RGBA") {
-            //     col = al_map_rgba(unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx+1]), unsigned(_bitArray[startIdx+2]), unsigned(_bitArray[startIdx+3]));
-            // }
-            // else if(_colourFormat=="GRAY") {
-            //     col = al_map_rgb(unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx]));
-            //     // col = al_map_rgb(200, 200, 200);
-            // }
+            if(_colourFormat=="HSV") {
+                
+            }
+            else if(_colourFormat=="RGB") {
+                // col = al_map_rgb(unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx+1]), unsigned(_bitArray[startIdx+2]));
+                _colour = (255<<24) + (unsigned(_bitArray[startIdx+2])<<16) + (unsigned(_bitArray[startIdx+1])<<8) + unsigned(_bitArray[startIdx]);
+            }
+            else if(_colourFormat=="RGBA") {
+                // col = al_map_rgba(unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx+1]), unsigned(_bitArray[startIdx+2]), unsigned(_bitArray[startIdx+3]));
+                _colour = (unsigned(_bitArray[startIdx+3])<<24) + (unsigned(_bitArray[startIdx+2])<<16) + (unsigned(_bitArray[startIdx+1])<<8) + unsigned(_bitArray[startIdx]);
+            }
+            else if(_colourFormat=="GRAY") {
+                // col = al_map_rgb(unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx]), unsigned(_bitArray[startIdx]));
+                // col = al_map_rgb(200, 200, 200);
+                _colour = (255<<24) + (unsigned(_bitArray[startIdx])<<16) + (unsigned(_bitArray[startIdx])<<8) + unsigned(_bitArray[startIdx]);
+            }
             // // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T1("al_map col");
             // // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T0("al_put pix", 60);
             // al_put_pixel(pos[0], pos[1], col);
             // // if(_BM_DEFINE && i%indexingNum==0) perf_loadBitmap_func.set_T1("al_put pix");
 
-            *((uint32_t*)(getPixelPtr(pos[0], pos[1], lockedReg))) = 0xFF208CE0;
+
+            *((uint32_t*)(getPixelPtr(pos[0], pos[1], lockedReg))) = _colour; //0x208CE0; //BGR //00100000 10001100 11100000 //32 140 224
 
 
             pixel++;
