@@ -45,13 +45,14 @@ int main(int argc, char** argv) {
     }
 
     std::string path = getFileCWD(true);
-    std::cout<<path<<std::endl;
+    // std::cout<<path<<std::endl;
+    mtx_print("T0:"+path);
     DIR* dir;
     struct dirent *ent;
     if((dir=opendir(path.c_str()))!=NULL) {
         while((ent=readdir(dir))!=NULL) {
             // std::cout<<ent->d_type<<": ";
-            std::cout<<ent->d_name<<"\n";
+            mtx_print("T0:"+std::string(ent->d_name)+"\n");
             
         }
         closedir(dir);
@@ -60,7 +61,7 @@ int main(int argc, char** argv) {
         perror("could not open directory");
         return EXIT_FAILURE;
     }
-    std::cout<<std::endl;
+    mtx_print("");
     // for(const auto& entry: std::filesystem)
 
     guiSettings_desc.add("Link to server", std::string("whether to attempt to connect to Hexclaw Server at intervals"));
@@ -91,6 +92,7 @@ int main(int argc, char** argv) {
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_mouse_event_source());
 
+    std::thread t_bmpLoader(threadTask_bitArrayProcess, &bmpObj);
 
     // glfwSetErrorCallback(glfw_error_callback);
     // if (!glfwInit()) {
@@ -103,7 +105,8 @@ int main(int argc, char** argv) {
     al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
     // bitmap_test = al_load_bitmap("/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/media/MyImage01.jpg");
     bitmap_test = al_create_bitmap(300, 300);
-    
+    bmpObj.init();
+
     al_set_new_bitmap_flags(!ALLEGRO_MEMORY_BITMAP);
     
 
@@ -129,11 +132,14 @@ int main(int argc, char** argv) {
     window_flags |= ImGuiWindowFlags_NoTitleBar;
 
 
-    while(running) {
+    while(running.load()) {
         ALLEGRO_EVENT al_event;
         while(al_get_next_event(queue, &al_event)) {
             ImGui_ImplAllegro5_ProcessEvent(&al_event);
-            if(al_event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) running = false;
+            if(al_event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+                running = false;
+                mtx_print("T0: closing: "+formatNumber<bool>(running.load(), 0, 0));
+            }
             if(al_event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
                 ImGui_ImplAllegro5_InvalidateDeviceObjects();
                 al_acknowledge_resize(display);
@@ -186,9 +192,15 @@ int main(int argc, char** argv) {
         al_flip_display();
         std::cout.flush();
     }
+
+    mtx_print("T0:join before.");
+    t_bmpLoader.join();
+    mtx_print("T0:join after.");
+
     ImGui_ImplAllegro5_Shutdown();
     ImGui::DestroyContext();
     al_destroy_bitmap(bitmap_test);
+    bmpObj.destroy();
     al_destroy_event_queue(queue);
     al_destroy_display(display);
 

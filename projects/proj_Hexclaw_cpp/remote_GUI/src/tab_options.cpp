@@ -461,20 +461,29 @@ void tab_1(void) {
     // al_draw_indexed_prim()
 
     static std::vector<uint8_t> imgBits;
-    static int imgSize[2] = {al_get_bitmap_width(bitmap_test), al_get_bitmap_height(bitmap_test)};
+    static int imgSize[2] = {al_get_bitmap_width(bmpObj.BMP()), al_get_bitmap_height(bmpObj.BMP())};
+    static std::unique_lock<std::mutex> u_lck_bmpObj(bmpObj.mtx, std::defer_lock);
     if(init) {
-        imgSize[0] = al_get_bitmap_width(bitmap_test);
-        imgSize[1] = al_get_bitmap_height(bitmap_test);
+
+        u_lck_bmpObj.lock();
+        imgSize[0] = al_get_bitmap_width(bmpObj.BMP());
+        imgSize[1] = al_get_bitmap_height(bmpObj.BMP());
         std::cout << "bitmap dim: " << imgSize[0] << ", " << imgSize[1] << std::endl;
         int x, y;
         int cnt = 0;
         for(int i=0; i<imgSize[0]*imgSize[1]*1; i++) {
             y = floor(i/imgSize[1]);
             x = i%imgSize[0];
-            imgBits.push_back((float(x+y)/(imgSize[0]+imgSize[1]))*255);
+            bmpObj.arr.push_back((float(x)/(imgSize[0]))*255);
         }
+        u_lck_bmpObj.unlock();
     }
-    assert(loadBitmap_fromBitArray(bitmap_test, imgBits, "GRAY", static_cast<size_t>(imgSize[0]), static_cast<size_t>(imgSize[1])));
+    bmpObj.newTask = true;
+    
+    while(bmpObj.newTask.load()) {
+        mtx_print("T0: waiting..");
+    }
+    // assert(loadBitmap_fromBitArray(bmpObj.BMP(), &(bmpObj.arr), "GRAY", bmpObj.width, bmpObj.height));
 
     if(_BM_DEFINE) Delays_table(perf_loadBitmap_func,"Delays table","Tab1 delays","Delays table");
 
@@ -512,8 +521,11 @@ void tab_1(void) {
 
 
     ImGui::SetCursorPos(io.MousePos);
-    ImGui::Image((ImTextureID)(intptr_t)bitmap_test, ImVec2(imgSize[0], imgSize[1]));
-
+    if(u_lck_bmpObj.try_lock()) {
+    // u_lck_bmpObj.lock();
+        ImGui::Image((ImTextureID)(intptr_t)bmpObj.BMP(), ImVec2(imgSize[0], imgSize[1]));
+        u_lck_bmpObj.unlock();
+    }
     ImGui::EndGroup();
     if(init) init=false;
 }

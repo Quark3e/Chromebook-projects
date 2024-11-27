@@ -2,6 +2,8 @@
 #include "../include/includes.hpp"
 
 
+std::mutex mtx_cout;
+
 ALLEGRO_BITMAP *bitmap_test;
 
 DIY::typed_dict<std::string, DIY::typed_dict<std::string, size_t>> imageFormats(
@@ -29,7 +31,10 @@ PERF::perf_isolated perf_loadBitmap_func;
 int mode = 0;
 
 
-bool running = true;
+al_bmp_threadClass bmpObj(500, 250, "GRAY", &running);
+
+
+std::atomic<bool> running{true};
 
 float input_IK_pos[3]    = {0, 200, 150};
 float input_IK_orient[3] = {0, 0, 0};

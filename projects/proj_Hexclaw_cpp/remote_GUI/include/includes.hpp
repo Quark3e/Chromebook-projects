@@ -13,6 +13,7 @@
 
 #include <thread>
 #include <mutex>
+#include <atomic>
 
 
 #include <allegro5/allegro.h>
