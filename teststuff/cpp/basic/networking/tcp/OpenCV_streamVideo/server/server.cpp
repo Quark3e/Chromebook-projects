@@ -29,9 +29,9 @@ int main(int argc, char** argv) {
 
     if(argc>1) {
         if(!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
-            std::cout <<"Usage: cv_video_srv -p/--port [port] -c/--cap [capture device]" <<
+            std::cout <<"Usage: cv_video_srv -p/--port [port] -c/--cap [capture device]\n" <<
                         " port:         : socket port (8080 default)\n" <<
-                        " capture device: (0 defaukt)";
+                        " capture device: (0 defaukt)" << std::endl;
             return 0;
         }
         for(int i=1; i<argc; i++) {
@@ -71,7 +71,8 @@ int main(int argc, char** argv) {
             exit(1);
         }
         std::cout << "Connection accepted" << std::endl;
-        pthread_create(&thread_id, NULL, display, &remoteSocket);
+        //pthread_create(&thread_id, NULL, display, &remoteSocket);
+        display(&remoteSocket);
     }
     return 0;
 }
@@ -81,7 +82,7 @@ void *display(void *ptr) {
     int socket = *(int*)ptr;
 
     cv::Mat img, imgGray;
-    img = cv::Mat::zeros(480, 640, cv::CV_8UC1);
+    img = cv::Mat::zeros(480, 640, CV_8UC1);
     if(!img.isContinuous()) {
         img = img.clone();
         imgGray = img.clone();
@@ -96,7 +97,7 @@ void *display(void *ptr) {
     while(true) {
         cap >> img;
 
-        cv::cvtColor(img, imgGray, cv::CV_BGR2GRAY);
+        cv::cvtColor(img, imgGray, cv::COLOR_BGR2GRAY);
         if((bytes=send(socket, imgGray.data, imgSize, 0)) < 0) {
             std::cerr << "bytes = " << bytes << std::endl;
             break;

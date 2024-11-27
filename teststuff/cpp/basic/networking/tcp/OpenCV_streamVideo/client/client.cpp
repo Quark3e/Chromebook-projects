@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
 
 
     cv::Mat img;
-    img = cv::Mat::zeros(480, 640, cv::CV_8UC1);
+    img = cv::Mat::zeros(480, 640, CV_8UC1);
     int imgSize = img.total() * img.elemSize();
     uchar *iptr = img.data;
     int bytes = 0;
