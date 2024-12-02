@@ -1,1 +1,0 @@
-/usr/bin/c++ -rdynamic CMakeFiles/ST7735.dir/src/main.cpp.o -o ST7735 
