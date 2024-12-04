@@ -1,7 +1,0 @@
-{
-    "port": "/dev/ttyUSB0",
-    "board": "arduino:avr:nano",
-    "programmer": "avrisp",
-    "sketch": "teststuff/arduino/nano_board/ledTest/ledTest.ino",
-    "configuration": "cpu=atmega328old"
-}
