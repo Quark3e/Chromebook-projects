@@ -284,7 +284,9 @@ inline void threadTask_bitArrayProcess(
 
     while((*classBMP_obj).runningPtr->load()) {
         if((*classBMP_obj).newTask.load()) {
+            mtx_print("T1: new task:");
             (*classBMP_obj).mtx.lock();
+            (*classBMP_obj).newTask.operator=(true);
         
             loadBitmap_fromBitArray(
                 (*classBMP_obj).BMP(),
@@ -297,7 +299,13 @@ inline void threadTask_bitArrayProcess(
 
             (*classBMP_obj).newTask = false;
             (*classBMP_obj).mtx.unlock();
+
+            mtx_print("T1: end of task");
         }
+        else {
+            mtx_print("T1: task not called");
+        }
+        mtx_print("T1: end of iter.k");
     }
     (*classBMP_obj).newTask = false;
     // mtx_print("T1: closing");

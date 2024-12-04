@@ -477,11 +477,19 @@ void tab_1(void) {
             bmpObj.arr.push_back((float(x)/(imgSize[0]))*255);
         }
         u_lck_bmpObj.unlock();
+        bmpObj.newTask = true;
     }
     bmpObj.newTask = true;
     
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
     while(bmpObj.newTask.load()) {
-        mtx_print("T0: waiting..");
+        mtx_print("T0: waiting", true);
+        // if(u_lck_bmpObj.try_lock()) {
+        //     u_lck_bmpObj.unlock();
+        //     break;
+        // }
+        std::this_thread::sleep_for(std::chrono::milliseconds(2));
     }
     // assert(loadBitmap_fromBitArray(bmpObj.BMP(), &(bmpObj.arr), "GRAY", bmpObj.width, bmpObj.height));
 
