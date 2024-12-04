@@ -24,7 +24,6 @@
 #include <imgui/backends/imgui_impl_allegro5.h>
 
 
-
 #include <HC_useful/useful.hpp>
 #include <HC_useful/diy_dictionary.hpp>
 #include <HC_useful/diy_performance.hpp>
