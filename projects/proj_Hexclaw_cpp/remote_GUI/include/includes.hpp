@@ -15,6 +15,7 @@
 #include <mutex>
 #include <atomic>
 
+#include <chrono>
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
