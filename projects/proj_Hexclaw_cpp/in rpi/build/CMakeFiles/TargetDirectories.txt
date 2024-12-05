@@ -1,3 +1,0 @@
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/build/CMakeFiles/rebuild_cache.dir
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/build/CMakeFiles/edit_cache.dir
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/build/CMakeFiles/Hexclaw_Main.dir

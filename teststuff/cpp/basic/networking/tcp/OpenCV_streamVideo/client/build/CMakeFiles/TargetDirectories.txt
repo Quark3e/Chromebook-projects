@@ -1,3 +1,0 @@
-/home/pi/Chromebook-projects/teststuff/cpp/basic/networking/tcp/OpenCV_streamVideo/client/build/CMakeFiles/rebuild_cache.dir
-/home/pi/Chromebook-projects/teststuff/cpp/basic/networking/tcp/OpenCV_streamVideo/client/build/CMakeFiles/edit_cache.dir
-/home/pi/Chromebook-projects/teststuff/cpp/basic/networking/tcp/OpenCV_streamVideo/client/build/CMakeFiles/cv_video_cli.dir
