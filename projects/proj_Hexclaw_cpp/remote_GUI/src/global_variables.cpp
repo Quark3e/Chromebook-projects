@@ -1,5 +1,5 @@
 
-#include "../include/includes.hpp"
+#include "../include/global_variables.hpp"
 
 
 std::mutex mtx_cout;

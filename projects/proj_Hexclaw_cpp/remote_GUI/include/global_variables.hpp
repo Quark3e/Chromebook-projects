@@ -246,7 +246,7 @@ class al_bmp_threadClass {
     std::atomic<bool>       running{true};
     std::atomic<bool>*      runningPtr;
     std::atomic<bool>       newTask{false};
-
+    std::atomic<bool>       localRunning{false}; //boolean to check whether the threadTask function is running
 
     ALLEGRO_BITMAP* BMP() { return bmp; }
     al_bmp_threadClass(
@@ -281,12 +281,11 @@ inline void threadTask_bitArrayProcess(
     al_bmp_threadClass* classBMP_obj
 ) {
     std::unique_lock<std::mutex> u_lck_al_bmp((*classBMP_obj).mtx, std::defer_lock);
-
+    (*classBMP_obj).localRunning = true;
     while((*classBMP_obj).runningPtr->load()) {
         if((*classBMP_obj).newTask.load()) {
-            mtx_print("T1: new task:");
+            // mtx_print("T1: new task:");
             (*classBMP_obj).mtx.lock();
-            (*classBMP_obj).newTask.operator=(true);
         
             loadBitmap_fromBitArray(
                 (*classBMP_obj).BMP(),
@@ -300,16 +299,17 @@ inline void threadTask_bitArrayProcess(
             (*classBMP_obj).newTask = false;
             (*classBMP_obj).mtx.unlock();
 
-            mtx_print("T1: end of task");
+            // mtx_print("T1: end of task");
         }
         else {
-            mtx_print("T1: task not called");
+            // mtx_print("T1: task not called");
         }
-        mtx_print("T1: end of iter.k");
+        // mtx_print("T1: end of iter.k");
+        (*classBMP_obj).newTask = false;
     }
-    (*classBMP_obj).newTask = false;
+    (*classBMP_obj).localRunning = false;
     // mtx_print("T1: closing");
-    mtx_print("T1: closing: "+formatNumber<bool>((*classBMP_obj).runningPtr->load(), 0, 0));
+    // mtx_print("T1: closing: "+formatNumber<bool>((*classBMP_obj).runningPtr->load(), 0, 0));
 
 }
 
