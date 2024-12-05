@@ -21,7 +21,12 @@ inline void mtx_print(std::string toPrint, bool blocking=true) {
     }
 }
 
+
+
+
 extern ALLEGRO_BITMAP *bitmap_test;
+extern ALLEGRO_DISPLAY* display;
+
 
 /**
  * 
@@ -46,7 +51,7 @@ extern ALLEGRO_BITMAP *bitmap_test;
  */
 extern DIY::typed_dict<std::string, DIY::typed_dict<std::string, size_t>> imageFormats;
 
-extern ALLEGRO_DISPLAY* display;
+
 
 
 extern int mode;
@@ -313,6 +318,43 @@ inline void threadTask_bitArrayProcess(
 
 }
 
+extern ALLEGRO_THREAD   *th_allegThread;
+extern ALLEGRO_MUTEX    *th_allegMutex;
+extern ALLEGRO_COND     *th_allegCond;
+inline void* th_allegFunc(ALLEGRO_THREAD* th_alleg, void* arg) {
+    // std::unique_lock<std::mutex> u_lck_al_bmp((*(al_bmp_threadClass*)arg).mtx, std::defer_lock);
+
+    (*(al_bmp_threadClass*)arg).localRunning = true;
+    while((*(al_bmp_threadClass*)arg).runningPtr->load() && !al_get_thread_should_stop(th_allegThread)) {
+        if((*(al_bmp_threadClass*)arg).newTask.load()) {
+            // mtx_print("T1: new task:");
+            // (*(al_bmp_threadClass*)arg).mtx.lock();
+            al_lock_mutex(th_allegMutex);
+        
+            loadBitmap_fromBitArray(
+                (*(al_bmp_threadClass*)arg).BMP(),
+                &((*(al_bmp_threadClass*)arg).arr),
+                (*(al_bmp_threadClass*)arg).col_format,
+                (*(al_bmp_threadClass*)arg).width,
+                (*(al_bmp_threadClass*)arg).height,
+                (*(al_bmp_threadClass*)arg).incomplete
+            );
+
+            (*(al_bmp_threadClass*)arg).newTask = false;
+            // (*(al_bmp_threadClass*)arg).mtx.unlock();
+            al_unlock_mutex(th_allegMutex);
+            // mtx_print("T1: end of task");
+        }
+        else {
+            // mtx_print("T1: task not called");
+        }
+        // mtx_print("T1: end of iter.k");
+        (*(al_bmp_threadClass*)arg).newTask = false;
+    }
+    (*(al_bmp_threadClass*)arg).localRunning = false;
+    // mtx_print("T1: closing");
+    // mtx_print("T1: closing: "+formatNumber<bool>((*classBMP_obj).runningPtr->load(), 0, 0));
+}
 
 // boolean for whether the main program loop is to be running (this set to `false` will close the program)
 extern std::atomic<bool> running;

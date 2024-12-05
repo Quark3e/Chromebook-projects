@@ -25,6 +25,13 @@ ALLEGRO_DISPLAY* display = nullptr;
 // int my_image_height = 0;
 // GLuint my_image_texture = 0;
 
+
+ALLEGRO_THREAD  *th_allegThread;
+ALLEGRO_MUTEX   *th_allegMutex;
+ALLEGRO_COND    *th_allegCond;
+
+
+
 PERF::perf_isolated perf_loadBitmap_func;
 
 

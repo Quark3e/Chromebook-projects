@@ -461,10 +461,12 @@ void tab_1(void) {
 
     static std::vector<uint8_t> imgBits;
     static int imgSize[2] = {al_get_bitmap_width(bmpObj.BMP()), al_get_bitmap_height(bmpObj.BMP())};
-    static std::unique_lock<std::mutex> u_lck_bmpObj(bmpObj.mtx, std::defer_lock);
+    // static std::unique_lock<std::mutex> u_lck_bmpObj(bmpObj.mtx, std::defer_lock);
+
     if(init) {
 
-        u_lck_bmpObj.lock();
+        // u_lck_bmpObj.lock();
+        al_lock_mutex(th_allegMutex);
         imgSize[0] = al_get_bitmap_width(bmpObj.BMP());
         imgSize[1] = al_get_bitmap_height(bmpObj.BMP());
         std::cout << "bitmap dim: " << imgSize[0] << ", " << imgSize[1] << std::endl;
@@ -475,21 +477,23 @@ void tab_1(void) {
             x = i%imgSize[0];
             bmpObj.arr.push_back((float(x)/(imgSize[0]))*255);
         }
-        u_lck_bmpObj.unlock();
+        // u_lck_bmpObj.unlock();
+        al_unlock_mutex(th_allegMutex);
         bmpObj.newTask = true;
+        std::cout << "init ended." << std::endl;
     }
     bmpObj.newTask = true;
     
     // std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-    while(bmpObj.newTask.load() && bmpObj.localRunning.load()) {
-        // mtx_print("T0: waiting", false);
-        // if(u_lck_bmpObj.try_lock()) {
-        //     u_lck_bmpObj.unlock();
-        //     break;
-        // }
-        // std::this_thread::sleep_for(std::chrono::milliseconds(2));
-    }
+    // while(bmpObj.newTask.load() && bmpObj.localRunning.load()) {
+    //     // mtx_print("T0: waiting", false);
+    //     // if(u_lck_bmpObj.try_lock()) {
+    //     //     u_lck_bmpObj.unlock();
+    //     //     break;
+    //     // }
+    //     // std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    // }
     // assert(loadBitmap_fromBitArray(bmpObj.BMP(), &(bmpObj.arr), "GRAY", bmpObj.width, bmpObj.height));
 
     if(_BM_DEFINE) Delays_table(perf_loadBitmap_func,"Delays table","Tab1 delays","Delays table");
@@ -528,11 +532,14 @@ void tab_1(void) {
 
 
     ImGui::SetCursorPos(io.MousePos);
-    if(u_lck_bmpObj.try_lock()) {
+
+    al_lock_mutex(th_allegMutex);
+    // if(u_lck_bmpObj.try_lock()) {
     // u_lck_bmpObj.lock();
         ImGui::Image((ImTextureID)(intptr_t)bmpObj.BMP(), ImVec2(imgSize[0], imgSize[1]));
-        u_lck_bmpObj.unlock();
-    }
+        // u_lck_bmpObj.unlock();
+    // }
+    al_unlock_mutex(th_allegMutex);
     ImGui::EndGroup();
     if(init) init=false;
 }
