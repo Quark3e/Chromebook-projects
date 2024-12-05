@@ -22,8 +22,6 @@ inline void mtx_print(std::string toPrint, bool blocking=true) {
 }
 
 
-
-
 extern ALLEGRO_BITMAP *bitmap_test;
 extern ALLEGRO_DISPLAY* display;
 
@@ -50,8 +48,6 @@ extern ALLEGRO_DISPLAY* display;
  *  ```
  */
 extern DIY::typed_dict<std::string, DIY::typed_dict<std::string, size_t>> imageFormats;
-
-
 
 
 extern int mode;
