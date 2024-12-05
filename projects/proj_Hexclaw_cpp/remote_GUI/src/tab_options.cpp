@@ -529,14 +529,14 @@ void tab_1(void) {
     // al_set_target_backbuffer(display);
     
     
-    ImGui::SetCursorPos(io.MousePos);
 
     while(bmpObj.newTask.load() && bmpObj.localRunning.load());
 
     // al_lock_mutex(th_allegMutex);
     // if(u_lck_bmpObj.try_lock()) {
     // u_lck_bmpObj.lock();
-        ImGui::Image((ImTextureID)(intptr_t)bmpObj.BMP(), ImVec2(imgSize[0], imgSize[1]));
+    ImGui::SetCursorPos(io.MousePos);
+    ImGui::Image((ImTextureID)(intptr_t)bmpObj.BMP(), ImVec2(imgSize[0], imgSize[1]));
     //     u_lck_bmpObj.unlock();
     // }
     // else {
