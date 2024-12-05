@@ -1,5 +1,6 @@
 teststuff/python/opencv/angleArea/media/raw/
 teststuff/cpp/basic/networking/tcp/OpenCV_streamVideo/server/build/
 teststuff/cpp/basic/networking/tcp/OpenCV_streamVideo/client/build/
+teststuff/cpp/basic/networking/tcp/ex0_win32/build/
 .vscode
 projects/proj_Hexclaw_cpp/in\ rpi/build/

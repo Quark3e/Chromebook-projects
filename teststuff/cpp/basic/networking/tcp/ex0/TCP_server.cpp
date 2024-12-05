@@ -1,6 +1,6 @@
 
 #if _WIN32
-
+#include <winsock2.h>
 #else
 #include <netdb.h>
 #include <netinet/in.h>
@@ -79,7 +79,6 @@ void func(int connfd) {
         }
     }
 }
-
 
 int main(int argc, char** argv) {
     int sockfd, connfd;
