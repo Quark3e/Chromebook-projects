@@ -113,14 +113,16 @@ inline bool loadBitmap_fromBitArray(
     ALLEGRO_COLOR col;
     // al_set_target_bitmap(_bitmap);
 
+    // mtx_print("T1: al_lock_bitmap()");
     // ALLEGRO_LOCKED_REGION* lockedReg = al_lock_bitmap(_bitmap, al_get_bitmap_format(_bitmap), ALLEGRO_LOCK_WRITEONLY);
     ALLEGRO_LOCKED_REGION* lockedReg = al_lock_bitmap(_bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
+    if(!lockedReg) return false;
     assert(lockedReg);
 
     if(_BM_DEFINE) perf_loadBitmap_func.set_T1("set_target()");
     if(_BM_DEFINE) perf_loadBitmap_func.set_T0("loop start",  _bitArray->size());
 
-    
+    // mtx_print("T1: bitArray->size() loop");
     size_t iCnt = 0;
     size_t iLim = _bitArray->size() / 60;
     bool iTrue = true;
@@ -129,6 +131,7 @@ inline bool loadBitmap_fromBitArray(
             
             // pos[0] = i%_width;
             // pos[1] = floor(float(i)/_height);
+            // mtx_print("T1: newPixel: i:"+std::to_string(i));
             if(pos[0]>al_get_bitmap_width(_bitmap)) {
                 std::cerr << "i:"<< i << " ";
                 std::cerr << pos[0] << " - "<<al_get_bitmap_width(_bitmap);
@@ -210,7 +213,7 @@ inline bool loadBitmap_fromBitArray(
 
     // *((uint32_t*)(getPixelPtr(201, 200, lockedReg))) = 0xFF208CE0;
     // *((uint32_t*)(getPixelPtr(1, 1, lockedReg))) = 0xFF208CE0;
-
+    // mtx_print("T1: unlock bitmap");
     al_unlock_bitmap(_bitmap);
 
     // al_set_target_backbuffer(display);
@@ -318,19 +321,21 @@ inline void threadTask_bitArrayProcess(
 
 }
 
-extern ALLEGRO_THREAD   *th_allegThread;
-extern ALLEGRO_MUTEX    *th_allegMutex;
-extern ALLEGRO_COND     *th_allegCond;
+// extern ALLEGRO_THREAD   *th_allegThread;
+// extern ALLEGRO_MUTEX    *th_allegMutex;
+// extern ALLEGRO_COND     *th_allegCond;
+
 inline void* th_allegFunc(ALLEGRO_THREAD* th_alleg, void* arg) {
-    // std::unique_lock<std::mutex> u_lck_al_bmp((*(al_bmp_threadClass*)arg).mtx, std::defer_lock);
+    std::unique_lock<std::mutex> u_lck_al_bmp((*(al_bmp_threadClass*)arg).mtx, std::defer_lock);
 
     (*(al_bmp_threadClass*)arg).localRunning = true;
-    while((*(al_bmp_threadClass*)arg).runningPtr->load() && !al_get_thread_should_stop(th_allegThread)) {
+    while((*(al_bmp_threadClass*)arg).runningPtr->load() /*&& !al_get_thread_should_stop(th_allegThread)*/) {
         if((*(al_bmp_threadClass*)arg).newTask.load()) {
-            // mtx_print("T1: new task:");
-            // (*(al_bmp_threadClass*)arg).mtx.lock();
-            al_lock_mutex(th_allegMutex);
+            mtx_print("T1: new task:");
+            (*(al_bmp_threadClass*)arg).mtx.lock();
+            // al_lock_mutex(th_allegMutex);
         
+            mtx_print("T1: loadBitmap..()");
             loadBitmap_fromBitArray(
                 (*(al_bmp_threadClass*)arg).BMP(),
                 &((*(al_bmp_threadClass*)arg).arr),
@@ -341,18 +346,18 @@ inline void* th_allegFunc(ALLEGRO_THREAD* th_alleg, void* arg) {
             );
 
             (*(al_bmp_threadClass*)arg).newTask = false;
-            // (*(al_bmp_threadClass*)arg).mtx.unlock();
-            al_unlock_mutex(th_allegMutex);
-            // mtx_print("T1: end of task");
+            (*(al_bmp_threadClass*)arg).mtx.unlock();
+            // al_unlock_mutex(th_allegMutex);
+            
+            (*(al_bmp_threadClass*)arg).newTask = false;
+            mtx_print("T1: end of new task");
         }
         else {
             // mtx_print("T1: task not called");
         }
-        // mtx_print("T1: end of iter.k");
-        (*(al_bmp_threadClass*)arg).newTask = false;
     }
     (*(al_bmp_threadClass*)arg).localRunning = false;
-    // mtx_print("T1: closing");
+    mtx_print("T1: closing");
     // mtx_print("T1: closing: "+formatNumber<bool>((*classBMP_obj).runningPtr->load(), 0, 0));
 }
 

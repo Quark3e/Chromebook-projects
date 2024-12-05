@@ -26,9 +26,9 @@ ALLEGRO_DISPLAY* display = nullptr;
 // GLuint my_image_texture = 0;
 
 
-ALLEGRO_THREAD  *th_allegThread;
-ALLEGRO_MUTEX   *th_allegMutex;
-ALLEGRO_COND    *th_allegCond;
+// ALLEGRO_THREAD  *th_allegThread;
+// ALLEGRO_MUTEX   *th_allegMutex;
+// ALLEGRO_COND    *th_allegCond;
 
 
 

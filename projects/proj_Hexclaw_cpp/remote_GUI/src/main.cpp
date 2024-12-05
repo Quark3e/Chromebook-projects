@@ -92,12 +92,12 @@ int main(int argc, char** argv) {
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_mouse_event_source());
 
-    // std::thread t_bmpLoader(threadTask_bitArrayProcess, &bmpObj);
-    th_allegMutex  = al_create_mutex();
-    assert(th_allegMutex);
-    th_allegThread = al_create_thread(th_allegFunc, &bmpObj);
-    assert(th_allegThread);
-    al_start_thread(th_allegThread);
+    std::thread t_bmpLoader(threadTask_bitArrayProcess, &bmpObj);
+    // th_allegMutex  = al_create_mutex();
+    // assert(th_allegMutex);
+    // th_allegThread = al_create_thread(th_allegFunc, &bmpObj);
+    // assert(th_allegThread);
+    // al_start_thread(th_allegThread);
     // glfwSetErrorCallback(glfw_error_callback);
     // if (!glfwInit()) {
     //     return 1;
@@ -198,9 +198,9 @@ int main(int argc, char** argv) {
     }
 
     mtx_print("T0:join before.");
-    // t_bmpLoader.join();
-    al_join_thread(th_allegThread, NULL);
-    al_destroy_thread(th_allegThread);
+    t_bmpLoader.join();
+    // al_join_thread(th_allegThread, NULL);
+    // al_destroy_thread(th_allegThread);
     mtx_print("T0:join after.");
 
     ImGui_ImplAllegro5_Shutdown();
