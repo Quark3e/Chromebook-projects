@@ -1,12 +1,17 @@
 
-#include <iostream>
+#if _WIN32
+
+#else
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <sys/socket.h>
+#endif
+
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-#include <sys/socket.h>
 #include <unistd.h>
 
 #define MAX     80

@@ -1,7 +1,12 @@
 
-#include <opencv2/opencv.hpp>
+#if _WIN32
+#include <winsock.h>
+#else
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#endif
+
+#include <opencv2/opencv.hpp>
 #include <unistd.h>
 #include <cstring>
 #include <iostream>

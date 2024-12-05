@@ -1,10 +1,15 @@
 
-#include <opencv2/opencv.hpp>
-#include <iostream>
+#if _WIN32
+
+#else
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
+#endif
+
+#include <opencv2/opencv.hpp>
+#include <iostream>
 #include <unistd.h>
 #include <string.h>
 
