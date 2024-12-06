@@ -1,15 +1,12 @@
 
-#if _WIN32
-#include <winsock.h>
-#else
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#endif
-
 #include <opencv2/opencv.hpp>
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
+
+#include "../lib/NETWORKCLASS_TCP.hpp"
+
+NETWORKCLASS_TCP tcpObj;
 
 int main(int argc, char** argv) {
 
@@ -37,6 +34,7 @@ int main(int argc, char** argv) {
         }
     }
     
+    /*
     if((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         std::cerr << "socket() failed!" << std::endl;
         exit(1);
@@ -54,7 +52,11 @@ int main(int argc, char** argv) {
         std::cerr << "connect() failed!" << std::endl;
         exit(1);
     }
-
+    */
+    if(!(
+        tcpObj.func_sockCreate() &&
+        tcpObj.func_connect()
+    )) exit(1);
     
     cv::Mat img;
     img = cv::Mat::zeros(480, 640, CV_8UC1);
@@ -72,10 +74,14 @@ int main(int argc, char** argv) {
     cv::namedWindow("CV Video Client", 1);
 
     while(key!='q') {
-        if((bytes = recv(sock, iptr, imgSize, MSG_WAITALL))==-1) {
-            std::cerr << "recv failed, received = " << bytes << std::endl;
+        if((bytes = tcpObj.func_receive(iptr, imgSize, MSG_WAITALL))==-1) {
+            std::cerr << "recv failed." << std::endl;
             exit(1);
         }
+        // if((bytes = recv(sock, iptr, imgSize, MSG_WAITALL))==-1) {
+        //     std::cerr << "recv failed, received = " << bytes << std::endl;
+        //     exit(1);
+        // }
         cv::imshow("CV Video Client", img);
         if(key = cv::waitKey(10)>=0) break;
     }

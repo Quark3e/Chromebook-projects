@@ -1,5 +1,4 @@
 
-
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <string>
@@ -39,7 +38,7 @@ int main(int argc, char** argv) {
         }
     }
 
-
+    /*
     // Socket creation
     int localSocket;
     if((localSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -64,15 +63,27 @@ int main(int argc, char** argv) {
     int remoteSocket;
     struct sockaddr_in remoteAddr;
     int addrLen = sizeof(struct sockaddr_in);
+    */
     // pthread_t thread_id;
+    tcpObj = NETWORKCLASS_TCP("ANY", port);
+    if(!(
+        tcpObj.func_sockCreate() &&
+        tcpObj.func_bind()
+    )) {
+        exit(1);
+    }
     while(true) {
-        if((remoteSocket = accept(localSocket, (struct sockaddr*)&remoteAddr, (socklen_t*)&addrLen)) < 0) {
+        /*if((remoteSocket = accept(localSocket, (struct sockaddr*)&remoteAddr, (socklen_t*)&addrLen)) < 0) {
             std::cerr << "accept failed!" << std::endl;
             exit(1);
-        }
+        }*/
+        if(!(
+            tcpObj.func_listen() &&
+            tcpObj.func_accept()
+        )) exit(1);
         std::cout << "Connection accepted" << std::endl;
         //pthread_create(&thread_id, NULL, display, &remoteSocket);
-        display(&remoteSocket);
+        display(tcpObj.get_remoteSocket());
     }
     return 0;
 }
@@ -98,10 +109,15 @@ void *display(void *ptr) {
         cap >> img;
 
         cv::cvtColor(img, imgGray, cv::COLOR_BGR2GRAY);
-        if((bytes=send(socket, imgGray.data, imgSize, 0)) < 0) {
+        
+        if((bytes=tcpObj.func_send(imgGray.data, imgSize, 0)) < 0) {
             std::cerr << "bytes = " << bytes << std::endl;
             break;
         }
+        // if((bytes=send(socket, reinterpret_cast<const char*>(imgGray.data), imgSize, 0)) < 0) {
+        //     std::cerr << "bytes = " << bytes << std::endl;
+        //     break;
+        // }
     }
 
 }
