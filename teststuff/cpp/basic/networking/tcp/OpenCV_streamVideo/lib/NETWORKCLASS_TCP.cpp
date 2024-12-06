@@ -161,13 +161,13 @@ int NETWORKCLASS_TCP::func_send(const void* _dataBuf, size_t _nBytes, int _flags
     int bytesSent = 0;
     bytesSent = send(
         _remoteSocket,
+#if _WIN32
+        (const char*)_dataBuf,
+        (int)_nBytes,
+#else
         _dataBuf,
         _nBytes,
-        _flags
-#if _WIN32
-
-#else
-        
 #endif
+        _flags
     );
 }
