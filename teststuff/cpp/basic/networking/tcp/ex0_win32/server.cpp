@@ -40,11 +40,12 @@ int main(int argc, char** argv) {
     }
 
     // Bind socket to an IP address and port number
+    int port = DEFAULT_PORT;
     sockaddr_in service;
     service.sin_family = AF_INET;
     // service.sin_addr.s_addr = inet_addr(DEFAULT_IPADDR);
     service.sin_addr.s_addr = INADDR_ANY;
-    service.sin_port = htons(DEFAULT_PORT);
+    service.sin_port = htons(port);
 
     // Use the bind function
     if(bind(serverSocket, reinterpret_cast<SOCKADDR*>(&service), sizeof(service)) == SOCKET_ERROR) {

@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
 
     int     sock;
     char*   serverIP   = "internal";
-    int     serverPort = 8080;
+    int     serverPort = 1086;
 
 
     if(argc>1) {

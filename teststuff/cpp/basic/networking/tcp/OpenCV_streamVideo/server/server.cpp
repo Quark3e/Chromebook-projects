@@ -1,37 +1,25 @@
 
-#if _WIN32
-#include <winsock2.h>
-#else
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <sys/ioctl.h>
-#include <net/if.h>
-#endif
 
 #include <opencv2/opencv.hpp>
 #include <iostream>
-#include <unistd.h>
-#include <string.h>
+#include <string>
 
+#include "../lib/NETWORKCLASS_TCP.hpp"
+
+NETWORKCLASS_TCP tcpObj;
 
 void *display(void*);
 
 int capDev = 0;
-
 cv::VideoCapture cap(capDev);
 
 int main(int argc, char** argv) {
 
-    int     localSocket,
-            remoteSocket,
-            port            = 8080;
+    if(!tcpObj.func_init()) {
+        exit(1);
+    }
 
-    struct  sockaddr_in localAddr,
-                        remoteAddr;
-    pthread_t thread_id;
-
-    int addrLen = sizeof(struct sockaddr_in);
-
+    int port = 1086;
     if(argc>1) {
         if(!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
             std::cout <<"Usage: cv_video_srv -p/--port [port] -c/--cap [capture device]\n" <<
@@ -51,11 +39,15 @@ int main(int argc, char** argv) {
         }
     }
 
+
+    // Socket creation
+    int localSocket;
     if((localSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         std::cerr << "socket() failed!" << std::endl;
         exit(1);
     }
 
+    struct sockaddr_in localAddr;
     localAddr.sin_family = AF_INET;
     localAddr.sin_addr.s_addr = INADDR_ANY;
     localAddr.sin_port = htons(port);
@@ -67,9 +59,12 @@ int main(int argc, char** argv) {
 
     listen(localSocket, 3);
 
-    std::cout <<"Waiting for connections...\n" <<
-                "server port: " << port << std::endl;
+    std::cout <<"Waiting for connections...\n" << "server port: " << port << std::endl;
 
+    int remoteSocket;
+    struct sockaddr_in remoteAddr;
+    int addrLen = sizeof(struct sockaddr_in);
+    // pthread_t thread_id;
     while(true) {
         if((remoteSocket = accept(localSocket, (struct sockaddr*)&remoteAddr, (socklen_t*)&addrLen)) < 0) {
             std::cerr << "accept failed!" << std::endl;
@@ -110,3 +105,4 @@ void *display(void *ptr) {
     }
 
 }
+
