@@ -1,4 +1,5 @@
 
+<<<<<<< HEAD
 #if _WIN32
 
 #else
@@ -8,6 +9,8 @@
 #include <net/if.h>
 #endif
 
+=======
+>>>>>>> 5fd17b87dc8c3ad0d9e44afbc8ff4bbd994c7bb3
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <unistd.h>
@@ -51,6 +54,12 @@ int main(int argc, char** argv) {
         }
     }
 
+<<<<<<< HEAD
+=======
+    /*
+    // Socket creation
+    int localSocket;
+>>>>>>> 5fd17b87dc8c3ad0d9e44afbc8ff4bbd994c7bb3
     if((localSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         std::cerr << "socket() failed!" << std::endl;
         exit(1);
@@ -70,14 +79,33 @@ int main(int argc, char** argv) {
     std::cout <<"Waiting for connections...\n" <<
                 "server port: " << port << std::endl;
 
+<<<<<<< HEAD
+=======
+    int remoteSocket;
+    struct sockaddr_in remoteAddr;
+    int addrLen = sizeof(struct sockaddr_in);
+    */
+    // pthread_t thread_id;
+    tcpObj = NETWORKCLASS_TCP("ANY", port);
+    if(!(
+        tcpObj.func_sockCreate() &&
+        tcpObj.func_bind()
+    )) {
+        exit(1);
+    }
+>>>>>>> 5fd17b87dc8c3ad0d9e44afbc8ff4bbd994c7bb3
     while(true) {
-        if((remoteSocket = accept(localSocket, (struct sockaddr*)&remoteAddr, (socklen_t*)&addrLen)) < 0) {
+        /*if((remoteSocket = accept(localSocket, (struct sockaddr*)&remoteAddr, (socklen_t*)&addrLen)) < 0) {
             std::cerr << "accept failed!" << std::endl;
             exit(1);
-        }
+        }*/
+        if(!(
+            tcpObj.func_listen() &&
+            tcpObj.func_accept()
+        )) exit(1);
         std::cout << "Connection accepted" << std::endl;
         //pthread_create(&thread_id, NULL, display, &remoteSocket);
-        display(&remoteSocket);
+        display(tcpObj.get_remoteSocket());
     }
     return 0;
 }
@@ -103,10 +131,15 @@ void *display(void *ptr) {
         cap >> img;
 
         cv::cvtColor(img, imgGray, cv::COLOR_BGR2GRAY);
-        if((bytes=send(socket, imgGray.data, imgSize, 0)) < 0) {
+        
+        if((bytes=tcpObj.func_send(imgGray.data, imgSize, 0)) < 0) {
             std::cerr << "bytes = " << bytes << std::endl;
             break;
         }
+        // if((bytes=send(socket, reinterpret_cast<const char*>(imgGray.data), imgSize, 0)) < 0) {
+        //     std::cerr << "bytes = " << bytes << std::endl;
+        //     break;
+        // }
     }
 
 }

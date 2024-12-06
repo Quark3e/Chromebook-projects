@@ -199,7 +199,7 @@ int NETWORKCLASS_TCP::func_send(const void* _sendBuf, size_t _nBytes, int _flags
     _bytesSent = send(
         _remoteSocket,
 #if _WIN32
-        (const char*)_sendBuf,
+        reinterpret_cast<const char*>(_sendBuf),
         (int)_nBytes,
 #else
         _sendBuf,
