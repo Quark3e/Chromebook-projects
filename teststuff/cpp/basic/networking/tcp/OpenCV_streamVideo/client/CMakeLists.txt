@@ -9,7 +9,11 @@ find_package(OpenCV REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-add_executable(cv_video_cli client.cpp)
+
+add_executable(
+    cv_video_cli
+    client.cpp
+)
 
 
 target_link_libraries(

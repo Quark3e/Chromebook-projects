@@ -64,7 +64,7 @@ class NETWORKCLASS_TCP {
      * @brief Construct a new tcpnetwork class object and initialize with default ipAddress/port values
      * 
      */
-    NETWORKCLASS_TCP();
+    // NETWORKCLASS_TCP();
     NETWORKCLASS_TCP(std::string _ipAddress=DEFAULT_IPADDR, int _port=DEFAULT_PORT);
 
     bool func_init();

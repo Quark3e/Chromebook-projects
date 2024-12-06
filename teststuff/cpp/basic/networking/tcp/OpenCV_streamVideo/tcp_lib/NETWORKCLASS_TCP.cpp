@@ -2,9 +2,9 @@
 #include "NETWORKCLASS_TCP.hpp"
 
 
-NETWORKCLASS_TCP::NETWORKCLASS_TCP() {
-    this->func_init();
-}
+// NETWORKCLASS_TCP::NETWORKCLASS_TCP() {
+//     this->func_init();
+// }
 NETWORKCLASS_TCP::NETWORKCLASS_TCP(std::string _ipAddress, int _port) {
     this->_local_IPADDRESS = _ipAddress;
     this->_local_PORT = _port;
