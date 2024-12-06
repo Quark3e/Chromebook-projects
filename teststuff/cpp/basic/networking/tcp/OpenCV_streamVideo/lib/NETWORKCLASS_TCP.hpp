@@ -12,8 +12,8 @@
 #include <net/if.h>
 #endif
 
-#define DEFAULT_IPADDR  "ANY"
-#define DEFAULT_PORT    1086
+#define DEFAULT_IPADDR      "ANY"
+#define DEFAULT_PORT        1086
 #define MAX_MESSAGE_SIZE    255
 
 #include <iostream>
@@ -37,7 +37,7 @@ class NETWORKCLASS_TCP {
 
     int _sockAddrLen = sizeof(sockaddr_in);
 
-    std::string _server_IPADDRESS   = "default";
+    std::string _server_IPADDRESS   = "ANY";
     int         _server_PORT        = 1086;
 
     public:
@@ -71,6 +71,7 @@ class NETWORKCLASS_TCP {
     bool func_accept();
     bool func_receive();
     bool func_send();
+    int func_send(const void* _dataBuf, size_t _nBytes, int _flags);
 
 };
 

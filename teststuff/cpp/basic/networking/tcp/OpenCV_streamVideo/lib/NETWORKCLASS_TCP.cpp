@@ -92,7 +92,7 @@ bool NETWORKCLASS_TCP::func_sockCreate() {
 bool NETWORKCLASS_TCP::func_bind() {
 
     _server_sockaddr_in.sin_family = AF_INET;
-    _server_sockaddr_in.sin_addr.s_addr = INADDR_ANY;
+    _server_sockaddr_in.sin_addr.s_addr = (_server_IPADDRESS=="ANY"? INADDR_ANY : inet_addr(_server_IPADDRESS.c_str()));
     _server_sockaddr_in.sin_port = htons(_server_PORT);
 #if _WIN32
     if(bind(_serverSocket, reinterpret_cast<SOCKADDR*>(&_server_sockaddr_in), sizeof(_server_sockaddr_in)) == SOCKET_ERROR) {
@@ -153,9 +153,21 @@ bool NETWORKCLASS_TCP::func_accept() {
 bool NETWORKCLASS_TCP::func_receive() {
 
     
-
-
 }
 bool NETWORKCLASS_TCP::func_send() {
 
+}
+int NETWORKCLASS_TCP::func_send(const void* _dataBuf, size_t _nBytes, int _flags) {
+    int bytesSent = 0;
+    bytesSent = send(
+        _remoteSocket,
+        _dataBuf,
+        _nBytes,
+        _flags
+#if _WIN32
+
+#else
+        
+#endif
+    );
 }
