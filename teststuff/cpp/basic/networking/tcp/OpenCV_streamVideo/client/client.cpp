@@ -36,16 +36,16 @@ int main(int argc, char** argv) {
             }
         }
     }
-
-    struct sockaddr_in serverAddr;
-    socklen_t addrLen = sizeof(struct sockaddr_in);
     
-    if((sock = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+    if((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         std::cerr << "socket() failed!" << std::endl;
         exit(1);
     }
 
-    serverAddr.sin_family = PF_INET;
+    struct sockaddr_in serverAddr;
+    socklen_t addrLen = sizeof(struct sockaddr_in);
+
+    serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = (!strcmp(serverIP, "internal")? INADDR_ANY : inet_addr(serverIP));
     serverAddr.sin_port = htons(serverPort);
 

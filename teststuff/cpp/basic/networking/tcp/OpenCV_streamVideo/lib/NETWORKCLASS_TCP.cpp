@@ -6,8 +6,8 @@ NETWORKCLASS_TCP::NETWORKCLASS_TCP() {
     this->func_init();
 }
 NETWORKCLASS_TCP::NETWORKCLASS_TCP(std::string _ipAddress, int _port) {
-    this->_server_IPADDRESS = _ipAddress;
-    this->_server_PORT = _port;
+    this->_local_IPADDRESS = _ipAddress;
+    this->_local_PORT = _port;
     this->func_init();
 }
 
@@ -16,29 +16,29 @@ bool NETWORKCLASS_TCP::set_IPADDRESS(std::string _ipAddress) {
     if(_init) {
         return false;
     }
-    _server_IPADDRESS = _ipAddress;
+    _local_IPADDRESS = _ipAddress;
     return true;
 }
 bool NETWORKCLASS_TCP::set_PORT(int _port) {
     if(_init) {
         return false;
     }
-    _server_PORT;
+    _local_PORT;
     return true;
 }
 std::string NETWORKCLASS_TCP::get_IPADDRESS() {
-    return _server_IPADDRESS;
+    return _local_IPADDRESS;
 }
 int NETWORKCLASS_TCP::get_PORT() {
-    return _server_PORT;
+    return _local_PORT;
 }
 
 
 #if _WIN32
-SOCKET*     NETWORKCLASS_TCP::get_serverSocket() { return &_serverSocket; }
+SOCKET*     NETWORKCLASS_TCP::get_localSocket() { return &_localSocket; }
 SOCKET*     NETWORKCLASS_TCP::get_remoteSocket() { return &_remoteSocket; }
 #else
-int         NETWORKCLASS_TCP::get_serverSocket() { return _serverSocket; }
+int         NETWORKCLASS_TCP::get_localSocket() { return _localSocket; }
 int         NETWORKCLASS_TCP::get_remoteSocket() { return _remoteSocket; }
 #endif
 
@@ -66,10 +66,10 @@ bool NETWORKCLASS_TCP::func_init() {
 }
 bool NETWORKCLASS_TCP::func_sockCreate() {
 #if _WIN32
-    this->_serverSocket = INVALID_SOCKET;
-    this->_serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    this->_localSocket = INVALID_SOCKET;
+    this->_localSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    if(_serverSocket==INVALID_SOCKET) {
+    if(_localSocket==INVALID_SOCKET) {
         std::cout << "Error at socket(): " << WSAGetLastError() << std::endl;
         WSACleanup();
         return false;
@@ -78,7 +78,7 @@ bool NETWORKCLASS_TCP::func_sockCreate() {
         std::cout << "Socket successfully created" << std::endl;
     }
 #else
-    if((_serverSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    if((_localSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         std::cout << "socket() failed!" << std::endl;
         return false;
     }
@@ -89,20 +89,40 @@ bool NETWORKCLASS_TCP::func_sockCreate() {
 
     return true;
 }
-bool NETWORKCLASS_TCP::func_bind() {
+bool NETWORKCLASS_TCP::func_connect() {
 
-    _server_sockaddr_in.sin_family = AF_INET;
-    _server_sockaddr_in.sin_addr.s_addr = (_server_IPADDRESS=="ANY"? INADDR_ANY : inet_addr(_server_IPADDRESS.c_str()));
-    _server_sockaddr_in.sin_port = htons(_server_PORT);
+    _remote_sockaddr_in.sin_family = AF_INET;
+    _remote_sockaddr_in.sin_addr.s_addr = inet_addr(_local_IPADDRESS.c_str());
+    _remote_sockaddr_in.sin_port = htons(_local_PORT);
 #if _WIN32
-    if(bind(_serverSocket, reinterpret_cast<SOCKADDR*>(&_server_sockaddr_in), sizeof(_server_sockaddr_in)) == SOCKET_ERROR) {
-        std::cout << "bind() failed: " << WSAGetLastError() << std::endl;
-        closesocket(_serverSocket);
+    if(connect(_localSocket, reinterpret_cast<SOCKADDR*>(&_remote_sockaddr_in), sizeof(sockaddr_in)) < 0) {
+        std::cout << "connect() failed." << std::endl;
         WSACleanup();
         return false;
     }
 #else
-    if(bind(_serverSocket, (struct sockaddr*)&_serverSocket, sizeof(_serverSocket)) < 0) {
+    if(connect(_localSocket, (sockaddr*)&_remote_sockaddr_in, sizeof(sockaddr_in)) < 0) {
+        std::cout << "connect() failed." << std::endl;
+        return false;
+    }
+#endif
+
+    return true;
+}
+bool NETWORKCLASS_TCP::func_bind() {
+
+    _local_sockaddr_in.sin_family = AF_INET;
+    _local_sockaddr_in.sin_addr.s_addr = (_local_IPADDRESS=="ANY"? INADDR_ANY : inet_addr(_local_IPADDRESS.c_str()));
+    _local_sockaddr_in.sin_port = htons(_local_PORT);
+#if _WIN32
+    if(bind(_localSocket, reinterpret_cast<SOCKADDR*>(&_local_sockaddr_in), sizeof(_local_sockaddr_in)) == SOCKET_ERROR) {
+        std::cout << "bind() failed: " << WSAGetLastError() << std::endl;
+        closesocket(_localSocket);
+        WSACleanup();
+        return false;
+    }
+#else
+    if(bind(_localSocket, (struct sockaddr*)&_localSocket, sizeof(_localSocket)) < 0) {
         std::cout << "bind() failed!" << std::endl;
         return false;
     }
@@ -114,12 +134,12 @@ bool NETWORKCLASS_TCP::func_bind() {
 bool NETWORKCLASS_TCP::func_listen(int _numQueued) {
 
 #if _WIN32
-    if(listen(_serverSocket, _numQueued) == SOCKET_ERROR) {
+    if(listen(_localSocket, _numQueued) == SOCKET_ERROR) {
         std::cout << "listen(): Error listening on socket: " << WSAGetLastError() << std::endl;
         return false;
     }
 #else
-    if(listen(_serverSocket, _numQueued) < 0) {
+    if(listen(_localSocket, _numQueued) < 0) {
         std::cout << "listen(): Error listening on socket. " << std::endl;
         return false;
     }
@@ -133,13 +153,13 @@ bool NETWORKCLASS_TCP::func_listen(int _numQueued) {
 bool NETWORKCLASS_TCP::func_accept() {
 
 #if _WIN32
-    if((_remoteSocket = accept(_serverSocket, nullptr, nullptr)) == INVALID_SOCKET) {
+    if((_remoteSocket = accept(_localSocket, nullptr, nullptr)) == INVALID_SOCKET) {
         std::cout << "accept() failed: " << WSAGetLastError() << std::endl;
         WSACleanup();
         return false;
     }
 #else
-    if((_remoteSocket = accept(_serverSocket, (struct sockaddr*)&_remoteSocket, (socklen_t*)&_sockAddrLen)) < 0) {
+    if((_remoteSocket = accept(_localSocket, (struct sockaddr*)&_remoteSocket, (socklen_t*)&_sockAddrLen)) < 0) {
         std::cout << "accept() failed" << std::endl;
         return false;
     }
@@ -151,23 +171,41 @@ bool NETWORKCLASS_TCP::func_accept() {
     return true;
 }
 bool NETWORKCLASS_TCP::func_receive() {
+    this->func_receive(recvBuffer, sizeof(recvBuffer), 0);
+    if(_bytesRecv<0) return false;
+    return true;
+}
+int NETWORKCLASS_TCP::func_receive(void* _recvBuf, size_t _nBytes, int _flags) {
+    _bytesRecv = recv(
+        _remoteSocket,
+#if _WIN32
+        (char*)_recvBuf,
+        (int)_nBytes,
+#else
+        _recvBuf,
+        _nBytes,
+#endif
+        _flags
+    );
 
-    
+    return _bytesRecv;
 }
 bool NETWORKCLASS_TCP::func_send() {
-
+    this->func_send(sendBuffer, sizeof(sendBuffer), 0);
+    if(_bytesSent<0) return false;
+    return true;
 }
-int NETWORKCLASS_TCP::func_send(const void* _dataBuf, size_t _nBytes, int _flags) {
-    int bytesSent = 0;
-    bytesSent = send(
+int NETWORKCLASS_TCP::func_send(const void* _sendBuf, size_t _nBytes, int _flags) {
+    _bytesSent = send(
         _remoteSocket,
 #if _WIN32
         (const char*)_dataBuf,
         (int)_nBytes,
 #else
-        _dataBuf,
+        _sendBuf,
         _nBytes,
 #endif
         _flags
     );
+    return _bytesSent;
 }

@@ -26,23 +26,26 @@ class NETWORKCLASS_TCP {
     bool _init = false;
 
 #if _WIN32
-    SOCKET  _serverSocket;
+    SOCKET  _localSocket;
     SOCKET  _remoteSocket;
 #else
-    int     _serverSocket;
+    int     _localSocket;
     int     _remoteSocket;
 #endif
-    sockaddr_in _server_sockaddr_in;
+    sockaddr_in _local_sockaddr_in;
     sockaddr_in _remote_sockaddr_in;
 
     int _sockAddrLen = sizeof(sockaddr_in);
 
-    std::string _server_IPADDRESS   = "ANY";
-    int         _server_PORT        = 1086;
+    std::string _local_IPADDRESS   = "ANY";
+    int         _local_PORT        = 1086;
 
     public:
     char sendBuffer[MAX_MESSAGE_SIZE];
     char recvBuffer[MAX_MESSAGE_SIZE];
+
+    int _bytesSent = 0;
+    int _bytesRecv = 0;
 
     bool        set_IPADDRESS(std::string _ipAddress);
     bool        set_PORT(int _port);
@@ -50,10 +53,10 @@ class NETWORKCLASS_TCP {
     int         get_PORT();
 
 #if _WIN32
-    SOCKET*     get_serverSocket();
+    SOCKET*     get_localSocket();
     SOCKET*     get_remoteSocket();
 #else
-    int         get_serverSocket();
+    int         get_localSocket();
     int         get_remoteSocket();
 #endif
 
@@ -66,12 +69,14 @@ class NETWORKCLASS_TCP {
 
     bool func_init();
     bool func_sockCreate();
+    bool func_connect();
     bool func_bind();
     bool func_listen(int _numQueued=1);
     bool func_accept();
     bool func_receive();
+    int func_receive(void* _recvBuf, size_t _nBytes, int _flags);
     bool func_send();
-    int func_send(const void* _dataBuf, size_t _nBytes, int _flags);
+    int func_send(const void* _sendBuf, size_t _nBytes, int _flags);
 
 };
 
