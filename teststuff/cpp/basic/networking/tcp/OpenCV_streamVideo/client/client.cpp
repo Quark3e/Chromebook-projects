@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 
-#include "../NETCLASS_LIB/NETWORKCLASS.hpp"
+#include "../../../LIB_NETWORKCLASS/NETWORKCLASS.hpp"
 
 NETWORKCLASS tcpObj;
 

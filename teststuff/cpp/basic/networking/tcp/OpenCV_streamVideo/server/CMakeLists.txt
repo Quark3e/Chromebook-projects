@@ -6,11 +6,11 @@ project(TCP_CamStream_OpenCV_server)
 
 find_package(OpenCV REQUIRED)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/../NETCLASS_LIB binary_dir)
+add_subdirectory(${PROJECT_SOURCE_DIR}/../../../LIB_NETWORKCLASS binary_dir)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(${PROJECT_SOURCE_DIR}/../NETCLASS_LIB)
-link_directories(${PROJECT_SOURCE_DIR}/../NETCLASS_LIB)
+include_directories(${PROJECT_SOURCE_DIR}/../../../LIB_NETWORKCLASS)
+link_directories(${PROJECT_SOURCE_DIR}/../../../LIB_NETWORKCLASS)
 
 add_executable(
     cv_video_srv
