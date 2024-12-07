@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
     
     tcpObj = NETWORKCLASS_TCP(serverIP, serverPort);
     if(!(
-        tcpObj.func_sockCreate() &&
+        tcpObj.func_createSocket() &&
         tcpObj.func_connect()
     )) exit(1);
     

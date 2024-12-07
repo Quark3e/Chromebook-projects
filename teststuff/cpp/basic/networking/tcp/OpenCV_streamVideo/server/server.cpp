@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
     // pthread_t thread_id;
     tcpObj = NETWORKCLASS_TCP("ANY", port);
     if(!(
-        tcpObj.func_sockCreate() &&
+        tcpObj.func_createSocket() &&
         tcpObj.func_bind()
     )) {
         exit(1);

@@ -72,7 +72,7 @@ bool NETWORKCLASS_TCP::func_init() {
     this->_init = true;
     return true;
 }
-bool NETWORKCLASS_TCP::func_sockCreate() {
+bool NETWORKCLASS_TCP::func_createSocket() {
 #if _WIN32
     this->_localSocket = INVALID_SOCKET;
     this->_localSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -95,7 +95,6 @@ bool NETWORKCLASS_TCP::func_sockCreate() {
     }
 #endif
     
-
     return true;
 }
 bool NETWORKCLASS_TCP::func_connect() {

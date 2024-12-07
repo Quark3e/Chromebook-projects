@@ -73,7 +73,7 @@ class NETWORKCLASS_TCP {
     ~NETWORKCLASS_TCP();
 
     bool func_init();
-    bool func_sockCreate();
+    bool func_createSocket();
     bool func_connect();
     bool func_bind();
     bool func_listen(int _numQueued=1);
