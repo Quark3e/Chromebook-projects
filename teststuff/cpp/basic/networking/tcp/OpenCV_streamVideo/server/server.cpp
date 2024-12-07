@@ -3,9 +3,9 @@
 #include <iostream>
 #include <string>
 
-#include "../tcp_lib/NETWORKCLASS_TCP.hpp"
+#include "../NETCLASS_LIB/NETWORKCLASS.hpp"
 
-NETWORKCLASS_TCP tcpObj;
+NETWORKCLASS tcpObj;
 
 void *display(/*void**/);
 
@@ -69,9 +69,9 @@ int main(int argc, char** argv) {
     int addrLen = sizeof(struct sockaddr_in);
     */
     // pthread_t thread_id;
-    tcpObj = NETWORKCLASS_TCP("ANY", port);
+    tcpObj = NETWORKCLASS("ANY", port);
     if(!(
-        tcpObj.func_createSocket() &&
+        tcpObj.func_createSocket(AF_INET, SOCK_STREAM) &&
         tcpObj.func_bind()
     )) {
         exit(1);

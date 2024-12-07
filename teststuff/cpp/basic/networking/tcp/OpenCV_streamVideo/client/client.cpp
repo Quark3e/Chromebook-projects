@@ -5,9 +5,9 @@
 #include <string>
 #include <iostream>
 
-#include "../tcp_lib/NETWORKCLASS_TCP.hpp"
+#include "../NETCLASS_LIB/NETWORKCLASS.hpp"
 
-NETWORKCLASS_TCP tcpObj;
+NETWORKCLASS tcpObj;
 
 int main(int argc, char** argv) {
 
@@ -48,9 +48,9 @@ int main(int argc, char** argv) {
     // }
 
     
-    tcpObj = NETWORKCLASS_TCP(serverIP, serverPort);
+    tcpObj = NETWORKCLASS(serverIP, serverPort);
     if(!(
-        tcpObj.func_createSocket() &&
+        tcpObj.func_createSocket(AF_INET, SOCK_STREAM) &&
         tcpObj.func_connect()
     )) exit(1);
     

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef HPP__NETWORKCLASS_TCP
-#define HPP__NETWORKCLASS_TCP
+#ifndef HPP__NETWORKCLASS
+#define HPP__NETWORKCLASS
 
 
 #if _WIN32
@@ -25,7 +25,7 @@
 #include <signal.h>
 
 // Global variable definitions
-class NETWORKCLASS_TCP {
+class NETWORKCLASS {
     private:
     bool _init = false;
 
@@ -68,12 +68,12 @@ class NETWORKCLASS_TCP {
      * @brief Construct a new tcpnetwork class object and initialize with default ipAddress/port values
      * 
      */
-    // NETWORKCLASS_TCP();
-    NETWORKCLASS_TCP(std::string _ipAddress=DEFAULT_IPADDR, int _port=DEFAULT_PORT);
-    ~NETWORKCLASS_TCP();
+    // NETWORKCLASS();
+    NETWORKCLASS(std::string _ipAddress=DEFAULT_IPADDR, int _port=DEFAULT_PORT);
+    ~NETWORKCLASS();
 
     bool func_init();
-    bool func_createSocket();
+    bool func_createSocket(int _sock_family, int _sock_type, int _sock_proto=0);
     bool func_connect();
     bool func_bind();
     bool func_listen(int _numQueued=1);
