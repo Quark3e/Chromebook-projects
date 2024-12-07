@@ -6,14 +6,14 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <memory.h>
-#include <ifaddrs.h>
+// #include <memory.h>
+// #include <ifaddrs.h>
 #include <net/if.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <iostream>
 #include <fcntl.h>
-#include <poll.h>
+// #include <poll.h>
 
 
 inline int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr) {

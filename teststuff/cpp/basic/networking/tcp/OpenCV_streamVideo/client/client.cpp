@@ -1,9 +1,7 @@
 
 #include <opencv2/opencv.hpp>
-// #include <unistd.h
-#include <cstring>
-#include <string>
 #include <iostream>
+#include <string>
 
 #include "../../../LIB_NETWORKCLASS/NETWORKCLASS.hpp"
 
@@ -12,7 +10,7 @@ NETWORKCLASS tcpObj;
 int main(int argc, char** argv) {
 
     std::string serverIP   = "192.168.1.177";
-    int         serverPort = 1086;
+    int         serverPORT = 1086;
     // int sock;
 
     if(argc>1) {
@@ -25,7 +23,7 @@ int main(int argc, char** argv) {
         for(int i=1; i<argc; i++) {
             if(i<argc) {
                 if(!strcmp(argv[i], "-p") || !strcmp(argv[i], "--port")) {
-                    serverPort = std::stoi(argv[i+1]);
+                    serverPORT = std::stoi(argv[i+1]);
                 }
                 if(!strcmp(argv[i], "-a") || !strcmp(argv[i], "--address")) {
                     serverIP = argv[i+1];
@@ -41,14 +39,14 @@ int main(int argc, char** argv) {
     // sockaddr_in serverAddr;
     // serverAddr.sin_family = PF_INET;
     // serverAddr.sin_addr.s_addr = (!strcmp(serverIP.c_str(), "internal")? INADDR_ANY : inet_addr(serverIP.c_str()));
-    // serverAddr.sin_port = htons(serverPort);
+    // serverAddr.sin_port = htons(serverPORT);
     // if(connect(sock, (sockaddr*)&serverAddr, sizeof(serverAddr))<0) {
     //     std::cerr << "connect() failed!" << std::endl;
     //     exit(1);
     // }
 
     
-    tcpObj = NETWORKCLASS(serverIP, serverPort);
+    tcpObj = NETWORKCLASS(serverIP, serverPORT);
     if(!(
         tcpObj.func_createSocket(AF_INET, SOCK_STREAM) &&
         tcpObj.func_connect()

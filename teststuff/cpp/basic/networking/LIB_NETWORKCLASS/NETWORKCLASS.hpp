@@ -7,13 +7,19 @@
 #pragma comment(lib, "Ws2_32.lib")
 
 #include <winsock2.h>
+#include <ws2tcpip.h>
 #include <errno.h>
 #else
+#include <bits/stdc++.h> 
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
+#include <netinet/in.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <netdb.h>
 #endif
 
 #define DEFAULT_IPADDR      "ANY"
@@ -38,15 +44,15 @@ class NETWORKCLASS {
     int     _localSocket;
     int     _remoteSocket;
 #endif
+    std::string _local_IPADDRESS   = "ANY";
+    int         _local_PORT        = 1086;
+
+    public:
     sockaddr_in _local_sockaddr_in;
     sockaddr_in _remote_sockaddr_in;
 
     int _sockAddrLen = sizeof(sockaddr_in);
 
-    std::string _local_IPADDRESS   = "ANY";
-    int         _local_PORT        = 1086;
-
-    public:
     char sendBuffer[MAX_MESSAGE_SIZE];
     char recvBuffer[MAX_MESSAGE_SIZE];
 
@@ -93,6 +99,23 @@ class NETWORKCLASS {
 #endif
     
 };
+
+
+inline int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr) {
+    int result;
+    addrinfo* result_list = NULL;
+    addrinfo hints = {};
+    hints.ai_family = family;
+
+    hints.ai_socktype = SOCK_DGRAM;
+    result = getaddrinfo(hostname, service, &hints, &result_list);
+    if(result==0) {
+        //ASSERT(result_list->ai_addrlen<=sieof(sockaddr_in));
+        memcpy(pAddr, result_list->ai_addr, result_list->ai_addrlen);
+        freeaddrinfo(result_list);
+    }
+    return result;
+}
 
 
 #endif

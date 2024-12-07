@@ -12,6 +12,7 @@ NETWORKCLASS::NETWORKCLASS(std::string _ipAddress, int _port) {
 }
 NETWORKCLASS::~NETWORKCLASS() {
 #if _WIN32
+    closesocket(_localSocket);
     WSACleanup();
 #else
     close(_remoteSocket);
@@ -131,7 +132,7 @@ bool NETWORKCLASS::func_bind() {
         return false;
     }
 #else
-    if(bind(_localSocket, (struct sockaddr*)&_local_sockaddr_in, sizeof(_local_sockaddr_in)) < 0) {
+    if(bind(_localSocket, (sockaddr*)&_local_sockaddr_in, sizeof(_local_sockaddr_in))==-1) {
         std::cout << "bind() failed!" << std::endl;
         return false;
     }

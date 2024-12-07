@@ -14,15 +14,8 @@ cv::VideoCapture cap(capDev);
 
 int main(int argc, char** argv) {
 
-#if _WIN32
-    
-#endif
-
-    if(!tcpObj.func_init()) {
-        exit(1);
-    }
-
     int port = 1086;
+    
     if(argc>1) {
         if(!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
             std::cout <<"Usage: cv_video_srv -p/--port [port] -c/--cap [capture device]\n" <<
@@ -41,7 +34,7 @@ int main(int argc, char** argv) {
             }
         }
     }
-    recvfrom()
+
     /*
     // Socket creation
     int localSocket;
