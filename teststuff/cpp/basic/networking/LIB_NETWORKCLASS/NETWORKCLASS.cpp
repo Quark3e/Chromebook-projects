@@ -182,12 +182,12 @@ bool NETWORKCLASS::func_accept() {
 
     return true;
 }
-bool NETWORKCLASS::func_receive() {
-    this->func_receive(recvBuffer, sizeof(recvBuffer), 0);
+bool NETWORKCLASS::func_recv() {
+    this->func_recv(recvBuffer, sizeof(recvBuffer), 0);
     if(_bytesRecv<0) return false;
     return true;
 }
-int NETWORKCLASS::func_receive(void* _recvBuf, size_t _nBytes, int _flags) {
+int NETWORKCLASS::func_recv(void* _recvBuf, size_t _nBytes, int _flags) {
     _bytesRecv = recv(
         _localSocket,
 #if _WIN32
@@ -221,3 +221,50 @@ int NETWORKCLASS::func_send(const void* _sendBuf, size_t _nBytes, int _flags) {
     );
     return _bytesSent;
 }
+#if _WIN32
+int NETWORKCLASS::func_recvfrom(SOCKET _sock, void* _sendBuf, size_t _nBytes, int _flags, sockaddr* _from_addr, int* _from_addr_len) {
+    _bytesRecv = recvfrom(
+        _sock,
+        (char*)_sendBuf,
+        _nBytes,
+        _flags,
+        _from_addr,
+        (socklen_t*)_from_addr_len
+    );
+    return _bytesRecv;
+}
+int NETWORKCLASS::func_sendto(SOCKET _sock, const void* _sendBuf, size_t _nBytes, int _flags, const sockaddr* _to_addr, int _to_addr_len) {
+    _bytesSent = sendto(
+        _sock,
+        reinterpret_cast<const char*>(_sendBuf),
+        int(_nBytes),
+        _flags,
+        _to_addr,
+        _to_addr_len
+    );
+    return _bytesSent;
+}
+#else
+int NETWORKCLASS::func_recvfrom(int _sock, void* _sendBuf, size_t _nBytes, int _flags, sockaddr* _from_addr, int* _from_addr_len) {
+    _bytesRecv = recvfrom(
+        _sock,
+        (char*)_sendBuf,
+        _nBytes,
+        _flags,
+        _from_addr,
+        (socklen_t*)_from_addr_len
+    );
+    return _bytesRecv;
+}
+int NETWORKCLASS::func_sendto(int    _sock, const void* _sendBuf, size_t _nBytes, int _flags, const sockaddr* _to_addr, int _to_addr_len) {
+    _bytesSent = sendto(
+        _sock,
+        _sendBuf,
+        _nBytes,
+        _flags,
+        _to_addr,
+        _to_addr_len
+    );
+    return _bytesSent;
+}
+#endif

@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
     cv::namedWindow("CV Video Client", 1);
 
     while(key!='q') {
-        if((bytes = tcpObj.func_receive(iptr, imgSize, MSG_WAITALL))==-1) {
+        if((bytes = tcpObj.func_recv(iptr, imgSize, MSG_WAITALL))==-1) {
             std::cerr << "recv failed: " << bytes << " bytes" << std::endl;
             exit(1);
         }
