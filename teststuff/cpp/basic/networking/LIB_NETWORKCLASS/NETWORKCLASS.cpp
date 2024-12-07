@@ -229,7 +229,7 @@ int NETWORKCLASS::func_recvfrom(SOCKET _sock, void* _sendBuf, size_t _nBytes, in
         _nBytes,
         _flags,
         _from_addr,
-        (socklen_t*)_from_addr_len
+        _from_addr_len
     );
     return _bytesRecv;
 }
