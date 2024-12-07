@@ -2,24 +2,24 @@
 #include <opencv2/opencv.hpp>
 #include <unistd.h>
 #include <cstring>
+#include <string>
 #include <iostream>
 
-#include "../lib/NETWORKCLASS_TCP.hpp"
+#include "../tcp_lib/NETWORKCLASS_TCP.hpp"
 
 NETWORKCLASS_TCP tcpObj;
 
 int main(int argc, char** argv) {
 
-    int     sock;
-    char*   serverIP   = "internal";
-    int     serverPort = 1086;
-
+    std::string serverIP   = "192.168.1.177";
+    int         serverPort = 1086;
+    // int sock;
 
     if(argc>1) {
         if(!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
             std::cout <<"Usage: cv_video_cli -p/--port [port] -a/--address [address]\n" <<
                         " port      : socket port (8080 default)\n" <<
-                        " address   : server IPaddress (\"internal\" default (same device))\n" << std::endl;
+                        " address   : server IPaddress (\"192.168.1.177\" default (same device))\n" << std::endl;
             exit(0);
         }
         for(int i=1; i<argc; i++) {
@@ -34,22 +34,21 @@ int main(int argc, char** argv) {
         }
     }
     
-    /*
-    if((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        std::cerr << "socket() failed!" << std::endl;
-        exit(1);
-    }
+    // if((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    //     std::cerr << "socket() failed!" << std::endl;
+    //     exit(1);
+    // }
+    // sockaddr_in serverAddr;
+    // serverAddr.sin_family = PF_INET;
+    // serverAddr.sin_addr.s_addr = (!strcmp(serverIP.c_str(), "internal")? INADDR_ANY : inet_addr(serverIP.c_str()));
+    // serverAddr.sin_port = htons(serverPort);
+    // if(connect(sock, (sockaddr*)&serverAddr, sizeof(serverAddr))<0) {
+    //     std::cerr << "connect() failed!" << std::endl;
+    //     exit(1);
+    // }
 
-    serverAddr.sin_family = PF_INET;
-    serverAddr.sin_addr.s_addr = (!strcmp(serverIP, "internal")? INADDR_ANY : inet_addr(serverIP));
-    serverAddr.sin_port = htons(serverPort);
-
-
-    if(connect(sock, (sockaddr*)&serverAddr, addrLen)<0) {
-        std::cerr << "connect() failed!" << std::endl;
-        exit(1);
-    }
-    */
+    
+    tcpObj = NETWORKCLASS_TCP(serverIP, serverPort);
     if(!(
         tcpObj.func_sockCreate() &&
         tcpObj.func_connect()
@@ -72,17 +71,13 @@ int main(int argc, char** argv) {
 
     while(key!='q') {
         if((bytes = tcpObj.func_receive(iptr, imgSize, MSG_WAITALL))==-1) {
-            std::cerr << "recv failed." << std::endl;
+            std::cerr << "recv failed: " << bytes << " bytes" << std::endl;
             exit(1);
         }
-        // if((bytes = recv(sock, iptr, imgSize, MSG_WAITALL))==-1) {
-        //     std::cerr << "recv failed, received = " << bytes << std::endl;
-        //     exit(1);
-        // }
         cv::imshow("CV Video Client", img);
         if(key = cv::waitKey(10)>=0) break;
     }
-    close(sock);
+    // close(sock);
 
     return 0;
 }

@@ -19,6 +19,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
 
 // Global variable definitions
 class NETWORKCLASS_TCP {
@@ -66,6 +67,7 @@ class NETWORKCLASS_TCP {
      */
     // NETWORKCLASS_TCP();
     NETWORKCLASS_TCP(std::string _ipAddress=DEFAULT_IPADDR, int _port=DEFAULT_PORT);
+    ~NETWORKCLASS_TCP();
 
     bool func_init();
     bool func_sockCreate();

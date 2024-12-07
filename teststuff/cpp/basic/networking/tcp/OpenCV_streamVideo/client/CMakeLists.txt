@@ -5,10 +5,12 @@ set(CMAKE_CXX_STANDARD 14)
 set(OpenCV "/usr/local/include")
 
 find_package(OpenCV REQUIRED)
-# include_directories()
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/../tcp_lib binary_dir)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
-
+include_directories(${PROJECT_SOURCE_DIR}/../tcp_lib)
+link_directories(${PROJECT_SOURCE_DIR}/../tcp_lib)
 
 add_executable(
     cv_video_cli
@@ -29,3 +31,4 @@ target_compile_options(
 )
 
 target_link_libraries(cv_video_cli ${OpenCV_LIBS})
+target_link_libraries(cv_video_cli TCP_LIB)

@@ -10,6 +10,13 @@ NETWORKCLASS_TCP::NETWORKCLASS_TCP(std::string _ipAddress, int _port) {
     this->_local_PORT = _port;
     this->func_init();
 }
+NETWORKCLASS_TCP::~NETWORKCLASS_TCP() {
+#if _WIN32
+    WSACleanup();
+#else
+    close(_remoteSocket);
+#endif
+}
 
 
 bool NETWORKCLASS_TCP::set_IPADDRESS(std::string _ipAddress) {
@@ -63,6 +70,7 @@ bool NETWORKCLASS_TCP::func_init() {
 #endif
 
     this->_init = true;
+    return true;
 }
 bool NETWORKCLASS_TCP::func_sockCreate() {
 #if _WIN32
@@ -86,12 +94,14 @@ bool NETWORKCLASS_TCP::func_sockCreate() {
         std::cout << "Socket successfully created." << std::endl;
     }
 #endif
+    
 
     return true;
 }
 bool NETWORKCLASS_TCP::func_connect() {
+    std::cout << _local_IPADDRESS << std::endl;
 
-    _remote_sockaddr_in.sin_family = AF_INET;
+    _remote_sockaddr_in.sin_family = PF_INET;
     _remote_sockaddr_in.sin_addr.s_addr = inet_addr(_local_IPADDRESS.c_str());
     _remote_sockaddr_in.sin_port = htons(_local_PORT);
 #if _WIN32
@@ -101,7 +111,7 @@ bool NETWORKCLASS_TCP::func_connect() {
         return false;
     }
 #else
-    if(connect(_localSocket, (sockaddr*)&_remote_sockaddr_in, sizeof(sockaddr_in)) < 0) {
+    if(connect(_localSocket, (sockaddr*)&_remote_sockaddr_in, sizeof(_remote_sockaddr_in)) < 0) {
         std::cout << "connect() failed." << std::endl;
         return false;
     }
@@ -122,7 +132,7 @@ bool NETWORKCLASS_TCP::func_bind() {
         return false;
     }
 #else
-    if(bind(_localSocket, (struct sockaddr*)&_localSocket, sizeof(_localSocket)) < 0) {
+    if(bind(_localSocket, (struct sockaddr*)&_local_sockaddr_in, sizeof(_local_sockaddr_in)) < 0) {
         std::cout << "bind() failed!" << std::endl;
         return false;
     }
@@ -145,7 +155,9 @@ bool NETWORKCLASS_TCP::func_listen(int _numQueued) {
     }
 #endif
     else {
-        std::cout << "Waiting for new connections..." << std::endl;
+        std::cout << "Waiting for new connections at: " << std::endl;
+        std::cout << " ip   : " << _local_IPADDRESS << std::endl;
+        std::cout << " port : " << _local_PORT << std::endl;
     }
 
     return true;
@@ -165,7 +177,8 @@ bool NETWORKCLASS_TCP::func_accept() {
     }
 #endif
     else {
-        std::cout << "Successfully ran accept()" << std::endl;
+        std::cout << "Successfully accepted connection." << std::endl;
+        // getsockname(_remoteSocket, )
     }
 
     return true;
@@ -177,7 +190,7 @@ bool NETWORKCLASS_TCP::func_receive() {
 }
 int NETWORKCLASS_TCP::func_receive(void* _recvBuf, size_t _nBytes, int _flags) {
     _bytesRecv = recv(
-        _remoteSocket,
+        _localSocket,
 #if _WIN32
         (char*)_recvBuf,
         (int)_nBytes,
@@ -205,7 +218,7 @@ int NETWORKCLASS_TCP::func_send(const void* _sendBuf, size_t _nBytes, int _flags
         _sendBuf,
         _nBytes,
 #endif
-        _flags
+        _flags | MSG_NOSIGNAL
     );
     return _bytesSent;
 }

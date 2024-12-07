@@ -1,45 +1,29 @@
 
-<<<<<<< HEAD
-#if _WIN32
-
-#else
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <sys/ioctl.h>
-#include <net/if.h>
-#endif
-
-=======
->>>>>>> 5fd17b87dc8c3ad0d9e44afbc8ff4bbd994c7bb3
 #include <opencv2/opencv.hpp>
 #include <iostream>
-#include <unistd.h>
-#include <string.h>
+#include <string>
 
+#include "../tcp_lib/NETWORKCLASS_TCP.hpp"
 
-void *display(void*);
+NETWORKCLASS_TCP tcpObj;
+
+void *display(/*void**/);
 
 int capDev = 0;
-
 cv::VideoCapture cap(capDev);
 
 int main(int argc, char** argv) {
 
-    int     localSocket,
-            remoteSocket,
-            port            = 8080;
+    if(!tcpObj.func_init()) {
+        exit(1);
+    }
 
-    struct  sockaddr_in localAddr,
-                        remoteAddr;
-    pthread_t thread_id;
-
-    int addrLen = sizeof(struct sockaddr_in);
-
+    int port = 1086;
     if(argc>1) {
         if(!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
             std::cout <<"Usage: cv_video_srv -p/--port [port] -c/--cap [capture device]\n" <<
-                        " port:         : socket port (8080 default)\n" <<
-                        " capture device: (0 defaukt)" << std::endl;
+                        " port:         : socket port (1086 default)\n" <<
+                        " capture device: (0 default)" << std::endl;
             return 0;
         }
         for(int i=1; i<argc; i++) {
@@ -54,17 +38,15 @@ int main(int argc, char** argv) {
         }
     }
 
-<<<<<<< HEAD
-=======
     /*
     // Socket creation
     int localSocket;
->>>>>>> 5fd17b87dc8c3ad0d9e44afbc8ff4bbd994c7bb3
     if((localSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         std::cerr << "socket() failed!" << std::endl;
         exit(1);
     }
 
+    struct sockaddr_in localAddr;
     localAddr.sin_family = AF_INET;
     localAddr.sin_addr.s_addr = INADDR_ANY;
     localAddr.sin_port = htons(port);
@@ -76,11 +58,8 @@ int main(int argc, char** argv) {
 
     listen(localSocket, 3);
 
-    std::cout <<"Waiting for connections...\n" <<
-                "server port: " << port << std::endl;
+    std::cout <<"Waiting for connections...\n" << "server port: " << port << std::endl;
 
-<<<<<<< HEAD
-=======
     int remoteSocket;
     struct sockaddr_in remoteAddr;
     int addrLen = sizeof(struct sockaddr_in);
@@ -93,8 +72,8 @@ int main(int argc, char** argv) {
     )) {
         exit(1);
     }
->>>>>>> 5fd17b87dc8c3ad0d9e44afbc8ff4bbd994c7bb3
     while(true) {
+        std::cout << "while loop iteration" << std::endl;
         /*if((remoteSocket = accept(localSocket, (struct sockaddr*)&remoteAddr, (socklen_t*)&addrLen)) < 0) {
             std::cerr << "accept failed!" << std::endl;
             exit(1);
@@ -105,14 +84,15 @@ int main(int argc, char** argv) {
         )) exit(1);
         std::cout << "Connection accepted" << std::endl;
         //pthread_create(&thread_id, NULL, display, &remoteSocket);
-        display(tcpObj.get_remoteSocket());
+        display();
+        std::cout << std::endl;
     }
     return 0;
 }
 
 
-void *display(void *ptr) {
-    int socket = *(int*)ptr;
+void *display(/*void *ptr*/) {
+    // int socket = *(int*)ptr;
 
     cv::Mat img, imgGray;
     img = cv::Mat::zeros(480, 640, CV_8UC1);
@@ -134,6 +114,7 @@ void *display(void *ptr) {
         
         if((bytes=tcpObj.func_send(imgGray.data, imgSize, 0)) < 0) {
             std::cerr << "bytes = " << bytes << std::endl;
+            std::cout << "exiting display" << std::endl;
             break;
         }
         // if((bytes=send(socket, reinterpret_cast<const char*>(imgGray.data), imgSize, 0)) < 0) {
@@ -141,5 +122,7 @@ void *display(void *ptr) {
         //     break;
         // }
     }
-
+    
+    return nullptr;
 }
+
