@@ -14,6 +14,10 @@ cv::VideoCapture cap(capDev);
 
 int main(int argc, char** argv) {
 
+#if _WIN32
+    
+#endif
+
     if(!tcpObj.func_init()) {
         exit(1);
     }

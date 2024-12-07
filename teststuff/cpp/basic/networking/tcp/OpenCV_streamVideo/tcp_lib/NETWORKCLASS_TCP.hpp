@@ -4,12 +4,16 @@
 
 
 #if _WIN32
+#pragma comment(lib, "Ws2_32.lib")
+
 #include <winsock2.h>
+#include <errno.h>
 #else
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
+#include <unistd.h>
 #endif
 
 #define DEFAULT_IPADDR      "ANY"
@@ -17,7 +21,6 @@
 #define MAX_MESSAGE_SIZE    255
 
 #include <iostream>
-#include <unistd.h>
 #include <string.h>
 #include <signal.h>
 

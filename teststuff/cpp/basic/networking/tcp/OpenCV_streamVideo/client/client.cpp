@@ -1,6 +1,6 @@
 
 #include <opencv2/opencv.hpp>
-#include <unistd.h>
+// #include <unistd.h
 #include <cstring>
 #include <string>
 #include <iostream>
@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
     int imgSize = img.total() * img.elemSize();
     uchar *iptr = img.data;
     int bytes = 0;
-    int key;
+    int key = 0;
 
     if(!img.isContinuous()) {
         img = img.clone();
@@ -81,3 +81,6 @@ int main(int argc, char** argv) {
 
     return 0;
 }
+
+
+

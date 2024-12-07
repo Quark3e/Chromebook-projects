@@ -216,9 +216,9 @@ int NETWORKCLASS_TCP::func_send(const void* _sendBuf, size_t _nBytes, int _flags
         (int)_nBytes,
 #else
         _sendBuf,
-        _nBytes,
+        _nBytes, MSG_NOSIGNAL | 
 #endif
-        _flags | MSG_NOSIGNAL
+        _flags
     );
     return _bytesSent;
 }

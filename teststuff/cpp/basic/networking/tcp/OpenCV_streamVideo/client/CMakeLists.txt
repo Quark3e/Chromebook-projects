@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.0)
 project(TCP_CamStream_OpenCV_client)
 
-set(CMAKE_CXX_STANDARD 14)
-set(OpenCV "/usr/local/include")
+# set(CMAKE_CXX_STANDARD 14)
+# set(OpenCV "/usr/local/include")
 
 find_package(OpenCV REQUIRED)
 
@@ -18,17 +18,17 @@ add_executable(
 )
 
 
-target_link_libraries(
-    cv_video_cli
-    rt
-    pigpio
-)
-target_compile_options(
-    cv_video_cli
-    PUBLIC
-    # -Wall
-    -pthread
-)
+# target_link_libraries(
+#     cv_video_cli
+#     rt
+#     pigpio
+# )
+# target_compile_options(
+#     cv_video_cli
+#     PUBLIC
+#     # -Wall
+#     -pthread
+# )
 
 target_link_libraries(cv_video_cli ${OpenCV_LIBS})
 target_link_libraries(cv_video_cli TCP_LIB)
