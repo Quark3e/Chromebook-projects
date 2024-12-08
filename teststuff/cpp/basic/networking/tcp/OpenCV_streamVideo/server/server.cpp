@@ -67,10 +67,10 @@ int main(int argc, char** argv) {
     tcpObj = NETWORKCLASS("ANY", port);
     if(!tcpObj.func_createSocket(AF_INET, SOCK_STREAM)) exit(1);
     int _yes = 1;
-    if(setsockopt(tcpObj.get_localSocket(), SOL_SOCKET, SO_REUSEADDR, &_yes, sizeof(_yes))==-1) {
-        perror("setsockopt");
-        exit(1);
-    }
+    // if(setsockopt(tcpObj.get_localSocket(), SOL_SOCKET, SO_REUSEADDR, &_yes, sizeof(_yes))==-1) {
+    //     perror("setsockopt");
+    //     exit(1);
+    // }
     if(!tcpObj.func_bind()) exit(1);
     
     while(true) {
