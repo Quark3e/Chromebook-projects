@@ -43,43 +43,9 @@ int main(int argc, char** argv) {
     udpObj = NETWORKCLASS("ANY", port);
 
     if(!udpObj.func_createSocket(AF_INET, SOCK_DGRAM)) exit(1);
-    
-    // if((udpObj.get_localSocket() = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-    //     perror("socket creation failed: ");
-    //     exit(1);
-    // }
-
-    // memset(&udpObj._remote_sockaddr_in, 0, sizeof(udpObj._remote_sockaddr_in));
-    // memset(&udpObj._local_sockaddr_in, 0, sizeof(udpObj._local_sockaddr_in));
-    
     if(!udpObj.func_bind()) exit(1);
 
-    // udpObj._local_sockaddr_in.sin_family = AF_INET;
-    // udpObj._local_sockaddr_in.sin_addr.s_addr = INADDR_ANY;
-    // udpObj._local_sockaddr_in.sin_port = htons(port);
-    // if(bind(udpObj.get_localSocket(), (const struct sockaddr*)&udpObj._local_sockaddr_in, sizeof(udpObj._local_sockaddr_in)) < 0) {
-    //     perror("bind failed: ");
-    //     exit(1);
-    // }
-
-    // while(true) {
-        // if(__VERBOSE) std::cout << "Waiting for connection" << std::endl;
-        // if((bytes = udpObj.func_recvfrom(
-        //     udpObj.get_localSocket(),
-        //     udpObj.recvBuffer,
-        //     MAX_MESSAGE_SIZE,
-        //     MSG_WAITALL,
-        //     (struct sockaddr*)&udpObj._remote_sockaddr_in,
-        //     &recvLen
-        // )) < 0) exit(1);
-        // else {
-        //     if(__VERBOSE) std::cout << "recv request. Received: " << bytes << " bytes. Message: " << udpObj.recvBuffer << std::endl;
-        // }
-        // if(__VERBOSE) std::cout << "Connection accepted" << std::endl;
-
-        display();
-    //     if(__VERBOSE) std::cout << std::endl;
-    // }
+    display();
     return 0;
 }
 
@@ -88,7 +54,6 @@ void *display() {
     std::vector<int> encodeParam{cv::IMWRITE_JPEG_QUALITY, 80};
     uint16_t arrSize;
     img = cv::Mat::zeros(480, 640, CV_8UC1);
-    // img = cv::Mat::zeros(200, 320, CV_8UC1);
     if(!img.isContinuous()) {
         img = img.clone();
         imgGray = img.clone();
@@ -144,30 +109,15 @@ void *display() {
         std::vector<uchar> bitArr;
         cv::imencode(".jpg", imgGray, bitArr, encodeParam);
         arrSize = bitArr.size();
-        
-        // if((bytes = udpObj.func_sendto(
-        //     udpObj.get_localSocket(),
-        //     imgGray.data,
-        //     imgSize,
-        //     MSG_CONFIRM,
-        //     (const struct sockaddr*)&udpObj._remote_sockaddr_in,
-        //     sizeof(udpObj._remote_sockaddr_in)
-        // )) < 0) {
-        //     std::cerr << "sendto() errno: "<< errno << " sent bytes = " << bytes << std::endl;
-        //     if(__VERBOSE) std::cout << "exiting display" << std::endl;
-        //     break;
-        // }
+
 
         recvLen = sizeof(udpObj._remote_sockaddr_in);
 
         if(__VERBOSE) std::cout << "-send arrSize: " << sizeof(arrSize) << " bytes\n";
-        // std::string testMsg = "test message:";
         if((bytes = udpObj.func_sendto(
             udpObj.get_localSocket(),
             &arrSize,
-            // testMsg.c_str(),
             sizeof(arrSize),
-            // testMsg.length(),
             0,
             (const struct sockaddr*)&udpObj._remote_sockaddr_in,
             recvLen

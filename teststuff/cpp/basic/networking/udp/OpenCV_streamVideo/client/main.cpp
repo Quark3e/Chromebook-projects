@@ -57,18 +57,9 @@ int main(int argc, char** argv) {
         exit(1);
     }
     
-    // cv::Mat img;
-    // std::vector<uchar> buff;
-    // std::vector<int> encoreParam{cv::IMWRITE_JPEG_QUALITY, 80};
 
-    // img = cv::Mat::zeros(480, 640, CV_8UC1);
-    // // img = cv::Mat::zeros(200, 320, CV_8UC1);
-    // int imgSize = img.total() * img.elemSize();
-    // uchar *iptr = img.data;
     int bytes = 0;
     int key = 0;
-    // if(!img.isContinuous()) img = img.clone();
-    // if(__VERBOSE) std::cout << "Image Size: " << imgSize << std::endl;
 
     cv::namedWindow("CV Video Client", 1);
 
@@ -140,19 +131,7 @@ int main(int argc, char** argv) {
         }
         if(__VERBOSE) std::cout << "  sent: " << bytes << " bytes" << std::endl;
 
-        // if((bytes = udpObj.func_recvfrom(
-        //         udpObj.get_localSocket(),
-        //         (char*)iptr,
-        //         imgSize,
-        //         MSG_WAITALL,
-        //         (struct sockaddr*)&udpObj._remote_sockaddr_in,
-        //         &recvLen
-        //     ))==-1
-        // ) {
-        //     // std::cerr << "recv failed: " << bytes << " bytes. errno:" << errno << std::endl;
-        //     continue;
-        //     // exit(1);
-        // }
+
         
         bitArr = std::vector<uchar>(arrSize);
         if(__VERBOSE) std::cout << "-recv bitArr:\n";
