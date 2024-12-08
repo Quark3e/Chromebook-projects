@@ -43,11 +43,11 @@ int NETWORKCLASS::get_PORT() {
 
 
 #if _WIN32
-SOCKET*     NETWORKCLASS::get_localSocket() { return &_localSocket; }
-SOCKET*     NETWORKCLASS::get_remoteSocket() { return &_remoteSocket; }
+SOCKET&     NETWORKCLASS::get_localSocket() { return _localSocket; }
+SOCKET&     NETWORKCLASS::get_remoteSocket() { return _remoteSocket; }
 #else
-int         NETWORKCLASS::get_localSocket() { return _localSocket; }
-int         NETWORKCLASS::get_remoteSocket() { return _remoteSocket; }
+int&        NETWORKCLASS::get_localSocket() { return _localSocket; }
+int&        NETWORKCLASS::get_remoteSocket() { return _remoteSocket; }
 #endif
 
 bool NETWORKCLASS::func_init() {
@@ -70,6 +70,9 @@ bool NETWORKCLASS::func_init() {
 
 #endif
 
+	memset(&_local_sockaddr_in, 0, sizeof(_local_sockaddr_in));
+	memset(&_remote_sockaddr_in, 0, sizeof(_remote_sockaddr_in));
+
     this->_init = true;
     return true;
 }
@@ -84,7 +87,7 @@ bool NETWORKCLASS::func_createSocket(int _sock_family, int _sock_type, int _sock
         return false;
     }
     else {
-        std::cout << "Socket successfully created" << std::endl;
+        // std::cout << "Socket successfully created" << std::endl;
     }
 #else
     if((_localSocket = socket(_sock_family, _sock_type, _sock_proto)) < 0) {
@@ -92,7 +95,7 @@ bool NETWORKCLASS::func_createSocket(int _sock_family, int _sock_type, int _sock
         return false;
     }
     else {
-        std::cout << "Socket successfully created." << std::endl;
+        // std::cout << "Socket successfully created." << std::endl;
     }
 #endif
     
@@ -132,12 +135,12 @@ bool NETWORKCLASS::func_bind() {
         return false;
     }
 #else
-    if(bind(_localSocket, (sockaddr*)&_local_sockaddr_in, sizeof(_local_sockaddr_in))==-1) {
+    if(bind(_localSocket, (const struct sockaddr*)&_local_sockaddr_in, sizeof(_local_sockaddr_in))==-1) {
         std::cout << "bind() failed!" << std::endl;
         return false;
     }
 #endif
-    else std::cout << "Socket successfully bound." << std::endl;
+    // else std::cout << "Socket successfully bound." << std::endl;
 
     return true;
 }
@@ -223,14 +226,14 @@ int NETWORKCLASS::func_send(int sendTo, const void* _sendBuf, size_t _nBytes, in
     return _bytesSent;
 }
 #if _WIN32
-int NETWORKCLASS::func_recvfrom(SOCKET _sock, void* _sendBuf, size_t _nBytes, int _flags, sockaddr* _from_addr, int* _from_addr_len) {
+int NETWORKCLASS::func_recvfrom(SOCKET _sock, void* _sendBuf, size_t _nBytes, int _flags, sockaddr* _from_addr, void* _from_addr_len) {
     _bytesRecv = recvfrom(
         _sock,
         (char*)_sendBuf,
         _nBytes,
         _flags,
         _from_addr,
-        _from_addr_len
+        (int*)_from_addr_len
     );
     return _bytesRecv;
 }
@@ -246,7 +249,7 @@ int NETWORKCLASS::func_sendto(SOCKET _sock, const void* _sendBuf, size_t _nBytes
     return _bytesSent;
 }
 #else
-int NETWORKCLASS::func_recvfrom(int _sock, void* _sendBuf, size_t _nBytes, int _flags, sockaddr* _from_addr, int* _from_addr_len) {
+int NETWORKCLASS::func_recvfrom(int _sock, void* _sendBuf, size_t _nBytes, int _flags, sockaddr* _from_addr, void* _from_addr_len) {
     _bytesRecv = recvfrom(
         _sock,
         (char*)_sendBuf,

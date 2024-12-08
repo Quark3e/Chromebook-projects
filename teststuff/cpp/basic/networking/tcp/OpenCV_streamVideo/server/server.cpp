@@ -96,7 +96,7 @@ void *display(/*void *ptr*/) {
     // int socket = *(int*)ptr;
 
     cv::Mat img, imgGray;
-    std::vector<int>    bitArr_param{cv::IMWRITE_JPEG_QUALITY, 80};
+    std::vector<int> bitArr_param{cv::IMWRITE_JPEG_QUALITY, 80};
     uint16_t arrSize;
     img = cv::Mat::zeros(480, 640, CV_8UC1);
     if(!img.isContinuous()) {

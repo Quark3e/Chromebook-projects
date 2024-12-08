@@ -53,18 +53,17 @@ int main(int argc, char** argv) {
     
     if(!tcpObj.func_connect()) exit(1);
     
-    cv::Mat img;
-    img = cv::Mat::zeros(480, 640, CV_8UC1);
-    int imgSize = img.total() * img.elemSize();
-    uchar *iptr = img.data;
+    // cv::Mat img;
+    // img = cv::Mat::zeros(480, 640, CV_8UC1);
+    // int imgSize = img.total() * img.elemSize();
+    // uchar *iptr = img.data;
     int bytes = 0;
     int key = 0;
 
-    if(!img.isContinuous()) {
-        img = img.clone();
-    }
-
-    std::cout << "Image Size: " << imgSize << std::endl;
+    // if(!img.isContinuous()) {
+    //     img = img.clone();
+    // }
+    // std::cout << "Image Size: " << imgSize << std::endl;
 
     cv::namedWindow("CV Video Client", 1);
 

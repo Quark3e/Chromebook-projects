@@ -18,7 +18,7 @@
 
 
 #define DEFAULT__PORT   1089
-#define DEFAULT__ADDR   "192.168.1.118"
+#define DEFAULT__ADDR   "192.168.1.177"
 #define DEFAULT__MSWAIT 33
 #define MAXLINE 1024
 

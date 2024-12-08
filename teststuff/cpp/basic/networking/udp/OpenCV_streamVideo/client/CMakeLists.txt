@@ -23,12 +23,12 @@ add_executable(
 #     rt
 #     pigpio
 # )
-# target_compile_options(
-#     cv_video_cli
-#     PUBLIC
-#     # -Wall
-#     -pthread
-# )
+target_compile_options(
+    cv_video_cli
+    PUBLIC
+    -Wall
+    # -pthread
+)
 
 target_link_libraries(cv_video_cli ${OpenCV_LIBS})
 target_link_libraries(cv_video_cli NETWORKCLASS_LIB)
