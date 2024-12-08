@@ -101,7 +101,7 @@ bool NETWORKCLASS::func_createSocket(int _sock_family, int _sock_type, int _sock
 bool NETWORKCLASS::func_connect() {
     std::cout << _local_IPADDRESS << std::endl;
 
-    _remote_sockaddr_in.sin_family = PF_INET;
+    _remote_sockaddr_in.sin_family = AF_INET;
     _remote_sockaddr_in.sin_addr.s_addr = inet_addr(_local_IPADDRESS.c_str());
     _remote_sockaddr_in.sin_port = htons(_local_PORT);
 #if _WIN32
@@ -183,14 +183,14 @@ bool NETWORKCLASS::func_accept() {
 
     return true;
 }
-bool NETWORKCLASS::func_recv() {
-    this->func_recv(recvBuffer, sizeof(recvBuffer), 0);
+bool NETWORKCLASS::func_recv(int recvFrom) {
+    this->func_recv(recvFrom, recvBuffer, sizeof(recvBuffer), 0);
     if(_bytesRecv<0) return false;
     return true;
 }
-int NETWORKCLASS::func_recv(void* _recvBuf, size_t _nBytes, int _flags) {
+int NETWORKCLASS::func_recv(int recvFrom, void* _recvBuf, size_t _nBytes, int _flags) {
     _bytesRecv = recv(
-        _localSocket,
+        (recvFrom==0? _localSocket : _remoteSocket),
 #if _WIN32
         (char*)_recvBuf,
         (int)_nBytes,
@@ -203,14 +203,14 @@ int NETWORKCLASS::func_recv(void* _recvBuf, size_t _nBytes, int _flags) {
 
     return _bytesRecv;
 }
-bool NETWORKCLASS::func_send() {
-    this->func_send(sendBuffer, sizeof(sendBuffer), 0);
+bool NETWORKCLASS::func_send(int sendTo) {
+    this->func_send(sendTo, sendBuffer, sizeof(sendBuffer), 0);
     if(_bytesSent<0) return false;
     return true;
 }
-int NETWORKCLASS::func_send(const void* _sendBuf, size_t _nBytes, int _flags) {
+int NETWORKCLASS::func_send(int sendTo, const void* _sendBuf, size_t _nBytes, int _flags) {
     _bytesSent = send(
-        _remoteSocket,
+        (sendTo==0? _localSocket : _remoteSocket),
 #if _WIN32
         reinterpret_cast<const char*>(_sendBuf),
         (int)_nBytes,

@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
     memset(&udpObj._local_sockaddr_in, 0, sizeof(udpObj._local_sockaddr_in));
 
     udpObj._local_sockaddr_in.sin_family = AF_INET;
-    if(bind(udpObj.get_localSocket(), (sockaddr*)&udpObj._local_sockaddr_in, sizeof(udpObj._local_sockaddr_in))==-1) {
+    if(bind(udpObj.get_localSocket(), (sockaddr*) &udpObj._local_sockaddr_in, sizeof(udpObj._local_sockaddr_in))==-1) {
         int lasterror = errno;
         std::cout << "bind() error: " << errno << std::endl;
         exit(1);
@@ -53,6 +53,10 @@ int main(int argc, char** argv) {
     }
     
     cv::Mat img;
+    std::vector<uchar> buff;
+    int buffSize = 16000;
+    std::vector<int> param{cv::IMWRITE_JPEG_QUALITY, 80};
+
     // img = cv::Mat::zeros(480, 640, CV_8UC1);
     img = cv::Mat::zeros(200, 320, CV_8UC1);
     int imgSize = img.total() * img.elemSize();
@@ -82,19 +86,35 @@ int main(int argc, char** argv) {
             std::cout << "sendto() error: " << lasterror << std::endl;;
             exit(1);
         }
+        // if((bytes = udpObj.func_recvfrom(
+        //         udpObj.get_localSocket(),
+        //         (char*)iptr,
+        //         imgSize,
+        //         MSG_WAITALL,
+        //         (struct sockaddr*)&udpObj._remote_sockaddr_in,
+        //         &recvLen
+        //     ))==-1
+        // ) {
+        //     // std::cerr << "recv failed: " << bytes << " bytes. errno:" << errno << std::endl;
+        //     continue;
+        //     // exit(1);
+        // }
         if((bytes = udpObj.func_recvfrom(
-                udpObj.get_localSocket(),
-                (char*)iptr,
-                imgSize,
-                MSG_WAITALL,
-                (struct sockaddr*)&udpObj._remote_sockaddr_in,
-                &recvLen
-            ))==-1
-        ) {
-            // std::cerr << "recv failed: " << bytes << " bytes. errno:" << errno << std::endl;
+            udpObj.get_localSocket(),
+            (char*)buff.data(),
+            buffSize,
+            MSG_WAITALL,
+            (struct sockaddr*)&udpObj._remote_sockaddr_in,
+            &recvLen
+        ))==-1) {
+            std::cout << "Error at recvfrom(): errno: " << errno << std::endl;
             continue;
-            // exit(1);
         }
+        else {
+            std::cout << "Received: " << bytes << " bytes" << std::endl;
+        }
+
+        img = cv::imdecode(buff, cv::IMREAD_COLOR);
 
         cv::imshow("CV Video Client", img);
         if(key = cv::waitKey(10)>=0) break;

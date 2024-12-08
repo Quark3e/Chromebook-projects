@@ -86,10 +86,10 @@ class NETWORKCLASS {
     bool    func_bind();
     bool    func_listen(int _numQueued=1);
     bool    func_accept();
-    bool    func_recv();
-    int     func_recv(void* _recvBuf, size_t _nBytes, int _flags);
-    bool    func_send();
-    int     func_send(const void* _sendBuf, size_t _nBytes, int _flags);
+    bool    func_recv(int recvFrom=1);
+    int     func_recv(int recvFrom, void* _recvBuf, size_t _nBytes, int _flags);
+    bool    func_send(int sendTo=1);
+    int     func_send(int sendTo, const void* _sendBuf, size_t _nBytes, int _flags);
 #if _WIN32
     int     func_recvfrom(SOCKET _sock, void* _sendBuf, size_t _nBytes, int _flags, sockaddr* _from_addr, int* _from_addr_len);
     int     func_sendto(SOCKET _sock, const void* _sendBuf, size_t _nBytes, int _flags, const sockaddr* _to_addr, int _to_addr_len);

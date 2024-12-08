@@ -65,14 +65,17 @@ int main(int argc, char** argv) {
 
 void *display() {
     cv::Mat img, imgGray;
-    // img = cv::Mat::zeros(480, 640, CV_8UC1);
-    img = cv::Mat::zeros(200, 320, CV_8UC1);
+    std::vector<uchar> buff;
+    std::vector<int> param{cv::IMWRITE_JPEG_QUALITY, 80};
+    img = cv::Mat::zeros(480, 640, CV_8UC1);
+    // img = cv::Mat::zeros(200, 320, CV_8UC1);
     if(!img.isContinuous()) {
         img = img.clone();
         imgGray = img.clone();
     }
 
     int imgSize = img.total() * img.elemSize();
+    int imgSize_compr = 0;
     int bytes = 0;
     int recvLen = 0;
     int key = 0;
@@ -92,18 +95,37 @@ void *display() {
         cap >> img;
 
         cv::cvtColor(img, imgGray, cv::COLOR_BGR2GRAY);
+        cv::imencode(".jpg", imgGray, buff, param);
+        imgSize_compr = buff.size();
+        std::cout << "compressed size: " << imgSize_compr << " bytes" << std::endl;
+        
+        // if((bytes = udpObj.func_sendto(
+        //     udpObj.get_localSocket(),
+        //     imgGray.data,
+        //     imgSize,
+        //     MSG_CONFIRM,
+        //     (const struct sockaddr*)&udpObj._remote_sockaddr_in,
+        //     sizeof(udpObj._remote_sockaddr_in)
+        // )) < 0) {
+        //     std::cerr << "sendto() errno: "<< errno << " sent bytes = " << bytes << std::endl;
+        //     std::cout << "exiting display" << std::endl;
+        //     break;
+        // }
 
         if((bytes = udpObj.func_sendto(
             udpObj.get_localSocket(),
-            imgGray.data,
-            imgSize,
+            static_cast<void*>(buff.data()),
+            buff.size(),
             MSG_CONFIRM,
             (const struct sockaddr*)&udpObj._remote_sockaddr_in,
             sizeof(udpObj._remote_sockaddr_in)
         )) < 0) {
             std::cerr << "sendto() errno: "<< errno << " sent bytes = " << bytes << std::endl;
-            std::cout << "exiting display" << std::endl;
+            std::cout << "Exiting display" << std::endl;
             break;
+        }
+        else {
+            std::cout << "Sent: " << bytes << " bytes." << std::endl;
         }
     }
 

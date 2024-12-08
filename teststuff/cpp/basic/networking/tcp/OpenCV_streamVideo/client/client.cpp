@@ -2,6 +2,8 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <string>
+#include <thread>
+#include <chrono>
 
 #include "../../../LIB_NETWORKCLASS/NETWORKCLASS.hpp"
 
@@ -47,10 +49,9 @@ int main(int argc, char** argv) {
 
     
     tcpObj = NETWORKCLASS(serverIP, serverPORT);
-    if(!(
-        tcpObj.func_createSocket(AF_INET, SOCK_STREAM) &&
-        tcpObj.func_connect()
-    )) exit(1);
+    if(!tcpObj.func_createSocket(AF_INET, SOCK_STREAM)) exit(1);
+    
+    if(!tcpObj.func_connect()) exit(1);
     
     cv::Mat img;
     img = cv::Mat::zeros(480, 640, CV_8UC1);
@@ -68,11 +69,53 @@ int main(int argc, char** argv) {
     cv::namedWindow("CV Video Client", 1);
 
     while(key!='q') {
-        if((bytes = tcpObj.func_recv(iptr, imgSize, MSG_WAITALL))==-1) {
-            std::cerr << "recv failed: " << bytes << " bytes" << std::endl;
+        std::vector<uchar> bitArr;
+        uint16_t arrSize = 69;
+
+        std::cout << "-recv arrSize:"<<std::endl;
+        if((bytes = tcpObj.func_recv(0, &arrSize, 2, MSG_WAITALL))==-1) {
+            std::cerr << "recv() for arrSize failed." << std::endl;
+            std::cout << "errno: " << errno << std::endl;
             exit(1);
         }
-        cv::imshow("CV Video Client", img);
+        else if(bytes==0) {
+            std::cout << " peer closed the socket. Closing socket." <<std::endl;
+            exit(1);
+        }
+        else {
+            std::cout << "  received: "<<tcpObj._bytesRecv << " bytes" << std::endl;
+            std::cout << "  Incoming arrSize: " << arrSize << " bytes" << std::endl;
+        }
+
+        std::cout << "-send confirmSize:" << std::endl;
+        // if(send(tcpObj.get_localSocket(), &arrSize, sizeof(arrSize), 0)==-1) {
+        if(tcpObj.func_send(0, &arrSize, sizeof(arrSize), 0)==-1) {
+            std::cerr << "send() for arrSize failed." << std::endl;
+            std::cout << "errno: " << errno << std::endl;
+            exit(1);
+        }
+        std::cout << "  sent: " << tcpObj._bytesSent << " bytes" << std::endl;
+
+        std::cout << "-recv bitArr:" << std::endl;
+        
+        bitArr = std::vector<uchar>(arrSize);
+        if((bytes = tcpObj.func_recv(0, bitArr.data(), arrSize*sizeof(bitArr[0]), MSG_WAITALL))==-1) {
+            std::cerr << "recv() for bitArr data failed." << std::endl;
+            std::cout << "errno: " << errno << std::endl;
+            exit(1);
+        }
+        else {
+
+        }
+        std::cout << "  received: "<<tcpObj._bytesRecv << " bytes" << std::endl;
+
+        cv::Mat imgInp = cv::imdecode(cv::Mat(1, arrSize, CV_8UC1, (void*)bitArr.data()), 0);
+        // if((bytes = tcpObj.func_recv(iptr, imgSize, MSG_WAITALL))==-1) {
+        //     std::cerr << "recv failed: " << bytes << " bytes" << std::endl;
+        //     exit(1);
+        // }
+
+        cv::imshow("CV Video Client", imgInp);
         if(key = cv::waitKey(10)>=0) break;
     }
     // close(sock);
