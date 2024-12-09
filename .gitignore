@@ -5,5 +5,6 @@ teststuff/cpp/basic/networking/udp/OpenCV_streamVideo/server/build/
 teststuff/cpp/basic/networking/udp/OpenCV_streamVideo/client/build/
 teststuff/cpp/basic/networking/udp/pc_to_pc/build/
 teststuff/cpp/basic/networking/tcp/ex0_win32/build/
+teststuff/cpp/image_process/libjeg/decoding/build/
 .vscode
 projects/proj_Hexclaw_cpp/in\ rpi/build/
