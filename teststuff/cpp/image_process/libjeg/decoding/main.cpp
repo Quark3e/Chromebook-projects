@@ -203,7 +203,7 @@ int main (int argc, char *argv[]) {
 	
 	// Write the decompressed bitmap out to a ppm file, just to make sure 
 	// it worked. 
-	fd = open("output.ppm", O_CREAT | O_WRONLY, 0666);
+	fd = open("output.bmp", O_CREAT | O_WRONLY, 0666);
 	char buf[1024];
 
 	rc = sprintf(buf, "P6 %d %d 255\n", width, height);
