@@ -6,6 +6,11 @@ project(libjpeg_decode)
 
 # find_package(OpenCV REQUIRED)
 
+find_library(JPEG_LIB
+    jpeg
+    HINTS "${CMAKE_PREFIX_PATH}/arm-linux-gnueabihf"
+    REQUIRED
+)
 
 # include_directories(${OpenCV_INCLUDE_DIRS})
 add_executable(
@@ -13,10 +18,7 @@ add_executable(
     main.cpp
 )
 
-
-target_link_libraries(
-    decoder
-)
+target_link_libraries(decoder PRIVATE "${JPEG_LIB}")
 # target_compile_options(
 #     cv_video_srv
 #     PUBLIC
