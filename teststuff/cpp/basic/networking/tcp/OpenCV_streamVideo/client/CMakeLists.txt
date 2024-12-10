@@ -3,7 +3,7 @@ project(TCP_CamStream_OpenCV_client)
 
 set(CMAKE_CXX_STANDARD 14)
 # set(OpenCV "/usr/local/include")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread") 
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread") 
 
 find_package(OpenCV REQUIRED)
 
@@ -31,12 +31,12 @@ add_executable(
 #     rt
 #     pigpio
 # )
-target_compile_options(
-    cv_video_cli
-    PUBLIC
-    # -Wall
-    -pthread
-)
+# target_compile_options(
+#     cv_video_cli
+#     PUBLIC
+#     # -Wall
+#     -pthread
+# )
 
 target_link_libraries(cv_video_cli "${JPEG_LIB}")
 target_link_libraries(cv_video_cli ${OpenCV_LIBS})

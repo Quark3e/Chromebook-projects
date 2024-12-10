@@ -1,4 +1,7 @@
 
+
+#define TAKE_PERF true
+
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <string>
@@ -19,16 +22,13 @@ bool __VERBOSE = false;
 int main(int argc, char** argv) {
 
 
-    PERF::perf_isolated perf_client;
-    // createTable perf_table(2, 6);
-
     std::string serverIP   = "192.168.1.177";
     int         serverPORT = 1086;
     // int sock;
 
     if(argc>1) {
         if(!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
-            if(__VERBOSE) std::cout <<"Usage: cv_video_cli -p/--port [port] -a/--address [address]\n" <<
+            std::cout <<"Usage: cv_video_cli -p/--port [port] -a/--address [address]\n" <<
                         " port      : socket port (8080 default)\n" <<
                         " address   : server IPaddress (\"192.168.1.177\" default (same device))\n" << std::endl;
             exit(0);
@@ -59,12 +59,18 @@ int main(int argc, char** argv) {
     //     exit(1);
     // }
 
+    std::cout << " PROGRAM START:" << std::endl;
+    PERF::perf_isolated perf_client;
+    createTable perf_table(2, 6);
     
+    if(__VERBOSE) {std::cout << " init NETWORKCLASS" << std::endl;}
     tcpObj = NETWORKCLASS(serverIP, serverPORT);
+    if(__VERBOSE) {std::cout << " createSocket()" << std::endl;}
     if(!tcpObj.func_createSocket(AF_INET, SOCK_STREAM)) exit(1);
-    
+    if(__VERBOSE) {std::cout << " connect()" << std::endl;}
     if(!tcpObj.func_connect()) exit(1);
     
+
     // cv::Mat img;
     // img = cv::Mat::zeros(480, 640, CV_8UC1);
     // int imgSize = img.total() * img.elemSize();
@@ -92,56 +98,61 @@ int main(int argc, char** argv) {
     int row_stride, width, height, pixel_size;
 
 
+
     cv::namedWindow("CV Video Client", 1);
 
+    std::cout << "\n\n\n"<<std::endl;
     while(key!='q') {
         std::vector<uchar> bitArr;
         uint16_t arrSize = 69;
+        
         perf_client.set_T0("recv() arrSize");
-        if(__VERBOSE) std::cout << "-recv arrSize:"<<std::endl;
+        if(__VERBOSE) {std::cout << "-recv arrSize:"<<std::endl;}
         if((bytes = tcpObj.func_recv(0, &arrSize, 2, MSG_WAITALL))==-1) {
             std::cerr << "recv() for arrSize failed." << std::endl;
-            if(__VERBOSE) std::cout << "errno: " << errno << std::endl;
+            if(__VERBOSE) {std::cout << "errno: " << errno << std::endl;}
             exit(1);
         }
         else if(bytes==0) {
-            if(__VERBOSE) std::cout << " peer closed the socket. Closing socket." <<std::endl;
+            if(__VERBOSE) {std::cout << " peer closed the socket. Closing socket." <<std::endl;}
             exit(1);
         }
         else {
-            if(__VERBOSE) std::cout << "  received: "<<tcpObj._bytesRecv << " bytes" << std::endl;
-            if(__VERBOSE) std::cout << "  Incoming arrSize: " << arrSize << " bytes" << std::endl;
+            if(__VERBOSE) {
+                std::cout << "  received: "<<tcpObj._bytesRecv << " bytes" << std::endl;
+                std::cout << "  Incoming arrSize: " << arrSize << " bytes" << std::endl;
+            }
         }
         perf_client.set_T1("recv() arrSize");
-        // perf_table.insertText(perf_client.names()[0], 0, 0);
-        // perf_table.insertNum(perf_client.delays()[0], 1, 0);
+        perf_table.insertText(perf_client.names()[0], 0, 0);
+        perf_table.insertNum(perf_client.delays()[0], 1, 0);
         perf_client.set_T0("send() confirm");
-        if(__VERBOSE) std::cout << "-send confirmSize:" << std::endl;
+        if(__VERBOSE) {std::cout << "-send confirmSize:" << std::endl;}
         // if(send(tcpObj.get_localSocket(), &arrSize, sizeof(arrSize), 0)==-1) {
         if(tcpObj.func_send(0, &arrSize, sizeof(arrSize), 0)==-1) {
             std::cerr << "send() for arrSize failed." << std::endl;
             if(__VERBOSE) std::cout << "errno: " << errno << std::endl;
             exit(1);
         }
-        if(__VERBOSE) std::cout << "  sent: " << tcpObj._bytesSent << " bytes" << std::endl;
+        if(__VERBOSE) {std::cout << "  sent: " << tcpObj._bytesSent << " bytes" << std::endl;}
         perf_client.set_T1("send() confirm");
-        // perf_table.insertText(perf_client.names()[1], 0, 1);
-        // perf_table.insertNum(perf_client.delays()[1], 1, 1);
+        perf_table.insertText(perf_client.names()[1], 0, 1);
+        perf_table.insertNum(perf_client.delays()[1], 1, 1);
         perf_client.set_T0("recv() bitArr");
-        if(__VERBOSE) std::cout << "-recv bitArr:" << std::endl;
+        if(__VERBOSE) {std::cout << "-recv bitArr:" << std::endl;}
         bitArr = std::vector<uchar>(arrSize);
         if((bytes = tcpObj.func_recv(0, bitArr.data(), arrSize*sizeof(bitArr[0]), MSG_WAITALL))==-1) {
             std::cerr << "recv() for bitArr data failed." << std::endl;
-            if(__VERBOSE) std::cout << "errno: " << errno << std::endl;
+            if(__VERBOSE){ std::cout << "errno: " << errno << std::endl;}
             exit(1);
         }
         else {
 
         }
-        if(__VERBOSE) std::cout << "  received: "<<tcpObj._bytesRecv << " bytes" << std::endl;
+        if(__VERBOSE) {std::cout << "  received: "<<tcpObj._bytesRecv << " bytes" << std::endl;}
         perf_client.set_T1("recv() bitArr");
-        // perf_table.insertText(perf_client.names()[2], 0, 2);
-        // perf_table.insertNum(perf_client.delays()[2], 1, 2);
+        perf_table.insertText(perf_client.names()[2], 0, 2);
+        perf_table.insertNum(perf_client.delays()[2], 1, 2);
         perf_client.set_T0("dcmpr: C0");
         jpg_size = arrSize;
         // jpg_buffer = (unsigned char*)malloc(jpg_size+100);
@@ -158,8 +169,8 @@ int main(int argc, char** argv) {
         }
         cinfo.out_color_components = JCS_GRAYSCALE;
         perf_client.set_T1("dcmpr: C0");
-        // perf_table.insertText(perf_client.names()[3], 0, 3);
-        // perf_table.insertNum(perf_client.delays()[3], 1, 3);
+        perf_table.insertText(perf_client.names()[3], 0, 3);
+        perf_table.insertNum(perf_client.delays()[3], 1, 3);
         perf_client.set_T0("dcmpr: C1");
 
         jpeg_start_decompress(&cinfo);
@@ -182,24 +193,27 @@ int main(int argc, char** argv) {
         jpeg_destroy_decompress(&cinfo);
 
         perf_client.set_T1("dcmpr: C1");
-        // perf_table.insertText(perf_client.names()[4], 0, 4);
-        // perf_table.insertNum(perf_client.delays()[4], 1, 4);
-        perf_client.set_T0("display");
+        perf_table.insertText(perf_client.names()[4], 0, 4);
+        perf_table.insertNum(perf_client.delays()[4], 1, 4);
+        perf_client.set_T0("create cv::Mat");
         // cv::Mat imgInp = cv::imdecode(cv::Mat(1, arrSize, CV_8UC1, (void*)bitArr.data()), 0);
         // if((bytes = tcpObj.func_recv(iptr, imgSize, MSG_WAITALL))==-1) {
         //     std::cerr << "recv failed: " << bytes << " bytes" << std::endl;
         //     exit(1);
         // }
         cv::Mat imgInp(480, 640, CV_8UC1, (void*)bmp_buffer);
+        perf_client.set_T1("create cv::Mat");
+        perf_client.set_T0("display");
 
         cv::imshow("CV Video Client", imgInp);
         if(key = cv::waitKey(10)>=0) break;
         free(bmp_buffer);
         perf_client.set_T1("display");
-        // perf_table.insertText(perf_client.names()[5], 0, 5);
-        // perf_table.insertNum(perf_client.delays()[5], 1, 5);
+        perf_table.insertText(perf_client.names()[5], 0, 5);
+        perf_table.insertNum(perf_client.delays()[5], 1, 5);
 
-        // ansiPrint(perf_table.strExport(), "left", "bottom", true, true);
+        std::cout << perf_table.strExport() << std::endl;
+        // ansiPrint(perf_table.strExport(), (float)0.0, (float)0.8, true, true);
     }
     // free(bmp_buffer);
     // close(sock);
