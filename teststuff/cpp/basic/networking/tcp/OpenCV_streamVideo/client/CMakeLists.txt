@@ -12,6 +12,12 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/../../../LIB_NETWORKCLASS)
 link_directories(${PROJECT_SOURCE_DIR}/../../../LIB_NETWORKCLASS)
 
+find_library(JPEG_LIB
+    jpeg
+    HINTS "${CMAKE_PREFIX_PATH}/arm-linux-gnueabihf"
+    REQUIRED
+)
+
 add_executable(
     cv_video_cli
     client.cpp
@@ -30,5 +36,6 @@ add_executable(
 #     -pthread
 # )
 
+target_link_libraries(cv_video_cli "${JPEG_LIB}")
 target_link_libraries(cv_video_cli ${OpenCV_LIBS})
 target_link_libraries(cv_video_cli NETWORKCLASS_LIB)

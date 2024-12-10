@@ -5,6 +5,8 @@
 #include <thread>
 #include <chrono>
 
+#include <jpeglib.h>
+
 #include "../../../LIB_NETWORKCLASS/NETWORKCLASS.hpp"
 
 NETWORKCLASS tcpObj;
@@ -65,6 +67,21 @@ int main(int argc, char** argv) {
     // }
     // std::cout << "Image Size: " << imgSize << std::endl;
 
+
+    // jpeglib setup
+    int _rc, _i, _j;
+    
+    unsigned long jpg_size;
+    // unsigned char *jpg_buffer;
+
+    struct jpeg_decompress_struct cinfo;
+    struct jpeg_error_mgr jerr;
+
+    unsigned long bmp_size;
+    unsigned char *bmp_buffer;
+    int row_stride, width, height, pixel_size;
+
+
     cv::namedWindow("CV Video Client", 1);
 
     while(key!='q') {
@@ -108,14 +125,54 @@ int main(int argc, char** argv) {
         }
         std::cout << "  received: "<<tcpObj._bytesRecv << " bytes" << std::endl;
 
-        cv::Mat imgInp = cv::imdecode(cv::Mat(1, arrSize, CV_8UC1, (void*)bitArr.data()), 0);
+        jpg_size = arrSize;
+        // jpg_buffer = (unsigned char*)malloc(jpg_size+100);
+        // for(int i=0; i<jpg_size; i++) {
+        // }
+        cinfo.err = jpeg_std_error(&jerr);
+        jpeg_create_decompress(&cinfo);
+
+        jpeg_mem_src(&cinfo, bitArr.data(), jpg_size);
+        _rc = jpeg_read_header(&cinfo, TRUE);
+        if(_rc!=1) {
+            std::cerr << "jpeg_read_header() error"<<std::endl;
+            exit(1);
+        }
+
+
+        cinfo.out_color_components = JCS_GRAYSCALE;
+
+        jpeg_start_decompress(&cinfo);
+        width       = cinfo.output_width;
+        height      = cinfo.output_height;
+        pixel_size  = cinfo.output_components;
+
+        bmp_size    = width * height * pixel_size;
+        bmp_buffer  = (unsigned char*)malloc(bmp_size);
+
+        row_stride  = width * pixel_size;
+
+        while(cinfo.output_scanline < cinfo.output_height) {
+            unsigned char *buffer_array[1];
+            buffer_array[0] = bmp_buffer + (cinfo.output_scanline)*row_stride;
+            jpeg_read_scanlines(&cinfo, buffer_array, 1);
+        }
+
+        jpeg_finish_decompress(&cinfo);
+        jpeg_destroy_decompress(&cinfo);
+
+
+        // cv::Mat imgInp = cv::imdecode(cv::Mat(1, arrSize, CV_8UC1, (void*)bitArr.data()), 0);
         // if((bytes = tcpObj.func_recv(iptr, imgSize, MSG_WAITALL))==-1) {
         //     std::cerr << "recv failed: " << bytes << " bytes" << std::endl;
         //     exit(1);
         // }
+        cv::Mat imgInp(480, 640, CV_8UC1, (void*)bmp_buffer);
 
         cv::imshow("CV Video Client", imgInp);
         if(key = cv::waitKey(10)>=0) break;
+
+        free(bmp_buffer);
     }
     // close(sock);
 
