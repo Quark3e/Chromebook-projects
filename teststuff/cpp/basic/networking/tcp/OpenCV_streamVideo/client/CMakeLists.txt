@@ -1,13 +1,15 @@
 cmake_minimum_required(VERSION 3.0)
 project(TCP_CamStream_OpenCV_client)
 
-# set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 14)
 # set(OpenCV "/usr/local/include")
- 
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread") 
+
 find_package(OpenCV REQUIRED)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/../../../LIB_NETWORKCLASS binary_dir)
 
+include_directories(../../../../../../..)
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/../../../LIB_NETWORKCLASS)
 link_directories(${PROJECT_SOURCE_DIR}/../../../LIB_NETWORKCLASS)
@@ -29,12 +31,12 @@ add_executable(
 #     rt
 #     pigpio
 # )
-# target_compile_options(
-#     cv_video_cli
-#     PUBLIC
-#     # -Wall
-#     -pthread
-# )
+target_compile_options(
+    cv_video_cli
+    PUBLIC
+    # -Wall
+    -pthread
+)
 
 target_link_libraries(cv_video_cli "${JPEG_LIB}")
 target_link_libraries(cv_video_cli ${OpenCV_LIBS})

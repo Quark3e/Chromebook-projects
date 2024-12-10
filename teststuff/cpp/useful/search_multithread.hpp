@@ -11,20 +11,38 @@
 
 #include <thread>
 #include <mutex>
+#include <cassert>
 
 
 namespace DIY_SEARCH_MULTITHREAD
 {
     /// @brief maximum number of threads allowed to be spawned for `multithread_searchVec` given by 'std::thread::hardware_concurrency 
     inline unsigned int maxThreads = 0;
-    
+    /// @brief minimum number of items to search for to allow multiple threads
+    inline int minLenThreads = 100;
+
     /// @brief mutex for inter-thread communication
     inline std::mutex intercom;
-
+    inline std::mutex cout_mtx;
     inline std::atomic<bool> idxFound(false);
 
     inline std::vector<std::vector<int>> return_idx;
     
+    inline void mtx_print(std::string _toPrint, bool _blocking=true, bool _flushEnd=true, std::string _end="\n") {
+        std::unique_lock<std::mutex> u_lck_cout(cout_mtx, std::defer_lock);
+        if(_blocking) {
+            u_lck_cout.lock();
+            std::cout << _toPrint << _end;
+            if(_flushEnd) std::cout.flush();
+            u_lck_cout.unlock();
+        }
+        else if(u_lck_cout.try_lock()) {
+            std::cout << _toPrint << _end;
+            if(_flushEnd) std::cout.flush();
+            u_lck_cout.unlock();
+        }
+    }
+
     template<class T>
     inline void threadFunc(
         std::vector<T>& vec,
@@ -37,6 +55,8 @@ namespace DIY_SEARCH_MULTITHREAD
     ) {
         std::unique_lock<std::mutex> tCOM(intercom, std::defer_lock);
 
+        // mtx_print(std::to_string(id)+": started: ["+std::to_string(startIdx)+","+std::to_string(endIdx)+"]");
+        assert(DIY_SEARCH_MULTITHREAD::return_idx.size()>id);
         int checkCount = 0;
         for(int i=startIdx; i<endIdx; i++) {
             if(!allOccurr && checkCount>=checkSpacing) {
@@ -47,8 +67,9 @@ namespace DIY_SEARCH_MULTITHREAD
 
             if(vec.at(i)==toFind) {
                 tCOM.lock();
+                // mtx_print(std::to_string(id)+": FOUND: "+std::to_string(i));
                 if(!idxFound) idxFound = true;
-                DIY_SEARCH_MULTITHREAD::return_idx[id].push_back(i);
+                DIY_SEARCH_MULTITHREAD::return_idx.at(id).push_back(i);
                 tCOM.unlock();
             }
         }
@@ -89,10 +110,18 @@ namespace DIY_SEARCH_MULTITHREAD
         int checkSpacing = 10,
         bool verbose = false
     ) {
+        // assert(vec.size()>0);
+        if(vec.size()<2) {
+            if(vec.size()==0) return std::vector<int>{-1};
+            if(vec.at(0)==toFind) return std::vector<int>{0};
+            else return std::vector<int>{-1};
+        }
         DIY_SEARCH_MULTITHREAD::idxFound = false;
         std::string verbose_str = " >> DIY_SEARCH_MULTITHREAD::multithread_searchVec";
-        if(verbose) std::cout << verbose_str+" FUNC CALLED."<<std::endl;
-
+        if(verbose) {
+            std::cout << verbose_str+" FUNC CALLED."<<std::endl;
+            std::cout << verbose_str+" vector size: "<<vec.size()<<std::endl;
+        }
         std::vector<int> idx(1, -1);
         maxThreads = std::thread::hardware_concurrency();
         int threadCount = maxThreads; //number of threads to split the search by
@@ -100,8 +129,23 @@ namespace DIY_SEARCH_MULTITHREAD
         if(numThreads>maxThreads) numThreads = maxThreads;
         if(checkSpacing<1) checkSpacing = 1;
 
-        if(numThreads==-1 && threadLen==-1) threadCount = maxThreads;
-        else if(numThreads!=-1 && threadLen==-1) threadCount = numThreads;
+        if(numThreads==-1 && threadLen==-1) {
+            if(vecSize < minLenThreads) {
+                threadCount = 1;
+            }
+            else {
+                threadCount = maxThreads;
+            }
+        }
+        else if(numThreads!=-1 && threadLen==-1) {
+            if(vecSize < minLenThreads) {
+                threadCount = 1;
+            }
+            else {
+                threadCount = numThreads;
+            }
+            
+        }
         else if((numThreads!=-1 && threadLen!=-1) || (numThreads==-1 && threadLen!=-1)) {
             if((vecSize/maxThreads)<threadLen) {
                 for(int i=1; i<numThreads; i++) {
@@ -114,9 +158,11 @@ namespace DIY_SEARCH_MULTITHREAD
             else threadCount = maxThreads;
         }
         else if(numThreads<-1 || threadLen<-1) return idx;
-        
-        if(verbose) std::cout << verbose_str+" maxThreads  =\t"<<maxThreads<<std::endl;
-        if(verbose) std::cout << verbose_str+" threadCount =\t"<<threadCount<<std::endl;
+
+        if(verbose) {
+            std::cout << verbose_str+" maxThreads  =\t"<<maxThreads<<std::endl;
+            std::cout << verbose_str+" threadCount =\t"<<threadCount<<std::endl;
+        }
         if(threadCount==0 || threadCount==1) {
             for(int i=0; i<vecSize; i++) {
                 if(vec.at(i)==toFind) {
@@ -128,10 +174,14 @@ namespace DIY_SEARCH_MULTITHREAD
             return idx;
         }
         return_idx = std::vector<std::vector<int>>(threadCount, std::vector<int>());
+        if(verbose) std::cout << verbose_str+" return_idx =\t"<<return_idx.size()<<std::endl;
         std::vector<std::thread> threadObjects;
         std::unique_lock<std::mutex> tCOM(intercom, std::defer_lock);
         int spacing = ceil(static_cast<float>(vecSize)/threadCount);
-
+        if(verbose) {
+            std::cout << verbose_str+" spacing : "<<spacing<<std::endl;
+            std::cout << verbose_str+" starting: "<<threadCount<<" num threads:"<<std::endl;
+        }
         for (int i=1; i < threadCount-1; i++) {
             threadObjects.emplace_back(
                 [&, i] {threadFunc(vec, toFind, i, spacing*i, spacing*i+spacing, allOccurrence, checkSpacing);}
@@ -140,7 +190,8 @@ namespace DIY_SEARCH_MULTITHREAD
         threadObjects.emplace_back(
             [&] {threadFunc(vec, toFind, threadCount-1, spacing*(threadCount-1), vecSize, allOccurrence, checkSpacing);}
         );
-
+        if(verbose) mtx_print(verbose_str+" T0: threads started.");
+        
         int checkCount = 0;
         for(int i=0; i<spacing; i++) {
             if(!allOccurrence && checkCount>=checkSpacing) {
@@ -152,12 +203,13 @@ namespace DIY_SEARCH_MULTITHREAD
             if(vec.at(i)==toFind) {
                 tCOM.lock();
                 if(!idxFound) idxFound = true;
-                return_idx[0].push_back(i);
+                return_idx.at(0).push_back(i);
                 tCOM.unlock();
             }
         }
 
-        for(int i=0; i<threadObjects.size(); i++) { threadObjects[i].join(); }
+        for(int i=0; i<threadObjects.size(); i++) { threadObjects.at(i).join(); }
+        if(verbose) std::cout<<verbose_str+" threads joined." << std::endl;
         if(idxFound) idx.clear();
         for(int id=0; id<threadCount; id++) {
             for(int i=0; i<return_idx.at(id).size(); i++) {
@@ -230,9 +282,10 @@ namespace DIY_SEARCH_MULTITHREAD
         int threadLen=-1,
         int checkSpacing=1
     ) {
+        if(vec.size()<1) return -1;
+        // assert(vec.size()>0);
         std::vector<int> pos = DIY_SEARCH_MULTITHREAD::multithread_searchVec<_check>(
             vec, key, numThreads, threadLen, false, checkSpacing, verbose);
-            
         return pos.at(0);
     }
 
@@ -264,7 +317,6 @@ namespace DIY_SEARCH_MULTITHREAD
     }
 
 }
-
 
 
 #endif

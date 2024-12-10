@@ -18,7 +18,7 @@
 #include <chrono>
 #include <ctime>
 
-#include <HC_useful/search_multithread.hpp>
+#include "search_multithread.hpp"
 
 
 namespace PERF {
@@ -101,7 +101,7 @@ namespace PERF {
         int set_T0(std::string name, size_t cycle_count = 1) {
             std::chrono::_V2::steady_clock::time_point tempTime = std::chrono::steady_clock::now();
             if(cycle_count<1) cycle_count = 1;
-            int pos = DIY_SEARCH_MULTITHREAD::check_existence<std::string>(name, this->_names);
+            int pos = (this->_names.size()<1? -1 : DIY_SEARCH_MULTITHREAD::check_existence<std::string>(name, this->_names));
             if(pos<0) { //name doesn't exist in system
                 this->_names.push_back(name);
                 this->_times.push_back(std::vector<std::chrono::_V2::steady_clock::time_point>{tempTime, tempTime});
@@ -118,7 +118,6 @@ namespace PERF {
             std::chrono::_V2::steady_clock::time_point tempTime = std::chrono::steady_clock::now();
             int pos = DIY_SEARCH_MULTITHREAD::check_existence<std::string>(name, this->_names);
             if(pos<0) this->_call_error(0,"set_T1(std::string)","input `name` \""+name+"\" has not been initialised with perf_isolated::set_T0()");
-
             this->_times[pos][1]    = tempTime;
             float _tempDelay = (std::chrono::duration_cast<std::chrono::milliseconds>(this->_times[pos][1]-this->_times[pos][0])).count();
             if(_delays_ms[pos].size()+1>=_readCnt[pos]) {
