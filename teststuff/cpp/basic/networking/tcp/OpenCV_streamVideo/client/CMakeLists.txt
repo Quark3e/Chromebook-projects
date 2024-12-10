@@ -1,9 +1,14 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.12)
 project(TCP_CamStream_OpenCV_client)
 
 set(CMAKE_CXX_STANDARD 14)
 # set(OpenCV "/usr/local/include")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread") 
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread")
+
+
+add_definitions(-DCMAKE_BUILD_TYPE="Debug")
+add_definitions(-D__TAKE_PERF=true)
+
 
 find_package(OpenCV REQUIRED)
 
@@ -25,6 +30,9 @@ add_executable(
     client.cpp
 )
 
+
+# target_compile_definitions(cv_video_cli PRIVATE CMAKE_BUILD_TYPE="Debug")
+# target_compile_definitions(cv_video_cli PRIVATE TAKE_PERF=true)
 
 # target_link_libraries(
 #     cv_video_cli
