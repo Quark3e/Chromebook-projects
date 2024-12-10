@@ -1,0 +1,3 @@
+/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/build/CMakeFiles/remote_gui.dir
+/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/build/CMakeFiles/edit_cache.dir
+/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/build/CMakeFiles/rebuild_cache.dir
