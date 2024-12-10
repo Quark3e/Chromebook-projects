@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
     struct jpeg_error_mgr jerr;
 
     unsigned long bmp_size;
-    unsigned char *bmp_buffer;
+    unsigned char *bmp_buffer ;// = (unsigned char*)malloc(16000);
     int row_stride, width, height, pixel_size;
 
 
@@ -171,9 +171,10 @@ int main(int argc, char** argv) {
 
         cv::imshow("CV Video Client", imgInp);
         if(key = cv::waitKey(10)>=0) break;
-
         free(bmp_buffer);
+
     }
+    // free(bmp_buffer);
     // close(sock);
 
     return 0;
