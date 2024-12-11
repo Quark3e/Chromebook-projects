@@ -4,8 +4,7 @@
 #include <string>
 
 #include "../../../LIB_NETWORKCLASS/NETWORKCLASS.hpp"
-
-NETWORKCLASS udpObj;
+// NETWORKCLASS udpObj;
 
 bool __VERBOSE = false;
 
@@ -36,6 +35,12 @@ int main(int argc, char** argv) {
         }
     }
     
+
+    int sockfd, readStatus;
+    struct sockaddr_in servAddr;
+    socklen_t servAddrLen;
+    
+
 
     udpObj = NETWORKCLASS(serverIP, serverPORT);
     if(!udpObj.func_createSocket(AF_INET, SOCK_DGRAM)) exit(1);
