@@ -75,36 +75,31 @@ int main(int argc, char** argv) {
         uint16_t arrSize = 69;
 
         if(__VERBOSE) std::cout << "-recv arrSize:\n";
-        try
-        {
-            sockaddr_in from;
-            if((bytes = recvfrom(
-                udpObj.get_localSocket(),
-                reinterpret_cast<char*>(&arrSize),
-                sizeof(arrSize),
-                0,
-                reinterpret_cast<SOCKADDR*>(&from),
-                &udpObj._bytesRecv
-                // udpObj.func_recvfrom(
-                // udpObj.get_localSocket(),
-                // &arrSize,
-                // sizeof(arrSize),
-                // 0,
-                // (struct sockaddr*)&udpObj._remote_sockaddr_in,
-                // &recvLen
-            ))==-1) {
+
+        sockaddr_in from;
+        if((bytes = recvfrom(
+            udpObj.get_localSocket(),
+            reinterpret_cast<char*>(&arrSize),
+            sizeof(arrSize),
+            0,
+            reinterpret_cast<SOCKADDR*>(&from),
+            &udpObj._bytesRecv
+            // udpObj.func_recvfrom(
+            // udpObj.get_localSocket(),
+            // &arrSize,
+            // sizeof(arrSize),
+            // 0,
+            // (struct sockaddr*)&udpObj._remote_sockaddr_in,
+            // &recvLen
+        ))==-1) {
 #if _WIN32
-                std::cout << "recvfrom() for arrSize failed: " << WSAGetLastError() << std::endl;
+            std::cout << "recvfrom() for arrSize failed: " << WSAGetLastError() << std::endl;
 #else
-                perror("recvfrom() for arrSize failed: ");
+            perror("recvfrom() for arrSize failed: ");
 #endif
-                exit(1);
-            }
+            exit(1);
         }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-        }
+
         
         
         if(__VERBOSE) std::cout << "  received: " << bytes << " bytes" << std::endl;

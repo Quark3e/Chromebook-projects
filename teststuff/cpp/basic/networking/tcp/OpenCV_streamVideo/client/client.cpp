@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
     if(argc>1) {
         if(!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
             std::cout <<"Usage: cv_video_cli -p/--port [port] -a/--address [address]\n" <<
-                        " port      : socket port (8080 default)\n" <<
+                        " port      : socket port (1086 default)\n" <<
                         " address   : server IPaddress (\"192.168.1.177\" default (same device))\n" << std::endl;
             exit(0);
         }
@@ -49,18 +49,7 @@ int main(int argc, char** argv) {
         }
     }
     
-    // if((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-    //     std::cerr << "socket() failed!" << std::endl;
-    //     exit(1);
-    // }
-    // sockaddr_in serverAddr;
-    // serverAddr.sin_family = PF_INET;
-    // serverAddr.sin_addr.s_addr = (!strcmp(serverIP.c_str(), "internal")? INADDR_ANY : inet_addr(serverIP.c_str()));
-    // serverAddr.sin_port = htons(serverPORT);
-    // if(connect(sock, (sockaddr*)&serverAddr, sizeof(serverAddr))<0) {
-    //     std::cerr << "connect() failed!" << std::endl;
-    //     exit(1);
-    // }
+
 
     std::cout << " PROGRAM START:" << std::endl;
 #if __TAKE_PERF
@@ -76,17 +65,8 @@ int main(int argc, char** argv) {
     if(!tcpObj.func_connect()) exit(1);
     
 
-    // cv::Mat img;
-    // img = cv::Mat::zeros(480, 640, CV_8UC1);
-    // int imgSize = img.total() * img.elemSize();
-    // uchar *iptr = img.data;
     int bytes = 0;
     int key = 0;
-
-    // if(!img.isContinuous()) {
-    //     img = img.clone();
-    // }
-    // if(__VERBOSE) std::cout << "Image Size: " << imgSize << std::endl;
 
 
     // jpeglib setup
@@ -103,9 +83,7 @@ int main(int argc, char** argv) {
     int row_stride, width, height, pixel_size;
 
 
-
     cv::namedWindow("CV Video Client", 1);
-
 
     while(true) {
         if(__VERBOSE) std::cout << std::endl;
