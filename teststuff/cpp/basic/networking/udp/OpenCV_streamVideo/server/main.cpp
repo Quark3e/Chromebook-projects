@@ -14,6 +14,7 @@ cv::VideoCapture cap(capDev);
 
 bool __VERBOSE = false;
 
+
 int main(int argc, char** argv) {
 
     int port = 1086;
@@ -61,45 +62,22 @@ void *display() {
 
     int imgSize = img.total() * img.elemSize();
     int imgSize_compr = 0;
-    int bytes = 0;
-    socklen_t recvLen = 0;
-    int key = 0;
-
-    if(__VERBOSE) std::cout << "Image size: " << imgSize << std::endl;
 
     while(true) {
-        // receive request msg
-        if((bytes = udpObj.func_recvfrom(
+        if((udpObj._bytesRecv = udpObj.func_recvfrom(
             udpObj.get_localSocket(),
             udpObj.recvBuffer,
             MAX_MESSAGE_SIZE,
             0,
             (struct sockaddr*)&udpObj._remote_sockaddr_in,
-            &recvLen
+            &udpObj._sockAddrLen
         )) < 0) {
             perror("recvfrom request msg failed: ");
             break;
         }
         else {
-            udpObj.recvBuffer[bytes] = '\0';
-            if(__VERBOSE) std::cout << "-received request. Received: " << bytes << " bytes, msg: " << udpObj.recvBuffer << std::endl; 
-        }
-
-        if(__VERBOSE) std::cout << "----second\n";
-        if((bytes = udpObj.func_recvfrom(
-            udpObj.get_localSocket(),
-            udpObj.recvBuffer,
-            MAX_MESSAGE_SIZE,
-            0,
-            (struct sockaddr*)&udpObj._remote_sockaddr_in,
-            &recvLen
-        )) < 0) {
-            perror("recvfrom request msg failed: ");
-            break;
-        }
-        else {
-            udpObj.recvBuffer[bytes] = '\0';
-            if(__VERBOSE) std::cout << "-received request. Received: " << bytes << " bytes, msg: " << udpObj.recvBuffer << std::endl; 
+            udpObj.recvBuffer[udpObj._bytesRecv] = '\0';
+            if(__VERBOSE) std::cout << "-received request. Received: " << udpObj._bytesRecv << " bytes, msg: " << udpObj.recvBuffer << std::endl; 
         }
 
         cap >> img;
@@ -111,34 +89,32 @@ void *display() {
         arrSize = bitArr.size();
 
 
-        recvLen = sizeof(udpObj._remote_sockaddr_in);
-
         if(__VERBOSE) std::cout << "-send arrSize: " << sizeof(arrSize) << " bytes\n";
-        if((bytes = udpObj.func_sendto(
+        if((udpObj._bytesSent = udpObj.func_sendto(
             udpObj.get_localSocket(),
             &arrSize,
             sizeof(arrSize),
             0,
-            (const struct sockaddr*)&udpObj._remote_sockaddr_in,
-            recvLen
+            (struct sockaddr*)&udpObj._remote_sockaddr_in,
+            udpObj._sockAddrLen
         )) < 0) {
             perror("failed to send arrSize data. ");
             if(__VERBOSE) std::cout << "errno: " << errno << std::endl;
             break;
         }
-        if(__VERBOSE) std::cout << "  sent: " << bytes << " bytes" << std::endl;
+        if(__VERBOSE) std::cout << "  sent: " << udpObj._bytesSent << " bytes" << std::endl;
         if(__VERBOSE) std::cout << "  sent arrSize: " << arrSize << std::endl;
 
 
         if(__VERBOSE) std::cout << "-recv confirmSize\n";
         uint16_t confirmSize = 0;
-        if((bytes = udpObj.func_recvfrom(
+        if((udpObj._bytesRecv = udpObj.func_recvfrom(
             udpObj.get_localSocket(),
             &confirmSize,
             sizeof(confirmSize),
-            MSG_WAITALL,
+            0,
             (struct sockaddr*)&udpObj._remote_sockaddr_in,
-            &recvLen
+            &udpObj._sockAddrLen
         )) < 0) {
              perror("failed to receive confirmed arrSize response: ");
              if(__VERBOSE) std::cout << "errno: " << errno << std::endl;
@@ -149,23 +125,23 @@ void *display() {
             if(__VERBOSE) std::cout << " errno: " << errno << std::endl;
             break;
         }
-        if(__VERBOSE) std::cout<< "  received: " << bytes << " bytes" << std::endl;
+        if(__VERBOSE) std::cout<< "  received: " << udpObj._bytesRecv << " bytes" << std::endl;
 
         if(__VERBOSE) std::cout << "-send bitArr:\n";
-        if((bytes = udpObj.func_sendto(
+        if((udpObj._bytesSent = udpObj.func_sendto(
             udpObj.get_localSocket(),
             static_cast<void*>(bitArr.data()),
             arrSize*sizeof(bitArr[0]),
-            MSG_CONFIRM,
-            (const struct sockaddr*)&udpObj._remote_sockaddr_in,
-            sizeof(udpObj._remote_sockaddr_in)
+            0,
+            (struct sockaddr*)&udpObj._remote_sockaddr_in,
+            udpObj._sockAddrLen
         )) < 0) {
-            std::cerr << "sendto() errno: "<< errno << " sent bytes = " << bytes << std::endl;
+            std::cerr << "sendto() errno: "<< errno << " sent bytes = " << udpObj._bytesSent << std::endl;
             if(__VERBOSE) std::cout << "Exiting display" << std::endl;
             break;
         }
         else {
-            if(__VERBOSE) std::cout << "  sent: " << bytes << " bytes." << std::endl;
+            if(__VERBOSE) std::cout << "  sent: " << udpObj._bytesSent << " bytes." << std::endl;
         }
 
         if(__VERBOSE) std::cout << std::endl;

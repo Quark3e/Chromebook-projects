@@ -4,7 +4,7 @@
 #include <string>
 
 #include "../../../LIB_NETWORKCLASS/NETWORKCLASS.hpp"
-// NETWORKCLASS udpObj;
+NETWORKCLASS udpObj;
 
 bool __VERBOSE = false;
 
@@ -36,32 +36,12 @@ int main(int argc, char** argv) {
     }
     
 
-    int sockfd, readStatus;
-    struct sockaddr_in servAddr;
-    socklen_t servAddrLen;
-    
-
-
     udpObj = NETWORKCLASS(serverIP, serverPORT);
     if(!udpObj.func_createSocket(AF_INET, SOCK_DGRAM)) exit(1);
     
-    // fcntl(udpObj.get_localSocket(), F_SETFL, O_NONBLOCK);
-    // memset(&udpObj._local_sockaddr_in, 0, sizeof(udpObj._local_sockaddr_in));
-
     udpObj._remote_sockaddr_in.sin_family = AF_INET;
-    if(bind(udpObj.get_localSocket(), (sockaddr*) &udpObj._remote_sockaddr_in, sizeof(udpObj._remote_sockaddr_in))==-1) {
-        int lasterror = errno;
-        if(__VERBOSE) std::cout << "bind() error: " << errno << std::endl;
-        exit(1);
-    }
-    // if(!udpObj.func_bind()) exit(1);
-
-    if(resolvehelper(serverIP.c_str(), AF_INET, std::to_string(serverPORT).c_str(), (sockaddr_storage*)&udpObj._remote_sockaddr_in)!=0) {
-        int lasterror = errno;
-        if(__VERBOSE) std::cout << "resolvehelper() error: " << lasterror << std::endl;
-        exit(1);
-    }
-    
+    udpObj._remote_sockaddr_in.sin_port = htons(serverPORT);
+    udpObj._remote_sockaddr_in.sin_addr.s_addr = inet_addr(serverIP.c_str());
 
     int bytes = 0;
     int key = 0;
@@ -69,28 +49,12 @@ int main(int argc, char** argv) {
     cv::namedWindow("CV Video Client", 1);
 
     std::string msgSend = "Hello server.";
+    
     int recvLen = 0;
-    // std::string msgRecv = ""
     while(key!='q') {
         // send request msg
         if(__VERBOSE) std::cout << "-sendto() initial request:\n";
         int result = udpObj.func_sendto(
-            udpObj.get_localSocket(),
-            msgSend.c_str(),
-            msgSend.size(),
-            0,
-            (sockaddr*)&udpObj._remote_sockaddr_in,
-            sizeof(udpObj._remote_sockaddr_in)
-        );
-        if(result==-1) {
-            perror("sendto() error: ");
-            exit(1);
-        }
-        if(__VERBOSE) std::cout << "  sent: " << result << " bytes" << std::endl;
-
-
-        if(__VERBOSE) std::cout << "----second -sendto() initial request:\n";
-        result = udpObj.func_sendto(
             udpObj.get_localSocket(),
             msgSend.c_str(),
             msgSend.size(),
@@ -112,7 +76,7 @@ int main(int argc, char** argv) {
             udpObj.get_localSocket(),
             &arrSize,
             sizeof(arrSize),
-            MSG_WAITALL,
+            0,
             (struct sockaddr*)&udpObj._remote_sockaddr_in,
             &recvLen
         ))==-1) {
@@ -144,7 +108,7 @@ int main(int argc, char** argv) {
             udpObj.get_localSocket(),
             bitArr.data(),
             arrSize*sizeof(bitArr[0]),
-            MSG_WAITALL,
+            0,
             (struct sockaddr*)&udpObj._remote_sockaddr_in,
             &recvLen
         ))==-1) {
