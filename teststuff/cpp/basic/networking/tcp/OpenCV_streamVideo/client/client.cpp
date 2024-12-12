@@ -11,9 +11,12 @@
 #include <jpeglib.h>
 
 #include "../../../LIB_NETWORKCLASS/NETWORKCLASS.hpp"
+
+#if __TAKE_PERF
 #include "teststuff/cpp/useful/diy_performance.hpp"
 #include "teststuff/cpp/useful/useful.hpp"
 #include "teststuff/cpp/useful/createTable.hpp"
+#endif
 
 NETWORKCLASS tcpObj;
 

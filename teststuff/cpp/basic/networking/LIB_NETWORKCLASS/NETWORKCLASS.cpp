@@ -79,7 +79,7 @@ bool NETWORKCLASS::func_init() {
 bool NETWORKCLASS::func_createSocket(int _sock_family, int _sock_type, int _sock_proto) {
 #if _WIN32
     this->_localSocket = INVALID_SOCKET;
-    this->_localSocket = socket(_sock_family, _sock_type, IPPROTO_TCP);
+    this->_localSocket = socket(_sock_family, _sock_type, _sock_proto);
 
     if(_localSocket==INVALID_SOCKET) {
         std::cout << "Error at socket(): " << WSAGetLastError() << std::endl;
@@ -229,7 +229,7 @@ int NETWORKCLASS::func_send(int sendTo, const void* _sendBuf, size_t _nBytes, in
 int NETWORKCLASS::func_recvfrom(SOCKET _sock, void* _sendBuf, size_t _nBytes, int _flags, sockaddr* _from_addr, void* _from_addr_len) {
     _bytesRecv = recvfrom(
         _sock,
-        (char*)_sendBuf,
+        reinterpret_cast<char*>(_sendBuf),
         _nBytes,
         _flags,
         _from_addr,

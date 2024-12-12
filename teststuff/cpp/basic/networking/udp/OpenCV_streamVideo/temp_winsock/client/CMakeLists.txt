@@ -30,8 +30,5 @@ target_compile_options(
     # -pthread
 )
 
-if(WIN32)
-  target_link_libraries(cv_video_cli ws2_32)
-endif(WIN32)
 target_link_libraries(cv_video_cli ${OpenCV_LIBS})
 target_link_libraries(cv_video_cli NETWORKCLASS_LIB)

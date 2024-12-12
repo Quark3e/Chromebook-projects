@@ -1,16 +1,16 @@
 cmake_minimum_required(VERSION 3.1)
 project(UDP_CamStream_OpenCV_server)
 
-set(CMAKE_CXX_STANDARD 14)
+# set(CMAKE_CXX_STANDARD 14)
 # set(OpenCV "/usr/local/include")
 
 find_package(OpenCV REQUIRED)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/../../../LIB_NETWORKCLASS binary_dir)
+# add_subdirectory(${PROJECT_SOURCE_DIR}/../../../LIB_NETWORKCLASS binary_dir)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(${PROJECT_SOURCE_DIR}/../../../LIB_NETWORKCLASS)
-link_directories(${PROJECT_SOURCE_DIR}/../../../LIB_NETWORKCLASS)
+# include_directories(${PROJECT_SOURCE_DIR}/../../../LIB_NETWORKCLASS)
+# link_directories(${PROJECT_SOURCE_DIR}/../../../LIB_NETWORKCLASS)
 
 add_executable(
     cv_video_srv
@@ -30,8 +30,5 @@ target_compile_options(
     # -pthread
 )
 
-if(WIN32)
-  target_link_libraries(cv_video_srv ws2_32)
-endif(WIN32)
 target_link_libraries(cv_video_srv ${OpenCV_LIBS})
-target_link_libraries(cv_video_srv NETWORKCLASS_LIB)
+# target_link_libraries(cv_video_srv NETWORKCLASS_LIB)
