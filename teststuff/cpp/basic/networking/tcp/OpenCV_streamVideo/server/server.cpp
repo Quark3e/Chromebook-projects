@@ -14,6 +14,9 @@ void *display(/*void**/);
 int capDev = 0;
 cv::VideoCapture cap(capDev);
 
+
+bool __VERBOSE = false;
+
 int main(int argc, char** argv) {
 
     int port = 1086;
@@ -34,35 +37,11 @@ int main(int argc, char** argv) {
                     cap = cv::VideoCapture(std::stoi(argv[i+1]));
                 }
             }
+            if(!strcmp(argv[i], "-v") || !strcmp(argv[i], "--verbose")) __VERBOSE = true;
         }
     }
 
-    /*
-    // Socket creation
-    int localSocket;
-    if((localSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        std::cerr << "socket() failed!" << std::endl;
-        exit(1);
-    }
 
-    struct sockaddr_in localAddr;
-    localAddr.sin_family = AF_INET;
-    localAddr.sin_addr.s_addr = INADDR_ANY;
-    localAddr.sin_port = htons(port);
-
-    if(bind(localSocket, (struct sockaddr*)&localAddr, sizeof(localAddr)) < 0) {
-        std::cerr << "bind() failed!" << std::endl;
-        exit(1);
-    }
-
-    listen(localSocket, 3);
-
-    std::cout <<"Waiting for connections...\n" << "server port: " << port << std::endl;
-
-    int remoteSocket;
-    struct sockaddr_in remoteAddr;
-    int addrLen = sizeof(struct sockaddr_in);
-    */
     // pthread_t thread_id;
     tcpObj = NETWORKCLASS("ANY", port);
     if(!tcpObj.func_createSocket(AF_INET, SOCK_STREAM)) exit(1);
@@ -74,7 +53,7 @@ int main(int argc, char** argv) {
     if(!tcpObj.func_bind()) exit(1);
     
     while(true) {
-        std::cout << "while loop iteration" << std::endl;
+        if(__VERBOSE) std::cout << "while loop iteration" << std::endl;
         /*if((remoteSocket = accept(localSocket, (struct sockaddr*)&remoteAddr, (socklen_t*)&addrLen)) < 0) {
             std::cerr << "accept failed!" << std::endl;
             exit(1);
@@ -83,10 +62,10 @@ int main(int argc, char** argv) {
             tcpObj.func_listen() &&
             tcpObj.func_accept()
         )) exit(1);
-        std::cout << "Connection accepted" << std::endl;
+        if(__VERBOSE) std::cout << "Connection accepted" << std::endl;
         //pthread_create(&thread_id, NULL, display, &remoteSocket);
         display();
-        std::cout << std::endl << "--------------------" << std::endl;
+        if(__VERBOSE) std::cout << std::endl << "--------------------" << std::endl;
     }
     return 0;
 }
@@ -108,7 +87,7 @@ void *display(/*void *ptr*/) {
     int bytes = 0;
     int key;
 
-    std::cout << "Image size: " << imgSize << std::endl;
+    if(__VERBOSE) std::cout << "Image size: " << imgSize << std::endl;
 
     while(true) {
         cap >> img;
@@ -121,41 +100,42 @@ void *display(/*void *ptr*/) {
 
 
         // bitArr.insert( )
-        std::cout << "-send arrSize:\n";
+        if(__VERBOSE) std::cout << "-send arrSize:\n";
         if((bytes = tcpObj.func_send(1, &arrSize, sizeof(arrSize), 0)) < 0) {
             //send compressed img size
             std::cout << "failed to send arrSize data." << std::endl;
             std::cout << "errno: " << errno << std::endl;
             break;
         }
-        std::cout << "  sent: " << tcpObj._bytesSent << " bytes" << std::endl;
-        std::cout << "  sent arrSize: " << arrSize << std::endl;
-
-
-        std::cout << "-recv confirmSize\n";
-        uint16_t confirmSize = 0;
-        if(tcpObj.func_recv(1, &confirmSize, sizeof(confirmSize), MSG_WAITALL)==-1) {
-            std::cout << "failed to receive confirmed arrSize response." << std::endl;
-            std::cout << "errno: " << errno << std::endl;
-            break;
+        if(__VERBOSE) {
+            std::cout << "  sent: " << tcpObj._bytesSent << " bytes" << std::endl;
+            std::cout << "  sent arrSize: " << arrSize << std::endl;
         }
-        else if(confirmSize!=arrSize) {
-            std::cout << "  confirmed arrSize response: "<<confirmSize << " doesnt match sent size: " << arrSize << std::endl;
-            std::cout << "errno: " << errno << std::endl;
-            break;
-        }
-        std::cout << "  received: " << tcpObj._bytesRecv << " bytes" << std::endl;
 
-        std::cout << "-send bitArr\n";
+        // std::cout << "-recv confirmSize\n";
+        // uint16_t confirmSize = 0;
+        // if(tcpObj.func_recv(1, &confirmSize, sizeof(confirmSize), MSG_WAITALL)==-1) {
+        //     std::cout << "failed to receive confirmed arrSize response." << std::endl;
+        //     std::cout << "errno: " << errno << std::endl;
+        //     break;
+        // }
+        // else if(confirmSize!=arrSize) {
+        //     std::cout << "  confirmed arrSize response: "<<confirmSize << " doesnt match sent size: " << arrSize << std::endl;
+        //     std::cout << "errno: " << errno << std::endl;
+        //     break;
+        // }
+        // std::cout << "  received: " << tcpObj._bytesRecv << " bytes" << std::endl;
+
+        if(__VERBOSE) std::cout << "-send bitArr\n";
         if((bytes=tcpObj.func_send(1, bitArr.data(), arrSize*sizeof(bitArr[0]), 0)) < 0) {
             std::cout << "failed to send data." << std::endl;
             std::cout << "errno: " << errno << std::endl;
             break;
         }
-        std::cout << "  sent: " << tcpObj._bytesSent << " bytes" << std::endl;
+        if(__VERBOSE) std::cout << "  sent: " << tcpObj._bytesSent << " bytes" << std::endl;
         
         // imgGray = cv::imdecode(cv::Mat(1, arrSize, CV_8UC1, (void*)bitArr.data()), 0);
-        std::cout << "  compressed img size: " << arrSize <<" + " << sizeof(arrSize) << " bytes" <<  std::endl;
+        if(__VERBOSE) std::cout << "  compressed img size: " << arrSize <<" + " << sizeof(arrSize) << " bytes" <<  std::endl;
 
         // if((bytes=tcpObj.func_send(imgGray.data, imgSize, 0)) < 0) {
         //     std::cerr << "bytes = " << bytes << std::endl;
@@ -167,7 +147,7 @@ void *display(/*void *ptr*/) {
         // //     break;
         // // }
 
-        std::cout << std::endl;
+        if(__VERBOSE) std::cout << std::endl;
     }
     
     return nullptr;
