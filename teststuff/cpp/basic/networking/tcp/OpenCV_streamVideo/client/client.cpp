@@ -114,20 +114,20 @@ int main(int argc, char** argv) {
         perf_client.set_T1("recv() arrSize");
         perf_table.insertText(perf_client.names()[0], 0, 0);
         perf_table.insertNum(perf_client.delays()[0], 1, 0);
-        perf_client.set_T0("send() confirm");
-#endif
-        if(__VERBOSE) {std::cout << "-send confirmSize:" << std::endl;}
-        // if(send(tcpObj.get_localSocket(), &arrSize, sizeof(arrSize), 0)==-1) {
-        if(tcpObj.func_send(0, &arrSize, sizeof(arrSize), 0)==-1) {
-            std::cerr << "send() for arrSize failed." << std::endl;
-            if(__VERBOSE) std::cout << "errno: " << errno << std::endl;
-            exit(1);
-        }
-        if(__VERBOSE) {std::cout << "  sent: " << tcpObj._bytesSent << " bytes" << std::endl;}
-#if __TAKE_PERF
-        perf_client.set_T1("send() confirm");
-        perf_table.insertText(perf_client.names()[1], 0, 1);
-        perf_table.insertNum(perf_client.delays()[1], 1, 1);
+//         perf_client.set_T0("send() confirm");
+// #endif
+//         if(__VERBOSE) {std::cout << "-send confirmSize:" << std::endl;}
+//         // if(send(tcpObj.get_localSocket(), &arrSize, sizeof(arrSize), 0)==-1) {
+//         if(tcpObj.func_send(0, &arrSize, sizeof(arrSize), 0)==-1) {
+//             std::cerr << "send() for arrSize failed." << std::endl;
+//             if(__VERBOSE) std::cout << "errno: " << errno << std::endl;
+//             exit(1);
+//         }
+//         if(__VERBOSE) {std::cout << "  sent: " << tcpObj._bytesSent << " bytes" << std::endl;}
+// #if __TAKE_PERF
+//         perf_client.set_T1("send() confirm");
+//         perf_table.insertText(perf_client.names()[1], 0, 1);
+//         perf_table.insertNum(perf_client.delays()[1], 1, 1);
         perf_client.set_T0("recv() bitArr");
 #endif
         if(__VERBOSE) {std::cout << "-recv bitArr:" << std::endl;}
