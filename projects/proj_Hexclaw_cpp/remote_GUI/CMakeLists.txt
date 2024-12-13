@@ -23,11 +23,13 @@ set(DIR_HC_USEFUL "${REPO_ROOT}/teststuff/cpp/useful") #"/usr/local/include/HC_u
 # add_subdirectory(${REPO_ROOT}/teststuff/cpp/basic/networking/LIB_NETWORKCLASS binary_dir)
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/hexclaw_networkDataThread)
 
+include_directories("${REPO_ROOT}/projects/proj_Hexclaw_cpp/in rpi")
 include_directories(${PROJECT_SOURCE_DIR}/lib/hexclaw_networkDataThread)
 # include_directories(${REPO_ROOT}/teststuff/cpp/basic/networking/LIB_NETWORKCLASS)
 include_directories(${DIR_HC_USEFUL})
 include_directories(${DIR_IMGUI})
 include_directories(${DIR_IMGUI}/imgui)
+
 #add_subdirectory("${CMAKE_PREFIX_PATH}/imgui binary_dir)
 #add_subdirectory(${CMAKE_PREFIX_PATH}/HC_useful binary_dir)
 

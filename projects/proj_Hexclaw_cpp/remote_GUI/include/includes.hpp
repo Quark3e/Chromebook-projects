@@ -25,10 +25,10 @@
 #include <imgui/backends/imgui_impl_allegro5.h>
 
 
-#include <HC_useful/useful.hpp>
-#include <HC_useful/diy_dictionary.hpp>
-#include <HC_useful/diy_performance.hpp>
-#include <HC_useful/pathSchedule.hpp>
+#include <useful.hpp>
+#include <diy_dictionary.hpp>
+#include <diy_performance.hpp>
+#include <pathSchedule.hpp>
 // #include <HC_useful/createTable.hpp>
 
 #include <jpeglib.h>
@@ -37,7 +37,7 @@
 #include <hexclaw_networkDataThread.hpp>
 
 // namespace fs = std::filesystem;
-#include "../../in rpi/IK_header.hpp"
+#include <IK_header.hpp>
 
 
 #include "imgui_extras.hpp"
