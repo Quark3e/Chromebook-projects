@@ -17,6 +17,7 @@ NETWORKCLASS::~NETWORKCLASS() {
 #else
     close(_remoteSocket);
 #endif
+    std::cout << "socket closed." << std::endl;
 }
 
 

@@ -89,7 +89,13 @@ void *display(/*void *ptr*/) {
 
     if(__VERBOSE) std::cout << "Image size: " << imgSize << std::endl;
 
+    char inpMsg[10];
     while(true) {
+        if((bytes = tcpObj.func_recv(1, inpMsg, 10, MSG_WAITALL))==-1) {
+            perror("recv() for initial signal failed: ");
+            exit(1);
+        }
+        if(!strcmp(inpMsg, "disconnect")) break;
         cap >> img;
 
         cv::cvtColor(img, imgGray, cv::COLOR_BGR2GRAY);

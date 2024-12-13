@@ -88,6 +88,11 @@ int main(int argc, char** argv) {
     while(true) {
         if(__VERBOSE) std::cout << std::endl;
         
+        if((bytes = tcpObj.func_send(0, "request---", 10, MSG_CONFIRM))==-1) {
+            perror("send() request failed: ");
+            exit(1);
+        }
+
         std::vector<uchar> bitArr;
         uint16_t arrSize = 69;
         
@@ -218,6 +223,14 @@ int main(int argc, char** argv) {
         std::cout << perf_table.strExport() << std::endl;
         // ansiPrint(perf_table.strExport(), (float)0.0, (float)0.8, true, true);
 #endif
+    }
+    
+    if((bytes = tcpObj.func_send(0, "disconnect", 10, MSG_CONFIRM))==-1) {
+        perror("send() disconnect failed: ");
+        exit(1);
+    }
+    else {
+        std::cout << "disconnect sent" << std::endl;
     }
     // free(bmp_buffer);
     // close(sock);
