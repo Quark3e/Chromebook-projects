@@ -308,7 +308,7 @@ void NETWORK_DATA_THREADCLASS::_threadFunc() {
     while(this->running.load()) {
         if(!this->runLoop.load()) continue;
 
-        if((_bytesSent = func_send(0, "connect", 7, 0))==-1) {
+        if((_bytesSent = func_send(0, "request---", 10, 0))==-1) {
             perror("send() for request failed: ");
             exit(1);
         }
