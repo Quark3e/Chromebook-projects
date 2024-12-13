@@ -28,7 +28,7 @@
 #include <useful.hpp>
 #include <diy_dictionary.hpp>
 #include <diy_performance.hpp>
-#include <pathSchedule.hpp>
+#include <robotics/pathSchedule.hpp>
 // #include <HC_useful/createTable.hpp>
 
 #include <jpeglib.h>
