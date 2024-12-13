@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
     while(true) {
         if(__VERBOSE) std::cout << std::endl;
         
-        if((bytes = tcpObj.func_send(0, "request---", 10, MSG_CONFIRM))==-1) {
+        if((bytes = tcpObj.func_send(0, "request---", 10, 0))==-1) {
             perror("send() request failed: ");
             exit(1);
         }
@@ -225,7 +225,7 @@ int main(int argc, char** argv) {
 #endif
     }
     
-    if((bytes = tcpObj.func_send(0, "disconnect", 10, MSG_CONFIRM))==-1) {
+    if((bytes = tcpObj.func_send(0, "disconnect", 10, 0))==-1) {
         perror("send() disconnect failed: ");
         exit(1);
     }
