@@ -28,7 +28,7 @@ find_library(JPEG_LIB
 else()
 find_library(JPEG_LIB
     jpeg
-    HINTS "${CMAKE_PREFIX_PATH}/arm-linux-gnueabihf"
+    HINTS "${CMAKE_PREFIX_PATH}/arm-linux-gnueabihf" "${CMAKE_PREFIX_PATH}/x86_64-linux-gnu/"
     REQUIRED
 )
 endif(WIN32)

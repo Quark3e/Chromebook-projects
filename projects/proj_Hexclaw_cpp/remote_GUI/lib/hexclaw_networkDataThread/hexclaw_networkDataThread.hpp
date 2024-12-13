@@ -1,6 +1,6 @@
 #pragma once
-#ifndef HPP__NETWORKCLASS
-#define HPP__NETWORKCLASS
+#ifndef HPP__NETWORK_DATA_THREADCLASS
+#define HPP__NETWORK_DATA_THREADCLASS
 
 
 #if _WIN32
@@ -29,11 +29,17 @@
 #include <iostream>
 #include <string.h>
 #include <signal.h>
+#include <vector>
 
+#include <thread>
+#include <mutex>
+#include <atomic>
+
+#include <jpeglib.h>
 
 
 // Global variable definitions
-class NETWORKCLASS {
+class NETWORK_DATA_THREADCLASS {
     private:
     bool _init = false;
 
@@ -47,7 +53,6 @@ class NETWORKCLASS {
     std::string _local_IPADDRESS   = "ANY";
     int         _local_PORT        = 1086;
 
-    public:
     sockaddr_in _local_sockaddr_in;
     sockaddr_in _remote_sockaddr_in;
 
@@ -59,28 +64,7 @@ class NETWORKCLASS {
     int _bytesSent = 0;
     int _bytesRecv = 0;
 
-    bool        set_IPADDRESS(std::string _ipAddress);
-    bool        set_PORT(int _port);
-    std::string get_IPADDRESS();
-    int         get_PORT();
 
-#if _WIN32
-    SOCKET&     get_localSocket();
-    SOCKET&     get_remoteSocket();
-#else
-    int&        get_localSocket();
-    int&        get_remoteSocket();
-#endif
-
-    /**
-     * @brief Construct a new tcpnetwork class object and initialize with default ipAddress/port values
-     * 
-     */
-    // NETWORKCLASS();
-    NETWORKCLASS(std::string _ipAddress=DEFAULT_IPADDR, int _port=DEFAULT_PORT);
-    ~NETWORKCLASS();
-
-    bool    func_init();
     bool    func_createSocket(int _sock_family, int _sock_type, int _sock_proto=0);
     bool    func_connect();
     bool    func_bind();
@@ -98,6 +82,58 @@ class NETWORKCLASS {
     int     func_sendto(int    _sock, const void* _sendBuf, size_t _nBytes, int _flags, const sockaddr* _to_addr, int _to_addr_len);
 #endif
     
+    bool _closing();
+
+    void _threadFunc();
+    std::thread threadObj;
+
+    unsigned long           img_size;
+    std::vector<uint8_t>    imgArr_sub;
+
+    public:
+    std::atomic<bool>   running{true};
+    /**
+     * The boolean for the thread function to listen and check whether to pull data
+     * from the image source over network and process it
+     */
+    std::atomic<bool>   runLoop{false};
+    std::atomic<bool>   isRunning{false};
+
+    std::atomic<bool>   imgInit{false};
+
+
+    /**
+     * Indexing value to tell where in the image processing stages the sub-thread loop is at
+    */
+    std::atomic<int>        _processIdx{0};
+    /// @brief vector containing the data
+    std::vector<uint8_t>    imgArr;
+    /// @brief Mutex for accessing imgArr data and it's `img*` relatives
+    std::mutex              imgMutex;
+
+    /**
+     * @brief Construct a new tcpnetwork class object and initialize with default ipAddress/port values
+     */
+    // NETWORK_DATA_THREADCLASS();
+    NETWORK_DATA_THREADCLASS(bool _init, std::string _ipAddress=DEFAULT_IPADDR, int _port=DEFAULT_PORT);
+    ~NETWORK_DATA_THREADCLASS();
+
+    bool    func_init();
+
+    bool        set_IPADDRESS(std::string _ipAddress);
+    bool        set_PORT(int _port);
+    std::string get_IPADDRESS();
+    int         get_PORT();
+
+#if _WIN32
+    SOCKET&     get_localSocket();
+    SOCKET&     get_remoteSocket();
+#else
+    int&        get_localSocket();
+    int&        get_remoteSocket();
+#endif
+
+
 };
 
 

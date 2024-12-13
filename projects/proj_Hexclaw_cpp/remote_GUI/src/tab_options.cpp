@@ -462,6 +462,7 @@ void tab_1(void) {
     static std::vector<uint8_t> imgBits;
     static int imgSize[2] = {al_get_bitmap_width(bmpObj.BMP()), al_get_bitmap_height(bmpObj.BMP())};
     static std::unique_lock<std::mutex> u_lck_bmpObj(bmpObj.mtx, std::defer_lock);
+    static std::unique_lock<std::mutex> u_lck_ndt(t_bitArr.imgMutex, std::defer_lock);
 
     if(init) {
 
@@ -480,6 +481,13 @@ void tab_1(void) {
         // al_unlock_mutex(th_allegMutex);
         bmpObj.newTask = true;
     }
+
+    u_lck_ndt.lock();
+    if(t_bitArr.imgInit) {
+        bmpObj.arr = t_bitArr.imgArr;
+    }
+    u_lck_ndt.unlock();
+
     bmpObj.newTask = true;
     
     // std::this_thread::sleep_for(std::chrono::milliseconds(10));

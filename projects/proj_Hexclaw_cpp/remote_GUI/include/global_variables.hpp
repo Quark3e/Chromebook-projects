@@ -171,19 +171,20 @@ inline bool loadBitmap_fromBitArray(
             else if(_colourFormat=="GRAY") {
                 // col = al_map_rgb(unsigned(_bitArray->operator[](startIdx)), unsigned(_bitArray->operator[](startIdx)), unsigned(_bitArray->operator[](startIdx)));
                 // col = al_map_rgb(200, 200, 200);
-                _colour = (255<<24) + (unsigned(_bitArray->operator[](startIdx))<<16) + (unsigned(_bitArray->operator[](startIdx))<<8) + unsigned(_bitArray->operator[](startIdx));
+                // _colour = (255<<24) + (unsigned(_bitArray->operator[](startIdx))<<16) + (unsigned(_bitArray->operator[](startIdx))<<8) + unsigned(_bitArray->operator[](startIdx));
+                uint8_t *ptr = _bitArray->data();
+                _colour = (255<<24) + (unsigned(ptr[startIdx])<<16) + (unsigned(ptr[startIdx])<<8) + (unsigned(ptr[startIdx]));
             }
             if(_BM_DEFINE && iTrue) perf_loadBitmap_func.set_T1("map colour");
             // // if(_BM_DEFINE && iTrue) perf_loadBitmap_func.set_T0("al_put pix", 60);
             // al_put_pixel(pos[0], pos[1], col);
             if(_BM_DEFINE && iTrue) perf_loadBitmap_func.set_T0("assign px", iLim);
 
-            // std::cout <<"i: "<< i << std::endl;
-            // *((uint32_t*)(getPixelPtr(pos[0], pos[1], lockedReg))) = _colour; //0x208CE0; //BGR //00100000 10001100 11100000 //32 140 224
 
-            void* _temp = getPixelPtr(pos[0], pos[1], lockedReg);
-            uint32_t* _temp2 = (uint32_t*)(_temp);
-            *_temp2 = _colour;
+            // void* _temp = getPixelPtr(pos[0], pos[1], lockedReg);
+            // uint32_t* _temp2 = (uint32_t*)(_temp);
+            // *_temp2 = _colour;
+            *((uint32_t*)(getPixelPtr(pos[0], pos[1], lockedReg))) = _colour; //0x208CE0; //BGR //00100000 10001100 11100000 //32 140 224
 
 
             if(_BM_DEFINE && iTrue) perf_loadBitmap_func.set_T1("assign px");
@@ -241,7 +242,9 @@ class al_bmp_threadClass {
     bool _init = false;
 
     public:
+    /// @brief main std::mutex object for communicating between the members of this object
     std::mutex              mtx;
+    /// @brief Main grayscale data container/array
     std::vector<uint8_t>    arr;
     std::string             col_format;
     std::atomic<size_t>     width;
@@ -322,43 +325,48 @@ inline void threadTask_bitArrayProcess(
 // extern ALLEGRO_COND     *th_allegCond;
 
 inline void* th_allegFunc(ALLEGRO_THREAD* th_alleg, void* arg) {
-    std::unique_lock<std::mutex> u_lck_al_bmp((*(al_bmp_threadClass*)arg).mtx, std::defer_lock);
+    al_bmp_threadClass& bmpClassObj = bmpClassObj;
+    std::unique_lock<std::mutex> u_lck_al_bmp(bmpClassObj.mtx, std::defer_lock);
 
-    (*(al_bmp_threadClass*)arg).localRunning = true;
-    while((*(al_bmp_threadClass*)arg).runningPtr->load() /*&& !al_get_thread_should_stop(th_allegThread)*/) {
-        if((*(al_bmp_threadClass*)arg).newTask.load()) {
+    bmpClassObj.localRunning = true;
+    while(bmpClassObj.runningPtr->load() /*&& !al_get_thread_should_stop(th_allegThread)*/) {
+        if(bmpClassObj.newTask.load()) {
             mtx_print("T1: new task:");
-            (*(al_bmp_threadClass*)arg).mtx.lock();
+            bmpClassObj.mtx.lock();
             // al_lock_mutex(th_allegMutex);
         
             mtx_print("T1: loadBitmap..()");
             loadBitmap_fromBitArray(
-                (*(al_bmp_threadClass*)arg).BMP(),
-                &((*(al_bmp_threadClass*)arg).arr),
-                (*(al_bmp_threadClass*)arg).col_format,
-                (*(al_bmp_threadClass*)arg).width,
-                (*(al_bmp_threadClass*)arg).height,
-                (*(al_bmp_threadClass*)arg).incomplete
+                bmpClassObj.BMP(),
+                &(bmpClassObj.arr),
+                bmpClassObj.col_format,
+                bmpClassObj.width,
+                bmpClassObj.height,
+                bmpClassObj.incomplete
             );
 
-            (*(al_bmp_threadClass*)arg).newTask = false;
-            (*(al_bmp_threadClass*)arg).mtx.unlock();
+            bmpClassObj.newTask = false;
+            bmpClassObj.mtx.unlock();
             // al_unlock_mutex(th_allegMutex);
             
-            (*(al_bmp_threadClass*)arg).newTask = false;
+            bmpClassObj.newTask = false;
             mtx_print("T1: end of new task");
         }
         else {
             // mtx_print("T1: task not called");
         }
     }
-    (*(al_bmp_threadClass*)arg).localRunning = false;
+    bmpClassObj.localRunning = false;
     mtx_print("T1: closing");
     // mtx_print("T1: closing: "+formatNumber<bool>((*classBMP_obj).runningPtr->load(), 0, 0));
 }
 
 // boolean for whether the main program loop is to be running (this set to `false` will close the program)
 extern std::atomic<bool> running;
+
+
+extern NETWORK_DATA_THREADCLASS t_bitArr;
+
 
 extern float input_IK_pos[3];
 extern float input_IK_orient[3];

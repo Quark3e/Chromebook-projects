@@ -93,6 +93,8 @@ int main(int argc, char** argv) {
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_mouse_event_source());
 
+
+    t_bitArr.func_init();
     std::thread t_bmpLoader(threadTask_bitArrayProcess, &bmpObj);
     // th_allegMutex  = al_create_mutex();
     // assert(th_allegMutex);
@@ -179,8 +181,12 @@ int main(int argc, char** argv) {
                 ImGui::EndTabItem();
             }
             if(ImGui::BeginTabItem("Remote connect")) {
+                t_bitArr.runLoop = true;
                 tab_1();
                 ImGui::EndTabItem();
+            }
+            else {
+                t_bitArr.runLoop = false;
             }
 
             ImGui::EndTabBar();

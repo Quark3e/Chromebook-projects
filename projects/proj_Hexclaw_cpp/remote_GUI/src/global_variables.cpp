@@ -43,6 +43,9 @@ al_bmp_threadClass bmpObj(500, 250, "GRAY", &running);
 
 std::atomic<bool> running{true};
 
+NETWORK_DATA_THREADCLASS t_bitArr(false, "192.168.1.177", 1086);
+
+
 float input_IK_pos[3]    = {0, 200, 150};
 float input_IK_orient[3] = {0, 0, 0};
 

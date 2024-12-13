@@ -31,15 +31,20 @@
 #include <HC_useful/pathSchedule.hpp>
 // #include <HC_useful/createTable.hpp>
 
+#include <jpeglib.h>
+
+// #include <NETWORKCLASS.hpp>
+#include <hexclaw_networkDataThread.hpp>
 
 // namespace fs = std::filesystem;
-#include "/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.hpp"
+#include "../../in rpi/IK_header.hpp"
 
 
 #include "imgui_extras.hpp"
 #include "constants.hpp"
 #include "global_variables.hpp"
 #include "tab_options.hpp"
+
 
 
 #endif
