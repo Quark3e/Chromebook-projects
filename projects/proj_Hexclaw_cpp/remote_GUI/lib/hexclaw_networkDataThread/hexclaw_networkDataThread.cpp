@@ -25,6 +25,7 @@ bool NETWORK_DATA_THREADCLASS::_closing() {
 #else
     close(_remoteSocket);
 #endif
+    // mtx_print("NDT: closing");
     return true;
 }
 
@@ -86,7 +87,7 @@ bool NETWORK_DATA_THREADCLASS::func_init() {
     assert(func_createSocket(AF_INET, SOCK_STREAM));
     assert(func_connect());
 
-    threadObj = std::thread(_threadFunc);
+    threadObj = std::thread(_NDT_threadFunc, this);
 
     this->_init = true;
     return true;
@@ -288,45 +289,48 @@ int NETWORK_DATA_THREADCLASS::func_sendto(int    _sock, const void* _sendBuf, si
 }
 #endif
 
-void NETWORK_DATA_THREADCLASS::_threadFunc() {
-    std::unique_lock<std::mutex> u_lck_imgArr(this->imgMutex, std::defer_lock);
-    this->isRunning = true;
+void _NDT_threadFunc(NETWORK_DATA_THREADCLASS* ndt_obj) {
+    std::unique_lock<std::mutex> u_lck_imgArr((*ndt_obj).imgMutex, std::defer_lock);
+    (*ndt_obj).isRunning = true;
     int _rc, _i, _j;
     struct jpeg_decompress_struct   cinfo;
     struct jpeg_error_mgr           jerr;
     int row_stride, width, height, pixel_size;
     uint16_t arrSize;
 
-    if(!this->_init) {
+    // mtx_print("ndt thread started: ");
+
+    if(!(*ndt_obj)._init) {
         std::cerr << "init not true before _threadFunc initialized."<<std::endl;
         exit(1);
     }
-    if(!this->running.load()) {
+    if(!(*ndt_obj).running.load()) {
         std::cerr << "running called false before _threadFunc initialized."<<std::endl;
         exit(1);
     }
-    while(this->running.load()) {
-        if(!this->runLoop.load()) continue;
-
-        if((_bytesSent = func_send(0, "request---", 10, 0))==-1) {
+    while((*ndt_obj).running.load()) {
+        // mtx_print("ndt: thread iteration");
+        if(!(*ndt_obj).runLoop.load()) continue;
+        // mtx_print("ndt: proces started");
+        if(((*ndt_obj)._bytesSent = (*ndt_obj).func_send(0, "request---", 10, 0))==-1) {
             perror("send() for request failed: ");
             exit(1);
         }
 
-        if((_bytesRecv = func_recv(0, &arrSize, sizeof(arrSize), MSG_WAITALL))==-1) {
+        if(((*ndt_obj)._bytesRecv = (*ndt_obj).func_recv(0, &arrSize, sizeof(arrSize), MSG_WAITALL))==-1) {
             perror("recv() for arrSize failed: ");
             exit(1);
         }
         std::vector<uint8_t> bitArr = std::vector<uint8_t>(arrSize);
-        if((_bytesRecv = func_recv(0, bitArr.data(), arrSize*sizeof(bitArr[0]), MSG_WAITALL))==-1) {
+        if(((*ndt_obj)._bytesRecv = (*ndt_obj).func_recv(0, bitArr.data(), arrSize*sizeof(bitArr[0]), MSG_WAITALL))==-1) {
             perror("recv() for bitArr failed: ");
             exit(1);
         }
 
-        img_size = arrSize;
+        (*ndt_obj).img_size = arrSize;
         cinfo.err = jpeg_std_error(&jerr);
         jpeg_create_decompress(&cinfo);
-        jpeg_mem_src(&cinfo, bitArr.data(), img_size);
+        jpeg_mem_src(&cinfo, bitArr.data(), (*ndt_obj).img_size);
         _rc = jpeg_read_header(&cinfo, true);
         if(_rc!=1) {
             perror("jpeg_read_header() error: ");
@@ -337,24 +341,24 @@ void NETWORK_DATA_THREADCLASS::_threadFunc() {
         width       = cinfo.output_width;
         height      = cinfo.output_height;
         pixel_size  = cinfo.output_components;
-        img_size    = width * height * pixel_size;
-        imgArr_sub = std::vector<uint8_t>(img_size);
+        (*ndt_obj).img_size    = width * height * pixel_size;
+        (*ndt_obj).imgArr_sub = std::vector<uint8_t>((*ndt_obj).img_size);
         row_stride  = width * pixel_size;
         while(cinfo.output_scanline < cinfo.output_height) {
             unsigned char *buffer_array[1];
-            buffer_array[0] = imgArr_sub.data() + (cinfo.output_scanline)*row_stride;
+            buffer_array[0] = (*ndt_obj).imgArr_sub.data() + (cinfo.output_scanline)*row_stride;
             jpeg_read_scanlines(&cinfo, buffer_array, 1);
         }
         jpeg_finish_decompress(&cinfo);
         jpeg_destroy_decompress(&cinfo);
         u_lck_imgArr.lock();
-        imgArr = imgArr_sub;
+        (*ndt_obj).imgArr = (*ndt_obj).imgArr_sub;
         u_lck_imgArr.unlock();
-        this->imgInit = true;
+        (*ndt_obj).imgInit = true;
     }
-    if((_bytesSent = func_send(0, "disconnect", 10, 0))==-1) {
+    if(((*ndt_obj)._bytesSent = (*ndt_obj).func_send(0, "disconnect", 10, 0))==-1) {
         perror("send() for disconnect failed: ");
         exit(1);
     }
-    this->isRunning = false;
+    (*ndt_obj).isRunning = false;
 }

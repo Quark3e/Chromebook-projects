@@ -95,6 +95,7 @@ int main(int argc, char** argv) {
 
 
     t_bitArr.func_init();
+    
     std::thread t_bmpLoader(threadTask_bitArrayProcess, &bmpObj);
     // th_allegMutex  = al_create_mutex();
     // assert(th_allegMutex);

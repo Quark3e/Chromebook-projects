@@ -5,21 +5,6 @@
 #include "includes.hpp"
 
 
-extern std::mutex mtx_cout;
-inline void mtx_print(std::string toPrint, bool blocking=true) {
-    std::unique_lock<std::mutex> u_lck_cout(mtx_cout, std::defer_lock);
-    if(blocking) {
-        u_lck_cout.lock();
-        std::cout << toPrint << std::endl;
-        u_lck_cout.unlock();
-    }
-    else {
-        if(u_lck_cout.try_lock()) {
-            std::cout << toPrint << std::endl;
-            u_lck_cout.unlock();
-        }
-    }
-}
 
 
 extern ALLEGRO_BITMAP *bitmap_test;
@@ -99,6 +84,7 @@ inline bool loadBitmap_fromBitArray(
         (!_incompleteArray && _bitArray->size() != numBytes * _width * _height)
         // imageFormats.find(_colourFormat)
     ) {
+        // mtx_print("bmp: size doesnt match: arrSize="+std::to_string(_bitArray->size())+" exp size="+std::to_string(numBytes*_width*_height));
         return false;
     }
 
@@ -112,7 +98,10 @@ inline bool loadBitmap_fromBitArray(
     // mtx_print("T1: al_lock_bitmap()");
     // ALLEGRO_LOCKED_REGION* lockedReg = al_lock_bitmap(_bitmap, al_get_bitmap_format(_bitmap), ALLEGRO_LOCK_WRITEONLY);
     ALLEGRO_LOCKED_REGION* lockedReg = al_lock_bitmap(_bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
-    if(!lockedReg) return false;
+    if(!lockedReg) {
+        // mtx_print("bmp: failed locked region");
+        return false;
+    }
     assert(lockedReg);
 
     if(_BM_DEFINE) perf_loadBitmap_func.set_T1("set_target()");
@@ -122,6 +111,8 @@ inline bool loadBitmap_fromBitArray(
     size_t iCnt = 0;
     size_t iLim = _bitArray->size() / 60;
     bool iTrue = true;
+
+    // mtx_print("bmp: arr size:"+std::to_string(_bitArray->size()));
     for(size_t i=0; i<_bitArray->size(); i++) {
         if(currByte>=numBytes-1) { //new pixel
             
@@ -213,6 +204,8 @@ inline bool loadBitmap_fromBitArray(
     // mtx_print("T1: unlock bitmap");
     al_unlock_bitmap(_bitmap);
 
+    // mtx_print("bmp: new bitmap loaded");
+
     // al_set_target_backbuffer(display);
     if(_BM_DEFINE) perf_loadBitmap_func.set_T1("set_target 2()");
 
@@ -294,14 +287,16 @@ inline void threadTask_bitArrayProcess(
             // mtx_print("T1: new task:");
             (*classBMP_obj).mtx.lock();
         
-            loadBitmap_fromBitArray(
+            if(loadBitmap_fromBitArray(
                 (*classBMP_obj).BMP(),
                 &((*classBMP_obj).arr),
                 (*classBMP_obj).col_format,
                 (*classBMP_obj).width,
                 (*classBMP_obj).height,
                 (*classBMP_obj).incomplete
-            );
+            )) {
+                // mtx_print("T1: loadBitmap: false");
+            }
 
             (*classBMP_obj).newTask = false;
             (*classBMP_obj).mtx.unlock();
@@ -331,11 +326,11 @@ inline void* th_allegFunc(ALLEGRO_THREAD* th_alleg, void* arg) {
     bmpClassObj.localRunning = true;
     while(bmpClassObj.runningPtr->load() /*&& !al_get_thread_should_stop(th_allegThread)*/) {
         if(bmpClassObj.newTask.load()) {
-            mtx_print("T1: new task:");
+            // mtx_print("T1: new task:");
             bmpClassObj.mtx.lock();
             // al_lock_mutex(th_allegMutex);
         
-            mtx_print("T1: loadBitmap..()");
+            // mtx_print("T1: loadBitmap..()");
             loadBitmap_fromBitArray(
                 bmpClassObj.BMP(),
                 &(bmpClassObj.arr),
@@ -350,20 +345,19 @@ inline void* th_allegFunc(ALLEGRO_THREAD* th_alleg, void* arg) {
             // al_unlock_mutex(th_allegMutex);
             
             bmpClassObj.newTask = false;
-            mtx_print("T1: end of new task");
+            // mtx_print("T1: end of new task");
         }
         else {
             // mtx_print("T1: task not called");
         }
     }
     bmpClassObj.localRunning = false;
-    mtx_print("T1: closing");
+    // mtx_print("T1: closing");
     // mtx_print("T1: closing: "+formatNumber<bool>((*classBMP_obj).runningPtr->load(), 0, 0));
 }
 
 // boolean for whether the main program loop is to be running (this set to `false` will close the program)
 extern std::atomic<bool> running;
-
 
 extern NETWORK_DATA_THREADCLASS t_bitArr;
 

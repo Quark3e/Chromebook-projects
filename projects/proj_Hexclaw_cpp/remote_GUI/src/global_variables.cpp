@@ -38,11 +38,12 @@ PERF::perf_isolated perf_loadBitmap_func;
 int mode = 0;
 
 
-al_bmp_threadClass bmpObj(500, 250, "GRAY", &running);
+al_bmp_threadClass bmpObj(640, 480, "GRAY", &running);
 
 
 std::atomic<bool> running{true};
 
+std::mutex print_mtx;
 NETWORK_DATA_THREADCLASS t_bitArr(false, "192.168.1.177", 1086);
 
 

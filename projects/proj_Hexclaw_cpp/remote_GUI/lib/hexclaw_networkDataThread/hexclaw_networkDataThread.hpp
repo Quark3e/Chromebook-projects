@@ -38,9 +38,29 @@
 #include <jpeglib.h>
 
 
+extern std::mutex mtx_cout;
+inline void mtx_print(std::string _toPrint, bool _blocking=true, bool _flush=true, std::string _end="\n") {
+    std::unique_lock<std::mutex> u_lck_cout(mtx_cout, std::defer_lock);
+
+    if(_blocking) {
+        u_lck_cout.lock();
+        std::cout<<_toPrint<<_end;
+        if(_flush) std::cout.flush();
+        u_lck_cout.unlock();
+    }
+    else if(u_lck_cout.try_lock()) {
+        std::cout<<_toPrint<<_end;
+        if(_flush) std::cout.flush();
+        u_lck_cout.unlock();
+    }
+
+}
+
+
 // Global variable definitions
 class NETWORK_DATA_THREADCLASS {
     private:
+    public:
     bool _init = false;
 
 #if _WIN32
@@ -84,13 +104,11 @@ class NETWORK_DATA_THREADCLASS {
     
     bool _closing();
 
-    void _threadFunc();
     std::thread threadObj;
 
     unsigned long           img_size;
     std::vector<uint8_t>    imgArr_sub;
 
-    public:
     std::atomic<bool>   running{true};
     /**
      * The boolean for the thread function to listen and check whether to pull data
@@ -133,9 +151,10 @@ class NETWORK_DATA_THREADCLASS {
     int&        get_remoteSocket();
 #endif
 
-
 };
 
+
+void _NDT_threadFunc(NETWORK_DATA_THREADCLASS* ndt_obj);
 
 // inline int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr) {
 //     int result;

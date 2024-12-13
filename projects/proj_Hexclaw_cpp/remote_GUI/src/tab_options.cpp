@@ -466,26 +466,28 @@ void tab_1(void) {
 
     if(init) {
 
-        u_lck_bmpObj.lock();
+        // u_lck_bmpObj.lock();
         // al_lock_mutex(th_allegMutex);
         imgSize[0] = al_get_bitmap_width(bmpObj.BMP());
         imgSize[1] = al_get_bitmap_height(bmpObj.BMP());
-        int x, y;
-        int cnt = 0;
-        for(int i=0; i<imgSize[0]*imgSize[1]*1; i++) {
-            y = floor(i/imgSize[1]);
-            x = i%imgSize[0];
-            bmpObj.arr.push_back((float(x)/(imgSize[0]))*255);
-        }
-        u_lck_bmpObj.unlock();
-        // al_unlock_mutex(th_allegMutex);
-        bmpObj.newTask = true;
+        // int x, y;
+        // int cnt = 0;
+        // for(int i=0; i<imgSize[0]*imgSize[1]*1; i++) {
+        //     y = floor(i/imgSize[1]);
+        //     x = i%imgSize[0];
+        //     bmpObj.arr.push_back((float(x)/(imgSize[0]))*255);
+        // }
+        // u_lck_bmpObj.unlock();
+        // // al_unlock_mutex(th_allegMutex);
+        // bmpObj.newTask = true;
     }
-
+    // mtx_print("main: request");
     u_lck_ndt.lock();
+    u_lck_bmpObj.lock();
     if(t_bitArr.imgInit) {
         bmpObj.arr = t_bitArr.imgArr;
     }
+    u_lck_bmpObj.unlock();
     u_lck_ndt.unlock();
 
     bmpObj.newTask = true;
