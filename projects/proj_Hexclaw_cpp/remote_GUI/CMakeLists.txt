@@ -4,11 +4,12 @@ project(Hexclaw_Remote)
 
 
 if(WIN32)
-find_path(DIR_IMGUI NAMES "imgui.h"
-    HINTS "/Libraries/imgui"
-    REQUIRED
-)
-get_filename_component(DIR_IMGUI ${DIR_IMGUI} DIRECTORY)
+# find_path(DIR_IMGUI NAMES "imgui.h"
+#     HINTS "/Libraries/imgui"
+#     REQUIRED
+# )
+set(DIR_IMGUI "C:/Users/berkh/Libraries")
+# get_filename_component(DIR_IMGUI ${DIR_IMGUI} DIRECTORY)
 else()
 find_path(DIR_IMGUI NAMES "imgui.h"
     HINTS "include/imgui"
@@ -22,7 +23,6 @@ set(REPO_ROOT "../../..")
 set(DIR_HC_USEFUL "${REPO_ROOT}/teststuff/cpp/useful") #"/usr/local/include/HC_useful")
 
 
-# add_subdirectory(${REPO_ROOT}/teststuff/cpp/basic/networking/LIB_NETWORKCLASS binary_dir)
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/hexclaw_networkDataThread)
 
 if(WIN32)
@@ -32,17 +32,11 @@ endif(WIN32)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories("${REPO_ROOT}/projects/proj_Hexclaw_cpp/in rpi")
 include_directories(${PROJECT_SOURCE_DIR}/lib/hexclaw_networkDataThread)
-# include_directories(${REPO_ROOT}/teststuff/cpp/basic/networking/LIB_NETWORKCLASS)
 include_directories(${DIR_HC_USEFUL})
 include_directories(${DIR_IMGUI})
 include_directories(${DIR_IMGUI}/imgui)
 
-#add_subdirectory("${CMAKE_PREFIX_PATH}/imgui binary_dir)
-#add_subdirectory(${CMAKE_PREFIX_PATH}/HC_useful binary_dir)
 
-
-
-# link_directories(${REPO_ROOT}/teststuff/cpp/basic/networking/LIB_NETWORKCLASS)
 link_directories(${PROJECT_SOURCE_DIR}/src)
 link_directories(${DIR_IMGUI}/imgui/backends)
 link_directories(${CMAKE_PREFIX_PATH}/HC_useful)
