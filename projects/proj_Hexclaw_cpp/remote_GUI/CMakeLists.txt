@@ -44,7 +44,7 @@ include_directories(${DIR_IMGUI}/imgui)
 
 # link_directories(${REPO_ROOT}/teststuff/cpp/basic/networking/LIB_NETWORKCLASS)
 link_directories(${PROJECT_SOURCE_DIR}/src)
-link_directories(${CMAKE_PREFIX_PATH}/imgui/backends)
+link_directories(${DIR_IMGUI}/imgui/backends)
 link_directories(${CMAKE_PREFIX_PATH}/HC_useful)
 link_directories(${CMAKE_PREFIX_PATH}/lib)
 
