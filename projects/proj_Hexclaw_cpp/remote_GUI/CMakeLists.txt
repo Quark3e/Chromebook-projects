@@ -33,6 +33,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories("${REPO_ROOT}/projects/proj_Hexclaw_cpp/in rpi")
 include_directories(${PROJECT_SOURCE_DIR}/lib/hexclaw_networkDataThread)
 include_directories(${DIR_HC_USEFUL})
+include_directories(${DIR_HC_USEFUL}/robotics)
 include_directories(${DIR_IMGUI})
 include_directories(${DIR_IMGUI}/imgui)
 

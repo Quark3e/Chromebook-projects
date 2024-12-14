@@ -790,7 +790,7 @@ struct pos2d {
         char cwd[PATH_MAX];
 #if _WIN32
         if(_getcwd(cwd, sizeof(cwd)) != NULL)
-#else if __linux__
+#else
         if(getcwd(cwd, sizeof(cwd)) != NULL)
 #endif
         {
@@ -814,7 +814,7 @@ struct pos2d {
 #if _WIN32
         DWORD dwAttrib = GetFileAttributes(std::wstring(filename.begin(), filename.end()).c_str());
         return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-#else __linux__
+#else
         struct stat sb;
         if(stat(filename.c_str(), &sb)==0 && !(sb.st_mode & S_IFDIR)) {
             return true;
@@ -834,7 +834,7 @@ struct pos2d {
 #if _WIN32
         DWORD dwAttrib = GetFileAttributes(std::wstring(dirname.begin(), dirname.end()).c_str());
         return (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-#else if __linux__
+#else
         struct stat sb;
         if(stat(dirname.c_str(), &sb)==0) {
             return true;
