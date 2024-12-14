@@ -5,7 +5,7 @@ project(Hexclaw_Remote)
 
 if(WIN32)
 find_path(DIR_IMGUI
-    NAMES "imgui/imgui.h"
+    NAMES "imgui.h"
     HINTS "/Libraries"
     REQUIRED
 )
