@@ -1,5 +1,6 @@
 teststuff/python/opencv/angleArea/media/raw/
 teststuff/cpp/gui/imgui/windows/ex0/build/
+teststuff/cpp/windows/list_files_in_dir/build/
 teststuff/cpp/basic/networking/tcp/OpenCV_streamVideo/server/build/
 teststuff/cpp/basic/networking/tcp/OpenCV_streamVideo/client/build/
 teststuff/cpp/basic/networking/udp/OpenCV_streamVideo/server/build/

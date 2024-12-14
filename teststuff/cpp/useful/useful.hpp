@@ -3,6 +3,10 @@
 #ifndef HPP_USEFUL
 #define HPP_USEFUL
 
+#ifndef M_PI
+#define M_PI  3.1415926535
+#endif
+
 #include <math.h>
 #include <cmath>
 #include <string>
@@ -10,7 +14,6 @@
 #include <initializer_list>
 #include <iostream>
 #include <bits/stdc++.h>
-#include <unistd.h>
 #include <chrono>
 #include <ctime>
 
@@ -19,13 +22,27 @@
 #include <cstring>
 #include <stdlib.h>
 
-#include <sys/stat.h>
-#include <sys/ioctl.h>
+
 #include <stdio.h>
-#include <linux/limits.h>
 
 #include <thread>
 #include <mutex>
+
+
+
+#if _WIN32
+
+#include <windows.h>
+
+#else
+
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <linux/limits.h>
+#include <unistd.h>
+
+#endif
+
 
 // using namespace std;
 
@@ -552,12 +569,20 @@ struct pos2d {
      * @return `0`-successful; `-1`-error
     */
     inline int getTermSize(int &width, int &height) {
+#if _WIN32
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        int columns, rows;
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+        width   = csbi.srWindow.Right   - csbi.srWindow.Left    + 1;
+        height  = csbi.srWindow.Bottom  - csbi.srWindow.Top     + 1;
+#else
         struct winsize winDim;
         if(ioctl(STDOUT_FILENO,TIOCGWINSZ,&winDim)==-1) {
             return -1;
         }
         width   = winDim.ws_col;
         height  = winDim.ws_row;
+#endif
         return 0;
     }
 
@@ -763,6 +788,7 @@ struct pos2d {
      * @return std::string of path:
     */
     inline std::string getFileCWD(bool inclEndSlash=true) {
+        
         char cwd[PATH_MAX];
         if(getcwd(cwd, sizeof(cwd)) != NULL) {
             // std::cout<<cwd<<std::endl;
@@ -782,6 +808,10 @@ struct pos2d {
      * @return boolean for if it exists
     */
     inline bool isFile(std::string filename) {
+#if _WIN32
+        DWORD dwAttrib = GetFileAttributes(std::wstring(filename.begin(), filename.end()).c_str());
+        return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+#else __linux__
         struct stat sb;
         if(stat(filename.c_str(), &sb)==0 && !(sb.st_mode & S_IFDIR)) {
             return true;
@@ -789,6 +819,7 @@ struct pos2d {
         else {
             return false;
         }
+#endif
     }
 
     /**
@@ -797,6 +828,10 @@ struct pos2d {
      * @return boolean for if it exists
     */
     inline bool isDir(std::string dirname) {
+#if _WIN32
+        DWORD dwAttrib = GetFileAttributes(std::wstring(dirname.begin(), dirname.end()).c_str());
+        return (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+#else if __linux__
         struct stat sb;
         if(stat(dirname.c_str(), &sb)==0) {
             return true;
@@ -805,13 +840,15 @@ struct pos2d {
             return false;
         }
     }
-
+#endif  
 
     /// @brief Solve distance value between two coordinates in a 3D spacec
     /// @param p1 float()[3]: point 1 coordinate {x, y, z}
     /// @param p2 float()[3]: point 2 coordinate {x, y, z}
     /// @return float() type of absolute straight distance
-    inline float get3dDistance(float p1[3], float p2[3]) { return sqrt(pow(p2[0]-p1[0],2) + pow(p2[1]-p1[1],2) + pow(p2[2]-p1[2],2)); }
+    inline float get3dDistance(float p1[3], float p2[3]) {
+        return sqrt(pow(p2[0]-p1[0],2) + pow(p2[1]-p1[1],2) + pow(p2[2]-p1[2],2));
+    }
 
 
     /**
@@ -1245,18 +1282,18 @@ struct pos2d {
 
 
     inline std::vector<int> convert_RGB_HSV(
-        std::vector<int> RGB
+        std::vector<int> _RGB
     ) {
         std::vector<float> RGB_p{
-            static_cast<float>(RGB[0])/255,
-            static_cast<float>(RGB[1])/255,
-            static_cast<float>(RGB[2])/255
+            static_cast<float>(_RGB[0])/255,
+            static_cast<float>(_RGB[1])/255,
+            static_cast<float>(_RGB[2])/255
         };
         std::vector<int> HSV(3, 0);
         size_t maxIdx = findIdx<float>(RGB_p, 0);
         size_t minIdx = findIdx<float>(RGB_p, 1);
 
-        int delta = RGB[maxIdx]-RGB[minIdx];
+        int delta = _RGB[maxIdx]-_RGB[minIdx];
 
         HSV[2] = static_cast<int>(100*RGB_p[maxIdx]);
         HSV[1] = static_cast<int>(100*(HSV[2]==0? 0 : delta/RGB_p[maxIdx]));
@@ -1279,7 +1316,7 @@ struct pos2d {
     inline std::vector<int> convert_HSV_RGB(
         std::vector<int> HSV
     ) {
-        std::vector<int> RGB(3, 0);
+        std::vector<int> _RGB(3, 0);
         std::vector<float> RGB_p(3, 0);
         std::vector<float> HSV_p{
             static_cast<float>(HSV[0]),
@@ -1322,11 +1359,11 @@ struct pos2d {
             RGB_p[2] = X;
         }
 
-        RGB[0] = (RGB_p[0]+m)*static_cast<float>(255);
-        RGB[1] = (RGB_p[1]+m)*static_cast<float>(255);
-        RGB[2] = (RGB_p[2]+m)*static_cast<float>(255);
+        _RGB[0] = (RGB_p[0]+m)*static_cast<float>(255);
+        _RGB[1] = (RGB_p[1]+m)*static_cast<float>(255);
+        _RGB[2] = (RGB_p[2]+m)*static_cast<float>(255);
 
-        return RGB;
+        return _RGB;
     }
 
 
