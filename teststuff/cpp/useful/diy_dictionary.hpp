@@ -31,7 +31,7 @@
 // #include <HC_useful/useful.hpp>
 #include "search_multithread.hpp"
 
-using DIY_SEARCH_MULTITHREAD::hasRepetitions, DIY_SEARCH_MULTITHREAD::check_existence;
+// using DIY_SEARCH_MULTITHREAD::hasRepetitions, DIY_SEARCH_MULTITHREAD::check_existence;
 
 namespace DIY {
 
@@ -263,7 +263,7 @@ namespace DIY {
              * @param key 
              * @return int index to in navigation container. 
              */
-            int operator[] (std::string key) { return check_existence<std::string>(key, this->_keys, -1); }
+            int operator[] (std::string key) { return DIY_SEARCH_MULTITHREAD::check_existence<std::string>(key, this->_keys, -1); }
 
             std::vector<std::string> keys() { return this->_keys; }
 
@@ -678,7 +678,7 @@ namespace DIY {
     template<class _key_type, class _store_type>
     typed_dict<_key_type, _store_type>::typed_dict(std::vector<_key_type> keys, std::list<_store_type> values) {
         if(keys.size()!=values.size()) this->_call_error(0, "::typed_dict(std::vector<_key_type>, std::list<_store_type>)", "input containers for `keys` and `values` aren't same size.");
-        if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::typed_dict(std::vector<_key_type>, std::list<_store_type>)", "there are repetitions inside input argument for `keys`");
+        if(DIY_SEARCH_MULTITHREAD::hasRepetitions<_key_type>(keys)) this->_call_error(0, "::typed_dict(std::vector<_key_type>, std::list<_store_type>)", "there are repetitions inside input argument for `keys`");
         this->_keys = keys;
         this->_values = values;
         for(auto itr=_values.begin(); itr!=_values.end(); ++itr) _lookup.push_back(&(*itr));
@@ -687,7 +687,7 @@ namespace DIY {
     template<class _key_type, class _store_type>
     typed_dict<_key_type, _store_type>::typed_dict(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values) {
         if(keys.size()!=values.size()) this->_call_error(0, "::typed_dict(std::initializer_list<_key_type>, std::initializer_list<_store_type>)", "input containers for `keys` and `values` aren't same size.");
-        if(hasRepetitions<_key_type>(std::vector<_key_type>(keys))) this->_call_error(0, "::typed_dict(std::initializer_list<_key_type>, std::initializer_list<_store_type>)", "there are repetitions inside input argument for `keys`");
+        if(DIY_SEARCH_MULTITHREAD::hasRepetitions<_key_type>(std::vector<_key_type>(keys))) this->_call_error(0, "::typed_dict(std::initializer_list<_key_type>, std::initializer_list<_store_type>)", "there are repetitions inside input argument for `keys`");
         this->_keys = keys;
         this->_values = values;
         for(auto itr=_values.begin(); itr!=_values.end(); ++itr) _lookup.push_back(&(*itr));
@@ -795,14 +795,14 @@ namespace DIY {
         std::string align,
         bool useBoolAlpha
     ) {
-        int pos = check_existence<_key_type>(key, _keys);
+        int pos = DIY_SEARCH_MULTITHREAD::check_existence<_key_type>(key, _keys);
         if(pos<0) this->_call_error(0, "::str_export(_key_type, int, int, std::string, bool)");
         return formatNumber<_store_type>(*(_lookup[pos]), width, precision, align, useBoolAlpha);
     }
 
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::add(_key_type key, _store_type value) {
-        if(check_existence<_key_type>(key, this->_keys)!=-1) this->_call_error(1, "::add(_key_type, _store_type)");
+        if(DIY_SEARCH_MULTITHREAD::check_existence<_key_type>(key, this->_keys)!=-1) this->_call_error(1, "::add(_key_type, _store_type)");
         this->_keys.push_back(key);
         this->_values.push_back(value);
         this->_lookup.push_back(&*(this->_getItr(-1)));
@@ -814,9 +814,9 @@ namespace DIY {
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::append(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values) {
         if(keys.size()!=values.size()) this->_call_error(0, "::append(std::initializer_list<_key_type>, std::initializer_list<_store_type>)", " arguments aren't the same size");
-        if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::append(std::initializer_list<_key_type>, std::initializer_list<_store_type>)", " input argument for keys has repetitions of elements");
+        if(DIY_SEARCH_MULTITHREAD::hasRepetitions<_key_type>(keys)) this->_call_error(0, "::append(std::initializer_list<_key_type>, std::initializer_list<_store_type>)", " input argument for keys has repetitions of elements");
         
-        for(auto elem: keys) { if(check_existence<_key_type>(elem, _keys)!=-1) { this->_call_error(1,"::append(std::initializer_list<_key_type>, std::initializer_list<_store_type>)"); } } //check if any of the new keys exist in _keys container
+        for(auto elem: keys) { if(DIY_SEARCH_MULTITHREAD::check_existence<_key_type>(elem, _keys)!=-1) { this->_call_error(1,"::append(std::initializer_list<_key_type>, std::initializer_list<_store_type>)"); } } //check if any of the new keys exist in _keys container
 
         this->insert(this->size(), std::vector<_key_type>(keys), std::list<_store_type>(values));
 
@@ -825,8 +825,8 @@ namespace DIY {
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::append(std::vector<_key_type> keys, std::list<_store_type> values) {
         if(keys.size()!=values.size()) this->_call_error(0, "::append(std::vector<_key_type>, std::list<_store_type>)", " arguments aren't the same size");
-        if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::append(std::vector<_key_type>, std::list<_store_type>)", " input argument for keys has repetitions of elements");
-        for(auto elem: keys) { if(check_existence<_key_type>(elem, _keys)!=-1) { this->_call_error(1,"::append(std::vector<_key_type>, std::list<_store_type>)"); } }
+        if(DIY_SEARCH_MULTITHREAD::hasRepetitions<_key_type>(keys)) this->_call_error(0, "::append(std::vector<_key_type>, std::list<_store_type>)", " input argument for keys has repetitions of elements");
+        for(auto elem: keys) { if(DIY_SEARCH_MULTITHREAD::check_existence<_key_type>(elem, _keys)!=-1) { this->_call_error(1,"::append(std::vector<_key_type>, std::list<_store_type>)"); } }
         this->insert(this->size(), keys, values);
         
         return 0;
@@ -834,7 +834,7 @@ namespace DIY {
 
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::insert(size_t pos, _key_type key, _store_type value) {
-        if(check_existence<_key_type>(key, this->_keys)!=-1) this->_call_error(1, "::insert(size_t, _key_type, _store_type)");
+        if(DIY_SEARCH_MULTITHREAD::check_existence<_key_type>(key, this->_keys)!=-1) this->_call_error(1, "::insert(size_t, _key_type, _store_type)");
         this->_keys.insert(this->_keys.begin()+pos, key);
         auto itr = _values.begin();
         std::advance(itr, pos);
@@ -847,8 +847,8 @@ namespace DIY {
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::insert(size_t pos, std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values) {
         if(keys.size()!=values.size()) this->_call_error(0, "::insert(size_t, std::initializer_list<_key_type>, std::initializer_list<_store_type>)", " arguments aren't the same size");
-        if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::insert(size_t, std::initializer_list<_key_type>, std::initializer_list<_store_type>)", " input argument for keys has repetitions of elements");
-        for(auto elem: keys) { if(check_existence<_key_type>(elem, this->_keys)!=-1) { this->_call_error(1,"::insert(size_t, std::initializer_list<_key_type>, std::initializer_list<_store_type>)"); } }
+        if(DIY_SEARCH_MULTITHREAD::hasRepetitions<_key_type>(keys)) this->_call_error(0, "::insert(size_t, std::initializer_list<_key_type>, std::initializer_list<_store_type>)", " input argument for keys has repetitions of elements");
+        for(auto elem: keys) { if(DIY_SEARCH_MULTITHREAD::check_existence<_key_type>(elem, this->_keys)!=-1) { this->_call_error(1,"::insert(size_t, std::initializer_list<_key_type>, std::initializer_list<_store_type>)"); } }
         
         this->insert(pos, std::vector<_key_type>(keys), std::list<_store_type>(values));
 
@@ -869,8 +869,8 @@ namespace DIY {
     int typed_dict<_key_type, _store_type>::insert(size_t pos, std::vector<_key_type> keys, std::list<_store_type> values) {
         /// Core function for overloads and similar
         if(keys.size()!=values.size()) this->_call_error(0, "::insert(size_t, std::vector<_key_type>, std::vector<_store_type>)", " arguments aren't the same size");
-        if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::insert(size_t, std::vector<_key_type>, std::vector<_store_type>)", " input argument for keys has repetitions of elements");
-        for(auto elem: keys) { if(check_existence<_key_type>(elem, this->_keys)!=-1) { this->_call_error(1,"::insert(std::vector<_key_type>, std::vector<_store_type>)"); } }
+        if(DIY_SEARCH_MULTITHREAD::hasRepetitions<_key_type>(keys)) this->_call_error(0, "::insert(size_t, std::vector<_key_type>, std::vector<_store_type>)", " input argument for keys has repetitions of elements");
+        for(auto elem: keys) { if(DIY_SEARCH_MULTITHREAD::check_existence<_key_type>(elem, this->_keys)!=-1) { this->_call_error(1,"::insert(std::vector<_key_type>, std::vector<_store_type>)"); } }
 
 
         this->_keys.insert(this->_keys.begin()+pos, keys.begin(), keys.end());
@@ -893,7 +893,7 @@ namespace DIY {
 
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::replace(_key_type key, _store_type new_value) {
-        int pos = check_existence<_key_type>(key, this->_keys);
+        int pos = DIY_SEARCH_MULTITHREAD::check_existence<_key_type>(key, this->_keys);
         if(pos<0) this->_call_error(0, "::replace(_key_type, _store_type)");
         // this->_values.at(pos) = new_value;
 
@@ -904,10 +904,10 @@ namespace DIY {
 
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::rename(_key_type key, _key_type new_key) {
-        int pos = check_existence<_key_type>(key, this->_keys);
+        int pos = DIY_SEARCH_MULTITHREAD::check_existence<_key_type>(key, this->_keys);
         if(pos<0) this->_call_error(0, "::rename(_key_type, _key_type)");
         // if(key==new_key) this->_call_error(0, "::rename(_key_type, _key_type)", "new_key is the same as key");
-        int pos2= check_existence<_key_type>(new_key, this->_keys);
+        int pos2= DIY_SEARCH_MULTITHREAD::check_existence<_key_type>(new_key, this->_keys);
         if(key!=new_key && pos2!=-1) this->_call_error(0, "::rename(_key_type, _key_type)", "second parameter argument for `new_key` \""+new_key+"\" already exists in dictionary keys");
         this->_keys.at(pos) = new_key;
         return 0;
@@ -915,7 +915,7 @@ namespace DIY {
 
     template<class _key_type, class _store_type>
     int typed_dict<_key_type, _store_type>::erase(_key_type key) {
-        int pos = check_existence<_key_type>(key, this->_keys);
+        int pos = DIY_SEARCH_MULTITHREAD::check_existence<_key_type>(key, this->_keys);
         if(pos<0) this->_call_error(0, "::erase(_key_type)");
         
         this->_keys.erase(this->_keys.begin()+pos);

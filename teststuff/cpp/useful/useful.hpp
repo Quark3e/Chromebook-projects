@@ -849,7 +849,10 @@ struct pos2d {
     /// @param p1 float()[3]: point 1 coordinate {x, y, z}
     /// @param p2 float()[3]: point 2 coordinate {x, y, z}
     /// @return float() type of absolute straight distance
-    inline float get3dDistance(float p1[3], float p2[3]) {
+    inline float get3dDistance(
+        float p1[3],
+        float p2[3]
+    ) {
         return sqrt(pow(p2[0]-p1[0],2) + pow(p2[1]-p1[1],2) + pow(p2[2]-p1[2],2));
     }
 

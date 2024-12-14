@@ -7,6 +7,7 @@
 #include <iostream>
 #include <math.h>
 #include <stdint.h>
+#include <cstdint>
 #include <stdio.h>
 
 #include <cassert>

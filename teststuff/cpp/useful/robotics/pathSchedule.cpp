@@ -1,5 +1,5 @@
 
-#include <HC_useful/pathSchedule.hpp>
+#include <pathSchedule.hpp>
 
 bool IK_PATH::GCODE_schedule::_arg_isNumber(std::string argToCheck, const int* solvedValue) {
     static int _solvedValue = 0;

@@ -5,8 +5,6 @@
 #include "includes.hpp"
 
 
-
-
 extern ALLEGRO_BITMAP *bitmap_test;
 extern ALLEGRO_DISPLAY* display;
 
