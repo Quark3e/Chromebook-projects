@@ -4,15 +4,14 @@ project(Hexclaw_Remote)
 
 
 if(WIN32)
-find_path(DIR_IMGUI
-    NAMES "imgui.h"
-    HINTS "/Libraries"
+find_path(DIR_IMGUI NAMES "imgui.h"
+    HINTS "/Libraries/imgui"
     REQUIRED
 )
+get_filename_component(DIR_IMGUI ${DIR_IMGUI} DIRECTORY)
 else()
-find_path(DIR_IMGUI
-    NAMES "imgui.h"
-    HINTS /imgui
+find_path(DIR_IMGUI NAMES "imgui.h"
+    HINTS "include/imgui"
     REQUIRED
 )
 endif(WIN32)
