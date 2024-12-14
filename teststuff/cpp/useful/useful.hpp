@@ -976,8 +976,7 @@ struct pos2d {
         }
 
         if(printVar) std::cout << "---";
-        return 
-        ;
+        return resultStrings;
     }
     inline void splitString(
         std::string line,
