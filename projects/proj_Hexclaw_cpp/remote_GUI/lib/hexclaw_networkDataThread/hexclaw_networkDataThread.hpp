@@ -35,6 +35,8 @@
 #include <mutex>
 #include <atomic>
 
+#include <cassert>
+
 #include <jpeglib.h>
 
 

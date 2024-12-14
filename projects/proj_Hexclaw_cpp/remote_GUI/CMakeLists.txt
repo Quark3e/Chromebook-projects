@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.24)
 project(Hexclaw_Remote)
 
+
+
 if(WIN32)
 find_path(DIR_IMGUI
-    NAMES "imgui.h"
+    NAMES "imgui/imgui.h"
     HINTS "/Libraries"
     REQUIRED
 )
@@ -23,6 +25,11 @@ set(DIR_HC_USEFUL "${REPO_ROOT}/teststuff/cpp/useful") #"/usr/local/include/HC_u
 # add_subdirectory(${REPO_ROOT}/teststuff/cpp/basic/networking/LIB_NETWORKCLASS binary_dir)
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/hexclaw_networkDataThread)
 
+if(WIN32)
+include_directories("C:\\msys64\\ucrt64\\include")
+endif(WIN32)
+
+include_directories(${PROJECT_SOURCE_DIR})
 include_directories("${REPO_ROOT}/projects/proj_Hexclaw_cpp/in rpi")
 include_directories(${PROJECT_SOURCE_DIR}/lib/hexclaw_networkDataThread)
 # include_directories(${REPO_ROOT}/teststuff/cpp/basic/networking/LIB_NETWORKCLASS)
@@ -71,7 +78,7 @@ add_executable(remote_gui
     src/tab_options.cpp
     ${DIR_HC_USEFUL}/diy_dictionary.cpp
     ${DIR_HC_USEFUL}/robotics/pathSchedule.cpp
-    ${DIR_IMGUI}/imgui/backends/imgui_impl_allegro5.cpp
+    ${DIR_IMGUI}/backends/imgui_impl_allegro5.cpp
     ${imgui_depends}
 )
 

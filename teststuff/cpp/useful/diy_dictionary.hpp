@@ -29,7 +29,7 @@
 #include <initializer_list>
 
 // #include <HC_useful/useful.hpp>
-#include <HC_useful/search_multithread.hpp>
+#include "search_multithread.hpp"
 
 using DIY_SEARCH_MULTITHREAD::hasRepetitions, DIY_SEARCH_MULTITHREAD::check_existence;
 

@@ -9,8 +9,8 @@
 #include <vector>
 #include <fstream>
 
-#include <HC_useful/useful.hpp>
-#include <HC_useful/search_multithread.hpp>
+#include <useful.hpp>
+#include <search_multithread.hpp>
 
 
 #define NULL_POS_POINT 42069

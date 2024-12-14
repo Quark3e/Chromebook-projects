@@ -31,9 +31,8 @@
 
 
 #if _WIN32
-
 #include <windows.h>
-
+#include <direct.h>
 #else
 
 #include <sys/stat.h>
@@ -788,9 +787,13 @@ struct pos2d {
      * @return std::string of path:
     */
     inline std::string getFileCWD(bool inclEndSlash=true) {
-        
         char cwd[PATH_MAX];
-        if(getcwd(cwd, sizeof(cwd)) != NULL) {
+#if _WIN32
+        if(_getcwd(cwd, sizeof(cwd)) != NULL)
+#else if __linux__
+        if(getcwd(cwd, sizeof(cwd)) != NULL)
+#endif
+        {
             // std::cout<<cwd<<std::endl;
             std::string returStr = cwd;
             if(inclEndSlash) return returStr+"/";
@@ -973,7 +976,8 @@ struct pos2d {
         }
 
         if(printVar) std::cout << "---";
-        return resultStrings;
+        return 
+        ;
     }
     inline void splitString(
         std::string line,

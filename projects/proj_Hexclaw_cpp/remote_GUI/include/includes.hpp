@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <cassert>
+
 #include <dirent.h>
 #include <filesystem>
 

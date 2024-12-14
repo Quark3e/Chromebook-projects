@@ -9,7 +9,7 @@
 #include <math.h>
 
 
-#include <HC_useful/diy_dictionary.hpp>
+#include <diy_dictionary.hpp>
 
 #include "HW_headers/motion_control/motion_profiles.hpp"
 // #include "hexclaw_global.hpp"
