@@ -17,6 +17,7 @@ find_path(DIR_IMGUI
 )
 endif(WIN32)
 
+message(DIR_IMGUI = ${DIR_IMGUI})
 
 set(REPO_ROOT "../../..")
 set(DIR_HC_USEFUL "${REPO_ROOT}/teststuff/cpp/useful") #"/usr/local/include/HC_useful")
