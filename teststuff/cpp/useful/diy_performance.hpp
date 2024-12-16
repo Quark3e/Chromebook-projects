@@ -18,7 +18,7 @@
 #include <chrono>
 #include <ctime>
 
-#include "search_multithread.hpp"
+#include <search_multithread.hpp>
 
 
 namespace PERF {

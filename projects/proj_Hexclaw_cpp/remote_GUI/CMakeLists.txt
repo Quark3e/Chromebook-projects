@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 project(Hexclaw_Remote)
 
-
+set(CMAKE_CXX_STANDARD 14)
 
 if(WIN32)
 # find_path(DIR_IMGUI NAMES "imgui.h"

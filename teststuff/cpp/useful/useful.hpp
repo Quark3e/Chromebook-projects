@@ -958,6 +958,7 @@ struct pos2d {
         bool causeError
     ) {
         if(printVar) std::cout << "--- \"" << line << "\"\n";
+        /// `std::vector<std::string>` of the strings containing the results
         std::vector<std::string> resultStrings;
         size_t idx0 = 0;
         size_t idx1 = line.find(delimiter, idx0);

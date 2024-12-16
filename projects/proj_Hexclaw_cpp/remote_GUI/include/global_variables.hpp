@@ -2,8 +2,9 @@
 #ifndef HPP__HEXCLAW_REMOTE_GUI__GLOBAL_VARIABLES
 #define HPP__HEXCLAW_REMOTE_GUI__GLOBAL_VARIABLES
 
-#include "includes.hpp"
+#include <includes.hpp>
 
+#include <diy_dictionary.hpp>
 
 extern ALLEGRO_BITMAP *bitmap_test;
 extern ALLEGRO_DISPLAY* display;

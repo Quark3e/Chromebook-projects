@@ -30,6 +30,12 @@
 #include <includes.hpp>
 
 
+#include "imgui_extras.hpp"
+#include "constants.hpp"
+#include "global_variables.hpp"
+#include "tab_options.hpp"
+
+
 int main(int argc, char** argv) {
 
     if(argc>1) {

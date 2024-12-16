@@ -17,6 +17,7 @@
  * pointers instead of having an entire set of "value" only storage
  */
 
+
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -29,7 +30,7 @@
 #include <initializer_list>
 
 // #include <HC_useful/useful.hpp>
-#include "search_multithread.hpp"
+#include <search_multithread.hpp>
 
 using DIY_SEARCH_MULTITHREAD::hasRepetitions, DIY_SEARCH_MULTITHREAD::check_existence;
 
