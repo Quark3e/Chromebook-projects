@@ -11,12 +11,13 @@ NETWORK_DATA_THREADCLASS::NETWORK_DATA_THREADCLASS(bool _init, std::string _ipAd
     this->func_init();
 }
 NETWORK_DATA_THREADCLASS::~NETWORK_DATA_THREADCLASS() {
-    assert(this->_closing());
-
     if(this->isRunning.load()) {
         this->running = false;
         this->threadObj.join();
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    assert(this->_closing()==0);
 }
 bool NETWORK_DATA_THREADCLASS::_closing() {
 #if _WIN32
@@ -25,8 +26,9 @@ bool NETWORK_DATA_THREADCLASS::_closing() {
 #else
     close(_remoteSocket);
 #endif
+    this->_connected = false;
     // mtx_print("NDT: closing");
-    return true;
+    return 0;
 }
 
 
@@ -61,7 +63,7 @@ int&        NETWORK_DATA_THREADCLASS::get_remoteSocket() { return _remoteSocket;
 #endif
 
 int NETWORK_DATA_THREADCLASS::func_init() {
-    if(this->_init) return true;
+    if(this->_init) return 0;
 #if _WIN32
     WSADATA wsaData;
     int wsaerr;
@@ -84,15 +86,23 @@ int NETWORK_DATA_THREADCLASS::func_init() {
 	memset(&_remote_sockaddr_in, 0, sizeof(_remote_sockaddr_in));
 
 
-    assert(func_createSocket(AF_INET, SOCK_STREAM));
-    assert(func_connect());
+    if(func_createSocket(AF_INET, SOCK_STREAM)) {
+        this->_error_code = 1;
+        std::cerr << this->_info_name<<"::func_createSocket() failed."<<std::endl;
+        return 1;
+    }
+    if(func_connect()) {
+        std::cerr << this->_info_name<<"::func_connect() failed."<<std::endl;
+        this->_error_code = 2;
+        return 2;
+    }
 
     threadObj = std::thread(_NDT_threadFunc, this);
 
     this->_init = true;
-    return true;
+    return 0;
 }
-bool NETWORK_DATA_THREADCLASS::func_createSocket(int _sock_family, int _sock_type, int _sock_proto) {
+int NETWORK_DATA_THREADCLASS::func_createSocket(int _sock_family, int _sock_type, int _sock_proto) {
 #if _WIN32
     this->_localSocket = INVALID_SOCKET;
     this->_localSocket = socket(_sock_family, _sock_type, _sock_proto);
@@ -115,9 +125,9 @@ bool NETWORK_DATA_THREADCLASS::func_createSocket(int _sock_family, int _sock_typ
     }
 #endif
     
-    return true;
+    return 0;
 }
-bool NETWORK_DATA_THREADCLASS::func_connect() {
+int NETWORK_DATA_THREADCLASS::func_connect() {
     std::cout << _local_IPADDRESS << std::endl;
 
     _remote_sockaddr_in.sin_family = AF_INET;
@@ -127,18 +137,19 @@ bool NETWORK_DATA_THREADCLASS::func_connect() {
     if(connect(_localSocket, reinterpret_cast<SOCKADDR*>(&_remote_sockaddr_in), sizeof(sockaddr_in)) < 0) {
         std::cout << "connect() failed." << std::endl;
         WSACleanup();
-        return false;
+        return -1;
     }
 #else
     if(connect(_localSocket, (sockaddr*)&_remote_sockaddr_in, sizeof(_remote_sockaddr_in)) < 0) {
         std::cout << "connect() failed." << std::endl;
-        return false;
+        return -1;
     }
 #endif
+    this->_connected = true;
 
-    return true;
+    return 0;
 }
-bool NETWORK_DATA_THREADCLASS::func_bind() {
+int NETWORK_DATA_THREADCLASS::func_bind() {
 
     _local_sockaddr_in.sin_family = AF_INET;
     _local_sockaddr_in.sin_addr.s_addr = (_local_IPADDRESS=="ANY"? INADDR_ANY : inet_addr(_local_IPADDRESS.c_str()));
@@ -148,29 +159,29 @@ bool NETWORK_DATA_THREADCLASS::func_bind() {
         std::cout << "bind() failed: " << WSAGetLastError() << std::endl;
         closesocket(_localSocket);
         WSACleanup();
-        return false;
+        return -1;
     }
 #else
     if(bind(_localSocket, (const struct sockaddr*)&_local_sockaddr_in, sizeof(_local_sockaddr_in))==-1) {
         std::cout << "bind() failed!" << std::endl;
-        return false;
+        return -1;
     }
 #endif
     // else std::cout << "Socket successfully bound." << std::endl;
 
-    return true;
+    return 0;
 }
-bool NETWORK_DATA_THREADCLASS::func_listen(int _numQueued) {
+int NETWORK_DATA_THREADCLASS::func_listen(int _numQueued) {
 
 #if _WIN32
     if(listen(_localSocket, _numQueued) == SOCKET_ERROR) {
         std::cout << "listen(): Error listening on socket: " << WSAGetLastError() << std::endl;
-        return false;
+        return -1;
     }
 #else
     if(listen(_localSocket, _numQueued) < 0) {
         std::cout << "listen(): Error listening on socket. " << std::endl;
-        return false;
+        return -1;
     }
 #endif
     else {
@@ -179,20 +190,20 @@ bool NETWORK_DATA_THREADCLASS::func_listen(int _numQueued) {
         std::cout << " port : " << _local_PORT << std::endl;
     }
 
-    return true;
+    return 0;
 }
-bool NETWORK_DATA_THREADCLASS::func_accept() {
+int NETWORK_DATA_THREADCLASS::func_accept() {
 
 #if _WIN32
     if((_remoteSocket = accept(_localSocket, nullptr, nullptr)) == INVALID_SOCKET) {
         std::cout << "accept() failed: " << WSAGetLastError() << std::endl;
         WSACleanup();
-        return false;
+        return -1;
     }
 #else
     if((_remoteSocket = accept(_localSocket, (struct sockaddr*)&_remoteSocket, (socklen_t*)&_sockAddrLen)) < 0) {
         std::cout << "accept() failed" << std::endl;
-        return false;
+        return -1;
     }
 #endif
     else {
@@ -200,12 +211,11 @@ bool NETWORK_DATA_THREADCLASS::func_accept() {
         // getsockname(_remoteSocket, )
     }
 
-    return true;
+    return 0;
 }
-bool NETWORK_DATA_THREADCLASS::func_recv(int recvFrom) {
+int NETWORK_DATA_THREADCLASS::func_recv(int recvFrom) {
     this->func_recv(recvFrom, recvBuffer, sizeof(recvBuffer), 0);
-    if(_bytesRecv<0) return false;
-    return true;
+    return _bytesRecv;
 }
 int NETWORK_DATA_THREADCLASS::func_recv(int recvFrom, void* _recvBuf, size_t _nBytes, int _flags) {
     _bytesRecv = recv(
@@ -222,10 +232,9 @@ int NETWORK_DATA_THREADCLASS::func_recv(int recvFrom, void* _recvBuf, size_t _nB
 
     return _bytesRecv;
 }
-bool NETWORK_DATA_THREADCLASS::func_send(int sendTo) {
+int NETWORK_DATA_THREADCLASS::func_send(int sendTo) {
     this->func_send(sendTo, sendBuffer, sizeof(sendBuffer), 0);
-    if(_bytesSent<0) return false;
-    return true;
+    return _bytesSent;
 }
 int NETWORK_DATA_THREADCLASS::func_send(int sendTo, const void* _sendBuf, size_t _nBytes, int _flags) {
     _bytesSent = send(
@@ -308,7 +317,10 @@ void _NDT_threadFunc(NETWORK_DATA_THREADCLASS* ndt_obj) {
         std::cerr << "running called false before _threadFunc initialized."<<std::endl;
         exit(1);
     }
-    while((*ndt_obj).running.load()) {
+    while(
+        (*ndt_obj)._connected.load() &&
+        (*ndt_obj).running.load()
+    ) {
         // mtx_print("ndt: thread iteration");
         if(!(*ndt_obj).runLoop.load()) continue;
         // mtx_print("ndt: proces started");
@@ -362,3 +374,4 @@ void _NDT_threadFunc(NETWORK_DATA_THREADCLASS* ndt_obj) {
     }
     (*ndt_obj).isRunning = false;
 }
+

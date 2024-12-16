@@ -46,7 +46,6 @@ int main(int argc, char** argv) {
         }
     }
 
-
     std::string path = getFileCWD(true);
     // std::cout<<path<<std::endl;
     mtx_print("T0:"+path);
@@ -98,7 +97,9 @@ int main(int argc, char** argv) {
     al_register_event_source(queue, al_get_mouse_event_source());
 
 
-    t_bitArr.func_init();
+    // if(t_bitArr.func_init()) {
+    //     std::cout << "t_bitArr .init() failed. Class not initialised. Code: "<<t_bitArr._error_code << std::endl;
+    // }
     
     std::thread t_bmpLoader(threadTask_bitArrayProcess, &bmpObj);
     // th_allegMutex  = al_create_mutex();

@@ -62,7 +62,9 @@ inline void mtx_print(std::string _toPrint, bool _blocking=true, bool _flush=tru
 // Global variable definitions
 class NETWORK_DATA_THREADCLASS {
     private:
+
     public:
+    const std::string _info_name = "NETWORK_DATA_THREADCLASS";
     bool _init = false;
 
 #if _WIN32
@@ -87,14 +89,14 @@ class NETWORK_DATA_THREADCLASS {
     int _bytesRecv = 0;
 
 
-    bool    func_createSocket(int _sock_family, int _sock_type, int _sock_proto=0);
-    bool    func_connect();
-    bool    func_bind();
-    bool    func_listen(int _numQueued=1);
-    bool    func_accept();
-    bool    func_recv(int recvFrom=1);
+    int     func_createSocket(int _sock_family, int _sock_type, int _sock_proto=0);
+    int     func_connect();
+    int     func_bind();
+    int     func_listen(int _numQueued=1);
+    int     func_accept();
+    int     func_recv(int recvFrom=1);
     int     func_recv(int recvFrom, void* _recvBuf, size_t _nBytes, int _flags);
-    bool    func_send(int sendTo=1);
+    int     func_send(int sendTo=1);
     int     func_send(int sendTo, const void* _sendBuf, size_t _nBytes, int _flags);
 #if _WIN32
     int     func_recvfrom(SOCKET _sock, void* _sendBuf, size_t _nBytes, int _flags, sockaddr* _from_addr, void* _from_addr_len);
@@ -138,7 +140,18 @@ class NETWORK_DATA_THREADCLASS {
     NETWORK_DATA_THREADCLASS(bool _init, std::string _ipAddress=DEFAULT_IPADDR, int _port=DEFAULT_PORT);
     ~NETWORK_DATA_THREADCLASS();
 
-    
+    std::atomic<int>    _error_code{0};
+    /**
+     * Atomic boolean for whether the class is connected to the service
+     */
+    std::atomic<bool>   _connected{false};
+
+    /**
+     * Initialise the class with its dedicated member thread object.
+     * If the class instance got successfully initialised this function will return `0`,
+     * otherwise if an error has occured then it'll return an error code which is also saved in the member variable `_error_code`:
+     * 
+     */
     int         func_init();
 
     bool        set_IPADDRESS(std::string _ipAddress);

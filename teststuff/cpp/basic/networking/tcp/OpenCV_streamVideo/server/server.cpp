@@ -95,7 +95,11 @@ void *display(/*void *ptr*/) {
             perror("recv() for initial signal failed: ");
             exit(1);
         }
-        if(!strcmp(inpMsg, "disconnect")) break;
+        std::cout << "initial received: \""<<inpMsg<<"\"" << std::endl;
+        if(!strcmp(inpMsg, "disconnect")) {
+            std::cout << "disconnect msg received. Exiting client connection."<<std::endl;
+            break;
+        }
         cap >> img;
 
         cv::cvtColor(img, imgGray, cv::COLOR_BGR2GRAY);

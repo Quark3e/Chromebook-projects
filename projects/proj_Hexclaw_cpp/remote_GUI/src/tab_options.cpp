@@ -1,5 +1,5 @@
 
-#include "../include/includes.hpp"
+#include <includes.hpp>
 
 
 void tab_0(void) {
@@ -157,11 +157,7 @@ void tab_0(void) {
         }
         ImGui::Separator();
         static char buff_gcode_input[256];
-        if(ImGui::BeginChild(
-            "GCode_input",
-            ImVec2(0, 0),
-            ImGuiChildFlags_None
-        )) {
+        if(ImGui::BeginChild("GCode_input", ImVec2(0, 0), ImGuiChildFlags_None)) {
             ImGui::PushID(0);
             ImGui::TextUnformatted(">>");
 
@@ -336,7 +332,6 @@ void tab_0(void) {
         else _redo__pressed = false;
     }
     // if(size_pressed_keys!=0) std::cout<<DIY::prettyPrint_vec1<int>(pressed_keys)<<std::endl;
-
     // // std::cout << std::endl;
     // if(_keys_count_exit==2) running = false;
     // // if(_keys_count_enter==2 && !_ctrl_enter__pressed) input_IK_enterPress = true;
@@ -424,6 +419,8 @@ void tab_0(void) {
     if(takePerf_tab_0) perf_tab0.set_T0("T:FK_sol"); //perf time_point;0
     if(ImGui::BeginChild("FK solutions", ImVec2(WIN_OUTPUT_FK_WIDTH, WIN_OUTPUT_FK_HEIGHT))) {
         ImGui::SeparatorText("FK solutions");
+
+
         ImGui::EndChild();
     }
     if(takePerf_tab_0) perf_tab0.set_T1("T:FK_sol"); //perf time_point:1
@@ -455,29 +452,58 @@ void tab_1(void) {
     static std::unique_lock<std::mutex> u_lck_bmpObj(bmpObj.mtx, std::defer_lock);
     static std::unique_lock<std::mutex> u_lck_ndt(t_bitArr.imgMutex, std::defer_lock);
 
+    static bool remote_connect  = false;
+    static bool remote_connect_p= false;
+    if(remote_connect != remote_connect_p) {
+        if(remote_connect) { //the switch has been turned from off->on
+            if(!t_bitArr.imgInit.load()) {
+                if(t_bitArr.func_init()) {
+                    std::cerr << t_bitArr._info_name << " func_init() failed. code: "<<t_bitArr._error_code << std::endl;
+                    remote_connect = false;
+                }
+                else {
+
+                    remote_connect = true;
+                }
+            }
+        }
+        remote_connect_p = remote_connect;
+    }
+
     if(init) {
         imgSize[0] = al_get_bitmap_width(bmpObj.BMP());
         imgSize[1] = al_get_bitmap_height(bmpObj.BMP());
     }
-    u_lck_ndt.lock();
-    u_lck_bmpObj.lock();
-    if(t_bitArr.imgInit) {
+    if(t_bitArr.imgInit.load()) {
+        u_lck_ndt.lock();
+        u_lck_bmpObj.lock();
+        
         bmpObj.arr = t_bitArr.imgArr;
+        
+        bmpObj.newTask = true;
+    
+        u_lck_bmpObj.unlock();
+        u_lck_ndt.unlock();
     }
-    u_lck_bmpObj.unlock();
-    u_lck_ndt.unlock();
-    bmpObj.newTask = true;
     
+#if _BM_DEFINE
+    Delays_table(perf_loadBitmap_func,"Delays table","Tab1 delays","Delays table");
+#endif
 
-    
-    if(_BM_DEFINE) Delays_table(perf_loadBitmap_func,"Delays table","Tab1 delays","Delays table");
-
-    
     while(bmpObj.newTask.load() && bmpObj.localRunning.load());
 
-    ImGui::SetCursorPos(io.MousePos);
-    ImGui::Image((ImTextureID)(intptr_t)bmpObj.BMP(), ImVec2(imgSize[0], imgSize[1]));
+    if(ImGui::BeginChild("Settings", ImVec2(0, WIN_HEIGHT-imgSize[1]*0.75-100))) {
+        ImGui::SeparatorText("Settings");
+        ToggleButton("Connect", &remote_connect);
 
+        ImGui::EndChild();
+    }
+    if(ImGui::BeginChild("Data", ImVec2(0, imgSize[1]*0.75+50))) {
+        ImGui::SeparatorText("Data");
+
+        ImGui::Image((ImTextureID)(intptr_t)bmpObj.BMP(), ImVec2(imgSize[0]*0.75, imgSize[1]*0.75));
+        ImGui::EndChild();
+    }
 
     ImGui::EndGroup();
     if(init) init=false;
