@@ -45,24 +45,29 @@ int main(int argc, char** argv) {
     // pthread_t thread_id;
     tcpObj = NETWORKCLASS("ANY", port);
     if(!tcpObj.func_createSocket(AF_INET, SOCK_STREAM)) exit(1);
+
     int _yes = 1;
-    // if(setsockopt(tcpObj.get_localSocket(), SOL_SOCKET, SO_REUSEADDR, &_yes, sizeof(_yes))==-1) {
-    //     perror("setsockopt");
-    //     exit(1);
-    // }
+    if(setsockopt(tcpObj.get_localSocket(), SOL_SOCKET, SO_REUSEADDR, &_yes, sizeof(_yes))==-1) {
+        perror("setsockopt");
+        exit(1);
+    }
     if(!tcpObj.func_bind()) exit(1);
     
+
+    char        cli_IP[INET_ADDRSTRLEN];
+    uint16_t    cli_PORT;
     while(true) {
         if(__VERBOSE) std::cout << "while loop iteration" << std::endl;
         /*if((remoteSocket = accept(localSocket, (struct sockaddr*)&remoteAddr, (socklen_t*)&addrLen)) < 0) {
             std::cerr << "accept failed!" << std::endl;
             exit(1);
         }*/
-        if(!(
-            tcpObj.func_listen() &&
-            tcpObj.func_accept()
-        )) exit(1);
-        if(__VERBOSE) std::cout << "Connection accepted" << std::endl;
+        if(!(tcpObj.func_listen() && tcpObj.func_accept())) exit(1);
+        // Connected to a client
+
+        inet_ntop(AF_INET, &tcpObj._remote_sockaddr_in.sin_addr, cli_IP, sizeof(cli_IP));
+        cli_PORT = htons(tcpObj._remote_sockaddr_in.sin_port);
+        std::cout << "Connection accepted. Client info [IP:"<<cli_IP<<", PORT:"<<cli_PORT<<"]"<< std::endl;
         //pthread_create(&thread_id, NULL, display, &remoteSocket);
         display();
         if(__VERBOSE) std::cout << std::endl << "--------------------" << std::endl;
@@ -89,13 +94,13 @@ void *display(/*void *ptr*/) {
 
     if(__VERBOSE) std::cout << "Image size: " << imgSize << std::endl;
 
-    char inpMsg[10];
+    char inpMsg[11];
     while(true) {
         if((bytes = tcpObj.func_recv(1, inpMsg, 10, MSG_WAITALL))==-1) {
             perror("recv() for initial signal failed: ");
             exit(1);
         }
-        std::cout << "initial received: \""<<inpMsg<<"\"" << std::endl;
+        inpMsg[bytes] = '\0';
         if(!strcmp(inpMsg, "disconnect")) {
             std::cout << "disconnect msg received. Exiting client connection."<<std::endl;
             break;

@@ -175,7 +175,7 @@ bool NETWORKCLASS::func_accept() {
         return false;
     }
 #else
-    if((_remoteSocket = accept(_localSocket, (struct sockaddr*)&_remoteSocket, (socklen_t*)&_sockAddrLen)) < 0) {
+    if((_remoteSocket = accept(_localSocket, (struct sockaddr*)&_remote_sockaddr_in, (socklen_t*)&_sockAddrLen)) < 0) {
         std::cout << "accept() failed" << std::endl;
         return false;
     }
