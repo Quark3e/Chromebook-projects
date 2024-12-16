@@ -138,7 +138,8 @@ class NETWORK_DATA_THREADCLASS {
     NETWORK_DATA_THREADCLASS(bool _init, std::string _ipAddress=DEFAULT_IPADDR, int _port=DEFAULT_PORT);
     ~NETWORK_DATA_THREADCLASS();
 
-    bool    func_init();
+    
+    int         func_init();
 
     bool        set_IPADDRESS(std::string _ipAddress);
     bool        set_PORT(int _port);

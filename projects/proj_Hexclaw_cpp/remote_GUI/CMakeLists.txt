@@ -49,7 +49,7 @@ file(GLOB imgui_depends CONFIGURE_DEPENDS
 )
 
 find_library(libHexclawDataThread
-    "hexclaw_networkDataThread"
+    "hexclaw_networkDataThread"p
 )
 
 # if(WIN32)

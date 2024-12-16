@@ -60,7 +60,7 @@ int&        NETWORK_DATA_THREADCLASS::get_localSocket() { return _localSocket; }
 int&        NETWORK_DATA_THREADCLASS::get_remoteSocket() { return _remoteSocket; }
 #endif
 
-bool NETWORK_DATA_THREADCLASS::func_init() {
+int NETWORK_DATA_THREADCLASS::func_init() {
     if(this->_init) return true;
 #if _WIN32
     WSADATA wsaData;

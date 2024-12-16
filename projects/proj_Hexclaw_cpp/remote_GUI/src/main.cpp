@@ -27,8 +27,6 @@
  */
 
 
-
-// #include "../include/includes.hpp"
 #include <includes.hpp>
 
 
@@ -41,6 +39,7 @@ int main(int argc, char** argv) {
             }
         }
     }
+
 
     std::string path = getFileCWD(true);
     // std::cout<<path<<std::endl;
@@ -60,6 +59,8 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
     mtx_print("");
+
+    
     // for(const auto& entry: std::filesystem)
 
     guiSettings_desc.add("Link to server", std::string("whether to attempt to connect to Hexclaw Server at intervals"));

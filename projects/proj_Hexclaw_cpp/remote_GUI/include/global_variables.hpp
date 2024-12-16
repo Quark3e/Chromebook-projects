@@ -78,11 +78,7 @@ inline bool loadBitmap_fromBitArray(
     static bool init = true;
     assert(_bitmap);
     size_t numBytes = imageFormats.get(_colourFormat).get("n-bytes");
-    if(
-        (!_incompleteArray && _bitArray->size() != numBytes * _width * _height)
-        // imageFormats.find(_colourFormat)
-    ) {
-        // mtx_print("bmp: size doesnt match: arrSize="+std::to_string(_bitArray->size())+" exp size="+std::to_string(numBytes*_width*_height));
+    if((!_incompleteArray && _bitArray->size() != numBytes * _width * _height)) {
         return false;
     }
 
@@ -91,13 +87,9 @@ inline bool loadBitmap_fromBitArray(
     int pixel = 0, currByte = 0;
     size_t pos[2] = {0, 0};
     ALLEGRO_COLOR col;
-    // al_set_target_bitmap(_bitmap);
-
-    // mtx_print("T1: al_lock_bitmap()");
-    // ALLEGRO_LOCKED_REGION* lockedReg = al_lock_bitmap(_bitmap, al_get_bitmap_format(_bitmap), ALLEGRO_LOCK_WRITEONLY);
+    
     ALLEGRO_LOCKED_REGION* lockedReg = al_lock_bitmap(_bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
     if(!lockedReg) {
-        // mtx_print("bmp: failed locked region");
         return false;
     }
     assert(lockedReg);
@@ -105,12 +97,10 @@ inline bool loadBitmap_fromBitArray(
     if(_BM_DEFINE) perf_loadBitmap_func.set_T1("set_target()");
     if(_BM_DEFINE) perf_loadBitmap_func.set_T0("loop start",  _bitArray->size());
 
-    // mtx_print("T1: bitArray->size() loop");
     size_t iCnt = 0;
     size_t iLim = _bitArray->size() / 60;
     bool iTrue = true;
 
-    // mtx_print("bmp: arr size:"+std::to_string(_bitArray->size()));
     for(size_t i=0; i<_bitArray->size(); i++) {
         if(currByte>=numBytes-1) { //new pixel
             
@@ -223,8 +213,8 @@ inline void HelpMarker(const char* desc, const char* symb="(?)") {
     }
 }
 
-//not sure if allegro5 is thread safe, so not sure if i can safely call al_put_pixel whilst runnign other allegro methods..
-/// Mutex specificallyf or processing the bitArrays into ALLEGRO_BITMAP variable
+//not sure if allegro5 is thread safe, so not sure if i can safely call al_put_pixel whilst running other allegro methods..
+/// Mutex specifically for processing the bitArrays into ALLEGRO_BITMAP variable
 // std::mutex mtx_allegroBitmapProcess;
 
 class al_bmp_threadClass {
@@ -282,7 +272,6 @@ inline void threadTask_bitArrayProcess(
     (*classBMP_obj).localRunning = true;
     while((*classBMP_obj).runningPtr->load()) {
         if((*classBMP_obj).newTask.load()) {
-            // mtx_print("T1: new task:");
             (*classBMP_obj).mtx.lock();
         
             if(loadBitmap_fromBitArray(
@@ -293,24 +282,20 @@ inline void threadTask_bitArrayProcess(
                 (*classBMP_obj).height,
                 (*classBMP_obj).incomplete
             )) {
-                // mtx_print("T1: loadBitmap: false");
+                
             }
 
             (*classBMP_obj).newTask = false;
             (*classBMP_obj).mtx.unlock();
 
-            // mtx_print("T1: end of task");
+
         }
         else {
-            // mtx_print("T1: task not called");
+            
         }
-        // mtx_print("T1: end of iter.k");
         (*classBMP_obj).newTask = false;
     }
     (*classBMP_obj).localRunning = false;
-    // mtx_print("T1: closing");
-    // mtx_print("T1: closing: "+formatNumber<bool>((*classBMP_obj).runningPtr->load(), 0, 0));
-
 }
 
 // extern ALLEGRO_THREAD   *th_allegThread;
@@ -327,8 +312,7 @@ inline void* th_allegFunc(ALLEGRO_THREAD* th_alleg, void* arg) {
             // mtx_print("T1: new task:");
             bmpClassObj.mtx.lock();
             // al_lock_mutex(th_allegMutex);
-        
-            // mtx_print("T1: loadBitmap..()");
+            
             loadBitmap_fromBitArray(
                 bmpClassObj.BMP(),
                 &(bmpClassObj.arr),
@@ -340,18 +324,15 @@ inline void* th_allegFunc(ALLEGRO_THREAD* th_alleg, void* arg) {
 
             bmpClassObj.newTask = false;
             bmpClassObj.mtx.unlock();
-            // al_unlock_mutex(th_allegMutex);
             
             bmpClassObj.newTask = false;
-            // mtx_print("T1: end of new task");
+            
         }
         else {
-            // mtx_print("T1: task not called");
+            
         }
     }
     bmpClassObj.localRunning = false;
-    // mtx_print("T1: closing");
-    // mtx_print("T1: closing: "+formatNumber<bool>((*classBMP_obj).runningPtr->load(), 0, 0));
 }
 
 // boolean for whether the main program loop is to be running (this set to `false` will close the program)

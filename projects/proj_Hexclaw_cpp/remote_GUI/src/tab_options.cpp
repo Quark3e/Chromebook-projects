@@ -449,15 +449,6 @@ void tab_1(void) {
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
     ImGui::BeginGroup();
-    // ImGui::Image()
-    // al_draw_bitmap(bitmap_test, 5, 5, 0);
-    
-    // al_flip_display();
-    // ImGui::Text("pointer = %x", my_image_texture);
-    // ImGui::Text("size = %d x %d", my_image_width, my_image_height);
-    // ImGui::Image((ImTextureID)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
-
-    // al_draw_indexed_prim()
     
     static std::vector<uint8_t> imgBits;
     static int imgSize[2] = {al_get_bitmap_width(bmpObj.BMP()), al_get_bitmap_height(bmpObj.BMP())};
@@ -465,23 +456,9 @@ void tab_1(void) {
     static std::unique_lock<std::mutex> u_lck_ndt(t_bitArr.imgMutex, std::defer_lock);
 
     if(init) {
-
-        // u_lck_bmpObj.lock();
-        // al_lock_mutex(th_allegMutex);
         imgSize[0] = al_get_bitmap_width(bmpObj.BMP());
         imgSize[1] = al_get_bitmap_height(bmpObj.BMP());
-        // int x, y;
-        // int cnt = 0;
-        // for(int i=0; i<imgSize[0]*imgSize[1]*1; i++) {
-        //     y = floor(i/imgSize[1]);
-        //     x = i%imgSize[0];
-        //     bmpObj.arr.push_back((float(x)/(imgSize[0]))*255);
-        // }
-        // u_lck_bmpObj.unlock();
-        // // al_unlock_mutex(th_allegMutex);
-        // bmpObj.newTask = true;
     }
-    // mtx_print("main: request");
     u_lck_ndt.lock();
     u_lck_bmpObj.lock();
     if(t_bitArr.imgInit) {
@@ -489,71 +466,19 @@ void tab_1(void) {
     }
     u_lck_bmpObj.unlock();
     u_lck_ndt.unlock();
-
     bmpObj.newTask = true;
     
-    // std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-    // while(bmpObj.newTask.load() && bmpObj.localRunning.load()) {
-        // mtx_print("T0: waiting", false);
-        // if(u_lck_bmpObj.try_lock()) {
-        //     u_lck_bmpObj.unlock();
-        //     break;
-        // }
-        // std::this_thread::sleep_for(std::chrono::milliseconds(2));
-    // }
-    // assert(loadBitmap_fromBitArray(bmpObj.BMP(), &(bmpObj.arr), "GRAY", bmpObj.width, bmpObj.height));
-
+    
     if(_BM_DEFINE) Delays_table(perf_loadBitmap_func,"Delays table","Tab1 delays","Delays table");
 
-
-    // al_set_target_bitmap(bitmap_test);
-        // static float w, h, w1, h1;
-        // static ALLEGRO_COLOR col = al_map_rgba(200, 50, 50, 220);
-        // static uint8_t frameCount = 0;
-        // frameCount++;
-        // static bool evens = false;
-        // static int  intCnt= 0;
-        // if(frameCount>2) {
-        //     evens = !evens;
-        //     frameCount = 0; 
-        //     for(int x_=intCnt*w1; x_<(intCnt+1)*w1; x_++) {
-        //         for(int y_=intCnt*h1; y_<(intCnt+1)*h1; y_++) {
-        //             al_put_pixel(x_, y_, al_map_rgba(0, 0, 0, 0));
-        //         }
-        //     }
-        //     intCnt++;
-        //     if(intCnt>=4) intCnt = 0;
-        // }
-        // if(init) {
-        //     w = al_get_bitmap_width(bitmap_test);
-        //     h = al_get_bitmap_height(bitmap_test);
-        //     w1= w/4;
-        //     h1= h/4;
-        // }
-        // for(int x_=intCnt*w1; x_<(intCnt+1)*w1; x_++) {
-        //     for(int y_=intCnt*h1; y_<(intCnt+1)*h1; y_++) {
-        //         al_put_pixel(x_, y_, col);
-        //     }
-        // }
-    // al_set_target_backbuffer(display);
     
-    
-
     while(bmpObj.newTask.load() && bmpObj.localRunning.load());
 
-    // al_lock_mutex(th_allegMutex);
-    // if(u_lck_bmpObj.try_lock()) {
-    // u_lck_bmpObj.lock();
     ImGui::SetCursorPos(io.MousePos);
     ImGui::Image((ImTextureID)(intptr_t)bmpObj.BMP(), ImVec2(imgSize[0], imgSize[1]));
-    //     u_lck_bmpObj.unlock();
-    // }
-    // else {
-    //     mtx_print("T0: try lock failed: "+formatNumber<bool>(bmpObj.newTask.load(), 0, 0, "right"));
-    // }
-    
-    // al_unlock_mutex(th_allegMutex);
+
+
     ImGui::EndGroup();
     if(init) init=false;
 }
