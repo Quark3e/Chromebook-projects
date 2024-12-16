@@ -140,6 +140,7 @@ class NETWORK_DATA_THREADCLASS {
     NETWORK_DATA_THREADCLASS(bool _init, std::string _ipAddress=DEFAULT_IPADDR, int _port=DEFAULT_PORT);
     ~NETWORK_DATA_THREADCLASS();
 
+
     std::atomic<int>    _error_code{0};
     /**
      * Atomic boolean for whether the class is connected to the service

@@ -455,7 +455,7 @@ void tab_1(void) {
     static bool remote_connect  = false;
     static bool remote_connect_p= false;
     if(remote_connect != remote_connect_p) {
-        if(remote_connect) { //the switch has been turned from off->on
+        if(remote_connect) { //the switch has been turned on: off->on
             if(!t_bitArr.imgInit.load()) {
                 if(t_bitArr.func_init()) {
                     std::cerr << t_bitArr._info_name << " func_init() failed. code: "<<t_bitArr._error_code << std::endl;
@@ -467,6 +467,12 @@ void tab_1(void) {
                 }
             }
         }
+        else { //switch has been turned off: on->off
+            std::cout << "cam has been turned off. Ntd object has been re-created" << std::endl;
+            (&t_bitArr)->~NETWORK_DATA_THREADCLASS();
+            new (&t_bitArr) NETWORK_DATA_THREADCLASS(false, "192.168.1.177", 1086);
+        // t_bitArr.runLoop = remote_connect;
+        }
         remote_connect_p = remote_connect;
     }
 
@@ -474,7 +480,7 @@ void tab_1(void) {
         imgSize[0] = al_get_bitmap_width(bmpObj.BMP());
         imgSize[1] = al_get_bitmap_height(bmpObj.BMP());
     }
-    if(t_bitArr.imgInit.load()) {
+    if(t_bitArr.imgInit.load() && t_bitArr.runLoop.load()) {
         u_lck_ndt.lock();
         u_lck_bmpObj.lock();
         
@@ -492,9 +498,11 @@ void tab_1(void) {
 
     while(bmpObj.newTask.load() && bmpObj.localRunning.load());
 
-    if(ImGui::BeginChild("Settings", ImVec2(0, WIN_HEIGHT-imgSize[1]*0.75-100))) {
+    if(ImGui::BeginChild("Settings", ImVec2(0, WIN_HEIGHT-imgSize[1]*0.75-150))) {
         ImGui::SeparatorText("Settings");
         ToggleButton("Connect", &remote_connect);
+        ImGui::SameLine();
+        ImGui::TextUnformatted((t_bitArr._connected.load()? "connected" : "disconnected"));
 
         ImGui::EndChild();
     }
