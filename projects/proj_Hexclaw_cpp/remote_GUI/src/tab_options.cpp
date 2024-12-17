@@ -471,7 +471,6 @@ void tab_1(void) {
             std::cout << "cam has been turned off. Ntd object has been re-created" << std::endl;
             (&t_bitArr)->~NETWORK_DATA_THREADCLASS();
             new (&t_bitArr) NETWORK_DATA_THREADCLASS(false, "192.168.1.177", 1086);
-        // t_bitArr.runLoop = remote_connect;
         }
         remote_connect_p = remote_connect;
     }
@@ -498,11 +497,22 @@ void tab_1(void) {
 
     while(bmpObj.newTask.load() && bmpObj.localRunning.load());
 
+
     if(ImGui::BeginChild("Settings", ImVec2(0, WIN_HEIGHT-imgSize[1]*0.75-150))) {
         ImGui::SeparatorText("Settings");
         ToggleButton("Connect", &remote_connect);
         ImGui::SameLine();
         ImGui::TextUnformatted((t_bitArr._connected.load()? "connected" : "disconnected"));
+        
+        ImGui::PushID(1);
+        ImGui::Text("IP  "); ImGui::SameLine();
+        ImGui::InputText("", &t_bitArr._local_IPADDRESS);
+        ImGui::PopID();
+
+        ImGui::PushID(2);
+        ImGui::Text("PORT"); ImGui::SameLine();
+        ImGui::InputInt("", &t_bitArr._local_PORT);
+        ImGui::PopID();
 
         ImGui::EndChild();
     }

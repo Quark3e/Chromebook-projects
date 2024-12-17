@@ -46,6 +46,8 @@ std::atomic<bool> running{true};
 std::mutex print_mtx;
 NETWORK_DATA_THREADCLASS t_bitArr(false, "192.168.1.177", 1086);
 
+// std::string remote_IP
+
 
 float input_IK_pos[3]    = {0, 200, 150};
 float input_IK_orient[3] = {0, 0, 0};

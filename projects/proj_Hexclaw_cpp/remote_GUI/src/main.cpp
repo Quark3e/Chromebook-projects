@@ -96,7 +96,8 @@ int main(int argc, char** argv) {
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_mouse_event_source());
 
-
+    t_bitArr.set_IPADDRESS("192.168.1.177");
+    t_bitArr.set_PORT(1086);
     // if(t_bitArr.func_init()) {
     //     std::cout << "t_bitArr .init() failed. Class not initialised. Code: "<<t_bitArr._error_code << std::endl;
     // }

@@ -75,6 +75,7 @@ add_executable(remote_gui
     ${DIR_HC_USEFUL}/robotics/pathSchedule.cpp
     ${DIR_IMGUI}/imgui/backends/imgui_impl_allegro5.cpp
     ${imgui_depends}
+    ${DIR_IMGUI}/imgui/misc/cpp/imgui_stdlib.cpp
 )
 
 target_link_libraries(remote_gui

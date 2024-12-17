@@ -143,7 +143,7 @@ int NETWORK_DATA_THREADCLASS::func_createSocket(int _sock_family, int _sock_type
     return 0;
 }
 int NETWORK_DATA_THREADCLASS::func_connect() {
-    std::cout << _local_IPADDRESS << std::endl;
+    // std::cout << _local_IPADDRESS << std::endl;
 
     _remote_sockaddr_in.sin_family = AF_INET;
     _remote_sockaddr_in.sin_addr.s_addr = inet_addr(_local_IPADDRESS.c_str());
