@@ -26,11 +26,12 @@ NETWORK_DATA_THREADCLASS::~NETWORK_DATA_THREADCLASS() {
 
 
 bool NETWORK_DATA_THREADCLASS::_closing() {
+    this->close_local();
+    this->close_remote();
 #if _WIN32
-    closesocket(_localSocket);
     WSACleanup();
 #else
-    close(_remoteSocket);
+
 #endif
     this->_connected = false;
     // mtx_print("NDT: closing");
@@ -97,6 +98,12 @@ int NETWORK_DATA_THREADCLASS::func_init() {
         std::cerr << this->_info_name<<"::func_createSocket() failed."<<std::endl;
         return 1;
     }
+    int _optval = 1;
+    if(setsockopt(this->_localSocket, SOL_SOCKET, SO_REUSEADDR, &_optval, sizeof(_optval))) {
+        this->_error_code = 3;
+        std::cerr << this->_info_name<<" setsockopt() failed." << std::endl;
+        return 3;
+    }
     if(func_connect()) {
         std::cerr << this->_info_name<<"::func_connect() failed."<<std::endl;
         this->_error_code = 2;
@@ -130,7 +137,9 @@ int NETWORK_DATA_THREADCLASS::func_createSocket(int _sock_family, int _sock_type
         // std::cout << "Socket successfully created." << std::endl;
     }
 #endif
-    
+    this->closedSocket_local = false;
+
+
     return 0;
 }
 int NETWORK_DATA_THREADCLASS::func_connect() {
@@ -216,6 +225,7 @@ int NETWORK_DATA_THREADCLASS::func_accept() {
         std::cout << "Successfully accepted connection." << std::endl;
         // getsockname(_remoteSocket, )
     }
+    this->closedSocket_remote = false;
 
     return 0;
 }
@@ -304,6 +314,27 @@ int NETWORK_DATA_THREADCLASS::func_sendto(int    _sock, const void* _sendBuf, si
 }
 #endif
 
+int NETWORK_DATA_THREADCLASS::close_local() {
+    if(!closedSocket_local) {
+#if WIN32
+        closesocket(_localSocket);
+#else
+        close(_localSocket);
+#endif
+        closedSocket_local = true;
+    }
+}
+int NETWORK_DATA_THREADCLASS::close_remote() {
+    if(!closedSocket_remote) {
+#if WIN32
+        closeSocket(_remoteSocket);
+#else
+        close(_remoteSocket);
+#endif
+        closedSocket_remote = true;
+    }
+}
+
 void _NDT_threadFunc(NETWORK_DATA_THREADCLASS* ndt_obj) {
     std::unique_lock<std::mutex> u_lck_imgArr((*ndt_obj).imgMutex, std::defer_lock);
     (*ndt_obj).isRunning = true;
@@ -379,5 +410,10 @@ void _NDT_threadFunc(NETWORK_DATA_THREADCLASS* ndt_obj) {
         exit(1);
     }
     (*ndt_obj).isRunning = false;
+    if(shutdown((*ndt_obj)._localSocket, SHUT_RDWR)) {
+        perror("shutdown of socket connection failed: ");
+        exit(1);
+    }
+    while(ndt_obj->func_recv(0)>0); //keep reading until error is returned
 }
 

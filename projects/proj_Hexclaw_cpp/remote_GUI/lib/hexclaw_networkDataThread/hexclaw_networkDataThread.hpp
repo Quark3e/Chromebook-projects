@@ -106,6 +106,12 @@ class NETWORK_DATA_THREADCLASS {
     int     func_sendto(int    _sock, const void* _sendBuf, size_t _nBytes, int _flags, const sockaddr* _to_addr, int _to_addr_len);
 #endif
     
+    bool    closedSocket_remote = true;
+    bool    closedSocket_local  = true;
+
+    int     close_remote();
+    int     close_local();
+
     bool _closing();
 
     std::thread threadObj;
