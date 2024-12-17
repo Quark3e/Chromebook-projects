@@ -11,12 +11,17 @@ NETWORKCLASS::NETWORKCLASS(std::string _ipAddress, int _port) {
     this->func_init();
 }
 NETWORKCLASS::~NETWORKCLASS() {
+    if(!this->socket_closed) {
 #if _WIN32
-    closesocket(_localSocket);
-    WSACleanup();
+        closesocket(_localSocket);
+        closesocket(_remoteSocket);
+        WSACleanup();
 #else
-    close(_remoteSocket);
+        close(_localSocket);
+        close(_remoteSocket);
 #endif
+        this->socket_closed = true;
+    }
     std::cout << "socket closed." << std::endl;
 }
 
@@ -99,6 +104,7 @@ int NETWORKCLASS::func_createSocket(int _sock_family, int _sock_type, int _sock_
         // std::cout << "Socket successfully created." << std::endl;
     }
 #endif
+    this->socket_closed = false;
     
     return 0;
 }

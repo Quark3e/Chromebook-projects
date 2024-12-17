@@ -150,6 +150,10 @@ void *display(/*void *ptr*/) {
         exit(1);
     }
     while(tcpObj.func_recv(1)>0); //read until socket recv returns -1;
+    if(close(tcpObj.get_remoteSocket())) {
+        perror("failed closing remote socket: ");
+        exit(1);
+    }
     
     return nullptr;
 }

@@ -51,6 +51,8 @@ class NETWORKCLASS {
     sockaddr_in _local_sockaddr_in;
     sockaddr_in _remote_sockaddr_in;
 
+    bool socket_closed = true;
+
     int _sockAddrLen = sizeof(sockaddr_in);
 
     char sendBuffer[MAX_MESSAGE_SIZE];
