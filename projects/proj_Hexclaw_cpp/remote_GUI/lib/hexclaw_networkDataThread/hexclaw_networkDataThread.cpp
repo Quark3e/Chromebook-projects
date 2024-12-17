@@ -8,17 +8,23 @@
 NETWORK_DATA_THREADCLASS::NETWORK_DATA_THREADCLASS(bool _init, std::string _ipAddress, int _port) {
     this->_local_IPADDRESS = _ipAddress;
     this->_local_PORT = _port;
-    this->func_init();
+    if(_init) this->func_init();
 }
 NETWORK_DATA_THREADCLASS::~NETWORK_DATA_THREADCLASS() {
     if(this->isRunning.load()) {
         this->running = false;
         this->threadObj.join();
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
+    mtx_print(this->_info_name+"::destructor has been called. Closing..");
+    while(this->isRunning) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     assert(this->_closing()==0);
+    mtx_print(this->_info_name+"::destructor has been successfully called. Closed");
 }
+
+
 bool NETWORK_DATA_THREADCLASS::_closing() {
 #if _WIN32
     closesocket(_localSocket);
