@@ -44,14 +44,14 @@ int main(int argc, char** argv) {
 
     // pthread_t thread_id;
     tcpObj = NETWORKCLASS("ANY", port);
-    if(!tcpObj.func_createSocket(AF_INET, SOCK_STREAM)) exit(1);
+    if(tcpObj.func_createSocket(AF_INET, SOCK_STREAM)) exit(1);
 
     int _yes = 1;
     if(setsockopt(tcpObj.get_localSocket(), SOL_SOCKET, SO_REUSEADDR, &_yes, sizeof(_yes))==-1) {
         perror("setsockopt");
         exit(1);
     }
-    if(!tcpObj.func_bind()) exit(1);
+    if(tcpObj.func_bind()) exit(1);
     
 
     char        cli_IP[INET_ADDRSTRLEN];
@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
             std::cerr << "accept failed!" << std::endl;
             exit(1);
         }*/
-        if(!(tcpObj.func_listen() && tcpObj.func_accept())) exit(1);
+        if((tcpObj.func_listen() || tcpObj.func_accept())) exit(1);
         // Connected to a client
 
         inet_ntop(AF_INET, &tcpObj._remote_sockaddr_in.sin_addr, cli_IP, sizeof(cli_IP));
@@ -127,20 +127,6 @@ void *display(/*void *ptr*/) {
             std::cout << "  sent arrSize: " << arrSize << std::endl;
         }
 
-        // std::cout << "-recv confirmSize\n";
-        // uint16_t confirmSize = 0;
-        // if(tcpObj.func_recv(1, &confirmSize, sizeof(confirmSize), MSG_WAITALL)==-1) {
-        //     std::cout << "failed to receive confirmed arrSize response." << std::endl;
-        //     std::cout << "errno: " << errno << std::endl;
-        //     break;
-        // }
-        // else if(confirmSize!=arrSize) {
-        //     std::cout << "  confirmed arrSize response: "<<confirmSize << " doesnt match sent size: " << arrSize << std::endl;
-        //     std::cout << "errno: " << errno << std::endl;
-        //     break;
-        // }
-        // std::cout << "  received: " << tcpObj._bytesRecv << " bytes" << std::endl;
-
         if(__VERBOSE) std::cout << "-send bitArr\n";
         if((bytes=tcpObj.func_send(1, bitArr.data(), arrSize*sizeof(bitArr[0]), 0)) < 0) {
             std::cout << "failed to send data." << std::endl;
@@ -157,13 +143,13 @@ void *display(/*void *ptr*/) {
         //     std::cout << "exiting display" << std::endl;
         //     break;
         // }
-        // // if((bytes=send(socket, reinterpret_cast<const char*>(imgGray.data), imgSize, 0)) < 0) {
-        // //     std::cerr << "bytes = " << bytes << std::endl;
-        // //     break;
-        // // }
-
         if(__VERBOSE) std::cout << std::endl;
     }
+    if(shutdown(tcpObj.get_localSocket(), SHUT_RDWR)) {
+        perror("shutdown of connection failed: ");
+        exit(1);
+    }
+    while(tcpObj.func_recv(1)>0); //read until socket recv returns -1;
     
     return nullptr;
 }

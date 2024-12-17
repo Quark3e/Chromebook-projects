@@ -80,15 +80,15 @@ class NETWORKCLASS {
     NETWORKCLASS(std::string _ipAddress=DEFAULT_IPADDR, int _port=DEFAULT_PORT);
     ~NETWORKCLASS();
 
-    bool    func_init();
-    bool    func_createSocket(int _sock_family, int _sock_type, int _sock_proto=0);
-    bool    func_connect();
-    bool    func_bind();
-    bool    func_listen(int _numQueued=1);
-    bool    func_accept();
-    bool    func_recv(int recvFrom=1);
+    int     func_init();
+    int     func_createSocket(int _sock_family, int _sock_type, int _sock_proto=0);
+    int     func_connect();
+    int     func_bind();
+    int     func_listen(int _numQueued=1);
+    int     func_accept();
+    int     func_recv(int recvFrom=1);
     int     func_recv(int recvFrom, void* _recvBuf, size_t _nBytes, int _flags);
-    bool    func_send(int sendTo=1);
+    int     func_send(int sendTo=1);
     int     func_send(int sendTo, const void* _sendBuf, size_t _nBytes, int _flags);
 #if _WIN32
     int     func_recvfrom(SOCKET _sock, void* _sendBuf, size_t _nBytes, int _flags, sockaddr* _from_addr, void* _from_addr_len);

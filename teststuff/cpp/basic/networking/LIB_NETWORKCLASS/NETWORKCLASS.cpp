@@ -51,8 +51,8 @@ int&        NETWORKCLASS::get_localSocket() { return _localSocket; }
 int&        NETWORKCLASS::get_remoteSocket() { return _remoteSocket; }
 #endif
 
-bool NETWORKCLASS::func_init() {
-    if(this->_init) return true;
+int NETWORKCLASS::func_init() {
+    if(this->_init) return 0;
 #if _WIN32
     WSADATA wsaData;
     int wsaerr;
@@ -61,7 +61,7 @@ bool NETWORKCLASS::func_init() {
 
     if(wsaerr!=0) {
         std::cout << "The winsock dll not found" << std::endl;
-        return false;
+        return -1;
     }
     else {
         std::cout << "The winsock dll found" << std::endl;
@@ -75,9 +75,9 @@ bool NETWORKCLASS::func_init() {
 	memset(&_remote_sockaddr_in, 0, sizeof(_remote_sockaddr_in));
 
     this->_init = true;
-    return true;
+    return 0;
 }
-bool NETWORKCLASS::func_createSocket(int _sock_family, int _sock_type, int _sock_proto) {
+int NETWORKCLASS::func_createSocket(int _sock_family, int _sock_type, int _sock_proto) {
 #if _WIN32
     this->_localSocket = INVALID_SOCKET;
     this->_localSocket = socket(_sock_family, _sock_type, _sock_proto);
@@ -85,7 +85,7 @@ bool NETWORKCLASS::func_createSocket(int _sock_family, int _sock_type, int _sock
     if(_localSocket==INVALID_SOCKET) {
         std::cout << "Error at socket(): " << WSAGetLastError() << std::endl;
         WSACleanup();
-        return false;
+        return -1;
     }
     else {
         // std::cout << "Socket successfully created" << std::endl;
@@ -93,16 +93,16 @@ bool NETWORKCLASS::func_createSocket(int _sock_family, int _sock_type, int _sock
 #else
     if((_localSocket = socket(_sock_family, _sock_type, _sock_proto)) < 0) {
         std::cout << "socket() failed!" << std::endl;
-        return false;
+        return -1;
     }
     else {
         // std::cout << "Socket successfully created." << std::endl;
     }
 #endif
     
-    return true;
+    return 0;
 }
-bool NETWORKCLASS::func_connect() {
+int NETWORKCLASS::func_connect() {
     std::cout << _local_IPADDRESS << std::endl;
 
     _remote_sockaddr_in.sin_family = AF_INET;
@@ -112,18 +112,18 @@ bool NETWORKCLASS::func_connect() {
     if(connect(_localSocket, reinterpret_cast<SOCKADDR*>(&_remote_sockaddr_in), sizeof(sockaddr_in)) < 0) {
         std::cout << "connect() failed." << std::endl;
         WSACleanup();
-        return false;
+        return -1;
     }
 #else
     if(connect(_localSocket, (sockaddr*)&_remote_sockaddr_in, sizeof(_remote_sockaddr_in)) < 0) {
         std::cout << "connect() failed." << std::endl;
-        return false;
+        return -1;
     }
 #endif
 
-    return true;
+    return 0;
 }
-bool NETWORKCLASS::func_bind() {
+int NETWORKCLASS::func_bind() {
 
     _local_sockaddr_in.sin_family = AF_INET;
     _local_sockaddr_in.sin_addr.s_addr = (_local_IPADDRESS=="ANY"? INADDR_ANY : inet_addr(_local_IPADDRESS.c_str()));
@@ -133,29 +133,29 @@ bool NETWORKCLASS::func_bind() {
         std::cout << "bind() failed: " << WSAGetLastError() << std::endl;
         closesocket(_localSocket);
         WSACleanup();
-        return false;
+        return -1;
     }
 #else
     if(bind(_localSocket, (const struct sockaddr*)&_local_sockaddr_in, sizeof(_local_sockaddr_in))==-1) {
         std::cout << "bind() failed!" << std::endl;
-        return false;
+        return -1;
     }
 #endif
     // else std::cout << "Socket successfully bound." << std::endl;
 
-    return true;
+    return 0;
 }
-bool NETWORKCLASS::func_listen(int _numQueued) {
+int NETWORKCLASS::func_listen(int _numQueued) {
 
 #if _WIN32
     if(listen(_localSocket, _numQueued) == SOCKET_ERROR) {
         std::cout << "listen(): Error listening on socket: " << WSAGetLastError() << std::endl;
-        return false;
+        return -1;
     }
 #else
     if(listen(_localSocket, _numQueued) < 0) {
         std::cout << "listen(): Error listening on socket. " << std::endl;
-        return false;
+        return -1;
     }
 #endif
     else {
@@ -164,20 +164,20 @@ bool NETWORKCLASS::func_listen(int _numQueued) {
         std::cout << " port : " << _local_PORT << std::endl;
     }
 
-    return true;
+    return 0;
 }
-bool NETWORKCLASS::func_accept() {
+int NETWORKCLASS::func_accept() {
 
 #if _WIN32
     if((_remoteSocket = accept(_localSocket, nullptr, nullptr)) == INVALID_SOCKET) {
         std::cout << "accept() failed: " << WSAGetLastError() << std::endl;
         WSACleanup();
-        return false;
+        return -1;
     }
 #else
     if((_remoteSocket = accept(_localSocket, (struct sockaddr*)&_remote_sockaddr_in, (socklen_t*)&_sockAddrLen)) < 0) {
         std::cout << "accept() failed" << std::endl;
-        return false;
+        return -1;
     }
 #endif
     else {
@@ -185,12 +185,11 @@ bool NETWORKCLASS::func_accept() {
         // getsockname(_remoteSocket, )
     }
 
-    return true;
+    return 0;
 }
-bool NETWORKCLASS::func_recv(int recvFrom) {
+int NETWORKCLASS::func_recv(int recvFrom) {
     this->func_recv(recvFrom, recvBuffer, sizeof(recvBuffer), 0);
-    if(_bytesRecv<0) return false;
-    return true;
+    return _bytesRecv;
 }
 int NETWORKCLASS::func_recv(int recvFrom, void* _recvBuf, size_t _nBytes, int _flags) {
     _bytesRecv = recv(
@@ -207,10 +206,9 @@ int NETWORKCLASS::func_recv(int recvFrom, void* _recvBuf, size_t _nBytes, int _f
 
     return _bytesRecv;
 }
-bool NETWORKCLASS::func_send(int sendTo) {
+int NETWORKCLASS::func_send(int sendTo) {
     this->func_send(sendTo, sendBuffer, sizeof(sendBuffer), 0);
-    if(_bytesSent<0) return false;
-    return true;
+    return _bytesSent;
 }
 int NETWORKCLASS::func_send(int sendTo, const void* _sendBuf, size_t _nBytes, int _flags) {
     _bytesSent = send(
