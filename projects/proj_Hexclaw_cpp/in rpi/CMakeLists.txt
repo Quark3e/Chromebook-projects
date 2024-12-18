@@ -47,6 +47,7 @@ add_executable(Hexclaw_Main
     ${DIR_HC_USEFUL}/diy_dictionary.cpp
     ${DIR_HC_USEFUL}/createTable.cpp
     ${DIR_HC_USEFUL}/wirelessCOM.cpp
+    ${DIR_HC_USEFUL}/stringToFunc.cpp
     ${DIR_HC_USEFUL}/IR_camTrack.cpp
     ${DIR_HC_USEFUL}/terminalMenu.cpp
     ${DIR_CPP_USEFUL}/basic/Performance/getPerformance.cpp

@@ -12,6 +12,9 @@
 #include <createTable.hpp>
 
 
+StringToFunction hexclaw_cmdArgs{};
+createTable cmdArgs_output_table;
+
 void printFuncLabel(std::string functionName) {
 	int termDim[2];
 	getTermSize(termDim[0], termDim[1]);
@@ -19,9 +22,6 @@ void printFuncLabel(std::string functionName) {
 	std::cout << functionName << std::endl;
 	std::cout << std::string(termDim[0], '-')<<std::endl;
 }
-
-StringToFunction hexclaw_cmdArgs{};
-createTable cmdArgs_output_table;
 
 /// @brief display all the command line argument flags with their descriptions
 void cmdArgs_info() {

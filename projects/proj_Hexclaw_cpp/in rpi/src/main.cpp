@@ -114,130 +114,6 @@ float zAxisFunc(float area, float posX, float posY) {
 }
 
 
-
-
-/// @brief main function to read, display and control the robot
-/// @param cap [cv::VideoCapture object pointer]: for main camera
-/// @param mode [integer]: -0: setup/calibrate hsv; -1: w. sendToServo; -2: without sendToServo; -3: w. sendToServo without cv disp.
-/// @param pcaSrc [PiPCA9682 object pointer]: for pca9685 board
-/// @return [integer]: 0 - normal function finish; -1 - exit program entirely
-/**
-int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
-	
-	//mode:
-	//- 0: setup/calibrate hsv
-	//- 1: main color tracking loop with sendToServo
-	//- 2: main color tracking loop without sendToServo
-	//- 3: main color tracking loop with sendToServo without display to a window
-
-	std::cout << "- In \"displayFunc()\"" << std::endl;
-
-	if(mode!=3) {
-		camObj[0].setup_window();
-		camObj[1].setup_window();
-	}
-
-	while(true) {
-		#if useThreads
-			thread t_cam0(cam_thread_task, ref(camObj[0]));
-			thread t_cam1(cam_thread_task, ref(camObj[1]));
-			t_cam0.join();
-			t_cam1.join();
-		#elif !useThreads
-			if(camObj[0].processCam()==-1) return 0;
-			if(zSol==3 && camObj[1].processCam()==-1) return 0;
-		#endif
-		if(camObj[0].processReturnCode==-1) {
-			std::cout << "ERROR: displayFunc(): camObj[0].processCam() returned -1." << std::endl;
-			return 1;
-		}
-		else if(camObj[1].processReturnCode==-1) {
-			std::cout << "ERROR: displayFunc(): camObj[1].processCam() returned -1." << std::endl;
-			return 1;
-		}
-
-		std::cout << "zSol=" << zSol << ": ";
-		if(mode >= 1 && camObj[0].allCnt_pos.size()>0) {
-			if(mode==1 || mode==3) {
-				cv::Size camSize = camObj[0].imgFlipped.size();
-				float camPos[2][2], inpPos[2], solvedZ;
-				camPos[0][0] = camObj[0].totCnt_pos[0];
-				camPos[0][1] = camObj[0].totCnt_pos[1];
-				if(zSol==3 && camObj[1].allCnt_pos.size()>0 && camObj[0].allCnt_pos.size()>0) {
-					camPos[1][0] = camObj[1].totCnt_pos[0];
-					camPos[1][1] = camObj[1].totCnt_pos[1];
-					inpPos[0] = camPos[0][0];
-					inpPos[1] = camPos[1][0];
-					camTri.solvePos(inpPos, solvedPos, false);
-					solvedZ = -sin(toRadians((camTri.camRes[0][1]*0.5-camObj[0].totCnt_pos[1])*camTri.camCoef[0][1]))*solvedPos[1];
-					PP[0] = axisFilter[0]*float(round(solvedPos[0]*axisScal[0]+axisOffset[0])) + (1-axisFilter[0])*PP[0];
-					PP[1] = axisFilter[1]*float(solvedZ*axisScal[1]+axisOffset[1]) + (1-axisFilter[1])*PP[1];
-					PP[2] = axisFilter[2]*float(round(solvedPos[1]*axisScal[2]+axisOffset[2])) + (1-axisFilter[2])*PP[2];
-				}
-				else {
-					inpPos[0] = camPos[0][0];
-					inpPos[1] = camPos[0][1];
-					PP[0] = axisFilter[0]*float(round(float(inpPos[0] - camSize.width/2)*axisScal[0]) + axisOffset[0]) + (1-axisFilter[0])*PP[0];
-					PP[1] = axisFilter[1]*float(round(float(camSize.height - inpPos[1])*axisScal[1]) + axisOffset[1]) + (1-axisFilter[1])*PP[1];
-					PP[2] = round((axisFilter[2]*float(axisScal[2]*zAxisFunc(camObj[0].totCnt_area, inpPos[0], inpPos[1]) + axisOffset[2]) + (1-axisFilter[2])*PP[2])/10)*10;
-				}
-
-				printf(" x:%3d y:%3d z:%3d",int(PP[0]),int(PP[1]), int(PP[2]));
-				orientObj.update(true);
-				if(HW_KINEMATICS::getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) { sendToServo(pcaSrc,new_q,current_q,false); }
-				else if(HW_KINEMATICS::findValidOrient(PP, orient, orient, new_q)) { sendToServo(pcaSrc,new_q,current_q,false); }
-				else printf("valid orient for (%d, %d, %d) not found\n", int(PP[0]), int(PP[1]), int(PP[2]));
-			}
-		}
-
-
-		cv::Mat fusedImg;
-		if(mode!=3) {
-			if(zSol==3) { cv::hconcat(camObj[0].imgFlipped,camObj[1].imgFlipped,fusedImg); }
-			else { fusedImg = camObj[0].imgFlipped; }
-		}
-		if(displayTFT) {
-			matToTFT(camObj[0].imgThreshold);
-		}
-		
-
-		//delay: 6-11ms
-		if(mode!=3) {
-			int keyInp = cv::waitKey(10);
-			cv::imshow(window_name, fusedImg);
-			// printf(" %d ", keyInp);
-			if(keyInp==27) return -1; //'esc'
-			else if(keyInp==32) break; //'space'
-			else if(keyInp==115) {
-				//'s'
-				if(mode==0) {
-					//save HSV values/
-					hsv_settingsWrite(HW_HSV, 0);
-				}
-			}
-			else if(keyInp==114) { //'r'
-				std::string inputVar = "";
-				int indVar = 0;
-				std::cout << "input: ";
-				cin >> inputVar;
-				if(inputVar=="exit") exit(1);
-				indVar = stoi(inputVar);
-				cin.clear();
-				cin.ignore();
-				hsv_settingsRead(camObj, HW_HSV, window_name, indVar);
-			}
-			else if(keyInp==116 && mode==0) {
-				//'t'
-				hsv_settingsRead(camObj, HW_HSV, window_name, 0);
-			}
-		}
-		printf("\n");
-	}
-	if(mode!=3) cv::destroyWindow(window_name);
-	return 0;
-}
-*/
-
 void loadData_csvArtif(bool printVar=true) {
 	if (printVar) std::cout << "Starting to load the data\n";
 
@@ -309,7 +185,6 @@ void loadData_csvArtif(bool printVar=true) {
 }
 
 
-
 #include <mainOptions.hpp>
 
 
@@ -356,12 +231,7 @@ int main(int argc, char* argv[]) {
 	pca.set_pwm_freq(50.0);
 
 	if(recordFrames) {
-		recObj = opencv_recorder(
-			"Hexclaw_cameraFeeds",
-			prefSize[0]*2,
-			prefSize[1]*2,
-			15
-		);
+		recObj = opencv_recorder("Hexclaw_cameraFeeds", prefSize[0]*2, prefSize[1]*2, 15);
 	}
 
 
@@ -376,10 +246,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	sendToServo(&pca, new_q, current_q, true);
-
 	HW_setup_options();
-
-
 
 
 	if(argc==2) {

@@ -280,7 +280,6 @@ const int* termMenu::driver(
 
     // createTable displayTable(display_dim[1][0]-display_dim[0][0], display_dim[1][1]-display_dim[0][1]);
 
-
     /// @brief bounding boxed table which will be displayed to terminal if cursorMode != -1
     std::vector<std::vector<std::string>> dispTable_vec(
         display_dim[1][1]-display_dim[0][1],
