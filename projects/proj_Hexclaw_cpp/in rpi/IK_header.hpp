@@ -11,11 +11,8 @@
 
 #include <diy_dictionary.hpp>
 
-#include "HW_headers/motion_control/motion_profiles.hpp"
-// #include "hexclaw_global.hpp"
-
-// using namespace std;
-
+#include "include/motion_control/motion_profiles.hpp"
+// #include "global_variables.hpp"
 
 
 
@@ -87,7 +84,7 @@ namespace HW_KINEMATICS  {
     /**Weight of the load the motor at index [] is carrying. unit: [kg]*/
     inline float sLoadWeight[6] = {0, 0.130, 0.085, 0.051, 0.03, 0.01};
 
-    /**Namespace scope array of values to store newly solved angles by HW_KINEMATICS::getAngles()*/
+    /**Namespace scope array of values to store newly solved angles by getAngles()*/
     inline float solved_q[6] = {0, 0, 0, 0, 0, 0};
 
 

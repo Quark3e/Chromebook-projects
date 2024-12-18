@@ -4,12 +4,11 @@
 #define HPP_HEXCLAW_SERVO_CONTROL
 
 
-#include "../hexclaw_global.hpp"
+#include <global_variables.hpp>
 #include "../IK_header.hpp"
 #include <PiPCA9685/PCA9685.h>
 
 using namespace PiPCA9685;
-
 
 
 /**Angle offset to apply to given angles to make sure angle-origo/0 is paralllel along the arm axis*/
@@ -21,7 +20,7 @@ inline float startup_q[6] = {0, 115, -90, 0, -25, 00};
 
 /// @brief Apply real-world servo motor offsets to input angles
 /// @param angles float()[6] values to add defaults onto: NOTE: original var will be modified
-void add_defaults(float angles[6]) {
+inline void add_defaults(float angles[6]) {
     angles[0] = offset_q[0] + angles[0];
     angles[1] = offset_q[1] + angles[1];
     angles[2] = 180 - (offset_q[2] + angles[2]);
@@ -33,7 +32,7 @@ void add_defaults(float angles[6]) {
 /// @brief apply correction function values for each servos error rate
 /// @param angles float array of rotation values to correct
 /// @return nothing. Modifies parameter variable
-void q_corrections(float angles[6]) {
+inline void q_corrections(float angles[6]) {
     float error_Consts[6] = {
         0.802139037433155,
         0.7538,
@@ -67,7 +66,7 @@ void q_corrections(float angles[6]) {
 /// @param angles angles to check
 /// @param printErrors whether to print out any exceedings onto the terminal
 /// @return boolean of whether any angles have exceeded
-bool exceedCheck(float angles[6], bool printErrors=true) {
+inline bool exceedCheck(float angles[6], bool printErrors=true) {
     bool exceeded = false;
     bool whichExceeded[6] = {false, false, false, false, false, false};
     string typeOfExceeded[6] = {"null", "null", "null", "null", "null", "null"};
@@ -108,7 +107,7 @@ bool exceedCheck(float angles[6], bool printErrors=true) {
 /// @param printResult whether to print any results/checkpoints/non-essential-info
 /// @return `0`- if successful; `-1` otherwise
 /// @note if `useDefault` is true then it'll modify `new_rotation` accordingly to default value addition
-int sendToServo(
+inline int sendToServo(
     PCA9685* pcaBoard,
     float new_rotation[6],
     float old_rotation[6],
@@ -218,7 +217,7 @@ int sendToServo(
  * `2` - {camTri.x, camTri.solvedZ, camTri.y}
  * @return `0`- if successful; `1`- if an error occured
 */
-int getCoordinates(
+inline int getCoordinates(
     int mode
 ) {
     if(mode==0) {

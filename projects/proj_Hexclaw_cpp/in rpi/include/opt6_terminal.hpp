@@ -3,9 +3,9 @@
 #ifndef HPP_HEXCLAW_OPTION_6
 #define HPP_HEXCLAW_OPTION_6
 
-#include "../hexclaw_constants.hpp"
-#include "../hexclaw_includes.hpp"
-#include "../hexclaw_global.hpp"
+#include <constants.hpp>
+#include <includes.hpp>
+#include <global_variables.hpp>
 
 
 
@@ -108,7 +108,7 @@ void HW_option6_control_panel() {
      * orient: -90:90 {min:max}
     */
     int inpLim[2][2] = {
-        {-static_cast<int>(array_sum(arm_link,6)), static_cast<int>(array_sum(arm_link,6))},
+        {-static_cast<int>(array_sum(HW_KINEMATICS::arm_link,6)), static_cast<int>(array_sum(HW_KINEMATICS::arm_link,6))},
         {-90, 90}
     };
 
@@ -205,7 +205,7 @@ void HW_option6_control_panel() {
             bool boolRow[2] = {array_bool_AND(init_PP_init[0],3), array_bool_AND(init_PP_init[1],3)};
             if(boolRow[0] && boolRow[1]) {
                 //true true: new pos, new tilt
-                if(getAngles(
+                if(HW_KINEMATICS::getAngles(
                     new_q, PP_pos,
                     toRadians(PP_tilt[0]),
                     toRadians(PP_tilt[1]),
@@ -215,7 +215,7 @@ void HW_option6_control_panel() {
                     sendToServo(&pca, new_q, current_q,false,2,0.5);
                     outMsg = "Success: sent new rotations to servo motors";
                 }
-                else if(findValidOrient(PP_pos, PP_tilt, PP_tilt, new_q)) {
+                else if(HW_KINEMATICS::findValidOrient(PP_pos, PP_tilt, PP_tilt, new_q)) {
                     for(int qu=0; qu<3; qu++) {
                         printStr = formatNumber(PP_tilt[qu],digits_integers,digits_decimals);
                         opt6_control_panel.rename_opt(
@@ -242,7 +242,7 @@ void HW_option6_control_panel() {
             infoTable.insertText("q_servo    :", 0, 2); // row[2] label
             for(int q=0; q<6; q++) {
                 infoTable.insertText("q["+std::to_string(q)+"]", q+1, 0); // column label
-                infoTable.insertNum(solved_q[q], q+1, 1, 2);
+                infoTable.insertNum(HW_KINEMATICS::solved_q[q], q+1, 1, 2);
                 infoTable.insertNum(new_q[q], q+1, 2, 2);
             }
             infoTable.strExport("",false,"\n","  ");

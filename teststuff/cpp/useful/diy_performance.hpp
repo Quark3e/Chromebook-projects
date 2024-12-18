@@ -129,6 +129,7 @@ namespace PERF {
                 _delays_ms[pos].push_back(_tempDelay);
             }
             this->_readCnt[pos]++;
+            return 0;
         }
 
         float getDelay_ms(std::string name) {

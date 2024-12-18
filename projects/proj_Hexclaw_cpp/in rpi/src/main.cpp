@@ -11,9 +11,10 @@
  */
 
 
-#include "hexclaw_constants.hpp"
-#include "hexclaw_includes.hpp"
-#include "hexclaw_global.hpp"
+#include <includes.hpp>
+#include <servo_control.hpp>
+#include <constants.hpp>
+#include <global_variables.hpp>
 
 
 /// @brief 0-direct function; 1-use 2d coefs; 2-use arificial; 3-use two_cam_triangle
@@ -28,7 +29,7 @@ void initPaths() {
     }
 
     char path[100];
-    string temp = strcat(strcpy(path, pathP), "/");
+    std::string temp = strcat(strcpy(path, pathP), "/");
     absPath = temp.substr(0, temp.find("/projects"))+"/teststuff/python/opencv/angleArea/data/csv_artif/";
 }
 
@@ -39,16 +40,16 @@ float angleArea_coef[181][181];
 /// @brief 3d artifically pre-generated area results
 float artifVal[181][181][401]; //x = [0, 90, 181] = [-90, 0, 01]
 
-void load_csvFile(string filePath = "data/csv_dataSet_pf17_fuse-True.csv") {
+void load_csvFile(std::string filePath = "data/csv_dataSet_pf17_fuse-True.csv") {
     printf("Loading csv file:\n");
-	ifstream csvFile(filePath);
+	std::ifstream csvFile(filePath);
 	if(!csvFile.is_open()) {
 		printf("error: Cannot open csv file");
-		cout << filePath << "\"\n";
+		std::cout << filePath << "\"\n";
 	}
-	string line;
-	getline(csvFile, line);
-	while(getline(csvFile, line)) {
+	std::string line;
+	std::getline(csvFile, line);
+	while(std::getline(csvFile, line)) {
 		int x, y;
 		x = stof(line.substr(0, line.find(",")));
 		line.erase(0, line.find(",")+1);
@@ -60,7 +61,7 @@ void load_csvFile(string filePath = "data/csv_dataSet_pf17_fuse-True.csv") {
 		angleArea_coef[x][y] = saveVal;
         printf("- [%d][%d]: %f\r", x, y, saveVal);
 	}
-	cout << endl;
+	std::cout << std::endl;
 	csvFile.close();
 
 }
@@ -108,7 +109,7 @@ float zAxisFunc(float area, float posX, float posY) {
 
 	int chosenIdx=0;
 	chosenIdx = getClosestValIdx(artifVal[int(Roll)+90][int(Pitch)+90],401,int(area));
-	// cout << chosenIdx << artifVal[int(Roll)+90][int(Pitch)+90][200]<< "\t";
+	// std::cout << chosenIdx << artifVal[int(Roll)+90][int(Pitch)+90][200]<< "\t";
 	return chosenIdx;
 }
 
@@ -129,7 +130,7 @@ int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
 	//- 2: main color tracking loop without sendToServo
 	//- 3: main color tracking loop with sendToServo without display to a window
 
-	cout << "- In \"displayFunc()\"" << endl;
+	std::cout << "- In \"displayFunc()\"" << std::endl;
 
 	if(mode!=3) {
 		camObj[0].setup_window();
@@ -147,15 +148,15 @@ int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
 			if(zSol==3 && camObj[1].processCam()==-1) return 0;
 		#endif
 		if(camObj[0].processReturnCode==-1) {
-			cout << "ERROR: displayFunc(): camObj[0].processCam() returned -1." << endl;
+			std::cout << "ERROR: displayFunc(): camObj[0].processCam() returned -1." << std::endl;
 			return 1;
 		}
 		else if(camObj[1].processReturnCode==-1) {
-			cout << "ERROR: displayFunc(): camObj[1].processCam() returned -1." << endl;
+			std::cout << "ERROR: displayFunc(): camObj[1].processCam() returned -1." << std::endl;
 			return 1;
 		}
 
-		cout << "zSol=" << zSol << ": ";
+		std::cout << "zSol=" << zSol << ": ";
 		if(mode >= 1 && camObj[0].allCnt_pos.size()>0) {
 			if(mode==1 || mode==3) {
 				cv::Size camSize = camObj[0].imgFlipped.size();
@@ -183,8 +184,8 @@ int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
 
 				printf(" x:%3d y:%3d z:%3d",int(PP[0]),int(PP[1]), int(PP[2]));
 				orientObj.update(true);
-				if(getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) { sendToServo(pcaSrc,new_q,current_q,false); }
-				else if(findValidOrient(PP, orient, orient, new_q)) { sendToServo(pcaSrc,new_q,current_q,false); }
+				if(HW_KINEMATICS::getAngles(new_q,PP,toRadians(orient[0]),toRadians(orient[1]),toRadians(orient[2]),1)) { sendToServo(pcaSrc,new_q,current_q,false); }
+				else if(HW_KINEMATICS::findValidOrient(PP, orient, orient, new_q)) { sendToServo(pcaSrc,new_q,current_q,false); }
 				else printf("valid orient for (%d, %d, %d) not found\n", int(PP[0]), int(PP[1]), int(PP[2]));
 			}
 		}
@@ -215,9 +216,9 @@ int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
 				}
 			}
 			else if(keyInp==114) { //'r'
-				string inputVar = "";
+				std::string inputVar = "";
 				int indVar = 0;
-				cout << "input: ";
+				std::cout << "input: ";
 				cin >> inputVar;
 				if(inputVar=="exit") exit(1);
 				indVar = stoi(inputVar);
@@ -238,7 +239,7 @@ int displayFunc(int mode, PiPCA9685::PCA9685* pcaSrc) {
 */
 
 void loadData_csvArtif(bool printVar=true) {
-	if (printVar) cout << "Starting to load the data\n";
+	if (printVar) std::cout << "Starting to load the data\n";
 
 	for(int x=0; x<181; x++) {
 		for(int y=0; y<181; y++) {
@@ -248,8 +249,8 @@ void loadData_csvArtif(bool printVar=true) {
 		}
 	}
 
-	string filename;
-	string filenom[2] = {"csv_[1,1,1]_6568781_p", "_artificial.csv"};
+	std::string filename;
+	std::string filenom[2] = {"csv_[1,1,1]_6568781_p", "_artificial.csv"};
 
 	int columns=4;
 	int parts=4;
@@ -257,20 +258,20 @@ void loadData_csvArtif(bool printVar=true) {
 	int rowCount=0;
 	float tempArr[4];
 	bool fullBreak;
-	string line;
+	std::string line;
 
 
 	for(int part=0; part<parts; part++) {
-		cout << "- p" << part << endl;
+		std::cout << "- p" << part << std::endl;
 		rowCount=0;
-		fstream csvFile;
+		std::fstream csvFile;
 
-		filename = absPath+filenom[0]+to_string(part)+filenom[1];
+		filename = absPath+filenom[0]+std::to_string(part)+filenom[1];
 		csvFile.open(filename, ios::in);
-		if(!csvFile.is_open()) cout << "error: file \""<< filename <<"\" could not be opened" << endl;
+		if(!csvFile.is_open()) std::cout << "error: file \""<< filename <<"\" could not be opened" << std::endl;
 		
-		getline(csvFile, line);
-		while(getline(csvFile, line)) {
+		std::getline(csvFile, line);
+		while(std::getline(csvFile, line)) {
 			int idx=0;
 			fullBreak=false;
 			for(int n=0; n<100; n++) {
@@ -298,10 +299,10 @@ void loadData_csvArtif(bool printVar=true) {
 		}
 		csvFile.close();
 	}
-	if(printVar) cout << "\nFinished loading the data: Total rows:" << rowCount << endl;
-	cout << artifVal[90][90][200] << endl;
-	// cout << "paused:";
-	// string inp;
+	if(printVar) std::cout << "\nFinished loading the data: Total rows:" << rowCount << std::endl;
+	std::cout << artifVal[90][90][200] << std::endl;
+	// std::cout << "paused:";
+	// std::string inp;
 	// cin >> inp;
 	// cin.ignore();
 	// cin.clear();
@@ -309,8 +310,7 @@ void loadData_csvArtif(bool printVar=true) {
 
 
 
-
-#include "HW_options/mainOptions.hpp"
+#include <mainOptions.hpp>
 
 
 int subMenuPos[2] = {20, 0};
@@ -366,7 +366,7 @@ int main(int argc, char* argv[]) {
 
 
 	if(gpioInitialise()<0) {
-		cout << "pigpio \"gpioInitialise()\" failed\n";
+		std::cout << "pigpio \"gpioInitialise()\" failed\n";
 		pigpioInitia = false;
 	}
 	else {

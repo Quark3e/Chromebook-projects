@@ -159,8 +159,9 @@ std::string StringToFunction::exportString(
     std::string lineEnd = "\n",
     std::string lineSep = " "
 ) {
-    std::string exportStr;
+    std::string exportStr="";
 
+    return exportStr;
 }
 
 #endif

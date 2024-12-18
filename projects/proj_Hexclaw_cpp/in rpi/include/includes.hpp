@@ -55,27 +55,27 @@
 // #include "../../../teststuff/cpp/useful/wirelessCOM.hpp"
 // #include "HW_headers/IR_camTrack.hpp"
 // #include "HW_headers/integ_TFTdisp.hpp"
-#include "HW_headers/motion_control/motion_profiles.hpp"
+#include "motion_control/motion_profiles.hpp"
 
-#include <HC_useful/wirelessCOM.hpp>
-#include <HC_useful/IR_camTrack.hpp>
+#include <wirelessCOM.hpp>
+#include <IR_camTrack.hpp>
 
-#include <HC_useful/createTable.hpp>
-#include <HC_useful/useful.hpp>
-#include <HC_useful/stringToFunc.hpp>
-#include <HC_useful/terminalMenu.hpp>
+#include <createTable.hpp>
+#include <useful.hpp>
+#include <stringToFunc.hpp>
+#include <terminalMenu.hpp>
 
-#include <HC_useful/diy_performance.hpp>
+#include <diy_performance.hpp>
 
-#include <HC_useful/diy_dictionary.hpp>
+#include <diy_dictionary.hpp>
 
 
-#include "../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp"
-#include "../../../teststuff/cpp/opencv/recordVideo/recordFrames.hpp"
+#include <two_cam_coordinate/two_cam_coordinate.hpp>
+#include <opencv/recordVideo/recordFrames.hpp>
 // #include "../../../teststuff/cpp/basic/Performance/getPerformance.hpp"
 
-#include "HW_headers/servo_control.hpp"
-#include "IK_header.hpp"
+// #include <servo_control.hpp>
+#include "../IK_header.hpp"
 
 
 #endif

@@ -3,6 +3,7 @@
 #ifndef H_HEXCLAW_MOTION_PROFILES
 #define H_HEXCLAW_MOTION_PROFILES
 
+#include <cmath>
 
 inline float mp1(float x) {
     float y=0, V_max=2, t3=1;

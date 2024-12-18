@@ -4,9 +4,12 @@
 #define HPP_HEXCLAW_OPTIONS
 
 
-#include "../hexclaw_constants.hpp"
-#include "../hexclaw_includes.hpp"
-#include "../hexclaw_global.hpp"
+#include <motion_control/motion_profiles.hpp>
+#include <constants.hpp>
+#include <includes.hpp>
+#include <global_variables.hpp>
+#include <stringToFunc.hpp>
+#include <createTable.hpp>
 
 
 void printFuncLabel(std::string functionName) {
@@ -52,7 +55,7 @@ void HW_option5_orient();
  * mode terminal: control servo motor with terminal input by the user.
  * 
  * ### Functionality:
- * - preset menu: changeable settings like different tweakings for `getAngles()`, default values, whether to exit or keep
+ * - preset menu: changeable settings like different tweakings for `HW_KINEMATICS::getAngles()`, default values, whether to exit or keep
  * going if value is not found, whether to use `findClosestOrient()`
  * #### input:
  * - run commands from given file:
@@ -308,7 +311,7 @@ void HW_option0() {
 			perfObj[0].add_checkpoint("getCoords"); /*c2*/
 			#endif
 
-			if(getAngles(
+			if(HW_KINEMATICS::getAngles(
 				new_q, PP,
 				toRadians(orient[0]),
 				toRadians(orient[1]),
@@ -319,7 +322,7 @@ void HW_option0() {
 				for(int i=0; i<6; i++) printTable.insertNum(new_q[i],1+i,3,1);
 				printTable.strExport(std::string(21,' ')+"\n");
 			}
-			else if (findValidOrient(
+			else if (HW_KINEMATICS::findValidOrient(
 				PP, orient, orient, new_q
 			)) {
 				sendToServo(&pca,new_q,current_q,false);
@@ -514,7 +517,7 @@ void HW_option5_orient() {
 
 	while(true) {
 		orientObj.update(true);
-		if(getAngles(
+		if(HW_KINEMATICS::getAngles(
 			new_q, PP, toRadians(orient[0]), toRadians(orient[1]),toRadians(orient[2]), 1
 		)) {
 			printTable.insertNum(new_q[0], 0, 1, 1);
