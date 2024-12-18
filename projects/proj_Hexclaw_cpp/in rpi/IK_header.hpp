@@ -3,7 +3,7 @@
 #ifndef HPP__HEXCLAW_IK_HEADER
 #define HPP__HEXCLAW_IK_HEADER
 
-#include <unistd.h>
+// #include <unistd.h>
 #include <iostream>
 #include <string>
 #include <math.h>

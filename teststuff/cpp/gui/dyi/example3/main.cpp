@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <string>
-#include <HC_useful/useful.hpp>
+#include <useful.hpp>
 #include <HC_useful/terminalMenu.hpp>
 
 

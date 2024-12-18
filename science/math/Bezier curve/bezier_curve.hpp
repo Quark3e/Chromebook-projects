@@ -6,7 +6,7 @@
 #include <math.h>
 #include <vector>
 #include <cassert>
-#include <HC_useful/useful.hpp>
+#include <useful.hpp>
 
 /**
  * @brief Get the coefficients for a linear function between two points

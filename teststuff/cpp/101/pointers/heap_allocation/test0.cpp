@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 
-#include <HC_useful/useful.hpp>
+#include <useful.hpp>
 
 using std::cout, std::endl;
 

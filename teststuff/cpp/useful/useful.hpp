@@ -11,9 +11,10 @@
 #include <cmath>
 #include <string>
 #include <vector>
+#include <array>
 #include <initializer_list>
 #include <iostream>
-#include <bits/stdc++.h>
+// #include <bits/stdc++.h>
 #include <chrono>
 #include <ctime>
 
@@ -22,6 +23,7 @@
 #include <cstring>
 #include <stdlib.h>
 
+#include <cassert>
 
 #include <stdio.h>
 
@@ -214,7 +216,12 @@ struct pos2d {
     inline std::string cmdExec(const char* cmd, bool removeNewLine=true) {
         std::array<char, 128> buffer;
         std::string result;
+#if _WIN32
+        std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(cmd, "r"), _pclose);
+#else
         std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+#endif
+
         if (!pipe) {
             throw std::runtime_error("popen() failed!");
         }
@@ -787,10 +794,11 @@ struct pos2d {
      * @return std::string of path:
     */
     inline std::string getFileCWD(bool inclEndSlash=true) {
-        char cwd[PATH_MAX];
 #if _WIN32
+        char cwd[MAX_PATH];
         if(_getcwd(cwd, sizeof(cwd)) != NULL)
 #else
+        char cwd[PATH_MAX];
         if(getcwd(cwd, sizeof(cwd)) != NULL)
 #endif
         {
@@ -842,8 +850,8 @@ struct pos2d {
         else {
             return false;
         }
-    }
 #endif  
+    }
 
     /// @brief Solve distance value between two coordinates in a 3D spacec
     /// @param p1 float()[3]: point 1 coordinate {x, y, z}
@@ -1047,12 +1055,13 @@ struct pos2d {
         int precision=0,
         bool leftAlign=false
     ) {
-        char fullTemp[width+1];
+        // char fullTemp[width+1];
+        std::vector<char> fullTemp(width+1, 0);
         
-        if(leftAlign) snprintf(fullTemp, width+1, "%-*.*f", width, precision, inpVal);
-        else snprintf(fullTemp, width+1, "%*.*f", width, precision, inpVal);
+        if(leftAlign) snprintf(fullTemp.data(), width+1, "%-*.*f", width, precision, inpVal);
+        else snprintf(fullTemp.data(), width+1, "%*.*f", width, precision, inpVal);
         
-        for(int i=0; i<strlen(fullTemp); i++) {
+        for(int i=0; i<fullTemp.size(); i++) {
             toSend_arr[idx_start+i]=fullTemp[i];
         }
     }
@@ -1070,11 +1079,11 @@ struct pos2d {
         int precision=0,
         bool leftAlign=false
     ) {
-        char temp[width+1];
-        if(leftAlign) sprintf(temp, "%-*.*f", width, precision, inpVal);
-        else sprintf(temp, "%*.*f", width, precision, inpVal);
+        std::vector<char> temp(width+1, 0);
+        if(leftAlign) sprintf(temp.data(), "%-*.*f", width, precision, inpVal);
+        else sprintf(temp.data(), "%*.*f", width, precision, inpVal);
 
-        std::string tempStr(temp);
+        std::string tempStr(temp.data());
         return tempStr;
     }
     inline void formattedFloat_c(

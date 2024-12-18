@@ -6,7 +6,7 @@
 #include <fstream>
 #include <vector>
 
-#include <HC_useful/useful.hpp>
+#include <useful.hpp>
 
 int main(int argc, char** argv) {
     std::string filename = "ex0.nc";

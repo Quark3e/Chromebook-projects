@@ -7,7 +7,7 @@
 #include <vector>
 #include <algorithm>
 
-#include <HC_useful/useful.hpp>
+#include <useful.hpp>
 
 class StringToFunction {
     typedef void    (*TDEF_void__)();

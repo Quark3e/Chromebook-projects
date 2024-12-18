@@ -3,7 +3,7 @@
 #include <thread>
 #include <ncurses.h>
 #include <HC_useful/createTable.hpp>
-#include <HC_useful/useful.hpp>
+#include <useful.hpp>
 
 //#include "../../../useful/useful.hpp"
 //#include "../../../useful/createTable.hpp"

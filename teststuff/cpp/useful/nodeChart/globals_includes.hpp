@@ -30,6 +30,7 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 
+#include <imgui/misc
 #include <imgui/addons/imguidatechooser/imguidatechooser.h>
 
 #include <imgui/imgui.h>
@@ -38,10 +39,10 @@
  
 
 
-#include <HC_useful/useful.hpp>
-#include <HC_useful/science/bezier_curve.hpp>
-#include <HC_useful/jsonPairs/jsonParser.hpp>
-#include <HC_useful/diy_dictionary.hpp>
+#include <useful.hpp>
+#include <science/math/Bezier curve/bezier_curve.hpp>
+#include <jsonParser/jsonParser.hpp>
+#include <diy_dictionary.hpp>
 
 
 #include "gui_nodeChart.hpp"

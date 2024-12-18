@@ -13,7 +13,7 @@
 #include <sstream>
 #include <iomanip>
 #include <fstream>
-#include <HC_useful/useful.hpp>
+#include <useful.hpp>
 
 using namespace std;
 

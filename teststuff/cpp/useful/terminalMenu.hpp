@@ -30,7 +30,7 @@
 #include <cmath>
 
 #include <HC_useful/createTable.hpp>
-#include <HC_useful/useful.hpp>
+#include <useful.hpp>
 
 
 /// @brief placeholder function for empty function parameter
