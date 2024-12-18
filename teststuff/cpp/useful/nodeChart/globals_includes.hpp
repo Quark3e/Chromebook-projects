@@ -20,12 +20,11 @@
 #include <chrono>
 #include <ctime>
 
-#include <dirent.h>
 #include <filesystem>
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
+// #include <unistd.h>
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>

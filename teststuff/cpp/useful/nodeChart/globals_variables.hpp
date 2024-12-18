@@ -7,6 +7,12 @@
 
 
 #include "globals_includes.hpp"
+#if _WIN32
+#include <dirent_portable.h>
+#else
+#include <dirent.h>
+#endif
+
 
 /**
  * Whether the program is running on the terminal.
@@ -30,7 +36,7 @@ extern int __GLOBAL_FLAGS__WIN_RESIZED; //whether the main program window has be
 extern int __GLOBAL_FLAGS__WIN_CLOSING; //whether the program is closing (i.e. this is the last iteration/frame before the program closes): 1 = closing/true
 
 
-extern std::chrono::_V2::system_clock::time_point   __CURRENT__TIME_POINT;
+extern std::chrono::system_clock::time_point        __CURRENT__TIME_POINT;
 extern time_t                                       __CURRENT__TIME_T;
 extern std::string                                  __CURRENT__TIME_STRING;
 
@@ -175,6 +181,8 @@ extern int mouseTimer_decay;
  * 
  */
 extern int static_mouseAction_left;
+
+
 
 
 std::vector<std::string> __parsePath(std::string __path, char sep_symb='/');

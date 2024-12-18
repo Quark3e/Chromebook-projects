@@ -1,7 +1,8 @@
 
 
-#include "globals_includes.hpp"
+// #include "globals_includes.hpp"
 
+#include "globals_variables.hpp"
 
 bool            __ON_TERMINAL   = false;
 unsigned int    __PROGRAM_FRAMES= (unsigned int)-1;
