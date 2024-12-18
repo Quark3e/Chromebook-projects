@@ -2,16 +2,15 @@ cmake_minimum_required(VERSION 3.18)
 project(guiNodeChart)
 
 set(CMAKE_CXX_STANDARD 17)
-
 set(IMGUI_USER_CONFIG "\\\"/usr/local/include/imgui/examples/example_allegro5/imconfig_allegro5.h\\\"")
 
 if(WIN32)
-find_path(DIR_IMGUI NAMES "imgui.h"
+find_path(DIR_IMGUI
+    NAMES "imgui.h"
     HINTS "Libraries"
     REQUIRED
 )
 # set(DIR_IMGUI "C:/Users/berkh/Libraries")
-# get_filename_component(DIR_IMGUI ${DIR_IMGUI} DIRECTORY)
 else()
 find_path(DIR_IMGUI
     NAMES "imgui.h"
@@ -20,6 +19,8 @@ find_path(DIR_IMGUI
 )
 # set(DIR_IMGUI "/usr/local/include")
 endif(WIN32)
+
+get_filename_component(DIR_IMGUI ${DIR_IMGUI} DIRECTORY)
 
 message(DIR_IMGUI = ${DIR_IMGUI})
 
@@ -35,12 +36,12 @@ include_directories(${DIR_HC_USEFUL}/robotics)
 include_directories(${DIR_HC_USEFUL}/jsonParser)
 include_directories(${PROJECT_SOURCE_DIR})
 
-link_directories(${DIR_IMGUI}/imgui/backens)
+link_directories(${DIR_IMGUI}/imgui/backends)
 link_directories(${CMAKE_PREFIX_PATH}/lib)
 
 
 file(GLOB imgui_depends CONFIGURE_DEPENDS
-    "${DIR_IMGUI}/imgui*.cpp"
+    "${DIR_IMGUI}/imgui/imgui*.cpp"
 )
 
 
@@ -51,9 +52,9 @@ add_executable(${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/menuScreens.cpp
     ${DIR_HC_USEFUL}/diy_dictionary.cpp
     ${DIR_HC_USEFUL}/jsonParser/jsonParser.cpp
-    ${DIR_IMGUI}/backends/imgui_impl_allegro5.cpp
-    ${DIR_IMGUI}/misc/cpp/imgui_stdlib.cpp
-    ${DIR_IMGUI}/addons/imguidatechooser/imguidatechooser.cpp
+    ${DIR_IMGUI}/imgui/backends/imgui_impl_allegro5.cpp
+    ${DIR_IMGUI}/imgui/misc/cpp/imgui_stdlib.cpp
+    ${DIR_IMGUI}/imgui/addons/imguidatechooser/imguidatechooser.cpp
     ${imgui_depends}
 )
 
