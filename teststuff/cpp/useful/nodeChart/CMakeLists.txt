@@ -27,6 +27,7 @@ set(REPO_ROOT "../../../..")
 set(DIR_HC_USEFUL "${REPO_ROOT}/teststuff/cpp/useful")
 
 
+include_directories(${REPO_ROOT})
 include_directories(${DIR_IMGUI})
 include_directories(${DIR_IMGUI}/imgui)
 include_directories(${DIR_HC_USEFUL})

@@ -30,6 +30,9 @@
 #include <thread>
 #include <mutex>
 
+#include <sstream>
+#include <iostream>
+#include <iomanip>
 
 
 #if _WIN32
@@ -1097,8 +1100,7 @@ struct pos2d {
     }
 
     template<class T>
-    inline std::string FormatWithSymbol(T value, std::string formatSymbol=" ")
-    {
+    inline std::string FormatWithSymbol(T value, std::string formatSymbol=" ") {
         std::stringstream ss;
         ss.imbue(std::locale(""));
         ss << std::fixed << value;
