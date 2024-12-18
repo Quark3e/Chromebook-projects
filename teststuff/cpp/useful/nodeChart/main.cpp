@@ -20,7 +20,7 @@ bool opt__enable_grid = true;
 
 
 int main(int argc, char** argv) {
-
+    
     if(argc>1) {
         std::cout << "program entered arguments:" << std::endl;
         for(int i=0; i<argc; i++) {

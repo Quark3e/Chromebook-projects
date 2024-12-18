@@ -353,7 +353,10 @@ void gNC::_menu__timeline(
 
 
 std::vector<std::string> __parsePath(std::string __path, char sep_symb) {
+#if _WIN32
+#else
     assert(__path[0]==sep_symb);
+#endif
     std::vector<std::string> _parsed;
     for(int i=0; i<__path.length(); i++) {
         if(__path[i]==sep_symb && i<__path.length()-1) {
@@ -410,7 +413,11 @@ int         gNC::_mode__fileExplorer_prev = 0;
 std::vector<std::string> gNC::_valid__extensions;
 
 void gNC::_menu__fileExplorer() {
+#if _WIN32
+    static const std::string defaultDir = "/Users/berkh/Projects/Github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/saveFiles/";
+#else
     static const std::string defaultDir = "/home/berkhme/github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/saveFiles/"; //getFileCWD(true);
+#endif
     static std::string currDir = defaultDir;
     static std::string dir_history;
     
