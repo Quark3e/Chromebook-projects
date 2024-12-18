@@ -21,8 +21,7 @@ void pressed_key__struct::update() {
         timePoints.push_back(timeNow);
     }
     pressed[pressed.size()-1].clear();
-    
-    for(ImGuiKey key=start_key; key<ImGuiKey_NamedKey_END; key=(ImGuiKey)(key+1)) {
+    for(ImGuiKey key=ImGuiKey_NamedKey_BEGIN; key<ImGuiKey_NamedKey_END; key=(ImGuiKey)(key+1)) {
         if(/*IsLegacyNativeDupe(key) || */!ImGui::IsKeyDown(key)) continue;
         pressed[pressed.size()-1].push_back(key);
     }
@@ -123,7 +122,7 @@ gNC::gNODE::gNODE(
         pos_share_1[1]  = pos_share_0[1];
         pos_share_1[0]  = width-pos_share_0[0];
     }
-    date = ImGui::GetDateZero();
+    // date = ImGui::GetDateZero();
     // std::cout<<pos_add_1[0]<< " "<<pos_add_1[1]<<" | " <<pos_share_1[0]<< " "<<pos_share_1[1] << std::endl;
 
 }
@@ -249,7 +248,7 @@ gNC::gLINK::gLINK(
     this->src  = par_src;
     this->dest = par_dest;
     _init = true;
-    date = ImGui::GetDateZero();
+    // date = ImGui::GetDateZero();
 }
 
 /**

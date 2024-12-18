@@ -48,10 +48,6 @@
 #endif
 
 
-// using namespace std;
-
-
-
 struct pos2d {
     float x;
     float y;
@@ -823,7 +819,8 @@ struct pos2d {
     */
     inline bool isFile(std::string filename) {
 #if _WIN32
-        DWORD dwAttrib = GetFileAttributes(std::wstring(filename.begin(), filename.end()).c_str());
+        std::wstring wstr(filename.begin(), filename.end());
+        DWORD dwAttrib = GetFileAttributes(filename.c_str());
         return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 #else
         struct stat sb;
@@ -843,7 +840,8 @@ struct pos2d {
     */
     inline bool isDir(std::string dirname) {
 #if _WIN32
-        DWORD dwAttrib = GetFileAttributes(std::wstring(dirname.begin(), dirname.end()).c_str());
+        std::wstring wstr(dirname.begin(), dirname.end());
+        DWORD dwAttrib = GetFileAttributes(dirname.c_str());
         return (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 #else
         struct stat sb;

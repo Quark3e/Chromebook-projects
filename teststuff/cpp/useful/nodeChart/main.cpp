@@ -37,11 +37,13 @@ int main(int argc, char** argv) {
     else std::cout << "Default";
     std::cout << std::endl;
 
-
     programCWD = getFileCWD(true);
+    std::cout << programCWD << std::endl;
+#if _WIN32
+    std::string default_proj_file = "C:\\Users\\berkh\\Projects\\Github_repo\\Chromebook-projects\\teststuff\\cpp\\useful\\nodeChart/saveFiles/default_chart.json";
+#else
     std::string default_proj_file = "/home/berkhme/github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/saveFiles/default_chart.json";
-
-
+#endif
     al_init();
     al_install_keyboard();
     al_install_mouse();
@@ -58,7 +60,6 @@ int main(int argc, char** argv) {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); //(void)io;
     ImGuiStyle& style = ImGui::GetStyle();
-
 
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
@@ -85,18 +86,23 @@ int main(int argc, char** argv) {
     window1_flags |= ImGuiWindowFlags_MenuBar;
     window1_flags |= ImGuiWindowFlags_NoTitleBar;
     
-
     // gNC::guiNodeChart proj0;
     // proj0.thisPtr = &proj0;
     
     
     projects.add("project 0", nc_proj{"", false, gNC::guiNodeChart()});
+    
     projects[0].chart.thisPtr = &(projects[0].chart);
+
     // projects[0].chart.project_name = projects.key(0);
     projects.rename("project 0", ptrToStr<gNC::guiNodeChart*>(projects[0].chart.thisPtr));
+
     projects[0].chart.loadFile(default_proj_file, false);
+
     projects[0].fileLinked = true;
     projects[0].filename = default_proj_file;
+
+
 
     int _selected = 0, _selected_prev = 0;
     int tabAddNew = 0;
@@ -107,13 +113,13 @@ int main(int argc, char** argv) {
     int setting_autosave_iterCount = 0;
     int setting_autosave_iterWait = 60; //how many frames/iterations to wait before saving
 
+
     while(running_main) {
         __PROGRAM_FRAMES++;
         static std::vector<std::vector<int>>* pressed_keys;
         pressed_keys = &guiKeys.pressed;
         guiKeys.update();
         // update_keys();
-
         ALLEGRO_EVENT al_event;
         while (al_get_next_event(queue, &al_event)) {
             ImGui_ImplAllegro5_ProcessEvent(&al_event);
@@ -141,7 +147,6 @@ int main(int argc, char** argv) {
         //--------------------
         ImGui::SetNextWindowSizeConstraints(dim__main, dim__main);
         style.WindowRounding = 0;
-
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 0));
         ImGui::Begin("main__content", NULL, window0_flags);
@@ -149,7 +154,6 @@ int main(int argc, char** argv) {
         ImGui::PopStyleVar();
         ImGui::SetWindowPos(ImVec2(0, 0));
         ImGui::SetWindowSize(dim__main);
-
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
         if(_selected!=-1) {

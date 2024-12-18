@@ -52,9 +52,9 @@ add_executable(${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/menuScreens.cpp
     ${DIR_HC_USEFUL}/diy_dictionary.cpp
     ${DIR_HC_USEFUL}/jsonParser/jsonParser.cpp
+    ${DIR_IMGUI}/imgui/addons/imguidatechooser/imguidatechooser.cpp
     ${DIR_IMGUI}/imgui/backends/imgui_impl_allegro5.cpp
     ${DIR_IMGUI}/imgui/misc/cpp/imgui_stdlib.cpp
-    ${DIR_IMGUI}/imgui/addons/imguidatechooser/imguidatechooser.cpp
     ${imgui_depends}
 )
 
