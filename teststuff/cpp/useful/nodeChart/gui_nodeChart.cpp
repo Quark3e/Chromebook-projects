@@ -1,10 +1,10 @@
 
 
 #include "globals_includes.hpp"
-
+#include <chrono>
 
 std::vector<std::vector<int>> pressed_key__struct::pressed;
-std::vector<std::chrono::_V2::steady_clock::time_point> pressed_key__struct::timePoints;
+std::vector<std::chrono::steady_clock::time_point> pressed_key__struct::timePoints;
 
 void pressed_key__struct::update() {
     ImGuiKey start_key = (ImGuiKey)0;
@@ -23,7 +23,7 @@ void pressed_key__struct::update() {
     pressed[pressed.size()-1].clear();
     
     for(ImGuiKey key=start_key; key<ImGuiKey_NamedKey_END; key=(ImGuiKey)(key+1)) {
-        if(IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) continue;
+        if(/*IsLegacyNativeDupe(key) || */!ImGui::IsKeyDown(key)) continue;
         pressed[pressed.size()-1].push_back(key);
     }
     num_keys_pressed = pressed[pressed.size()-1].size();
@@ -33,7 +33,7 @@ float pressed_key__struct::keyPeriod(int keyID, bool mustAlone, int blankFrame, 
     if(pressed.size()==0) return -1;
     float period = -1;
 
-    std::chrono::_V2::steady_clock::time_point _t1, _t2;
+    std::chrono::steady_clock::time_point _t1, _t2;
 
     int found1 = -1;
     int found2 = -1;

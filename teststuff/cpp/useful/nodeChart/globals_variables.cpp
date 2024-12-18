@@ -10,9 +10,9 @@ int __GLOBAL_FLAGS__WIN_RESIZED = 0;
 int __GLOBAL_FLAGS__WIN_CLOSING = 0;
 
 
-std::chrono::_V2::system_clock::time_point  __CURRENT__TIME_POINT   = std::chrono::system_clock::now();
-time_t                                      __CURRENT__TIME_T       = std::chrono::system_clock::to_time_t(__CURRENT__TIME_POINT);
-std::string                                 __CURRENT__TIME_STRING  = std::string(ctime(&__CURRENT__TIME_T));
+auto        __CURRENT__TIME_POINT   = std::chrono::system_clock::now();
+time_t      __CURRENT__TIME_T       = std::chrono::system_clock::to_time_t(__CURRENT__TIME_POINT);
+std::string __CURRENT__TIME_STRING  = std::string(ctime(&__CURRENT__TIME_T));
 
 std::string programCWD;
 

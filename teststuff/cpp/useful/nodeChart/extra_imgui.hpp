@@ -15,9 +15,9 @@
 
 
 
-inline bool IsLegacyNativeDupe(ImGuiKey key) {
-    return key >= 0 && key < 512 && ImGui::GetIO().KeyMap[key] != -1;
-}
+// inline bool IsLegacyNativeDupe(ImGuiKey key) {
+//     return key >= 0 && key < 512 && ImGui::GetIO().KeyMap[key] != -1;
+// }
 
 // /**
 //  * @brief update `pressed_keys` std::vector<std::vector<int>> container with the keys that has been pressed with `ImGuiKey`
@@ -61,7 +61,7 @@ inline std::vector<int>* update_mouse() {
 struct pressed_key__struct {
     int maxSize_history_pressed_keys = 20;
     static std::vector<std::vector<int>> pressed;
-    static std::vector<std::chrono::_V2::steady_clock::time_point> timePoints;
+    static std::vector<std::chrono::steady_clock::time_point> timePoints;
     size_t num_keys_pressed = 0;
 
     void    update();
