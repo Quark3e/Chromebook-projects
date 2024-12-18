@@ -30,7 +30,6 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 
-#include <imgui/misc
 #include <imgui/addons/imguidatechooser/imguidatechooser.h>
 
 #include <imgui/imgui.h>
