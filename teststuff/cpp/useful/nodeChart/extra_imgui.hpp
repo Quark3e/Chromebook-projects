@@ -59,7 +59,7 @@ inline std::vector<int>* update_mouse() {
 
 
 struct pressed_key__struct {
-    int maxSize_history_pressed_keys = 20;
+    int maxSize_history_pressed_keys = 200;
     static std::vector<std::vector<int>> pressed;
     static std::vector<std::chrono::steady_clock::time_point> timePoints;
     size_t num_keys_pressed = 0;

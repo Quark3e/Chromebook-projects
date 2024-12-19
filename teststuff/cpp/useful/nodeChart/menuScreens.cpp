@@ -353,57 +353,94 @@ void gNC::_menu__timeline(
 
 
 std::vector<std::string> __parsePath(std::string __path, char sep_symb) {
+    assert(__path.size()>0);
+    // std::cout << "__parsePath: " << __path << std::endl;
 #if _WIN32
 #else
     assert(__path[0]==sep_symb);
 #endif
     std::vector<std::string> _parsed;
     for(int i=0; i<__path.length(); i++) {
-        if(__path[i]==sep_symb && i<__path.length()-1) {
+        // // std::cout<<__path.at(i); std::cout.flush();
+        if(__path.at(i)==sep_symb && i<__path.length()-1) {
             _parsed.push_back("");
             continue;
         }
-        else if(__path[i]==sep_symb) break;
-        _parsed[_parsed.size()-1] += __path[i];
+        else if(__path.at(i)==sep_symb) break;
+        _parsed[_parsed.size()-1] += __path.at(i);
     }
+    // std::cout << std::endl;
     return _parsed;
 }
 
-int __getPWD_content(
-    std::string __path,
-    std::vector<dirent*>& _retur
+
+// int __getPWD_content(
+//     std::string __path,
+//     std::vector<dirent*>& _retur
+// ) {
+//     _retur.clear();
+//     DIR* dir;
+//     dirent* ent;
+//     if((dir=opendir(__path.c_str()))!=NULL) {
+//         while((ent=readdir(dir))!=NULL) {
+//             _retur.push_back(ent);
+//         }
+//         closedir(dir);
+//     }
+//     else {
+//         return -1;
+//     }
+//     return 0;
+// }
+// int __getPWD_stats(
+//     std::string __path,
+//     std::vector<dirent*>&       _dirents,
+//     std::vector<struct stat>&   _retur
+// ) {
+//     _retur.clear();
+//     for(dirent* _ent : _dirents) {
+//         struct stat _temp;
+//         if(stat((__path+_ent->d_name).c_str(), &_temp)==-1) { //error occured
+//             return -1;
+//         }
+//         _retur.push_back(_temp);
+//     }
+
+//     return 0;
+// }
+
+int __getPWD_fileCont(
+    std::string _path,
+    std::vector<fileCont>& _retur
 ) {
-    _retur.clear();
+    std::vector<fileCont> _temp;
     DIR* dir;
     dirent* ent;
-    if((dir=opendir(__path.c_str()))!=NULL) {
+    if((dir=opendir(_path.c_str()))!=NULL) {
         while((ent=readdir(dir))!=NULL) {
-            _retur.push_back(ent);
+            struct stat _tempStat;
+            if(stat((_path+ent->d_name).c_str(), &_tempStat)==-1) {
+                return -1;
+            }
+            _temp.push_back(fileCont{
+                std::string(ent->d_name),
+                ent->d_ino,
+                ent->d_type,
+                _tempStat.st_size,
+                _tempStat.st_atime,
+                _tempStat.st_mtime,
+                _tempStat.st_ctime
+            });
         }
         closedir(dir);
     }
-    else {
-        return -1;
-    }
-    return 0;
-}
+    else return -1;
 
-int __getPWD_stats(
-    std::string __path,
-    std::vector<dirent*>&       _dirents,
-    std::vector<struct stat>&   _retur
-) {
-    _retur.clear();
-    for(dirent* _ent : _dirents) {
-        struct stat _temp;
-        if(stat((__path+_ent->d_name).c_str(), &_temp)==-1) { //error occured
-            return -1;
-        }
-        _retur.push_back(_temp);
-    }
+    _retur = _temp;
 
     return 0;
 }
+
 
 
 std::string gNC::_file__fileExplorer = "";
@@ -421,8 +458,14 @@ void gNC::_menu__fileExplorer() {
     static std::string currDir = defaultDir;
     static std::string dir_history;
     
-    static std::vector<dirent*>     _pwdCont;
-    static std::vector<struct stat> _pwdCont_stat;
+    // static std::vector<dirent*>     _pwdCont;
+    // static std::vector<struct stat> _pwdCont_stat;
+    /**
+     * `std::vector` of all the `fileCont` structs for each dir/file in given
+     * directory.
+     */
+    static std::vector<fileCont>    _pwdFileCont;
+
     static int selected = -1;
 
     static int scr_width = 0;
@@ -452,16 +495,20 @@ void gNC::_menu__fileExplorer() {
         win_open    = true;
         _file__fileExplorer = "";
     }
-    if(__getPWD_content(currDir, _pwdCont)) { //error occured
+    if(__getPWD_fileCont(currDir, _pwdFileCont)) {
+        perror("__getPWD_fileCont failed: ");
+        exit(1);
     }
-    if(__getPWD_stats(currDir, _pwdCont, _pwdCont_stat)) { //error occured
-    }
+    // if(__getPWD_content(currDir, _pwdCont)) { //error occured
+    // }
+    // if(__getPWD_stats(currDir, _pwdCont, _pwdCont_stat)) { //error occured
+    // }
 
     /**
      * @brief container for the selected items/(files/folders) in current directory
      * @note needs to be updated whenever directory is changed
      */
-    static std::vector<bool> table_selections(_pwdCont.size(), false);
+    static std::vector<bool> table_selections(_pwdFileCont.size(), false);
     /**
      * @brief string that's stored/passed to inputtext fields for the selected files
      * @note needs to be updated whenever directory is changed
@@ -472,7 +519,7 @@ void gNC::_menu__fileExplorer() {
     static std::vector<std::string> _parsed_path = __parsePath(currDir);
 
     if(!_mode__fileExplorer_prev || newDir) {
-        table_selections = std::vector<bool>(_pwdCont.size(), false);
+        table_selections = std::vector<bool>(_pwdFileCont.size(), false);
         enterBarFileStr = "";
         _parsed_path = __parsePath(currDir);
 
@@ -514,11 +561,11 @@ void gNC::_menu__fileExplorer() {
             ImGui::SetWindowFocus("File Explorer");
         }
 
+
         ImGui::SetCursorPos(_pos__sub_fileExplorer_addressBar()[0]);
         if(ImGui::BeginChild("address_bar", _pos__sub_fileExplorer_addressBar(false)[2], child_flags)) {
             ImVec2 strPath_pos(padding__content_fileExplorer.x, _pos__sub_fileExplorer_addressBar(false)[2].y*0.5);
             ImGui::SetCursorPos(strPath_pos);
-
             ImGui::TextUnformatted("/");
             strPath_pos.x += ImGui::GetFontSize()-5;
             for(int i=0; i<_parsed_path.size(); i++) {
@@ -526,10 +573,13 @@ void gNC::_menu__fileExplorer() {
                 ImGui::SetCursorPos(strPath_pos);
                 ImGui::SetNextItemWidth(_parsed_path[i].length());
                 if(ImGui::Button(_parsed_path[i].c_str(), ImVec2(_parsed_path[i].length()*(ImGui::GetFontSize()-6)+7, 0))) {
+                    // std::cout << "newDir selected" << std::endl;
                     std::string _tempDir = "/";
                     for(int ii=0; ii<=i; ii++) _tempDir += _parsed_path[ii] + "/"; 
                     newDirStr = _tempDir;
                     newDir = true;
+                    // selected = -1;
+                    // std::cout << "newDir: " << newDirStr<<std::endl;
                 }
                 strPath_pos.x += _parsed_path[i].length()*(ImGui::GetFontSize()-6)+7;
                 ImGui::PopID();
@@ -538,20 +588,18 @@ void gNC::_menu__fileExplorer() {
                 strPath_pos.x +=ImGui::GetFontSize()-5;
             }
             if(isInit) ImGui::SetScrollX(strPath_pos.x);
-
-            ImGui::EndChild();
         }
+        ImGui::EndChild();
         ImGui::SetCursorPos(_pos__sub_fileExplorer_searchBar()[0]);
         if(ImGui::BeginChild("search_bar", _pos__sub_fileExplorer_searchBar(false)[2], child_flags)) {
 
-            ImGui::EndChild();
         }
+        ImGui::EndChild();
         ImGui::SetCursorPos(_pos__sub_fileExplorer_contents()[0]);
         if(ImGui::BeginChild("contents", _pos__sub_fileExplorer_contents(false)[2], child_flags, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
             // ImGui::SetWindowFocus("contents");
             if(isInit) ImGui::SetKeyboardFocusHere();
             ImGui::SetCursorPos(ImVec2(0, 0));
-            
             if(ImGui::BeginTable("_currDir", 4, table_flags_contents, ImVec2(_pos__sub_fileExplorer_contents(false)[2].x-2, _pos__sub_fileExplorer_contents(false)[2].y-2))) {
                 
                 ImGui::SetCursorPosX(padding__content_fileExplorer.x);
@@ -571,16 +619,16 @@ void gNC::_menu__fileExplorer() {
                     ImGui::TableHeader(ImGui::TableGetColumnName(i));
                 }
 
-                for(int i=0; i<_pwdCont.size(); i++) {
+                for(int i=0; i<_pwdFileCont.size(); i++) {
                     const bool item_is_selected = table_selections[i];
 
                     ImGui::PushID(i);
                     ImGui::TableNextRow();
                     if(ImGui::TableSetColumnIndex(0)) {
-                        // ImGui::TextUnformatted(_pwdCont[i]->d_name);
+                        // ImGui::TextUnformatted(_pwdFileCont[i].name.c_str());
                         ImGui::SetCursorPosX(padding__content_fileExplorer.x);
                         ImGuiSelectableFlags selectable_flags = ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap;
-                        if(ImGui::Selectable(_pwdCont[i]->d_name, item_is_selected, selectable_flags, ImVec2(0, 0))) {
+                        if(ImGui::Selectable(_pwdFileCont[i].name.c_str(), item_is_selected, selectable_flags, ImVec2(0, 0))) {
                             if(ImGui::GetIO().KeyCtrl) {
                                 table_selections[i] = !item_is_selected;
                             }
@@ -588,24 +636,27 @@ void gNC::_menu__fileExplorer() {
                                 for(size_t ii=0; ii<table_selections.size(); ii++) table_selections[ii] = false;
                                 table_selections[i] = true;
                             }
-                            if(guiKeys.keyPeriod(655)>0) { //check if a file/folder has been double-clicked
-                                switch (_pwdCont[i]->d_type) {
+                            if(guiKeys.keyPeriod(655)>0) {
+                                //check if a file/folder has been double-clicked
+                                // std::cout << "LMB double clicked" << std::endl;
+                                switch (_pwdFileCont[i].type) {
                                     case DT_REG:
-                                        if(validExtension(_pwdCont[i]->d_name, _valid__extensions)) {
-                                            _file__fileExplorer = currDir + std::string(_pwdCont[i]->d_name);
+                                        if(validExtension(_pwdFileCont[i].name.c_str(), _valid__extensions)) {
+                                            _file__fileExplorer = currDir + _pwdFileCont[i].name;
                                             win_open = false;
+                                            // std::cout << " newDir: " << _file__fileExplorer << std::endl;
                                         }
                                         break;
                                     case DT_DIR:
-                                        if(std::string(_pwdCont[i]->d_name)==".") {}
-                                        else if(std::string(_pwdCont[i]->d_name)=="..") {
+                                        if(_pwdFileCont[i].name==".") {}
+                                        else if(_pwdFileCont[i].name=="..") {
                                             std::string _tempDir = "/";
                                             for(int ii=0; ii<_parsed_path.size()-1; ii++) _tempDir += _parsed_path[ii] + "/";
                                             newDirStr = _tempDir;
                                             newDir = true;
                                         }
                                         else {
-                                            newDirStr = currDir + std::string(_pwdCont[i]->d_name) + "/";
+                                            newDirStr = currDir + _pwdFileCont[i].name + "/";
                                             newDir = true;
                                         }
 
@@ -615,38 +666,47 @@ void gNC::_menu__fileExplorer() {
                         }
                     }
                     if(ImGui::TableSetColumnIndex(1)) {
-                        ImGui::TextUnformatted(formatBytes(_pwdCont_stat[i].st_size, 6, 2, false, "right").c_str());
+                        ImGui::TextUnformatted(formatBytes(_pwdFileCont[i].size, 6, 2, false, "right").c_str());
                     }
                     if(ImGui::TableSetColumnIndex(2)) {
-                        // ImGui::TextUnformatted((_pwdCont[i]->d_type==DT_REG? ))
+                        // ImGui::TextUnformatted((_pwdFileCont[i].type==DT_REG? ))
                         std::string _type = "";
-                        switch (_pwdCont[i]->d_type) {
+                        switch (_pwdFileCont[i].type) {
                             case DT_REG: _type="file";  break;
                             case DT_DIR: _type="folder";break;
                         }
                         ImGui::TextUnformatted(_type.c_str());
                     }
                     if(ImGui::TableSetColumnIndex(3)) {
-                        // ImGui::TextUnformatted(formatNumber<time_t>(_pwdCont_stat[i].st_mtime, 0, 0).c_str());
-                        ImGui::TextUnformatted(ctime(&_pwdCont_stat[i].st_mtime));
+                        // ImGui::TextUnformatted(formatNumber<time_t>(_pwdFileCont[i].mtime, 0, 0).c_str());
+                        ImGui::TextUnformatted(ctime(&_pwdFileCont[i].mtime));
                     }
 
                     ImGui::PopID();
                 }
-                ImGui::EndTable();
             }
+            ImGui::EndTable();
 
-            ImGui::EndChild();
         }
+        ImGui::EndChild();
         ImGui::SetCursorPos(_pos__sub_fileExplorer_detailsPanel()[0]);
         if(ImGui::BeginChild("details_panel", _pos__sub_fileExplorer_detailsPanel(false)[2], child_flags)) {
-            for(int i=0; i<table_selections.size(); i++) { if(table_selections[i]) { selected = i; break;} }
-
+            // std::cout << " table_selec{ ";
+            selected = -1;
+            for(int i=0; i<table_selections.size(); i++) {
+                // std::cout<<"["<<i<<"]:"<<std::boolalpha<<table_selections[i]<<" ";
+                if(table_selections[i]) {
+                    selected = i;
+                    break;
+                }
+            }
+            // std::cout<<"} ";
             if(selected!=-1) {
-                valid_selection = validExtension(_pwdCont[selected]->d_name, _valid__extensions);
+                // std::cout << "  selected:"<<selected<<"  table_selections.size(): "<<table_selections.size()<<"  _pwdFileCont.size():"<<_pwdFileCont.size()<<std::endl;
+                valid_selection = validExtension(_pwdFileCont[selected].name, _valid__extensions);
 
                 ImGui::SetCursorPos(padding__content_fileExplorer);
-                ImGui::TextUnformatted(std::string(_pwdCont[selected]->d_name).c_str());
+                ImGui::TextUnformatted(std::string(_pwdFileCont[selected].name).c_str());
                 
                 static std::string _strLabel_size   = formatNumber<std::string>("Size", 15, 0, "left");
                 static std::string _strLabel_path   = formatNumber<std::string>("Path", 15, 0, "left");
@@ -657,50 +717,52 @@ void gNC::_menu__fileExplorer() {
                 ImGui::SetCursorPosX(padding__content_fileExplorer.x);
                 ImGui::TextUnformatted((
                     _strLabel_size + ": " +
-                    formatBytes(_pwdCont_stat[selected].st_size, 6, 2, false, "right")
+                    formatBytes(_pwdFileCont[selected].size, 6, 2, false, "right")
                 ).c_str());
                 ImGui::SetCursorPosX(padding__content_fileExplorer.x);
                 ImGui::TextUnformatted((
                     _strLabel_path + ": " +
-                    currDir + std::string(_pwdCont[selected]->d_name)
+                    currDir + std::string(_pwdFileCont[selected].name)
                 ).c_str());
                 ImGui::SetCursorPosX(padding__content_fileExplorer.x);
                 ImGui::TextUnformatted((
                     _strLabel_aTM + ": " +
-                    ctime(&_pwdCont_stat[selected].st_atime)
+                    ctime(&_pwdFileCont[selected].atime)
                 ).c_str());
                 ImGui::SetCursorPosX(padding__content_fileExplorer.x);
                 ImGui::TextUnformatted((
                     _strLabel_mTM + ": " +
-                    ctime(&_pwdCont_stat[selected].st_mtime)
+                    ctime(&_pwdFileCont[selected].mtime)
                 ).c_str());
-
-                enterBarFileStr = _pwdCont[selected]->d_name;
+                enterBarFileStr = _pwdFileCont[selected].name;
                 if(areKeysPressed(std::vector<int>{662, 525}, &(guiKeys.pressed)) && !areKeysPressed(std::vector<int>{662, 525}, &(guiKeys.pressed), -2)) { //check if `mod-ctrl`+`enter` is pressed
                 // if(isKeyPressed(525, &(guiKeys.pressed)) && !isKeyPressed(525, &(guiKeys.pressed), -2)) {
-                    switch (_pwdCont[selected]->d_type) {
+                    switch (_pwdFileCont[selected].type) {
                         case DT_REG:
                             if(valid_selection) {
-                                _file__fileExplorer = currDir + std::string(_pwdCont[selected]->d_name);
+                                _file__fileExplorer = currDir + std::string(_pwdFileCont[selected].name);
                                 win_open = false;
                             }
                             break;
                         case DT_DIR:
-                            if(std::string(_pwdCont[selected]->d_name)==".") {}
-                            else if(std::string(_pwdCont[selected]->d_name)=="..") {
+                            if(std::string(_pwdFileCont[selected].name)==".") {}
+                            else if(std::string(_pwdFileCont[selected].name)=="..") {
                                 std::string _tempDir = "/";
                                 for(int i=0; i<_parsed_path.size()-1; i++) _tempDir += _parsed_path[i] + "/";
                                 newDirStr = _tempDir;
                                 newDir = true;
                             }
                             else {
-                                newDirStr = currDir + std::string(_pwdCont[selected]->d_name) + "/";
+                                newDirStr = currDir + std::string(_pwdFileCont[selected].name) + "/";
                                 newDir = true;
                             }
 
                             break;
                     }
                 }
+            }
+            else {
+                // std::cout << std::endl;
             }
             ImVec2 _currPos(padding__content_fileExplorer.x, _pos__sub_fileExplorer_detailsPanel(true)[2].y - ImGui::GetTextLineHeightWithSpacing() - padding__content_fileExplorer.y);
             ImGui::SetCursorPos(_currPos);
@@ -709,8 +771,8 @@ void gNC::_menu__fileExplorer() {
 
                 mode2_inpCorrect = false;
                 bool existingMatch = false;
-                for(int i=0; i<_pwdCont.size(); i++) {
-                    if(enterBarFileStr==std::string(_pwdCont[i]->d_name)) { //set every table_selections to false except the one that is entered by InputText
+                for(int i=0; i<_pwdFileCont.size(); i++) {
+                    if(enterBarFileStr==_pwdFileCont[i].name) { //set every table_selections to false except the one that is entered by InputText
                         for(int ii=0; ii<table_selections.size(); ii++) { table_selections[ii] = (ii==i? true : false); }
                         existingMatch = true;
                         selected = i;
@@ -752,20 +814,20 @@ void gNC::_menu__fileExplorer() {
                 win_open = false;
             }
 
-            ImGui::EndChild();
         }
+        ImGui::EndChild();
         ImGui::SetCursorPos(_pos__sub_fileExplorer_navPanel()[0]);
         if(ImGui::BeginChild("navigaion_panel", _pos__sub_fileExplorer_navPanel(false)[2], child_flags)) {
 
-            ImGui::EndChild();
         }
+        ImGui::EndChild();
 
     }
     ImGui::End();
 
     if(newDir) currDir = newDirStr;
 
-    // for(size_t i=0; i<_pwdCont.size(); i++) std::cout << " - " <<_pwdCont[i]->d_name << std::endl;
+    // for(size_t i=0; i<_pwdFileCont.size(); i++) std::cout << " - " <<_pwdFileCont[i].name.c_str() << std::endl;
 
     // _mode__fileExplorer_prev = _mode__fileExplorer;
     if(!win_open) _mode__fileExplorer = 0;

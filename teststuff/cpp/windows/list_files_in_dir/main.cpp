@@ -12,6 +12,10 @@
 #include <stdio.h>
 #include <strsafe.h>
 
+#include <iostream>
+#include <iomanip>
+
+
 #pragma comment(lib, "User32.lib");
 
 void DisplayErrorBox(LPTSTR lpszFunction);
@@ -58,12 +62,18 @@ int _tmain(int argc, TCHAR *argv[]) {
     // List all the files in the directory with some info about them.
     do {
         if(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-            _tprintf(TEXT("  %s  <DIR>\n"), ffd.cFileName);
+            // _tprintf(TEXT("  %s  <DIR>\n"), ffd.cFileName);
+            std::cout<<std::setw(10)<<std::fixed<<    "<DIR>";
+            std::cout<<std::setw(10)<<" "<<std::setw(6)<<" ";
+            std::cout<<std::string(3, ' ')<<ffd.cFileName<<std::endl;
         }
         else {
             filesize.LowPart    = ffd.nFileSizeLow;
             filesize.HighPart   = ffd.nFileSizeHigh;
-            _tprintf(TEXT("  %s  %ld bytes\n"), ffd.cFileName, filesize.QuadPart);
+            // _tprintf(TEXT("  %s  %ld bytes\n"), ffd.cFileName, filesize.QuadPart);
+            std::cout<<std::setw(10)<<std::fixed<<"<NON-DIR>";
+            std::cout<<std::setw(10)<<filesize.QuadPart<<std::setw(6)<<"bytes";
+            std::cout<<std::string(3, ' ')<<ffd.cFileName<<std::endl;
         }
     }
     while(FindNextFile(hFind, &ffd) != 0);

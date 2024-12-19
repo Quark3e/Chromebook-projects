@@ -183,13 +183,35 @@ extern int mouseTimer_decay;
 extern int static_mouseAction_left;
 
 
-
-
 std::vector<std::string> __parsePath(std::string __path, char sep_symb='/');
-int __getPWD_content(std::string __path, std::vector<dirent*>& _retur);
-int __getPWD_stats(std::string __path, std::vector<dirent*>& _dirents, std::vector<struct stat>& _retur);
+// int __getPWD_content(std::string __path, std::vector<dirent*>& _retur);
+// int __getPWD_stats(std::string __path, std::vector<dirent*>& _dirents, std::vector<struct stat>& _retur);
 
 
 std::string formatBytes(off_t _storage, int width=0, int decimals=1, bool use_sciNot=false, std::string align="right");
+
+
+/// @brief struct containing content info of a file/dir
+struct fileCont {
+    /// @brief name of entry
+    std::string name;
+    /// @brief file serial number
+    long        ino;
+    /// @brief type of file
+    int         type;
+    /// @brief Size of file in bytes
+    off_t       size;
+    /// @brief time since last access
+    time_t      atime;
+    /// @brief time since last modification
+    time_t      mtime;
+    /// @brief time since last status change
+    time_t      stime;
+
+};
+
+int __getPWD_fileCont(std::string _path, std::vector<fileCont>& _retur);
+
+
 
 #endif
