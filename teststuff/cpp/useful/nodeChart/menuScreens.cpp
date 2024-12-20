@@ -46,7 +46,7 @@ void gNC::_menu__node_details(
         }
         _winFocused__node_details = ImGui::IsWindowFocused();
         // ImGui::SetWindowPos(ImGui::GetWindowPos());
-        ImGui::SetWindowPos(dim__menu__detail__offset);
+        ImGui::SetWindowPos(pos__menu__detail__offset);
         if(linkPtr_menu__link_details) {
             ImGui::SetWindowSize(ImVec2(dim__menu__detail[0], dim__menu__detail[1]*0.5));
         }
@@ -160,11 +160,11 @@ void gNC::_menu__link_details(
         _winFocused__link_details = ImGui::IsWindowFocused();
         // ImGui::SetWindowPos(ImGui::GetWindowPos());
         if(nodePtr_menu__node_details) {
-            ImGui::SetWindowPos(ImVec2(dim__menu__detail__offset.x, dim__menu__detail__offset.y+dim__menu__detail[1]*0.5));
+            ImGui::SetWindowPos(ImVec2(pos__menu__detail__offset.x, pos__menu__detail__offset.y+dim__menu__detail[1]*0.5));
             ImGui::SetWindowSize(ImVec2(dim__menu__detail[0], dim__menu__detail[1]*0.5));
         }
         else {
-            ImGui::SetWindowPos(dim__menu__detail__offset);
+            ImGui::SetWindowPos(pos__menu__detail__offset);
             ImGui::SetWindowSize(dim__menu__detail);
         }
 

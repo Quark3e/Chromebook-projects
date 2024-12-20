@@ -90,11 +90,14 @@ extern DIY::typed_dict<std::string, nc_proj> projects;
  */
 extern ImDrawList* project_draw_list;
 
-
+/// @brief Main window dimensions
 extern ImVec2 dim__main;
+/// @brief details menu(link, node e.t.c) window dimensions
 extern ImVec2 dim__menu__detail;
+/// @brief window topleft corner coordinate position
+extern ImVec2 pos__menu__detail__offset;
 
-extern ImVec2 dim__menu__detail__offset;
+
 
 /**
  * Coefficients/scalars to solve window dimensions of fileExplorer relative to

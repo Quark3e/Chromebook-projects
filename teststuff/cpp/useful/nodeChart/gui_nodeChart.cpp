@@ -1863,8 +1863,8 @@ int gNC::guiNodeChart::loadFile(
             this->screen_pos[1] = _pair[1].get10();
         }
         if(_pair.key=="screen_dim") {
-            this->screen_dim[0] = _pair[0].get10();
-            this->screen_dim[1] = _pair[1].get10();
+            // this->screen_dim[0] = _pair[0].get10();
+            // this->screen_dim[1] = _pair[1].get10();
         }
         if(_pair.key=="nodes") {
             for(JSON_P::jsonPair _node : _pair.get3()) {

@@ -134,11 +134,11 @@ int main(int argc, char** argv) {
                 projects[_selected].chart.screen_dim[1] = al_get_display_height(display);
                 dim__main.x = projects[_selected].chart.screen_dim[0];
                 dim__main.y = projects[_selected].chart.screen_dim[1];
+                __GLOBAL_FLAGS__WIN_RESIZED = 2;
                 if(__ON_TERMINAL) {
                     std::cout<<"["<<GET_CURRENT_TIME()<<"]: ";
                     std::cout << "window_resized: ["<<dim__main.x<< ", "<<dim__main.y<<"]"<< std::endl;
                 }
-                __GLOBAL_FLAGS__WIN_RESIZED = 2;
             }
         }
         ImGui_ImplAllegro5_NewFrame();
@@ -360,6 +360,8 @@ int main(int argc, char** argv) {
                     projects.rename("_temp", ptrToStr<gNC::guiNodeChart*>(&(projects[-1].chart)));
                     // projects[-1.chart].loadFile(programCWD+"saveFiles/_TEST_"+""+ "project 0.json");
                     projects[-1].chart.loadFile(gNC::_file__fileExplorer);
+                    projects[-1].chart.screen_dim[0] = dim__main.x;
+                    projects[-1].chart.screen_dim[1] = dim__main.y;
                     _selected = projects.size()-1;
 
                     projects[-1].chart.modified = false;
