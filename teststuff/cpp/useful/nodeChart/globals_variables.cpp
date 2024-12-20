@@ -17,6 +17,14 @@ std::string                             __CURRENT__TIME_STRING  = std::string(ct
 
 std::string programCWD;
 
+#if _WIN32
+std::string __dir_programRoot   = "/Users/berkh/Projects/Github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/";
+std::string __dir_saveFiles     = "/Users/berkh/Projects/Github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/saveFiles/";
+#else
+std::string __dir_programRoot   = "/home/berkhme/github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/";
+std::string __dir_saveFiles     = "/home/berkhme/github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/saveFiles/";
+#endif
+
 // DIY::typed_dict<std::string, gNC::guiNodeChart> projects;
 DIY::typed_dict<std::string, nc_proj> projects;
 

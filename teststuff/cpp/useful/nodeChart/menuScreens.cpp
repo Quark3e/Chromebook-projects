@@ -450,12 +450,7 @@ int         gNC::_mode__fileExplorer_prev = 0;
 std::vector<std::string> gNC::_valid__extensions;
 
 void gNC::_menu__fileExplorer() {
-#if _WIN32
-    static const std::string defaultDir = "/Users/berkh/Projects/Github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/saveFiles/";
-#else
-    static const std::string defaultDir = "/home/berkhme/github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/saveFiles/"; //getFileCWD(true);
-#endif
-    static std::string currDir = defaultDir;
+    static std::string currDir = __dir_saveFiles;
     static std::string dir_history;
     
     // static std::vector<dirent*>     _pwdCont;
@@ -484,17 +479,19 @@ void gNC::_menu__fileExplorer() {
         _mode__fileExplorer_prev = _mode__fileExplorer;
         return;
     }
+    // std::cout<<"c1"<<std::endl;
     if(!_mode__fileExplorer_prev) {
         isInit = true;
         //This is the "first"/init iteration of the new fileExplorer call.
         //This is the init call
         scr_width   = dim__win_fileExplorer().x;
         scr_height  = dim__win_fileExplorer().y;
-        currDir     = defaultDir;
+        currDir     = __dir_saveFiles;
         selected    = -1;
         win_open    = true;
         _file__fileExplorer = "";
     }
+    // std::cout<<"currDir:"<<currDir << std::endl;
     if(__getPWD_fileCont(currDir, _pwdFileCont)) {
         perror("__getPWD_fileCont failed: ");
         exit(1);
@@ -684,8 +681,8 @@ void gNC::_menu__fileExplorer() {
 
                     ImGui::PopID();
                 }
+                ImGui::EndTable();
             }
-            ImGui::EndTable();
 
         }
         ImGui::EndChild();

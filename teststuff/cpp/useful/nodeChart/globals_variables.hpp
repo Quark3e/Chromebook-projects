@@ -79,6 +79,8 @@ struct nc_proj{
 };
 
 extern std::string programCWD;
+extern std::string __dir_programRoot;
+extern std::string __dir_saveFiles;
 
 extern DIY::typed_dict<std::string, nc_proj> projects;
 

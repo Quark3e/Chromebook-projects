@@ -21,6 +21,8 @@ bool opt__enable_grid = true;
 
 int main(int argc, char** argv) {
     
+
+
     if(argc>1) {
         std::cout << "program entered arguments:" << std::endl;
         for(int i=0; i<argc; i++) {
@@ -37,13 +39,10 @@ int main(int argc, char** argv) {
     else std::cout << "Default";
     std::cout << std::endl;
 
-    programCWD = getFileCWD(true);
-    std::cout << programCWD << std::endl;
-#if _WIN32
-    std::string default_proj_file = "C:\\Users\\berkh\\Projects\\Github_repo\\Chromebook-projects\\teststuff\\cpp\\useful\\nodeChart/saveFiles/default_chart.json";
-#else
-    std::string default_proj_file = "/home/berkhme/github_repo/Chromebook-projects/teststuff/cpp/useful/nodeChart/saveFiles/default_chart.json";
-#endif
+    // programCWD = getFileCWD(true);
+    // std::cout << programCWD << std::endl;
+    std::string default_proj_file = __dir_saveFiles + "default_chart.json";
+
     al_init();
     al_install_keyboard();
     al_install_mouse();
@@ -62,7 +61,7 @@ int main(int argc, char** argv) {
     ImGuiStyle& style = ImGui::GetStyle();
 
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
+    io.IniFilename = (__dir_programRoot+"imgui.ini").c_str();
 
     ImGui::StyleColorsDark();
     ImGui_ImplAllegro5_Init(display);
