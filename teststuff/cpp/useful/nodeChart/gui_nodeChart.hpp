@@ -379,6 +379,13 @@ namespace gNC {
             std::string filename,
             bool overwrite = false
         );
+        /**
+         * @brief Load nodeChart from .json saveFile into this class object
+         * 
+         * @param filename `std::string` of the the json file path, preferably absolute, or relative to cwd
+         * @param verbose whether to print actions on terminal
+         * @return int 
+         */
         int loadFile(
             std::string filename,
             bool verbose = false
@@ -440,9 +447,13 @@ namespace gNC {
     void _menu__timeline(gNC::guiNodeChart* _chart);
 
     extern std::string _file__fileExplorer;
+    /**
+     * file explorer menu button labels.
+     */
     extern std::vector<std::string> _mode__types;
     extern int         _mode__fileExplorer;        //`1`-open, `2`-save, `3`-load, `4`-save as
     extern int         _mode__fileExplorer_prev;
+    /// @brief valid extensions for the file explorer to open
     extern std::vector<std::string> _valid__extensions;
     void        _menu__fileExplorer();
 

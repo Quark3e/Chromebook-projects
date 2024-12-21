@@ -405,7 +405,6 @@ std::vector<std::string> __parsePath(std::string __path, char sep_symb) {
 //         }
 //         _retur.push_back(_temp);
 //     }
-
 //     return 0;
 // }
 
@@ -443,11 +442,11 @@ int __getPWD_fileCont(
 
 
 
-std::string gNC::_file__fileExplorer = "";
-std::vector<std::string> gNC::_mode__types{"NULL", "Open", "Save", "Load", "Save As.."};
-int         gNC::_mode__fileExplorer = 0;
-int         gNC::_mode__fileExplorer_prev = 0;
-std::vector<std::string> gNC::_valid__extensions;
+std::string                 gNC::_file__fileExplorer = "";
+std::vector<std::string>    gNC::_mode__types{"NULL", "Open", "Save", "Load", "Save As.."};
+int                         gNC::_mode__fileExplorer = 0;
+int                         gNC::_mode__fileExplorer_prev = 0;
+std::vector<std::string>    gNC::_valid__extensions;
 
 void gNC::_menu__fileExplorer() {
     static std::string currDir = __dir_saveFiles;

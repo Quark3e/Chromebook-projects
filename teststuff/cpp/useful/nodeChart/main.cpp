@@ -90,14 +90,14 @@ int main(int argc, char** argv) {
     
     
     projects.add("project 0", nc_proj{"", false, gNC::guiNodeChart()});
-    
     projects[0].chart.thisPtr = &(projects[0].chart);
 
     // projects[0].chart.project_name = projects.key(0);
     projects.rename("project 0", ptrToStr<gNC::guiNodeChart*>(projects[0].chart.thisPtr));
 
     projects[0].chart.loadFile(default_proj_file, false);
-
+    projects[-1].chart.screen_dim[0] = dim__main.x;
+    projects[-1].chart.screen_dim[1] = dim__main.y;
     projects[0].fileLinked = true;
     projects[0].filename = default_proj_file;
 
@@ -250,6 +250,13 @@ int main(int argc, char** argv) {
 
         if(ImGui::BeginMenuBar()) {
             if(ImGui::BeginMenu("File")) {
+                if(ImGui::MenuItem("New project")) {
+                    projects.add("_temp", nc_proj{"", false, gNC::guiNodeChart()});
+                    projects[-1].chart.thisPtr = &(projects[-1].chart);
+                    projects.rename("_temp", ptrToStr<gNC::guiNodeChart*>(&(projects[-1].chart)));
+                    _selected = projects.size()-1;
+                }
+                ImGui::Separator();
                 if(ImGui::MenuItem("Open file")) {
                     if(gNC::_mode__fileExplorer==0) {
                         gNC::_mode__fileExplorer = 1;
@@ -329,6 +336,7 @@ int main(int argc, char** argv) {
                     _selected = i;
                     ImGui::EndTabItem();
                 }
+                // if(i==0) std::cout << "open: "<<std::boolalpha << open << std::endl;
                 if(!open) {
                     projects.eraseIdx(i);
                     if(_selected>=i) _selected--;
@@ -359,6 +367,7 @@ int main(int argc, char** argv) {
                     projects[-1].chart.thisPtr = &(projects[-1].chart);
                     projects.rename("_temp", ptrToStr<gNC::guiNodeChart*>(&(projects[-1].chart)));
                     // projects[-1.chart].loadFile(programCWD+"saveFiles/_TEST_"+""+ "project 0.json");
+
                     projects[-1].chart.loadFile(gNC::_file__fileExplorer);
                     projects[-1].chart.screen_dim[0] = dim__main.x;
                     projects[-1].chart.screen_dim[1] = dim__main.y;

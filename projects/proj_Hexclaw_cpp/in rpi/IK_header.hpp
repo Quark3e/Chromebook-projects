@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string>
 #include <math.h>
-
+#include <cmath>
 
 #include <diy_dictionary.hpp>
 

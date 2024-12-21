@@ -534,9 +534,10 @@ bool& JSON_P::jsonPair::get4() {
 }
 
 
-bool JSON_P::jsonPair::loadFile(
+int JSON_P::jsonPair::loadFile(
     std::string filename,
-    bool _verbose
+    bool _verbose,
+    bool _throwError
 ) {
     JSON_P::jsonPair*   _curr = this;
     
@@ -560,7 +561,8 @@ bool JSON_P::jsonPair::loadFile(
     std::fstream _file;
     _file.open(filename, std::fstream::in);
     if(!_file.is_open()) {
-        throw std::invalid_argument("file \""+filename+"\" could not be opened");
+        if(_throwError) throw std::invalid_argument("file \""+filename+"\" could not be opened");
+        else return 1;
     }
     else {}
 
@@ -832,6 +834,8 @@ bool JSON_P::jsonPair::loadFile(
         }
     }
     c_prev = c;
+
+    return 0;
 }
 
 
@@ -847,9 +851,10 @@ JSON_P::Parser::Parser(
 
 }
 
-void JSON_P::Parser::loadFile(
+int JSON_P::Parser::loadFile(
     std::string filename,
-    bool _verbose
+    bool _verbose,
+    bool _throwError
 ) {
     // JSON_P::jsonPair    _json;
     JSON_P::jsonPair*   _curr = &_json;
@@ -874,7 +879,8 @@ void JSON_P::Parser::loadFile(
     std::fstream _file;
     _file.open(filename, std::fstream::in);
     if(!_file.is_open()) {
-        throw std::invalid_argument("file \""+filename+"\" could not be opened");
+        if(_throwError) throw std::invalid_argument("file \""+filename+"\" could not be opened");
+        else return 1;
     }
     else {}
 
@@ -1178,6 +1184,6 @@ void JSON_P::Parser::loadFile(
     c_prev = c;
     // std::cout << _temp.type() << std::endl;
     // this->_json = _temp;
-
+    return 0;
 }
 

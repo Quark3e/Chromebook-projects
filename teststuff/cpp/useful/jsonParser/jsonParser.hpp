@@ -252,8 +252,18 @@ namespace JSON_P {
              * @param isArray true (json array) or false (json object)
              */
             void isArray(bool isArray);
-
-            bool loadFile(std::string filename, bool _verbose=false);
+            /**
+             * @brief Load and parse a json file
+             * 
+             * @param filename name of the file
+             * @param _verbose whether to print the loaded info
+             * @param _throwError whether to throw an invalid_argument error if something goes wrong. If false, then the function will return !=0
+             * @return int digit for whether the json file got successfully loaded into this class. 
+             *  - `0` - success
+             *  - `1` - file failed to load
+             *  - `2` - some other error
+             */
+            int loadFile(std::string filename, bool _verbose=false, bool _throwError=true);
     };
     
 
@@ -272,9 +282,14 @@ namespace JSON_P {
              * @brief Load and parse a json file
              * 
              * @param filename name of the file
-             * @param verbose whether to print the loaded info
+             * @param _verbose whether to print the loaded info
+             * @param _throwError whether to throw an invalid_argument error if something goes wrong. If false, then the function will return !=0
+             * @return int digit for whether the json file got successfully loaded into this class. 
+             *  - `0` - success
+             *  - `1` - file failed to load
+             *  - `2` - some other error
              */
-            void loadFile(std::string filename, bool _verbose=false);
+            int loadFile(std::string filename, bool _verbose=false, bool _throwError=true);
     };
 
 

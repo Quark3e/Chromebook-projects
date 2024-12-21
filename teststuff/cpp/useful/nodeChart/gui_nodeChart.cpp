@@ -1846,7 +1846,11 @@ int gNC::guiNodeChart::loadFile(
 ) {
 
     JSON_P::jsonPair _json;
-    _json.loadFile(filename, verbose);
+    int exitCode = 0;
+    if((exitCode = _json.loadFile(filename, verbose, false))!=0) {
+        std::cout<< "ERROR: " << _info_name << "loadFile failed to load file. code: "<< exitCode << std::endl;
+        return 1;
+    }
 
     // _json["projects"][0]
 
@@ -2121,6 +2125,6 @@ int gNC::guiNodeChart::loadFile(
         }
     */
 
-   this->modified = true;
+    this->modified = true;
     return 0;
 }
