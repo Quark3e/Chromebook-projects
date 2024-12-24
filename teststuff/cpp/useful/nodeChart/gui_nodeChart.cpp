@@ -2128,3 +2128,210 @@ int gNC::guiNodeChart::loadFile(
     this->modified = true;
     return 0;
 }
+
+
+
+gNC::timeUnit::timeUnit(size_t _value): value(_value) {}
+gNC::timeUnit gNC::timeUnit::operator+=(timeUnit const& _obj) {
+    this->value += _obj.value;
+    return gNC::timeUnit(this->value);
+}
+gNC::timeUnit gNC::timeUnit::operator-=(timeUnit const& _obj) {
+    this->value -= _obj.value;
+    return gNC::timeUnit(this->value);
+}
+gNC::timeUnit gNC::timeUnit::operator+(timeUnit const& _obj) {
+    return timeUnit(this->value + _obj.value);
+}
+gNC::timeUnit gNC::timeUnit::operator-(timeUnit const& _obj) {
+    return timeUnit(this->value - _obj.value);
+}
+gNC::timeUnit gNC::timeUnit::operator*(timeUnit const& _obj) {
+    return timeUnit(this->value * _obj.value);
+}
+gNC::timeUnit gNC::timeUnit::operator/(timeUnit const& _obj) {
+    return timeUnit(this->value / _obj.value);
+}
+bool    gNC::timeUnit::operator==(timeUnit const& _obj) {
+    return (this->value==_obj.value);
+}
+bool    gNC::timeUnit::operator!=(timeUnit const& _obj) {
+    return (this->value!=_obj.value);
+}
+bool    gNC::timeUnit::operator>=(timeUnit const& _obj) {
+    return (this->value>=_obj.value);
+}
+bool    gNC::timeUnit::operator<=(timeUnit const& _obj) {
+    return (this->value<=_obj.value);
+}
+bool    gNC::timeUnit::operator<(timeUnit const& _obj) {
+    return (this->value<_obj.value);
+}
+bool    gNC::timeUnit::operator>(timeUnit const& _obj) {
+    return (this->value>_obj.value);
+}
+
+std::ostream &operator<<(std::ostream &os, gNC::timeUnit const &m) {
+    return os << m.value;
+}
+
+
+gNC::timeline::timeline() {
+
+}
+void gNC::timeline::set_channel_limit(size_t val) {
+
+}
+// gNC::timeObject &gNC::timeline::get_timeObject(gNC::gNODE *_nodePtr) {
+//     assert(_nodePtr);
+//     int idx = -1;
+//     for(size_t i=0; i<this->objects.size(); i++) {
+//         if(this->objects[i].objNode==_nodePtr) {
+//             idx = i;
+//             break;
+//         }
+//     }
+//     if(idx==-1) throw std::invalid_argument(this->_info_name+"::get_timeObject() invalid _nodePtr arg: \""+ptrToStr<gNC::gNODE*>(_nodePtr)+"\"");
+//     return this->objects.at(idx);
+// }
+
+int gNC::timeline::add_timeObject(
+    gNC::gNODE     *_nodePtr,
+    gNC::timeUnit   _start,
+    gNC::timeUnit   _end,
+    size_t          _channel,
+    int             _conflictMergeMethod
+) {
+    static auto conflict_resolver = [_conflictMergeMethod](gNC::timeUnit& _old, gNC::timeUnit& _new, bool _new_loc_before) {
+        switch (_conflictMergeMethod) {
+        case 0: _old = _new; break;
+        case 1: _new = _old; break;
+        case 2:
+            if(_new_loc_before) _old = _new;
+            else _new = _old;
+        case 3:
+            if(_new_loc_before) _new = _old;
+            else _old = _new;
+        case 4: {
+            int diff = static_cast<int>(_new)-static_cast<int>(_old);
+            _new -= diff;
+            _old += diff;
+        }
+        default: return 1;
+        }
+        return 0;
+    };
+
+
+    assert(_nodePtr);
+    if(_end<=_start) {
+        std::cout << this->_info_name+"::add_timeObject() _start arg cannot be bigger/equal to _end time."<<std::endl;
+        return 2;
+    }
+
+    if(objects.size()==0) {
+        this->objects.push_back(gNC::timeObject{_start, _end, _nodePtr, _channel});
+        return 0;
+    }
+
+    for(size_t i=0; i<this->objects.size(); i++) {
+        if(this->objects.at(i).objNode == _nodePtr) {
+            std::cout << this->_info_name+"::add_timeObject() nodePtr arg already exists in timeline: "<<_nodePtr<<std::endl;
+            return 1;
+        }
+    }
+
+
+    /**
+     * Indices to the elements where the new timeObject is to be place within, [0]-minimum, [1]-maximum.
+     * If the element==`-1` then none have been found for that "side"/"end":
+     *  so for example, if the elements by the end are:
+     *  `{-1, 0}`   - is the smallest. Insert before element [0]: `.insert(itr(0))`
+     *  `{ 2, 3}`   - is between elements [2] and [3]: `.insert(itr(3))` (because inserting at index 3 pushes the existing element at 3 to 4)
+     *  `{ 4, -1}`  - is after element [4], is the last: `.push_back()`
+     *  `{-1, -1}   - no timeObject has been found to be compared to so just append this at the end of objects vector-
+     */
+    std::vector<int>    insert_indices{-1, -1};
+    /**
+     * Booleans for whether a conflict has been found at either side (_start, _end) of the placement search.
+     */
+    std::vector<bool>   insert_conflicts{false, false};
+    size_t conflict_size[2] = {0, 0};
+    
+    bool breakSearch = false;
+    // Find insertion position
+    for(size_t i=0; i<this->objects.size(); i++) {
+        if(_channel==0 || this->objects.at(i).channel==_channel) {
+            if(_start<=this->objects.at(i).start) {
+                // Position found: insert before object[i]
+                if(_end>=this->objects.at(i).end) {
+                    // new timeObjects _start-_end range aren't allowed to surround and subsequently replace existing timeObjects whithin this function
+                    std::cout << this->_info_name+"::add_timeObject() args for new _start/_end cannot replace an existing timeObject. That has to be done with dedicated method."<<std::endl;
+                    return 3;
+                }
+                else if(_end>this->objects.at(i).start) insert_conflicts[1] = true;
+
+                insert_indices[1] = i; //maximum is i;
+
+                breakSearch = true; break;
+            }
+            else if(_start<=this->objects.at(i).end) {
+                insert_conflicts[0] = true;
+                // New timeObjects _start intersects this timeObject[i]'s end. Iterate through remaining timeObjects to find the _end 
+                //  placement/interaction to see if any "surrounding" errors have been made for changing existing timeObjects.
+                // Index for the minimum side is i.
+                for(size_t ii=i+1; ii<this->objects.size(); ii++) {
+                    if((_channel==0 || this->objects.at(ii).channel==_channel)) {
+                        if(_end>=this->objects.at(ii).end) {
+                            // Surrounding error has occurred.
+                            std::cout << this->_info_name+"::add_timeObject() args for new _start/_end cannot replace an existing timeObject. That has to be done with dedicated method."<<std::endl;
+                            return 3;
+                        }
+                        else if(_end>this->objects.at(ii).start) insert_conflicts[1] = true;
+                        // Position found: insert after object[i], before object[ii]
+                        insert_indices = std::vector<int>{static_cast<int>(i), static_cast<int>(ii)};
+
+                        breakSearch = true; break;
+                    }
+                }
+                if(!breakSearch) {
+                    insert_indices = std::vector<int>{static_cast<int>(i), -1};
+                    break;
+                }
+            }
+            // the inserting index's start is beyond the current index
+            insert_indices[0] = i;
+        }
+        if(breakSearch) break;
+    }
+
+    // Modify conflicts: new objects start side
+    if(insert_conflicts[0]) {
+        if(conflict_resolver(this->objects.at(insert_indices[0]).end, _start, true)!=0) {
+            std::cout << this->_info_name+"::add_timeObject() _conflictMergeMethod arg is invalid"<<std::endl;
+            return 4;
+        }
+    }
+    // Modify conflicts: new objects end side
+    if(insert_conflicts[1]) {
+        if(conflict_resolver(this->objects.at(insert_indices[1]).start, _end, false)!=0) {
+            std::cout << this->_info_name+"::add_timeObject() _conflictMergeMethod arg is invalid"<<std::endl;
+            return 4;
+        }
+    }
+
+    if(insert_indices[1]==-1) {
+        //append at the end
+        this->objects.push_back(gNC::timeObject{_start, _end, _nodePtr, _channel});
+        return 0;
+    }
+    std::vector<timeObject>::iterator insert_itr = this->objects.begin();
+    std::advance(insert_itr, insert_indices[1]);
+    this->objects.insert(insert_itr, gNC::timeObject{_start, _end, _nodePtr, _channel});
+
+
+    return 0;
+}
+
+
+

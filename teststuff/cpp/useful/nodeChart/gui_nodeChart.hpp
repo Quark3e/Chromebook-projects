@@ -24,6 +24,8 @@ namespace gNC {
     struct gNODE;
     // struct gLINK;
 
+    struct timeline;
+
     // static auto add_nodePos = [](ImVec2 addTo, gNC::gNODE* toAdd) { return ImVec2(addTo.x+toAdd->pos[0], addTo.y+toAdd->pos[1]); };
 
     struct gLINK {
@@ -390,6 +392,81 @@ namespace gNC {
             std::string filename,
             bool verbose = false
         );
+    };
+
+    /**
+     * Arbitrary time unit used by gNC::timeObject and gNC::timeline to sort and indicate the order of each timeObject
+     * 
+     */
+    struct timeUnit {
+        size_t value;
+
+        timeUnit(size_t _value);
+
+        operator int() const { return static_cast<int>(value); }
+        
+        timeUnit operator+=(timeUnit const& _obj);
+        timeUnit operator-=(timeUnit const& _obj);
+        timeUnit operator+(timeUnit const& _obj);
+        timeUnit operator-(timeUnit const& _obj);
+        timeUnit operator*(timeUnit const& _obj);
+        timeUnit operator/(timeUnit const& _obj);
+        bool    operator==(timeUnit const& _obj);
+        bool    operator!=(timeUnit const& _obj);
+        bool    operator>=(timeUnit const& _obj);
+        bool    operator<=(timeUnit const& _obj);
+        bool    operator<(timeUnit const& _obj);
+        bool    operator>(timeUnit const& _obj);
+    };
+    /**
+     * Time object representing a `gNC::gNODE` in a timeline
+     * 
+     */
+    struct timeObject {
+        timeUnit    start;
+        timeUnit    end;
+        gNODE*      objNode;
+        size_t      channel;
+    };
+
+    class timeline {
+        std::string _info_name = "gNC::timeline";
+    private:
+        std::vector<timeObject> objects;
+
+        /**
+         * Number of channels within a timeline that's allowed to exist.
+         * If value is `0` then no limit is set.
+         */
+        size_t channel_limit = 1;
+    public:
+        timeline();
+
+        void set_channel_limit(size_t val);
+        // timeObject &get_timeObject(gNC::gNODE *_nodePtr);
+        /**
+         * add a new timeObject to the timeline for a node
+         * 
+         * @param _nodePtr pointer to the node to add to as the timeObject
+         * @param _start timeUnit for the timeObject start
+         * @param _end timeUnit for the timeObject end. Cannot be the same as `_start`. If it's the same or less than `_start` arg
+         * @param _channel what timeline channel to place the timeObject in: 
+         * if `0`-whichever with smallest conflict;
+         * if `>=channel_limit`-same as 0
+         * @param _conflictMergeMethod integer flag/code for how to resolve any timeUnit conflicts that might arise where this timeObject is placed.
+         *  If the new object's start-end is placed between two other objects and their end-start distance is smaller than the width(start-end) of this object
+         * it'll count as a conflict, otherwise it'll automatically move/shift this objects start/end so it fits.
+         * `0` - prio new object, crop everything else in conflict;
+         * `1` - prio old objects, crop the new object
+         * `2` - prio object located former, crop objects after
+         * `3` - prio object located latter, crop objects former
+         * `4` - prio neither side and crop both objects to the midle ground
+         * @return int for whether the function successfully ran or any errors happened: `0`-success
+         * @note if the _start and _end range of ths new timeObject "envelopes"/surrounds another existing pre-existing timeObject then the function will return
+         * as an error since removing/replacing existing timeObject's must be done with another function
+         */
+        int add_timeObject(gNC::gNODE *_nodePtr, gNC::timeUnit _start, gNC::timeUnit _end, size_t _channel=0, int _conflictMergeMethod=0);
+        
     };
 
 
