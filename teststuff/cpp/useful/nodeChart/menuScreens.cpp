@@ -60,11 +60,11 @@ void gNC::_menu__node_details(
             toDetail->inChart->modified = true;
         }
         
-        // ImGui::SameLine();
-        // ImGui::PushItemWidth(100);
-        // if(ImGui::DateChooser(("##"+ptrToStr<gNC::gNODE*>(toDetail)+"_date").c_str(), toDetail->date)) {
-        //     toDetail->inChart->modified;
-        // }
+        ImGui::SameLine();
+        ImGui::PushItemWidth(100);
+        if(ImGui::DateChooser(("##"+ptrToStr<gNC::gNODE*>(toDetail)+"_date").c_str(), toDetail->date)) {
+            toDetail->inChart->modified;
+        }
 
         ImGui::Separator();
         ImGui::PushItemWidth(dim__menu__detail.x-_win_widthOffset);
@@ -173,11 +173,11 @@ void gNC::_menu__link_details(
             toDetail->inChart->modified = true;
         }
 
-        // ImGui::SameLine();
-        // ImGui::PushItemWidth(100);
-        // if(ImGui::DateChooser(("##"+ptrToStr<gNC::gLINK*>(toDetail)+"_date").c_str(), toDetail->date)) {
-        //     toDetail->inChart->modified = true;
-        // }
+        ImGui::SameLine();
+        ImGui::PushItemWidth(100);
+        if(ImGui::DateChooser(("##"+ptrToStr<gNC::gLINK*>(toDetail)+"_date").c_str(), toDetail->date)) {
+            toDetail->inChart->modified = true;
+        }
 
 
         ImGui::Separator();
