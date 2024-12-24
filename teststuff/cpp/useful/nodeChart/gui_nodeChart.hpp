@@ -403,7 +403,8 @@ namespace gNC {
 
         timeUnit(size_t _value);
 
-        operator int() const { return static_cast<int>(value); }
+        operator int()      const { return static_cast<int>(value); }
+        operator size_t()   const { return value; }
         
         timeUnit operator+=(timeUnit const& _obj);
         timeUnit operator-=(timeUnit const& _obj);
@@ -430,9 +431,48 @@ namespace gNC {
     };
 
     class timeline {
-        std::string _info_name = "gNC::timeline";
     private:
+        std::string _info_name = "gNC::timeline";
         std::vector<timeObject> objects;
+
+        /**
+         * @brief resolve conflicts with merge method
+         * 
+         * @param _old reference to the old/already-existing timeObject.timeUnit
+         * @param _new reference to the new timeObject.timeUnit
+         * @param _new_loc_before boolean for whether the new timeObject is located ahead of the old timeObject
+         * @param _conflictMergeMethod dedicated conflict merge method
+         * @return int for whether it was successful or not: `0`-successful.
+         */
+        int _conflict_resolver(
+            gNC::timeUnit& _old,
+            gNC::timeUnit& _new,
+            bool _new_loc_before,
+            int _conflictMergeMethod
+        );
+        /**
+         * @brief Find this->object insert position based on the new timeObject's _start, _end and _channel value
+         * 
+         * @param _start new object's start timeUnit
+         * @param _end new object's end timeUnit
+         * @param _channel new object's _channel
+         * @param _ins_indices reference to elements where the new timeObject is to be place within, [0]-minimum, [1]-maximum.
+         * If the element==`-1` then none have been found for that "side"/"end":
+         *  so for example, if the elements by the end are:
+         *  `{-1, 0}`   - is the smallest. Insert before element [0]: `.insert(itr(0))`
+         *  `{ 2, 3}`   - is between elements [2] and [3]: `.insert(itr(3))` (because inserting at index 3 pushes the existing element at 3 to 4)
+         *  `{ 4, -1}`  - is after element [4], is the last: `.push_back()`
+         *  `{-1, -1}`  - no timeObject has been found to be compared to so just append this at the end of objects vector-
+         * @param _ins_conflicts reference to booleans for whether a conflict has been found at either side ([0]-_start, [1]-_end) of the placement search.
+         * @return int for return code. `0`-success, otherwise an error has occurred.
+         */
+        int _find_insert_pos(
+            gNC::timeUnit   _start,
+            gNC::timeUnit   _end,
+            size_t          _channel,
+            std::vector<int>&   _ins_indices,
+            std::vector<bool>&  _ins_conflicts
+        );
 
         /**
          * Number of channels within a timeline that's allowed to exist.
