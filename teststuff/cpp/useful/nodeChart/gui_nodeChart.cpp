@@ -2176,6 +2176,38 @@ std::ostream &operator<<(std::ostream &os, gNC::timeUnit const &m) {
 }
 
 
+int gNC::timeObject::is_side(
+    gNC::timeUnit   _value,
+    size_t          _margin
+) {
+
+    for(size_t n=this->start.value-_margin; n<=this->start.value+_margin; n++) {
+        if(_value.value==n) return 1;
+    }
+    for(size_t n=this->end.value-_margin; n<=this->end.value+_margin; n++) {
+        if(_value.value==n) return 2;
+    }
+    return 0;
+}
+int gNC::timeObject::move_start(
+    gNC::timeUnit   _newStart,
+    size_t          _min_width,
+    bool            _only_check
+) {
+    if(_newStart>this->end || (int(this->end)-int(_newStart))<_min_width) return 1;
+    if(!_only_check) this->start = _newStart;
+    return 0;
+}
+int gNC::timeObject::move_end(
+    gNC::timeUnit   _newEnd,
+    size_t          _min_width,
+    bool            _only_check
+) {
+    if(_newEnd<this->start || (int(_newEnd)-int(this->start))<_min_width) return 1;
+    if(!_only_check) this->end = _newEnd;
+    return 0;
+}
+
 int gNC::timeline::_conflict_resolver(
     gNC::timeUnit&  _old,
     gNC::timeUnit&  _new,
@@ -2208,7 +2240,6 @@ int gNC::timeline::_find_insert_pos(
     std::vector<bool>&  _ins_conflicts
 ) {
     bool breakSearch = false;
-    // Find insertion position
     for(size_t i=0; i<this->objects.size(); i++) {
         if(_channel==0 || this->objects.at(i).channel==_channel) {
             if(_start<=this->objects.at(i).start) {
@@ -2282,7 +2313,6 @@ int gNC::timeline::add_timeObject(
     size_t          _channel,
     int             _conflictMergeMethod
 ) {
-
     assert(_nodePtr);
     if(_end<=_start) {
         std::cout << this->_info_name+"::add_timeObject() _start arg cannot be bigger/equal to _end time."<<std::endl;
@@ -2309,6 +2339,7 @@ int gNC::timeline::add_timeObject(
      */
     std::vector<bool>   insert_conflicts{false, false};
     
+    // Find insertion position
     if(_find_insert_pos(_start, _end, _channel, insert_indices, insert_conflicts)!=0) {
         std::cout << this->_info_name+"::add_timeObject() _find_insert_pos() error has occurred."<<std::endl;
         return 3;
@@ -2341,6 +2372,95 @@ int gNC::timeline::add_timeObject(
 
     return 0;
 }
+int gNC::timeline::delete_timeObject(
+    gNC::gNODE* _nodePtr
+) {
+    assert(_nodePtr);
 
+    int idx = -1;
+    for(size_t i=0; i<this->objects.size(); i++) {
+        if(this->objects.at(i).objNode==_nodePtr) {
+            idx = i;
+            break;
+        }
+    }
+    if(idx==-1) {
+        std::cout << this->_info_name+"::delete_timeObject() invalid arg _nodePtr. not found."<<std::endl;
+        return -1;
+    }
+    auto itr = this->objects.begin();
+    std::advance(itr, idx);
+    this->objects.erase(itr);
 
+    return 0;
+}
+gNC::timeObject gNC::timeline::get_timeObject(
+    gNC::gNODE* _nodePtr
+) {
+    assert(_nodePtr);
+    int idx=-1;
+    for(size_t i=0; i<this->objects.size(); i++) {
+        if(this->objects.at(i).objNode==_nodePtr) {
+            idx = i;
+            break;
+        }
+    }
+    if(idx==-1) throw std::invalid_argument(this->_info_name+"::get_timeObject(..) invalid _nodePtr argument.");
 
+    return this->objects.at(idx);
+}
+int gNC::timeline::move_sides(
+    gNC::timeUnit   _oldVal,
+    gNC::timeUnit   _newVal,
+    gNC::gNODE*     _toMove,
+    size_t          _channel
+) {
+    std::vector<gNC::timeObject&> toMove;
+    std::vector<int> toMove_side;
+    if(_channel > this->_channel_limit) _channel = this->_channel_limit;
+
+    for(size_t i=0; i<this->objects.size(); i++) {
+        /// Naturally the former located timeObject is the one that is "on the left side"
+        if(_channel==0 || this->objects.at(i).channel==_channel) {
+            int _side = 0;
+            if((_side = this->objects.at(i).is_side(_oldVal))!=0) {
+                toMove.push_back(this->objects.at(i));
+                toMove_side.push_back(_side);
+            }
+        }
+    }
+    if(toMove.size()==0) {
+        std::cout << this->_info_name+"::move_sides(..) No timeObject side's found at given timeUnit."<<std::endl;
+        return 1;
+    }
+    else if(toMove.size()>2) {
+        std::cout << this->_info_name+"::move_sides(..) what the fuck.. this found more than two timeObjects somehow beside each other."<<std::endl;
+        return 1;
+    }
+
+    for(size_t i=0; i<2; i++) {
+        switch (toMove_side.at(i)) {
+        case 1:
+            if(toMove.at(i).move_end(_newVal, 1, true)!=0) {
+                std::cout << this->_info_name+"::move_sides(..) cannot go further."<<std::endl;
+                return 2;
+            }
+            break;
+        case 2:
+            if(toMove.at(i).move_start(_newVal, 1, true)!=0) {
+                std::cout << this->_info_name+"::move_sides(..) cannot go further."<<std::endl;
+                return 2;
+            }
+        default:
+            assert(false && "something fucked up has happened here");
+            break;
+        }
+    }
+
+    for(size_t i=0; i<2; i++) {
+        if(toMove_side.at(i)==1) toMove.at(i).move_end(_newVal, 1);
+        else toMove.at(i).move_start(_newVal, 1);
+    }
+
+    return 0;
+}

@@ -428,6 +428,36 @@ namespace gNC {
         timeUnit    end;
         gNODE*      objNode;
         size_t      channel;
+
+        /**
+         * @brief Whether the input gNC::timeUnit is a side of this time object
+         * 
+         * @param _value the gNC::timeUnit value to check if it's a side or not
+         * @param _margin the margin of error for which the checking is allowed to be wrong (so if `_margin==2`, `_value==120`, and a side is `119`, it'll return correct)
+         * @return int code of whether the value is a side:
+         *  - `0` no side found
+         *  - `1` _start side
+         *  - `2` _end side
+         */
+        int is_side(timeUnit _value, size_t _margin=0);
+        /**
+         * @brief move the start timeUnit
+         * 
+         * @param _newStart new value to set as start
+         * @param _min_width minimum start-end width of the timeObject allowed (so the width doesnt become smaller than this number)
+         * @param _only_check whether not change and to just check
+         * @return int code: `0`-successful, otherwise failure
+         */
+        int move_start(timeUnit _newStart, size_t _min_width=1, bool _only_check=false);
+        /**
+         * @brief move the start timeUnit
+         * 
+         * @param _newEnd new value to set as start
+         * @param _min_width minimum start-end width of the timeObject allowed (so the width doesnt become smaller than this number)
+         * @param _only_check whether not change and to just check
+         * @return int code: `0`-successful, otherwise failure
+         */
+        int move_end(timeUnit _newEnd, size_t _min_width=1, bool _only_check=false);
     };
 
     class timeline {
@@ -478,12 +508,11 @@ namespace gNC {
          * Number of channels within a timeline that's allowed to exist.
          * If value is `0` then no limit is set.
          */
-        size_t channel_limit = 1;
+        size_t _channel_limit = 1;
     public:
         timeline();
 
         void set_channel_limit(size_t val);
-        // timeObject &get_timeObject(gNC::gNODE *_nodePtr);
         /**
          * add a new timeObject to the timeline for a node
          * 
@@ -506,7 +535,32 @@ namespace gNC {
          * as an error since removing/replacing existing timeObject's must be done with another function
          */
         int add_timeObject(gNC::gNODE *_nodePtr, gNC::timeUnit _start, gNC::timeUnit _end, size_t _channel=0, int _conflictMergeMethod=0);
-        
+        /**
+         * @brief Delete timeObject from timeline
+         * 
+         * @param _nodePtr pointer to the node that is stored in timeline as the timeObject
+         * @return int `0`-if successful, `-1`-pointer doesnt exist
+         */
+        int delete_timeObject(gNC::gNODE* _nodePtr);
+        /**
+         * @brief Get a copy of the timeObject object stored in timeline
+         * 
+         * @param _nodePtr pointer to the timeObject that's representing this gNODE pointer
+         * @return timeObject value copy of the stored timeObject. If the pointer node couldn't be found then it'll throw invalid_argument error
+         */
+        timeObject get_timeObject(gNC::gNODE* _nodePtr);
+        /**
+         * @brief Move the side(s)/end(s) to a new timeUnit value
+         * 
+         * @param _oldVal the old value which is where the side is located.
+         * @param _newVal the new value to move the side(s) to.
+         * @param _toMove pointer to the gNODE timeObject who's side is to be moved to the new value.
+         * if this is set to `nullptr` then it'll move all(/both) sides that are placed at _oldVal to _newVal.
+         * @param _channel size_t value of the channel to make the move in. If==`0` then search through every channel.
+         * If the given arg vlaue is bigger than the set limit it'll instead search the "highest channel" (the one with biggest number)
+         * @return int for the return code. `0`-success, `-1`-no timeObject's side is located at given _oldVal
+         */
+        int move_sides(timeUnit _oldVal, timeUnit _newVal, gNC::gNODE* _toMove=nullptr, size_t _channel=0);
     };
 
 
