@@ -20,6 +20,7 @@
 /// @brief absolute path of the current directory for this program
 extern std::string absPath;
 
+
 /// @brief pca9685-board libraries obbject
 extern PiPCA9685::PCA9685 pca;
 
@@ -104,7 +105,6 @@ extern getPerf perfObj[3];
 #endif
 
 extern opencv_recorder recObj;
-
 
 
 /**
@@ -271,6 +271,8 @@ extern termMenu opt6_startMenu;
 extern termMenu opt6_control_panel;
 
 void exitFrom_lvl2(bool* driverBool);
+
+
 
 
 #endif

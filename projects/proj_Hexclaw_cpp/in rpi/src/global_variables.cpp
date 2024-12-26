@@ -3,7 +3,8 @@
 
 std::string absPath;
 
-PiPCA9685::PCA9685 pca{};
+// PiPCA9685::PCA9685 pca{}; //("/dev/i2c-1", 0x40, false);
+PiPCA9685::PCA9685 pca(false);
 
 bool hardExit = false;
 

@@ -210,12 +210,14 @@ void subMenu_mode() {
 
 int main(int argc, char* argv[]) {
 
+	std::cout<<"---PROGRAM START---"<<std::endl; 
 	std::cout<<"\x1B[2J"<<std::endl;
 
 	int termSize[2] = {0, 0};
 	getTermSize(termSize[0], termSize[1]);
 
-	
+	// pca.init();
+
 	startMenu.addOpt("[1]   Intro    ", 0, 0, '1', HW_option1_intro);
 	startMenu.addOpt("[2]   Calibrate", 0, 1, '2', HW_option2);
 	startMenu.addOpt("[3]   Main     ", 0, 2, '3', HW_option0);
@@ -226,8 +228,8 @@ int main(int argc, char* argv[]) {
 
 	// startMenu.setButtonWidth(10);
 
-
 	//pca9685 board setup
+	pca.init();	
 	pca.set_pwm_freq(50.0);
 
 	if(recordFrames) {

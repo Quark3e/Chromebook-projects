@@ -12,6 +12,7 @@ set(DIR_CPP_USEFUL "${REPO_ROOT}/teststuff/cpp")
 set(DIR_HC_USEFUL "${DIR_CPP_USEFUL}/useful")
 
 find_package(PiPCA9685 REQUIRED)
+# message(PiPCA9685 Path = ${PiPCA9685_LIBRARY})
 find_package(OpenCV REQUIRED)
 # find_package(imgui REQUIRED)
 
@@ -59,6 +60,7 @@ add_executable(Hexclaw_Main
     /usr/local/include/imgui/imgui_tables.cpp
     /usr/local/include/imgui/imgui_widgets.cpp
     /usr/local/include/imgui/imgui.cpp
+    /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/PiPCA9685/src/PCA9685.cpp
 )
 
 # target_include_directories(
