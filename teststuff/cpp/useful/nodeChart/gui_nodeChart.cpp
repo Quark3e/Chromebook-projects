@@ -2132,6 +2132,9 @@ int gNC::guiNodeChart::loadFile(
 
 
 gNC::timeUnit::timeUnit(size_t _value): value(_value) {}
+gNC::timeUnit::timeUnit(const gNC::timeUnit &_obj) {
+    value = _obj.value;
+}
 gNC::timeUnit gNC::timeUnit::operator+=(timeUnit const& _obj) {
     this->value += _obj.value;
     return gNC::timeUnit(this->value);
@@ -2415,7 +2418,7 @@ int gNC::timeline::move_sides(
     gNC::gNODE*     _toMove,
     size_t          _channel
 ) {
-    std::vector<gNC::timeObject&> toMove;
+    std::vector<gNC::timeObject*> toMove;
     std::vector<int> toMove_side;
     if(_channel > this->_channel_limit) _channel = this->_channel_limit;
 
@@ -2424,7 +2427,7 @@ int gNC::timeline::move_sides(
         if(_channel==0 || this->objects.at(i).channel==_channel) {
             int _side = 0;
             if((_side = this->objects.at(i).is_side(_oldVal))!=0) {
-                toMove.push_back(this->objects.at(i));
+                toMove.push_back(&this->objects.at(i));
                 toMove_side.push_back(_side);
             }
         }
@@ -2441,13 +2444,13 @@ int gNC::timeline::move_sides(
     for(size_t i=0; i<2; i++) {
         switch (toMove_side.at(i)) {
         case 1:
-            if(toMove.at(i).move_end(_newVal, 1, true)!=0) {
+            if(toMove.at(i)->move_end(_newVal, 1, true)!=0) {
                 std::cout << this->_info_name+"::move_sides(..) cannot go further."<<std::endl;
                 return 2;
             }
             break;
         case 2:
-            if(toMove.at(i).move_start(_newVal, 1, true)!=0) {
+            if(toMove.at(i)->move_start(_newVal, 1, true)!=0) {
                 std::cout << this->_info_name+"::move_sides(..) cannot go further."<<std::endl;
                 return 2;
             }
@@ -2458,8 +2461,8 @@ int gNC::timeline::move_sides(
     }
 
     for(size_t i=0; i<2; i++) {
-        if(toMove_side.at(i)==1) toMove.at(i).move_end(_newVal, 1);
-        else toMove.at(i).move_start(_newVal, 1);
+        if(toMove_side.at(i)==1) toMove.at(i)->move_end(_newVal, 1);
+        else toMove.at(i)->move_start(_newVal, 1);
     }
 
     return 0;

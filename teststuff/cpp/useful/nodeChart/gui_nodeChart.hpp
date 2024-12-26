@@ -402,6 +402,7 @@ namespace gNC {
         size_t value;
 
         timeUnit(size_t _value);
+        timeUnit(const timeUnit &_obj);
 
         operator int()      const { return static_cast<int>(value); }
         operator size_t()   const { return value; }
@@ -418,6 +419,7 @@ namespace gNC {
         bool    operator<=(timeUnit const& _obj);
         bool    operator<(timeUnit const& _obj);
         bool    operator>(timeUnit const& _obj);
+        
     };
     /**
      * Time object representing a `gNC::gNODE` in a timeline
@@ -458,6 +460,7 @@ namespace gNC {
          * @return int code: `0`-successful, otherwise failure
          */
         int move_end(timeUnit _newEnd, size_t _min_width=1, bool _only_check=false);
+
     };
 
     class timeline {
