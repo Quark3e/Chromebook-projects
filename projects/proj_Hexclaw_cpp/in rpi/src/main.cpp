@@ -188,6 +188,7 @@ void loadData_csvArtif(bool printVar=true) {
 #include <mainOptions.hpp>
 
 
+
 int subMenuPos[2] = {20, 0};
 // void subMenu_exit() {
 // 	hardExit = true;
@@ -226,30 +227,19 @@ int main(int argc, char* argv[]) {
 	startMenu.addOpt("[esc] Exit     ", 0, 5, 27, bool_true, &startMenu.exitDriver);
 
 
+
 	// startMenu.setButtonWidth(10);
 
 	//pca9685 board setup
-	pca.init();	
-	pca.set_pwm_freq(50.0);
+	// pca.init();	
+	// pca.set_pwm_freq(50.0);
 
-	if(recordFrames) {
-		recObj = opencv_recorder("Hexclaw_cameraFeeds", prefSize[0]*2, prefSize[1]*2, 15);
-	}
-
-
-	if(gpioInitialise()<0) {
-		std::cout << "pigpio \"gpioInitialise()\" failed\n";
-		pigpioInitia = false;
-	}
-	else {
-		gpioSetMode(pin_ledRelay, PI_OUTPUT);
-		pigpioInitia = true;
-		gpioWrite(pin_ledRelay, 1);
-	}
+	simplified_init();
+	// std::cout << "simplified init called..."<<std::endl;
+	// usleep(5'000'000);
 
 	sendToServo(&pca, new_q, current_q, true);
 	HW_setup_options();
-
 
 	if(argc==2) {
 		if(hexclaw_cmdArgs.call_func(argv[1])==1) {
@@ -263,7 +253,6 @@ int main(int argc, char* argv[]) {
 	}
 
 
-
 	if(startMenu.exitDriver) {
 		std::cout << "\x1B[H"<<"\x1B[2J";
 		std::cout.flush();
@@ -272,10 +261,12 @@ int main(int argc, char* argv[]) {
 
 	for(int n=0; n<6; n++) new_q[n] = startup_q[n];
 	printf("\n- section: \"closing\"\n");
-	sendToServo(&pca, new_q, current_q, false, 2, 2);
-	if(pigpioInitia) {
+	if(_init_status.get("pca").isInit()) {
+		sendToServo(&pca, new_q, current_q, false, 2, 2);
+	}
+	if(_init_status.get("pigpio").isInit()) {
 		gpioWrite(pin_ledRelay, 0);
-		gpioTerminate();
+		// gpioTerminate();
 	}
 
 	std::cout << "\x1B[H";

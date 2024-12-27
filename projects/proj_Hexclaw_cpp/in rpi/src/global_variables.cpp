@@ -57,10 +57,9 @@ int HW_HSV[2][3] = {
 
 const char* window_name = "Window";
 // IR camtracking header class initialization
-IR_camTracking camObj[2] {
-	{0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf},
-	{2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf},
-};
+std::vector<IR_camTracking> camObj;
+// {0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf},
+// {2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf},
 
 
 // Two_cam_triangle header class initialisation
@@ -71,7 +70,7 @@ camTriangle camTri(camPosition, camAng_offs);
 
 
 
-bool pigpioInitia = false;
+// bool pigpioInitia = false;
 int pin_ledRelay = 23;
 
 #if takePerf
@@ -165,9 +164,7 @@ void updateCamVars(int t_idx) {
 }
 
 std::mutex mtx[2];
-
 std::mutex mtx_sync[2];
-
 std::mutex mtx_cout;
 
 // /**mutex for saving frames onto `opencv_recorder` class object*/
@@ -291,4 +288,125 @@ termMenu opt6_control_panel(false, 7, 7);
 void exitFrom_lvl2(bool* driverBool) {
 	startMenu.exitDriver = true;
 	(*driverBool) = true;
+}
+
+
+_initClass::_initClass(
+	int (*_init_function)(),
+	int (*_close_function)(),
+	bool _init
+): _init_func(_init_function), _close_func(_close_function) {
+	assert(_init_func || _close_func); //both init and close function can't be invalid (otherwise this serves no purpose)
+	if(_init && _init_func) {
+		int _returnCode = _init_func();
+		if(_returnCode==0) {
+			this->_init = true;
+		}
+	}
+}
+_initClass::~_initClass() {
+	int _returnCode = 0;
+	if(_close_func && this->_init) {
+		_returnCode = _close_func();
+	}
+	if(_returnCode==0) {
+		this->_init = false;
+	}
+}
+int 	_initClass::call_init() {
+	int _returnCode = 0;
+	if(this->_init) return -69;
+	if(_init_func) _returnCode = _init_func();
+	if(_returnCode==0) this->_init = true;
+	return _returnCode;
+}
+int 	_initClass::call_closing() {
+	int _returnCode = 0;
+	if(!this->_init) return -69;
+	if(_close_func) _returnCode = _close_func();
+	if(_returnCode==0) this->_init = false;
+	return _returnCode;
+}
+const bool _initClass::isInit() {
+	return this->_init;
+}
+
+
+DIY::typed_dict<std::string, _initClass> _init_status(
+	{"pca", "camObj", "pigpio", "opencv recorder"},
+	{
+		_initClass(_init__pca, _close__pca, false),
+		_initClass(_init__camObj, _close__camObj, false),
+		_initClass(_init__pigpio, _close__pigpio, false),
+		_initClass(_init__opencv_recorder, _close__opencv_recorder, false)
+	}
+);
+
+
+void simplified_init() {
+
+	if(!_init_status.get("pca").isInit() && _init_status.get("pca").call_init()) {
+		std::cout << "ERROR: could not initialise pca library." << std::endl;
+	}
+	if(!_init_status.get("camObj").isInit() && _init_status.get("camObj").call_init()) {
+		std::cout << "ERROR: could not initialise camObj objects." << std::endl;
+	}
+
+	if(recordFrames) {
+		// recObj = opencv_recorder("Hexclaw_cameraFeeds", prefSize[0]*2, prefSize[1]*2, 15);
+		if(!_init_status.get("opencv recorder").isInit() && _init_status.get("opencv recorder").call_init()) {
+			std::cout << "ERROR: could not initialise opencv recorder object." << std::endl;
+		}
+	}
+	if(!_init_status.get("pigpio").isInit() && _init_status.get("pigpio").call_init()) {
+		std::cout << "ERROR: could not initialise pigpio library." << std::endl;
+	}
+}
+
+int _init__pca() {
+	bool init_success = false;
+	try {
+		init_success = pca.init();
+	} catch (const std::system_error& e) {
+		std::cout << e.what() << std::endl;
+		std::cout << e.code() << std::endl;
+	}
+	if(!init_success) return 1;
+	pca.set_pwm_freq(50.0);
+	return 0;
+}
+int _init__camObj() {
+	camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf));
+	camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf));
+	return 0;
+}
+int _init__pigpio() {
+	if(gpioInitialise() < 0) {
+		std::cout << "_init__pigpio(): pigpio \"gpioInitialise()\" failed."<<std::endl;
+		return -1;
+	}
+	
+	gpioSetMode(pin_ledRelay, PI_OUTPUT);
+	gpioWrite(pin_ledRelay, 1);
+
+	return 0;
+}
+int _init__opencv_recorder() {
+	recObj = opencv_recorder("Hexclaw_cameraFeeds", prefSize[0]*2, prefSize[1]*2, 15);
+	return 0;
+}
+int _close__pca() {
+
+	return 0;
+}
+int _close__camObj() {
+
+	return 0;
+}
+int _close__pigpio() {
+	gpioTerminate();
+	return 0;
+}
+int _close__opencv_recorder() {
+
 }

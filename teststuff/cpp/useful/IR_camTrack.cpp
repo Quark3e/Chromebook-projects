@@ -192,7 +192,7 @@ void IR_camTracking::getAvg_cntPos() {
 /// @param filePath 
 /// @param displayWin 
 void hsv_settingsRead(
-    IR_camTracking camObject[2],
+    std::vector<IR_camTracking>& camObject,
     int argHSV[2][3],
     const char* window_name,
     int indeks,
@@ -231,7 +231,7 @@ void hsv_settingsRead(
 			argHSV[1][0] = tempVal[3];
 			argHSV[1][1] = tempVal[4];
 			argHSV[1][2] = tempVal[5];
-			if(displayWin) camObject[0].updateTrackbarPos(window_name);
+			if(displayWin) camObject.at(0).updateTrackbarPos(window_name);
 			hsvFile.close();
 			return;
 		}

@@ -105,7 +105,7 @@ class IR_camTracking {
 };
 
 void hsv_settingsRead(
-    IR_camTracking camObject[2],
+    std::vector<IR_camTracking>& camObject,
     int argHSV[2][3],
     const char* window_name = "",
     int indeks=1,

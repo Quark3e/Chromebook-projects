@@ -13,8 +13,11 @@
 #include <wirelessCOM.hpp>
 #include <IR_camTrack.hpp>
 #include <terminalMenu.hpp>
+#include <diy_dictionary.hpp>
 #include <opencv/recordVideo/recordFrames.hpp>
 #include <two_cam_coordinate/two_cam_coordinate.hpp>
+#include <includes.hpp>
+
 
 
 /// @brief absolute path of the current directory for this program
@@ -85,7 +88,7 @@ extern int HW_HSV[2][3];
 
 extern const char* window_name;
 // IR camtracking header class initialization
-extern IR_camTracking camObj[2];
+extern std::vector<IR_camTracking> camObj;
 
 
 // Two_cam_triangle header class initialisation
@@ -96,7 +99,7 @@ extern float solvedPos[2];
 extern camTriangle camTri;
 
 
-extern bool pigpioInitia;
+// extern bool pigpioInitia;
 extern int pin_ledRelay;
 
 #if takePerf
@@ -274,5 +277,72 @@ void exitFrom_lvl2(bool* driverBool);
 
 
 
+class _initClass {
+	private:
+	bool _init = false;
+	int (*_init_func)(void)		= nullptr;
+	int (*_close_func)(void)	= nullptr;
+
+	public:
+	_initClass() {};
+	/**
+	 * @brief initialise _initClass object
+	 * @param _init_function pointer to the dedicated initialisation function
+	 * @param _close_function pointer to the closing function
+	 * @param _init whether to call the initialisation function during constructor call
+	 */
+	_initClass(int (*_init_function)(), int (*_close_function)()=nullptr, bool _init=false);
+	~_initClass();
+
+	/**
+	 * @brief call the stored initialiser function
+	 * @return integer return code of the initialiser function [`0` - successful, else - error]
+	 * @note no initialiser function could be given (setting it to nullptr) whilst still calling this to "indicate" to this object that calling close is fine
+	 */
+	int call_init();
+	/**
+	 * @brief call the stored closing function.
+	 * @return integer return code of the intialiser function [`0` - successful, else - error]
+	 */
+	int call_closing();
+	/**
+	 * @brief get whether the init variable is set to true or not
+	 * @return local _init value
+	 */
+	const bool isInit();
+};
+
+
+/**
+ * dictionary to hold the init/close info and operations for whether the related object/topic is to be initialised/closed
+ */
+extern DIY::typed_dict<std::string, _initClass> _init_status;
+
+
+void simplified_init();
+
+/**
+ * initialise pca board class object `pca`
+ * @return integer code for whether it was successful [`0`] or an error has occurred [`!=0`]
+ */
+int _init__pca();
+/**
+ * initialise camObject(s)
+ * @return int code for whether it was successful [`0`] or not [`!=0`]
+ */
+int _init__camObj();
+/**
+ * initialise rpi4b gpio library
+ */
+int _init__pigpio();
+int _init__opencv_recorder();
+/**
+ * call closing operations related to pca object
+ * 
+ */
+int _close__pca();
+int _close__camObj();
+int _close__pigpio();
+int _close__opencv_recorder();
 
 #endif

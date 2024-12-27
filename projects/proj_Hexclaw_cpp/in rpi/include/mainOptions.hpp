@@ -106,7 +106,7 @@ void HW_option1_intro() {
 	// printf("running intro...\n");
 	//sendToServo(&pca, current_q, new_q, false, 0, 0);
 	usleep(1'000'000);
-	if(pigpioInitia) {
+	if(_init_status.get("pigpio").isInit()) {
 		gpioWrite(pin_ledRelay, 0);
 		gpioWrite(pin_ledRelay, 1);
 	}
@@ -116,7 +116,7 @@ void HW_option1_intro() {
 
 	std::cout<<"intro finished\n";
 	usleep(3'000'000);
-	if(pigpioInitia) {
+	if(_init_status.get("pigpio").isInit()) {
 		for(int i=0; i<4; i++) {
 			gpioWrite(pin_ledRelay, 0);
 			usleep(30'000);
@@ -136,7 +136,7 @@ void HW_option1_intro() {
 	}
 	usleep(2'000'000);
 
-	if(pigpioInitia) gpioWrite(pin_ledRelay, 1);
+	if(_init_status.get("pigpio").isInit()) gpioWrite(pin_ledRelay, 1);
 	new_q[0] = 45;
 	new_q[1] = 0;
 	new_q[2] = -45;
