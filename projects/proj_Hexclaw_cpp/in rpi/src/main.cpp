@@ -210,9 +210,7 @@ void subMenu_mode() {
 
 
 int main(int argc, char* argv[]) {
-
-	std::cout<<"---PROGRAM START---"<<std::endl; 
-	std::cout<<"\x1B[2J"<<std::endl;
+	// std::cout<<"\x1B[2J"<<std::endl;
 
 	int termSize[2] = {0, 0};
 	getTermSize(termSize[0], termSize[1]);
@@ -226,19 +224,17 @@ int main(int argc, char* argv[]) {
 	startMenu.addOpt("[m]   mode:    ", 0, 4, 'm', subMenu_mode);
 	startMenu.addOpt("[esc] Exit     ", 0, 5, 27, bool_true, &startMenu.exitDriver);
 
-
-
 	// startMenu.setButtonWidth(10);
 
 	//pca9685 board setup
 	// pca.init();	
 	// pca.set_pwm_freq(50.0);
 
-	simplified_init();
+	
 	// std::cout << "simplified init called..."<<std::endl;
 	// usleep(5'000'000);
 
-	sendToServo(&pca, new_q, current_q, true);
+	if(_init_status.get("pca").isInit()) sendToServo(&pca, new_q, current_q, true);
 	HW_setup_options();
 
 	if(argc==2) {
@@ -252,12 +248,17 @@ int main(int argc, char* argv[]) {
 		startMenu.driver(1, 1, 0, false);
 	}
 
+	if(hardExit) {
+		return 0;
+	}
 
 	if(startMenu.exitDriver) {
 		std::cout << "\x1B[H"<<"\x1B[2J";
 		std::cout.flush();
 		return 0;
 	}
+	
+	std::cout << "ending.."<<std::endl;
 
 	for(int n=0; n<6; n++) new_q[n] = startup_q[n];
 	printf("\n- section: \"closing\"\n");

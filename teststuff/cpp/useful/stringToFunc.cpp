@@ -92,3 +92,102 @@ std::string StringToFunction::exportString(
 
     return exportStr;
 }
+
+
+
+void    labeledFunction::call_void__(size_t _idx) {
+    assert(_idx<this->funcVec_TDEF_void__.size());
+    this->funcVec_TDEF_void__.at(_idx)();
+}
+int     labeledFunction::call_int__(size_t _idx) {
+    assert(_idx<this->funcVec_TDEF_int__.size());
+    return this->funcVec_TDEF_int__.at(_idx)();
+}
+bool    labeledFunction::call_bool__(size_t _idx) {
+    assert(_idx<this->funcVec_TDEF_bool__.size());
+    return this->funcVec_TDEF_bool__.at(_idx)();
+}
+std::string labeledFunction::call_string__(size_t _idx) {
+    assert(_idx<this->funcVec_TDEF_string__.size());
+    return this->funcVec_TDEF_string__.at(_idx)();
+}
+
+int labeledFunction::get_idx(std::string _name) {
+    int idx = -1;
+    for(size_t i=0; i<this->_names.size(); i++) {
+        for(size_t ii=0; ii<this->_names.at(i).size(); ii++) {
+            if(_names.at(i).at(ii)==_name) return static_cast<int>(this->_indices.at(i));
+        }
+    }
+    return idx;
+}
+
+labeledFunction::labeledFunction() {
+
+}
+
+
+int labeledFunction::call_func(std::string _name) {
+    int idx = this->get_idx(_name);
+    if(idx<0) return -1;
+
+    if(_funcType[idx]==allFuncTypes[0])                                this->call_void__(idx);
+    else if(_funcType[idx]==allFuncTypes[1]) this->_returns._int     = this->call_int__(idx);
+    else if(_funcType[idx]==allFuncTypes[2]) this->_returns._bool    = this->call_bool__(idx);
+    else if(_funcType[idx]==allFuncTypes[3]) this->_returns._string  = this->call_string__(idx);
+    return 0;
+}
+
+
+int labeledFunction::add_func(std::vector<std::string> _labels, TDEF_void__  _func, std::string _description) {
+    int idx = -1;
+    for(size_t _n=0; _n<_labels.size(); _n++) {
+        idx = this->get_idx(_labels.at(_n));
+        if(idx != -1) return -1;
+    }
+    _names.push_back(_labels);
+    _indices.push_back(funcVec_TDEF_void__.size());
+    funcVec_TDEF_void__.push_back(_func);
+    _funcType.push_back(allFuncTypes[0]);
+    _descriptions.push_back(_description);
+    return 0;
+}
+int labeledFunction::add_func(std::vector<std::string> _labels, TDEF_int__   _func, std::string _description) {
+    int idx = -1;
+    for(size_t _n=0; _n<_labels.size(); _n++) {
+        idx = this->get_idx(_labels.at(_n));
+        if(idx != -1) return -1;
+    }
+    _names.push_back(_labels);
+    _indices.push_back(funcVec_TDEF_int__.size());
+    funcVec_TDEF_int__.push_back(_func);
+    _funcType.push_back(allFuncTypes[1]);
+    _descriptions.push_back(_description);
+    return 0;
+}
+int labeledFunction::add_func(std::vector<std::string> _labels, TDEF_bool__  _func, std::string _description) {
+    int idx = -1;
+    for(size_t _n=0; _n<_labels.size(); _n++) {
+        idx = this->get_idx(_labels.at(_n));
+        if(idx != -1) return -1;
+    }
+    _names.push_back(_labels);
+    _indices.push_back(funcVec_TDEF_bool__.size());
+    funcVec_TDEF_bool__.push_back(_func);
+    _funcType.push_back(allFuncTypes[2]);
+    _descriptions.push_back(_description);
+    return 0;
+}
+int labeledFunction::add_func(std::vector<std::string> _labels, TDEF_string__ _func,std::string _description) {
+    int idx = -1;
+    for(size_t _n=0; _n<_labels.size(); _n++) {
+        idx = this->get_idx(_labels.at(_n));
+        if(idx != -1) return -1;
+    }
+    _names.push_back(_labels);
+    _indices.push_back(funcVec_TDEF_string__.size());
+    funcVec_TDEF_string__.push_back(_func);
+    _funcType.push_back(allFuncTypes[3]);
+    _descriptions.push_back(_description);
+    return 0;
+}

@@ -276,12 +276,18 @@ extern termMenu opt6_control_panel;
 void exitFrom_lvl2(bool* driverBool);
 
 
+struct _initClass_dataStruct {
+	std::string _message = "";
+
+};
 
 class _initClass {
 	private:
 	bool _init = false;
-	int (*_init_func)(void)		= nullptr;
-	int (*_close_func)(void)	= nullptr;
+	int (*_init_func)(_initClass_dataStruct*)	= nullptr;
+	int (*_close_func)(_initClass_dataStruct*)	= nullptr;
+
+	_initClass_dataStruct _callData;
 
 	public:
 	_initClass() {};
@@ -291,7 +297,7 @@ class _initClass {
 	 * @param _close_function pointer to the closing function
 	 * @param _init whether to call the initialisation function during constructor call
 	 */
-	_initClass(int (*_init_function)(), int (*_close_function)()=nullptr, bool _init=false);
+	_initClass(int (*_init_function)(_initClass_dataStruct*), int (*_close_function)(_initClass_dataStruct*)=nullptr, bool _init=false);
 	~_initClass();
 
 	/**
@@ -310,6 +316,11 @@ class _initClass {
 	 * @return local _init value
 	 */
 	const bool isInit();
+	/**
+	 * @brief get the call message from init or close function/method
+	 * @return std::string of the message.
+	 */
+	std::string get_callMsg();
 };
 
 
@@ -325,24 +336,24 @@ void simplified_init();
  * initialise pca board class object `pca`
  * @return integer code for whether it was successful [`0`] or an error has occurred [`!=0`]
  */
-int _init__pca();
+int _init__pca(_initClass_dataStruct *_passData);
 /**
  * initialise camObject(s)
  * @return int code for whether it was successful [`0`] or not [`!=0`]
  */
-int _init__camObj();
+int _init__camObj(_initClass_dataStruct *_passData);
 /**
  * initialise rpi4b gpio library
  */
-int _init__pigpio();
-int _init__opencv_recorder();
+int _init__pigpio(_initClass_dataStruct *_passData);
+int _init__opencv_recorder(_initClass_dataStruct *_passData);
 /**
  * call closing operations related to pca object
  * 
  */
-int _close__pca();
-int _close__camObj();
-int _close__pigpio();
-int _close__opencv_recorder();
+int _close__pca(_initClass_dataStruct *_passData);
+int _close__camObj(_initClass_dataStruct *_passData);
+int _close__pigpio(_initClass_dataStruct *_passData);
+int _close__opencv_recorder(_initClass_dataStruct *_passData);
 
 #endif

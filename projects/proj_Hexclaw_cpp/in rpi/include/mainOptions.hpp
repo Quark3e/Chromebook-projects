@@ -12,7 +12,7 @@
 #include <createTable.hpp>
 
 
-StringToFunction hexclaw_cmdArgs{};
+labeledFunction hexclaw_cmdArgs{};
 createTable cmdArgs_output_table;
 
 void printFuncLabel(std::string functionName) {
@@ -28,8 +28,8 @@ void cmdArgs_info() {
     cmdArgs_output_table = createTable(3, hexclaw_cmdArgs.getDescriptions().size());
 
     for(size_t i=0; i<hexclaw_cmdArgs.getDescriptions().size(); i++) {
-        cmdArgs_output_table.insertText(hexclaw_cmdArgs.names[i][0], 0, i);
-        cmdArgs_output_table.insertText(hexclaw_cmdArgs.names[i][1], 1, i);
+        cmdArgs_output_table.insertText(hexclaw_cmdArgs.getNames()[i][0], 0, i);
+        cmdArgs_output_table.insertText(hexclaw_cmdArgs.getNames()[i][1], 1, i);
         cmdArgs_output_table.insertText(hexclaw_cmdArgs.getDescriptions()[i], 2, i);
     }
 
@@ -74,20 +74,21 @@ void HW_option6_terminal();
  * @brief setup for HW command line arguemtns: (there's a better way. I just haven't gotten around to using it)
 */
 void HW_setup_options() {
-    hexclaw_cmdArgs.add_func("-h", cmdArgs_info, "--help", "show help message with info on flags");
-    hexclaw_cmdArgs.add_func("-i", HW_option1_intro, "--intro", "run only servo intro movement");
-    hexclaw_cmdArgs.add_func("-c", HW_option2, "--cal", "calibrate/setup \"Hue Saturation Value\" -values");
-    hexclaw_cmdArgs.add_func("-m", HW_option0, "--main", "run main/default version with servo control, opencv based tracking");
-    hexclaw_cmdArgs.add_func("-0", HW_option0, "--mode0");
-    hexclaw_cmdArgs.add_func("-1", HW_option3, "--mode1", "track and display with opencv but don't send control movements to robot motors");
-    hexclaw_cmdArgs.add_func("-2", HW_option4, "--mode2", "track and control servo motors with opencv, but don't create and display opencv images");
-    hexclaw_cmdArgs.add_func("-3", HW_option5_orient, "--mode3", "only read and send end-effector orientation from nodemcu device to hexclaw robot-arm");
-	hexclaw_cmdArgs.add_func("-t", HW_option6_terminal, "--terminal", "control robot with terminal position inputs");
+    hexclaw_cmdArgs.add_func(std::vector<std::string>{"-h", "--help"}, 		cmdArgs_info, "show help message with info on flags");
+    hexclaw_cmdArgs.add_func(std::vector<std::string>{"-i", "--intro"}, 	HW_option1_intro, "run only servo intro movement");
+    hexclaw_cmdArgs.add_func(std::vector<std::string>{"-c", "--cal"}, 		HW_option2, "calibrate/setup \"Hue Saturation Value\" -values");
+    hexclaw_cmdArgs.add_func(std::vector<std::string>{"-m", "--main"}, 		HW_option0, "run main/default version with servo control, opencv based tracking");
+    hexclaw_cmdArgs.add_func(std::vector<std::string>{"-0", "--mode0"}, 	HW_option0);
+    hexclaw_cmdArgs.add_func(std::vector<std::string>{"-1", "--mode1"}, 	HW_option3, "track and display with opencv but don't send control movements to robot motors");
+    hexclaw_cmdArgs.add_func(std::vector<std::string>{"-2", "--mode2"}, 	HW_option4, "track and control servo motors with opencv, but don't create and display opencv images");
+    hexclaw_cmdArgs.add_func(std::vector<std::string>{"-3", "--mode3"}, 	HW_option5_orient, "only read and send end-effector orientation from nodemcu device to hexclaw robot-arm");
+	hexclaw_cmdArgs.add_func(std::vector<std::string>{"-t", "--terminal"},	HW_option6_terminal, "control robot with terminal position inputs");
 
 }
 
 
 void HW_option1_intro() {
+	simplified_init();
 	printFuncLabel(" Running: Into sequence");
 
 	current_q[0] = -45;
@@ -149,11 +150,13 @@ void HW_option1_intro() {
 
 }
 void HW_option2() {
+	simplified_init();
 	printFuncLabel(" Running: opt2: calibrate HSV values");
 
 }
 
 void HW_option0() {
+	simplified_init();
 	printFuncLabel(" Running: opt0: Main loop with opencv and servo control");
 
 	//create windows regardless because i need a way to properly exit the loop
@@ -493,14 +496,17 @@ void HW_option0() {
 	std::cout << "\nExit called. Exiting." << std::endl;
 }
 void HW_option3() {
+	simplified_init();
 	printFuncLabel(" Running: opt3: display opencv but don't move servo");
 
 }
 void HW_option4() {
+	simplified_init();
 	printFuncLabel(" Running: opt4: move servo but don't display opencv im on window");
 
 }
 void HW_option5_orient() {
+	simplified_init();
 	printFuncLabel(" Running: opt5: Only orientation movement on servo robot");
 
 	// std::this_thread::sleep_for(1000ms);

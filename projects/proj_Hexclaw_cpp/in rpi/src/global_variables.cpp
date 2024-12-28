@@ -292,23 +292,18 @@ void exitFrom_lvl2(bool* driverBool) {
 
 
 _initClass::_initClass(
-	int (*_init_function)(),
-	int (*_close_function)(),
+	int (*_init_function)(_initClass_dataStruct*),
+	int (*_close_function)(_initClass_dataStruct*),
 	bool _init
 ): _init_func(_init_function), _close_func(_close_function) {
 	assert(_init_func || _close_func); //both init and close function can't be invalid (otherwise this serves no purpose)
-	if(_init && _init_func) {
-		int _returnCode = _init_func();
-		if(_returnCode==0) {
-			this->_init = true;
-		}
+	if(_init) {
+		this->call_init();
 	}
 }
 _initClass::~_initClass() {
 	int _returnCode = 0;
-	if(_close_func && this->_init) {
-		_returnCode = _close_func();
-	}
+	_returnCode = this->call_closing();
 	if(_returnCode==0) {
 		this->_init = false;
 	}
@@ -316,21 +311,23 @@ _initClass::~_initClass() {
 int 	_initClass::call_init() {
 	int _returnCode = 0;
 	if(this->_init) return -69;
-	if(_init_func) _returnCode = _init_func();
+	if(_init_func) _returnCode = _init_func(&this->_callData);
 	if(_returnCode==0) this->_init = true;
 	return _returnCode;
 }
 int 	_initClass::call_closing() {
 	int _returnCode = 0;
 	if(!this->_init) return -69;
-	if(_close_func) _returnCode = _close_func();
+	if(_close_func) _returnCode = _close_func(&this->_callData);
 	if(_returnCode==0) this->_init = false;
 	return _returnCode;
 }
 const bool _initClass::isInit() {
 	return this->_init;
 }
-
+std::string _initClass::get_callMsg() {
+	return this->_callData._message;
+}
 
 DIY::typed_dict<std::string, _initClass> _init_status(
 	{"pca", "camObj", "pigpio", "opencv recorder"},
@@ -346,67 +343,75 @@ DIY::typed_dict<std::string, _initClass> _init_status(
 void simplified_init() {
 
 	if(!_init_status.get("pca").isInit() && _init_status.get("pca").call_init()) {
-		std::cout << "ERROR: could not initialise pca library." << std::endl;
+		std::cout << "ERROR: could not initialise pca library: "<< _init_status.get("pca").get_callMsg() << std::endl;
 	}
 	if(!_init_status.get("camObj").isInit() && _init_status.get("camObj").call_init()) {
-		std::cout << "ERROR: could not initialise camObj objects." << std::endl;
+		std::cout << "ERROR: could not initialise camObj objects: "<<_init_status.get("camObj").get_callMsg() << std::endl;
 	}
 
 	if(recordFrames) {
 		// recObj = opencv_recorder("Hexclaw_cameraFeeds", prefSize[0]*2, prefSize[1]*2, 15);
 		if(!_init_status.get("opencv recorder").isInit() && _init_status.get("opencv recorder").call_init()) {
-			std::cout << "ERROR: could not initialise opencv recorder object." << std::endl;
+			std::cout << "ERROR: could not initialise opencv recorder object:"<<_init_status.get("opencv recorder").get_callMsg() << std::endl;
 		}
 	}
+	std::cout << "Initialising pigpio..."<<std::endl;
 	if(!_init_status.get("pigpio").isInit() && _init_status.get("pigpio").call_init()) {
-		std::cout << "ERROR: could not initialise pigpio library." << std::endl;
+		std::cout << "ERROR: could not initialise pigpio library: "<<_init_status.get("pigpio").get_callMsg() << std::endl;
 	}
 }
 
-int _init__pca() {
+int _init__pca(_initClass_dataStruct *_passData) {
 	bool init_success = false;
 	try {
 		init_success = pca.init();
 	} catch (const std::system_error& e) {
-		std::cout << e.what() << std::endl;
-		std::cout << e.code() << std::endl;
+		_passData->_message = e.what();
+		// std::cout << e.what() << std::endl;
 	}
 	if(!init_success) return 1;
 	pca.set_pwm_freq(50.0);
 	return 0;
 }
-int _init__camObj() {
+int _init__camObj(_initClass_dataStruct *_passData) {
 	camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf));
 	camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf));
 	return 0;
 }
-int _init__pigpio() {
-	if(gpioInitialise() < 0) {
-		std::cout << "_init__pigpio(): pigpio \"gpioInitialise()\" failed."<<std::endl;
-		return -1;
+int _init__pigpio(_initClass_dataStruct *_passData) {
+	std::cout << "before pigpio init..."<<std::endl;
+	try {
+		if(gpioInitialise() < 0) {
+			std::cout << "_init__pigpio(): pigpio \"gpioInitialise()\" failed."<<std::endl;
+			return -1;
+		}
+		gpioSetMode(pin_ledRelay, PI_OUTPUT);
+		gpioWrite(pin_ledRelay, 1);
+	} catch(const std::exception& e) {
+		_passData->_message = e.what();
+		return 1;
 	}
-	
-	gpioSetMode(pin_ledRelay, PI_OUTPUT);
-	gpioWrite(pin_ledRelay, 1);
 
 	return 0;
 }
-int _init__opencv_recorder() {
+int _init__opencv_recorder(_initClass_dataStruct *_passData) {
 	recObj = opencv_recorder("Hexclaw_cameraFeeds", prefSize[0]*2, prefSize[1]*2, 15);
 	return 0;
 }
-int _close__pca() {
+int _close__pca(_initClass_dataStruct *_passData) {
 
 	return 0;
 }
-int _close__camObj() {
+int _close__camObj(_initClass_dataStruct *_passData) {
 
 	return 0;
 }
-int _close__pigpio() {
+int _close__pigpio(_initClass_dataStruct *_passData) {
 	gpioTerminate();
 	return 0;
 }
-int _close__opencv_recorder() {
+int _close__opencv_recorder(_initClass_dataStruct *_passData) {
 
 }
+
+
