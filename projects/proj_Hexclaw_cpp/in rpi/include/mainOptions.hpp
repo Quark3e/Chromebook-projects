@@ -89,6 +89,10 @@ void HW_setup_options() {
 
 void HW_option1_intro() {
 	simplified_init();
+	if(!_init_status.get("pca").isInit()) {
+		std::cout << "ERROR: pca library failed to initialise:"<< _init_status.get("pca").get_callMsg() <<". Cannot run intro."<<std::endl;
+		return;
+	}
 	printFuncLabel(" Running: Into sequence");
 
 	current_q[0] = -45;
@@ -157,6 +161,15 @@ void HW_option2() {
 
 void HW_option0() {
 	simplified_init();
+	if(!_init_status.get("pca").isInit()) std::cout << "NOTE: PCA9685 board has not been successfully initialised: "<<_init_status.get("pca").get_callMsg()<<std::endl;
+	if(!_init_status.get("camObj").isInit()) {
+		std::cout << "ERROR: camObj has not been able to be initialised."; std::cout.flush();
+		for(int _=0; _<3; _++) {
+			std::cout << " ."; std::cout.flush();
+			usleep(1'000'000);
+		}
+		return;
+	}
 	printFuncLabel(" Running: opt0: Main loop with opencv and servo control");
 
 	//create windows regardless because i need a way to properly exit the loop
@@ -321,14 +334,14 @@ void HW_option0() {
 				toRadians(orient[2]),
 				1
 			)) {
-				sendToServo(&pca,new_q,current_q,false);
+				if(_init_status.get("pca").isInit()) sendToServo(&pca,new_q,current_q,false);
 				for(int i=0; i<6; i++) printTable.insertNum(new_q[i],1+i,3,1);
 				printTable.strExport(std::string(21,' ')+"\n");
 			}
 			else if (HW_KINEMATICS::findValidOrient(
 				PP, orient, orient, new_q
 			)) {
-				sendToServo(&pca,new_q,current_q,false);
+				if(_init_status.get("pca").isInit()) sendToServo(&pca,new_q,current_q,false);
 				printTable.insertNum(orient[0],1,2,1);
 				printTable.insertNum(orient[1],2,2,1);
 				printTable.insertNum(orient[2],3,2,1);
@@ -497,17 +510,35 @@ void HW_option0() {
 }
 void HW_option3() {
 	simplified_init();
+	if(!_init_status.get("camObj").isInit()) {
+		std::cout << "ERROR: camObj has not been able to be initialised: " << _init_status.get("camObj").get_callMsg()<<std::endl;
+		for(int _=0; _<3; _++) {
+			std::cout << " ."; std::cout.flush();
+			usleep(1'000'000);
+		}
+		return;
+	}
 	printFuncLabel(" Running: opt3: display opencv but don't move servo");
 
 }
 void HW_option4() {
 	simplified_init();
+	if(!_init_status.get("pca").isInit()) {
+		std::cout << "ERROR: pca library has not been able to be initialised: " << _init_status.get("pca").get_callMsg()<<std::endl;
+		for(int _=0; _<3; _++) {
+			std::cout << " ."; std::cout.flush();
+			usleep(1'000'000);
+		}
+		return;
+	}
 	printFuncLabel(" Running: opt4: move servo but don't display opencv im on window");
+
 
 }
 void HW_option5_orient() {
 	simplified_init();
 	printFuncLabel(" Running: opt5: Only orientation movement on servo robot");
+	if(!_init_status.get("pca").isInit()) std::cout << "NOTE: pca library has not been able to be initialised: " << _init_status.get("pca").get_callMsg()<<std::endl;
 
 	// std::this_thread::sleep_for(1000ms);
 
@@ -541,7 +572,7 @@ void HW_option5_orient() {
 				formatNumber(PP[2],6,1)+"\n"
 			);
 
-			sendToServo(&pca, new_q, current_q, false);
+			if(_init_status.get("pca").isInit()) sendToServo(&pca, new_q, current_q, false);
 		}
 		else {
 			printTable.strExport(

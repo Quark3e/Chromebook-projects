@@ -123,6 +123,7 @@ void HW_option6_control_panel() {
     );
 
 
+
     float tempLim=0;
 
     bool tabCalled = false;
@@ -212,8 +213,11 @@ void HW_option6_control_panel() {
                     toRadians(PP_tilt[2]),
                     1
                 )) {
-                    sendToServo(&pca, new_q, current_q,false,2,0.5);
+                    if(_init_status.get("pca").isInit()) {
+                        sendToServo(&pca, new_q, current_q,false,2,0.5);
+                    }
                     outMsg = "Success: sent new rotations to servo motors";
+
                 }
                 else if(HW_KINEMATICS::findValidOrient(PP_pos, PP_tilt, PP_tilt, new_q)) {
                     for(int qu=0; qu<3; qu++) {
@@ -225,8 +229,10 @@ void HW_option6_control_panel() {
                         );
 
                     }
-                    //pos reachable with new orient
-                    sendToServo(&pca, new_q, current_q,false,2,0,5);
+                    if(_init_status.get("pca").isInit()) {
+                        //pos reachable with new orient
+                        sendToServo(&pca, new_q, current_q,false,2,0,5);
+                    }
                     outMsg = "Deviant: given orient gave errors -> found new orients";
                 }
                 else {

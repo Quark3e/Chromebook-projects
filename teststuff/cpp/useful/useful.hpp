@@ -616,6 +616,7 @@ struct pos2d {
      * @param xPos terminal x position to print on
      * @param yPos terminal y position to print on
      * @param flushEnd whether to flush `std::cout`
+     * 
     */
     inline void ANSI_mvprint(
         int posX,

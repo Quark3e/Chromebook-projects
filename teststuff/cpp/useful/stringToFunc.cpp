@@ -126,7 +126,6 @@ labeledFunction::labeledFunction() {
 
 }
 
-
 int labeledFunction::call_func(std::string _name) {
     int idx = this->get_idx(_name);
     if(idx<0) return -1;
@@ -137,7 +136,6 @@ int labeledFunction::call_func(std::string _name) {
     else if(_funcType[idx]==allFuncTypes[3]) this->_returns._string  = this->call_string__(idx);
     return 0;
 }
-
 
 int labeledFunction::add_func(std::vector<std::string> _labels, TDEF_void__  _func, std::string _description) {
     int idx = -1;
