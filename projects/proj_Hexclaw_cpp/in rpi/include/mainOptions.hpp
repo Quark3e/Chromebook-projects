@@ -18,9 +18,12 @@ createTable cmdArgs_output_table;
 void printFuncLabel(std::string functionName) {
 	int termDim[2];
 	getTermSize(termDim[0], termDim[1]);
-	std::cout << std::endl << std::string(termDim[0], '-')<<std::endl;
-	std::cout << functionName << std::endl;
-	std::cout << std::string(termDim[0], '-')<<std::endl;
+	// std::cout << std::endl << std::string(termDim[0], '-')<<std::endl;
+	// std::cout << functionName << std::endl;
+	// std::cout << std::string(termDim[0], '-')<<std::endl;
+	ANSI_mvprint(0, 0, std::string(termDim[0], '-'));
+	ANSI_mvprint(0, 0, functionName, true, "abs", "rel");
+	ANSI_mvprint(0, 0, std::string(termDim[0], '-'), true, "abs", "rel");
 }
 
 /// @brief display all the command line argument flags with their descriptions
@@ -90,7 +93,8 @@ void HW_setup_options() {
 void HW_option1_intro() {
 	simplified_init();
 	if(!_init_status.get("pca").isInit()) {
-		std::cout << "ERROR: pca library failed to initialise:"<< _init_status.get("pca").get_callMsg() <<". Cannot run intro."<<std::endl;
+		ANSI_mvprint(0, 0, std::string("ERROR: pca library failed to initialise:"+_init_status.get("pca").get_callMsg()+". Cannot run intro."), true, "abs", "rel");
+		// std::cout << "ERROR: pca library failed to initialise:"<< _init_status.get("pca").get_callMsg() <<". Cannot run intro."<<std::endl;
 		return;
 	}
 	printFuncLabel(" Running: Into sequence");
@@ -116,10 +120,12 @@ void HW_option1_intro() {
 		gpioWrite(pin_ledRelay, 1);
 	}
 	usleep(750'000);
-	std::cout<<"\n- section: \"slow start\"\n";
+	// std::cout<<"\n- section: \"slow start\"\n";
+	ANSI_mvprint(0, 0, "\n- section: \"slow start\"\n", true, "abs", "rel");
 	sendToServo(&pca, new_q, current_q, false, 2, 10);
 
-	std::cout<<"intro finished\n";
+	// std::cout<<"intro finished\n";
+	ANSI_mvprint(0, 0, "intro finished\n", true, "abs", "rel");
 	usleep(3'000'000);
 	if(_init_status.get("pigpio").isInit()) {
 		for(int i=0; i<4; i++) {
@@ -148,7 +154,8 @@ void HW_option1_intro() {
 	new_q[3] = 89;
 	new_q[4] = 89;
 	new_q[5] = 0;
-	std::cout<<"\n- section: \"crash\"\n";
+	// std::cout<<"\n- section: \"crash\"\n";
+	ANSI_mvprint(0, 0, "\n- section: \"crash\"\n", true, "abs", "rel");
 	sendToServo(&pca,new_q,current_q, false);
 	usleep(2'000'000);
 
@@ -161,11 +168,14 @@ void HW_option2() {
 
 void HW_option0() {
 	simplified_init();
-	if(!_init_status.get("pca").isInit()) std::cout << "NOTE: PCA9685 board has not been successfully initialised: "<<_init_status.get("pca").get_callMsg()<<std::endl;
+	if(!_init_status.get("pca").isInit()) ANSI_mvprint(0, 0, "NOTE: PCA9685 library has not been successfully initialised: "+_init_status.get("pca").get_callMsg(), true, "abs", "rel");
+	// std::cout << "NOTE: PCA9685 board has not been successfully initialised: "<<_init_status.get("pca").get_callMsg()<<std::endl;
 	if(!_init_status.get("camObj").isInit()) {
-		std::cout << "ERROR: camObj has not been able to be initialised."; std::cout.flush();
+		// std::cout << "ERROR: camObj has not been able to be initialised."; std::cout.flush();
+		ANSI_mvprint(0, 0, "ERROR: camObj has not been successfully initialised: "+_init_status.get("camObj").get_callMsg(), true, "abs", "rel");
 		for(int _=0; _<3; _++) {
-			std::cout << " ."; std::cout.flush();
+			// std::cout << " ."; std::cout.flush();
+			ANSI_mvprint(0, -1, " .", true, "rel", "rel");
 			usleep(1'000'000);
 		}
 		return;
@@ -241,7 +251,8 @@ void HW_option0() {
 	#endif
 
     #if useThreads
-		std::cout << " Initialising local `std::unique_lock<std::mutex>` and variables starting threads"<<endl;
+		// std::cout << " Initialising local `std::unique_lock<std::mutex>` and variables starting threads"<<endl;
+		ANSI_mvprint(0, 0, " Initialising local `std::unqiue_lock<std::mutex>` and variables starting threads", true, "abs", "rel");
         std::unique_lock<std::mutex> u_lck0(mtx[0], std::defer_lock);
         std::unique_lock<std::mutex> u_lck1(mtx[1], std::defer_lock);
         std::unique_lock<std::mutex> u_lck_cout(mtx_cout, std::defer_lock);
@@ -480,7 +491,9 @@ void HW_option0() {
 		else if(keyInp==114) { //'r'
 			string inputVar = "";
 			int indVar = 0;
-			std::cout << "Enter index in hsv file\ninput: ";
+			// std::cout << "Enter index in hsv file\ninput: ";
+			ANSI_mvprint(0, 0, "Enter index in hsv file", true, "abs", "rel");
+			ANSI_mvprint(0, 0, "input: ", true, "abs", "rel");
 			std::cin >> inputVar;
 			if(inputVar=="exit") exit(1);
 			indVar = stoi(inputVar);
@@ -506,14 +519,17 @@ void HW_option0() {
 	u_lck1.lock();
 	exit_thread[1] = true;
 	u_lck1.unlock();
-	std::cout << "\nExit called. Exiting." << std::endl;
+	// std::cout << "\nExit called. Exiting." << std::endl;
+	ANSI_mvprint(0, 2, "Exit called. Exiting.", true, "abs", "rel");
 }
 void HW_option3() {
 	simplified_init();
 	if(!_init_status.get("camObj").isInit()) {
-		std::cout << "ERROR: camObj has not been able to be initialised: " << _init_status.get("camObj").get_callMsg()<<std::endl;
+		// std::cout << "ERROR: camObj has not been able to be initialised: " << _init_status.get("camObj").get_callMsg()<<std::endl;
+		ANSI_mvprint(0, 0, "ERROR: camObj has not been able to be initialised: "+_init_status.get("camObj").get_callMsg(), true, "abs", "rel");
 		for(int _=0; _<3; _++) {
-			std::cout << " ."; std::cout.flush();
+			// std::cout << " ."; std::cout.flush();
+			ANSI_mvprint(0, -1, " .", true, "rel", "rel");
 			usleep(1'000'000);
 		}
 		return;
@@ -524,9 +540,11 @@ void HW_option3() {
 void HW_option4() {
 	simplified_init();
 	if(!_init_status.get("pca").isInit()) {
-		std::cout << "ERROR: pca library has not been able to be initialised: " << _init_status.get("pca").get_callMsg()<<std::endl;
+		// std::cout << "ERROR: pca library has not been able to be initialised: " << _init_status.get("pca").get_callMsg()<<std::endl;
+		ANSI_mvprint(0, 0, "ERROR: PCA9685 library has not been able to be initialised: "+_init_status.get("pca").get_callMsg(), true, "abs", "rel");
 		for(int _=0; _<3; _++) {
-			std::cout << " ."; std::cout.flush();
+			// std::cout << " ."; std::cout.flush();
+			ANSI_mvprint(0, -1, " .", true, "abs", "rel");
 			usleep(1'000'000);
 		}
 		return;
@@ -538,7 +556,8 @@ void HW_option4() {
 void HW_option5_orient() {
 	simplified_init();
 	printFuncLabel(" Running: opt5: Only orientation movement on servo robot");
-	if(!_init_status.get("pca").isInit()) std::cout << "NOTE: pca library has not been able to be initialised: " << _init_status.get("pca").get_callMsg()<<std::endl;
+	if(!_init_status.get("pca").isInit()) ANSI_mvprint(0, 0, "NOTE: pca library has not been able to be initialised: "+_init_status.get("pca").get_callMsg(), true, "abs", "rel");
+	// std::cout << "NOTE: pca library has not been able to be initialised: " << _init_status.get("pca").get_callMsg()<<std::endl;
 
 	// std::this_thread::sleep_for(1000ms);
 

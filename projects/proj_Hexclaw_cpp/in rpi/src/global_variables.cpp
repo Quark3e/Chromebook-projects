@@ -343,21 +343,25 @@ DIY::typed_dict<std::string, _initClass> _init_status(
 void simplified_init() {
 
 	if(!_init_status.get("pca").isInit() && _init_status.get("pca").call_init()) {
-		std::cout << "ERROR: could not initialise pca library: "<< _init_status.get("pca").get_callMsg() << std::endl;
+		// std::cout << "ERROR: could not initialise pca library: "<< _init_status.get("pca").get_callMsg() << std::endl;
+		ANSI_mvprint(0, 0, "ERROR: could not initialise pca library: "+_init_status.get("pca").get_callMsg(), true, "abs", "rel");
 	}
 	if(!_init_status.get("camObj").isInit() && _init_status.get("camObj").call_init()) {
-		std::cout << "ERROR: could not initialise camObj objects: "<<_init_status.get("camObj").get_callMsg() << std::endl;
+		// std::cout << "ERROR: could not initialise camObj objects: "<<_init_status.get("camObj").get_callMsg() << std::endl;
+		ANSI_mvprint(0, 0, "ERROR: could not initialise camObj objects: "+_init_status.get("camObj").get_callMsg(), true, "abs", "rel");
 	}
 
 	if(recordFrames) {
 		// recObj = opencv_recorder("Hexclaw_cameraFeeds", prefSize[0]*2, prefSize[1]*2, 15);
 		if(!_init_status.get("opencv recorder").isInit() && _init_status.get("opencv recorder").call_init()) {
-			std::cout << "ERROR: could not initialise opencv recorder object:"<<_init_status.get("opencv recorder").get_callMsg() << std::endl;
+			// std::cout << "ERROR: could not initialise opencv recorder object:"<<_init_status.get("opencv recorder").get_callMsg() << std::endl;
+			ANSI_mvprint(0, 0, "ERROR: could not initialise opencv recorder object: "+_init_status.get("opencv recorder").get_callMsg(), true, "abs", "rel");
 		}
 	}
 	std::cout << "Initialising pigpio..."<<std::endl;
 	if(!_init_status.get("pigpio").isInit() && _init_status.get("pigpio").call_init()) {
-		std::cout << "ERROR: could not initialise pigpio library: "<<_init_status.get("pigpio").get_callMsg() << std::endl;
+		// std::cout << "ERROR: could not initialise pigpio library: "<<_init_status.get("pigpio").get_callMsg() << std::endl;
+		ANSI_mvprint(0, 0, "ERROR: could not intialise pigpio library: "+_init_status.get("pigpio").get_callMsg(), true, "abs", "rel");
 	}
 }
 
@@ -374,8 +378,13 @@ int _init__pca(_initClass_dataStruct *_passData) {
 	return 0;
 }
 int _init__camObj(_initClass_dataStruct *_passData) {
-	camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf));
-	camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf));
+	try {
+		camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf));
+		camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf));
+	} catch (const std::logic_error& e) {
+		_passData->_message = e.what();
+		return 1;
+	}
 	return 0;
 }
 int _init__pigpio(_initClass_dataStruct *_passData) {
@@ -395,7 +404,12 @@ int _init__pigpio(_initClass_dataStruct *_passData) {
 	return 0;
 }
 int _init__opencv_recorder(_initClass_dataStruct *_passData) {
-	recObj = opencv_recorder("Hexclaw_cameraFeeds", prefSize[0]*2, prefSize[1]*2, 15);
+	try {
+		recObj = opencv_recorder("Hexclaw_cameraFeeds", prefSize[0]*2, prefSize[1]*2, 15);
+	} catch (const std::exception &e) {
+		_passData->_message = e.what();
+		return 1;
+	}
 	return 0;
 }
 int _close__pca(_initClass_dataStruct *_passData) {

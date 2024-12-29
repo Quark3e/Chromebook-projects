@@ -12,7 +12,7 @@ IR_camTracking::IR_camTracking(
     const char* windowName
 ): cap(camIndex), perfObj("["+to_string(camIndex)+"]") {
     if(!cap.isOpened()) {
-        cout << "error: IR_camTracking: cannot open webcam with idx:" << camIndex << endl;
+        throw std::logic_error(("IR_camTracking: cannot open webcam with idx:"+std::to_string(camIndex)).c_str());
         return;
     }
 
@@ -39,7 +39,7 @@ IR_camTracking::IR_camTracking(
     int prefHeight
 ): cap(camIndex), perfObj("["+to_string(camIndex)+"]") {
     if(!cap.isOpened()) {
-        cout << "error: IR_camTracking: cannot open webcam with idx:" << camIndex << endl;
+        throw std::logic_error(("IR_camTracking: cannot open webcam with idx:"+std::to_string(camIndex)).c_str());
         return;
     }
     const char* win_name = windowName;
@@ -251,7 +251,7 @@ void hsv_settingsWrite(
 	ifstream rFile(filePath);
 	if(!rFile.is_open()) {
 		printf("error: Cannot open file\"");
-		cout << filePath << "\"\n";
+		std::cout << filePath << "\"\n";
 	}
 	string fileContents="", line;
 	// printf("rowLen_1: %d\n", rowLen);
@@ -268,7 +268,7 @@ void hsv_settingsWrite(
 	string fileRows[rowLen_2];
 	for(int i=0; i<rowLen_2; i++) {
 		// printf("row %d out of %d rows: ",i,rowLen_2);
-		// cout << fileContents.substr(0,fileContents.find('\n')+1) << endl;
+		// std::cout << fileContents.substr(0,fileContents.find('\n')+1) << std::endl;
 		if(i==rowLen_2-1 && !overWrite) {
 			fileRows[i] = to_string(i-2)+";["+
 			to_string(argHSV[0][0])+","+to_string(argHSV[0][1])+","+to_string(argHSV[0][2])+":"+
@@ -289,7 +289,7 @@ void hsv_settingsWrite(
 	string totText = "";
 	for(int i=0; i<rowLen_2; i++) {
 		// printf("fileRows[%d]: \"", i);
-		// cout << fileRows[i] << "\"" << endl;
+		// std::cout << fileRows[i] << "\"" << std::endl;
 		totText+=fileRows[i];
 		}
 	wFile << totText;

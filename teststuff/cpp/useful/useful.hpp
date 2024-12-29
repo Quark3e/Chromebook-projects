@@ -616,28 +616,47 @@ struct pos2d {
      * @param xPos terminal x position to print on
      * @param yPos terminal y position to print on
      * @param flushEnd whether to flush `std::cout`
-     * 
+     * @param x_method the method to set the new x coordiante by: `"abs"`-give absolute coordinates, `"rel"`-relative to previously given coordinates.
+     * The previous line width is stored. If "rel" and `xPos==-1` then it'll print at same x pos as prev func call minux 1.
+     * @param y_method the method to set hte new y coordinate by: `"abs"`-give absolute coordinates, `"rel"`-relative to previously given coordinates.
+     * The previous line height pos is stored. If "rel" and `yPos==-1` then it'll print at same y pos as prev func call.
+     * @note If `y_method=="rel"` and `yPos==0` then it'll print on a new line rfom the previous func call position.
+     * @note To continue writing exactly from previous func call, `xPos==0`, `yPos==-1`, `x_method=="rel"`, `y_method=="rel"`
     */
     inline void ANSI_mvprint(
         int posX,
         int posY,
         std::string printText,
-        bool flushEnd = true
+        bool flushEnd = true,
+        std::string x_method = "abs",
+        std::string y_method = "abs"
     ) {
+        static int prevPos[2] = {0, 0};
+
+        if(x_method=="rel") posX = prevPos[0]+posX;
+        if(y_method=="rel") posY = prevPos[1]+posY;
+
         std::string ansiCode = "\x1B[";
 
         size_t tPos=0, ePos=0;
-        int rowCount=0;
+        int rowCount= 0;
+        int rowLen  = 0;
+        std::string _substring = "";
         while(printText.find('\n', tPos)!=std::string::npos) {
             ePos = printText.find('\n', tPos);
-            std::cout<<ansiCode<<posY+rowCount<<";"<<posX<<"H"<<printText.substr(tPos, ePos-tPos);
+            _substring = printText.substr(tPos, ePos-tPos);
+            std::cout<<ansiCode<<posY+rowCount<<";"<<posX<<"H"<<_substring;
             tPos = ePos+1;
             rowCount++;
         }
-        std::cout<<ansiCode<<posY+rowCount<<";"<<posX<<"H"<<printText.substr(tPos, printText.length());
+        _substring = printText.substr(tPos, printText.length());
+        std::cout<<ansiCode<<posY+rowCount<<";"<<posX<<"H"<<_substring;
+        rowCount++;
 
         // std::cout<<ansiCode<<posY<<";"<<posX<<"H"<<printText;
         if(flushEnd) std::cout.flush();
+        prevPos[0] = posX + _substring.length();
+        prevPos[1] = posY + rowCount;
     }
 
     inline void baseAnsiPrint(
