@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
     ImGuiStyle& style = ImGui::GetStyle();
 
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.IniFilename = (__dir_programRoot+"imgui.ini").c_str();
+    io.IniFilename = NULL; //(__dir_programRoot+"imgui.ini").c_str();
 
     ImGui::StyleColorsDark();
     ImGui_ImplAllegro5_Init(display);

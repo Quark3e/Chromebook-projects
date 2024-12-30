@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.18)
 project(guiNodeChart)
 
 set(CMAKE_CXX_STANDARD 17)
-set(IMGUI_USER_CONFIG "\\\"/usr/local/include/imgui/examples/example_allegro5/imconfig_allegro5.h\\\"")
+# set(IMGUI_USER_CONFIG "\\\"/usr/local/include/imgui/examples/example_allegro5/imconfig_allegro5.h\\\"")
+
+set(CMAKE_FIND_DEBUG_MODE 1)
 
 if(WIN32)
 find_path(DIR_IMGUI
@@ -12,12 +14,12 @@ find_path(DIR_IMGUI
 )
 # set(DIR_IMGUI "C:/Users/berkh/Libraries")
 else()
-find_path(DIR_IMGUI
-    NAMES "imgui.h"
-    HINTS "include"
-    REQUIRED
-)
-# set(DIR_IMGUI "/usr/local/include")
+# find_path(DIR_IMGUI
+#     NAMES "imgui.h"
+#     HINTS "imgui"
+#     REQUIRED
+# )
+set(DIR_IMGUI "/usr/local/include/imgui")
 endif(WIN32)
 
 get_filename_component(DIR_IMGUI ${DIR_IMGUI} DIRECTORY)

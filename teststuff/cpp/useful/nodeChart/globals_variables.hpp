@@ -201,7 +201,7 @@ struct fileCont {
     /// @brief name of entry
     std::string name;
     /// @brief file serial number
-    long        ino;
+    unsigned long   ino;
     /// @brief type of file
     int         type;
     /// @brief Size of file in bytes
