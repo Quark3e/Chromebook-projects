@@ -63,7 +63,7 @@ void gNC::_menu__node_details(
         ImGui::SameLine();
         ImGui::PushItemWidth(100);
         if(ImGui::DateChooser(("##"+ptrToStr<gNC::gNODE*>(toDetail)+"_date").c_str(), toDetail->date)) {
-            toDetail->inChart->modified;
+            toDetail->inChart->modified = true;
         }
 
         ImGui::Separator();
