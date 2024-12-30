@@ -129,6 +129,7 @@ int main(int argc, char** argv) {
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.IniFilename = NULL; //(__dir_programRoot+"imgui.ini").c_str();
 
     ImGui::StyleColorsDark();
 
