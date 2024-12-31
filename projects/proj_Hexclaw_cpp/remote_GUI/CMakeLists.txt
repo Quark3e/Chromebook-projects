@@ -3,6 +3,8 @@ project(Hexclaw_Remote)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_FIND_DEBUG_MODE 1)
+set(BUILD_MODE Debug)
+
 
 if(WIN32)
 # find_path(DIR_IMGUI NAMES "imgui.h"
