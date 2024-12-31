@@ -133,7 +133,7 @@ namespace HW_KINEMATICS  {
         P5[1] = PP[1] - l * cos(a);
         P5[2] = PP[2] - (arm_link[4]+arm_link[5]) * sin(b);
 
-        if(printText) printf(" P5 coords: %f %f %f\n", int(round(P5[0])), int(round(P5[1])), int(round(P5[2])));
+        if(printText) printf(" P5 coords: %d %d %d\n", int(round(P5[0])), int(round(P5[1])), int(round(P5[2])));
 
         if(P5[1]<0) P5[1] = 0;
         else if(P5[1]==0) {
@@ -180,8 +180,8 @@ namespace HW_KINEMATICS  {
         else if(toDegrees(b1)<-90) b1_exceed = -1;
         if(b1_exceed!=0 || a1_exceed!=0) {
             if(printErrors) {
-                if(a1_exceed!=0) printf(" a1 exceeded beyond %d", a1_exceed*90);
-                if(b1_exceed!=0) printf(" b1 exceeded beyond %d", b1_exceed*90);
+                if(a1_exceed!=0) printf(" a1 exceeded beyond %f", a1_exceed*90);
+                if(b1_exceed!=0) printf(" b1 exceeded beyond %f", b1_exceed*90);
                 printf("\n");
             }
             isReachable = false;
@@ -264,8 +264,7 @@ namespace HW_KINEMATICS  {
             for(int beta=0; beta<=180; beta+=orientAcc[1]) {
                 
                 if(
-                    (currOrient[0]+alpha) < 
-                    getAngles(qAngles, PP, toRadians(currOrient[0]+alpha),toRadians(currOrient[1]+beta*B_dir),toRadians(currOrient[3]), 1)) {
+                    (currOrient[0]+alpha) < getAngles(qAngles, PP, toRadians(currOrient[0]+alpha),toRadians(currOrient[1]+beta*B_dir),toRadians(currOrient[3]), 1)) {
                     retOrient[0] = currOrient[0] + alpha;
                     retOrient[1] = currOrient[1] + beta*B_dir;
                     return true;

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 project(Hexclaw_Remote)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_FIND_DEBUG_MODE 1)
 set(BUILD_MODE Debug)
 

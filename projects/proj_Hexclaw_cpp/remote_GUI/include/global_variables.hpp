@@ -49,7 +49,7 @@ inline void* getPixelPtr(
     ALLEGRO_LOCKED_REGION* lockedReg
 ) {
     // lockedReg->data
-    return (lockedReg->data + x*lockedReg->pixel_size + lockedReg->pitch*y);
+    return ((char*)lockedReg->data + x*lockedReg->pixel_size + lockedReg->pitch*y);
 }
 
 /**
@@ -259,6 +259,7 @@ class al_bmp_threadClass {
     
     bool init() {
         this->bmp = al_create_bitmap(width, height);
+        return (bmp);
     }
 };
 /**

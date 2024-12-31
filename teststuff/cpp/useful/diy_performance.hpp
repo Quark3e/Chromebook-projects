@@ -37,7 +37,11 @@ namespace PERF {
          */
         std::vector<std::vector<float>> _delays_ms;
         std::vector<size_t>               _readCnt; //whether to save the read delays into a history and if so how many cycles until an update
+#if _WIN32
+        std::vector<std::vector<std::chrono::steady_clock::time_point>>         _times;
+#else
         std::vector<std::vector<std::chrono::_V2::steady_clock::time_point>>    _times;
+#endif
 
         
         void _call_error(int code, std::string from_member="", std::string custom_error="") {
@@ -80,31 +84,46 @@ namespace PERF {
         perf_isolated() {}
         perf_isolated(std::initializer_list<std::string> init_names) {
             if(init_names.size()==0) throw std::runtime_error("ERROR: "+this->_info_name+"(std::initializer_list<std::string>): initializer list can't have the length of 0");
+            auto _nowTime = std::chrono::steady_clock::now();
             for(auto name: init_names) {
                 this->_names.push_back(name);
                 this->_delays_ms.push_back(std::vector<float>{0});
                 this->_readCnt.push_back(1);
-                this->_times.push_back(std::vector<std::chrono::_V2::steady_clock::time_point>(2,std::chrono::steady_clock::now()));
+#if _WIN32
+                this->_times.push_back(std::vector<std::chrono::steady_clock::time_point>(2, _nowTime));
+#else
+                this->_times.push_back(std::vector<std::chrono::_V2::steady_clock::time_point>(2, _nowTime));
+#endif
             }
         }
         perf_isolated(std::vector<std::string> init_names) {
             if(init_names.size()==0) throw std::runtime_error("ERROR: "+this->_info_name+"(std::initializer_list<std::string>): initializer list can't have the length of 0");
+            auto _nowTime = std::chrono::steady_clock::now();
             for(auto name: init_names) {
                 this->_names.push_back(name);
                 this->_delays_ms.push_back(std::vector<float>{0});
                 this->_readCnt.push_back(1);
-                this->_times.push_back(std::vector<std::chrono::_V2::steady_clock::time_point>(2,std::chrono::steady_clock::now()));
+#if _WIN32
+                this->_times.push_back(std::vector<std::chrono::steady_clock::time_point>(2, _nowTime));
+#else
+                this->_times.push_back(std::vector<std::chrono::_V2::steady_clock::time_point>(2, _nowTime));
+#endif
             }
         }
         ~perf_isolated() {}
 
         int set_T0(std::string name, size_t cycle_count = 1) {
-            std::chrono::_V2::steady_clock::time_point tempTime = std::chrono::steady_clock::now();
+            auto tempTime = std::chrono::steady_clock::now();
             if(cycle_count<1) cycle_count = 1;
             int pos = (this->_names.size()<1? -1 : DIY_SEARCH_MULTITHREAD::check_existence<std::string>(name, this->_names));
             if(pos<0) { //name doesn't exist in system
                 this->_names.push_back(name);
-                this->_times.push_back(std::vector<std::chrono::_V2::steady_clock::time_point>{tempTime, tempTime});
+#if _WIN32
+                this->_times.push_back(std::vector<std::chrono::steady_clock::time_point>(2, tempTime));
+#else
+                this->_times.push_back(std::vector<std::chrono::_V2::steady_clock::time_point>(2, tempTime));
+#endif
+                // this->_times.push_back(std::vector<std::chrono::_V2::steady_clock::time_point>{tempTime, tempTime});
                 // std::chrono::milliseconds elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(tempTime-tempTime);
                 this->_readCnt.push_back(cycle_count);
                 this->_delays_ms.push_back(std::vector<float>{0});
@@ -115,7 +134,7 @@ namespace PERF {
             return 0;
         }
         int set_T1(std::string name) {
-            std::chrono::_V2::steady_clock::time_point tempTime = std::chrono::steady_clock::now();
+            auto tempTime = std::chrono::steady_clock::now();
             int pos = DIY_SEARCH_MULTITHREAD::check_existence<std::string>(name, this->_names);
             if(pos<0) this->_call_error(0,"set_T1(std::string)","input `name` \""+name+"\" has not been initialised with perf_isolated::set_T0()");
             this->_times[pos][1]    = tempTime;
