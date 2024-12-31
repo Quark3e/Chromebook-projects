@@ -23,12 +23,19 @@ message(DIR_IMGUI = ${DIR_IMGUI})
 set(REPO_ROOT "../../..")
 set(DIR_HC_USEFUL "${REPO_ROOT}/teststuff/cpp/useful") #"/usr/local/include/HC_useful")
 
+if (MSVC)
+    # warning level 4
+    add_compile_options(/FS)
+else()
+    # additional warnings
+    add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/hexclaw_networkDataThread)
 
-if(WIN32)
-include_directories("C:\\msys64\\ucrt64\\include")
-endif(WIN32)
+# if(WIN32)
+# include_directories("C:\\msys64\\ucrt64\\include")
+# endif(WIN32)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories("${REPO_ROOT}/projects/proj_Hexclaw_cpp/in rpi")

@@ -2,7 +2,7 @@
 #ifndef HPP__HEXCLAW_REMOTE_GUI__GLOBAL_VARIABLES
 #define HPP__HEXCLAW_REMOTE_GUI__GLOBAL_VARIABLES
 
-#include <includes.hpp>
+#include "includes.hpp"
 
 #include <diy_dictionary.hpp>
 
@@ -48,6 +48,7 @@ inline void* getPixelPtr(
     size_t y,
     ALLEGRO_LOCKED_REGION* lockedReg
 ) {
+    // lockedReg->data
     return (lockedReg->data + x*lockedReg->pixel_size + lockedReg->pitch*y);
 }
 
@@ -360,9 +361,9 @@ extern bool _undo__pressed; //`ctrl+z`
 extern bool _redo__pressed; //`ctrl+y` or `ctrl+shift+z`
 
 
-inline bool IsLegacyNativeDupe(ImGuiKey key) {
-    return key >= 0 && key < 512 && ImGui::GetIO().KeyMap[key] != -1;
-}
+// inline bool IsLegacyNativeDupe(ImGuiKey key) {
+//     return key >= 0 && key < 512 && ImGui::GetIO().KeyMap[key] != -1;
+// }
 
 extern DIY::typed_dict<std::string, std::string> guiSettings_desc;
 extern DIY::typed_dict<std::string, bool*> guiSettings;

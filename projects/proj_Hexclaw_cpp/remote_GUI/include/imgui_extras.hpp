@@ -2,6 +2,8 @@
 #ifndef HPP__IMGUI_EXTRAS
 #define HPP__IMGUI_EXTRAS
 
+#include "includes.hpp"
+
 inline void ToggleButton(const char* str_id, bool* v) {
     ImVec2 p = ImGui::GetCursorScreenPos();
     ImDrawList* draw_list = ImGui::GetWindowDrawList();

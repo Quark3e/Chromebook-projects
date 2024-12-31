@@ -12,7 +12,11 @@
 
 #include <cassert>
 
+#if _WIN32
+#include <dirent_portable.h>
+#else
 #include <dirent.h>
+#endif
 #include <filesystem>
 
 #include <thread>

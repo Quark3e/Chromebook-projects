@@ -285,8 +285,8 @@ void tab_0(void) {
 
     static std::vector<int> pressed_keys;
     pressed_keys.clear();
-    for (ImGuiKey key = start_key; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) {
-        if (IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) continue;
+    for (ImGuiKey key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) {
+        if (/*IsLegacyNativeDupe(key) ||*/ !ImGui::IsKeyDown(key)) continue;
         pressed_keys.push_back(key);
         // ImGui::SameLine();
         // ImGui::Text((key < ImGuiKey_NamedKey_BEGIN) ? "\"%s\"" : "\"%s\" %d", ImGui::GetKeyName(key), key);

@@ -98,8 +98,13 @@ int NETWORK_DATA_THREADCLASS::func_init() {
         std::cerr << this->_info_name<<"::func_createSocket() failed."<<std::endl;
         return 1;
     }
+#if _WIN32
+    BOOL _optVal = FALSE;
+    if(setsockopt(this->_localSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&_optVal, sizeof(BOOL))) {
+#else
     int _optval = 1;
     if(setsockopt(this->_localSocket, SOL_SOCKET, SO_REUSEADDR, &_optval, sizeof(_optval))) {
+#endif
         this->_error_code = 3;
         std::cerr << this->_info_name<<" setsockopt() failed." << std::endl;
         return 3;
@@ -316,23 +321,26 @@ int NETWORK_DATA_THREADCLASS::func_sendto(int    _sock, const void* _sendBuf, si
 
 int NETWORK_DATA_THREADCLASS::close_local() {
     if(!closedSocket_local) {
-#if WIN32
+#if _WIN32
         closesocket(_localSocket);
 #else
         close(_localSocket);
 #endif
         closedSocket_local = true;
     }
+    return 0;
 }
 int NETWORK_DATA_THREADCLASS::close_remote() {
     if(!closedSocket_remote) {
-#if WIN32
-        closeSocket(_remoteSocket);
+#if _WIN32
+        closesocket(_remoteSocket);
 #else
         close(_remoteSocket);
 #endif
         closedSocket_remote = true;
     }
+    
+    return 0;
 }
 
 void _NDT_threadFunc(NETWORK_DATA_THREADCLASS* ndt_obj) {
@@ -410,7 +418,12 @@ void _NDT_threadFunc(NETWORK_DATA_THREADCLASS* ndt_obj) {
         exit(1);
     }
     (*ndt_obj).isRunning = false;
-    if(shutdown((*ndt_obj)._localSocket, SHUT_RDWR)) {
+#if _WIN32
+    if(shutdown((*ndt_obj)._localSocket, SD_BOTH))
+#else
+    if(shutdown((*ndt_obj)._localSocket, SHUT_RDWR))
+#endif
+    {
         perror("shutdown of socket connection failed: ");
         exit(1);
     }
