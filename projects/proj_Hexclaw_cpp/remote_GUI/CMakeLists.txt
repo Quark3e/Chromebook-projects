@@ -28,7 +28,7 @@ if (MSVC)
     add_compile_options(/FS)
 else()
     # additional warnings
-    add_compile_options(-Wall -Wextra -Wpedantic)
+    # add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/hexclaw_networkDataThread)
