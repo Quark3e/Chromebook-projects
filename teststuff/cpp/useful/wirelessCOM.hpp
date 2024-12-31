@@ -4,6 +4,12 @@
 #define H_WIRELESS_COM
 
 
+#if _WIN32
+#pragma comment(lib, "Ws2_32.lib")
+
+#include <WinSock2.h>
+#include <ws2tcpip.h>
+#else
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -12,9 +18,11 @@
 #include <memory.h>
 #include <ifaddrs.h>
 #include <net/if.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
+#endif
+
+#include <errno.h>
 #include <csignal>
 #include <stdio.h>
 #include <iostream>
