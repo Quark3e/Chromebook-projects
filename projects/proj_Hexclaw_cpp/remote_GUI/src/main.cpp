@@ -47,23 +47,23 @@ int main(int argc, char** argv) {
     }
 
     std::string path = getFileCWD(true);
-    // std::cout<<path<<std::endl;
-    // mtx_print("T0:"+path);
-    // DIR* dir;
-    // struct dirent *ent;
-    // if((dir=opendir(path.c_str()))!=NULL) {
-    //     while((ent=readdir(dir))!=NULL) {
-    //         // std::cout<<ent->d_type<<": ";
-    //         mtx_print("T0:"+std::string(ent->d_name));
+    std::cout<<path<<std::endl;
+    mtx_print("T0:"+path);
+    DIR* dir;
+    struct dirent *ent;
+    if((dir=opendir(path.c_str()))!=NULL) {
+        while((ent=readdir(dir))!=NULL) {
+            // std::cout<<ent->d_type<<": ";
+            mtx_print("T0:"+std::string(ent->d_name));
             
-    //     }
-    //     closedir(dir);
-    // }
-    // else {
-    //     perror("could not open directory");
-    //     return EXIT_FAILURE;
-    // }
-    // mtx_print("");
+        }
+        closedir(dir);
+    }
+    else {
+        perror("could not open directory");
+        return EXIT_FAILURE;
+    }
+    mtx_print("");
 
     
     // for(const auto& entry: std::filesystem)
@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
     al_set_new_display_flags(!ALLEGRO_RESIZABLE | ALLEGRO_OPENGL_FORWARD_COMPATIBLE | ALLEGRO_OPENGL);
     display = al_create_display(WIN_WIDTH, WIN_HEIGHT);
     al_set_window_title(display, "Hexclaw remoteGUI");
-    al_set_window_position(display, 0, 0);
+    al_set_window_position(display, 50, 50);
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_keyboard_event_source());

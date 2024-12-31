@@ -13,7 +13,7 @@
 #include <cassert>
 #if _WIN32
 #include <winsock2.h>
-// #include <imgui\addons\imguifilesystem\dirent_portable.h>
+#include <imgui\addons\imguifilesystem\dirent_portable.h>
 #else
 #include <dirent.h>
 #endif
