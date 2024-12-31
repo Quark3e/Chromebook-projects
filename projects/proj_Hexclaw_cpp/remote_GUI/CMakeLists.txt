@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.24)
 project(Hexclaw_Remote)
 
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_FIND_DEBUG_MODE 1)
 
 if(WIN32)
 # find_path(DIR_IMGUI NAMES "imgui.h"
@@ -48,9 +49,9 @@ file(GLOB imgui_depends CONFIGURE_DEPENDS
     "${DIR_IMGUI}/imgui/imgui*.cpp"
 )
 
-find_library(libHexclawDataThread
-    "hexclaw_networkDataThread"p
-)
+# find_library(libHexclawDataThread
+#     "hexclaw_networkDataThread"
+# )
 
 # if(WIN32)
 # find_library(JPEG_LIB
