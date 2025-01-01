@@ -505,7 +505,7 @@ namespace gNC {
             size_t          _channel,
             std::vector<int>&   _ins_indices,
             std::vector<bool>&  _ins_conflicts,
-            std::vector<timeObject>* _vec=&_objects
+            std::vector<timeObject>* _vec=nullptr
         );
 
         /**
@@ -522,7 +522,7 @@ namespace gNC {
          * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container
          * @warning if any timeObjects are located at an erased channel then it'll delete all those objects.
          */
-        void set_channel_limit(size_t _val, std::vector<timeObject>* _vec=&_objects);
+        void set_channel_limit(size_t _val, std::vector<timeObject>* _vec=nullptr);
         /**
          * add a new timeObject to the timeline for a node
          * 
@@ -545,7 +545,7 @@ namespace gNC {
          * @note if the _start and _end range of ths new timeObject "envelopes"/surrounds another existing pre-existing timeObject then the function will return
          * as an error since removing/replacing existing timeObject's must be done with another function
          */
-        int add_timeObject(gNC::gNODE *_nodePtr, gNC::timeUnit _start, gNC::timeUnit _end, size_t _channel=0, int _conflictMergeMethod=0, std::vector<timeObject>* _vec=&_objects);
+        int add_timeObject(gNC::gNODE *_nodePtr, gNC::timeUnit _start, gNC::timeUnit _end, size_t _channel=0, int _conflictMergeMethod=0, std::vector<timeObject>* _vec=nullptr);
 
         /**
          * @brief move a timeObject in the timeline
@@ -558,7 +558,7 @@ namespace gNC {
          * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container. If this is set to `nullptr` then this function will do an "imaginary" move for visual purposes with an internal static timeline vector.
          * @return std::vector<timeObject>* pointer to the timeline storage that this function has acted on. If `_vec==nullptr` then this'll point to internal static vector that contains "visuals" for the new container.
          */
-        std::vector<timeObject>* move_timeObject(gNC::gNODE *_nodePtr, gNC::timeUnit _start, gNC::timeUnit _end, size_t _channel, int _conflictMergeMethod=0, std::vector<timeObject>* _vec=&_objects);
+        std::vector<timeObject>* move_timeObject(gNC::gNODE *_nodePtr, gNC::timeUnit _start, gNC::timeUnit _end, size_t _channel, int _conflictMergeMethod=0, std::vector<timeObject>* _vec=nullptr);
         /**
          * @brief move a timeObject in the timeline
          * 
@@ -570,7 +570,7 @@ namespace gNC {
          * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container. If this is set to `nullptr` then this function will do an "imaginary" move for visual purposes with an internal static timeline vector.
          * @return std::vector<timeObject>* pointer to the timeline storage that this function has acted on. If `_vec==nullptr` then this'll point to internal static vector that contains "visuals" for the new container.
          */
-        std::vector<timeObject>* move_timeObject(timeObject *_timeObjectPtr, gNC::timeUnit _start, gNC::timeUnit _end, size_t _channel, int _conflictMergeMethod=0, std::vector<timeObject>* _vec=&_objects);
+        std::vector<timeObject>* move_timeObject(timeObject *_timeObjectPtr, gNC::timeUnit _start, gNC::timeUnit _end, size_t _channel, int _conflictMergeMethod=0, std::vector<timeObject>* _vec=nullptr);
 
         /**
          * @brief Delete timeObject from timeline
@@ -579,7 +579,7 @@ namespace gNC {
          * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container
          * @return int `0`-if successful, `-1`-pointer doesnt exist
          */
-        int delete_timeObject(gNC::gNODE* _nodePtr, std::vector<timeObject>* _vec=&_objects);
+        int delete_timeObject(gNC::gNODE* _nodePtr, std::vector<timeObject>* _vec=nullptr);
         /**
          * @brief Get a copy of the timeObject object stored in timeline
          * 
@@ -587,7 +587,7 @@ namespace gNC {
          * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container
          * @return timeObject value copy of the stored timeObject. If the pointer node couldn't be found then it'll throw invalid_argument error
          */
-        timeObject get_timeObject(gNC::gNODE* _nodePtr, std::vector<timeObject>* _vec=&_objects);
+        timeObject get_timeObject(gNC::gNODE* _nodePtr, std::vector<timeObject>* _vec=nullptr);
         /**
          * @brief Move the side(s)/end(s) to a new timeUnit value
          * 
@@ -600,7 +600,7 @@ namespace gNC {
          * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container
          * @return int for the return code. `0`-success, `-1`-no timeObject's side is located at given _oldVal
          */
-        int move_sides(timeUnit _oldVal, timeUnit _newVal, gNC::gNODE* _toMove=nullptr, size_t _channel=0, std::vector<timeObject>* _vec=&_objects);
+        int move_sides(timeUnit _oldVal, timeUnit _newVal, gNC::gNODE* _toMove=nullptr, size_t _channel=0, std::vector<timeObject>* _vec=nullptr);
 
     };
 

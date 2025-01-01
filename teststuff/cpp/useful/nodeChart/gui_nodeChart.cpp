@@ -2244,7 +2244,7 @@ int gNC::timeline::_find_insert_pos(
     std::vector<bool>&  _ins_conflicts,
     std::vector<timeObject>*    _vec
 ) {
-    if(!_vec) throw std::invalid_argument("_vec cannot be nullptr.");
+    // if(!_vec) _vec = &this->_objects;
 
     bool breakSearch = false;
     for(size_t i=0; i<_vec->size(); i++) {
@@ -2324,7 +2324,7 @@ int gNC::timeline::add_timeObject(
     std::vector<timeObject>* _vec
 ) {
     if(!_nodePtr) throw std::invalid_argument("_nodePtr cannot be invalid.");
-    if(!_vec) throw std::invalid_argument("_vec cannot be invalid");
+    // if(!_vec) _vec = &this->_objects;
 
     if(_end<=_start) {
         std::cout << this->_info_name+"::add_timeObject() _start arg cannot be bigger/equal to _end time."<<std::endl;
@@ -2392,7 +2392,9 @@ std::vector<gNC::timeObject>* gNC::timeline::move_timeObject(
     int             _conflictMergeMethod,
     std::vector<timeObject>* _vec
 ) {
+    static std::vector<timeObject> _localCopy;
 
+    return &_localCopy;
 }
 std::vector<gNC::timeObject>* gNC::timeline::move_timeObject(
     gNC::timeObject*_timeObjectPtr,
@@ -2402,7 +2404,9 @@ std::vector<gNC::timeObject>* gNC::timeline::move_timeObject(
     int             _conflictMergeMethod,
     std::vector<timeObject>* _vec
 ) {
-    
+    static std::vector<timeObject> _localCopy;
+
+    return &_localCopy;
 }
 int gNC::timeline::delete_timeObject(
     gNC::gNODE* _nodePtr,
@@ -2432,7 +2436,7 @@ gNC::timeObject gNC::timeline::get_timeObject(
     std::vector<timeObject>* _vec
 ) {
     if(!_nodePtr) throw std::invalid_argument("_nodePtr is invalid");
-    if(!_vec) throw std::invalid_argument("_vec is invalid.");
+    // if(!_vec) _vec = &this->_objects;
 
     int idx=-1;
     for(size_t i=0; i<_vec->size(); i++) {
