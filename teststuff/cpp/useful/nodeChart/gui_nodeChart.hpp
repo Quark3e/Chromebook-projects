@@ -431,6 +431,14 @@ namespace gNC {
         size_t      channel;
 
         /**
+         * @brief Whether a timeUnit value is within the start-end of this timeObject
+         * 
+         * @param _value the vlaue to check
+         * @return int code for whether it is not within [`0`], is within but closer to start [`1`], is in the middle [`2`] or
+         * within and closer to end [`3`].
+         */
+        int is_within(timeUnit _value);
+        /**
          * @brief Whether the input gNC::timeUnit is a side of this time object
          * 
          * @param _value the gNC::timeUnit value to check if it's a side or not
@@ -465,7 +473,7 @@ namespace gNC {
     class timeline {
     private:
         std::string _info_name = "gNC::timeline";
-        static std::vector<timeObject> _objects;
+        std::vector<timeObject> _objects;
 
         /**
          * @brief resolve conflicts with merge method

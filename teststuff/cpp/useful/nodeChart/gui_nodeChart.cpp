@@ -2178,7 +2178,15 @@ std::ostream &operator<<(std::ostream &os, gNC::timeUnit const &m) {
     return os << m.value;
 }
 
-
+int gNC::timeObject::is_within(
+    gNC::timeUnit   _value
+) {
+    if(_value < this->start || _value > this->end) return 0;
+    size_t middle = (this->end-this->start).value/2;
+    if(_value.value == middle) return 2;
+    if(_value.value < middle) return 1;
+    else return 3;
+}
 int gNC::timeObject::is_side(
     gNC::timeUnit   _value,
     size_t          _margin
@@ -2244,7 +2252,7 @@ int gNC::timeline::_find_insert_pos(
     std::vector<bool>&  _ins_conflicts,
     std::vector<timeObject>*    _vec
 ) {
-    // if(!_vec) _vec = &this->_objects;
+    if(!_vec) _vec = &this->_objects;
 
     bool breakSearch = false;
     for(size_t i=0; i<_vec->size(); i++) {
@@ -2324,7 +2332,7 @@ int gNC::timeline::add_timeObject(
     std::vector<timeObject>* _vec
 ) {
     if(!_nodePtr) throw std::invalid_argument("_nodePtr cannot be invalid.");
-    // if(!_vec) _vec = &this->_objects;
+    if(!_vec) _vec = &this->_objects;
 
     if(_end<=_start) {
         std::cout << this->_info_name+"::add_timeObject() _start arg cannot be bigger/equal to _end time."<<std::endl;
@@ -2436,7 +2444,7 @@ gNC::timeObject gNC::timeline::get_timeObject(
     std::vector<timeObject>* _vec
 ) {
     if(!_nodePtr) throw std::invalid_argument("_nodePtr is invalid");
-    // if(!_vec) _vec = &this->_objects;
+    if(!_vec) _vec = &this->_objects;
 
     int idx=-1;
     for(size_t i=0; i<_vec->size(); i++) {
@@ -2470,6 +2478,7 @@ int gNC::timeline::move_sides(
             }
         }
     }
+
     if(toMove.size()==0) {
         std::cout << this->_info_name+"::move_sides(..) No timeObject side's found at given timeUnit."<<std::endl;
         return 1;
@@ -2479,7 +2488,21 @@ int gNC::timeline::move_sides(
         return 1;
     }
 
-    for(size_t i=0; i<2; i++) {
+
+    for(size_t i=0; i<toMove.size(); i++) {
+        if(_toMove && toMove.at(i)->objNode!=_toMove && !toMove.at(i)->is_within(_newVal)) {
+            /**
+             * If:
+             *  - `_toMove` is not nullptr
+             *  - `_toMove` is not the same as current toMove.at(i) and
+             *  - the timeObject at toMove.at(i) isn't affected by the _newVal
+             * 
+             */
+            auto itr = toMove.begin();
+            std::advance(itr, i);
+            toMove.erase(itr);
+            continue;
+        }
         switch (toMove_side.at(i)) {
         case 1:
             if(toMove.at(i)->move_end(_newVal, 1, true)!=0) {
