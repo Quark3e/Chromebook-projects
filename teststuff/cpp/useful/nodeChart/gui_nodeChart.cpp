@@ -2211,6 +2211,7 @@ int gNC::timeObject::move_end(
     return 0;
 }
 
+
 int gNC::timeline::_conflict_resolver(
     gNC::timeUnit&  _old,
     gNC::timeUnit&  _new,
@@ -2240,37 +2241,40 @@ int gNC::timeline::_find_insert_pos(
     gNC::timeUnit   _end,
     size_t          _channel,
     std::vector<int>&   _ins_indices,
-    std::vector<bool>&  _ins_conflicts
+    std::vector<bool>&  _ins_conflicts,
+    std::vector<timeObject>*    _vec
 ) {
+    if(!_vec) throw std::invalid_argument("_vec cannot be nullptr.");
+
     bool breakSearch = false;
-    for(size_t i=0; i<this->objects.size(); i++) {
-        if(_channel==0 || this->objects.at(i).channel==_channel) {
-            if(_start<=this->objects.at(i).start) {
+    for(size_t i=0; i<_vec->size(); i++) {
+        if(_channel==0 || _vec->at(i).channel==_channel) {
+            if(_start<=_vec->at(i).start) {
                 // Position found: insert before object[i]
-                if(_end>=this->objects.at(i).end) {
+                if(_end>=_vec->at(i).end) {
                     // new timeObjects _start-_end range aren't allowed to surround and subsequently replace existing timeObjects whithin this function
                     std::cout << this->_info_name+"::add_timeObject() args for new _start/_end cannot replace an existing timeObject. That has to be done with dedicated method."<<std::endl;
                     return 3;
                 }
-                else if(_end>this->objects.at(i).start) _ins_conflicts[1] = true;
+                else if(_end>_vec->at(i).start) _ins_conflicts[1] = true;
 
                 _ins_indices[1] = i; //maximum is i;
 
                 breakSearch = true; break;
             }
-            else if(_start<=this->objects.at(i).end) {
+            else if(_start<=_vec->at(i).end) {
                 _ins_conflicts[0] = true;
                 // New timeObjects _start intersects this timeObject[i]'s end. Iterate through remaining timeObjects to find the _end 
                 //  placement/interaction to see if any "surrounding" errors have been made for changing existing timeObjects.
                 // Index for the minimum side is i.
-                for(size_t ii=i+1; ii<this->objects.size(); ii++) {
-                    if((_channel==0 || this->objects.at(ii).channel==_channel)) {
-                        if(_end>=this->objects.at(ii).end) {
+                for(size_t ii=i+1; ii<_vec->size(); ii++) {
+                    if((_channel==0 || _vec->at(ii).channel==_channel)) {
+                        if(_end>=_vec->at(ii).end) {
                             // Surrounding error has occurred.
                             std::cout << this->_info_name+"::add_timeObject() args for new _start/_end cannot replace an existing timeObject. That has to be done with dedicated method."<<std::endl;
                             return 3;
                         }
-                        else if(_end>this->objects.at(ii).start) _ins_conflicts[1] = true;
+                        else if(_end>_vec->at(ii).start) _ins_conflicts[1] = true;
                         // Position found: insert after object[i], before object[ii]
                         _ins_indices = std::vector<int>{static_cast<int>(i), static_cast<int>(ii)};
 
@@ -2293,20 +2297,22 @@ int gNC::timeline::_find_insert_pos(
 gNC::timeline::timeline() {
 
 }
-void gNC::timeline::set_channel_limit(size_t val) {
+void gNC::timeline::set_channel_limit(size_t _val, std::vector<timeObject>* _vec) {
+    this->_channel_limit = _val;
 
+    //_vec is for now not utilised but in the future there will probably be timeObject movement done here for the timeObjects in _vec
 }
 // gNC::timeObject &gNC::timeline::get_timeObject(gNC::gNODE *_nodePtr) {
 //     assert(_nodePtr);
 //     int idx = -1;
-//     for(size_t i=0; i<this->objects.size(); i++) {
-//         if(this->objects[i].objNode==_nodePtr) {
+//     for(size_t i=0; i<this->_objects.size(); i++) {
+//         if(this->_objects[i].objNode==_nodePtr) {
 //             idx = i;
 //             break;
 //         }
 //     }
 //     if(idx==-1) throw std::invalid_argument(this->_info_name+"::get_timeObject() invalid _nodePtr arg: \""+ptrToStr<gNC::gNODE*>(_nodePtr)+"\"");
-//     return this->objects.at(idx);
+//     return this->_objects.at(idx);
 // }
 
 int gNC::timeline::add_timeObject(
@@ -2314,19 +2320,22 @@ int gNC::timeline::add_timeObject(
     gNC::timeUnit   _start,
     gNC::timeUnit   _end,
     size_t          _channel,
-    int             _conflictMergeMethod
+    int             _conflictMergeMethod,
+    std::vector<timeObject>* _vec
 ) {
-    assert(_nodePtr);
+    if(!_nodePtr) throw std::invalid_argument("_nodePtr cannot be invalid.");
+    if(!_vec) throw std::invalid_argument("_vec cannot be invalid");
+
     if(_end<=_start) {
         std::cout << this->_info_name+"::add_timeObject() _start arg cannot be bigger/equal to _end time."<<std::endl;
         return 2;
     }
-    if(objects.size()==0) {
-        this->objects.push_back(gNC::timeObject{_start, _end, _nodePtr, _channel});
+    if(_vec->size()==0) {
+        _vec->push_back(gNC::timeObject{_start, _end, _nodePtr, _channel});
         return 0;
     }
-    for(size_t i=0; i<this->objects.size(); i++) {
-        if(this->objects.at(i).objNode == _nodePtr) {
+    for(size_t i=0; i<_vec->size(); i++) {
+        if(_vec->at(i).objNode == _nodePtr) {
             std::cout << this->_info_name+"::add_timeObject() nodePtr arg already exists in timeline: "<<_nodePtr<<std::endl;
             return 1;
         }
@@ -2350,14 +2359,14 @@ int gNC::timeline::add_timeObject(
 
     // Modify conflicts: new objects start side
     if(insert_conflicts[0]) {
-        if(_conflict_resolver(this->objects.at(insert_indices[0]).end, _start, true, _conflictMergeMethod)!=0) {
+        if(_conflict_resolver(_vec->at(insert_indices[0]).end, _start, true, _conflictMergeMethod)!=0) {
             std::cout << this->_info_name+"::add_timeObject() _conflictMergeMethod arg is invalid."<<std::endl;
             return 4;
         }
     }
     // Modify conflicts: new objects end side
     if(insert_conflicts[1]) {
-        if(_conflict_resolver(this->objects.at(insert_indices[1]).start, _end, false, _conflictMergeMethod)!=0) {
+        if(_conflict_resolver(_vec->at(insert_indices[1]).start, _end, false, _conflictMergeMethod)!=0) {
             std::cout << this->_info_name+"::add_timeObject() _conflictMergeMethod arg is invalid."<<std::endl;
             return 4;
         }
@@ -2365,24 +2374,45 @@ int gNC::timeline::add_timeObject(
 
     if(insert_indices[1]==-1) {
         //append at the end
-        this->objects.push_back(gNC::timeObject{_start, _end, _nodePtr, _channel});
+        _vec->push_back(gNC::timeObject{_start, _end, _nodePtr, _channel});
         return 0;
     }
-    std::vector<timeObject>::iterator insert_itr = this->objects.begin();
+    std::vector<timeObject>::iterator insert_itr = _vec->begin();
     std::advance(insert_itr, insert_indices[1]);
-    this->objects.insert(insert_itr, gNC::timeObject{_start, _end, _nodePtr, _channel});
+    _vec->insert(insert_itr, gNC::timeObject{_start, _end, _nodePtr, _channel});
 
 
     return 0;
 }
-int gNC::timeline::delete_timeObject(
-    gNC::gNODE* _nodePtr
+std::vector<gNC::timeObject>* gNC::timeline::move_timeObject(
+    gNC::gNODE     *_nodePtr,
+    gNC::timeUnit   _start,
+    gNC::timeUnit   _end,
+    size_t          _channel,
+    int             _conflictMergeMethod,
+    std::vector<timeObject>* _vec
 ) {
-    assert(_nodePtr);
+
+}
+std::vector<gNC::timeObject>* gNC::timeline::move_timeObject(
+    gNC::timeObject*_timeObjectPtr,
+    gNC::timeUnit   _start,
+    gNC::timeUnit   _end,
+    size_t          _channel,
+    int             _conflictMergeMethod,
+    std::vector<timeObject>* _vec
+) {
+    
+}
+int gNC::timeline::delete_timeObject(
+    gNC::gNODE* _nodePtr,
+    std::vector<timeObject>* _vec
+) {
+    if(!_nodePtr) throw std::invalid_argument("_nodePtr cannot be invalid.");
 
     int idx = -1;
-    for(size_t i=0; i<this->objects.size(); i++) {
-        if(this->objects.at(i).objNode==_nodePtr) {
+    for(size_t i=0; i<_vec->size(); i++) {
+        if(_vec->at(i).objNode==_nodePtr) {
             idx = i;
             break;
         }
@@ -2391,43 +2421,47 @@ int gNC::timeline::delete_timeObject(
         std::cout << this->_info_name+"::delete_timeObject() invalid arg _nodePtr. not found."<<std::endl;
         return -1;
     }
-    auto itr = this->objects.begin();
+    auto itr = _vec->begin();
     std::advance(itr, idx);
-    this->objects.erase(itr);
+    _vec->erase(itr);
 
     return 0;
 }
 gNC::timeObject gNC::timeline::get_timeObject(
-    gNC::gNODE* _nodePtr
+    gNC::gNODE* _nodePtr,
+    std::vector<timeObject>* _vec
 ) {
-    assert(_nodePtr);
+    if(!_nodePtr) throw std::invalid_argument("_nodePtr is invalid");
+    if(!_vec) throw std::invalid_argument("_vec is invalid.");
+
     int idx=-1;
-    for(size_t i=0; i<this->objects.size(); i++) {
-        if(this->objects.at(i).objNode==_nodePtr) {
+    for(size_t i=0; i<_vec->size(); i++) {
+        if(_vec->at(i).objNode==_nodePtr) {
             idx = i;
             break;
         }
     }
     if(idx==-1) throw std::invalid_argument(this->_info_name+"::get_timeObject(..) invalid _nodePtr argument.");
 
-    return this->objects.at(idx);
+    return _vec->at(idx);
 }
 int gNC::timeline::move_sides(
     gNC::timeUnit   _oldVal,
     gNC::timeUnit   _newVal,
     gNC::gNODE*     _toMove,
-    size_t          _channel
+    size_t          _channel,
+    std::vector<timeObject>* _vec
 ) {
     std::vector<gNC::timeObject*> toMove;
     std::vector<int> toMove_side;
     if(_channel > this->_channel_limit) _channel = this->_channel_limit;
 
-    for(size_t i=0; i<this->objects.size(); i++) {
+    for(size_t i=0; i<_vec->size(); i++) {
         /// Naturally the former located timeObject is the one that is "on the left side"
-        if(_channel==0 || this->objects.at(i).channel==_channel) {
+        if(_channel==0 || _vec->at(i).channel==_channel) {
             int _side = 0;
-            if((_side = this->objects.at(i).is_side(_oldVal))!=0) {
-                toMove.push_back(&this->objects.at(i));
+            if((_side = _vec->at(i).is_side(_oldVal))!=0) {
+                toMove.push_back(&_vec->at(i));
                 toMove_side.push_back(_side);
             }
         }
