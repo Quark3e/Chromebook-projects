@@ -433,7 +433,7 @@ namespace gNC {
         /**
          * @brief Whether a timeUnit value is within the start-end of this timeObject
          * 
-         * @param _value the vlaue to check
+         * @param _value the value to check
          * @return int code for whether it is not within [`0`], is within but closer to start [`1`], is in the middle [`2`] or
          * within and closer to end [`3`].
          */
@@ -573,18 +573,6 @@ namespace gNC {
          * @return int code for whether this function call was successful [`0`] or an error has occurred [`!=0`]
          */
         int move_timeObject(gNC::gNODE *_nodePtr, gNC::timeUnit _start, gNC::timeUnit _end, size_t _channel, int _conflictMergeMethod=0, std::vector<timeObject>* _vec=nullptr);
-        /**
-         * @brief move a timeObject in the timeline
-         * 
-         * @param _timeObjectPtr pointer to the `gNC::timeObject`
-         * @param _start new start timeUnit
-         * @param _end new end timeUnit
-         * @param _channel channel for the new placement
-         * @param _conflictMergeMethod method of resolving placement conflicts
-         * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container. If this is set to `nullptr` then this function will do an "imaginary" move for visual purposes with an internal static timeline vector.
-         * @return int code for whether this function call was successful [`0`] or an error has occurred [`!=0`]
-         */
-        int move_timeObject(timeObject *_timeObjectPtr, gNC::timeUnit _start, gNC::timeUnit _end, size_t _channel, int _conflictMergeMethod=0, std::vector<timeObject>* _vec=nullptr);
 
         /**
          * @brief Delete timeObject from timeline
@@ -595,13 +583,22 @@ namespace gNC {
          */
         int delete_timeObject(gNC::gNODE* _nodePtr, std::vector<timeObject>* _vec=nullptr);
         /**
-         * @brief Get a copy of the timeObject object stored in timeline
+         * @brief Get a copy of the timeObject stored in timeline
          * 
          * @param _nodePtr pointer to the timeObject that's representing this gNODE pointer.
          * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container
-         * @return timeObject value copy of the stored timeObject. If the pointer node couldn't be found then it'll throw invalid_argument error
+         * @return timeObject value copy of the stored timeObject. If a timeObject couldn't be found then it'll throw invalid_argument error.
          */
         timeObject get_timeObject(gNC::gNODE* _nodePtr, std::vector<timeObject>* _vec=nullptr);
+        /**
+         * @brief Get a copy of the timeObject stored in timeline
+         * 
+         * @param _findAt gNC::timeUnit timeline position for where to find a timeObject at.
+         * @param _channel channel for where to find the timeObject. If `0` then it'll search in every channel.
+         * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container
+         * @return timeObject value copy of the stored timeObject. If a timeObject couldn't be found then it'll throw invalid_argument error.
+         */
+        timeObject get_timeObject(timeUnit _findAt, size_t _channel=0, std::vector<timeObject>* _vec=nullptr);
         /**
          * @brief Move the side(s)/end(s) to a new timeUnit value
          * 
@@ -615,7 +612,6 @@ namespace gNC {
          * @return int for the return code. `0`-success, `-1`-no timeObject's side is located at given _oldVal
          */
         int move_sides(timeUnit _oldVal, timeUnit _newVal, gNC::gNODE* _toMove=nullptr, size_t _channel=0, std::vector<timeObject>* _vec=nullptr);
-
     };
 
 

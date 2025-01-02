@@ -2404,18 +2404,24 @@ int gNC::timeline::move_timeObject(
     int             _conflictMergeMethod,
     std::vector<timeObject>* _vec
 ) {
+    if(!_vec) _vec = &this->_objects;
+    if(!_nodePtr) throw std::invalid_argument("_nodePtr cannot be nullptr.");
+    int idx = -1;
+    for(size_t i=0; i<_vec->size(); i++) {
+        if(_vec->operator[](i).objNode == _nodePtr) {
+            idx = i;
+            break;
+        }
+    }
+    if(idx==-1) throw std::invalid_argument("_nodePtr could not be find in storage vector.");
 
-
-    return 0;
-}
-int gNC::timeline::move_timeObject(
-    gNC::timeObject*_timeObjectPtr,
-    gNC::timeUnit   _start,
-    gNC::timeUnit   _end,
-    size_t          _channel,
-    int             _conflictMergeMethod,
-    std::vector<timeObject>* _vec
-) {
+    int funcCall = 0;
+    if((funcCall = this->add_timeObject(_nodePtr, _start, _end, _channel, _conflictMergeMethod, _vec))!=0) {
+        return funcCall;
+    }
+    if((funcCall = this->delete_timeObject(_nodePtr, _vec))!=0) {
+        return funcCall;
+    }
 
     return 0;
 }
@@ -2456,7 +2462,28 @@ gNC::timeObject gNC::timeline::get_timeObject(
             break;
         }
     }
-    if(idx==-1) throw std::invalid_argument(this->_info_name+"::get_timeObject(..) invalid _nodePtr argument.");
+    if(idx<0) throw std::invalid_argument(this->_info_name+"::get_timeObject(..) invalid _nodePtr argument.");
+
+    return _vec->at(idx);
+}
+gNC::timeObject gNC::timeline::get_timeObject(
+    gNC::timeUnit   _findAt,
+    size_t          _channel,
+    std::vector<timeObject>*    _vec
+) {
+    if(_channel>=this->_channel_limit) throw std::invalid_argument("_channel arg cannot be higher than available timeline channels.");
+    if(!_vec) _vec = &this->_objects;
+    int idx = -1;
+    int findCode = 0;
+    for(size_t i=0; i<_vec->size(); i++) {
+        if(
+            _vec->operator[](i).channel==_channel &&
+            (findCode = _vec->operator[](i).is_within(_findAt))!=0
+        ) {
+            idx = i;
+        }
+    }
+    if(idx<0) throw std::invalid_argument("no timeObject found at timeUnit: "+std::to_string(_findAt.value));
 
     return _vec->at(idx);
 }
