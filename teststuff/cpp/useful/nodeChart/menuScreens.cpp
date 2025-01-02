@@ -373,41 +373,6 @@ std::vector<std::string> __parsePath(std::string __path, char sep_symb) {
     return _parsed;
 }
 
-
-// int __getPWD_content(
-//     std::string __path,
-//     std::vector<dirent*>& _retur
-// ) {
-//     _retur.clear();
-//     DIR* dir;
-//     dirent* ent;
-//     if((dir=opendir(__path.c_str()))!=NULL) {
-//         while((ent=readdir(dir))!=NULL) {
-//             _retur.push_back(ent);
-//         }
-//         closedir(dir);
-//     }
-//     else {
-//         return -1;
-//     }
-//     return 0;
-// }
-// int __getPWD_stats(
-//     std::string __path,
-//     std::vector<dirent*>&       _dirents,
-//     std::vector<struct stat>&   _retur
-// ) {
-//     _retur.clear();
-//     for(dirent* _ent : _dirents) {
-//         struct stat _temp;
-//         if(stat((__path+_ent->d_name).c_str(), &_temp)==-1) { //error occured
-//             return -1;
-//         }
-//         _retur.push_back(_temp);
-//     }
-//     return 0;
-// }
-
 int __getPWD_fileCont(
     std::string _path,
     std::vector<fileCont>& _retur
@@ -439,7 +404,6 @@ int __getPWD_fileCont(
 
     return 0;
 }
-
 
 
 std::string                 gNC::_file__fileExplorer = "";

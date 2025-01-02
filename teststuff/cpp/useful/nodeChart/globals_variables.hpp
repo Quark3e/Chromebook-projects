@@ -187,12 +187,27 @@ extern int mouseTimer_decay;
  */
 extern int static_mouseAction_left;
 
-
+/**
+ * @brief Parse a `std::string` path into it's components/directories
+ * 
+ * @param __path the path string to parse
+ * @param sep_symb the directory separating symbol.
+ * @return std::vector<std::string> containing the parsed directories of the path
+ */
 std::vector<std::string> __parsePath(std::string __path, char sep_symb='/');
 // int __getPWD_content(std::string __path, std::vector<dirent*>& _retur);
 // int __getPWD_stats(std::string __path, std::vector<dirent*>& _dirents, std::vector<struct stat>& _retur);
 
-
+/**
+ * @brief Get a formatted `std::string` of a storage value with correct prefix (SI-unit based) beside it.
+ * 
+ * @param _storage the storage value to get a formatted ? std::string of
+ * @param width number of characters the formatted string is to take up
+ * @param decimals number of decimals to include in the formatted output
+ * @param use_sciNot whether to use scientific notation or not. ex: `e` e.t.c
+ * @param align `std::string` of where to align the formatted output text in the total string (`"left"` or `"right"`)
+ * @return std::string output of the formatted string
+ */
 std::string formatBytes(off_t _storage, int width=0, int decimals=1, bool use_sciNot=false, std::string align="right");
 
 
@@ -219,6 +234,13 @@ struct fileCont {
 
 };
 
+/**
+ * @brief fill a vector with the info of every file/folder at given path
+ * 
+ * @param _path the path for the info extraction of files/folders
+ * @param _retur reference to the vector of `fileCont` to store the found info in.
+ * @return int code for whether it was successful [`0`] or not [`-1`]
+ */
 int __getPWD_fileCont(std::string _path, std::vector<fileCont>& _retur);
 
 
