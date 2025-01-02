@@ -2364,7 +2364,7 @@ int gNC::timeline::add_timeObject(
     std::vector<bool>   insert_conflicts{false, false};
     
     // Find insertion position
-    if(_find_insert_pos(_start, _end, _channel, insert_indices, insert_conflicts)!=0) {
+    if(_find_insert_pos(_start, _end, _channel, insert_indices, insert_conflicts, _vec)!=0) {
         std::cout << this->_info_name+"::add_timeObject() _find_insert_pos() error has occurred."<<std::endl;
         return 3;
     }
