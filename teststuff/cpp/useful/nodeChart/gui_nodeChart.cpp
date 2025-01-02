@@ -2302,6 +2302,10 @@ int gNC::timeline::_find_insert_pos(
     return 0;
 }
 
+
+void gNC::timeline::update_forVisuals() {
+    this->forVisuals = this->_objects;
+}
 gNC::timeline::timeline() {
 
 }
@@ -2392,7 +2396,7 @@ int gNC::timeline::add_timeObject(
 
     return 0;
 }
-std::vector<gNC::timeObject>* gNC::timeline::move_timeObject(
+int gNC::timeline::move_timeObject(
     gNC::gNODE     *_nodePtr,
     gNC::timeUnit   _start,
     gNC::timeUnit   _end,
@@ -2400,11 +2404,11 @@ std::vector<gNC::timeObject>* gNC::timeline::move_timeObject(
     int             _conflictMergeMethod,
     std::vector<timeObject>* _vec
 ) {
-    static std::vector<timeObject> _localCopy;
 
-    return &_localCopy;
+
+    return 0;
 }
-std::vector<gNC::timeObject>* gNC::timeline::move_timeObject(
+int gNC::timeline::move_timeObject(
     gNC::timeObject*_timeObjectPtr,
     gNC::timeUnit   _start,
     gNC::timeUnit   _end,
@@ -2412,9 +2416,8 @@ std::vector<gNC::timeObject>* gNC::timeline::move_timeObject(
     int             _conflictMergeMethod,
     std::vector<timeObject>* _vec
 ) {
-    static std::vector<timeObject> _localCopy;
 
-    return &_localCopy;
+    return 0;
 }
 int gNC::timeline::delete_timeObject(
     gNC::gNODE* _nodePtr,

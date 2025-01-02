@@ -473,6 +473,7 @@ namespace gNC {
     class timeline {
     private:
         std::string _info_name = "gNC::timeline";
+        /// @brief Main timeObject container
         std::vector<timeObject> _objects;
 
         /**
@@ -522,6 +523,11 @@ namespace gNC {
          */
         size_t _channel_limit = 1;
     public:
+        /// @brief copy version of the main _objects std::vector used for visualising temporary changes. Place this in gNC::timeline method args if changes are to be temporary
+        std::vector<timeObject> forVisuals;
+
+        void update_forVisuals();
+
         timeline();
         /**
          * @brief Set the channel limit of the timline
@@ -564,9 +570,9 @@ namespace gNC {
          * @param _channel channel for the new placement
          * @param _conflictMergeMethod method of resolving placement conflicts
          * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container. If this is set to `nullptr` then this function will do an "imaginary" move for visual purposes with an internal static timeline vector.
-         * @return std::vector<timeObject>* pointer to the timeline storage that this function has acted on. If `_vec==nullptr` then this'll point to internal static vector that contains "visuals" for the new container.
+         * @return int code for whether this function call was successful [`0`] or an error has occurred [`!=0`]
          */
-        std::vector<timeObject>* move_timeObject(gNC::gNODE *_nodePtr, gNC::timeUnit _start, gNC::timeUnit _end, size_t _channel, int _conflictMergeMethod=0, std::vector<timeObject>* _vec=nullptr);
+        int move_timeObject(gNC::gNODE *_nodePtr, gNC::timeUnit _start, gNC::timeUnit _end, size_t _channel, int _conflictMergeMethod=0, std::vector<timeObject>* _vec=nullptr);
         /**
          * @brief move a timeObject in the timeline
          * 
@@ -576,9 +582,9 @@ namespace gNC {
          * @param _channel channel for the new placement
          * @param _conflictMergeMethod method of resolving placement conflicts
          * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container. If this is set to `nullptr` then this function will do an "imaginary" move for visual purposes with an internal static timeline vector.
-         * @return std::vector<timeObject>* pointer to the timeline storage that this function has acted on. If `_vec==nullptr` then this'll point to internal static vector that contains "visuals" for the new container.
+         * @return int code for whether this function call was successful [`0`] or an error has occurred [`!=0`]
          */
-        std::vector<timeObject>* move_timeObject(timeObject *_timeObjectPtr, gNC::timeUnit _start, gNC::timeUnit _end, size_t _channel, int _conflictMergeMethod=0, std::vector<timeObject>* _vec=nullptr);
+        int move_timeObject(timeObject *_timeObjectPtr, gNC::timeUnit _start, gNC::timeUnit _end, size_t _channel, int _conflictMergeMethod=0, std::vector<timeObject>* _vec=nullptr);
 
         /**
          * @brief Delete timeObject from timeline
