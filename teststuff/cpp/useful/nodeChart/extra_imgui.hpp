@@ -65,7 +65,7 @@ struct pressed_key__struct {
     size_t num_keys_pressed = 0;
 
     /// @brief Container to hold the keys that are currently being held
-    static std::vector<int> holding_keys;
+    std::vector<int> holding_keys;
     /// @brief Number of history instances in a row that are allowed to not be the holding key for the holding key to still be
     /// rwegistered as "holding"
     int holding_keys__allowed_gaps = 0;

@@ -294,6 +294,9 @@ namespace gNC {
         ImVec2 add_nodePos(ImVec2 addTo, gNC::gNODE* toAdd) { return ImVec2(addTo.x+toAdd->pos[0], addTo.y+toAdd->pos[1]); }
 
         public:
+        /// @brief Dedicated gNC::timeline object for this nodeChart
+        gNC::timeline TimeLine();
+        
         bool modified = true;
         std::string project_name = "";
 
