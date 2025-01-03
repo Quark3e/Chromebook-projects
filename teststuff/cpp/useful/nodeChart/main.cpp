@@ -192,7 +192,6 @@ int main(int argc, char** argv) {
                 draw_list->PopClipRect();
             }
 
-
             // if(cnt==0) {
             //     projects[_selected].chart.NODE_create(100, 100, "node0", "desc0", "body0");
             //     projects[_selected].chart.NODE_create(400, 200, "node1", "desc1", "body1");
@@ -209,7 +208,6 @@ int main(int argc, char** argv) {
             //         "remaining essentially unchanged. \n"+
             //         "It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, \n"+
             //         "and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\n";
-
             //     projects[_selected].chart.LINK_create(0, 1, 1, 0, "link: 0->1", "a link that goes out from node0 in to node 1");
             //     // projects[_selected].chart.LINK_create(&proj0[0], &proj0[2], 1, 0, "link0");
             //     projects[_selected].chart.LINK_create(4, 1, 1, 0, "link: 4->1", "a link that goes out from node0 in to node 1");
@@ -323,6 +321,10 @@ int main(int argc, char** argv) {
             }
             if(ImGui::BeginMenu("Program")) {
                 if(ImGui::MenuItem("Close")){ running_main = false; }
+                ImGui::EndMenu();
+            }
+            if(ImGui::BeginMenu("View")) {
+
                 ImGui::EndMenu();
             }
             ImGui::EndMenuBar();

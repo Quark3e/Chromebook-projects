@@ -572,6 +572,7 @@ namespace DIY {
             _store_type& get(_key_type key);
             _store_type  get(_key_type key) const;
 
+            _key_type    getKey(size_t idx);
 
             _store_type* getPtr(_key_type key);
             _store_type* getPtr_idx(int idx);
@@ -580,6 +581,7 @@ namespace DIY {
              * @brief Find the element index/position of given `key`
              * 
              * @param key the key to find index/position of
+             * @param _call_except whether to call an exception if an error occurs(/index can't be found)
              * @return size_t the index
              */
             int find(_key_type key, bool _call_except=true);
@@ -736,6 +738,10 @@ namespace DIY {
         this->_call_error(0, "::get(_key_type)");
     }
 
+    template<class _key_type, class _store_type>
+    _key_type typed_dict<_key_type, _store_type>::getKey(size_t idx) {
+        return this->_keys.at(idx);
+    }
 
 
     template<class _key_type, class _store_type>

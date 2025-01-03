@@ -12,7 +12,7 @@
 #include <vector>
 #include <list>
 #include <useful.hpp>
-
+#include <diy_dictionary.hpp>
 
 
 // inline bool IsLegacyNativeDupe(ImGuiKey key) {
@@ -63,6 +63,23 @@ struct pressed_key__struct {
     static std::vector<std::vector<int>> pressed;
     static std::vector<std::chrono::steady_clock::time_point> timePoints;
     size_t num_keys_pressed = 0;
+
+    /// @brief Container to hold the keys that are currently being held
+    static std::vector<int> holding_keys;
+    /// @brief Number of history instances in a row that are allowed to not be the holding key for the holding key to still be
+    /// rwegistered as "holding"
+    int holding_keys__allowed_gaps = 0;
+    /// @brief Minimum limit number that a key must be active for it to be registered as "holding"
+    int holding_keys__holdingLim = 10;
+
+    /**
+     * A helper dictionary used for knowing how many times an ImGuiKey has occurred.
+     *  the correlated integer vlaue is either >0 or <0:
+     *   - `<0`  key has occurred but there has been the integer number of history instances without that key. If it's less than ``holding_keys__allowed_gaps`` then it'll be erased from this dict.
+     *   - `>0`  key has occurred the integer value number of history instances. If this is more or equal to `holding_keys__holdingLim` then it'll be added to `holding_keys` vector
+     */
+    DIY::typed_dict<ImGuiKey, int> __refDict_holding_keys_occur;
+    void    __update_holding_keys();
 
     void    update();
     /**

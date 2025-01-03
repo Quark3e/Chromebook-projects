@@ -339,8 +339,9 @@ void gNC::_menu__timeline(
         ));
     }
 
-    if(!_collapse) {
 
+    if(!_collapse) {
+        
     }
     else {
 

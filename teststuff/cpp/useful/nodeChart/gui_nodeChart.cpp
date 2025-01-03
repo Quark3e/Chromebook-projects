@@ -6,6 +6,69 @@
 std::vector<std::vector<int>> pressed_key__struct::pressed;
 std::vector<std::chrono::steady_clock::time_point> pressed_key__struct::timePoints;
 
+
+void pressed_key__struct::__update_holding_keys() {
+    static std::chrono::steady_clock::time_point _lastChecked = std::chrono::steady_clock::now();
+
+    if(pressed.size()==0 || timePoints.size()==0) return;
+    if(_lastChecked==this->timePoints.at(timePoints.size()-1)) return;
+    
+    std::vector<int> &_recentPressed = pressed.at(pressed.size()-1);
+
+    /// Check the elements in __refDict_holding_keys_occur with new keys
+    for(size_t i=0; i<__refDict_holding_keys_occur.size(); i++) {
+        int idxFound = -1;
+        for(size_t ii=0; ii<_recentPressed.size(); ii++) {
+            if(_recentPressed.at(ii)==__refDict_holding_keys_occur[i]) {
+                __refDict_holding_keys_occur[i] += (__refDict_holding_keys_occur[i]==-1? 2 : 1);
+                idxFound = ii;
+                break;
+            }
+        }
+        if(idxFound==-1) {
+            __refDict_holding_keys_occur[i] -= (__refDict_holding_keys_occur[i]==1? 2 : 1);
+        }
+    }
+
+    /// Check the elements in _recentPressed to add new keys to the refDict
+    // std::vector<int> _matchedOccurr;
+    for(size_t i=0; i<_recentPressed.size(); i++) {
+        if(__refDict_holding_keys_occur.find((ImGuiKey)_recentPressed.at(i), false) < 0) {
+            __refDict_holding_keys_occur.add((ImGuiKey)_recentPressed.at(i), 1);
+        }
+    }
+
+    /// Go through the value of each item in dict and fix them
+    for(size_t i=0; i<__refDict_holding_keys_occur.size(); i++) {
+        int *refDictVal_ptr = &__refDict_holding_keys_occur[i];
+        int found = -1;
+        for(size_t ii=0; ii<this->holding_keys.size(); ii++) {
+            if(__refDict_holding_keys_occur.getKey(i)==this->holding_keys.at(ii)) {
+                found = ii;
+                break;
+            }
+        }
+        // if(!found) {
+        //     this->holding_keys.push_back(__refDict_holding_keys_occur.getKey(i));
+        // }
+        if(*refDictVal_ptr + holding_keys__allowed_gaps >= holding_keys__holdingLim) {
+            if(*refDictVal_ptr>holding_keys__holdingLim) *refDictVal_ptr = holding_keys__holdingLim;
+            if(found<0) holding_keys.push_back(__refDict_holding_keys_occur.getKey(i)); 
+        }
+        else {
+            if(found>-1) {
+                auto itr = holding_keys.begin();
+                std::advance(itr, found);
+                holding_keys.erase(itr);
+                i--;
+            }
+            __refDict_holding_keys_occur.eraseIdx(i);
+        }
+    }
+
+
+    _lastChecked = this->timePoints.at(timePoints.size()-1);
+}
 void pressed_key__struct::update() {
     ImGuiKey start_key = (ImGuiKey)0;
     auto timeNow = std::chrono::steady_clock::now();
@@ -88,7 +151,6 @@ gNC::gNODE::gNODE(
     float par_posX_out,  float par_posY_out,
     float par_posX_add,  float par_posY_add,
     float par_posX_share,float par_posY_share
-
 ): label{par_label}, desc{par_desc}, bodyText{par_bodyText}, ln_in{par_ln_in}, ln_out{par_ln_out}, ln_add{par_ln_add}, ln_share{par_ln_share} {
     if(checkExistence<int>(par_layout, std::vector<int>{0,1,2,3})==-1) std::runtime_error("ERROR: gNC::gNODE constructor: par_layout is an invalid value");
     date = tm{};
@@ -1613,6 +1675,7 @@ int gNC::guiNodeChart::draw() {
         }
 
 
+        /// Start drawing the node
         ImGui::Begin((*itr).addr.c_str(), NULL, win_flags);
         ImGui::SetWindowSize(ImVec2(((*itr).width), (*itr).height));
 
@@ -1638,7 +1701,6 @@ int gNC::guiNodeChart::draw() {
 
         ImGui::End();
     }
-
 
 
     // std::cout <<"winFocus: ["<< (nodePtr_menu__node_details? ptrToStr<gNC::gNODE*>(nodePtr_menu__node_details) : "nullptr")<<", "<< (linkPtr_menu__link_details? ptrToStr<gNC::gLINK*>(linkPtr_menu__link_details) : "nullptr")<<"]";
