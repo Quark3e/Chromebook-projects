@@ -610,6 +610,22 @@ namespace DIY {
 
             int erase(_key_type key);
             int eraseIdx(int idx);
+
+            friend auto operator<<(std::ostream &os, typed_dict const& m) -> std::ostream& {
+                // std::string _outText = "{";
+                os << "{";
+                for(size_t i=0; i<m._keys.size(); i++) {
+                    // _outText + std::to_string(m._keys.at(i)) + ": " + std::to_string(*m._lookup.at(i));
+                    os << m._keys.at(i) << ": " << *m._lookup.at(i);
+                    if(i+1 < m._keys.size()) {
+                        // _outText + ", ";
+                        os << ", ";
+                    }
+                }
+                // _outText + "}";
+                os << "}";
+                return os;
+            }
     };
     
 

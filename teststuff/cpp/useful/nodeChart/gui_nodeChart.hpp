@@ -260,142 +260,6 @@ namespace gNC {
     };
 
 
-    class guiNodeChart {
-        private:
-        std::string _info_name = "gNC::guiNodeChart::";
-
-        static const gNC::gNODE default_gNODE;
-        // static const float default_NODE_width   = 100;
-
-        /**
-         * Main storage for the different nodes. The nodes will be differentiated by their element
-         * index or element address in the std::list container `_nodes`.
-         */
-        std::list<gNC::gNODE> _nodes;
-        /**
-         * Main storage for the different links between nodes. The links will be differentiated
-         * by their element address in the std::list container `_links`
-         */
-        std::list<gNC::gLINK> _links;
-
-        //Address of the last `gNC::gNODE` element in the list
-        gNC::gNODE* _lastAddedNode = nullptr;
-        //Address of the last `gNC::gLINK` element in the list
-        gNC::gLINK* _lastAddedLink = nullptr;
-
-        template<typename storedType> int _find_ptr_idx(const std::list<storedType>& toCheck, storedType* ptr_toFind);
-        template<typename storedType> auto _find_ptr_itr(const std::list<storedType>& toCheck, storedType* ptr_toFind);
-
-        template<typename storedType> int _vecfind_ptr_idx(const std::vector<storedType>& toCheck, storedType toFind);
-        template<typename storedType> auto _vecfind_ptr_itr( std::vector<storedType>& toCheck, storedType toFind);
-
-        void update_connect(gNC::gLINK* toCheck, ImVec2 srcPos=ImVec2(-1,-1), ImVec2 destPos=ImVec2(-1,-1));
-
-        ImVec2 add_nodePos(ImVec2 addTo, gNC::gNODE* toAdd) { return ImVec2(addTo.x+toAdd->pos[0], addTo.y+toAdd->pos[1]); }
-
-        public:
-        /// @brief Dedicated gNC::timeline object for this nodeChart
-        gNC::timeline TimeLine();
-        
-        bool modified = true;
-        std::string project_name = "";
-
-        gNC::guiNodeChart* thisPtr = nullptr;
-        
-        int screen_pos[2] = {0, 0};
-        int screen_pos_delta[2] = {0, 0};
-
-        int screen_dim[2] = {1280, 720};
-
-
-        guiNodeChart(/* args */);
-
-        int setScreen_pos(int x, int y, int moveMode = 0);
-        int setScreen_dim(int w, int h);
-
-
-        size_t size(int whatList=0);
-
-        std::list<gNC::gNODE> NODES();
-        std::list<gNC::gLINK> LINKS();
-
-        gNC::gNODE* lastAdded_NODE();
-        gNC::gLINK* lastAdded_LINK();
-
-        gNC::gNODE& operator[](size_t i) const;
-        gNC::gNODE& last();
-
-
-        gNC::gNODE* NODE_create(
-            float pos_x,
-            float pos_y,
-            std::string label   = "",
-            std::string desc    = "",
-            std::string bodyText= "",
-            float width = default_gNODE.width, //default_NODE_width,
-            float height= default_gNODE.height
-        );
-        int NODE_delete(size_t NODE_idx, bool leaveFloating=false);
-        int NODE_delete(gNC::gNODE* NODE_toDelete, bool leaveFloating=false);
-
-        int NODE_move(gNC::gNODE* NODE_toMove, float new_X, float new_Y, int moveMode=0);
-
-
-        gNC::gLINK* LINK_create(
-            size_t NODE_src_idx,
-            size_t NODE_dest_idx,
-            int type_src,
-            int type_dest,
-            std::string label   = "",
-            std::string desc    = "",
-            std::string bodyText= "",
-            ImVec2 pos_interm_src = ImVec2(-1, -1),
-            ImVec2 pos_interm_dest= ImVec2(-1, -1)
-        );
-        gNC::gLINK* LINK_create(
-            gNC::gNODE* NODE_src,
-            gNC::gNODE* NODE_dest,
-            int type_src,
-            int type_dest,
-            std::string label   = "",
-            std::string desc    = "",
-            std::string bodyText= "",
-            ImVec2 pos_interm_src = ImVec2(-1, -1),
-            ImVec2 pos_interm_dest= ImVec2(-1, -1)
-        );
-        gNC::gLINK* LINK_create_loose(
-            ImVec2 loosePos,
-            gNC::gNODE* _NODE,
-            int type_NODE_connection,
-            std::string label   = "",
-            std::string desc    = "",
-            std::string bodyText= "",
-            ImVec2 pos_interm_NODE = ImVec2(-1, -1)
-        );
-        int LINK_swapSrc(gNC::gLINK* toSwap, gNC::gNODE* newSrc, int srcType);
-        int LINK_swapDest(gNC::gLINK* toSwap, gNC::gNODE* newDest, int destType);
-        int LINK_delete(gNC::gLINK* LINK_toDelete);
-
-
-        int draw();
-
-        int saveToFile(
-            std::string filename,
-            bool overwrite = false
-        );
-        /**
-         * @brief Load nodeChart from .json saveFile into this class object
-         * 
-         * @param filename `std::string` of the the json file path, preferably absolute, or relative to cwd
-         * @param verbose whether to print actions on terminal
-         * @return int 
-         */
-        int loadFile(
-            std::string filename,
-            bool verbose = false
-        );
-    };
-
     /**
      * Arbitrary time unit used by gNC::timeObject and gNC::timeline to sort and indicate the order of each timeObject
      * 
@@ -615,6 +479,143 @@ namespace gNC {
          * @return int for the return code. `0`-success, `-1`-no timeObject's side is located at given _oldVal
          */
         int move_sides(timeUnit _oldVal, timeUnit _newVal, gNC::gNODE* _toMove=nullptr, size_t _channel=0, std::vector<timeObject>* _vec=nullptr);
+    };
+
+
+    class guiNodeChart {
+        private:
+        std::string _info_name = "gNC::guiNodeChart::";
+
+        static const gNC::gNODE default_gNODE;
+        // static const float default_NODE_width   = 100;
+
+        /**
+         * Main storage for the different nodes. The nodes will be differentiated by their element
+         * index or element address in the std::list container `_nodes`.
+         */
+        std::list<gNC::gNODE> _nodes;
+        /**
+         * Main storage for the different links between nodes. The links will be differentiated
+         * by their element address in the std::list container `_links`
+         */
+        std::list<gNC::gLINK> _links;
+
+        //Address of the last `gNC::gNODE` element in the list
+        gNC::gNODE* _lastAddedNode = nullptr;
+        //Address of the last `gNC::gLINK` element in the list
+        gNC::gLINK* _lastAddedLink = nullptr;
+
+        template<typename storedType> int _find_ptr_idx(const std::list<storedType>& toCheck, storedType* ptr_toFind);
+        template<typename storedType> auto _find_ptr_itr(const std::list<storedType>& toCheck, storedType* ptr_toFind);
+
+        template<typename storedType> int _vecfind_ptr_idx(const std::vector<storedType>& toCheck, storedType toFind);
+        template<typename storedType> auto _vecfind_ptr_itr( std::vector<storedType>& toCheck, storedType toFind);
+
+        void update_connect(gNC::gLINK* toCheck, ImVec2 srcPos=ImVec2(-1,-1), ImVec2 destPos=ImVec2(-1,-1));
+
+        ImVec2 add_nodePos(ImVec2 addTo, gNC::gNODE* toAdd) { return ImVec2(addTo.x+toAdd->pos[0], addTo.y+toAdd->pos[1]); }
+
+        public:
+        /// @brief Dedicated gNC::timeline object for this nodeChart
+        gNC::timeline TimeLine;
+        
+        bool modified = true;
+        std::string project_name = "";
+
+        gNC::guiNodeChart* thisPtr = nullptr;
+        
+        int screen_pos[2] = {0, 0};
+        int screen_pos_delta[2] = {0, 0};
+
+        int screen_dim[2] = {1280, 720};
+
+
+        guiNodeChart(/* args */);
+
+        int setScreen_pos(int x, int y, int moveMode = 0);
+        int setScreen_dim(int w, int h);
+
+
+        size_t size(int whatList=0);
+
+        std::list<gNC::gNODE> NODES();
+        std::list<gNC::gLINK> LINKS();
+
+        gNC::gNODE* lastAdded_NODE();
+        gNC::gLINK* lastAdded_LINK();
+
+        gNC::gNODE& operator[](size_t i) const;
+        gNC::gNODE& last();
+
+
+        gNC::gNODE* NODE_create(
+            float pos_x,
+            float pos_y,
+            std::string label   = "",
+            std::string desc    = "",
+            std::string bodyText= "",
+            float width = default_gNODE.width, //default_NODE_width,
+            float height= default_gNODE.height
+        );
+        int NODE_delete(size_t NODE_idx, bool leaveFloating=false);
+        int NODE_delete(gNC::gNODE* NODE_toDelete, bool leaveFloating=false);
+
+        int NODE_move(gNC::gNODE* NODE_toMove, float new_X, float new_Y, int moveMode=0);
+
+
+        gNC::gLINK* LINK_create(
+            size_t NODE_src_idx,
+            size_t NODE_dest_idx,
+            int type_src,
+            int type_dest,
+            std::string label   = "",
+            std::string desc    = "",
+            std::string bodyText= "",
+            ImVec2 pos_interm_src = ImVec2(-1, -1),
+            ImVec2 pos_interm_dest= ImVec2(-1, -1)
+        );
+        gNC::gLINK* LINK_create(
+            gNC::gNODE* NODE_src,
+            gNC::gNODE* NODE_dest,
+            int type_src,
+            int type_dest,
+            std::string label   = "",
+            std::string desc    = "",
+            std::string bodyText= "",
+            ImVec2 pos_interm_src = ImVec2(-1, -1),
+            ImVec2 pos_interm_dest= ImVec2(-1, -1)
+        );
+        gNC::gLINK* LINK_create_loose(
+            ImVec2 loosePos,
+            gNC::gNODE* _NODE,
+            int type_NODE_connection,
+            std::string label   = "",
+            std::string desc    = "",
+            std::string bodyText= "",
+            ImVec2 pos_interm_NODE = ImVec2(-1, -1)
+        );
+        int LINK_swapSrc(gNC::gLINK* toSwap, gNC::gNODE* newSrc, int srcType);
+        int LINK_swapDest(gNC::gLINK* toSwap, gNC::gNODE* newDest, int destType);
+        int LINK_delete(gNC::gLINK* LINK_toDelete);
+
+
+        int draw();
+
+        int saveToFile(
+            std::string filename,
+            bool overwrite = false
+        );
+        /**
+         * @brief Load nodeChart from .json saveFile into this class object
+         * 
+         * @param filename `std::string` of the the json file path, preferably absolute, or relative to cwd
+         * @param verbose whether to print actions on terminal
+         * @return int 
+         */
+        int loadFile(
+            std::string filename,
+            bool verbose = false
+        );
     };
 
 

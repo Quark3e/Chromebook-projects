@@ -100,7 +100,20 @@ int main(int argc, char** argv) {
     projects[-1].chart.screen_dim[1] = dim__main.y;
     projects[0].fileLinked = true;
     projects[0].filename = default_proj_file;
-
+    
+    projects[-1].chart.TimeLine.set_channel_limit(0);
+    projects[-1].chart.TimeLine.add_timeObject(
+        &projects[-1].chart[0], 0, 50, 0
+    );
+    projects[-1].chart.TimeLine.add_timeObject(
+        &projects[-1].chart[1], 25, 75, 1
+    );
+    projects[-1].chart.TimeLine.add_timeObject(
+        &projects[-1].chart[2], 50, 100, 2
+    );
+    projects[-1].chart.TimeLine.add_timeObject(
+        &projects[-1].chart[3], 75, 125, 0
+    );
 
 
     int _selected = 0, _selected_prev = 0;

@@ -347,7 +347,6 @@ void gNC::_menu__timeline(
     static ImVec2 scrollVal(0, 0);
 
     static ImU32 circleCol = IM_COL32(255, 50, 50, 255);
-    static ImVec2 absPos(0, 0);
 
     ImVec2 timeline_dim = ImVec2(dim__win_timeline().x, dim__win_timeline().y*0.8);
     
@@ -369,7 +368,8 @@ void gNC::_menu__timeline(
         ImVec2 placeOffs = ImVec2(_relWinPos.x - scrollVal.x, _relWinPos.y - scrollVal.y);
         timeline_drawList->AddCircleFilled(ImVec2(timeline_pos.x + placeOffs.x, timeline_pos.y + placeOffs.y), 10, IM_COL32(250, 250, 250, 255), 10);
 
-        absPos = ImVec2(io.MousePos.x-ImGui::GetWindowPos().x, io.MousePos.y-ImGui::GetWindowPos().y);
+
+        
 
         if(inRegion(
             io.MousePos,

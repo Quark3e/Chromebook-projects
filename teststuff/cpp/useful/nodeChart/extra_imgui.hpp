@@ -78,7 +78,7 @@ struct pressed_key__struct {
      *   - `<0`  key has occurred but there has been the integer number of history instances without that key. If it's less than ``holding_keys__allowed_gaps`` then it'll be erased from this dict.
      *   - `>0`  key has occurred the integer value number of history instances. If this is more or equal to `holding_keys__holdingLim` then it'll be added to `holding_keys` vector
      */
-    DIY::typed_dict<ImGuiKey, int> __refDict_holding_keys_occur;
+    DIY::typed_dict<int, int> __refDict_holding_keys_occur;
     void    __update_holding_keys();
 
     void    update();
@@ -92,6 +92,8 @@ struct pressed_key__struct {
      * @return float milliseconds for the period
      */
     float   keyPeriod(int keyID, bool mustAlone=false, int blankFrame=1, float msLim=200);
+
+    
 };
 inline pressed_key__struct guiKeys;
 

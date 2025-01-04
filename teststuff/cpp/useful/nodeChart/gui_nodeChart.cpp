@@ -19,7 +19,7 @@ void pressed_key__struct::__update_holding_keys() {
     for(size_t i=0; i<__refDict_holding_keys_occur.size(); i++) {
         int idxFound = -1;
         for(size_t ii=0; ii<_recentPressed.size(); ii++) {
-            if(_recentPressed.at(ii)==__refDict_holding_keys_occur[i]) {
+            if(_recentPressed.at(ii)==__refDict_holding_keys_occur.getKey(i)) {
                 __refDict_holding_keys_occur[i] += (__refDict_holding_keys_occur[i]==-1? 2 : 1);
                 idxFound = ii;
                 break;
@@ -30,10 +30,11 @@ void pressed_key__struct::__update_holding_keys() {
         }
     }
 
-    /// Check the elements in _recentPressed to add new keys to the refDict
-    // std::vector<int> _matchedOccurr;
+    /// Check the elements in _recentPressed to add new keys to the refDict: Only checks elements that are only in _recentPressed, i.e set theory: _recentPressed-__refDict_holding_keys_occur
+    int foundIdx = -1;
     for(size_t i=0; i<_recentPressed.size(); i++) {
-        if(__refDict_holding_keys_occur.find((ImGuiKey)_recentPressed.at(i), false) < 0) {
+        foundIdx = -1;
+        if((foundIdx = __refDict_holding_keys_occur.find((ImGuiKey)_recentPressed.at(i), false)) < 0) {
             __refDict_holding_keys_occur.add((ImGuiKey)_recentPressed.at(i), 1);
         }
     }
@@ -48,24 +49,34 @@ void pressed_key__struct::__update_holding_keys() {
                 break;
             }
         }
-        // if(!found) {
-        //     this->holding_keys.push_back(__refDict_holding_keys_occur.getKey(i));
-        // }
+
         if(*refDictVal_ptr + holding_keys__allowed_gaps >= holding_keys__holdingLim) {
             if(*refDictVal_ptr>holding_keys__holdingLim) *refDictVal_ptr = holding_keys__holdingLim;
+            else {
+                *refDictVal_ptr++;
+            }
             if(found<0) holding_keys.push_back(__refDict_holding_keys_occur.getKey(i)); 
         }
         else {
             if(found>-1) {
+                // (*refDictVal_ptr)++;
                 auto itr = holding_keys.begin();
                 std::advance(itr, found);
                 holding_keys.erase(itr);
+            }
+            else {
+                // (*refDictVal_ptr)--;
+            }
+            if(*refDictVal_ptr < 0) {
+                __refDict_holding_keys_occur.eraseIdx(i);
                 i--;
             }
-            __refDict_holding_keys_occur.eraseIdx(i);
         }
     }
 
+    // std::cout << DIY::prettyPrint_vec1<int>(_recentPressed) << " | ";
+    // std::cout << __refDict_holding_keys_occur << " | ";
+    // std::cout << DIY::prettyPrint_vec1<int>(this->holding_keys) << std::endl;
 
     _lastChecked = this->timePoints.at(timePoints.size()-1);
 }
@@ -89,6 +100,8 @@ void pressed_key__struct::update() {
         pressed[pressed.size()-1].push_back(key);
     }
     num_keys_pressed = pressed[pressed.size()-1].size();
+
+    this->__update_holding_keys();
 }
 
 float pressed_key__struct::keyPeriod(int keyID, bool mustAlone, int blankFrame, float msLim) {
@@ -909,7 +922,9 @@ void gNC::guiNodeChart::update_connect(
 }
 
 
-gNC::guiNodeChart::guiNodeChart(/* args */): thisPtr(this) {
+gNC::guiNodeChart::guiNodeChart(/* args */):
+    thisPtr(this), TimeLine()
+{
 
 }
 
