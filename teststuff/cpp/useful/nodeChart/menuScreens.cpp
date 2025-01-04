@@ -369,18 +369,18 @@ void gNC::_menu__timeline(
         timeline_drawList->AddCircleFilled(ImVec2(timeline_pos.x + placeOffs.x, timeline_pos.y + placeOffs.y), 10, IM_COL32(250, 250, 250, 255), 10);
 
 
-        
-
         if(inRegion(
             io.MousePos,
             ImVec2(timeline_pos.x + placeOffs.x, timeline_pos.y + placeOffs.y),
             ImVec2(timeline_pos.x + placeOffs.x + timeline_dim.x,  timeline_pos.y + placeOffs.y + timeline_dim.y)
         )) {
             circleCol = IM_COL32(50, 255, 50, 255);
+            if(guiKeys.isHolding(ImGuiKey_MouseLeft)) circleCol = IM_COL32(50, 50, 255, 255);
         }
         else {
             circleCol = IM_COL32(255, 50, 50, 255);
         }
+
 
         timeline_drawList->AddCircle(io.MousePos, 10, circleCol, 10, 2);
 

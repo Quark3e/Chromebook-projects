@@ -83,6 +83,8 @@ void pressed_key__struct::__update_holding_keys() {
 void pressed_key__struct::update() {
     ImGuiKey start_key = (ImGuiKey)0;
     auto timeNow = std::chrono::steady_clock::now();
+    if(pressed.size()>0 && timeNow == timePoints.at(timePoints.size()-1)) return;
+    
     if(pressed.size()>=maxSize_history_pressed_keys) {
         for(size_t i=1; i<pressed.size(); i++) {
             pressed[i-1]    = pressed[i];
@@ -103,7 +105,6 @@ void pressed_key__struct::update() {
 
     this->__update_holding_keys();
 }
-
 float pressed_key__struct::keyPeriod(int keyID, bool mustAlone, int blankFrame, float msLim) {
     if(pressed.size()==0) return -1;
     float period = -1;
@@ -131,6 +132,12 @@ float pressed_key__struct::keyPeriod(int keyID, bool mustAlone, int blankFrame, 
         }
     }
     return period;
+}
+bool pressed_key__struct::isHolding(int _key) {
+    for(size_t i=0; i<this->holding_keys.size(); i++) {
+        if(this->holding_keys.at(i)==_key) return true;
+    }
+    return false;
 }
 
 gNC::gNODE* gNC::nodePtr_menu__node_details = nullptr;

@@ -92,8 +92,14 @@ struct pressed_key__struct {
      * @return float milliseconds for the period
      */
     float   keyPeriod(int keyID, bool mustAlone=false, int blankFrame=1, float msLim=200);
-
-    
+    /**
+     * @brief Check whether an ImGuiKey is *registered as* "holding down" in accordance with member `holding_keys__` settings.
+     * 
+     * @param _key ImGuiKey or an integer for the key to check
+     * @return true if the key is held down.
+     * @return false if the key isn't held down.
+     */
+    bool    isHolding(int _key);
 };
 inline pressed_key__struct guiKeys;
 
