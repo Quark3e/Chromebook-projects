@@ -5,6 +5,8 @@
 
 #if _WIN32
 #pragma comment(lib, "Ws2_32.lib")
+#pragma warning(disable:4996) 
+
 
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -24,7 +26,7 @@
 
 #define DEFAULT_IPADDR      "ANY"
 #define DEFAULT_PORT        1086
-#define MAX_MESSAGE_SIZE    255
+#define MAX_MESSAGE_SIZE    512
 
 #include <iostream>
 #include <string.h>

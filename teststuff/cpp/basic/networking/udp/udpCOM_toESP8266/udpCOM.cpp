@@ -79,12 +79,11 @@ int main(int argc, char** argv) {
 
     if(udpObj.func_createSocket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)!= 0) {
         std::cerr << "Could not create socket." << std::endl;
-        exit(1);
+        throw std::exception("Could not create socket.");
     }
     udpObj._remote_sockaddr_in.sin_family   = AF_INET;
     udpObj._remote_sockaddr_in.sin_port     = htons(serverPORT);
-    // udpObj._remote_sockaddr_in.sin_addr.s_addr  = inet_addr(serverIP.c_str());
-    inet_pton(AF_INET, serverIP.c_str(), &udpObj._remote_sockaddr_in.sin_addr.s_addr);
+    udpObj._remote_sockaddr_in.sin_addr.s_addr  = inet_addr(serverIP.c_str());
     
     if(__VERBOSE) std::cout << "\tsocket created" << std::endl;
 
@@ -93,7 +92,7 @@ int main(int argc, char** argv) {
 
     if(__VERBOSE) std::cout << "\tloop start" << std::endl;
     while(true) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(12));
         int result = udpObj.func_sendto(
             udpObj.get_localSocket(),
             sendMsg,
@@ -108,68 +107,28 @@ int main(int argc, char** argv) {
         }
         std::cout << "sent:"<< result << " bytes. ";
 
-        socklen_t len;
-        // udpObj._bytesRecv = udpObj.func_recvfrom(
-        //     udpObj.get_localSocket(),
-        //     udpObj.recvBuffer,
-        //     MAX_MESSAGE_SIZE,
-        //     0,
-        //     (sockaddr*)&udpObj._remote_sockaddr_in,
-        //     &len
-        // );
-        
-
-
-        std::cout << " received "<<udpObj._bytesRecv << " bytes ";
-        if(udpObj._bytesRecv<0) {
-            std::cout << "\n";
-            continue;
+        udpObj.func_recvfrom(
+            udpObj.get_localSocket(),
+            udpObj.recvBuffer,
+            MAX_MESSAGE_SIZE,
+            0,
+            (sockaddr*)&udpObj._remote_sockaddr_in,
+            &udpObj._sockAddrLen
+        );
+        if(udpObj._bytesRecv < 0) {
+#if _WIN32
+            std::cout << "recvfrom() error: "<< WSAGetLastError();
+#else
+            perror("recvfrom() error: ");
+#endif
+            std::cout << std::endl;
+            exit(1);
         }
+        std::cout << " received "<<udpObj._bytesRecv << " bytes ";
         udpObj.recvBuffer[udpObj._bytesRecv] = '\0';
+
         std::cout << "\"" << udpObj.recvBuffer << "\"" << std::endl;
     }
 
-    // printf("-----PROGRAM START-----\n");
-    // int result = 0;
-    // int sock = socket(AF_INET, SOCK_DGRAM, 0);
-    // // fcntl(sock, F_SETFL, O_NONBLOCK);
-    // char buffer[MAXLINE];
-    // const char* PORT = "1089";
-    // const char* IPADDR = "192.168.1.117"; //"192.168.1.231" - other board
-    // char szIP[100];
-    // sockaddr_in addrListen = {}; // zero-int, sin_port is 0, which picks a random port for bind.
-    // addrListen.sin_family = AF_INET;
-    // addrListen.sin_addr.s_addr = inet_addr(IPADDR);
-    // addrListen.sin_port = htons(1089);
-    // // result = bind(sock, (sockaddr*)&addrListen, sizeof(addrListen));
-    // // if (result == -1) {
-    // // //    int lasterror = errno;
-    // //    perror("bind error: ");
-    // //    exit(1);
-    // // }
-    // // sockaddr_storage addrDest = {};
-    // // result = resolvehelper(IPADDR, AF_INET, PORT, &addrDest);
-    // // if (result != 0) {
-    // //    int lasterror = errno;
-    // //    std::cout << "error: " << lasterror;
-    // //    exit(1);
-    // // }
-    // const char* msg = "Hello";
-
-    // while(true) {
-    //     usleep(10'000);
-    //     clock_t t1 = clock();
-    //     size_t msg_length = strlen(msg);
-    //     result = sendto(sock, msg, msg_length, 0, (sockaddr*)&addrListen, sizeof(addrListen));
-    //     // std::cout << result << " bytes sent" << std::endl;
-    //     printf("%d bytes sent.\t", result);
-    //     socklen_t len;
-    //     int n = recvfrom(sock, (char *)buffer, MAXLINE, MSG_WAITALL, (struct sockaddr *) &addrListen, &len);
-    //     buffer[n] = '\0';
-    //     std::cout << buffer[n-1] << "\t";
-    //     // std::cout<<"Server :"<<buffer<<std::endl;
-    //     printf("Server: \"%s\"\n", buffer);
-    // }
     return 0;
-
 }
