@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
 
     if(udpObj.func_createSocket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)!= 0) {
         std::cerr << "Could not create socket." << std::endl;
-        throw std::exception("Could not create socket.");
+        exit(1);
     }
     udpObj._remote_sockaddr_in.sin_family   = AF_INET;
     udpObj._remote_sockaddr_in.sin_port     = htons(serverPORT);
@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
     if(__VERBOSE) std::cout << "\tloop start" << std::endl;
     while(true) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        int result = sendto(
+        int result = udpObj.func_sendto(
             udpObj.get_localSocket(),
             sendMsg,
             strlen(sendMsg),
@@ -108,16 +108,7 @@ int main(int argc, char** argv) {
         std::cout << "sent:"<< result << " bytes. ";
 
         socklen_t len;
-        // udpObj._bytesRecv = udpObj.func_recvfrom(
-        //     udpObj.get_localSocket(),
-        //     udpObj.recvBuffer,
-        //     MAX_MESSAGE_SIZE,
-        //     MSG_WAITALL,
-        //     (sockaddr*)&udpObj._remote_sockaddr_in,
-        //     &len
-        // );
-
-        udpObj._bytesRecv = recvfrom(
+        udpObj._bytesRecv = udpObj.func_recvfrom(
             udpObj.get_localSocket(),
             udpObj.recvBuffer,
             MAX_MESSAGE_SIZE,
