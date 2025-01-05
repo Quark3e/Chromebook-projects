@@ -68,7 +68,7 @@ struct pressed_key__struct {
     std::vector<int> holding_keys;
     /// @brief Number of history instances in a row that are allowed to not be the holding key for the holding key to still be
     /// rwegistered as "holding"
-    int holding_keys__allowed_gaps = 0;
+    int holding_keys__allowed_gaps = 2;
     /// @brief Minimum limit number that a key must be active for it to be registered as "holding"
     int holding_keys__holdingLim = 10;
 
@@ -247,7 +247,18 @@ template<typename _varType> inline int checkExistence(_varType toFind, _varType 
 }
 
 
-
+inline ImVec2 ImVec2_add(ImVec2 _a, ImVec2 _b) {
+    return ImVec2(_a.x+_b.x, _a.y+_b.y);
+}
+inline ImVec2 ImVec2_subtract(ImVec2 _a, ImVec2 _b) {
+    return ImVec2(_a.x-_b.x, _a.y-_b.y);
+}
+inline ImVec2 ImVec2_multiply(ImVec2 _a, ImVec2 _b) {
+    return ImVec2(_a.x*_b.x, _a.y*_b.y);
+}
+inline ImVec2 ImVec2_divide(ImVec2 _a, ImVec2 _b) {
+    return ImVec2(_a.x/_b.x, _a.y/_b.y);
+}
 
 
 #endif

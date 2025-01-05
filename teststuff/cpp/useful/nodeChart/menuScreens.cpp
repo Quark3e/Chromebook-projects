@@ -303,6 +303,11 @@ void gNC::_menu__timeline(
     static bool _init   = true;
     static bool _collapse   = true;
     static bool _collapse_prev  = true;
+    /// The affected timeline container. 
+    static std::vector<gNC::timeObject> *onTL = nullptr;
+
+    static gNC::gNODE* _moving_gNODE = nullptr;
+
 
     if(_chart != prev_chart || __GLOBAL_FLAGS__WIN_RESIZED>0) _init = true;
 
@@ -346,33 +351,86 @@ void gNC::_menu__timeline(
     static ImGuiChildFlags timeline_flags = ImGuiChildFlags_Borders;
     static ImVec2 scrollVal(0, 0);
 
+    static ImVec2 gui_objDim__scal(1, 1);
+    static float gui_objDim__height = 50;
+
+
     static ImU32 circleCol = IM_COL32(255, 50, 50, 255);
 
-    ImVec2 timeline_dim = ImVec2(dim__win_timeline().x, dim__win_timeline().y*0.8);
+    gNC::timeline &TL_ref = _chart->TimeLine;
+
+    ImVec2 timeline_dim = ImVec2(dim__win_timeline().x, TL_ref.get_numChannels_used()*gui_objDim__height*gui_objDim__scal.y);
     
+    // std::cout << "{"<< timeline_dim.x << ", "<< timeline_dim.y <<"}";
     
     if(!_collapse) {
+        if(_init) {
+            TL_ref.update_forVisuals();
+        }
+
         scrollVal.x = ImGui::GetScrollX();
         scrollVal.y = ImGui::GetScrollY();
         ImVec2 _relWinPos = ImGui::GetWindowPos();
         ImGui::SetCursorPos(timeline_pos);
         // ImGui::SetNextWindowPos(timeline_pos);
-        ImGui::BeginChild(
-            "timeline",
-            ImVec2(
-                dim__win_timeline().x,
-                dim__win_timeline().y*0.8
-            ),
-            timeline_flags
-        );
-        ImVec2 placeOffs = ImVec2(_relWinPos.x - scrollVal.x, _relWinPos.y - scrollVal.y);
-        timeline_drawList->AddCircleFilled(ImVec2(timeline_pos.x + placeOffs.x, timeline_pos.y + placeOffs.y), 10, IM_COL32(250, 250, 250, 255), 10);
+        ImGui::BeginChild("timeline", timeline_dim, timeline_flags);
+        
+        ImVec2 placeOffs = ImVec2_subtract(_relWinPos, scrollVal); // ImVec2(_relWinPos.x - scrollVal.x, _relWinPos.y - scrollVal.y);
+
+        ImVec2 timeObject_pos(0, 0);
+        ImVec2 timeObject_dim(0, gui_objDim__height*gui_objDim__scal.y);
+
+        static std::vector<ImU32> timeObject_colour_border{ IM_COL32(230, 230, 230, 230)};
+        static std::vector<ImU32> timeObject_colour_bg{     IM_COL32(184, 184, 184, 184), IM_COL32(214, 214, 214, 214), IM_COL32(244, 244, 244, 244)};
+        static size_t tO_colBord    = 0;
+        static size_t tO_colBG      = 0;
+
+
+        for(size_t i=0; i<TL_ref.forVisuals.size(); i++) {
+            tO_colBG = 0;
+            tO_colBord = 0;
+
+            gNC::timeObject &obj = TL_ref.forVisuals.at(i);
+            timeObject_dim.x = (obj.end-obj.start).value;
+            timeObject_pos = ImVec2(
+                timeline_pos.x + placeOffs.x + obj.start.value,
+                timeline_pos.y + placeOffs.y + timeObject_dim.y*(obj.channel-1)
+            );
+
+            if(inRegion(io.MousePos, timeObject_pos, ImVec2_add(timeObject_pos, timeObject_dim))) {
+                if(
+                    !_moving_gNODE && /// no node is moving already
+                    guiKeys.isHolding(ImGuiKey_MouseLeft) && /// mouse left button is held
+                    guiKeys.__refDict_holding_keys_occur.get(ImGuiKey_MouseLeft) == guiKeys.holding_keys__holdingLim-guiKeys.holding_keys__allowed_gaps /// mouse left button was recently set as held (NOTE: not a proper method)
+                ) {
+                    _moving_gNODE = obj.objNode;
+                    std::cout << "focused node: " << _moving_gNODE << std::endl;
+                }
+                
+                if(!_moving_gNODE) tO_colBG = 1;
+            }
+            else {
+                tO_colBG = 0;
+            }
+            if(_moving_gNODE==obj.objNode) {
+                tO_colBG = 2;
+            }
+
+            timeline_drawList->AddRectFilled(timeObject_pos, ImVec2_add(timeObject_pos, timeObject_dim), timeObject_colour_bg[tO_colBG], 2, 0);
+            timeline_drawList->AddRect(timeObject_pos, ImVec2_add(timeObject_pos, timeObject_dim), timeObject_colour_border[tO_colBord], 2, 0, 1);
+        }
+
+
+        // timeline_drawList->AddCircleFilled(ImVec2(timeline_pos.x + placeOffs.x, timeline_pos.y + placeOffs.y), 10, IM_COL32(250, 250, 250, 255), 10);
+        // std::cout << "isDrag:"<<std::boolalpha<<mouseDrag_left << " " << guiKeys.isHolding(ImGuiKey_MouseLeft) << " node:" << nodePtr_focused << std::endl;
 
 
         if(inRegion(
             io.MousePos,
-            ImVec2(timeline_pos.x + placeOffs.x, timeline_pos.y + placeOffs.y),
-            ImVec2(timeline_pos.x + placeOffs.x + timeline_dim.x,  timeline_pos.y + placeOffs.y + timeline_dim.y)
+            ImVec2_add(timeline_pos, placeOffs),
+            ImVec2_add(ImVec2_add(timeline_pos, placeOffs), timeline_dim)
+            // ImVec2(timeline_pos.x + placeOffs.x, timeline_pos.y + placeOffs.y),
+            // ImVec2(timeline_pos.x + placeOffs.x + timeline_dim.x,  timeline_pos.y + placeOffs.y + timeline_dim.y)
         )) {
             circleCol = IM_COL32(50, 255, 50, 255);
             if(guiKeys.isHolding(ImGuiKey_MouseLeft)) circleCol = IM_COL32(50, 50, 255, 255);
@@ -380,9 +438,9 @@ void gNC::_menu__timeline(
         else {
             circleCol = IM_COL32(255, 50, 50, 255);
         }
-
-
         timeline_drawList->AddCircle(io.MousePos, 10, circleCol, 10, 2);
+
+
 
         ImGui::EndChild();
     }
@@ -391,6 +449,21 @@ void gNC::_menu__timeline(
     }
     ImGui::End();
 
+    // std::cout << std::endl;
+
+
+    if(guiKeys.isHolding(ImGuiKey_MouseLeft)) {
+        onTL = &TL_ref.forVisuals;
+    }
+    else {
+        if(onTL) {
+            /// This iteration is a state change where it went from holding to not.
+
+        }
+        if(onTL)            onTL    = nullptr;
+        if(_moving_gNODE)   _moving_gNODE = nullptr;
+        // std::cout << "local pointers \"release\"" << std::endl;
+    }
     _init = false;
     prev_chart = _chart;
 }

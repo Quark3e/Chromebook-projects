@@ -138,7 +138,7 @@ std::vector<ImVec2>& _pos__sub_fileExplorer_navPanel(bool _update) {
     return _retur;
 }
 
-ImVec2 _coef_dim__win_timeline      = ImVec2(1, 140);
+ImVec2 _coef_dim__win_timeline      = ImVec2(1, 250);
 ImVec2 dim__win_timeline() {
     static ImVec2 _retur(-1, -1);
     _retur.x = (_coef_dim__win_timeline[0]>1? _coef_dim__win_timeline[0] : _coef_dim__win_timeline[0] * dim__main[0]);

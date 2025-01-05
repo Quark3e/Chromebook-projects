@@ -172,7 +172,7 @@ extern int mouseAction_left;
 extern int mouseAction_right;
 
 /**
- * whether left button click is dragging (left click is pressed and mousec coords are changing)
+ * whether left button click is dragging the background (left click is pressed, mouse coords are changing and it's not moving an object)
  */
 extern bool mouseDrag_left;
 

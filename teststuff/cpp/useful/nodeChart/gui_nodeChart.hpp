@@ -416,11 +416,18 @@ namespace gNC {
          * @param _conflictMergeMethod integer flag/code for how to resolve any timeUnit conflicts that might arise where this timeObject is placed.
          *  If the new object's start-end is placed between two other objects and their end-start distance is smaller than the width(start-end) of this object
          * it'll count as a conflict, otherwise it'll automatically move/shift this objects start/end so it fits.
-         * `0` - prio new object, crop everything else in conflict;
-         * `1` - prio old objects, crop the new object
-         * `2` - prio object located former, crop objects after
-         * `3` - prio object located latter, crop objects former.
-         * `4` - prio neither side and crop both objects to the midle ground.
+         * 
+         *  - `0` - prio new object, crop everything else in conflict;
+         * 
+         *  - `1` - prio old objects, crop the new object
+         * 
+         *  - `2` - prio object located former, crop objects after
+         * 
+         *  - `3` - prio object located latter, crop objects former.
+         * 
+         *  - `4` - prio neither side and crop both objects to the midle ground.
+         * 
+         * 
          * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container
          * @return int for whether the function successfully ran or any errors happened: `0`-success
          * @note if the _start and _end range of ths new timeObject "envelopes"/surrounds another existing pre-existing timeObject then the function will return
@@ -479,6 +486,18 @@ namespace gNC {
          * @return int for the return code. `0`-success, `-1`-no timeObject's side is located at given _oldVal
          */
         int move_sides(timeUnit _oldVal, timeUnit _newVal, gNC::gNODE* _toMove=nullptr, size_t _channel=0, std::vector<timeObject>* _vec=nullptr);
+        /**
+         * @brief Get the set _channel_limit value for this struct
+         * 
+         * @return size_t of channel lim
+         */
+        size_t get_channel_lim();
+        /**
+         * @brief Get the highest channel number actually used by the stored timeObject
+         * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container
+         * @return size_t number of channels
+         */
+        size_t get_numChannels_used(std::vector<timeObject>* _vec=nullptr);
     };
 
 
@@ -621,6 +640,13 @@ namespace gNC {
 
     void reset_Ptr_menus();
 
+    /**
+     * "Static"/"Global" value/address for general use where the currently
+     * focused gNODE is currently pressed and held.
+     *  - `nullptr` : no gNODE is focused (could be selected but not mouse_left clicked/held)
+     *  - `{addr}`  : pointer to the gNODE that is currently in focus.
+     */ 
+    extern gNODE* nodePtr_focused;
     /**
      * "Static"/"Global" value/address for displaying menu: node_details
      *  - `nullptr`: dont display node details menu

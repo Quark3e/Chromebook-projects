@@ -140,6 +140,7 @@ bool pressed_key__struct::isHolding(int _key) {
     return false;
 }
 
+gNC::gNODE* gNC::nodePtr_focused    = nullptr;
 gNC::gNODE* gNC::nodePtr_menu__node_details = nullptr;
 gNC::gNODE* gNC::nodePtr_menu__rightClick   = nullptr;
 gNC::gNODE* gNC::nodePtr__dragConnectCreate_start = nullptr;
@@ -1584,7 +1585,7 @@ int gNC::guiNodeChart::draw() {
         int node_connect = _draw_NODEcheckConnects(itr, nodePos);
 
 
-        if(isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-1]) && !_mode__fileExplorer) {
+        if(isKeyPressed(ImGuiKey_MouseLeft, &(*pressed_keys)[pressed_keys->size()-1]) && !_mode__fileExplorer) {
             if(node_connect==-1) {
                 if(inRegion(io.MousePos, nodePos, ImVec2(nodePos.x+(*itr).width, nodePos.y+(*itr).height))) { //region: Node
                     if(mouseAction_left==1 || mouseAction_left==-1) {
@@ -1673,7 +1674,7 @@ int gNC::guiNodeChart::draw() {
 
         }
 
-        if(isKeyPressed(656, &(*pressed_keys)[pressed_keys->size()-1]) && !_mode__fileExplorer) {
+        if(isKeyPressed(ImGuiKey_MouseRight, &(*pressed_keys)[pressed_keys->size()-1]) && !_mode__fileExplorer) {
             if(node_connect==-1) {
                 if(inRegion(io.MousePos, nodePos, ImVec2(nodePos.x+(*itr).width, nodePos.y+(*itr).height))) {
                     if(mouseAction_right==1 || mouseAction_right==-1) {
@@ -1710,6 +1711,7 @@ int gNC::guiNodeChart::draw() {
         if(ImGui::IsWindowFocused() || !local_init) {
             // _menu__node_details(&(*itr));
             nodePtr_menu__node_details  = &(*itr);
+            if(guiKeys.isHolding(ImGuiKey_MouseLeft)) nodePtr_focused = &(*itr);
             node_focused   = true;
             if(!lockMove_node && ((*pressed_keys)[pressed_keys->size()-1]).size() > 0 && isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-1])) {
                 NODE_move(&(*itr), io.MouseDelta.x, io.MouseDelta.y, 1);
@@ -1738,6 +1740,9 @@ int gNC::guiNodeChart::draw() {
     if(static_mouseAction_left!=3 && (mouseDrag_left)) {
         if(!link_focused) linkPtr_menu__link_details = nullptr;
     }
+
+    if(!guiKeys.isHolding(ImGuiKey_MouseLeft)) nodePtr_focused = nullptr;
+
 
     if((mouseAction_left==0 || mouseAction_left==-1) && isKeyPressed(655, &(*pressed_keys)[pressed_keys->size()-1]) && !_mode__fileExplorer) {
         lockMove_screen = false;
@@ -2345,7 +2350,7 @@ int gNC::timeline::_find_insert_pos(
                 // Position found: insert before object[i]
                 if(_end>=_vec->at(i).end) {
                     // new timeObjects _start-_end range aren't allowed to surround and subsequently replace existing timeObjects whithin this function
-                    std::cout << this->_info_name+"::add_timeObject() args for new _start/_end cannot replace an existing timeObject. That has to be done with dedicated method."<<std::endl;
+                    std::cout << this->_info_name+"::_find_insert_pos("<<_start.value<<", "<<_end.value<<") arg for _end envelopes an already existing timeObject["<<i<<"]:{"<<_vec->at(i).start.value<<","<<_vec->at(i).end.value<<"}. That has to be done with dedicated method."<<std::endl;
                     return 3;
                 }
                 else if(_end>_vec->at(i).start) _ins_conflicts[1] = true;
@@ -2363,7 +2368,7 @@ int gNC::timeline::_find_insert_pos(
                     if((_channel==0 || _vec->at(ii).channel==_channel)) {
                         if(_end>=_vec->at(ii).end) {
                             // Surrounding error has occurred.
-                            std::cout << this->_info_name+"::add_timeObject() args for new _start/_end cannot replace an existing timeObject. That has to be done with dedicated method."<<std::endl;
+                            std::cout << this->_info_name+"::_find_insert_pos("<<_start.value<<", "<<_end.value<<") args for new _start envelopes an already existing timeObject["<<i<<"]:{"<<_vec->at(ii).start.value<<","<<_vec->at(ii).end.value<<"}. That has to be done with dedicated method."<<std::endl;
                             return 3;
                         }
                         else if(_end>_vec->at(ii).start) _ins_conflicts[1] = true;
@@ -2641,4 +2646,16 @@ int gNC::timeline::move_sides(
     }
 
     return 0;
+}
+size_t gNC::timeline::get_channel_lim() {
+    return this->_channel_limit;
+}
+size_t gNC::timeline::get_numChannels_used(std::vector<gNC::timeObject>* _vec) {
+    if(!_vec) _vec = &this->_objects;
+    size_t maxChannel = 0;
+    
+    for(size_t i=0; i<_vec->size(); i++) {
+        if(_vec->at(i).channel>maxChannel) maxChannel = _vec->at(i).channel;
+    }
+    return maxChannel;
 }
