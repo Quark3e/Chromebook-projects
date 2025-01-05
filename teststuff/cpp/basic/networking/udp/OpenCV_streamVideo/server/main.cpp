@@ -43,8 +43,15 @@ int main(int argc, char** argv) {
 
     udpObj = NETWORKCLASS("ANY", port);
 
-    if(!udpObj.func_createSocket(AF_INET, SOCK_DGRAM)) exit(1);
-    if(!udpObj.func_bind()) exit(1);
+    if(udpObj.func_createSocket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) {
+        std::cerr << "create socket failed. " << std::endl;
+        exit(1);
+    }
+    if(udpObj.func_bind()) {
+        std::cerr << "bind() failed." << std::endl;
+        exit(1);
+    }
+
 
     display();
     return 0;
