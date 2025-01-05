@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 
-#include "../../../LIB_NETWORKCLASS/NETWORKCLASS.hpp"
+#include <NETWORKCLASS.hpp>
 NETWORKCLASS udpObj;
 
 bool __VERBOSE = false;
