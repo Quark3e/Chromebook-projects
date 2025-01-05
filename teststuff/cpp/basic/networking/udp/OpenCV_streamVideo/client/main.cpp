@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
             sizeof(arrSize),
             0,
             reinterpret_cast<SOCKADDR*>(&from),
-            &udpObj._bytesRecv
+            &udpObj._sockAddrLen
             // udpObj.func_recvfrom(
             // udpObj.get_localSocket(),
             // &arrSize,
@@ -128,8 +128,8 @@ int main(int argc, char** argv) {
             bitArr.data(),
             arrSize*sizeof(bitArr[0]),
             0,
-            (struct sockaddr*)&udpObj._remote_sockaddr_in,
-            &recvLen
+            (sockaddr*)&udpObj._remote_sockaddr_in,
+            &udpObj._sockAddrLen
         ))==-1) {
             if(__VERBOSE) std::cout << "Error at recvfrom(): errno: " << errno << std::endl;
             exit(1);
