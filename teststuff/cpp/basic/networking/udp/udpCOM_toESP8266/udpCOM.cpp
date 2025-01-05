@@ -16,6 +16,8 @@
 #include <fcntl.h>
 #include <poll.h>
 
+#include <useful.hpp>
+
 #define MAXLINE 2048
 
 int resolvehelper(const char* hostname, int family, const char* service, sockaddr_storage* pAddr)
@@ -44,6 +46,8 @@ int main() {
     fcntl(sock, F_SETFL, O_NONBLOCK);
     char buffer[MAXLINE];
     const char* PORT = "53";
+    const char* IPADDR = "192.168.1.117"; //"192.168.1.231" - other board
+
 
     char szIP[100];
 
@@ -57,7 +61,7 @@ int main() {
     }
 
     sockaddr_storage addrDest = {};
-    result = resolvehelper("192.168.1.231", AF_INET, PORT, &addrDest);
+    result = resolvehelper(IPADDR, AF_INET, PORT, &addrDest);
     if (result != 0) {
        int lasterror = errno;
        std::cout << "error: " << lasterror;

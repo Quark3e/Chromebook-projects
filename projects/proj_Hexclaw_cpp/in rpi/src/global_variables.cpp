@@ -358,7 +358,7 @@ void simplified_init() {
 			ANSI_mvprint(0, 0, "ERROR: could not initialise opencv recorder object: "+_init_status.get("opencv recorder").get_callMsg(), true, "abs", "rel");
 		}
 	}
-	std::cout << "Initialising pigpio..."<<std::endl;
+	// std::cout << "Initialising pigpio..."<<std::endl;
 	if(!_init_status.get("pigpio").isInit() && _init_status.get("pigpio").call_init()) {
 		// std::cout << "ERROR: could not initialise pigpio library: "<<_init_status.get("pigpio").get_callMsg() << std::endl;
 		ANSI_mvprint(0, 0, "ERROR: could not intialise pigpio library: "+_init_status.get("pigpio").get_callMsg(), true, "abs", "rel");
