@@ -2350,7 +2350,7 @@ int gNC::timeline::_find_insert_pos(
                 // Position found: insert before object[i]
                 if(_end>=_vec->at(i).end) {
                     // new timeObjects _start-_end range aren't allowed to surround and subsequently replace existing timeObjects whithin this function
-                    std::cout << this->_info_name+"::_find_insert_pos("<<_start.value<<", "<<_end.value<<") arg for _end envelopes an already existing timeObject["<<i<<"]:{"<<_vec->at(i).start.value<<","<<_vec->at(i).end.value<<"}. That has to be done with dedicated method."<<std::endl;
+                    if(this->verbose_exceptions) std::cout << this->_info_name+"::_find_insert_pos("<<_start.value<<", "<<_end.value<<") arg for _end envelopes an already existing timeObject["<<i<<"]:{"<<_vec->at(i).start.value<<","<<_vec->at(i).end.value<<"}. That has to be done with dedicated method."<<std::endl;
                     return 3;
                 }
                 else if(_end>_vec->at(i).start) _ins_conflicts[1] = true;
@@ -2368,7 +2368,7 @@ int gNC::timeline::_find_insert_pos(
                     if((_channel==0 || _vec->at(ii).channel==_channel)) {
                         if(_end>=_vec->at(ii).end) {
                             // Surrounding error has occurred.
-                            std::cout << this->_info_name+"::_find_insert_pos("<<_start.value<<", "<<_end.value<<") args for new _start envelopes an already existing timeObject["<<i<<"]:{"<<_vec->at(ii).start.value<<","<<_vec->at(ii).end.value<<"}. That has to be done with dedicated method."<<std::endl;
+                            if(this->verbose_exceptions) std::cout << this->_info_name+"::_find_insert_pos("<<_start.value<<", "<<_end.value<<") args for new _start envelopes an already existing timeObject["<<i<<"]:{"<<_vec->at(ii).start.value<<","<<_vec->at(ii).end.value<<"}. That has to be done with dedicated method."<<std::endl;
                             return 3;
                         }
                         else if(_end>_vec->at(ii).start) _ins_conflicts[1] = true;
@@ -2428,7 +2428,7 @@ int gNC::timeline::add_timeObject(
     if(!_vec) _vec = &this->_objects;
 
     if(_end<=_start) {
-        std::cout << this->_info_name+"::add_timeObject() _start arg cannot be bigger/equal to _end time."<<std::endl;
+        if(this->verbose_exceptions) std::cout << this->_info_name+"::add_timeObject() _start arg cannot be bigger/equal to _end time."<<std::endl;
         return 2;
     }
     if(_vec->size()==0) {
@@ -2437,7 +2437,7 @@ int gNC::timeline::add_timeObject(
     }
     for(size_t i=0; i<_vec->size(); i++) {
         if(_vec->at(i).objNode == _nodePtr) {
-            std::cout << this->_info_name+"::add_timeObject() nodePtr arg already exists in timeline: "<<_nodePtr<<std::endl;
+            if(this->verbose_exceptions) std::cout << this->_info_name+"::add_timeObject() nodePtr arg already exists in timeline: "<<_nodePtr<<std::endl;
             return 1;
         }
     }
@@ -2454,21 +2454,21 @@ int gNC::timeline::add_timeObject(
     
     // Find insertion position
     if(_find_insert_pos(_start, _end, _channel, insert_indices, insert_conflicts, _vec)!=0) {
-        std::cout << this->_info_name+"::add_timeObject() _find_insert_pos() error has occurred."<<std::endl;
+        if(this->verbose_exceptions) std::cout << this->_info_name+"::add_timeObject() _find_insert_pos() error has occurred."<<std::endl;
         return 3;
     }
 
     // Modify conflicts: new objects start side
     if(insert_conflicts[0]) {
         if(_conflict_resolver(_vec->at(insert_indices[0]).end, _start, true, _conflictMergeMethod)!=0) {
-            std::cout << this->_info_name+"::add_timeObject() _conflictMergeMethod arg is invalid."<<std::endl;
+            if(this->verbose_exceptions) std::cout << this->_info_name+"::add_timeObject() _conflictMergeMethod arg is invalid."<<std::endl;
             return 4;
         }
     }
     // Modify conflicts: new objects end side
     if(insert_conflicts[1]) {
         if(_conflict_resolver(_vec->at(insert_indices[1]).start, _end, false, _conflictMergeMethod)!=0) {
-            std::cout << this->_info_name+"::add_timeObject() _conflictMergeMethod arg is invalid."<<std::endl;
+            if(this->verbose_exceptions) std::cout << this->_info_name+"::add_timeObject() _conflictMergeMethod arg is invalid."<<std::endl;
             return 4;
         }
     }
@@ -2493,6 +2493,8 @@ int gNC::timeline::move_timeObject(
     int             _conflictMergeMethod,
     std::vector<timeObject>* _vec
 ) {
+    static gNC::gNODE _temp_gNODE{-1, -1};
+
     if(!_vec) _vec = &this->_objects;
     if(!_nodePtr) throw std::invalid_argument("_nodePtr cannot be nullptr.");
     int idx = -1;
@@ -2505,12 +2507,13 @@ int gNC::timeline::move_timeObject(
     if(idx==-1) throw std::invalid_argument("_nodePtr could not be find in storage vector.");
 
     int funcCall = 0;
-    if((funcCall = this->add_timeObject(_nodePtr, _start, _end, _channel, _conflictMergeMethod, _vec))!=0) {
+    if((funcCall = this->add_timeObject(&_temp_gNODE, _start, _end, _channel, _conflictMergeMethod, _vec))!=0) {
         return funcCall;
     }
-    if((funcCall = this->delete_timeObject(_nodePtr, _vec))!=0) {
-        return funcCall;
-    }
+    this->delete_timeObject(&_temp_gNODE, _vec);
+    
+    assert(this->delete_timeObject(_nodePtr, _vec)==0);
+    assert(this->add_timeObject(_nodePtr, _start, _end, _channel, _conflictMergeMethod, _vec)==0);
 
     return 0;
 }
@@ -2528,7 +2531,7 @@ int gNC::timeline::delete_timeObject(
         }
     }
     if(idx==-1) {
-        std::cout << this->_info_name+"::delete_timeObject() invalid arg _nodePtr. not found."<<std::endl;
+        if(this->verbose_exceptions) std::cout << this->_info_name+"::delete_timeObject() invalid arg _nodePtr. not found."<<std::endl;
         return -1;
     }
     auto itr = _vec->begin();
@@ -2599,11 +2602,11 @@ int gNC::timeline::move_sides(
     }
 
     if(toMove.size()==0) {
-        std::cout << this->_info_name+"::move_sides(..) No timeObject side's found at given timeUnit."<<std::endl;
+        if(this->verbose_exceptions) std::cout << this->_info_name+"::move_sides(..) No timeObject side's found at given timeUnit."<<std::endl;
         return 1;
     }
     else if(toMove.size()>2) {
-        std::cout << this->_info_name+"::move_sides(..) what the fuck.. this found more than two timeObjects somehow beside each other."<<std::endl;
+        if(this->verbose_exceptions) std::cout << this->_info_name+"::move_sides(..) what the fuck.. this found more than two timeObjects somehow beside each other."<<std::endl;
         return 1;
     }
 
@@ -2625,13 +2628,13 @@ int gNC::timeline::move_sides(
         switch (toMove_side.at(i)) {
         case 1:
             if(toMove.at(i)->move_end(_newVal, 1, true)!=0) {
-                std::cout << this->_info_name+"::move_sides(..) cannot go further."<<std::endl;
+                if(this->verbose_exceptions) std::cout << this->_info_name+"::move_sides(..) cannot go further."<<std::endl;
                 return 2;
             }
             break;
         case 2:
             if(toMove.at(i)->move_start(_newVal, 1, true)!=0) {
-                std::cout << this->_info_name+"::move_sides(..) cannot go further."<<std::endl;
+                if(this->verbose_exceptions) std::cout << this->_info_name+"::move_sides(..) cannot go further."<<std::endl;
                 return 2;
             }
         default:

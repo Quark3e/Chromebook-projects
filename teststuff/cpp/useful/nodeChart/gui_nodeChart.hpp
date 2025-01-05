@@ -390,6 +390,8 @@ namespace gNC {
          */
         size_t _channel_limit = 1;
     public:
+        bool verbose_exceptions = false;
+
         /// @brief copy version of the main _objects std::vector used for visualising temporary changes. Place this in gNC::timeline method args if changes are to be temporary
         std::vector<timeObject> forVisuals;
 

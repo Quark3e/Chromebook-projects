@@ -364,9 +364,9 @@ void gNC::_menu__timeline(
     // std::cout << "{"<< timeline_dim.x << ", "<< timeline_dim.y <<"}";
     
     if(!_collapse) {
-        if(_init) {
+        // if(_init) {
             TL_ref.update_forVisuals();
-        }
+        // }
 
         scrollVal.x = ImGui::GetScrollX();
         scrollVal.y = ImGui::GetScrollY();
@@ -412,8 +412,28 @@ void gNC::_menu__timeline(
             else {
                 tO_colBG = 0;
             }
+            
             if(_moving_gNODE==obj.objNode) {
                 tO_colBG = 2;
+                
+                /// (start value, channel)
+                ImVec2 _relativePos(
+                    ImVec2_subtract(ImVec2_subtract(io.MousePos, timeline_pos), placeOffs).x,
+                    floor((ImVec2_subtract(ImVec2_subtract(io.MousePos, timeline_pos), placeOffs).y / timeObject_dim.y) + 1)
+                );
+                if(_relativePos.y < 1) _relativePos.y = 1;
+                if(_relativePos.x < 0) _relativePos.x = 0;
+                std::cout << " pos:{"<<timeObject_pos.x << ", "<<timeObject_pos.y<< "} ";
+                std::cout << " - start-val:"<<_relativePos.x << " channel:" << _relativePos.y << " ";
+
+                if(TL_ref.add_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, onTL)) {
+                    
+                    int moveCode = TL_ref.move_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, onTL);
+                    std::cout << " moveCode:" << moveCode;
+                    std::cout.flush();
+                }
+                
+                std::cout << std::endl;
             }
 
             timeline_drawList->AddRectFilled(timeObject_pos, ImVec2_add(timeObject_pos, timeObject_dim), timeObject_colour_bg[tO_colBG], 2, 0);
