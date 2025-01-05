@@ -45,7 +45,7 @@ int main() {
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
     fcntl(sock, F_SETFL, O_NONBLOCK);
     char buffer[MAXLINE];
-    const char* PORT = "53";
+    const char* PORT = "1089";
     const char* IPADDR = "192.168.1.117"; //"192.168.1.231" - other board
 
 
