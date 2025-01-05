@@ -7,6 +7,7 @@ teststuff/cpp/basic/networking/tcp/OpenCV_streamVideo/client/build/
 teststuff/cpp/basic/networking/udp/OpenCV_streamVideo/server/build/
 teststuff/cpp/basic/networking/udp/OpenCV_streamVideo/client/build/
 teststuff/cpp/basic/networking/udp/pc_to_pc/build/
+teststuff/cpp/basic/networking/udp/udpCOM_toESP8266/build/
 teststuff/cpp/basic/networking/tcp/ex0_win32/build/
 teststuff/cpp/image_process/libjeg/decoding/build/
 teststuff/cpp/basic/networking/udp/OpenCV_streamVideo/temp_winsock/client/build/
