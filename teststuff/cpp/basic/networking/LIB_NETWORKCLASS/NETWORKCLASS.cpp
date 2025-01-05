@@ -234,7 +234,7 @@ int NETWORKCLASS::func_send(int sendTo, const void* _sendBuf, size_t _nBytes, in
 int NETWORKCLASS::func_recvfrom(SOCKET _sock, void* _sendBuf, size_t _nBytes, int _flags, sockaddr* _from_addr, void* _from_addr_len) {
     _bytesRecv = recvfrom(
         _sock,
-        reinterpret_cast<char*>(_sendBuf),
+        (char*)(_sendBuf),
         _nBytes,
         _flags,
         _from_addr,

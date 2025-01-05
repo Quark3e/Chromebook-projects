@@ -83,7 +83,8 @@ int main(int argc, char** argv) {
     }
     udpObj._remote_sockaddr_in.sin_family   = AF_INET;
     udpObj._remote_sockaddr_in.sin_port     = htons(serverPORT);
-    udpObj._remote_sockaddr_in.sin_addr.s_addr  = inet_addr(serverIP.c_str());
+    // udpObj._remote_sockaddr_in.sin_addr.s_addr  = inet_addr(serverIP.c_str());
+    inet_pton(AF_INET, serverIP.c_str(), &udpObj._remote_sockaddr_in.sin_addr.s_addr);
     
     if(__VERBOSE) std::cout << "\tsocket created" << std::endl;
 
@@ -108,16 +109,22 @@ int main(int argc, char** argv) {
         std::cout << "sent:"<< result << " bytes. ";
 
         socklen_t len;
-        udpObj._bytesRecv = udpObj.func_recvfrom(
-            udpObj.get_localSocket(),
-            udpObj.recvBuffer,
-            MAX_MESSAGE_SIZE,
-            MSG_WAITALL,
-            (sockaddr*)&udpObj._remote_sockaddr_in,
-            &len
-        );
+        // udpObj._bytesRecv = udpObj.func_recvfrom(
+        //     udpObj.get_localSocket(),
+        //     udpObj.recvBuffer,
+        //     MAX_MESSAGE_SIZE,
+        //     0,
+        //     (sockaddr*)&udpObj._remote_sockaddr_in,
+        //     &len
+        // );
+        
+
 
         std::cout << " received "<<udpObj._bytesRecv << " bytes ";
+        if(udpObj._bytesRecv<0) {
+            std::cout << "\n";
+            continue;
+        }
         udpObj.recvBuffer[udpObj._bytesRecv] = '\0';
         std::cout << "\"" << udpObj.recvBuffer << "\"" << std::endl;
     }
