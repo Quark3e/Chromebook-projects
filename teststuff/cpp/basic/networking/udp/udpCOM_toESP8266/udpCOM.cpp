@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
 
     if(udpObj.func_createSocket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)!= 0) {
         std::cerr << "Could not create socket." << std::endl;
-        throw std::exception("Could not create socket.");
+        exit(1);
     }
     udpObj._remote_sockaddr_in.sin_family   = AF_INET;
     udpObj._remote_sockaddr_in.sin_port     = htons(serverPORT);
