@@ -2398,6 +2398,22 @@ void gNC::timeline::update_forVisuals() {
 gNC::timeline::timeline() {
 
 }
+
+
+size_t gNC::timeline::size(
+    size_t  _channel,
+    std::vector<timeObject>* _vec
+) {
+    if(!_vec) _vec = &this->_objects;
+    if(_channel==0) return _vec->size();
+
+    size_t numObjects = 0;
+    for(size_t i=0; i<_vec->size(); i++) {
+        if(_vec->at(i).channel==_channel) numObjects++;
+    }
+    return numObjects;
+}
+
 void gNC::timeline::set_channel_limit(size_t _val, std::vector<timeObject>* _vec) {
     this->_channel_limit = _val;
 
@@ -2579,6 +2595,24 @@ gNC::timeObject gNC::timeline::get_timeObject(
 
     return _vec->at(idx);
 }
+gNC::timeObject  gNC::timeline::get_timeObject(
+    int _idx,
+    std::vector<timeObject>*    _vec
+) {
+    if(!_vec) _vec = &this->_objects;
+    if(_vec->size()==0) throw std::invalid_argument("the vector of timeObjects doesn't have any elements.");
+    if(_idx>=_vec->size()) throw std::invalid_argument("_idx is too large.");
+    size_t idx = 0;
+    if(_idx<0) {
+        idx = static_cast<int>(_vec->size()) + _idx;
+        if(idx>=_vec->size()) throw std::invalid_argument("_idx is too small that it laps around the vector's size.");
+    }
+    else {
+        idx = _idx;
+    }
+
+    return _vec->at(idx);
+}
 int gNC::timeline::move_sides(
     gNC::timeUnit   _oldVal,
     gNC::timeUnit   _newVal,
@@ -2662,3 +2696,5 @@ size_t gNC::timeline::get_numChannels_used(std::vector<gNC::timeObject>* _vec) {
     }
     return maxChannel;
 }
+
+

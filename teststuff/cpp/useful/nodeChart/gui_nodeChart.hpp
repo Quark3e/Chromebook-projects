@@ -398,6 +398,17 @@ namespace gNC {
         void update_forVisuals();
 
         timeline();
+
+        /**
+         * @brief Get the number of timeObjects stored
+         * 
+         * @param _channel given channel to find the number of timeObjects stored in. If ==`0` then it'll return total number of timeObjects
+         * across all channels.
+         * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container
+         * @return size_t number of stored timeObjects
+         */
+        size_t size(size_t _channel=0, std::vector<timeObject>* _vec=nullptr);
+
         /**
          * @brief Set the channel limit of the timline
          * 
@@ -475,6 +486,14 @@ namespace gNC {
          * @return timeObject value copy of the stored timeObject. If a timeObject couldn't be found then it'll throw invalid_argument error.
          */
         timeObject get_timeObject(timeUnit _findAt, size_t _channel=0, std::vector<timeObject>* _vec=nullptr);
+        /**
+         * @brief Get the timeObject object according to the vector storage element index
+         * 
+         * @param _idx int index to the element to return a copy of.
+         * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container.
+         * @return timeObject value copy of the stored timeObject. If a timeObject couldn't be found then it'll throw invalid_argument error.
+         */
+        timeObject get_timeObject(int _idx, std::vector<timeObject>* _vec=nullptr);
         /**
          * @brief Move the side(s)/end(s) to a new timeUnit value
          * 

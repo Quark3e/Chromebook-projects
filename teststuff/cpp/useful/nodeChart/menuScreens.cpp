@@ -380,17 +380,21 @@ void gNC::_menu__timeline(
         ImVec2 timeObject_pos(0, 0);
         ImVec2 timeObject_dim(0, gui_objDim__height*gui_objDim__scal.y);
 
+        /// @brief xy offset values from io.MousePos - timeObject_pos
+        static ImVec2 timeObject_cursorOffs(0, 0);
+
         static std::vector<ImU32> timeObject_colour_border{ IM_COL32(230, 230, 230, 230)};
-        static std::vector<ImU32> timeObject_colour_bg{     IM_COL32(184, 184, 184, 184), IM_COL32(214, 214, 214, 214), IM_COL32(244, 244, 244, 244)};
+        static std::vector<ImU32> timeObject_colour_bg{     IM_COL32(184, 184, 184, 184), IM_COL32(214, 214, 214, 214), IM_COL32(244, 244, 244, 10)};
         static size_t tO_colBord    = 0;
         static size_t tO_colBG      = 0;
 
 
-        for(size_t i=0; i<TL_ref.forVisuals.size(); i++) {
+        for(size_t i=0; i<TL_ref.size(); i++) {
             tO_colBG = 0;
             tO_colBord = 0;
 
-            gNC::timeObject &obj = TL_ref.forVisuals.at(i);
+            gNC::timeObject &obj = TL_ref.forVisuals.at(i); //(TL_ref.forVisuals.at(i).objNode==_moving_gNODE? TL_ref.forVisuals.at(i) : TL_ref.get_timeObject(int(i)));
+
             timeObject_dim.x = (obj.end-obj.start).value;
             timeObject_pos = ImVec2(
                 timeline_pos.x + placeOffs.x + obj.start.value,
@@ -404,7 +408,9 @@ void gNC::_menu__timeline(
                     guiKeys.__refDict_holding_keys_occur.get(ImGuiKey_MouseLeft) == guiKeys.holding_keys__holdingLim-guiKeys.holding_keys__allowed_gaps /// mouse left button was recently set as held (NOTE: not a proper method)
                 ) {
                     _moving_gNODE = obj.objNode;
+                    timeObject_cursorOffs = ImVec2_subtract(io.MousePos, timeObject_pos);
                     std::cout << "focused node: " << _moving_gNODE << std::endl;
+
                 }
                 
                 if(!_moving_gNODE) tO_colBG = 1;
@@ -418,21 +424,34 @@ void gNC::_menu__timeline(
                 
                 /// (start value, channel)
                 ImVec2 _relativePos(
-                    ImVec2_subtract(ImVec2_subtract(io.MousePos, timeline_pos), placeOffs).x,
+                    ImVec2_subtract(ImVec2_subtract(ImVec2(io.MousePos.x, io.MousePos.y), timeline_pos), placeOffs).x - timeObject_cursorOffs.x,
                     floor((ImVec2_subtract(ImVec2_subtract(io.MousePos, timeline_pos), placeOffs).y / timeObject_dim.y) + 1)
                 );
                 if(_relativePos.y < 1) _relativePos.y = 1;
                 if(_relativePos.x < 0) _relativePos.x = 0;
+
+                timeline_drawList->AddRectFilled(ImVec2_subtract(io.MousePos, timeObject_cursorOffs), ImVec2_add(ImVec2_subtract(io.MousePos, timeObject_cursorOffs), timeObject_dim), timeObject_colour_bg[0], 2, 0);
+                timeline_drawList->AddRect(ImVec2_subtract(io.MousePos, timeObject_cursorOffs), ImVec2_add(ImVec2_subtract(io.MousePos, timeObject_cursorOffs), timeObject_dim), timeObject_colour_border[0], 2, 0, 1);
+
+
+
+                if(TL_ref.add_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, onTL)) {
+                    int moveCode = TL_ref.move_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, onTL);
+                    std::cout << " moveCode:" << moveCode << " ";
+                    std::cout.flush();
+                }
+                timeObject_dim.x = (obj.end-obj.start).value;
+                timeObject_pos = ImVec2(
+                    timeline_pos.x + placeOffs.x + obj.start.value,
+                    timeline_pos.y + placeOffs.y + timeObject_dim.y*(obj.channel-1)
+                );
+
+
+                std::cout << " obj:"<<_moving_gNODE << " ";
+                std::cout << " offset:" << timeObject_cursorOffs.x << " ";
                 std::cout << " pos:{"<<timeObject_pos.x << ", "<<timeObject_pos.y<< "} ";
                 std::cout << " - start-val:"<<_relativePos.x << " channel:" << _relativePos.y << " ";
 
-                if(TL_ref.add_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, onTL)) {
-                    
-                    int moveCode = TL_ref.move_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, onTL);
-                    std::cout << " moveCode:" << moveCode;
-                    std::cout.flush();
-                }
-                
                 std::cout << std::endl;
             }
 
