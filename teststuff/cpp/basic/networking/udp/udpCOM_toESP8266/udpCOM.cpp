@@ -87,6 +87,12 @@ int main(int argc, char** argv) {
     
     if(__VERBOSE) std::cout << "\tsocket created" << std::endl;
 
+    int nTimeout = 5000; //ms
+#if _WIN32
+    setsockopt(udpObj.get_localSocket(), SOL_SOCKET, SO_RCVTIMEO, (const char*)&nTimeout, sizeof(int));
+#else
+    setsockopt(udpObj.get_localSocket(), SOL_SOCKET, SO_RCVTIMEO, (const char*)&nTimeout, sizeof(int));
+#endif
 
     const char* sendMsg = "Hello";
 
