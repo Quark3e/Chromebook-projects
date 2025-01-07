@@ -286,6 +286,10 @@ namespace gNC {
         bool    operator<(timeUnit const& _obj);
         bool    operator>(timeUnit const& _obj);
         
+        friend auto operator<<(std::ostream &os, timeUnit const& m) -> std::ostream& {
+            os << m.value;
+            return os;
+        }
     };
     /**
      * Time object representing a `gNC::gNODE` in a timeline
@@ -335,6 +339,15 @@ namespace gNC {
          */
         int move_end(timeUnit _newEnd, size_t _min_width=1, bool _only_check=false);
 
+        friend auto operator<<(std::ostream &os, timeObject const& m) -> std::ostream& {
+            os << "{";
+            os << "start:" << m.start << ", ";
+            os << "end:" << m.end << ", ";
+            os << "gNODE:"<< m.objNode << ", ";
+            os << "channel:" << m.channel;
+            os << "}";
+            return os;
+        }
     };
 
     class timeline {

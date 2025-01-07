@@ -435,11 +435,11 @@ void gNC::_menu__timeline(
 
 
 
-                if(TL_ref.add_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, onTL)) {
-                    int moveCode = TL_ref.move_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, onTL);
-                    std::cout << " moveCode:" << moveCode << " ";
-                    std::cout.flush();
-                }
+                // if(TL_ref.add_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, onTL)) {
+                //     int moveCode = TL_ref.move_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, onTL);
+                //     std::cout << " moveCode:" << moveCode << " ";
+                //     std::cout.flush();
+                // }
                 timeObject_dim.x = (obj.end-obj.start).value;
                 timeObject_pos = ImVec2(
                     timeline_pos.x + placeOffs.x + obj.start.value,
@@ -447,10 +447,11 @@ void gNC::_menu__timeline(
                 );
 
 
-                std::cout << " obj:"<<_moving_gNODE << " ";
+                std::cout << " obj:"<< obj << " ";
                 std::cout << " offset:" << timeObject_cursorOffs.x << " ";
                 std::cout << " pos:{"<<timeObject_pos.x << ", "<<timeObject_pos.y<< "} ";
-                std::cout << " - start-val:"<<_relativePos.x << " channel:" << _relativePos.y << " ";
+                // std::cout << " tO:{"<<obj.start<< ", " << obj.end<<"} ";
+                std::cout << " - start-val:"<<_relativePos.x << " rel:channel:" << _relativePos.y << " ";
 
                 std::cout << std::endl;
             }
