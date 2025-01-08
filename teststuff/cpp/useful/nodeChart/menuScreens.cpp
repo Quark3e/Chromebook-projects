@@ -388,12 +388,45 @@ void gNC::_menu__timeline(
         static size_t tO_colBord    = 0;
         static size_t tO_colBG      = 0;
 
+        if(_moving_gNODE) {
+            timeObject& obj = TL_ref.get_timeObject(_moving_gNODE);
+            timeObject_dim.x = (obj.end-obj.start).value;
+            timeObject_pos = ImVec2(
+                timeline_pos.x + placeOffs.x + obj.start.value,
+                timeline_pos.y + placeOffs.y + timeObject_dim.y*(obj.channel-1)
+            );
+
+            ImVec2 _relativePos(
+                ImVec2_subtract(ImVec2_subtract(ImVec2(io.MousePos.x, io.MousePos.y), timeline_pos), placeOffs).x - timeObject_cursorOffs.x,
+                floor((ImVec2_subtract(ImVec2_subtract(io.MousePos, timeline_pos), placeOffs).y / timeObject_dim.y) + 1)
+            );
+            if(_relativePos.y < 1) _relativePos.y = 1;
+            if(_relativePos.x < 0) _relativePos.x = 0;
+
+            
+            if(TL_ref.add_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, onTL)) {
+                int moveCode = TL_ref.move_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, onTL);
+            }
+
+            
+            timeline_drawList->AddRectFilled(ImVec2_subtract(io.MousePos, timeObject_cursorOffs), ImVec2_add(ImVec2_subtract(io.MousePos, timeObject_cursorOffs), timeObject_dim), timeObject_colour_bg[0], 2, 0);
+            timeline_drawList->AddRect(ImVec2_subtract(io.MousePos, timeObject_cursorOffs), ImVec2_add(ImVec2_subtract(io.MousePos, timeObject_cursorOffs), timeObject_dim), timeObject_colour_border[0], 2, 0, 1);
+
+            if(!guiKeys.isHolding(ImGuiKey_MouseLeft)) {
+                /// This iteration is a state change where the mouseLeft went from holding -> not holding
+                
+                if(TL_ref.add_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, nullptr)) {
+                    int moveCode = TL_ref.move_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, nullptr);
+                }
+            }
+        }
 
         for(size_t i=0; i<TL_ref.size(); i++) {
             tO_colBG = 0;
             tO_colBord = 0;
 
-            gNC::timeObject &obj = TL_ref.forVisuals.at(i); //(TL_ref.forVisuals.at(i).objNode==_moving_gNODE? TL_ref.forVisuals.at(i) : TL_ref.get_timeObject(int(i)));
+            gNC::timeObject &obj = TL_ref.forVisuals.at(i);
+            //gNC::timeObject &obj = (TL_ref.forVisuals.at(i).objNode==_moving_gNODE? TL_ref.forVisuals.at(i) : TL_ref.get_timeObject(int(i)));
 
             timeObject_dim.x = (obj.end-obj.start).value;
             timeObject_pos = ImVec2(
@@ -409,7 +442,7 @@ void gNC::_menu__timeline(
                 ) {
                     _moving_gNODE = obj.objNode;
                     timeObject_cursorOffs = ImVec2_subtract(io.MousePos, timeObject_pos);
-                    std::cout << "focused node: " << _moving_gNODE << std::endl;
+                    // std::cout << "focused node: " << _moving_gNODE << std::endl;
 
                 }
                 
@@ -421,45 +454,13 @@ void gNC::_menu__timeline(
             
             if(_moving_gNODE==obj.objNode) {
                 tO_colBG = 2;
-                
-                /// (start value, channel)
-                ImVec2 _relativePos(
-                    ImVec2_subtract(ImVec2_subtract(ImVec2(io.MousePos.x, io.MousePos.y), timeline_pos), placeOffs).x - timeObject_cursorOffs.x,
-                    floor((ImVec2_subtract(ImVec2_subtract(io.MousePos, timeline_pos), placeOffs).y / timeObject_dim.y) + 1)
-                );
-                if(_relativePos.y < 1) _relativePos.y = 1;
-                if(_relativePos.x < 0) _relativePos.x = 0;
-
-                timeline_drawList->AddRectFilled(ImVec2_subtract(io.MousePos, timeObject_cursorOffs), ImVec2_add(ImVec2_subtract(io.MousePos, timeObject_cursorOffs), timeObject_dim), timeObject_colour_bg[0], 2, 0);
-                timeline_drawList->AddRect(ImVec2_subtract(io.MousePos, timeObject_cursorOffs), ImVec2_add(ImVec2_subtract(io.MousePos, timeObject_cursorOffs), timeObject_dim), timeObject_colour_border[0], 2, 0, 1);
-
-
-
-                // if(TL_ref.add_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, onTL)) {
-                //     int moveCode = TL_ref.move_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, onTL);
-                //     std::cout << " moveCode:" << moveCode << " ";
-                //     std::cout.flush();
-                // }
-                timeObject_dim.x = (obj.end-obj.start).value;
-                timeObject_pos = ImVec2(
-                    timeline_pos.x + placeOffs.x + obj.start.value,
-                    timeline_pos.y + placeOffs.y + timeObject_dim.y*(obj.channel-1)
-                );
-
-
-                std::cout << " obj:"<< obj << " ";
-                std::cout << " offset:" << timeObject_cursorOffs.x << " ";
-                std::cout << " pos:{"<<timeObject_pos.x << ", "<<timeObject_pos.y<< "} ";
-                // std::cout << " tO:{"<<obj.start<< ", " << obj.end<<"} ";
-                std::cout << " - start-val:"<<_relativePos.x << " rel:channel:" << _relativePos.y << " ";
-
-                std::cout << std::endl;
             }
 
             timeline_drawList->AddRectFilled(timeObject_pos, ImVec2_add(timeObject_pos, timeObject_dim), timeObject_colour_bg[tO_colBG], 2, 0);
             timeline_drawList->AddRect(timeObject_pos, ImVec2_add(timeObject_pos, timeObject_dim), timeObject_colour_border[tO_colBord], 2, 0, 1);
         }
 
+        // std::cout << std::endl;
 
         // timeline_drawList->AddCircleFilled(ImVec2(timeline_pos.x + placeOffs.x, timeline_pos.y + placeOffs.y), 10, IM_COL32(250, 250, 250, 255), 10);
         // std::cout << "isDrag:"<<std::boolalpha<<mouseDrag_left << " " << guiKeys.isHolding(ImGuiKey_MouseLeft) << " node:" << nodePtr_focused << std::endl;
@@ -496,7 +497,7 @@ void gNC::_menu__timeline(
         onTL = &TL_ref.forVisuals;
     }
     else {
-        if(onTL) {
+        if(_moving_gNODE) {
             /// This iteration is a state change where it went from holding to not.
 
         }

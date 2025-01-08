@@ -2339,12 +2339,22 @@ int gNC::timeline::_find_insert_pos(
     size_t          _channel,
     std::vector<int>&   _ins_indices,
     std::vector<bool>&  _ins_conflicts,
-    std::vector<timeObject>*    _vec
+    std::vector<timeObject>*    _vec,
+    std::vector<gNODE*>         _ignoreNodes
 ) {
     if(!_vec) _vec = &this->_objects;
 
     bool breakSearch = false;
     for(size_t i=0; i<_vec->size(); i++) {
+        bool _breakIgnLoop = false;
+        for(size_t ign=0; ign<_ignoreNodes.size(); ign++) {
+            if(_vec->at(i).objNode==_ignoreNodes.at(ign)) {
+                _breakIgnLoop = true;
+                break;
+            }
+        }
+        if(_breakIgnLoop) continue;
+
         if(_channel==0 || _vec->at(i).channel==_channel) {
             if(_start<=_vec->at(i).start) {
                 // Position found: insert before object[i]
@@ -2489,13 +2499,18 @@ int gNC::timeline::add_timeObject(
         }
     }
 
-    if(insert_indices[1]==-1) {
-        //append at the end
+    // std::cout << "add["<<"{"<<insert_indices[0]<<","<<insert_indices[1]<<"}] ";
+    if(insert_indices[0]==-1 && insert_indices[1]==-1) {
         _vec->push_back(gNC::timeObject{_start, _end, _nodePtr, _channel});
         return 0;
     }
+    // if(insert_indices[1]==-1) {
+    //     //append at the end
+    //     _vec->push_back(gNC::timeObject{_start, _end, _nodePtr, _channel});
+    //     return 0;
+    // }
     std::vector<timeObject>::iterator insert_itr = _vec->begin();
-    std::advance(insert_itr, insert_indices[1]);
+    std::advance(insert_itr, (insert_indices[0]==-1? insert_indices[1] : insert_indices[0]+1));
     _vec->insert(insert_itr, gNC::timeObject{_start, _end, _nodePtr, _channel});
 
 
@@ -2528,8 +2543,29 @@ int gNC::timeline::move_timeObject(
     }
     this->delete_timeObject(&_temp_gNODE, _vec);
     
+    // std::vector<int>    insert_indices{-1, -1};
+    // std::vector<bool>   insert_conflicts{false, false};
+
+    // if(_find_insert_pos(_start, _end, _channel, insert_indices, insert_conflicts, _vec, std::vector<gNODE*>{_nodePtr})!=0) {
+        
+    //     return 3;
+    // }
+
+    // if(insert_conflicts[0]) {
+    //     if(_conflict_resolver(_vec->at(insert_indices[0]).end, ))
+    // }
+
+    // std::cout << _nodePtr << "  ";
+    // std::cout << "{";
+    // for(size_t i=0; i<_vec->size(); i++) std::cout<< " i["<<i<<"]=" << _vec->at(i).objNode;
+    // std::cout << "} ";
+
     assert(this->delete_timeObject(_nodePtr, _vec)==0);
     assert(this->add_timeObject(_nodePtr, _start, _end, _channel, _conflictMergeMethod, _vec)==0);
+
+    // std::cout << "{";
+    // for(size_t i=0; i<_vec->size(); i++) std::cout<< " i["<<i<<"]=" << _vec->at(i).objNode;
+    // std::cout << "}";
 
     return 0;
 }

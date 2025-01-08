@@ -386,6 +386,7 @@ namespace gNC {
          *  `{-1, -1}`  - no timeObject has been found to be compared to so just append this at the end of objects vector-
          * @param _ins_conflicts reference to booleans for whether a conflict has been found at either side ([0]-_start, [1]-_end) of the placement search.
          * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container
+         * @param _ignoreNodes gNODE's to ignore when finding conflicts/insert pos
          * @return int for return code. `0`-success, otherwise an error has occurred.
          */
         int _find_insert_pos(
@@ -394,7 +395,8 @@ namespace gNC {
             size_t          _channel,
             std::vector<int>&   _ins_indices,
             std::vector<bool>&  _ins_conflicts,
-            std::vector<timeObject>* _vec=nullptr
+            std::vector<timeObject>* _vec=nullptr,
+            std::vector<gNODE*> _ignoreNodes=std::vector<gNODE*>{}
         );
 
         /**
