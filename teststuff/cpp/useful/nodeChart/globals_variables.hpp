@@ -24,8 +24,9 @@ extern bool __ON_TERMINAL;
  * A value to hold the current iteration of ALL the frames since programs start.
  * 
  * Assuming the program runs at the capped 60 (allegro 5 on linux: Debian 12 "Bookworm"),
- * this counter will overflow at earliest after ~828.5 days or 2.268 years ((2^31-1)/(60*60*60*24))
- * 
+ * this counter will overflow at earliest after:
+ *  - ~60fps:  ~828.5 days or 2.268 years ((2^32-1)/(60*60*60*24))
+ *  - ~500fps: ~100 days
  */
 extern unsigned int __PROGRAM_FRAMES;
 

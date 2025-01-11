@@ -339,6 +339,8 @@ namespace gNC {
          */
         int move_end(timeUnit _newEnd, size_t _min_width=1, bool _only_check=false);
 
+        timeUnit get_middle();
+
         friend auto operator<<(std::ostream &os, timeObject const& m) -> std::ostream& {
             os << "{";
             os << "start:" << m.start << ", ";
@@ -471,7 +473,7 @@ namespace gNC {
          * @param _end new end timeUnit
          * @param _channel channel for the new placement
          * @param _conflictMergeMethod method of resolving placement conflicts
-         * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container. If this is set to `nullptr` then this function will do an "imaginary" move for visual purposes with an internal static timeline vector.
+         * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container. If this is set to `nullptr` then this function will do an actual modification on the interal container
          * @return int code for whether this function call was successful [`0`] or an error has occurred [`!=0`]
          */
         int move_timeObject(gNC::gNODE *_nodePtr, gNC::timeUnit _start, gNC::timeUnit _end, size_t _channel, int _conflictMergeMethod=0, std::vector<timeObject>* _vec=nullptr);
@@ -510,6 +512,13 @@ namespace gNC {
          */
         timeObject get_timeObject(int _idx, std::vector<timeObject>* _vec=nullptr);
         /**
+         * @brief Get a container/std::vector of gNODE's in a channel
+         * 
+         * @param _channel the channel to search gNODE's for. NOTE: Cannot be 0 (i.e. all channels) since this searches in aspecific channel.
+         * @return std::vector<gNODE*> of the timeObject's stored at given channel
+         */
+        std::vector<gNODE*> get_timeObjects_inChannel(size_t _channel, std::vector<timeObject>*  _vec=nullptr);
+        /**
          * @brief Move the side(s)/end(s) to a new timeUnit value
          * 
          * @param _oldVal the old value which is where the side is located.
@@ -518,10 +527,25 @@ namespace gNC {
          * if this is set to `nullptr` then it'll move all(/both) sides that are placed at _oldVal to _newVal.
          * @param _channel size_t value of the channel to make the move in. If==`0` then search through every channel.
          * If the given arg vlaue is bigger than the set limit it'll instead search the "highest channel" (the one with biggest number)
+         * @param _sidePadding the padding for the detection. The inner side is 2x further "in" compared to edge cases for center detection:
+         *  |[| |  ||]|[||     ||]|[  
          * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container
          * @return int for the return code. `0`-success, `-1`-no timeObject's side is located at given _oldVal
          */
-        int move_sides(timeUnit _oldVal, timeUnit _newVal, gNC::gNODE* _toMove=nullptr, size_t _channel=0, std::vector<timeObject>* _vec=nullptr);
+        int move_sides(timeUnit _oldVal, timeUnit _newVal, gNC::gNODE* _toMove=nullptr, size_t _channel=0, size_t _sidePadding=0, std::vector<timeObject>* _vec=nullptr);
+        /**
+         * @brief Get the sides that are affected/in-region for a given timeUnit
+         * 
+         * @param _sideVal the timeUnit to find affected gNODE* timeObjects for.
+         * @param _channel timeline channel to search for this timeUnit. If !=0 then it'll return ordered specific vector of affected. Otherwise if ==0 then it'll return
+         * a likely unordered vector of affected timeObjects.
+         * @param _sidePadding the padding for the detection. The inner side is 2x further "in" compared to edge cases for center detection:
+         *  |[| |  ||]|[||     ||]|[  
+         * 
+         * @param _vec pointer to the `std::vector<timeObject>` container to use as the timeline timeObject container
+         * @return std::vector<gNODE*> of the gNODE who's represented timeObject is affected.
+         */
+        std::vector<gNODE*> get_sides(timeUnit _sideVal, size_t _channel, size_t _sidePadding=5, std::vector<timeObject>* _vec=nullptr);
         /**
          * @brief Get the set _channel_limit value for this struct
          * 
