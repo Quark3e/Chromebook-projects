@@ -69,9 +69,29 @@ struct vec3 {
             break;
         }
     }
-    
+
     /// @brief Function to call for printing purposes with number formatting
     void (*_callFunc)(float, std::string&) = nullptr;
+
+    operator std::string() const {
+        std::string _temp = "";
+        std::string _retur= "{";
+        if(this->_callFunc) {
+            this->_callFunc(this->x, _temp);
+            _retur += _temp+", ";
+            this->_callFunc(this->y, _temp);
+            _retur += _temp+", ";
+            this->_callFunc(this->z, _temp);
+            _retur += _temp;
+        }
+        else {
+            _retur += std::to_string(this->x)+", ";
+            _retur += std::to_string(this->y)+", ";
+            _retur += std::to_string(this->z);
+        }
+        _retur+="}";
+        return _retur;
+    }
 
     friend auto operator<<(std::ostream &os, vec3 const& m) -> std::ostream& {
         std::string _temp = "";
@@ -111,14 +131,14 @@ class nodemcu_connect {
 #else
     int  _sock;
 #endif
-    std::string _ipAddr     = DEFAULT__IPADDR;
-    int         _port       = DEFAULT__PORT;
 
     sockaddr_in _server_sockaddr_in;
     socklen_t   _sockAddrLen    = sizeof(sockaddr_in);
     bool        _socket_closed  = true;
 
     public:
+    std::string _ipAddr     = DEFAULT__IPADDR;
+    int         _port       = DEFAULT__PORT;
     bool _verbose = true;
 
     /// @brief Initialiser function for internal UDP socket setup
@@ -185,6 +205,7 @@ class nodemcu_orient {
 
     nodemcu_orient(bool initialise=true);
     nodemcu_orient(float ptrOrient[3], bool initialise=true);
+    nodemcu_orient(std::string board_address, int board_port, bool initialise=true);
     nodemcu_orient(float ptrOrient[3], std::string board_address, int board_port, bool initialise=true);
 
 

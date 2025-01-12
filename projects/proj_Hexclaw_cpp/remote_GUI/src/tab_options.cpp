@@ -1,5 +1,5 @@
 
-#include <includes.hpp>
+#include "../include/includes.hpp"
 
 
 void tab_0(void) {
@@ -439,6 +439,97 @@ void tab_0(void) {
     tab0_init = true;
 }
 
+template<class _store_type>
+struct status_check {
+    _store_type _value;
+    _store_type prev;
+
+    bool doAutoPrevUpdate = true;
+    bool doDiffChecking = true;
+    /// @brief Difference check between current value and previous:
+    /// current > prev : `1`.
+    /// current < prev : `-1`.
+    /// current == prev : `0`.
+    int isDiff = 0;
+
+    int diff(bool _updateInternal=true) {
+        int diffVal = 0;
+        if      (_value<prev)   diffVal = -1;
+        else if (_value>prev)   diffVal = 1;
+        else                    diffVal = 0;
+        if(_updateInternal) this->isDiff = diffVal;
+        return diffVal;
+    }
+
+    status_check(_store_type _init_value, _store_type _init_valuePrev, bool do_diff_checking=true, bool do_auto_prevUpdate=true)
+    : _value(_init_value), prev(_init_valuePrev), doDiffChecking(do_diff_checking), doAutoPrevUpdate(do_auto_prevUpdate) {
+        if(doDiffChecking) {
+            if      (_value<prev)   isDiff = -1;
+            else if (_value>prev)   isDiff = 1;
+            else                    isDiff = 0;
+        }
+    }
+
+    status_check operator=(_store_type _new_value) {
+        if(doAutoPrevUpdate) this->prev      = _value;
+        this->_value    = _new_value;
+        if(doDiffChecking) {
+            if      (_value<prev)   isDiff = -1;
+            else if (_value>prev)   isDiff = 1;
+            else                    isDiff = 0;
+        }
+        return *this;
+    }
+    status_check operator=(status_check &_ref) {
+        if(doAutoPrevUpdate) this->prev      = _value;
+        this->_value    = _ref._value;
+        if(doDiffChecking) {
+            if      (_value<prev)   isDiff = -1;
+            else if (_value>prev)   isDiff = 1;
+            else                    isDiff = 0;
+        }
+    }
+    operator _store_type() const { return _value; }
+    
+    bool copy(status_check &_ref) {
+        this->_value    = _ref._value;
+        this->prev      = _ref.prev;
+        this->doDiffChecking = _ref.doDiffChecking;
+        this->isDiff    = _ref.isDiff;
+    }
+    void updatePrev() {
+        this->prev      = this->_value;
+        if(doDiffChecking) {
+            if      (_value<prev)   isDiff = -1;
+            else if (_value>prev)   isDiff = 1;
+            else                    isDiff = 0;
+        }
+    }
+    
+    void callback() {
+        // updatePrev();
+        if(doDiffChecking) {
+            if      (_value<prev)   isDiff = -1;
+            else if (_value>prev)   isDiff = 1;
+            else                    isDiff = 0;
+        }
+    }
+
+    friend auto operator<<(std::ostream &os, status_check const& m) -> std::ostream& {
+        os << "{"<<std::boolalpha<<m._value<<","<<std::boolalpha<<m.prev<<"}";
+        return os;
+    }
+};
+// template<class _classType>
+void status_check__forwarder(void* context) {
+    if(!context) return;
+    static_cast<status_check<bool>*>(context)->callback();
+}
+
+void printFunc(float var, std::string& _ret) {
+    _ret = formatNumber<float>(var, 5, 2, "right");
+    // std::cout << "printFunc: " << _ret << std::endl;
+}
 
 void tab_1(void) {
     static bool init = true;
@@ -452,27 +543,54 @@ void tab_1(void) {
     static std::unique_lock<std::mutex> u_lck_bmpObj(bmpObj.mtx, std::defer_lock);
     static std::unique_lock<std::mutex> u_lck_ndt(t_bitArr.imgMutex, std::defer_lock);
 
-    static bool remote_connect  = false;
-    static bool remote_connect_p= false;
-    if(remote_connect != remote_connect_p) {
-        if(remote_connect) { //the switch has been turned on: off->on
-            if(!t_bitArr.imgInit.load()) {
-                if(t_bitArr.func_init()) {
+    static status_check<bool> remote_videoFeed(false, false, true, false);
+    static status_check<bool> remote_telemetry(false, false, true, false);
+    // static bool remote_connect  = false;
+    // static bool remote_connect_prev= false;
+    // if(remote_connect != remote_connect_prev) {
+    if(remote_videoFeed.diff()) {
+        if(remote_videoFeed._value) { //the switch has been turned on: off->on
+            if(!t_bitArr.imgInit.load()) { //check whether this class object has initialised (internally, not semantically)
+                if(t_bitArr.func_init()) { // call init of t_bitArr. Returns true if an error has occurred
+
                     std::cerr << t_bitArr._info_name << " func_init() failed. code: "<<t_bitArr._error_code << std::endl;
-                    remote_connect = false;
+                    remote_videoFeed = false;
                 }
                 else {
-
-                    remote_connect = true;
+                    remote_videoFeed = true;
                 }
             }
         }
         else { //switch has been turned off: on->off
-            std::cout << "cam has been turned off. Ntd object has been re-created" << std::endl;
             (&t_bitArr)->~NETWORK_DATA_THREADCLASS();
             new (&t_bitArr) NETWORK_DATA_THREADCLASS(false, "192.168.1.177", 1086);
+            std::cout << "cam has been turned off. Ntd object has been re-created" << std::endl;
         }
-        remote_connect_p = remote_connect;
+        // remote_connect_prev = remote_connect;
+        remote_videoFeed.updatePrev();
+    }
+    if(remote_telemetry.diff()) {
+        if(remote_telemetry._value) {
+            if(!orientObj.connectObj.isInit()) {
+                if(orientObj.connectObj.init()) {
+                    std::cerr << "nodemcu_orient::nodemcu_connect::init() failed." << std::endl;
+                    remote_telemetry = false;
+                }
+                else {
+                    remote_telemetry = true;
+                    orientObj.accel._callFunc   = printFunc;
+                   orientObj.gyro._callFunc    = printFunc;
+                }
+            }
+        }
+        else {
+            (&orientObj)->~nodemcu_orient();
+            new (&orientObj) nodemcu_orient("192.168.1.117", 1089, false);
+            orientObj.accel._callFunc   = printFunc;
+            orientObj.gyro._callFunc    = printFunc;
+            std::cout << "telemetry has been turned off. nodemcu_connect orientObj has been re-created." << std::endl;
+        }
+        remote_telemetry.updatePrev();
     }
 
     if(init) {
@@ -491,6 +609,17 @@ void tab_1(void) {
         u_lck_ndt.unlock();
     }
     
+    if(orientObj.connectObj.isInit()) {
+        try {
+            orientObj.update(false);
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+        
+    }
+    // std::cout << std::endl;
 #if _BM_DEFINE
     Delays_table(perf_loadBitmap_func,"Delays table","Tab1 delays","Delays table");
 #endif
@@ -500,26 +629,42 @@ void tab_1(void) {
 
     if(ImGui::BeginChild("Settings", ImVec2(0, WIN_HEIGHT-imgSize[1]*0.75-150))) {
         ImGui::SeparatorText("Settings");
-        ToggleButton("Connect", &remote_connect);
-        ImGui::SameLine();
-        ImGui::TextUnformatted((t_bitArr._connected.load()? "connected" : "disconnected"));
         
-        ImGui::PushID(1);
-        ImGui::Text("IP  "); ImGui::SameLine();
-        ImGui::InputText("", &t_bitArr._local_IPADDRESS);
-        ImGui::PopID();
+        // ImGui::SetCursorPosX(0);
+        ImGui::BeginTable("Settings", 3, ImGuiTableFlags_NoBordersInBody);
+        ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
+        ImGui::TableSetColumnIndex(0); ImGui::Text("Status");
+        ImGui::TableSetColumnIndex(1); ImGui::Text("IP");
+        ImGui::TableSetColumnIndex(2); ImGui::Text("PORT");
 
-        ImGui::PushID(2);
-        ImGui::Text("PORT"); ImGui::SameLine();
-        ImGui::InputInt("", &t_bitArr._local_PORT);
-        ImGui::PopID();
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::PushID("videoFeed_status");  ToggleButton("", &remote_videoFeed._value, &status_check__forwarder, &remote_videoFeed);ImGui::PopID();
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushID("videoFeed_ip");      ImGui::InputText("", &t_bitArr._local_IPADDRESS);                                       ImGui::PopID();
+        ImGui::TableSetColumnIndex(2);
+        ImGui::PushID("videoFeed_port");    ImGui::InputInt("", &t_bitArr._local_PORT);                                             ImGui::PopID();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::PushID("telemetry_status");  ToggleButton("", &remote_telemetry._value, &status_check__forwarder, &remote_telemetry);ImGui::PopID();
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushID("telemetry_ip");      ImGui::InputText("", &orientObj.connectObj._ipAddr);                                    ImGui::PopID();
+        ImGui::TableSetColumnIndex(2);
+        ImGui::PushID("telemetry_port");    ImGui::InputInt("", &orientObj.connectObj._port);                                       ImGui::PopID();
+
+        ImGui::EndTable();
 
         ImGui::EndChild();
     }
     if(ImGui::BeginChild("Data", ImVec2(0, imgSize[1]*0.75+50))) {
         ImGui::SeparatorText("Data");
 
-        ImGui::Image((ImTextureID)(intptr_t)bmpObj.BMP(), ImVec2(imgSize[0]*0.75, imgSize[1]*0.75));
+        ImGui::Image((ImTextureID)(intptr_t)bmpObj.BMP(), ImVec2(imgSize[0]*0.5, imgSize[1]*0.5));
+        if(orientObj.connectObj.isInit()) {
+            ImGui::Text(("Accel:"+std::string(orientObj.accel)).c_str());
+            ImGui::Text(("Gyro :"+std::string(orientObj.gyro)).c_str());
+        }
         ImGui::EndChild();
     }
 

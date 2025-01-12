@@ -4,7 +4,7 @@
 
 #include "includes.hpp"
 
-inline void ToggleButton(const char* str_id, bool* v) {
+inline void ToggleButton(const char* str_id, bool* v, void (*callBack_func)(void*)=nullptr, void *context=nullptr) {
     ImVec2 p = ImGui::GetCursorScreenPos();
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
@@ -22,6 +22,7 @@ inline void ToggleButton(const char* str_id, bool* v) {
 
     draw_list->AddRectFilled(p, ImVec2(p.x + width, p.y + height), col_bg, height * 0.5f);
     draw_list->AddCircleFilled(ImVec2(*v ? (p.x + width - radius) : (p.x + radius), p.y + radius), radius - 1.5f, IM_COL32(255, 255, 255, 255));
+    if(callBack_func) callBack_func(context);
 }
 
 #endif

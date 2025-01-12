@@ -145,6 +145,9 @@ nodemcu_orient::nodemcu_orient(float ptrOrient[3], bool initialise): connectObj(
 	assert(ptrOrient);
 	orientPtr = ptrOrient;
 }
+nodemcu_orient::nodemcu_orient(std::string board_address, int board_port, bool initialise): connectObj(initialise, board_address, board_port) {
+
+}
 nodemcu_orient::nodemcu_orient(float ptrOrient[3], std::string board_address, int board_port, bool initialise): connectObj(initialise, board_address, board_port) {
 	assert(ptrOrient);
 	orientPtr = ptrOrient;
@@ -176,6 +179,7 @@ void nodemcu_orient::update(bool printResult) {
 		return;
 	}
     int n = connectObj.request(printResult);
+	if(n<0) throw std::runtime_error("nodemcu_orient connectObj.request() failed.");
 	std::string temp = std::string(connectObj.buffer);
 	if(connectObj.buffer[0]=='{' && connectObj.buffer[n-1]==';') { //{x:y:z}
 		if(!this->parseData(connectObj.buffer)) {

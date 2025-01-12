@@ -1,4 +1,4 @@
-#pragma once
+    #pragma once
 #ifndef HPP__HEXCLAW_REMOTE_GUI__GLOBAL_VARIABLES
 #define HPP__HEXCLAW_REMOTE_GUI__GLOBAL_VARIABLES
 
@@ -343,6 +343,7 @@ extern std::atomic<bool> running;
 
 extern NETWORK_DATA_THREADCLASS t_bitArr;
 
+extern nodemcu_orient orientObj;
 
 extern float input_IK_pos[3];
 extern float input_IK_orient[3];

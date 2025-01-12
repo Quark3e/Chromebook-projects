@@ -1,5 +1,5 @@
 
-#include <global_variables.hpp>
+#include "../include/global_variables.hpp"
 
 
 std::mutex mtx_cout;
@@ -46,7 +46,7 @@ std::atomic<bool> running{true};
 std::mutex print_mtx;
 NETWORK_DATA_THREADCLASS t_bitArr(false, "192.168.1.177", 1086);
 
-// std::string remote_IP
+nodemcu_orient orientObj("192.168.1.117", 1089, false);
 
 
 float input_IK_pos[3]    = {0, 200, 150};
