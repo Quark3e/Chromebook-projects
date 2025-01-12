@@ -347,6 +347,7 @@ int _init__camObj(_initClass_dataStruct *_passData);
  */
 int _init__pigpio(_initClass_dataStruct *_passData);
 int _init__opencv_recorder(_initClass_dataStruct *_passData);
+int _init__orientObj(_initClass_dataStruct *_passData);
 /**
  * call closing operations related to pca object
  * 
@@ -355,5 +356,6 @@ int _close__pca(_initClass_dataStruct *_passData);
 int _close__camObj(_initClass_dataStruct *_passData);
 int _close__pigpio(_initClass_dataStruct *_passData);
 int _close__opencv_recorder(_initClass_dataStruct *_passData);
+int _close__orientObj(_initClass_dataStruct *_passData);
 
 #endif

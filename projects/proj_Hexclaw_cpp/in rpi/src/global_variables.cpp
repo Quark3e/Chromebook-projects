@@ -11,29 +11,23 @@ bool hardExit = false;
 // IK related: ik calc variable declaration
 
 float current_q[6]	= {0,0,0,0,0,0};
-
 float new_q[6]		= {0,0,0,0,0,0};
-
 /**
  * `{yaw, pitch, roll}` variables:
  * unit: degrees
  * */
 float orient[3]		= {0,0,0};
-
 float PP[3]			= {0,150,150};
-
 float axisScal[3]	= {1, 1, 1};
-
 float axisOffset[3]	= {0, 100, -200};
-
 float axisFilter[3]	= {1, 1, 1};
 
 float pitch, roll;
 
 float Pitch=0, Roll=0;
 
-nodemcu_orient orientObj(orient, "192.168.1.231");
-//nodemcu_orient orientObj(orient, "192.168.1.177");
+// nodemcu_orient orientObj(orient, "192.168.1.231");
+nodemcu_orient orientObj(orient, "192.168.1.177", DEFAULT__PORT, false);
 
 
 int prefSize[2] = {640, 480};
@@ -329,13 +323,15 @@ std::string _initClass::get_callMsg() {
 	return this->_callData._message;
 }
 
+
 DIY::typed_dict<std::string, _initClass> _init_status(
-	{"pca", "camObj", "pigpio", "opencv recorder"},
+	{"pca", "camObj", "pigpio", "opencv recorder", "orientObj"},
 	{
 		_initClass(_init__pca, _close__pca, false),
 		_initClass(_init__camObj, _close__camObj, false),
 		_initClass(_init__pigpio, _close__pigpio, false),
-		_initClass(_init__opencv_recorder, _close__opencv_recorder, false)
+		_initClass(_init__opencv_recorder, _close__opencv_recorder, false),
+		_initClass(_init__orientObj, _close__orientObj, false)
 	}
 );
 
@@ -363,6 +359,9 @@ void simplified_init() {
 		// std::cout << "ERROR: could not initialise pigpio library: "<<_init_status.get("pigpio").get_callMsg() << std::endl;
 		ANSI_mvprint(0, 0, "ERROR: could not intialise pigpio library: "+_init_status.get("pigpio").get_callMsg(), true, "abs", "rel");
 	}
+	if(!_init_status.get("orientObj").isInit() && _init_status.get("orientObj").call_init()) {
+		ANSI_mvprint(0, 0, "ERROR: could not initialise nodemcu_orient object \"orientObj\": "+_init_status.get("orientObj").get_callMsg(), true, "abs", "rel");
+	}
 }
 
 int _init__pca(_initClass_dataStruct *_passData) {
@@ -388,7 +387,7 @@ int _init__camObj(_initClass_dataStruct *_passData) {
 	return 0;
 }
 int _init__pigpio(_initClass_dataStruct *_passData) {
-	std::cout << "before pigpio init..."<<std::endl;
+	// std::cout << "before pigpio init..."<<std::endl;
 	try {
 		if(gpioInitialise() < 0) {
 			std::cout << "_init__pigpio(): pigpio \"gpioInitialise()\" failed."<<std::endl;
@@ -412,6 +411,19 @@ int _init__opencv_recorder(_initClass_dataStruct *_passData) {
 	}
 	return 0;
 }
+int _init__orientObj(_initClass_dataStruct *_passData) {
+	int init_success = -1;
+	try	{
+		init_success = orientObj.connectObj.init();
+	}
+	catch(const std::exception& e)
+	{
+		_passData->_message = e.what();
+		return 1;
+	}
+	
+	return init_success;
+}
 int _close__pca(_initClass_dataStruct *_passData) {
 
 	return 0;
@@ -426,6 +438,10 @@ int _close__pigpio(_initClass_dataStruct *_passData) {
 }
 int _close__opencv_recorder(_initClass_dataStruct *_passData) {
 
+	return 0;
 }
+int _close__orientObj(_initClass_dataStruct *_passData) {
 
+	return 0;
+}
 

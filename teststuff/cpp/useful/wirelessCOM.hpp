@@ -115,14 +115,30 @@ class nodemcu_connect {
     int         _port       = DEFAULT__PORT;
 
     sockaddr_in _server_sockaddr_in;
+    socklen_t   _sockAddrLen    = sizeof(sockaddr_in);
     bool        _socket_closed  = true;
-    int         _sockAddrLen    = sizeof(sockaddr_in);
 
-    int _func_init();
     public:
-    int ms_timeout = 5000;
+    bool _verbose = true;
 
+    /// @brief Initialiser function for internal UDP socket setup
+    /// @return Whether it successfully initialied [`0`] or an error has occurred [`!=0`]
+    int init();
+    int ms_timeout = 5000;
+    
+    /// @brief Constructor call with remote board's IP and PORT.
+    /// @param _board_IP IP of the esp8266 board's server.
+    /// @param _board_PORT PORT of the esp8266 board's server.
+    /// @note Will call `init()` function by default.
     nodemcu_connect(std::string _board_IP, int _board_PORT);
+    /// @brief Constructor call of class with default IP and PORT definitions.
+    /// @param _initialise whether to call `init()` on constructor call or not.
+    nodemcu_connect(bool _initialise);
+    /// @brief Constructor call with remote board's IP and PORT.
+    /// @param _initialise whether to call `init()` on constructor call or not.
+    /// @param _board_IP IP of the esp8266 board's server.
+    /// @param _board_PORT PORT of the esp8266 board's server.
+    nodemcu_connect(bool _initialise, std::string _board_IP, int _board_PORT);
     ~nodemcu_connect();
 
     /**
@@ -133,15 +149,17 @@ class nodemcu_connect {
      */
     int request(bool _printResult = true);
 
-    /// @brief Number of bytes received from the esp8266 board
-    int bytesRecv = 0;
-    /// @brief number of bytes sent to the esp8266 board from latest sendto call.
-    int bytesSent = 0;
-    /// @brief the string sent to the esp8266 board
-    std::string requestMsg = "Hello";
-    /// @brief char buffer of the received string
-    char buffer[MAXLINE];
 
+    int         bytesRecv = 0;          // Number of bytes received from the esp8266 board
+    int         bytesSent = 0;          // number of bytes sent to the esp8266 board from latest sendto call.
+    std::string requestMsg = "Hello";   // the string sent to the esp8266 board
+    char        buffer[MAXLINE];        // char buffer of the received string
+
+    /**
+     * @brief Get whether the class has been initialised
+     * @return bool for whether it has been initialised or not.
+     */
+    bool isInit();
 };
 
 /**
@@ -153,10 +171,8 @@ class nodemcu_orient {
     
     // float orient[3] = {0,0,0}; //degrees
 
-    /// Container for accelerometer data for the across XYZ-axes. [unit: G]
-    vec3<float> accel{0, 0, 0};
-    /// Container for gyroscopic data for the XYZ-axes
-    vec3<float> gyro{0, 0, 0};
+    vec3<float> accel{0, 0, 0}; // Container for accelerometer data for the across XYZ-axes. [unit: G]
+    vec3<float> gyro{0, 0, 0};  // Container for gyroscopic data for the XYZ-axes
 
     // float x_accel = 0, y_accel = 0, z_accel = 0;
     float pitch, roll, Pitch=0, Roll=0;
@@ -167,17 +183,11 @@ class nodemcu_orient {
 
     nodemcu_connect connectObj;
 
-    nodemcu_orient(
-        float ptrOrient[3],
-        std::string board_address   = DEFAULT__IPADDR,
-        int board_port              = DEFAULT__PORT
-    ): connectObj(board_address, board_port) {
-        assert(ptrOrient);
-        orientPtr = ptrOrient;
-    }
-    nodemcu_orient(): connectObj(DEFAULT__IPADDR, DEFAULT__PORT) {
+    nodemcu_orient(bool initialise=true);
+    nodemcu_orient(float ptrOrient[3], bool initialise=true);
+    nodemcu_orient(float ptrOrient[3], std::string board_address, int board_port, bool initialise=true);
 
-    }
+
     void update(bool printResult=true);
     bool parseData(std::string _str);
 };

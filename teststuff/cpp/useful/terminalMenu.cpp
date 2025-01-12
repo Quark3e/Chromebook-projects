@@ -217,8 +217,6 @@ const int* termMenu::driver(
     bool loopInit = false; //boolean for whether the driver loop has ran a full iteration already
     int loopInit_count = 0;
 
-
-
     exitDriver = false;
 
     menuTable.strExport("\n", false, "\n", " ");
@@ -311,8 +309,6 @@ const int* termMenu::driver(
     nodelay(stdscr, TRUE);
     keypad(stdscr, TRUE);
     scrollok(stdscr, TRUE);
-
-
 
     int c = 0;
     if(!driverFuncInit) {

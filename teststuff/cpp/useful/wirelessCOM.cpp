@@ -3,10 +3,10 @@
 
 
 
-int nodemcu_connect::_func_init() {
+int nodemcu_connect::init() {
 	if(this->_init) return 0;
 
-	std::cout << this->_info_name+"::_func_init() called: Starting with socket for server: "<<this->_ipAddr << " " << this->_port << std::endl;
+	if(this->_verbose) std::cout << this->_info_name+"::init() called: Starting with socket for server: "<<this->_ipAddr << " " << this->_port << std::endl;
 #if _WIN32
 	WSADATA wsaData;
 	int wsaerr;
@@ -14,11 +14,11 @@ int nodemcu_connect::_func_init() {
 	wsaerr = WSAStartup(wVersionRequested, &wsaData);
 
 	if(wsaerr!=0) {
-		std::cout << this->_info_name<<"::_func_init() "<< "ERROR: winsock dll not found." << std::endl;
+		std::cout << this->_info_name<<"::init() "<< "ERROR: winsock dll not found." << std::endl;
 		return -1;
 	}
 	else {
-		std::cout << this->_info_name<<"::_func_init() "<< "winsock dll found. status: "<<wsaData.szSystemStatus << std::endl;
+		if(this->_verbose) std::cout << this->_info_name<<"::init() "<< "winsock dll found. status: "<<wsaData.szSystemStatus << std::endl;
 	}
 
 	this->_sock = INVALID_SOCKET;
@@ -29,19 +29,19 @@ int nodemcu_connect::_func_init() {
 	this->_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 #if _WIN32
 	if(this->_sock == INVALID_SOCKET) {
-		std::cout << this->_info_name<<"::_func_init() "<< "ERROR: socket creation failed: "<< WSAGetLastError() << std::endl;
+		std::cout << this->_info_name<<"::init() "<< "ERROR: socket creation failed: "<< WSAGetLastError() << std::endl;
 		WSACleanup();
 		return -1;
 	}
 #else
 	if(this->_sock < 0) {
-		std::cout << this->_info_name<<"::_func_init() "<< "ERROR: socket creation failed." << std::endl;
+		std::cout << this->_info_name<<"::init() "<< "ERROR: socket creation failed." << std::endl;
 		return -1;
 	}
 #endif
 	this->_socket_closed = false;
 
-	std::cout << this->_info_name+"::_func_init() socket successfully created." << std::endl;
+	if(this->_verbose) std::cout << this->_info_name+"::init() socket successfully created." << std::endl;
 	
 	this->_server_sockaddr_in.sin_family 	= AF_INET;
 	this->_server_sockaddr_in.sin_port		= htons(this->_port);
@@ -49,7 +49,7 @@ int nodemcu_connect::_func_init() {
 
 	if(this->ms_timeout > 0) {
 		if(setsockopt(this->_sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&ms_timeout, sizeof(int))!=0) {
-			std::cout << this->_info_name<<"::_func_init() "<< "ERROR: recv timeout setsockopt failed." << std::endl;
+			std::cout << this->_info_name<<"::init() "<< "ERROR: recv timeout setsockopt failed." << std::endl;
 		}
 	}
 	
@@ -58,14 +58,21 @@ int nodemcu_connect::_func_init() {
 	this->_init = true;
 	return 0;
 }
-nodemcu_connect::nodemcu_connect(
-	std::string	_board_IP,
-	int			_board_PORT
-): _ipAddr(_board_IP), _port(_board_PORT) {
-
-	this->_func_init();
+nodemcu_connect::nodemcu_connect(std::string _board_IP, int _board_PORT): _ipAddr(_board_IP), _port(_board_PORT) {
+	this->init();
 }
+nodemcu_connect::nodemcu_connect(bool _initialise) {
+	if(_initialise) this->init();
+}
+nodemcu_connect::nodemcu_connect(bool _initialise, std::string _board_IP, int _board_PORT): _ipAddr(_board_IP), _port(_board_PORT) {
+	if(_initialise) this->init();
+}
+
 nodemcu_connect::~nodemcu_connect() {
+	if(!this->_init) {
+		std::cout << this->_info_name<<"::~nodemcu_connect() NOTE: this class wasn't initialised when its destructor is now called." << std::endl;
+		return;
+	}
 	if(!this->_socket_closed) {
 #if _WIN32
 		closesocket(this->_sock);
@@ -78,8 +85,11 @@ nodemcu_connect::~nodemcu_connect() {
 	std::cout << this->_info_name<<"::~nodemcu_connect() socket closed." << std::endl;
 }
 
-
 int nodemcu_connect::request(bool _printResult) {
+	if(!this->_init) {
+		std::cout << this->_info_name<<"::request(bool) ERROR: class has not been initialised." << std::endl;
+		return -1;
+	}
 	this->bytesSent = sendto(
 		this->_sock,
 		this->requestMsg.c_str(),
@@ -125,7 +135,20 @@ int nodemcu_connect::request(bool _printResult) {
 	}
 	return this->bytesRecv;
 }
+bool nodemcu_connect::isInit() {
+	return this->_init;
+}
 
+
+nodemcu_orient::nodemcu_orient(bool initialise): connectObj(initialise, DEFAULT__IPADDR, DEFAULT__PORT) {}
+nodemcu_orient::nodemcu_orient(float ptrOrient[3], bool initialise): connectObj(initialise, DEFAULT__IPADDR, DEFAULT__PORT) {
+	assert(ptrOrient);
+	orientPtr = ptrOrient;
+}
+nodemcu_orient::nodemcu_orient(float ptrOrient[3], std::string board_address, int board_port, bool initialise): connectObj(initialise, board_address, board_port) {
+	assert(ptrOrient);
+	orientPtr = ptrOrient;
+}
 
 bool nodemcu_orient::parseData(std::string _str) {
 
@@ -148,6 +171,10 @@ bool nodemcu_orient::parseData(std::string _str) {
 	return true;
 }
 void nodemcu_orient::update(bool printResult) {
+	if(!connectObj.isInit()) {
+		std::cout << this->_info_name << "::update(bool) ERROR: connectObj has not been initialised." << std::endl;
+		return;
+	}
     int n = connectObj.request(printResult);
 	std::string temp = std::string(connectObj.buffer);
 	if(connectObj.buffer[0]=='{' && connectObj.buffer[n-1]==';') { //{x:y:z}
