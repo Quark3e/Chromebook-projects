@@ -2,6 +2,14 @@
 #include "../include/global_variables.hpp"
 
 
+#if _WIN32
+std::string __DIR_PROJECT_ROOT  = "/Users/berkh/Projects/Github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/";
+std::string __DIR_PROJECT_GCODE = "/Users/berkh/Projects/Github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/gCode/";
+#else
+std::string __DIR_PROJECT_ROOT  = "/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/remote_GUI/";
+std::string __DIR_PROJECT_GCODE = "/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/gCode/";
+#endif
+
 std::mutex mtx_cout;
 
 ALLEGRO_BITMAP *bitmap_test;

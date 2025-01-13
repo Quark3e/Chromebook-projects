@@ -17,7 +17,9 @@ void tab_0(void) {
     static int history_idx_tab0_schedule = -1; //index for currently displayed/"used" history "node"
 
     if(!tab0_init) {
-        if(!tab0_schedule.loadFile("/home/berkhme/github_repo/Chromebook-projects/projects/proj_Hexclaw_cpp/gCode/ex0.nc")) {
+        std::cout << "loading default gCode file:" << std::endl;
+        tab0_schedule.verbose = true;
+        if(!tab0_schedule.loadFile(__DIR_PROJECT_GCODE+"ex0.nc")) {
             // perror("tab0_schedule failed to load")
         }
         history_tab0_schedule.push_back(tab0_schedule);

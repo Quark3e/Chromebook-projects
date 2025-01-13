@@ -3,8 +3,13 @@
 #define HPP__HEXCLAW_REMOTE_GUI__GLOBAL_VARIABLES
 
 #include "includes.hpp"
-
 #include <diy_dictionary.hpp>
+
+
+extern std::string programCWD; //NOT USED
+extern std::string __DIR_PROJECT_ROOT;
+extern std::string __DIR_PROJECT_GCODE;
+
 
 extern ALLEGRO_BITMAP *bitmap_test;
 extern ALLEGRO_DISPLAY* display;
@@ -337,6 +342,10 @@ inline void* th_allegFunc(ALLEGRO_THREAD* th_alleg, void* arg) {
     }
     bmpClassObj.localRunning = false;
 }
+
+
+
+
 
 // boolean for whether the main program loop is to be running (this set to `false` will close the program)
 extern std::atomic<bool> running;

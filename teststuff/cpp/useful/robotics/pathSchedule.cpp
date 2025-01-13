@@ -123,6 +123,8 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
     bool gcode_additional = true;
     int parsed_words = 1;
 
+    if(this->verbose) std::cout << this->_info_name<< "::_parse_line(std::string) function call:\""<<line<<"\"" << std::endl;
+
     /**
      * @brief parse the required code letters from IK_PATH::GCODE_Syntax.
      * @param _arg0 index to line in IK_PATH::GCODE_Syntax
@@ -132,28 +134,28 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
      */
     static auto lambda_parseAlt = [](int _arg0, int _arg1) {
         std::vector<std::string> splits;
-        if(_arg0>=IK_PATH::GCODE_Syntax.size() || _arg1>=IK_PATH::GCODE_Syntax[_arg0].size()) return splits;
-        std::string toCheck = IK_PATH::GCODE_Syntax[_arg0][_arg1];
+        if(_arg0>=IK_PATH::GCODE_Syntax.size() || _arg1>=IK_PATH::GCODE_Syntax.at(_arg0).size()) return splits;
+        std::string toCheck = IK_PATH::GCODE_Syntax.at(_arg0).at(_arg1);
 
         for(size_t _c=0; _c<toCheck.length(); _c++) {
-            char currChar = toCheck[_c];
+            char currChar = toCheck.at(_c);
             if(currChar=='(') splits.push_back(std::string(""));
             else if(
                 currChar==',' || currChar=='/' || currChar==')'
             ) continue;
-            else splits[splits.size()-1]+=toCheck[_c];
+            else splits.at(splits.size()-1)+=toCheck.at(_c);
         }
         return splits;
     };
-    
-
     static auto lambda_ignoreReturn = [](std::string& line, IK_PATH::GCODE_schedule* ptr) {
         line = "";
         ptr->_lastParsed_args = std::vector<std::string>{""};
         return 1;
     };
+    
+    if(this->verbose) std::cout << this->_info_name<< "::_parse_line(std::string) splitString" << std::endl;
     std::vector<std::string> args = splitString(line, " ");
-    if(args[0].length()==0) { //return an empty container because nothing was parsed
+    if(args.at(0).length()==0) { //return an empty container because nothing was parsed
         return lambda_ignoreReturn(line, this);
         // std::cout << "(1)";
         // line = "";
@@ -172,19 +174,20 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
     // bool tempPrint = true;
     // if(args[0]!="G02") tempPrint = false;
 
+    if(this->verbose) std::cout << this->_info_name<< "::_parse_line(std::string)  while(gcode_additional) loop start." << std::endl;
     int plusIter = 0;
     while(gcode_additional) {
-        int arg0_idx = this->_syntax_idx(args[plusIter], &gcode_additional);
-        size_t idx_syntax_size = IK_PATH::GCODE_Syntax[arg0_idx].size(); //{"G01", "(X,Y,Z)", "(I,J)"}.size()
+        int arg0_idx = this->_syntax_idx(args.at(plusIter), &gcode_additional);
+        size_t idx_syntax_size = IK_PATH::GCODE_Syntax.at(arg0_idx).size(); //{"G01", "(X,Y,Z)", "(I,J)"}.size()
 
         // std::cout << idx_syntax_size << " | ";
 
         if(arg0_idx==-1) {
-            this->_parse_error_msg = "arg["+std::to_string(plusIter)+"]: \""+args[plusIter]+"\" does not exist in IK_PATH::GCODE_Syntax.";
+            this->_parse_error_msg = "arg["+std::to_string(plusIter)+"]: \""+args.at(plusIter)+"\" does not exist in IK_PATH::GCODE_Syntax.";
             return -1;
         }
         if((args.size()-plusIter)<idx_syntax_size) {
-            this->_parse_error_msg = "input string of arguments does not contain minimum number of arguments for gcode code:\""+args[plusIter]+"\".";
+            this->_parse_error_msg = "input string of arguments does not contain minimum number of arguments for gcode code:\""+args.at(plusIter)+"\".";
             return -1;
         }
         // args[0] found
@@ -234,7 +237,7 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
                 _veciii++;
             }
             if(vecCount==0) {
-                this->_parse_error_msg = "arguments to code \""+args[plusIter]+"\" does not contain any of the obligatory args: \""+GCODE_Syntax[arg0_idx][i]+"\".";
+                this->_parse_error_msg = "arguments to code \""+args.at(plusIter)+"\" does not contain any of the obligatory args: \""+GCODE_Syntax[arg0_idx][i]+"\".";
                 return -1;
             }
             else if(vecCount>=2) {
@@ -243,7 +246,7 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
             }
             
             for(int _i_c=0; _i_c<_alt[_i_alt].length(); _i_c++) {
-                if(line.substr(currentArgsLen_0, currentArgsLen).find(_alt[_i_alt][_i_c])!=std::string::npos) {
+                if(line.substr(currentArgsLen_0, currentArgsLen).find(_alt.at(_i_alt).at(_i_c))!=std::string::npos) {
                     parsed_words++;
                     // currentArgsLen_0++;
                 }
@@ -265,7 +268,7 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
     // // filter out comments and whatnot and store that in _lastParsed_args.
     // std::cout <<">> "<< parsed_words << std::endl;
     std::vector<std::string> tempVec;
-    for(int i=0; i<parsed_words; i++) tempVec.push_back(args[i]);
+    for(int i=0; i<parsed_words; i++) tempVec.push_back(args.at(i));
     this->_lastParsed_args = tempVec; 
 
     // std::cout << std::endl;
@@ -296,13 +299,22 @@ bool IK_PATH::GCODE_schedule::loadFile(std::string filename) {
         if(this->verbose) std::cout << "Could not open filename: \""+filename+"\""<<std::endl;
         return false;
     }
+    if(this->verbose) std::cout << this->_info_name<< "::loadFile(std::string) opened file: \""<<filename<<"\"" << std::endl;
 
+    if(this->verbose) std::cout << this->_info_name<< "::loadFile(std::string) parsing file.." <<std::endl;
     std::string line;
-    for(int i=1; getline(readFile, line); i++) {
-        if(this->add(line)==1) {
-            if(this->verbose) std::cout << "failed to read line: "<<i<<std::endl;
-            return false;
+    try {
+        for(int i=1; getline(readFile, line); i++) {
+            if(this->verbose) std::cout << this->_info_name<< "::loadFile(std::string) i:"<<i<<" parsed: \""<<line<<"\""<<std::endl;
+            if(this->add(line)==1) {
+                if(this->verbose) std::cout << "failed to read line: "<<i<<std::endl;
+                return false;
+            }
         }
+    }
+    catch(const std::exception& e) {
+        std::cout<< this->_info_name<<"::loadFile(std::string) ERROR: " << e.what() << std::endl;
+        return false;
     }
     return true;
 }
@@ -328,6 +340,7 @@ int IK_PATH::GCODE_schedule::swap(size_t i0, size_t i1) {
 }
 
 int IK_PATH::GCODE_schedule::add(std::string newCommand) {
+    if(this->verbose) std::cout << this->_info_name<< "::add(std::string) newCommand: \""<<newCommand<<"\""<<std::endl;
     if(this->_parse_line(newCommand)==-1) {
         if(this->verbose) std::cout << "IK_PATH::GCODE_schedule::add(std::string): "+this->_parse_error_msg << std::endl;
         return 1;
