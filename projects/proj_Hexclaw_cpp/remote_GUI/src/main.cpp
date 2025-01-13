@@ -81,6 +81,7 @@ int main(int argc, char** argv) {
     guiSettings.add("findOrient", &guisetting_findOrient);
 
 
+
     // std::cout << "ALLEGRO_VERSION: " << ALLEGRO_VERSION_INT << std::endl;
 
     assert(al_init());

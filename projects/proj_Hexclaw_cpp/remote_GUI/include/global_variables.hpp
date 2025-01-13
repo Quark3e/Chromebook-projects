@@ -1,10 +1,15 @@
-    #pragma once
+#pragma once
 #ifndef HPP__HEXCLAW_REMOTE_GUI__GLOBAL_VARIABLES
 #define HPP__HEXCLAW_REMOTE_GUI__GLOBAL_VARIABLES
 
 #include "includes.hpp"
 #include <diy_dictionary.hpp>
 
+#include <thread>
+#include <mutex>
+#include <atomic>
+
+#include <vector>
 
 extern std::string programCWD; //NOT USED
 extern std::string __DIR_PROJECT_ROOT;
@@ -344,7 +349,17 @@ inline void* th_allegFunc(ALLEGRO_THREAD* th_alleg, void* arg) {
 }
 
 
+class threadClass_telemetry_receiver {
+    private:
+    std::string _info_name = "threadClass_telemetry_receiver";
 
+    /// @brief Main std::thread object running the telemetry receiver
+    std::thread _threadObj;
+    bool _init_called = false;
+
+    public:
+
+};
 
 
 // boolean for whether the main program loop is to be running (this set to `false` will close the program)
