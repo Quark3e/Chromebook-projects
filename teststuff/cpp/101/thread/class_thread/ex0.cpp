@@ -16,33 +16,7 @@ std::atomic<bool>   race_won = false;
 
 std::mutex mtx_cout;
 
-void solve_prime(size_t idx, size_t _search_min, size_t _search_max) {
-    std::unique_lock<std::mutex> u_lck_cout(mtx_cout, std::defer_lock);
-    for(size_t i=_search_min; i<_search_max; i++) {
-        if(race_won.load()) {
-            return;
-        }
-        bool divisor_found = false;
-        for(size_t ii=2; ii<sqrt(i); ii++) {
-            if(i%ii==0) {
-                //divisor found
-                divisor_found = true;
-            }
-        }
-        if(divisor_found) continue;
-        else {
-            //is prime
-            if(i>highest_prime.load()) {
-                highest_prime = i;
-            }
-        }
-    }
-    if(race_won.load()) return;
-    // race_won = true;
-    // u_lck_cout.lock();
-    // std::cout << "thread: "<< idx << " won." <<std::endl;
-    // u_lck_cout.unlock();
-}
+class threadClass;
 
 
 class threadClass {
@@ -51,11 +25,15 @@ class threadClass {
     
     std::thread _threadObj;
     bool _initCalled = false;
+
+    static void solve_prime(size_t idx, size_t _search_min, size_t _search_max);
     public:
     size_t object_idx;
 
     size_t search_min;
     size_t search_max;
+
+    threadClass *thisPtr = nullptr;
 
     threadClass(threadClass&& other) = default;
     threadClass(
@@ -63,7 +41,7 @@ class threadClass {
         size_t numSearch_min,
         size_t numSearch_max,
         bool call_init=true
-    ): object_idx(objIdx), search_min(numSearch_min), search_max(numSearch_max) {
+    ): object_idx(objIdx), search_min(numSearch_min), search_max(numSearch_max), thisPtr(this) {
         if(call_init) {
             int initCode=0;
             if((initCode=this->init())) throw std::runtime_error(_info_name+"threadClass(bool) --> this->init() failed: "+std::to_string(initCode));
@@ -87,6 +65,7 @@ class threadClass {
         _threadObj.join();
     }
 };
+
 
 int main(int argc, char** argv) {
     std::vector<threadClass> participants;
@@ -122,3 +101,33 @@ int main(int argc, char** argv) {
 
     return 0;
 }
+
+
+void threadClass::solve_prime(size_t idx, size_t _search_min, size_t _search_max) {
+    std::unique_lock<std::mutex> u_lck_cout(mtx_cout, std::defer_lock);
+    for(size_t i=_search_min; i<_search_max; i++) {
+        if(race_won.load()) {
+            return;
+        }
+        bool divisor_found = false;
+        for(size_t ii=2; ii<sqrt(i); ii++) {
+            if(i%ii==0) {
+                //divisor found
+                divisor_found = true;
+            }
+        }
+        if(divisor_found) continue;
+        else {
+            //is prime
+            if(i>highest_prime.load()) {
+                highest_prime = i;
+            }
+        }
+    }
+    if(race_won.load()) return;
+    // race_won = true;
+    // u_lck_cout.lock();
+    // std::cout << "thread: "<< idx << " won." <<std::endl;
+    // u_lck_cout.unlock();
+}
+
