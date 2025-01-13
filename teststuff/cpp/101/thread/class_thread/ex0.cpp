@@ -16,8 +16,6 @@ std::atomic<bool>   race_won = false;
 
 std::mutex mtx_cout;
 
-class threadClass;
-
 
 class threadClass {
     private:
