@@ -49,17 +49,32 @@ int mode = 0;
 al_bmp_threadClass bmpObj(640, 480, "GRAY", &running);
 
 
+std::atomic<bool> threadClass_telemetry_receiver::_run_loop = true;
+vec3<float> threadClass_telemetry_receiver::data_accelerometer{0, 0, 0}; // accelerometer values
+vec3<float> threadClass_telemetry_receiver::data_gyroscope{0, 0, 0}; // gyroscope values
+vec3<float> threadClass_telemetry_receiver::data_tilt{0, 0, 0}; // filtered tilt variables: {x: yaw, y: pitch, z: roll}
+vec3<float> threadClass_telemetry_receiver::data_tilt_RAW{0, 0, 0}; // raw tilt variables: {x: yaw, y: pitch, z: roll}
+std::chrono::milliseconds threadClass_telemetry_receiver::loop_delay_milliseconds(10); // minimum millisecond duration per thread function loop iteration.
+nodemcu_orient threadClass_telemetry_receiver::_orientObj(false);
+std::string threadClass_telemetry_receiver::_orientObj_IP   = DEFAULT__IPADDR;
+int         threadClass_telemetry_receiver::_orientObj_PORT = DEFAULT__PORT;
+std::mutex  threadClass_telemetry_receiver::mtx_telemetry_data;
+
 void threadClass_telemetry_receiver::main_loop() {
     std::unique_lock<std::mutex> u_lck_teleData(mtx_telemetry_data, std::defer_lock);
     while(_run_loop.load()) {
         auto start_time = std::chrono::steady_clock::now();
+        try {
+            _orientObj.update(false);
+        } catch(const std::exception& e) {
 
-        _orientObj.update(false);
+        }
+            
         u_lck_teleData.lock();
-        data_accelerometer  = _orientObj.accel;
-        data_gyroscope      = _orientObj.gyro;
-        data_tilt           = vec3<float>{0, _orientObj.pitch, _orientObj.roll};
-        data_tilt_RAW       = vec3<float>{0, _orientObj.Pitch, _orientObj.Roll};
+        data_accelerometer.newData(_orientObj.accel);
+        data_gyroscope.newData(_orientObj.gyro);
+        data_tilt.newData(0, _orientObj.pitch, _orientObj.roll);
+        data_tilt_RAW.newData(0, _orientObj.Pitch, _orientObj.Roll);
         u_lck_teleData.unlock();
 
         auto diffTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()-start_time);
@@ -69,6 +84,8 @@ void threadClass_telemetry_receiver::main_loop() {
     }
 }
 void threadClass_telemetry_receiver::var_init() {
+    _run_loop = true;
+
     data_accelerometer  = vec3<float>{0, 0, 0}; // accelerometer values
     data_gyroscope      = vec3<float>{0, 0, 0}; // gyroscope values
     data_tilt           = vec3<float>{0, 0, 0}; // filtered tilt variables: {x: yaw, y: pitch, z: roll}
@@ -81,7 +98,7 @@ void threadClass_telemetry_receiver::var_init() {
 threadClass_telemetry_receiver::threadClass_telemetry_receiver(std::string _board_IP, int _board_PORT, bool _initialise) {
     _orientObj_IP    = _board_IP;
     _orientObj_PORT  = _board_PORT;
-    this->var_init();
+    // this->var_init();
     if(_initialise) {
         int init_code = 0;
         if((init_code = this->init())) throw std::runtime_error(_info_name+"::threadClass_telemetry_receiver(std::string, int, bool) --> this->init() failed: "+std::to_string(init_code));
@@ -90,7 +107,7 @@ threadClass_telemetry_receiver::threadClass_telemetry_receiver(std::string _boar
 threadClass_telemetry_receiver::threadClass_telemetry_receiver(bool _initialise) {
     _orientObj_IP    = DEFAULT__IPADDR;
     _orientObj_PORT  = DEFAULT__PORT;
-    this->var_init();
+    // this->var_init();
     if(_initialise) {
         int init_code = 0;
         if((init_code = this->init())) throw std::runtime_error(_info_name+"::threadClass_telemetry_receiver(std::string, int, bool) --> this->init() failed: "+std::to_string(init_code));
@@ -121,7 +138,7 @@ int threadClass_telemetry_receiver::init() {
 bool threadClass_telemetry_receiver::isInit() { return this->_init; }
 void threadClass_telemetry_receiver::join() {
     // if(_threadObj.joinable()) {
-    //     _run_loop = false;
+        _run_loop = false;
         _threadObj.join();
     // }
 }

@@ -115,6 +115,18 @@ struct vec3 {
     size_t size() {
         return 3;
     }
+    bool newData(vec3<_store_type> &_ref) {
+        this->x = _ref.x;
+        this->y = _ref.y;
+        this->z = _ref.z;
+        return true;
+    }
+    bool newData(_store_type _x, _store_type _y, _store_type _z) {
+        this->x = _x;
+        this->y = _y;
+        this->z = _z;
+        return true;
+    }
 };
 
 

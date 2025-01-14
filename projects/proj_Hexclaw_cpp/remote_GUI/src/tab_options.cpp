@@ -557,6 +557,7 @@ void tab_1(void) {
     // static bool remote_connect  = false;
     // static bool remote_connect_prev= false;
     // if(remote_connect != remote_connect_prev) {
+    // std::cout << remote_videoFeed << std::endl;
     if(remote_videoFeed.diff()) {
         if(remote_videoFeed._value) { //the switch has been turned on: off->on
             if(!t_bitArr.imgInit.load()) { //check whether this class object has initialised (internally, not semantically)
@@ -591,14 +592,18 @@ void tab_1(void) {
             //        orientObj.gyro._callFunc    = printFunc;
             //     }
             // }
-            if(telemetryObj.isInit()) {
+            if(!telemetryObj.isInit()) {
                 if(telemetryObj.init()) {
+                    std::cout << "telemetryObj failed to initialise." << std::endl;
                     remote_telemetry = false;
                 }
                 else {
+                    std::cout << "telemetryObj successfully initialised." << std::endl;
                     remote_telemetry = true;
                     telemetryObj.data_accelerometer._callFunc   = printFunc;
                     telemetryObj.data_gyroscope._callFunc       = printFunc;
+                    telemetryObj.data_tilt._callFunc            = printFunc;
+                    telemetryObj.data_tilt_RAW._callFunc        = printFunc;
                 }
             }
         }
@@ -612,6 +617,8 @@ void tab_1(void) {
             new (&telemetryObj) threadClass_telemetry_receiver(remote_telemetry__IPADDR, remote_telemetry__PORT, false);
             telemetryObj.data_accelerometer._callFunc   = printFunc;
             telemetryObj.data_gyroscope._callFunc       = printFunc;
+            telemetryObj.data_tilt._callFunc            = printFunc;
+            telemetryObj.data_tilt_RAW._callFunc        = printFunc;
             std::cout << "telemetry has been turned off. threadClass_telemetry_receiver telemetryObj has been re-created." << std::endl;
         }
         remote_telemetry.updatePrev();
@@ -687,7 +694,8 @@ void tab_1(void) {
         if(telemetryObj.isInit()) {
             u_lck_remote_telemetry__telemData.lock();
             ImGui::Text(("Accel:"+std::string(telemetryObj.data_accelerometer)).c_str());
-            ImGui::Text(("Gyro :"+std::string(telemetryObj.data_gyroscope)).c_str());
+            ImGui::Text(("Accel:"+std::string(telemetryObj.data_accelerometer)).c_str());
+            ImGui::Text(("Tilt :"+std::string(telemetryObj.data_tilt)).c_str());
             u_lck_remote_telemetry__telemData.unlock();
         }
         ImGui::EndChild();
