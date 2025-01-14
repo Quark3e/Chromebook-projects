@@ -54,7 +54,7 @@ vec3<float> threadClass_telemetry_receiver::data_accelerometer{0, 0, 0}; // acce
 vec3<float> threadClass_telemetry_receiver::data_gyroscope{0, 0, 0}; // gyroscope values
 vec3<float> threadClass_telemetry_receiver::data_tilt{0, 0, 0}; // filtered tilt variables: {x: yaw, y: pitch, z: roll}
 vec3<float> threadClass_telemetry_receiver::data_tilt_RAW{0, 0, 0}; // raw tilt variables: {x: yaw, y: pitch, z: roll}
-std::chrono::milliseconds threadClass_telemetry_receiver::loop_delay_milliseconds(10); // minimum millisecond duration per thread function loop iteration.
+std::chrono::milliseconds threadClass_telemetry_receiver::loop_delay_milliseconds(20); // minimum millisecond duration per thread function loop iteration.
 nodemcu_orient threadClass_telemetry_receiver::_orientObj(false);
 std::string threadClass_telemetry_receiver::_orientObj_IP   = DEFAULT__IPADDR;
 int         threadClass_telemetry_receiver::_orientObj_PORT = DEFAULT__PORT;

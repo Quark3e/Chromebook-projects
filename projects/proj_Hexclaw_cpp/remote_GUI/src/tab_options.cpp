@@ -694,7 +694,7 @@ void tab_1(void) {
         if(telemetryObj.isInit()) {
             u_lck_remote_telemetry__telemData.lock();
             ImGui::Text(("Accel:"+std::string(telemetryObj.data_accelerometer)).c_str());
-            ImGui::Text(("Accel:"+std::string(telemetryObj.data_accelerometer)).c_str());
+            ImGui::Text(("Gyro :"+std::string(telemetryObj.data_gyroscope)).c_str());
             ImGui::Text(("Tilt :"+std::string(telemetryObj.data_tilt)).c_str());
             u_lck_remote_telemetry__telemData.unlock();
         }
