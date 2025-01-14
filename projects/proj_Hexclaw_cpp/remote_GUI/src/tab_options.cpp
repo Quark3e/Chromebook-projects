@@ -18,12 +18,13 @@ void tab_0(void) {
 
     if(!tab0_init) {
         std::cout << "loading default gCode file:" << std::endl;
-        tab0_schedule.verbose = true;
+        tab0_schedule.verbose = false;
         if(!tab0_schedule.loadFile(__DIR_PROJECT_GCODE+"ex0.nc")) {
             // perror("tab0_schedule failed to load")
         }
         history_tab0_schedule.push_back(tab0_schedule);
         history_idx_tab0_schedule++;
+        // std::cout << "\n---------- ---------- ----------" << std::endl;
     }
 
     static PERF::perf_isolated perf_tab0;

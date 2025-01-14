@@ -47,26 +47,23 @@ int main(int argc, char** argv) {
         }
     }
 
-    std::string path = getFileCWD(true);
-    std::cout<<path<<std::endl;
-    mtx_print("T0:"+path);
-    DIR* dir;
-    struct dirent *ent;
-    if((dir=opendir(path.c_str()))!=NULL) {
-        while((ent=readdir(dir))!=NULL) {
-            // std::cout<<ent->d_type<<": ";
-            mtx_print("T0:"+std::string(ent->d_name));
-            
-        }
-        closedir(dir);
-    }
-    else {
-        perror("could not open directory");
-        return EXIT_FAILURE;
-    }
-    mtx_print("");
-
-    
+    // std::string path = getFileCWD(true);
+    // std::cout<<path<<std::endl;
+    // mtx_print("T0:"+path);
+    // DIR* dir;
+    // struct dirent *ent;
+    // if((dir=opendir(path.c_str()))!=NULL) {
+    //     while((ent=readdir(dir))!=NULL) {
+    //         // std::cout<<ent->d_type<<": ";
+    //         mtx_print("T0:"+std::string(ent->d_name));
+    //     }
+    //     closedir(dir);
+    // }
+    // else {
+    //     perror("could not open directory");
+    //     return EXIT_FAILURE;
+    // }
+    // mtx_print("");
     // for(const auto& entry: std::filesystem)
 
     guiSettings_desc.add("Link to server", std::string("whether to attempt to connect to Hexclaw Server at intervals"));
