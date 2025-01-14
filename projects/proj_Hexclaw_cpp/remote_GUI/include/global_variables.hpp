@@ -11,6 +11,8 @@
 
 #include <vector>
 
+#include <wirelessCOM.hpp>
+
 extern std::string programCWD; //NOT USED
 extern std::string __DIR_PROJECT_ROOT;
 extern std::string __DIR_PROJECT_GCODE;
@@ -348,6 +350,9 @@ inline void* th_allegFunc(ALLEGRO_THREAD* th_alleg, void* arg) {
     bmpClassObj.localRunning = false;
 }
 
+class threadClass_telemetry_receiver;
+
+void threadClass_telemetry_receiver_main_loop(threadClass_telemetry_receiver *telemPtr);
 
 class threadClass_telemetry_receiver {
     private:
@@ -358,24 +363,24 @@ class threadClass_telemetry_receiver {
     
     bool _init = false;
     
-    static std::atomic<bool> _run_loop;
+    std::atomic<bool> _run_loop{true};
     
-    static void main_loop();
-    static void var_init();
+    nodemcu_orient _orientObj;
     
-    static nodemcu_orient _orientObj;
-    
-    static std::string _orientObj_IP;
-    static int         _orientObj_PORT;
+    std::string _orientObj_IP   = DEFAULT__IPADDR;
+    int         _orientObj_PORT = DEFAULT__PORT;
+
+    // void var_init();
+
     public:
-    static vec3<float> data_accelerometer;  // accelerometer values
-    static vec3<float> data_gyroscope;      // gyroscope values
-    static vec3<float> data_tilt;           // filtered tilt variables: {x: yaw, y: pitch, z: roll}
-    static vec3<float> data_tilt_RAW;       // raw tilt variables: {x: yaw, y: pitch, z: roll}
+    vec3<float> data_accelerometer{0, 0, 0};  // accelerometer values
+    vec3<float> data_gyroscope{0, 0, 0};      // gyroscope values
+    vec3<float> data_tilt{0, 0, 0};           // filtered tilt variables: {x: yaw, y: pitch, z: roll}
+    vec3<float> data_tilt_RAW{0, 0, 0};       // raw tilt variables: {x: yaw, y: pitch, z: roll}
 
-    static std::chrono::milliseconds loop_delay_milliseconds;   // minimum millisecond duration per thread function loop iteration.
+    std::chrono::milliseconds loop_delay_milliseconds{30};   // minimum millisecond duration per thread function loop iteration.
 
-    static std::mutex mtx_telemetry_data;   // Main std::mutex for accessing the public `data_` variables
+    std::mutex mtx_telemetry_data;   // Main std::mutex for accessing the public `data_` variables
 
     threadClass_telemetry_receiver(threadClass_telemetry_receiver&& other) = default;
     threadClass_telemetry_receiver(std::string _board_IP=DEFAULT__IPADDR, int _board_PORT=DEFAULT__PORT, bool _initialise=true);
@@ -385,6 +390,9 @@ class threadClass_telemetry_receiver {
     int init();
     bool isInit();
     void join();
+    
+    friend void threadClass_telemetry_receiver_main_loop(threadClass_telemetry_receiver *telemPtr);
+
 };
 
 

@@ -31,6 +31,7 @@ if (MSVC)
 else()
     # additional warnings
     # add_compile_options(-Wall -Wextra -Wpedantic)
+    # add_compile_options(-FS)
 endif()
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/hexclaw_networkDataThread)
