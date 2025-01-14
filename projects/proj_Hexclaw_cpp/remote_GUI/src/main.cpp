@@ -92,7 +92,7 @@ int main(int argc, char** argv) {
     al_set_new_display_flags(!ALLEGRO_RESIZABLE | ALLEGRO_OPENGL_FORWARD_COMPATIBLE | ALLEGRO_OPENGL);
     display = al_create_display(WIN_WIDTH, WIN_HEIGHT);
     al_set_window_title(display, "Hexclaw remoteGUI");
-    al_set_window_position(display, 50, 50);
+    // al_set_window_position(display, 50, 50);
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_keyboard_event_source());
