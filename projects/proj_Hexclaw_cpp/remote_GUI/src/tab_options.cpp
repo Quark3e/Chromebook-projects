@@ -554,10 +554,7 @@ void tab_1(void) {
     static std::string  remote_telemetry__IPADDR = DEFAULT__IPADDR;
     static int          remote_telemetry__PORT   = DEFAULT__PORT;
     static std::unique_lock<std::mutex> u_lck_remote_telemetry__telemData(telemetryObj.mtx_telemetry_data, std::defer_lock);
-    // static bool remote_connect  = false;
-    // static bool remote_connect_prev= false;
-    // if(remote_connect != remote_connect_prev) {
-    // std::cout << remote_videoFeed << std::endl;
+
     if(remote_videoFeed.diff()) {
         if(remote_videoFeed._value) { //the switch has been turned on: off->on
             if(!t_bitArr.imgInit.load()) { //check whether this class object has initialised (internally, not semantically)
@@ -581,17 +578,6 @@ void tab_1(void) {
     }
     if(remote_telemetry.diff()) {
         if(remote_telemetry._value) {
-            // if(!orientObj.connectObj.isInit()) {
-            //     if(orientObj.connectObj.init()) {
-            //         std::cerr << "nodemcu_orient::nodemcu_connect::init() failed." << std::endl;
-            //         remote_telemetry = false;
-            //     }
-            //     else {
-            //         remote_telemetry = true;
-            //         orientObj.accel._callFunc   = printFunc;
-            //        orientObj.gyro._callFunc    = printFunc;
-            //     }
-            // }
             if(!telemetryObj.isInit()) {
                 if(telemetryObj.init()) {
                     mtx_print("telemetryObj failed to initialise.");
@@ -610,10 +596,6 @@ void tab_1(void) {
             }
         }
         else {
-            // (&orientObj)->~nodemcu_orient();
-            // new (&orientObj) nodemcu_orient("192.168.1.117", 1089, false);
-            // orientObj.accel._callFunc   = printFunc;
-            // orientObj.gyro._callFunc    = printFunc;
             // std::cout << "telemetry has been turned off. nodemcu_connect orientObj has been re-created." << std::endl;
             (&telemetryObj)->~threadClass_telemetry_receiver();
             new (&telemetryObj) threadClass_telemetry_receiver(remote_telemetry__IPADDR, remote_telemetry__PORT, false);
@@ -643,16 +625,6 @@ void tab_1(void) {
         u_lck_ndt.unlock();
     }
     
-    // if(telemetryObj.isInit()) {
-    //     try {
-    //         orientObj.update(false);
-    //     }
-    //     catch(const std::exception& e)
-    //     {
-    //         std::cerr << e.what() << '\n';
-    //     }
-    // }
-    // std::cout << std::endl;
 #if _BM_DEFINE
     Delays_table(perf_loadBitmap_func,"Delays table","Tab1 delays","Delays table");
 #endif
