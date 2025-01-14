@@ -594,11 +594,13 @@ void tab_1(void) {
             // }
             if(!telemetryObj.isInit()) {
                 if(telemetryObj.init()) {
-                    std::cout << "telemetryObj failed to initialise." << std::endl;
+                    mtx_print("telemetryObj failed to initialise.");
+                    // std::cout << "telemetryObj failed to initialise." << std::endl;
                     remote_telemetry = false;
                 }
                 else {
-                    std::cout << "telemetryObj successfully initialised." << std::endl;
+                    mtx_print("telemetryObj successfully initialised.");
+                    // std::cout << "telemetryObj successfully initialised." << std::endl;
                     remote_telemetry = true;
                     telemetryObj.data_accelerometer._callFunc   = printFunc;
                     telemetryObj.data_gyroscope._callFunc       = printFunc;
@@ -619,7 +621,8 @@ void tab_1(void) {
             telemetryObj.data_gyroscope._callFunc       = printFunc;
             telemetryObj.data_tilt._callFunc            = printFunc;
             telemetryObj.data_tilt_RAW._callFunc        = printFunc;
-            std::cout << "telemetry has been turned off. threadClass_telemetry_receiver telemetryObj has been re-created." << std::endl;
+            mtx_print("telemetry has been turned off. threadClass_telemetry_receiver telemetryObj has been re-created.");
+            // std::cout << "telemetry has been turned off. threadClass_telemetry_receiver telemetryObj has been re-created." << std::endl;
         }
         remote_telemetry.updatePrev();
     }
