@@ -49,12 +49,74 @@ int mode = 0;
 al_bmp_threadClass bmpObj(640, 480, "GRAY", &running);
 
 
+void threadClass_telemetry_receiver::main_loop() {
+    std::unique_ptr<std::mutex> u_lck_teleData;
+    while(_run_loop.load()) {
+        auto start_time = std::chrono::steady_clock::now();
+
+
+        auto diffTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()-start_time);
+        if(diffTime<loop_delay_milliseconds) {
+            std::this_thread::sleep_for(loop_delay_milliseconds-diffTime);
+        }
+    }
+}
+void threadClass_telemetry_receiver::var_init() {
+    data_accelerometer  = vec3<float>{0, 0, 0}; // accelerometer values
+    data_gyroscope      = vec3<float>{0, 0, 0}; // gyroscope values
+    data_tilt           = vec3<float>{0, 0, -1};// filtered tilt variables: {x: yaw, y: pitch, z: roll}
+    data_tilt_RAW       = vec3<float>{0, 0, -1};// raw tilt variables: {x: yaw, y: pitch, z: roll}
+
+    loop_delay_milliseconds = std::chrono::milliseconds(10);    // minimum millisecond duration per thread function loop iteration.
+}
+threadClass_telemetry_receiver::threadClass_telemetry_receiver(std::string _board_IP, int _board_PORT, bool _initialise)
+: orientObj(_board_IP, _board_PORT, false) {
+    this->var_init();
+    if(_initialise) {
+        int init_code = 0;
+        if((init_code = this->init())) throw std::runtime_error(_info_name+"::threadClass_telemetry_receiver(std::string, int, bool) --> this->init() failed: "+std::to_string(init_code));
+    }
+}
+threadClass_telemetry_receiver::threadClass_telemetry_receiver(bool _initialise)
+: orientObj(false) {
+    this->var_init();
+    if(_initialise) {
+        int init_code = 0;
+        if((init_code = this->init())) throw std::runtime_error(_info_name+"::threadClass_telemetry_receiver(std::string, int, bool) --> this->init() failed: "+std::to_string(init_code));
+    }
+}
+threadClass_telemetry_receiver::~threadClass_telemetry_receiver() {
+    if(_threadObj.joinable()) {
+        _run_loop = false;
+        _threadObj.join();
+    }
+}
+int threadClass_telemetry_receiver::init() {
+    if(this->_init) {
+        throw std::runtime_error(this->_info_name+"::init() has already been called.");
+        // std::cout << this->_info_name+"::init() has already been called." << std::endl;
+        // return 0;
+    }
+    _threadObj = std::thread(this->main_loop);
+    this->_init = true;
+    return 0;
+}
+bool threadClass_telemetry_receiver::isInit() { return this->_init; }
+void threadClass_telemetry_receiver::join() {
+    // if(_threadObj.joinable()) {
+    //     _run_loop = false;
+        _threadObj.join();
+    // }
+}
+
+threadClass_telemetry_receiver telemetryObject(false);
+
 std::atomic<bool> running{true};
 
 std::mutex print_mtx;
 NETWORK_DATA_THREADCLASS t_bitArr(false, "192.168.1.177", 1086);
 
-nodemcu_orient orientObj("192.168.1.117", 1089, false);
+// nodemcu_orient orientObj("192.168.1.117", 1089, false);
 
 
 float input_IK_pos[3]    = {0, 200, 150};

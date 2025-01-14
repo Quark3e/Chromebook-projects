@@ -355,10 +355,32 @@ class threadClass_telemetry_receiver {
 
     /// @brief Main std::thread object running the telemetry receiver
     std::thread _threadObj;
-    bool _init_called = false;
-
+    
+    bool _init = false;
+    
+    static std::atomic<bool> _run_loop;
+    
+    static void main_loop();
+    static void var_init();
+    nodemcu_orient orientObj;
     public:
+    static vec3<float> data_accelerometer;  // accelerometer values
+    static vec3<float> data_gyroscope;      // gyroscope values
+    static vec3<float> data_tilt;           // filtered tilt variables: {x: yaw, y: pitch, z: roll}
+    static vec3<float> data_tilt_RAW;       // raw tilt variables: {x: yaw, y: pitch, z: roll}
 
+    static std::chrono::milliseconds loop_delay_milliseconds;   // minimum millisecond duration per thread function loop iteration.
+
+    std::mutex mtx_telemetry_data;          // Main std::mutex for accessing the public `data_` variables
+
+    threadClass_telemetry_receiver(threadClass_telemetry_receiver&& other) = default;
+    threadClass_telemetry_receiver(std::string _board_IP=DEFAULT__IPADDR, int _board_PORT=DEFAULT__PORT, bool _initialise=true);
+    threadClass_telemetry_receiver(bool _initialise);
+    ~threadClass_telemetry_receiver();
+
+    int init();
+    bool isInit();
+    void join();
 };
 
 
@@ -367,7 +389,7 @@ extern std::atomic<bool> running;
 
 extern NETWORK_DATA_THREADCLASS t_bitArr;
 
-extern nodemcu_orient orientObj;
+// extern nodemcu_orient orientObj;
 
 extern float input_IK_pos[3];
 extern float input_IK_orient[3];
