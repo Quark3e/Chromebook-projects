@@ -50,10 +50,17 @@ al_bmp_threadClass bmpObj(640, 480, "GRAY", &running);
 
 
 void threadClass_telemetry_receiver::main_loop() {
-    std::unique_ptr<std::mutex> u_lck_teleData;
+    std::unique_lock<std::mutex> u_lck_teleData(mtx_telemetry_data, std::defer_lock);
     while(_run_loop.load()) {
         auto start_time = std::chrono::steady_clock::now();
 
+        _orientObj.update(false);
+        u_lck_teleData.lock();
+        data_accelerometer  = _orientObj.accel;
+        data_gyroscope      = _orientObj.gyro;
+        data_tilt           = vec3<float>{0, _orientObj.pitch, _orientObj.roll};
+        data_tilt_RAW       = vec3<float>{0, _orientObj.Pitch, _orientObj.Roll};
+        u_lck_teleData.unlock();
 
         auto diffTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()-start_time);
         if(diffTime<loop_delay_milliseconds) {
@@ -64,21 +71,25 @@ void threadClass_telemetry_receiver::main_loop() {
 void threadClass_telemetry_receiver::var_init() {
     data_accelerometer  = vec3<float>{0, 0, 0}; // accelerometer values
     data_gyroscope      = vec3<float>{0, 0, 0}; // gyroscope values
-    data_tilt           = vec3<float>{0, 0, -1};// filtered tilt variables: {x: yaw, y: pitch, z: roll}
-    data_tilt_RAW       = vec3<float>{0, 0, -1};// raw tilt variables: {x: yaw, y: pitch, z: roll}
+    data_tilt           = vec3<float>{0, 0, 0}; // filtered tilt variables: {x: yaw, y: pitch, z: roll}
+    data_tilt_RAW       = vec3<float>{0, 0, 0}; // raw tilt variables: {x: yaw, y: pitch, z: roll}
 
     loop_delay_milliseconds = std::chrono::milliseconds(10);    // minimum millisecond duration per thread function loop iteration.
+
+    _orientObj = nodemcu_orient(_orientObj_IP, _orientObj_PORT, false);
 }
-threadClass_telemetry_receiver::threadClass_telemetry_receiver(std::string _board_IP, int _board_PORT, bool _initialise)
-: orientObj(_board_IP, _board_PORT, false) {
+threadClass_telemetry_receiver::threadClass_telemetry_receiver(std::string _board_IP, int _board_PORT, bool _initialise) {
+    _orientObj_IP    = _board_IP;
+    _orientObj_PORT  = _board_PORT;
     this->var_init();
     if(_initialise) {
         int init_code = 0;
         if((init_code = this->init())) throw std::runtime_error(_info_name+"::threadClass_telemetry_receiver(std::string, int, bool) --> this->init() failed: "+std::to_string(init_code));
     }
 }
-threadClass_telemetry_receiver::threadClass_telemetry_receiver(bool _initialise)
-: orientObj(false) {
+threadClass_telemetry_receiver::threadClass_telemetry_receiver(bool _initialise) {
+    _orientObj_IP    = DEFAULT__IPADDR;
+    _orientObj_PORT  = DEFAULT__PORT;
     this->var_init();
     if(_initialise) {
         int init_code = 0;
@@ -97,6 +108,12 @@ int threadClass_telemetry_receiver::init() {
         // std::cout << this->_info_name+"::init() has already been called." << std::endl;
         // return 0;
     }
+    int _orientObj_initCode = 0;
+    if((_orientObj_initCode = _orientObj.connectObj.init())) {
+        std::cout << this->_info_name+"::init() --> _orientObj.connectObj.init() failed." << std::endl;
+        return -1;
+    }
+    assert(_orientObj.connectObj.isInit() && "somehow _orientObj.connectObj.isInit() is false even after successfull init call.");
     _threadObj = std::thread(this->main_loop);
     this->_init = true;
     return 0;
@@ -117,6 +134,7 @@ std::mutex print_mtx;
 NETWORK_DATA_THREADCLASS t_bitArr(false, "192.168.1.177", 1086);
 
 // nodemcu_orient orientObj("192.168.1.117", 1089, false);
+threadClass_telemetry_receiver telemetryObj(false);
 
 
 float input_IK_pos[3]    = {0, 200, 150};

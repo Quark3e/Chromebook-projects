@@ -362,7 +362,11 @@ class threadClass_telemetry_receiver {
     
     static void main_loop();
     static void var_init();
-    nodemcu_orient orientObj;
+    
+    static nodemcu_orient _orientObj;
+    
+    static std::string _orientObj_IP;
+    static int         _orientObj_PORT;
     public:
     static vec3<float> data_accelerometer;  // accelerometer values
     static vec3<float> data_gyroscope;      // gyroscope values
@@ -371,7 +375,7 @@ class threadClass_telemetry_receiver {
 
     static std::chrono::milliseconds loop_delay_milliseconds;   // minimum millisecond duration per thread function loop iteration.
 
-    std::mutex mtx_telemetry_data;          // Main std::mutex for accessing the public `data_` variables
+    static std::mutex mtx_telemetry_data;   // Main std::mutex for accessing the public `data_` variables
 
     threadClass_telemetry_receiver(threadClass_telemetry_receiver&& other) = default;
     threadClass_telemetry_receiver(std::string _board_IP=DEFAULT__IPADDR, int _board_PORT=DEFAULT__PORT, bool _initialise=true);
@@ -390,6 +394,7 @@ extern std::atomic<bool> running;
 extern NETWORK_DATA_THREADCLASS t_bitArr;
 
 // extern nodemcu_orient orientObj;
+extern threadClass_telemetry_receiver telemetryObj;
 
 extern float input_IK_pos[3];
 extern float input_IK_orient[3];

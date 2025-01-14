@@ -547,6 +547,13 @@ void tab_1(void) {
 
     static status_check<bool> remote_videoFeed(false, false, true, false);
     static status_check<bool> remote_telemetry(false, false, true, false);
+
+    static std::string  remote_videoFeed__IPADDR = "192.168.1.177";
+    static int          remote_videoFeed__PORT   = DEFAULT_PORT;
+
+    static std::string  remote_telemetry__IPADDR = DEFAULT__IPADDR;
+    static int          remote_telemetry__PORT   = DEFAULT__PORT;
+    static std::unique_lock<std::mutex> u_lck_remote_telemetry__telemData(telemetryObj.mtx_telemetry_data, std::defer_lock);
     // static bool remote_connect  = false;
     // static bool remote_connect_prev= false;
     // if(remote_connect != remote_connect_prev) {
@@ -565,7 +572,7 @@ void tab_1(void) {
         }
         else { //switch has been turned off: on->off
             (&t_bitArr)->~NETWORK_DATA_THREADCLASS();
-            new (&t_bitArr) NETWORK_DATA_THREADCLASS(false, "192.168.1.177", 1086);
+            new (&t_bitArr) NETWORK_DATA_THREADCLASS(false, remote_videoFeed__IPADDR, remote_videoFeed__PORT);
             std::cout << "cam has been turned off. Ntd object has been re-created" << std::endl;
         }
         // remote_connect_prev = remote_connect;
@@ -573,24 +580,39 @@ void tab_1(void) {
     }
     if(remote_telemetry.diff()) {
         if(remote_telemetry._value) {
-            if(!orientObj.connectObj.isInit()) {
-                if(orientObj.connectObj.init()) {
-                    std::cerr << "nodemcu_orient::nodemcu_connect::init() failed." << std::endl;
+            // if(!orientObj.connectObj.isInit()) {
+            //     if(orientObj.connectObj.init()) {
+            //         std::cerr << "nodemcu_orient::nodemcu_connect::init() failed." << std::endl;
+            //         remote_telemetry = false;
+            //     }
+            //     else {
+            //         remote_telemetry = true;
+            //         orientObj.accel._callFunc   = printFunc;
+            //        orientObj.gyro._callFunc    = printFunc;
+            //     }
+            // }
+            if(telemetryObj.isInit()) {
+                if(telemetryObj.init()) {
                     remote_telemetry = false;
                 }
                 else {
                     remote_telemetry = true;
-                    orientObj.accel._callFunc   = printFunc;
-                   orientObj.gyro._callFunc    = printFunc;
+                    telemetryObj.data_accelerometer._callFunc   = printFunc;
+                    telemetryObj.data_gyroscope._callFunc       = printFunc;
                 }
             }
         }
         else {
-            (&orientObj)->~nodemcu_orient();
-            new (&orientObj) nodemcu_orient("192.168.1.117", 1089, false);
-            orientObj.accel._callFunc   = printFunc;
-            orientObj.gyro._callFunc    = printFunc;
-            std::cout << "telemetry has been turned off. nodemcu_connect orientObj has been re-created." << std::endl;
+            // (&orientObj)->~nodemcu_orient();
+            // new (&orientObj) nodemcu_orient("192.168.1.117", 1089, false);
+            // orientObj.accel._callFunc   = printFunc;
+            // orientObj.gyro._callFunc    = printFunc;
+            // std::cout << "telemetry has been turned off. nodemcu_connect orientObj has been re-created." << std::endl;
+            (&telemetryObj)->~threadClass_telemetry_receiver();
+            new (&telemetryObj) threadClass_telemetry_receiver(remote_telemetry__IPADDR, remote_telemetry__PORT, false);
+            telemetryObj.data_accelerometer._callFunc   = printFunc;
+            telemetryObj.data_gyroscope._callFunc       = printFunc;
+            std::cout << "telemetry has been turned off. threadClass_telemetry_receiver telemetryObj has been re-created." << std::endl;
         }
         remote_telemetry.updatePrev();
     }
@@ -611,16 +633,15 @@ void tab_1(void) {
         u_lck_ndt.unlock();
     }
     
-    if(orientObj.connectObj.isInit()) {
-        try {
-            orientObj.update(false);
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-        }
-        
-    }
+    // if(telemetryObj.isInit()) {
+    //     try {
+    //         orientObj.update(false);
+    //     }
+    //     catch(const std::exception& e)
+    //     {
+    //         std::cerr << e.what() << '\n';
+    //     }
+    // }
     // std::cout << std::endl;
 #if _BM_DEFINE
     Delays_table(perf_loadBitmap_func,"Delays table","Tab1 delays","Delays table");
@@ -643,17 +664,17 @@ void tab_1(void) {
         ImGui::TableSetColumnIndex(0);
         ImGui::PushID("videoFeed_status");  ToggleButton("", &remote_videoFeed._value, &status_check__forwarder, &remote_videoFeed);ImGui::PopID();
         ImGui::TableSetColumnIndex(1);
-        ImGui::PushID("videoFeed_ip");      ImGui::InputText("", &t_bitArr._local_IPADDRESS);                                       ImGui::PopID();
+        ImGui::PushID("videoFeed_ip");      ImGui::InputText("", &remote_videoFeed__IPADDR);                                        ImGui::PopID();
         ImGui::TableSetColumnIndex(2);
-        ImGui::PushID("videoFeed_port");    ImGui::InputInt("", &t_bitArr._local_PORT);                                             ImGui::PopID();
+        ImGui::PushID("videoFeed_port");    ImGui::InputInt("", &remote_videoFeed__PORT);                                           ImGui::PopID();
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
         ImGui::PushID("telemetry_status");  ToggleButton("", &remote_telemetry._value, &status_check__forwarder, &remote_telemetry);ImGui::PopID();
         ImGui::TableSetColumnIndex(1);
-        ImGui::PushID("telemetry_ip");      ImGui::InputText("", &orientObj.connectObj._ipAddr);                                    ImGui::PopID();
+        ImGui::PushID("telemetry_ip");      ImGui::InputText("", &remote_telemetry__IPADDR);                                        ImGui::PopID();
         ImGui::TableSetColumnIndex(2);
-        ImGui::PushID("telemetry_port");    ImGui::InputInt("", &orientObj.connectObj._port);                                       ImGui::PopID();
+        ImGui::PushID("telemetry_port");    ImGui::InputInt("", &remote_telemetry__PORT);                                           ImGui::PopID();
 
         ImGui::EndTable();
 
@@ -663,9 +684,11 @@ void tab_1(void) {
         ImGui::SeparatorText("Data");
 
         ImGui::Image((ImTextureID)(intptr_t)bmpObj.BMP(), ImVec2(imgSize[0]*0.5, imgSize[1]*0.5));
-        if(orientObj.connectObj.isInit()) {
-            ImGui::Text(("Accel:"+std::string(orientObj.accel)).c_str());
-            ImGui::Text(("Gyro :"+std::string(orientObj.gyro)).c_str());
+        if(telemetryObj.isInit()) {
+            u_lck_remote_telemetry__telemData.lock();
+            ImGui::Text(("Accel:"+std::string(telemetryObj.data_accelerometer)).c_str());
+            ImGui::Text(("Gyro :"+std::string(telemetryObj.data_gyroscope)).c_str());
+            u_lck_remote_telemetry__telemData.unlock();
         }
         ImGui::EndChild();
     }
