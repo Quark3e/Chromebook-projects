@@ -182,7 +182,7 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
         if(_debug_verbose) std::cout<<"0 "; std::cout.flush();
         int arg0_idx = this->_syntax_idx(args.at(plusIter), &gcode_additional);
         if(arg0_idx<0) {
-            if(this->verbose) std::cout << "ERROR: "<<this->_info_name<<"::_parse_line(std::string) argument \""<<args.at(plusIter)<<"\" was not found as valid gCODE according to _syntax_idx()"<<std::endl;
+            std::cout << "ERROR: "<<this->_info_name<<"::_parse_line(std::string) argument \""<<args.at(plusIter)<<"\" was not found as valid gCODE according to _syntax_idx()"<<std::endl;
             return 1;
         }
         if(_debug_verbose) std::cout<<"1:"<<arg0_idx << " "; std::cout.flush();
