@@ -121,7 +121,7 @@ namespace IK_PATH {
         {"G19+"}, // G_plane: YZ
         {"G20+"}, // G_unit:  Imperial[inch]
         {"G21+"}, // G_unit:  Metric[mm]
-        // {"G28", "(X,Y,Z)"},
+        {"G28", "(X,Y,Z)"},
         {"G90+"}, // G_positioning: absolute (coord)
         {"G91+"}, // G_positioning: relative (coord)
         {"A0+"},  // A_positioning: absolute (orient)
@@ -174,6 +174,7 @@ namespace IK_PATH {
 
         public:
         bool verbose = true;
+        bool verbose_debug = false;
         
         size_t size() { return this->_commands_raw.size(); }
         std::string get_errorMsg_parse() { return _parse_error_msg; }

@@ -91,12 +91,20 @@ bool IK_PATH::GCODE_schedule::_parse_line(std::string line, bool throwError) {
 
 int IK_PATH::GCODE_schedule::_syntax_idx(std::string arg, bool* gcode_additional) {
     int idx = 0;
+    int idx_firstFound = -1;
     (*gcode_additional) = false;
     for(std::vector<std::string> _codeLine: GCODE_Syntax) {
-        if(_codeLine[0][_codeLine[0].length()-1]=='+') { //if last char is '+'
-            if(arg==_codeLine[0].substr(0, _codeLine[0].length()-1)) { //if substring of arg without '+' char exists in syntax
+        if(_codeLine[0][_codeLine.at(0).size()-1]=='+') { //if last char is '+'
+            if(this->verbose_debug) std::cout << " ['+' found: compr:\""<<arg<<"\" w. \""<<_codeLine.at(0).substr(0, _codeLine.at(0).size()-1)<<"] "; std::cout.flush();
+
+            if(arg==_codeLine.at(0).substr(0, _codeLine.at(0).size()-1)) { //if substring of arg without '+' char exists in syntax
+                if(this->verbose_debug) std::cout << "-->substr w.out. +| "; std::cout.flush();
                 (*gcode_additional) = true;
                 return idx;
+            }
+            else {
+                if(this->verbose_debug) std::cout << "-->substr w.out. + NOT| "; std::cout.flush();
+                // idx = 0;
             }
         }
         else if(arg[0]==_codeLine[0][0] && (arg[0]!='G' && arg[0]!='M')) { //single char matching: find special cases where arg[0] matches first char of special cases (like F{INT})
@@ -114,12 +122,15 @@ int IK_PATH::GCODE_schedule::_syntax_idx(std::string arg, bool* gcode_additional
         }
         idx++;
     }
+    if(idx_firstFound!=-1) {
+        std::cout << "\t {"<<arg<<","<<idx_firstFound<<"}"<<std::endl;
+        return idx_firstFound;
+    }
     // std::cout << "|_syntax_idx()->-1|"<<std::endl;
     return -1;
 }
 
 int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
-    static bool _debug_verbose = false;
 
     this->_lastArgs_unparsed = line;
     bool gcode_additional = true;
@@ -179,17 +190,17 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
     if(this->verbose) std::cout << this->_info_name<< "::_parse_line(std::string)  while(gcode_additional) loop start." << std::endl;
     int plusIter = 0;
     while(gcode_additional) {
-        if(_debug_verbose) std::cout<<"0 "; std::cout.flush();
+        // if(verbose_debug) std::cout<<"0 "; std::cout.flush();
         int arg0_idx = this->_syntax_idx(args.at(plusIter), &gcode_additional);
         if(arg0_idx<0) {
             std::cout << "ERROR: "<<this->_info_name<<"::_parse_line(std::string) argument \""<<args.at(plusIter)<<"\" was not found as valid gCODE according to _syntax_idx()"<<std::endl;
             return 1;
         }
-        if(_debug_verbose) std::cout<<"1:"<<arg0_idx << " "; std::cout.flush();
+        // if(verbose_debug) std::cout<<"1:"<<arg0_idx << " "; std::cout.flush();
         size_t idx_syntax_size = IK_PATH::GCODE_Syntax.at(arg0_idx).size(); //{"G01", "(X,Y,Z)", "(I,J)"}.size()
 
         // std::cout << idx_syntax_size << " | ";
-        if(_debug_verbose) std::cout<<"2 "; std::cout.flush();
+        // if(verbose_debug) std::cout<<"2 "; std::cout.flush();
         if(arg0_idx==-1) {
             this->_parse_error_msg = "arg["+std::to_string(plusIter)+"]: \""+args.at(plusIter)+"\" does not exist in IK_PATH::GCODE_Syntax.";
             return -1;
@@ -205,14 +216,14 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
 
         bool __temp = true;
         // Searching for args[>0] matches
-        if(_debug_verbose) std::cout<<"3 "; std::cout.flush();
+        // if(verbose_debug) std::cout<<"3 "; std::cout.flush();
         for(size_t i=1; i<idx_syntax_size; i++) {
-            if(_debug_verbose) std::cout<<"3.0 "; std::cout.flush();
+            // if(verbose_debug) std::cout<<"3.0 "; std::cout.flush();
             std::vector<std::string> _alt = lambda_parseAlt(arg0_idx, i); // ->{"AB", "C"}
             //one two three four one2
 
             // currentArgsLen_0= 0;
-            if(_debug_verbose) std::cout<<"3.1 "; std::cout.flush();
+            // if(verbose_debug) std::cout<<"3.1 "; std::cout.flush();
             currentArgsLen_0 = 0;
             for(int ii=0; ii<parsed_words; ii++) {
                 currentArgsLen_0+=args[ii].length()+1;
@@ -235,7 +246,7 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
             int vecCount = 0;
             int _veciii = 0;
             int _i_alt = 0;
-            if(_debug_verbose) std::cout<<"3.2 "; std::cout.flush();
+            // if(verbose_debug) std::cout<<"3.2 "; std::cout.flush();
             for(std::string _ii: _alt) { // {"ABC", "D"}
                 for(int _iii=0; _iii<_ii.length(); _iii++) { //iterate through char in _ii string
                     // std::cout <<"["<<line.substr(currentArgsLen_0, currentArgsLen)<<"]";
@@ -256,7 +267,7 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
                 this->_parse_error_msg = "arguments to code \""+args[plusIter]+"\" contain either both of types not allowed to co-exist or has same arg repeated.";
                 return -1;
             }
-            if(_debug_verbose) std::cout<<"3.3 "; std::cout.flush();
+            // if(verbose_debug) std::cout<<"3.3 "; std::cout.flush();
             for(int _i_c=0; _i_c<_alt[_i_alt].length(); _i_c++) {
                 if(line.substr(currentArgsLen_0, currentArgsLen).find(_alt.at(_i_alt).at(_i_c))!=std::string::npos) {
                     parsed_words++;
@@ -276,7 +287,7 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
     std::string newStr = "";
     for(std::string arg: args) newStr+=arg+" ";
     line = newStr;
-    if(_debug_verbose) std::cout<<"4 "; std::cout.flush();
+    // if(verbose_debug) std::cout<<"4 "; std::cout.flush();
     // // filter out comments and whatnot and store that in _lastParsed_args.
     // std::cout <<">> "<< parsed_words << std::endl;
     std::vector<std::string> tempVec;
@@ -330,6 +341,7 @@ bool IK_PATH::GCODE_schedule::loadFile(std::string filename) {
         std::cout<< this->_info_name<<"::loadFile(std::string) ERROR: " << e.what() << std::endl;
         return false;
     }
+    if(verbose || verbose_debug) std::cout << std::endl;
     return true;
 }
 
