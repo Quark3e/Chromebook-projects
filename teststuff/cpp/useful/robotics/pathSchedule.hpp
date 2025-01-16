@@ -119,7 +119,7 @@ namespace IK_PATH {
         {"G01", "(X,Y,Z)/(U,V,W)"}, // Linear interpolation: uses feedrate like G02 and G03
         {"G02", "(X,Y,Z)", "(I,J)/(R)"}, // Circular interpolation: CW
         {"G03", "(X,Y,Z)", "(I,J)/(R)"}, // Circular interpolation: CCW
-        {"G04", "P{INT}"}, // Dwell/Pause for `P` number of milliseconds
+        {"G04", "(P)"}, // Dwell/Pause for `P` number of milliseconds
         {"G17+"}, // G_plane: XY
         {"G18+"}, // G_plane: XZ
         {"G19+"}, // G_plane: YZ
@@ -130,7 +130,7 @@ namespace IK_PATH {
         {"G91+"}, // G_positioning: relative (coord)
         {"A0+"},  // A_positioning: absolute (orient)
         {"A1+"},  // A_positioning: relative (orient)
-        {"F{INT}"}
+        {"F{INT}"}  // Feed rate of the head, G_unit per minute
     };
 
 
