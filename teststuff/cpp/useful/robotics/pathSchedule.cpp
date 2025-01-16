@@ -281,7 +281,7 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
         bool __temp = true;
 
         static std::string _prevLine = "";
-        if(idx_syntax_size==1) {
+        if(this->verbose_debug && idx_syntax_size==1) {
             std::cout << formatNumber<std::string>(line, 35, 0, "left") << " | "<<0<<" | \"" << formatNumber<std::string>(IK_PATH::GCODE_Syntax.at(arg0_idx).at(0), 6, 0, "left")<<"\" | ";
             std::cout << formatNumber<std::string>("{}", 10, 0, "left") << " | ";
             std::cout << "gcode_addit..:"<<formatNumber<bool>(gcode_additional_primary, 5, 0, "left") <<" gcode_optio..:"<<formatNumber<bool>(gcode_optional_secondary, 5, 0, "left");
@@ -293,10 +293,12 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
         for(size_t i=1; i<idx_syntax_size && !(args.size()<idx_syntax_size && gcode_optional_secondary); i++) {
             // if(verbose_debug) std::cout<<"3.0 "; std::cout.flush();
             std::vector<std::string> _alt = lambda_parseAlt(arg0_idx, i); // ->{"AB", "C"}
-            std::cout << formatNumber<std::string>(line, 35, 0, "left") << " | "<<i<<" | \"" << formatNumber<std::string>(IK_PATH::GCODE_Syntax.at(arg0_idx).at(0), 6, 0, "left")<<"\" | ";
-            std::cout << formatNumber<std::string>(formatContainer1<std::vector<std::string>>(_alt, _alt.size(), 0, 0, "left"), 10, 0, "left") << " | ";
-            std::cout << "gcode_addit..:"<<formatNumber<bool>(gcode_additional_primary, 5, 0, "left") <<" gcode_optio..:"<<formatNumber<bool>(gcode_optional_secondary, 5, 0, "left");
-            std::cout << std::endl;
+            if(this->verbose_debug) {
+                std::cout << formatNumber<std::string>(line, 35, 0, "left") << " | "<<i<<" | \"" << formatNumber<std::string>(IK_PATH::GCODE_Syntax.at(arg0_idx).at(0), 6, 0, "left")<<"\" | ";
+                std::cout << formatNumber<std::string>(formatContainer1<std::vector<std::string>>(_alt, _alt.size(), 0, 0, "left"), 10, 0, "left") << " | ";
+                std::cout << "gcode_addit..:"<<formatNumber<bool>(gcode_additional_primary, 5, 0, "left") <<" gcode_optio..:"<<formatNumber<bool>(gcode_optional_secondary, 5, 0, "left");
+                std::cout << std::endl;
+            }
             //one two three four one2
 
             // currentArgsLen_0= 0;
