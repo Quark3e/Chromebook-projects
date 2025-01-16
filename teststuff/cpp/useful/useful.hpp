@@ -257,6 +257,34 @@ struct pos2d {
     }
     // #include "createTable.hpp"
 
+    /// @brief Find a substring inside of a larger string
+    /// @param _toFind the string to locate/find
+    /// @param _toSearch the string to search through to find `toFind`
+    /// @param _startPos initial position to start the search from
+    /// @return size_t to index position in _toSearch to the first letter of the found word's position. If no pos found then it'll return `std::string::npos`
+    /// @note if `toFind` has more characters than `_toSearch` then this function will throw a `std::invalid_argument` exception.
+    inline size_t findStringInString(std::string _toFind, std::string _toSearch, size_t _startPos=0) {
+        static const std::string _info_name("findStringInString(std::string, std::string)");
+        if(_toFind.size()==0)    throw std::invalid_argument(_info_name+" arg for _toFind cannot be empty.");
+        if(_toSearch.size()==0)  throw std::invalid_argument(_info_name+" arg for _toSearch cannot be empty.");
+        if(_toFind.size() > _toSearch.size()) throw std::invalid_argument(_info_name+" arg for _toFind cannot be larger than _toSearch.");
+
+        size_t charsMatched = 0;
+        for(size_t i=_startPos; i<=(_toSearch.size()-(_toFind.size()-charsMatched)); i++) {
+            if(_toFind.at(charsMatched)==_toSearch.at(i)) {
+                charsMatched++;
+                if(charsMatched==_toFind.size()) {
+                    return i-(charsMatched-1);
+                } 
+            }
+            else {
+                charsMatched = 0;
+            }
+        }
+
+        return std::string::npos;
+    }
+
     template<typename checkType>
     inline int findVectorIndex(std::vector<checkType> vec, checkType toFind) {
         typename std::vector<checkType>::iterator idx = find(vec.begin(), vec.end(), toFind);
@@ -908,7 +936,6 @@ struct pos2d {
         return sqrt(sumDelta);
 
     }
-
 
 
 

@@ -92,6 +92,7 @@ bool IK_PATH::GCODE_schedule::_parse_line(std::string line, bool throwError) {
 */
 
 int IK_PATH::GCODE_schedule::_syntax_idx(std::string arg, bool *gcode_additional_primary, bool *gcode_optional_secondary) {
+    if(arg.size()==0) throw std::invalid_argument(this->_info_name+"::_syntax_idx(std::string, bool*, bool*) argument for `arg` cannot be empty.");
     int idx = 0;
     int idx_firstFound = -1;
     if(gcode_additional_primary) (*gcode_additional_primary) = false;
@@ -126,17 +127,43 @@ int IK_PATH::GCODE_schedule::_syntax_idx(std::string arg, bool *gcode_additional
 
             }
         }
-        else if(arg[0]==_codeLine[0][0] && (arg[0]!='G' && arg[0]!='M')) {
+        else if(arg.at(0)==_codeLine.at(0).at(0) && (arg.at(0)!='G' && arg.at(0)!='M')) {
             /// Single char matching: find special cases where arg[0] matches first char of special cases (like F{INT})
+            std::cout << arg << std::endl;
+            switch (arg.at(0)) {
+            case 'F':{ /// `F{INT}`
+                try {
+                    int _tempInt = std::stoi(arg.substr(1));
+                    return idx;
+                }
+                catch(const std::exception& e) {
+                    std::cout << e.what() << '\n';
+                    return -1;
+                }
+                break;
+            }
+            case 'P': {
+                try {
+                    int _tempInt = std::stoi(arg.substr(1));
+                    return idx;
+                }
+                catch(const std::exception& e) {
+                    std::cout << e.what() << '\n';
+                    return -1;
+                }
+                break;
+            }
+            default:
+                break;
+            }
             
-            // std::cout << "(F)";
             return idx;
         }
         // else if(arg[0]=='(') {
         //     return -2;
         // }
         else {
-            if(arg==_codeLine[0]) {
+            if(arg==_codeLine.at(0)) {
                 // std::cout << "(1)";
                 return idx;
             }
@@ -217,7 +244,7 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
         // if(verbose_debug) std::cout<<"0 "; std::cout.flush();
         int arg0_idx = this->_syntax_idx(args.at(plusIdx), &gcode_additional_primary, &gcode_optional_secondary);
         if(arg0_idx<0) {
-            std::cout << "ERROR: "<<this->_info_name<<"::_parse_line(std::string) argument \""<<args.at(plusIdx)<<"\" was not found as valid gCODE according to _syntax_idx()"<<std::endl;
+            std::cout << "ERROR: "<<this->_info_name<<"::_parse_line(std::string&) argument \""<<args.at(plusIdx)<<"\" was not found as valid gCODE according to _syntax_idx()"<<std::endl;
             return 1;
         }
         if(gcode_additional_primary && plusIdx+1>=args.size()) gcode_additional_primary = false;
@@ -253,7 +280,8 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
 
         static std::string _prevLine = "";
         if(idx_syntax_size==1) {
-            std::cout << formatNumber<std::string>(line, 35, 0, "left") << " | "<<0<<" | " << formatNumber<std::string>("{}", 10, 0, "left") << " | ";
+            std::cout << formatNumber<std::string>(line, 35, 0, "left") << " | "<<0<<" | \"" << formatNumber<std::string>(IK_PATH::GCODE_Syntax.at(arg0_idx).at(0), 6, 0, "left")<<"\" | ";
+            std::cout << formatNumber<std::string>("{}", 10, 0, "left") << " | ";
             std::cout << "gcode_addit..:"<<formatNumber<bool>(gcode_additional_primary, 5, 0, "left") <<" gcode_optio..:"<<formatNumber<bool>(gcode_optional_secondary, 5, 0, "left");
             std::cout << std::endl;
             
@@ -263,7 +291,8 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
         for(size_t i=1; i<idx_syntax_size && !(args.size()<idx_syntax_size && gcode_optional_secondary); i++) {
             // if(verbose_debug) std::cout<<"3.0 "; std::cout.flush();
             std::vector<std::string> _alt = lambda_parseAlt(arg0_idx, i); // ->{"AB", "C"}
-            std::cout << formatNumber<std::string>(line, 35, 0, "left") << " | "<<i<<" | " << formatNumber<std::string>(formatContainer1<std::vector<std::string>>(_alt, _alt.size(), 0, 0, "left"), 10, 0, "left") << " | ";
+            std::cout << formatNumber<std::string>(line, 35, 0, "left") << " | "<<i<<" | \"" << formatNumber<std::string>(IK_PATH::GCODE_Syntax.at(arg0_idx).at(0), 6, 0, "left")<<"\" | ";
+            std::cout << formatNumber<std::string>(formatContainer1<std::vector<std::string>>(_alt, _alt.size(), 0, 0, "left"), 10, 0, "left") << " | ";
             std::cout << "gcode_addit..:"<<formatNumber<bool>(gcode_additional_primary, 5, 0, "left") <<" gcode_optio..:"<<formatNumber<bool>(gcode_optional_secondary, 5, 0, "left");
             std::cout << std::endl;
             //one two three four one2
