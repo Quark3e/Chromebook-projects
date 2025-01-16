@@ -1152,6 +1152,7 @@ struct pos2d {
             if(static_cast<int>(_temp.str().length()) < strWidth) fillZeros = strWidth - static_cast<int>(_temp.str().length());
         }
         outStream << std::fixed;
+        outStream << std::boolalpha;
         if(align=="left") outStream<<std::left;
         else if(align=="right") outStream<<std::right;
         outStream << std::setw(strWidth - fillZeros);
@@ -1169,27 +1170,27 @@ struct pos2d {
         int varPrecision,
         std::string align = "right",
         bool numberFill = false,
-        char openSymb = '(',
-        char closeSymb= ')'
+        char openSymb = '{',
+        char closeSymb= '}'
     ) {
         std::string _out(1, openSymb);
         for(auto itr=_container.begin(); itr!=_container.end(); ++itr) {
             _out += formatNumber(*itr, strWidth, varPrecision, align, numberFill);
-            if(!itr!=--_container.end()) openSymb += ',';
+            if(itr!=--_container.end()) openSymb += ',';
         }
         return _out + closeSymb;
     }
 
     template<class T>
-    inline std::string formatContainer(
+    inline std::string formatContainer1(
         T _container,
         size_t contSize,
         int strWidth,
         int varPrecision,
         std::string align = "right",
         bool numberFill = false,
-        char openSymb = '(',
-        char closeSymb= ')'
+        char openSymb = '{',
+        char closeSymb= '}'
     ) {
         std::string _out(1, openSymb);
         for(size_t i=0; i<contSize; i++) {

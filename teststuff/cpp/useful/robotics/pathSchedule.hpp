@@ -4,6 +4,8 @@
 #define HPP_PATH_SCHEDULE
 
 #include <iostream>
+#include <iomanip>
+
 #include <string>
 #include <math.h>
 #include <vector>
@@ -102,6 +104,8 @@ namespace IK_PATH {
      * `/`: `a/(b,c)`- either of the symbols must be called but never both.
      *    : `{INT}`  - letter must be accompanied with an integer number/value.
      * `+`: `a+`     - another code can be called after the code with this symbol
+     * `|`: `a|`     - another code of same type can be called with this symbol, but doesn't have to be called. Without it, any following arguments must be included.
+     * 
      */
     inline const std::vector<std::vector<std::string>> GCODE_Syntax {
         {" "},
@@ -115,13 +119,13 @@ namespace IK_PATH {
         {"G01", "(X,Y,Z)/(U,V,W)"}, // Linear interpolation: uses feedrate like G02 and G03
         {"G02", "(X,Y,Z)", "(I,J)/(R)"}, // Circular interpolation: CW
         {"G03", "(X,Y,Z)", "(I,J)/(R)"}, // Circular interpolation: CCW
-        {"G04", "(P)"}, // Dwell/Pause for `P` number of milliseconds
+        {"G04", "P{INT}"}, // Dwell/Pause for `P` number of milliseconds
         {"G17+"}, // G_plane: XY
         {"G18+"}, // G_plane: XZ
         {"G19+"}, // G_plane: YZ
         {"G20+"}, // G_unit:  Imperial[inch]
         {"G21+"}, // G_unit:  Metric[mm]
-        {"G28", "(X,Y,Z)"},
+        {"G28|", "(X,Y,Z)"}, // Return to home position, possibly by moving to given coord first then home.
         {"G90+"}, // G_positioning: absolute (coord)
         {"G91+"}, // G_positioning: relative (coord)
         {"A0+"},  // A_positioning: absolute (orient)
@@ -160,13 +164,16 @@ namespace IK_PATH {
 
 
         /**
-         * @brief find index to vector for given code (ex. "G01") in `IK_PATH::GCODE_Syntax`
+         * @brief find index to vector for given primary gcode (ex. "G01") in `IK_PATH::GCODE_Syntax`
          * 
          * @param arg the string of code to find in `IK_PATH::GCODE_Syntax` 2d vector
-         * @param gcode_additional pointer to a boolean for whether the indexed element[0] contains `+`
+         * @param gcode_additional_primary pointer to a boolean for whether the indexed element[0] contains `+`: meaning another primary gcode
+         * argument is allowed to be after this arg.
+         * @param gcode_optional_secondary pointer to a boolean for whether the indexed element[0] contains `|`: meaning the following secondary gcode
+         * arguments are optional to be added.
          * @return `int` type of index. If index not found then it'll return `-1`.
          */
-        int  _syntax_idx(std::string arg, bool* gcode_additional=nullptr);
+        int  _syntax_idx(std::string arg, bool *gcode_additional_primary=nullptr, bool *gcode_optional_secondary=nullptr);
         int _parse_line(std::string& line);
         std::string _lastArgs_unparsed = "";
         std::vector<std::string> _lastParsed_args;
