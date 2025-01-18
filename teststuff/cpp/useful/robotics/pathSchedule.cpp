@@ -180,10 +180,13 @@ int IK_PATH::GCODE_schedule::_syntax_idx(std::string arg, bool *gcode_additional
 
 int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
 
+    
+
+
     this->_lastArgs_unparsed = line;
     bool gcode_additional_primary = true; // whether this primary allows another primary gcode argument (`+` symbol if true, otherwise false)
     bool gcode_optional_secondary = true; // whether the secondary arguments are optional (`|` symbol if true, otherwise false)
-    int parsed_words = 1;
+    int parsed_words = 1; // counter for the number of valid parsed/found gCode commands/arguments from `IK_PATH::GCODE_Syntax`
 
     if(this->verbose) std::cout << this->_info_name<< "::_parse_line(std::string) function call:\""<<line<<"\"" << std::endl;
 
@@ -228,7 +231,6 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
         // this->_lastParsed_args = std::vector<std::string>{""}; 
         // return 1;
     }
-    // std::cout <<"[0]"<< args[0]<<"|";
     /**
      * meaning of returned values: (values!=0 means non-successful parsing)
      * `-1` - error: fatal: inccorrect syntax (non-existent codes were used)
@@ -237,20 +239,15 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
      */
     int returnVal = 0;
 
-    // bool tempPrint = true;
-    // if(args[0]!="G02") tempPrint = false;
-
     if(this->verbose) std::cout << this->_info_name<< "::_parse_line(std::string)  while(gcode_additional_primary) loop start." << std::endl;
     int plusIdx = 0; // iterating index to the elements of `args`
     while(plusIdx<args.size() && gcode_additional_primary) {
-        // if(verbose_debug) std::cout<<"0 "; std::cout.flush();
         int arg0_idx = this->_syntax_idx(args.at(plusIdx), &gcode_additional_primary, &gcode_optional_secondary);
         if(arg0_idx<0) {
             std::cout << "ERROR: "<<this->_info_name<<"::_parse_line(std::string&) argument \""<<args.at(plusIdx)<<"\" was not found as valid gCODE according to _syntax_idx()"<<std::endl;
             return 1;
         }
         if(gcode_additional_primary && plusIdx+1>=args.size()) gcode_additional_primary = false;
-        // if(verbose_debug) std::cout<<"1:"<<arg0_idx << " "; std::cout.flush();
 
         // Number of arguments with primary and secondaries combined according to syntax:
         // ex: {"G01", "(X,Y,Z)", "(I,J)"}.size()
@@ -291,7 +288,6 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
 
         // Searching for args[>0] matches
         for(size_t i=1; i<idx_syntax_size && !(args.size()<idx_syntax_size && gcode_optional_secondary); i++) {
-            // if(verbose_debug) std::cout<<"3.0 "; std::cout.flush();
             std::vector<std::string> _alt = lambda_parseAlt(arg0_idx, i); // ->{"AB", "C"}
             if(this->verbose_debug) {
                 std::cout << formatNumber<std::string>(line, 35, 0, "left") << " | "<<i<<" | \"" << formatNumber<std::string>(IK_PATH::GCODE_Syntax.at(arg0_idx).at(0), 6, 0, "left")<<"\" | ";
@@ -301,25 +297,16 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
             }
             //one two three four one2
 
-            // currentArgsLen_0= 0;
-            // if(verbose_debug) std::cout<<"3.1 "; std::cout.flush();
-
             currentArgsLen_0 = 0;
             for(int ii=0; ii<parsed_words; ii++) {
+                /// Using the number of gcode arguments/commands already "found" in line denoted by `parsed_words`, set `currentArgsLen_0` to the "current" position in `line`
                 currentArgsLen_0+=args[ii].length()+1;
             }
             currentArgsLen  = line.length()-currentArgsLen_0;
-            // int _ii = 0;
-            // for(std::string _arg: args) {
-            //     if(_ii>=i) currentArgsLen   +=_arg.length();
-            //     // if(_ii<i)  currentArgsLen_0 +=_arg.length();
-            //     _ii++;
-            // }
-            // std::cout<<" {"<<currentArgsLen_0<<", "<<currentArgsLen<<"}|"<<std::endl;
 
             __temp = false;
-            //Go through GCODE_syntax[arg0_idx]{}.
-            //This for() loop shouldn't occur for current codes with `+` symbol as their length is only 1.
+            //Go through every secondary argument GCODE_syntax[arg0_idx]{}.
+            //This for() loop shouldn't occur for current gcodes with `+` symbol as their length is only 1.
             // -in the future if I want to use `+` symbol for codes with parameters then I think I'll need to find string
             // -start and end pos of those parameters associated with said code. (???)
 
@@ -369,8 +356,10 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
                 return -1;
             }
 
-            for(int _i_c=0; _i_c<_alt[_i_altFound].length(); _i_c++) {
+            for(int _i_c=0; _i_c<_alt[_i_altFound].length(); _i_c++) { // index to currently searching character in _alt[_i_altFound], i.e. idx to char in "AB" from {"AB", "C"}
+                /// Iterate through each letter in _alt[_i_altFound]. ex: "AB" in {"AB", "C"}
                 if(line.substr(currentArgsLen_0, currentArgsLen).find(_alt.at(_i_altFound).at(_i_c))!=std::string::npos) {
+                    /// If the currently searching char from _alt.at(_i_altFound) is found in `line`, count up `parsed_words`
                     parsed_words++;
                     // currentArgsLen_0++;
                 }

@@ -99,33 +99,33 @@ namespace IK_PATH {
     /**
      * Syntax of (some) GCode arguments.
      * Symbol definition
-     * `,`: `a,b`    - and/or: either or both values on either side of the symbol.
+     * `,`: `a,b`    - and/or: either or both values on either side of the symbol. (or)
      * `(`: `(a,b)`   - must: atleast one of the symbols/args inside the parenthesis has to exist.
-     * `/`: `a/(b,c)`- either of the symbols must be called but never both.
+     * `/`: `a/(b,c)`- either of the symbols must be called but never both. (xor)
      *    : `{INT}`  - letter must be accompanied with an integer number/value.
-     * `+`: `a+`     - another code can be called after the code with this symbol
-     * `|`: `a|`     - another code of same type can be called with this symbol, but doesn't have to be called. Without it, any following arguments must be included.
-     * 
+     * `+`: `a+`     - another gcode command can be called after the code with this symbol
+     * `|`: `|a`     - the gcode command is optional: `|a` means the gcode arg/command `a` is optional
+     * `[`: `a, [F,G21] - list of primary arguments that can be called after this secondary argument `a`
      */
     inline const std::vector<std::vector<std::string>> GCODE_Syntax {
         {" "},
         {"("},
         {"%"},
-        {"M03"},
+        {"M03", "|(S)"},
         {"M04"},
         {"M05"},
         {"M30"},
         {"G00", "(X,Y,Z)/(U,V,W)"}, // Linear interpolation: instant motion. U V W = a b y //tilt change is assumed to be a constant
-        {"G01", "(X,Y,Z)/(U,V,W)"}, // Linear interpolation: uses feedrate like G02 and G03
-        {"G02", "(X,Y,Z)", "(I,J)/(R)"}, // Circular interpolation: CW
-        {"G03", "(X,Y,Z)", "(I,J)/(R)"}, // Circular interpolation: CCW
+        {"G01", "(X,Y,Z)/(U,V,W)", "|[F]"}, // Linear interpolation: uses feedrate like G02 and G03
+        {"G02", "(X,Y,Z)", "(I,J)/(R)", "|[F]"}, // Circular interpolation: CW
+        {"G03", "(X,Y,Z)", "(I,J)/(R)", "|[F]"}, // Circular interpolation: CCW
         {"G04", "(P)"}, // Dwell/Pause for `P` number of milliseconds
         {"G17+"}, // G_plane: XY
         {"G18+"}, // G_plane: XZ
         {"G19+"}, // G_plane: YZ
         {"G20+"}, // G_unit:  Imperial[inch]
         {"G21+"}, // G_unit:  Metric[mm]
-        {"G28|", "(X,Y,Z)"}, // Return to home position, possibly by moving to given coord first then home.
+        {"G28", "|(X,Y,Z)"}, // Return to home position, possibly by moving to given coord first then home.
         {"G90+"}, // G_positioning: absolute (coord)
         {"G91+"}, // G_positioning: relative (coord)
         {"A0+"},  // A_positioning: absolute (orient)
