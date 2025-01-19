@@ -247,14 +247,14 @@ namespace IK_PATH {
      * @return false if `arg` doesn't contain size_t
      */
     bool _contains_size_t(std::string arg, size_t startPos=0, bool call_except=true, std::string call_src_name="", size_t *return_var=nullptr);
-    /**
-     * @brief find index to correct primary argument as found in `IK_PATH::GCODE_Syntax`
-     * 
-     * @param arg `std::string` to check whether it's a primary argument
-     * @return int index to the elemenet in `IK_PATH::GCODE_Syntax` if a vlaid one is found, otherwise it'll return `-1`
-     */
-    int _find_primary(std::string arg);
-    int _syntax_idx(std::string arg, GCodeLevel *arg_level_type=nullptr);
+    // /**
+    //  * @brief find index to correct primary argument as found in `IK_PATH::GCODE_Syntax`
+    //  * 
+    //  * @param arg `std::string` to check whether it's a primary argument
+    //  * @return int index to the elemenet in `IK_PATH::GCODE_Syntax` if a vlaid one is found, otherwise it'll return `-1`
+    //  */
+    // int _find_primary(std::string arg);
+    // int _syntax_idx(std::string arg, GCodeLevel *arg_level_type=nullptr);
 
     inline void null_TDEF_runCode(float X, float Y, float Z, float a, float b, float y) {}
 
@@ -297,7 +297,7 @@ namespace IK_PATH {
          */
         int  _syntax_idx(std::string arg, bool *gcode_additional_primary=nullptr, bool *gcode_optional_secondary=nullptr);
         int _parse_line(std::string& line);
-        int _parse_line(std::string& line, bool test);
+        // int _parse_line(std::string& line, bool test);
         std::string _lastArgs_unparsed = "";
         std::vector<std::string> _lastParsed_args;
         std::string _parse_error_msg = "";
