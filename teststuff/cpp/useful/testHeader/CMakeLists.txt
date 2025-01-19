@@ -9,8 +9,12 @@ set(CMAKE_CXX_STANDARD 14)
 # find_package(OpenCV REQUIRED)
 # include_directories()
 
+include_directories(${PROJECT_SOURCE_DIR}/../)
 
-add_executable(guiTest_exe main.cpp)
+
+add_executable(guiTest_exe
+    main.cpp
+)
 
 
 target_link_libraries(

@@ -1,6 +1,6 @@
 
 
-%
+% ;Beginning
 (comment)
 G21 G17 G90 F100
 M03 S1000
@@ -24,4 +24,4 @@ G04 P100
 G28 X0 Y0
 M05
 M30
-%
+% ;End

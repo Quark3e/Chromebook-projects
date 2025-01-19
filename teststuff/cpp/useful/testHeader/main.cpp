@@ -4,9 +4,9 @@
 #include <vector>
 
 #include <useful.hpp>
-#include <HC_useful/diy_dictionary.hpp>
+#include <diy_dictionary.hpp>
 // #include "../terminalMenu.hpp"
-#include <HC_useful/search_multithread.hpp>
+#include <search_multithread.hpp>
 
 using namespace std;
 

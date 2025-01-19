@@ -13,6 +13,7 @@
 
 #include <useful.hpp>
 #include <search_multithread.hpp>
+#include <diy_dictionary.hpp>
 
 
 #define NULL_POS_POINT 42069
@@ -96,6 +97,10 @@ namespace IK_PATH {
 
     };
 
+
+    enum GCode_command {
+    };
+
     /**
      * Syntax of (some) GCode arguments.
      * Symbol definition
@@ -106,20 +111,25 @@ namespace IK_PATH {
      * `+`: `a+`     - another gcode command can be called after the code with this symbol
      * `|`: `|a`     - the gcode command is optional: `|a` means the gcode arg/command `a` is optional
      * `[`: `a, [F,G21] - list of primary arguments that can be called after this secondary argument `a`
+     * 
+     *  Some rules:
+     *  - all secondary gcode command/arg letters have a value accompanying them by default/obligation. so they don't need the flag `{INT}` like certain primary commands/arguments
+     * 
      */
     inline const std::vector<std::vector<std::string>> GCODE_Syntax {
         {" "},
-        {"("},
-        {"%"},
-        {"M03", "|(S)"},
-        {"M04"},
-        {"M05"},
+        {"({var})"}, // Specific comment
+        {"%"}, // symbol for denoting beginning and end
+        {"M0"},
+        {"M3", "|(S)"},
+        {"M4"},
+        {"M5"},
         {"M30"},
-        {"G00", "(X,Y,Z)/(U,V,W)"}, // Linear interpolation: instant motion. U V W = a b y //tilt change is assumed to be a constant
-        {"G01", "(X,Y,Z)/(U,V,W)", "|[F]"}, // Linear interpolation: uses feedrate like G02 and G03
-        {"G02", "(X,Y,Z)", "(I,J)/(R)", "|[F]"}, // Circular interpolation: CW
-        {"G03", "(X,Y,Z)", "(I,J)/(R)", "|[F]"}, // Circular interpolation: CCW
-        {"G04", "(P)"}, // Dwell/Pause for `P` number of milliseconds
+        {"G0", "(X,Y,Z)/(U,V,W)"}, // Linear interpolation: instant motion. U V W = a b y //tilt change is assumed to be a constant
+        {"G1", "(X,Y,Z)/(U,V,W)", "|[F]"}, // Linear interpolation: uses feedrate like G02 and G03
+        {"G2", "(X,Y,Z)", "(I,J)/(R)", "|[F]"}, // Circular interpolation: CW
+        {"G3", "(X,Y,Z)", "(I,J)/(R)", "|[F]"}, // Circular interpolation: CCW
+        {"G4", "(P)"}, // Dwell/Pause for `P` number of milliseconds
         {"G17+"}, // G_plane: XY
         {"G18+"}, // G_plane: XZ
         {"G19+"}, // G_plane: YZ
@@ -128,11 +138,118 @@ namespace IK_PATH {
         {"G28", "|(X,Y,Z)"}, // Return to home position, possibly by moving to given coord first then home.
         {"G90+"}, // G_positioning: absolute (coord)
         {"G91+"}, // G_positioning: relative (coord)
-        {"A0+"},  // A_positioning: absolute (orient)
-        {"A1+"},  // A_positioning: relative (orient)
+        {"T0+"},  // T_positioning: absolute (orient)
+        {"T1+"},  // T_positioning: relative (orient)
         {"F{INT}"}  // Feed rate of the head, G_unit per minute
     };
 
+    using _TD_vStr = DIY::typed_dict<std::string, std::vector<std::string>>;
+
+    inline const DIY::typed_dict<std::string, DIY::typed_dict<std::string, std::vector<std::string>>> GCODE_Syntax__obligatory({
+        {"M0", _TD_vStr({ // Unconditional stop
+            {"obl", {}}, // obligatory commands
+            {"opt", {}}  // optional commands
+        })},
+        {"M3", _TD_vStr({ // Spindle CW / Laser On
+            {"obl", {}},
+            {"opt", {}} 
+        })},
+        {"M4", _TD_vStr({ // Spindle CCW / Laser On
+            {"obl", {}},
+            {"opt", {}}
+        })},
+        {"M5", _TD_vStr({ // Spindle/Laser Off
+            {"obl", {}},
+            {"opt", {}}
+        })},
+        {"M30", _TD_vStr({ // End of program and rewind to first line in GCode
+            {"obl", {}},
+            {"opt", {}}
+        })},
+        {"G0", _TD_vStr({ // Linear interpolation: instant motion
+            {"obl", {"X,Y,Z"}},
+            {"opt", {}}
+        })},
+        {"G1", _TD_vStr({ // Linear interpolation: uses Feedrate
+            {"obl", {"X,Y,Z"}},
+            {"opt", {"F"}} // F-set Feedrate
+        })},
+        {"G2", _TD_vStr({ // Circular interpolation: CW
+            {"obl", {
+                "X,Y,Z",    // end position
+                "(I,J)/(R)" // I-incr. offset from current X pos to arc center, J-incr. offset from current Y pos to arc center; R-radius to arc center from current and end pos
+            }},
+            {"opt", {"F"}} // F-set Feedrate
+        })}, 
+        {"G3", _TD_vStr({ // Circular interpolation: CCW
+            {"obl", {
+                "X,Y,Z",    // end position
+                "(I,J)/(R)" // I-incr. offset from current X pos to arc center, J-incr. offset from current Y pos to arc center; R-radius to arc center from current and end pos
+            }},
+            {"opt", {"F"}} // F-set Feedrate
+        })},
+        {"G4", _TD_vStr({ // Dwell/Pause for either `S` seconds or `P` milliseconds
+            {"obl", {"S", "P"}},
+            {"opt", {}}
+        })},
+        {"G5", _TD_vStr({ // Bézier Cubic curve:
+            {"obl", {
+                "I,J",  // I-incr. offset from current X pos to first control point; J-incr. offset from current Y pos to first control point
+                "P,Q",  // P-incr. offset from end X pos to second control point; Q-incr. offset from end Y pos to second control point
+                "X,Y"   // X-end position; Y-end position.
+            }},
+            {"opt", {"F"}}, // F-set Feedrate
+        })},
+        {"G17", _TD_vStr({{"obl", {}}, {"opt", {}}})}, // Workspace plane: XY
+        {"G18", _TD_vStr({{"obl", {}}, {"opt", {}}})}, // Workspace plane: ZX
+        {"G19", _TD_vStr({{"obl", {}}, {"opt", {}}})}, // Workspace plane: YZ
+        {"G20", _TD_vStr({{"obl", {}}, {"opt", {}}})}, // Coordinate unit: Imperial   [inch]
+        {"G21", _TD_vStr({{"obl", {}}, {"opt", {}}})}, // Coordinate unit: Metric     [mm]
+        {"G28",  _TD_vStr({ // Move to set coordinate
+            {"obl", {}},
+            {"opt", {}}
+        })},
+        {"G90", _TD_vStr({{"obl", {}}, {"opt", {}}})}, // Workspace movement: absolute
+        {"G91", _TD_vStr({{"obl", {}}, {"opt", {}}})} // Workspace movement: relative
+    });
+    inline const DIY::typed_dict<std::string, std::vector<std::string>> GCODE_Syntax__optional({
+
+    });
+
+    /*
+    "var_a" : {1, 2, 3, 4}
+    "var_b" : {1, 2, 3, 4, 4}
+    */
+
+    inline const DIY::typed_dict<char, std::vector<size_t>> GCode_primary_valid({
+        {'A', {0, 1}},
+        // {'F', {std::string::npos}},
+        {'G', {0, 1, 2, 3, 4, 17, 18, 19, 20, 21, 28, 90}},
+        {'M', {0, 3, 4, 5, 30}}
+    });
+
+    enum GCodeLevel;
+    /**
+     * @brief check whether a command/code string contains a size_t/positive_integer (unsigned long long) value.
+     * Basically do a try/catch in a function
+     * 
+     * @param arg `std::string` of the gcode command/argument/code to check.
+     * @param startPos starting position of the substring to check if it's a size_t.
+     * @param call_except whether to call an exception, in this case `std::runtime_error` if given arg doesn't contain size_t number.
+     * @param call_src_name `std::string` of something to print before the exception call error description.
+     * @param return_var `size_t*` to pass the parsed value to, from arg.
+     * @return true if `arg` contains size_t
+     * @return false if `arg` doesn't contain size_t
+     */
+    bool _contains_size_t(std::string arg, size_t startPos=0, bool call_except=true, std::string call_src_name="", size_t *return_var=nullptr);
+    /**
+     * @brief find index to correct primary argument as found in `IK_PATH::GCODE_Syntax`
+     * 
+     * @param arg `std::string` to check whether it's a primary argument
+     * @return int index to the elemenet in `IK_PATH::GCODE_Syntax` if a vlaid one is found, otherwise it'll return `-1`
+     */
+    int _find_primary(std::string arg);
+    int _syntax_idx(std::string arg, GCodeLevel *arg_level_type=nullptr);
 
     inline void null_TDEF_runCode(float X, float Y, float Z, float a, float b, float y) {}
 

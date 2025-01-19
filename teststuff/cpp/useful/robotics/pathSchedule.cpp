@@ -178,9 +178,63 @@ int IK_PATH::GCODE_schedule::_syntax_idx(std::string arg, bool *gcode_additional
     return -1;
 }
 
-int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
 
+enum IK_PATH::GCodeLevel {
+    GCodeLevel__primary,
+    GCodeLevel__secondary
+};
+bool IK_PATH::_contains_size_t(std::string arg, size_t startPos, bool call_except, std::string call_src_name, size_t *return_var) {
+    try {
+        size_t _retur = std::stoull(arg.substr(startPos));
+        if(return_var) *return_var = _retur;
+    }
+    catch(const std::exception& e) {
+        if(call_except) throw std::runtime_error(call_src_name+" "+e.what());
+        return false;
+    }
+    return true;
+}
+int IK_PATH::_find_primary(std::string arg) {
     
+    for(size_t i=0; i<GCode_primary_valid.size(); i++) {
+        if(arg.at(0)==GCode_primary_valid.getKey(i)) {
+            /// Matching flag found.
+
+            switch (arg.at(0)) {
+            case 'F': {
+                
+                break;
+            }
+            default:
+                break;
+            }
+
+
+            size_t gcode_primary_number = 0;
+            if(_contains_size_t(arg, 1, false, "_find_primary(\""+arg+"\")", &gcode_primary_number)) {
+                for(size_t prmry: GCode_primary_valid[i]) {
+                    if(prmry==gcode_primary_number) {
+
+                    }
+                }
+            }
+            
+
+
+            return static_cast<int>(i);
+        }
+    }
+    return -1;
+}
+int IK_PATH::_syntax_idx(std::string arg, GCodeLevel *arg_level_type) {
+
+
+    return -1;
+}
+int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
+    GCodeLevel currLevel = GCodeLevel__primary;
+
+
 
 
     this->_lastArgs_unparsed = line;

@@ -2,7 +2,6 @@
 #ifndef HPP_DICTIONARY
 #define HPP_DICTIONARY
 
-
 /**
  * @file dictionary.hpp
  * @author your name (you@domain.com)
@@ -16,7 +15,6 @@
  * Might need to look into pointer storage and heap allocation/de-allocation with smart
  * pointers instead of having an entire set of "value" only storage
  */
-
 
 #include <iostream>
 #include <string>
@@ -532,6 +530,15 @@ namespace DIY {
 
     };
 
+
+    template<class _key_type, class _store_type>
+    struct _pair {
+        _key_type   key;
+        _store_type value;
+
+        _pair(_key_type _key, _store_type _value): key(_key), value(_value) {}
+    };
+
     /**
      * @brief Store custom types in a dictionary system.
      * Can not store container types as `_key_type` has to be comparable with different instances of same type
@@ -543,7 +550,6 @@ namespace DIY {
     class typed_dict {
         private:
             std::string _info_name = "DIY::typed_dict";
-
             
             std::vector<_key_type>      _keys;
             std::vector<_store_type*>   _lookup;
@@ -563,8 +569,13 @@ namespace DIY {
 
         public:
             typed_dict() {}; //empty default constructor
+            typed_dict(_key_type _key, _store_type _store);
             typed_dict(std::vector<_key_type> keys, std::list<_store_type> values);
+            typed_dict(std::vector<_key_type> keys, std::vector<_store_type> values);
             typed_dict(std::initializer_list<_key_type> keys, std::initializer_list<_store_type> values);
+
+            typed_dict(_pair<_key_type, _store_type> _key_value_pair);
+            typed_dict(std::initializer_list<_pair<_key_type, _store_type>> _pairs);
 
             _store_type& operator[] (int idx);
             _store_type  operator[] (int idx) const;
@@ -572,7 +583,7 @@ namespace DIY {
             _store_type& get(_key_type key);
             _store_type  get(_key_type key) const;
 
-            _key_type    getKey(size_t idx);
+            _key_type    getKey(size_t idx) const;
 
             _store_type* getPtr(_key_type key);
             _store_type* getPtr_idx(int idx);
@@ -582,13 +593,13 @@ namespace DIY {
              * 
              * @param key the key to find index/position of
              * @param _call_except whether to call an exception if an error occurs(/index can't be found)
-             * @return size_t the index
+             * @return int the index. If none found and `_call_except==false` then it'll return `-1`
              */
-            int find(_key_type key, bool _call_except=true);
+            int find(_key_type key, bool _call_except=true) const;
 
-            size_t size();
+            size_t size() const;
 
-            _key_type key(int idx);
+            _key_type key(int idx) const;
             std::vector<_key_type> keys();
             std::list<_store_type> values();
 
@@ -628,7 +639,6 @@ namespace DIY {
             }
     };
     
-
 
 
     /**
@@ -693,13 +703,30 @@ namespace DIY {
 
     // template<class _key_type, class _store_type>
     // typed_dict<_key_type, _store_type>::typed_dict() {}
-    
+    template<class _key_type, class _store_type>
+    typed_dict<_key_type, _store_type>::typed_dict(_key_type _key, _store_type _store) {
+        this->_keys.push_back(_key);
+        this->_values.push_back(_store);
+        this->_lookup.push_back(&(*_values.begin()));
+        this->_init_container = true;
+    }
     template<class _key_type, class _store_type>
     typed_dict<_key_type, _store_type>::typed_dict(std::vector<_key_type> keys, std::list<_store_type> values) {
         if(keys.size()!=values.size()) this->_call_error(0, "::typed_dict(std::vector<_key_type>, std::list<_store_type>)", "input containers for `keys` and `values` aren't same size.");
         if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::typed_dict(std::vector<_key_type>, std::list<_store_type>)", "there are repetitions inside input argument for `keys`");
         this->_keys = keys;
         this->_values = values;
+        for(auto itr=_values.begin(); itr!=_values.end(); ++itr) _lookup.push_back(&(*itr));
+        this->_init_container = true;
+    }
+    template<class _key_type, class _store_type>
+    typed_dict<_key_type, _store_type>::typed_dict(std::vector<_key_type> keys, std::vector<_store_type> values) {
+        if(keys.size()!=values.size()) this->_call_error(0, "::typed_dict(std::vector<_key_type>, std::vector<_store_type>)", "input containers for `keys` and `values` aren't same size.");
+        if(hasRepetitions<_key_type>(keys)) this->_call_error(0, "::typed_dict(std::vector<_key_type>, std::vector<_store_type>)", "there are repetitions inside input argument for `keys`");
+        std::list<_store_type> _tempLst;
+        for(size_t i=0; i<values.size(); i++) _tempLst.push_back(values.at(i));
+        this->_keys = keys;
+        this->_values = _tempLst;
         for(auto itr=_values.begin(); itr!=_values.end(); ++itr) _lookup.push_back(&(*itr));
         this->_init_container = true;
     }
@@ -713,6 +740,27 @@ namespace DIY {
         this->_init_container = true;
     }
 
+    template<class _key_type, class _store_type>
+    typed_dict<_key_type, _store_type>::typed_dict(_pair<_key_type, _store_type> _key_value_pair) {
+        this->_keys.push_back(_key_value_pair.key);
+        this->_values.push_back(_key_value_pair.value);
+        this->_lookup.push_back(&(*_values.begin()));
+        this->_init_container = true;
+    }
+    template<class _key_type, class _store_type>
+    typed_dict<_key_type, _store_type>::typed_dict(std::initializer_list<_pair<_key_type, _store_type>> _pairs) {
+        std::vector<_key_type>  vec_keys;
+        std::list<_store_type>  vec_values;
+        for(auto itr=_pairs.begin(); itr!=_pairs.end(); ++itr) {
+            vec_keys.push_back((*itr).key);
+            vec_values.push_back((*itr).value);
+        }
+        if(hasRepetitions<_key_type>(vec_keys)) this->_call_error(0, "::typed_dict(std::initializer_list<_pair<_key_type, _store_type>>)", "there are repetitions within the keys.");
+        this->_keys = vec_keys;
+        this->_values = vec_values;
+        for(auto itr=vec_values.begin(); itr!=vec_values.end(); ++itr) _lookup.push_back(&(*itr));
+        this->_init_container = true;
+    }
 
     template<class _key_type, class _store_type>
     _store_type& typed_dict<_key_type, _store_type>::operator[] (int idx) {
@@ -755,7 +803,7 @@ namespace DIY {
     }
 
     template<class _key_type, class _store_type>
-    _key_type typed_dict<_key_type, _store_type>::getKey(size_t idx) {
+    _key_type typed_dict<_key_type, _store_type>::getKey(size_t idx) const {
         return this->_keys.at(idx);
     }
 
@@ -781,20 +829,20 @@ namespace DIY {
     }
 
     template<class _key_type, class _store_type>
-    int typed_dict<_key_type, _store_type>::find(_key_type key, bool _call_except) {
+    int typed_dict<_key_type, _store_type>::find(_key_type key, bool _call_except) const {
         for(int i=0; i<_keys.size(); i++) {
             if(_keys[i]==key) return i;
         }
-        if(_call_except) this->_call_error(0, "::find(_key_type)");
+        if(_call_except) this->_call_error(0, "::find(_key_type, bool)");
         return -1;
     }
 
 
     template<class _key_type, class _store_type>
-    size_t typed_dict<_key_type, _store_type>::size() { return this->_keys.size(); }
+    size_t typed_dict<_key_type, _store_type>::size() const { return this->_keys.size(); }
 
     template<class _key_type, class _store_type>
-    _key_type typed_dict<_key_type, _store_type>::key(int idx) {
+    _key_type typed_dict<_key_type, _store_type>::key(int idx) const {
         if(!_init_container) this->_call_error(2, "::key(int)");
 
         if(idx>=static_cast<int>(_keys.size())) this->_call_error(0, "::key(int)", " arg for index `idx` is bigger than available number of keys: "+std::to_string(_keys.size()));
