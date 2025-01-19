@@ -147,6 +147,7 @@ int main(int argc, char** argv) {
 
 
     while(running.load()) {
+        guiKeys.update();
         ALLEGRO_EVENT al_event;
         while(al_get_next_event(queue, &al_event)) {
             ImGui_ImplAllegro5_ProcessEvent(&al_event);
@@ -198,6 +199,8 @@ int main(int argc, char** argv) {
 
             ImGui::EndTabBar();
         }
+
+        // std::cout << formatContainer1(guiKeys.holding_keys, guiKeys.holding_keys.size(), 4, 0, "right") << std::endl;
 
 
         ImGui::SetCursorPos(ImVec2(WIN_WIDTH*0+10, WIN_HEIGHT-25));

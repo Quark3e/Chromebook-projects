@@ -15,47 +15,7 @@
 #include <diy_dictionary.hpp>
 
 
-// inline bool IsLegacyNativeDupe(ImGuiKey key) {
-//     return key >= 0 && key < 512 && ImGui::GetIO().KeyMap[key] != -1;
-// }
 
-// /**
-//  * @brief update `pressed_keys` std::vector<std::vector<int>> container with the keys that has been pressed with `ImGuiKey`
-//  * 
-//  * @return std::vector<std::vector<int>*> of the local static container.
-//  */
-// inline std::vector<std::vector<int>>* update_keys() {
-//     static int maxSize_history_pressed_keys = 2;
-//     static std::vector<std::vector<int>> pressed_keys;
-//     static size_t num_keys_pressed = 0;
-//     ImGuiKey start_key = (ImGuiKey)0;
-//     if(pressed_keys.size()>=maxSize_history_pressed_keys ) {
-//         // pressed_keys.clear();
-//         for(size_t i=1; i<pressed_keys.size(); i++) {
-//             pressed_keys[i-1] = pressed_keys[i];
-//         }
-//     }
-//     else {
-//         pressed_keys.push_back(std::vector<int>());
-//     }
-//     pressed_keys[pressed_keys.size()-1].clear();
-//     for(ImGuiKey key=start_key; key<ImGuiKey_NamedKey_END; key=(ImGuiKey)(key+1)) {
-//         if(IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) continue;
-//         pressed_keys[pressed_keys.size()-1].push_back(key);
-//     }
-//     num_keys_pressed = pressed_keys[pressed_keys.size()-1].size();
-//     return &pressed_keys;
-// }
-
-inline std::vector<int>* update_mouse() {
-    static std::vector<int> pressed_mouse;
-    static size_t num_mouse_pressed = 0;
-    ImGuiMouseButton start_mouse = (ImGuiMouseButton)0;
-
-    pressed_mouse.clear();
-    
-    return &pressed_mouse;
-}
 
 
 struct pressed_key__struct {
@@ -64,14 +24,15 @@ struct pressed_key__struct {
     static std::vector<std::chrono::steady_clock::time_point> timePoints;
     size_t num_keys_pressed = 0;
 
-    /// @brief Container to hold the keys that are currently being held
-    std::vector<int> holding_keys;
-    /// @brief Number of history instances in a row that are allowed to not be the holding key for the holding key to still be
-    /// rwegistered as "holding"
-    int holding_keys__allowed_gaps = 2;
-    /// @brief Minimum limit number that a key must be active for it to be registered as "holding"
-    int holding_keys__holdingLim = 10;
+    /**
+     * @brief Main update function for updating the struct's `::pressed` history container with current frames keys
+     * 
+     */
+    void update();
 
+    std::vector<int> holding_keys;      // Container to hold the keys that are currently being held
+    int holding_keys__allowed_gaps = 2; // Number of history instances in a row that are allowed to not be the holding key for the holding key to still be registered as "holding".
+    int holding_keys__holdingLim = 10;  // Minimum limit number that a key must be active for it to be registered as "holding"
     /**
      * A helper dictionary used for knowing how many times an ImGuiKey has occurred.
      *  the correlated integer vlaue is either >0 or <0:
@@ -79,9 +40,28 @@ struct pressed_key__struct {
      *   - `>0`  key has occurred the integer value number of history instances. If this is more or equal to `holding_keys__holdingLim` then it'll be added to `holding_keys` vector
      */
     DIY::typed_dict<int, int> __refDict_holding_keys_occur;
-    void    __update_holding_keys();
+    /**
+     * Helper directory that holds the direction of the latest value change in `__refDict_holding_keys_occur` for given keys.
+     *  - `<0`  newest key value is smaller than previous
+     *  - `=0`  newest key value is same as previous
+     *  - `>0`  newest key value is bigger than previous
+     */
+    DIY::typed_dict<int, int> __refDict_keyChangeDir;
+    void __update_holding_keys();
+    /**
+     * @brief Check whether an ImGuiKey is *registered as* "holding down" in accordance with member `holding_keys__` settings.
+     * 
+     * @param _key ImGuiKey or an integer for the key to check
+     * @return true if the key is held down.
+     * @return false if the key isn't held down.
+     */
+    bool isHolding(int _key);
 
-    void    update();
+    std::vector<int> clicked_keys;      // Container to hold the keys that are currently registered as "clicked" on both the rising- and falling state change. To determine whether the key has been clicked or is lifted, check __refDict_keyChangeDir.get(_key) value or use ::isClicked(int) member.
+    int clicked_keys__allowed_gaps = 2; // Maximum number of history instances in a row that are allowed to not contain the key to still not update the `clicked_keys_...` containers.
+    void __update_clicked_keys();
+    int isClicked(int _key);
+
     /**
      * @brief Get the time period between two presses (in pressed keys history) for a given key
      * 
@@ -91,17 +71,200 @@ struct pressed_key__struct {
      * @param msLim minimum millisecond limit for the period to return the value (recommended to 200ms for a double click)
      * @return float milliseconds for the period
      */
-    float   keyPeriod(int keyID, bool mustAlone=false, int blankFrame=1, float msLim=200);
-    /**
-     * @brief Check whether an ImGuiKey is *registered as* "holding down" in accordance with member `holding_keys__` settings.
-     * 
-     * @param _key ImGuiKey or an integer for the key to check
-     * @return true if the key is held down.
-     * @return false if the key isn't held down.
-     */
-    bool    isHolding(int _key);
+    float keyPeriod(int keyID, bool mustAlone=false, int blankFrame=1, float msLim=200);
 };
 inline pressed_key__struct guiKeys;
+
+inline std::vector<std::vector<int>> pressed_key__struct::pressed;
+inline std::vector<std::chrono::steady_clock::time_point> pressed_key__struct::timePoints;
+
+inline void pressed_key__struct::update() {
+    // ImGuiKey start_key = (ImGuiKey)0;
+    auto timeNow = std::chrono::steady_clock::now();
+    if(pressed.size()>0 && timeNow == timePoints.at(timePoints.size()-1)) return;
+    
+    if(pressed.size()>=maxSize_history_pressed_keys) {
+        for(size_t i=1; i<pressed.size(); i++) {
+            pressed[i-1]    = pressed[i];
+            timePoints[i-1] = timePoints[i];
+        }
+        timePoints[timePoints.size()-1] = timeNow;
+    }
+    else {
+        pressed.push_back(std::vector<int>());
+        timePoints.push_back(timeNow);
+    }
+    pressed[pressed.size()-1].clear();
+    for(ImGuiKey key=ImGuiKey_NamedKey_BEGIN; key<ImGuiKey_NamedKey_END; key=(ImGuiKey)(key+1)) {
+        if(/*IsLegacyNativeDupe(key) || */!ImGui::IsKeyDown(key)) continue;
+        pressed[pressed.size()-1].push_back(key);
+    }
+    num_keys_pressed = pressed[pressed.size()-1].size();
+
+    this->__update_holding_keys();
+    this->__update_clicked_keys();
+}
+
+inline void pressed_key__struct::__update_holding_keys() {
+    static std::chrono::steady_clock::time_point _lastChecked = std::chrono::steady_clock::now();
+
+    if(pressed.size()==0 || timePoints.size()==0) return;
+    if(_lastChecked==this->timePoints.at(timePoints.size()-1)) return;
+    
+    std::vector<int> &_recentPressed = pressed.at(pressed.size()-1);
+
+    /// Check the elements in __refDict_holding_keys_occur with new keys
+    for(size_t i=0; i<__refDict_holding_keys_occur.size(); i++) {
+        int idxFound = -1;
+        for(size_t ii=0; ii<_recentPressed.size(); ii++) {
+            if(_recentPressed.at(ii)==__refDict_holding_keys_occur.getKey(i)) {
+                __refDict_holding_keys_occur[i] += (__refDict_holding_keys_occur[i]==-1? 2 : 1);
+                __refDict_keyChangeDir[i] = 1;
+                idxFound = ii;
+                break;
+            }
+        }
+        if(idxFound==-1) {
+            __refDict_holding_keys_occur[i] -= (__refDict_holding_keys_occur[i]==1? 2 : 1);
+            __refDict_keyChangeDir[i] = -1;
+        }
+    }
+
+    /// Check the elements in _recentPressed to add new keys to the refDict: Only checks elements that are only in _recentPressed, i.e set theory: _recentPressed-__refDict_holding_keys_occur
+    int foundIdx = -1;
+    for(size_t i=0; i<_recentPressed.size(); i++) {
+        foundIdx = -1;
+        if((foundIdx = __refDict_holding_keys_occur.find((ImGuiKey)_recentPressed.at(i), false)) < 0) {
+            __refDict_holding_keys_occur.add((ImGuiKey)_recentPressed.at(i), 1);
+            __refDict_keyChangeDir.add(_recentPressed.at(i), 1);
+        }
+    }
+
+    /// Go through the value of each item in dict and fix them
+    for(size_t i=0; i<__refDict_holding_keys_occur.size(); i++) {
+        int *refDictVal_ptr = &__refDict_holding_keys_occur[i];
+        int found = -1;
+        for(size_t ii=0; ii<this->holding_keys.size(); ii++) {
+            if(__refDict_holding_keys_occur.getKey(i)==this->holding_keys.at(ii)) {
+                found = ii;
+                break;
+            }
+        }
+
+        if(*refDictVal_ptr + holding_keys__allowed_gaps >= holding_keys__holdingLim) { // refDictVal_ptr value is "above" threshold
+            if(*refDictVal_ptr>holding_keys__holdingLim) { // refDictVal_ptr value "reached the ceiling"
+                *refDictVal_ptr = holding_keys__holdingLim;
+                __refDict_keyChangeDir[i] = 0;
+            }
+            else {
+                *refDictVal_ptr++;
+            }
+            if(found<0) holding_keys.push_back(__refDict_holding_keys_occur.getKey(i)); 
+        }
+        else {
+            if(found>-1) {
+                // (*refDictVal_ptr)++;
+                auto itr = holding_keys.begin();
+                std::advance(itr, found);
+                holding_keys.erase(itr);
+            }
+            else {
+                // (*refDictVal_ptr)--;
+            }
+            if(*refDictVal_ptr < 0) {
+                __refDict_holding_keys_occur.eraseIdx(i);
+                __refDict_keyChangeDir.eraseIdx(i);
+                i--;
+            }
+        }
+    }
+
+    // std::cout << DIY::prettyPrint_vec1<int>(_recentPressed) << " | ";
+    // std::cout << __refDict_holding_keys_occur << " | ";
+    // std::cout << DIY::prettyPrint_vec1<int>(this->holding_keys) << std::endl;
+
+    _lastChecked = this->timePoints.at(timePoints.size()-1);
+}
+inline bool pressed_key__struct::isHolding(int _key) {
+    for(size_t i=0; i<this->holding_keys.size(); i++) {
+        if(this->holding_keys.at(i)==_key) return true;
+    }
+    return false;
+}
+
+inline void pressed_key__struct::__update_clicked_keys() {
+    static auto _lastChecked = std::chrono::steady_clock::now();
+
+    if(pressed.size()==0 || timePoints.size()==0) return;
+    if(_lastChecked==this->timePoints.at(timePoints.size()-1)) return;
+
+    this->__update_holding_keys();
+    
+    for(size_t i=0; i<__refDict_keyChangeDir.size(); i++) {
+        if(__refDict_holding_keys_occur.get(__refDict_keyChangeDir.getKey(i))==(holding_keys__holdingLim-clicked_keys__allowed_gaps)) {
+            bool found=false;
+            for(size_t ii=0; ii<clicked_keys.size(); ii++) {
+                if(clicked_keys.at(ii)==__refDict_keyChangeDir.getKey(i)) {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) clicked_keys.push_back(__refDict_keyChangeDir.getKey(i));
+        }
+        else {
+            for(size_t ii=0; ii<clicked_keys.size(); ii++) {
+                if(clicked_keys.at(ii)==__refDict_keyChangeDir.getKey(i)) {
+                    auto itr = clicked_keys.begin();
+                    std::advance(itr, ii);
+                    clicked_keys.erase(itr);
+                    break;
+                }
+            }
+        }
+    }
+
+
+    _lastChecked = this->timePoints.at(timePoints.size()-1);
+}
+inline int  pressed_key__struct::isClicked(int _key) {
+    int _retur = 2;
+    for(size_t i=0; i<this->clicked_keys.size(); i++) {
+        if(this->clicked_keys.at(i)==_key) {
+            _retur = __refDict_keyChangeDir.get(_key);
+        }
+    }
+    return _retur;
+}
+
+inline float pressed_key__struct::keyPeriod(int keyID, bool mustAlone, int blankFrame, float msLim) {
+    if(pressed.size()==0) return -1;
+    float period = -1;
+
+    std::chrono::steady_clock::time_point _t1, _t2;
+
+    int found1 = -1;
+    int found2 = -1;
+    for(int i=pressed.size()-1; i>=0; i--) {
+        for(auto _key : pressed[i]) {
+            if(_key==keyID && (!mustAlone || (mustAlone && pressed[i].size()==1))) {
+                if(found1 != -1 && abs(i-found1) > blankFrame) {
+                    found2 = i;
+                    _t2 = timePoints[i];
+                }
+                else {
+                    found1 = i;
+                    _t1 = timePoints[i];
+                }
+            }
+        }
+        if(found2>-1) {
+            period = std::chrono::duration_cast<std::chrono::milliseconds>(_t1-_t2).count();
+            return (period<=msLim? period : -1);
+        }
+    }
+    return period;
+}
+
 
 
 /**

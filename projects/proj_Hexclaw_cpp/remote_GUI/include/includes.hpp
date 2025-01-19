@@ -33,6 +33,8 @@
 #include <imgui/backends/imgui_impl_allegro5.h>
 
 
+#include <nodechart/extra_imgui.hpp>
+
 #include <useful.hpp>
 #include <diy_dictionary.hpp>
 #include <diy_performance.hpp>

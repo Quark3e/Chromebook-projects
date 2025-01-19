@@ -45,7 +45,6 @@ extern ALLEGRO_DISPLAY* display;
  */
 extern DIY::typed_dict<std::string, DIY::typed_dict<std::string, size_t>> imageFormats;
 
-
 extern int mode;
 
 /**
