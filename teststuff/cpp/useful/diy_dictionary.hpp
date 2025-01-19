@@ -561,11 +561,13 @@ namespace DIY {
 
             bool _init_container = false;
 
-            void _call_error(int code, std::string from_member="", std::string custom_error="");
+            void _call_error(int code, std::string from_member="", std::string custom_error="") const;
 
             // auto _getItr_key(size_t idx);
             auto _getItr(int idx);
+            auto _getItr(int idx) const;
             auto _getItr_rev(int idx);
+            auto _getItr_rev(int idx) const;
 
         public:
             typed_dict() {}; //empty default constructor
@@ -659,7 +661,7 @@ namespace DIY {
      * 
      */
     template<class _key_type, class _store_type>
-    void typed_dict<_key_type, _store_type>::_call_error(int code, std::string from_member, std::string custom_error) {
+    void typed_dict<_key_type, _store_type>::_call_error(int code, std::string from_member, std::string custom_error) const {
         std::string callStr = "ERROR: "+this->_info_name+from_member+": ";
         if(custom_error.length()!=0) callStr+=custom_error;
         else {
@@ -693,6 +695,17 @@ namespace DIY {
         return itr;
     }
     template<class _key_type, class _store_type>
+    auto typed_dict<_key_type, _store_type>::_getItr(int idx) const {
+        if(idx>=static_cast<int>(_keys.size())) this->_call_error(0, "::_getItr(int)", "arg for `idx` is too large");
+        else if(abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
+        else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
+        
+        std::list<_store_type>::const_iterator itr = _values.begin();
+        advance(itr, idx);
+
+        return itr;
+    }
+    template<class _key_type, class _store_type>
     auto typed_dict<_key_type, _store_type>::_getItr_rev(int idx) {
         if(idx>=static_cast<int>(_keys.size())) this->_call_error(0, "::_getItr(size_t)", "arg for `idx` is too large");
         else if(abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
@@ -703,6 +716,18 @@ namespace DIY {
 
         return itr;
     }
+    template<class _key_type, class _store_type>
+    auto typed_dict<_key_type, _store_type>::_getItr_rev(int idx) const {
+        if(idx>=static_cast<int>(_keys.size())) this->_call_error(0, "::_getItr(size_t)", "arg for `idx` is too large");
+        else if(abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
+        else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
+        
+        auto itr = _values.rbegin();
+        advance(itr, idx);
+
+        return itr;
+    }
+
 
 
     // template<class _key_type, class _store_type>

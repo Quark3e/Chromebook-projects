@@ -151,6 +151,10 @@ namespace IK_PATH {
 */
 
     inline const DIY::typed_dict<std::string, DIY::typed_dict<std::string, std::vector<std::string>>> GCODE_syntax({
+        {"F<INT>", _TD_vStr({
+            {"obl", {}},
+            {"opt", {}}
+        })},
         {"M0", _TD_vStr({ // Unconditional stop
             {"obl", {}}, // obligatory commands
             {"opt", {}}  // optional commands
@@ -173,28 +177,28 @@ namespace IK_PATH {
         })},
         {"G0", _TD_vStr({ // Linear interpolation: instant motion
             {"obl", {"(X,Y,Z)"}},
-            {"opt", {}}
+            {"opt", {"(U,V,W)"}}
         })},
         {"G1", _TD_vStr({ // Linear interpolation: uses Feedrate
             {"obl", {"(X,Y,Z)"}},
-            {"opt", {"(F)"}} // F-set Feedrate
+            {"opt", {"(F)", "(U,V,W)"}} // F-set Feedrate
         })},
         {"G2", _TD_vStr({ // Circular interpolation: CW
             {"obl", {
                 "(X,Y,Z)",    // end position
                 "(I,J)/(R)" // I-incr. offset from current X pos to arc center, J-incr. offset from current Y pos to arc center; R-radius to arc center from current and end pos
             }},
-            {"opt", {"F"}} // F-set Feedrate
+            {"opt", {"F", "(U,V,W)"}} // F-set Feedrate
         })}, 
         {"G3", _TD_vStr({ // Circular interpolation: CCW
             {"obl", {
                 "(X,Y,Z)",    // end position
                 "(I,J)/(R)" // I-incr. offset from current X pos to arc center, J-incr. offset from current Y pos to arc center; R-radius to arc center from current and end pos
             }},
-            {"opt", {"(F)"}} // F-set Feedrate
+            {"opt", {"(F)", "(U,V,W)"}} // F-set Feedrate
         })},
         {"G4", _TD_vStr({ // Dwell/Pause for either `S` seconds or `P` milliseconds
-            {"obl", {"(S)", "(P)"}},
+            {"obl", {"(S,P)"}},
             {"opt", {}}
         })},
         {"G5", _TD_vStr({ // Bézier Cubic curve:
@@ -212,7 +216,7 @@ namespace IK_PATH {
         {"G21", _TD_vStr({{"obl", {}}, {"opt", {}}})}, // Coordinate unit: Metric     [mm]
         {"G28",  _TD_vStr({ // Move to set coordinate
             {"obl", {}},
-            {"opt", {}}
+            {"opt", {"(X,Y)"}}
         })},
         {"G90", _TD_vStr({{"obl", {}}, {"opt", {}}})}, // Workspace movement: absolute
         {"G91", _TD_vStr({{"obl", {}}, {"opt", {}}})} // Workspace movement: relative

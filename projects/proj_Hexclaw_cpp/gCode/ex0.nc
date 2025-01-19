@@ -1,9 +1,7 @@
-
-
 % ;Beginning
 (comment)
 G21 G17 G90 F100
-M03 S1000
+M03
 G00 X5 Y5                 ; point B
 G01 X5 Y5 Z-1             ; point B
 G01 X5 Y15 Z-1            ; point C
@@ -18,7 +16,7 @@ G01 X13 Y10 Z-1           ; point J
 G03 X11 Y8 Z-1 I0 J-2     ; point K
 G01 X11 Y5 Z-1            ; point L
 G01 X5 Y5 Z-1             ; point B
-G01 X5 Y5 Z0 a0 b0 y0
+G01 X5 Y5 Z0 U0 V0 W0
 G02 X5 Y5 Z0 R2
 G04 P100
 G28 X0 Y0
