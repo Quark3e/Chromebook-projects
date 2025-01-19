@@ -3,19 +3,19 @@
 #include <useful.hpp>
 
 
-bool IK_PATH::GCODE_schedule::_arg_isNumber(std::string argToCheck, const int* solvedValue) {
-    static int _solvedValue = 0;
-    try {
-        _solvedValue = std::stoi(argToCheck.substr(1));
-        solvedValue = &_solvedValue;
-    }
-    catch(const std::exception& e) {
-        // std::cerr << e.what() << '\n';
-        solvedValue = nullptr;
-        return false;
-    }
-    return true;
-}
+// bool IK_PATH::GCODE_schedule::_arg_isNumber(std::string argToCheck, const int* solvedValue) {
+//     static int _solvedValue = 0;
+//     try {
+//         _solvedValue = std::stoi(argToCheck.substr(1));
+//         solvedValue = &_solvedValue;
+//     }
+//     catch(const std::exception& e) {
+//         // std::cerr << e.what() << '\n';
+//         solvedValue = nullptr;
+//         return false;
+//     }
+//     return true;
+// }
 
 /*
 bool IK_PATH::GCODE_schedule::_parse_line(std::string line, bool throwError) {
@@ -202,7 +202,7 @@ int IK_PATH::_find_primary(std::string arg) {
 
             switch (arg.at(0)) {
             case 'F': {
-                
+
                 break;
             }
             default:
@@ -231,11 +231,206 @@ int IK_PATH::_syntax_idx(std::string arg, GCodeLevel *arg_level_type) {
 
     return -1;
 }
+int IK_PATH::GCODE_schedule::_parse_line(std::string &line, bool test) {
+
+    /**
+     * @brief parse string from GCODE_syntax
+     * 
+     */
+    static auto lambda_parseAlt = [this](std::string arg) {
+        // NOTE: max depth: 1
+
+        std::vector<std::string> splits;
+        int _depth = 0;
+        for(size_t _c=0; _c<arg.size(); _c++) {
+            switch (arg.at(_c)) {
+            case '(':
+                splits.push_back("");
+                _depth++;
+                break;
+            case ')':
+                _depth--;
+                break;
+            case '/':
+                break;
+            default:
+                splits.at(splits.size()-1).push_back(arg.at(_c));
+                break;
+            }
+        }
+        return splits;
+    };
+
+    size_t pos_brace0 = line.find('(');
+    size_t pos_brace1 = line.find(')');
+    if(pos_brace1 < pos_brace0) {
+        this->_parse_error_msg = "incorrect use of () braces.";
+        return 1;
+    }
+    if(pos_brace0!=std::string::npos) {
+        line.erase(pos_brace0, pos_brace1-pos_brace0+1);
+    }
+    size_t pos_semicolon = line.find(';');
+    if(pos_semicolon!=std::string::npos) {
+        line.erase(pos_semicolon);
+    }
+
+    std::vector<std::string> args = splitString(line, " ");
+
+
+    std::vector<std::string> parsed_args;
+
+    GCodeLevel  currLevel = GCodeLevel__primary;
+
+    std::string gcode_currPrimary   = "";
+    size_t      gcode_primary_num       = 0;
+    std::string gcode_primary_searchType= "obl";
+
+    std::vector<std::string> parsed_splits;
+    for(size_t i=0; i<args.size(); i++) {
+        
+        bool __special_break = false;
+        switch (args.at(i).at(0)) {
+        case '%':
+            __special_break = true;
+            parsed_args.push_back(args.at(i));
+            //Need to make remote_GUI display the raw lines and instead have the runSchedule member do this sort of comment filtering
+            break;
+        default:
+            break;
+        }
+        if(__special_break) break;
+
+        switch (currLevel) {
+        case GCodeLevel__primary: { /// Searching for primary
+            /// Checking for number in primary gcode command.
+            if(_contains_size_t(args.at(i), 1, false, "_parse_line(std::string&, bool)", &gcode_primary_num)) {
+                int _gcodeIdx = -1;
+                /// Search for valid primary/"key" in GCODE_syntax
+                if((_gcodeIdx = GCODE_syntax.find(args.at(i).at(0)+std::to_string(gcode_primary_num), false))!=-1) {
+                    /// Valid gcode primary found
+                    gcode_currPrimary = args.at(i).at(0)+std::to_string(gcode_primary_num);
+                    gcode_primary_searchType = "obl";
+                    currLevel = GCodeLevel__secondary;
+                    parsed_args.push_back(args.at(i));
+                    
+                    break;
+                }
+                else this->_parse_error_msg = "\""+args.at(i)+"\" is not a valid gcode command.";
+            }
+            else this->_parse_error_msg = "GCode command must contain integers to be valid commands.";
+            return 1;
+        }
+        case GCodeLevel__secondary: {
+            DIY::typed_dict<std::string, std::vector<std::string>> &_2ndaries = GCODE_syntax.get(gcode_currPrimary);
+
+            /// Check for obligatory commands.
+            size_t found_groups = 0; // container to check how many obligatory groups were found.
+            for(size_t s2_idx=0; s2_idx<_2ndaries.get("obl").size(); s2_idx++) { // index to current element/container in first "obl" secondary gcode arg group
+                /// index to "(X,Y,Z)/(A)" from {"(X,Y,Z)/(A)", }
+                /// Note: there has to be a match with every iteration of this loop, otherwise it means an obligatory command hasn't been found.
+
+                /**
+                 * Number of elements found in xor "neighbours". 
+                 *  if `>=2`: both occurrances in xor's found
+                 *  if `==0 && vec.size()>0`: none of the obligatory commands found.
+                 */
+                size_t found_parallels = 0;
+                std::vector<std::string> _2nd_alt = lambda_parseAlt(_2ndaries.get("obl").at(s2_idx)); // vector of "parallels": `{"ABC", "D"}`
+                for(size_t _ii=0; _ii<_2nd_alt.size(); _ii) { // idx to current "neighbour"/element in splits/xor's: `"ABC"` from `{"ABC", "D"}`
+                    size_t found = 0;
+                    for(size_t _i_n=0; _i_n<_2nd_alt.at(_ii).size(); _i_n++) { // idx to current char in "neighbour": `'B'` from `"ABC"`
+                        /// Iterate through every character in current xor "group"/"neighbour" split string
+
+                        if(args.at(i).at(0)==_2nd_alt.at(_ii).at(_i_n)) {
+                            /// Matching initial character found. It's either check for number or the line is invalid.
+                            try {
+                                std::stoi(args.at(i));
+                            }
+                            catch(const std::exception& e) {
+                                this->_parse_error_msg = "invalid GCode: command \""+args.at(i)+"\" doesn't contain valid numbers: "+e.what();
+                                return 1; 
+                            }
+                            
+                            parsed_args.push_back(args.at(i));
+                            found++;
+                            i++;
+                        }
+                        if(i==args.size()) break;
+                    }
+                    if(found>0) {
+                        found_parallels++;
+                        found_groups++;
+                    }
+                    if(i==args.size()) break;
+                }
+                if(_2nd_alt.size()!=0 && found_parallels!=1) {
+                    if(found_parallels==0)  this->_parse_error_msg = "none of the obligatory secondary commands found for primary: "+gcode_currPrimary+" to find: "+formatContainer1<std::vector<std::string>>(_2nd_alt, _2nd_alt.size(), 0, 0, "left");
+                    else                    this->_parse_error_msg = "multiple commands from separated xor groups were found: "+formatContainer1<std::vector<std::string>>(_2nd_alt, _2nd_alt.size(), 0, 0, "left");
+                    return 1;
+                }
+            }
+            if(_2ndaries.get("obl").size()!=found_groups) {
+                this->_parse_error_msg = "found groups doesn't match number of obligatory groups to find for primary gcode: "+gcode_currPrimary;
+                return 1;
+            }
+
+            /// Check for optional commands
+            for(size_t s2_idx=0; s2_idx<_2ndaries.get("opt").size(); s2_idx) { // index to current element/container in second "opt" secondary gcode arg group
+
+                size_t found_parallels = 0;
+                std::vector<std::string> _2nd_alt = lambda_parseAlt(_2ndaries.get("opt").at(s2_idx));
+                for(size_t _ii=0; _ii<_2nd_alt.size(); _ii++) {
+                    size_t found = 0;
+                    for(size_t _i_n=0; _i_n<_2nd_alt.at(_ii).size(); _i_n++) {
+
+                        if(args.at(i).at(0)==_2nd_alt.at(_ii).at(_i_n)) {
+                            /// Matching initial character found. It's either check for number or the line is invalid.
+                            try {
+                                std::stoi(args.at(i));
+                            }
+                            catch(const std::exception& e) {
+                                this->_parse_error_msg = "invalid GCode: command \""+args.at(i)+"\" doesn't contain valid numbers: "+e.what();
+                                return 1; 
+                            }
+                            
+                            parsed_args.push_back(args.at(i));
+                            found++;
+                            i++;
+                        }
+                        if(i==args.size()) break;
+                    }
+                    if(found>0) {
+                        found_parallels++;
+                    }
+                }
+                if(_2nd_alt.size()!=0 && found_parallels!=1) {
+                    if(found_parallels==0)  this->_parse_error_msg = "none of the obligatory secondary commands found for primary: "+gcode_currPrimary+" to find: "+formatContainer1<std::vector<std::string>>(_2nd_alt, _2nd_alt.size(), 0, 0, "left");
+                    else                    this->_parse_error_msg = "multiple commands from separated xor groups were found: "+formatContainer1<std::vector<std::string>>(_2nd_alt, _2nd_alt.size(), 0, 0, "left");
+                    return 1;
+                }
+            }
+
+            currLevel = GCodeLevel__primary;
+            break;
+        }
+        default:
+            throw std::runtime_error("what the fuck.");
+        }
+    }
+
+    this->_lastArgs_unparsed = line;
+    std::string _parsed_line = "";
+    for(auto arg: parsed_args) {
+        _parsed_line += arg + " ";
+    }
+    line = _parsed_line;
+    this->_lastParsed_args = parsed_args;
+
+    return 0;
+}
 int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
-    GCodeLevel currLevel = GCodeLevel__primary;
-
-
-
+    // GCodeLevel currLevel = GCodeLevel__primary;
 
     this->_lastArgs_unparsed = line;
     bool gcode_additional_primary = true; // whether this primary allows another primary gcode argument (`+` symbol if true, otherwise false)

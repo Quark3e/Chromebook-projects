@@ -653,6 +653,10 @@ namespace DIY {
      * @note  `0`- "input key argument not found in _keys storage"
      * @note  `1`- "input key argument already exists in _keys storage"
      * @note  `2`- "class hasn't been initialized"
+     * 
+     * @note Will throw `std::runtime_error`
+     * 
+     * 
      */
     template<class _key_type, class _store_type>
     void typed_dict<_key_type, _store_type>::_call_error(int code, std::string from_member, std::string custom_error) {

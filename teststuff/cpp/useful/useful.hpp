@@ -242,6 +242,23 @@ struct pos2d {
         return static_cast<int>(n);
     }
 
+    inline std::string removeFromString(std::string toModify, std::vector<char> toRemove) {
+        if(toModify.size()==0) throw std::invalid_argument("toModify argument cannot be empty.");
+        if(toRemove.size()==0) throw std::invalid_argument("toRemove arg cannot be empty.");
+        std::string _retur;
+        for(size_t i=0; i<toModify.size(); i++) {
+            bool _next = false;
+            for(size_t r=0; r<toRemove.size(); r++) {
+                if(toModify.at(i)==toRemove.at(r)) {
+                    _next = true;
+                    break;
+                }
+            }
+            if(_next) continue;
+            _retur.push_back(toModify.at(i));
+        }
+        return _retur;
+    }
 
     #include <cstdlib>
     #include <signal.h>

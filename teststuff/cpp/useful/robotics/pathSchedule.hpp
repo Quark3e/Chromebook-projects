@@ -145,7 +145,12 @@ namespace IK_PATH {
 
     using _TD_vStr = DIY::typed_dict<std::string, std::vector<std::string>>;
 
-    inline const DIY::typed_dict<std::string, DIY::typed_dict<std::string, std::vector<std::string>>> GCODE_Syntax__obligatory({
+/*
+    A,B,C/D,E       = (A),(B),(C/D),(E)     =  A or B or(C xor D)or E   = ABCE valid, ABDE valid
+    (A,B,C)/(D,E)   =                       = (A or B or C)xor(D or E)  = ABC  valid, DE   valid
+*/
+
+    inline const DIY::typed_dict<std::string, DIY::typed_dict<std::string, std::vector<std::string>>> GCODE_syntax({
         {"M0", _TD_vStr({ // Unconditional stop
             {"obl", {}}, // obligatory commands
             {"opt", {}}  // optional commands
@@ -167,38 +172,38 @@ namespace IK_PATH {
             {"opt", {}}
         })},
         {"G0", _TD_vStr({ // Linear interpolation: instant motion
-            {"obl", {"X,Y,Z"}},
+            {"obl", {"(X,Y,Z)"}},
             {"opt", {}}
         })},
         {"G1", _TD_vStr({ // Linear interpolation: uses Feedrate
-            {"obl", {"X,Y,Z"}},
-            {"opt", {"F"}} // F-set Feedrate
+            {"obl", {"(X,Y,Z)"}},
+            {"opt", {"(F)"}} // F-set Feedrate
         })},
         {"G2", _TD_vStr({ // Circular interpolation: CW
             {"obl", {
-                "X,Y,Z",    // end position
+                "(X,Y,Z)",    // end position
                 "(I,J)/(R)" // I-incr. offset from current X pos to arc center, J-incr. offset from current Y pos to arc center; R-radius to arc center from current and end pos
             }},
             {"opt", {"F"}} // F-set Feedrate
         })}, 
         {"G3", _TD_vStr({ // Circular interpolation: CCW
             {"obl", {
-                "X,Y,Z",    // end position
+                "(X,Y,Z)",    // end position
                 "(I,J)/(R)" // I-incr. offset from current X pos to arc center, J-incr. offset from current Y pos to arc center; R-radius to arc center from current and end pos
             }},
-            {"opt", {"F"}} // F-set Feedrate
+            {"opt", {"(F)"}} // F-set Feedrate
         })},
         {"G4", _TD_vStr({ // Dwell/Pause for either `S` seconds or `P` milliseconds
-            {"obl", {"S", "P"}},
+            {"obl", {"(S)", "(P)"}},
             {"opt", {}}
         })},
         {"G5", _TD_vStr({ // Bézier Cubic curve:
             {"obl", {
-                "I,J",  // I-incr. offset from current X pos to first control point; J-incr. offset from current Y pos to first control point
-                "P,Q",  // P-incr. offset from end X pos to second control point; Q-incr. offset from end Y pos to second control point
-                "X,Y"   // X-end position; Y-end position.
+                "(I,J)",  // I-incr. offset from current X pos to first control point; J-incr. offset from current Y pos to first control point
+                "(P,Q)",  // P-incr. offset from end X pos to second control point; Q-incr. offset from end Y pos to second control point
+                "(X,Y)"   // X-end position; Y-end position.
             }},
-            {"opt", {"F"}}, // F-set Feedrate
+            {"opt", {"(F)"}}, // F-set Feedrate
         })},
         {"G17", _TD_vStr({{"obl", {}}, {"opt", {}}})}, // Workspace plane: XY
         {"G18", _TD_vStr({{"obl", {}}, {"opt", {}}})}, // Workspace plane: ZX
@@ -221,12 +226,12 @@ namespace IK_PATH {
     "var_b" : {1, 2, 3, 4, 4}
     */
 
-    inline const DIY::typed_dict<char, std::vector<size_t>> GCode_primary_valid({
-        {'A', {0, 1}},
-        // {'F', {std::string::npos}},
-        {'G', {0, 1, 2, 3, 4, 17, 18, 19, 20, 21, 28, 90}},
-        {'M', {0, 3, 4, 5, 30}}
-    });
+    // inline const DIY::typed_dict<char, std::vector<size_t>> GCode_primary_valid({
+    //     {'A', {0, 1}},
+    //     // {'F', {std::string::npos}},
+    //     {'G', {0, 1, 2, 3, 4, 17, 18, 19, 20, 21, 28, 90}},
+    //     {'M', {0, 3, 4, 5, 30}}
+    // });
 
     enum GCodeLevel;
     /**
@@ -292,6 +297,7 @@ namespace IK_PATH {
          */
         int  _syntax_idx(std::string arg, bool *gcode_additional_primary=nullptr, bool *gcode_optional_secondary=nullptr);
         int _parse_line(std::string& line);
+        int _parse_line(std::string& line, bool test);
         std::string _lastArgs_unparsed = "";
         std::vector<std::string> _lastParsed_args;
         std::string _parse_error_msg = "";
@@ -303,7 +309,7 @@ namespace IK_PATH {
         size_t size() { return this->_commands_raw.size(); }
         std::string get_errorMsg_parse() { return _parse_error_msg; }
 
-        bool _arg_isNumber(std::string argToCheck, const int* solvedValue);
+        // bool _arg_isNumber(std::string argToCheck, const int* solvedValue);
 
         std::vector<std::string> operator[](size_t i) const; //_commands
         std::string get_raw(size_t i) const; //_commands_raw
