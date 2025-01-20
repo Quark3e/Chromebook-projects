@@ -186,14 +186,6 @@ DIY_KBH::keyBind_handler keyBinds({
 
 
 bool input_IK_enterPress = false;
-// bool keys__undo = false;
-// bool keys__redo = false;
-
-
-// bool _ctrl_enter__pressed = false; //`ctrl+enter`
-// bool _undo__pressed = false; //`ctrl+z`
-// bool _redo__pressed = false; //`ctrl+y` or `ctrl+shift+z`
-
 
 
 DIY::typed_dict<std::string, std::string> guiSettings_desc= HW_KINEMATICS::setting_desc;
