@@ -72,7 +72,7 @@ void tab_0(void) {
         // ImGui::SetCursorPos(ImVec2(WIN_INPUT_IK_POS[0], WIN_INPUT_IK_POS[1]+WIN_INPUT_IK_HEIGHT-50));
         ImGui::SetCursorPos(ImVec2(275, 75));
         if(ImGui::Button("Enter")) { input_IK_enterPress = true; }
-        // else if(input_IK_enterPress) input_IK_enterPress = false;
+        else if(input_IK_enterPress) input_IK_enterPress = false;
 
         ImGui::EndChild();
         if(takePerf_tab_0) perf_tab0.set_T1("T:IK_input"); //perf time_point:1
@@ -139,23 +139,25 @@ void tab_0(void) {
                 ImGui::PopID();
             }
             ImGui::EndChild();
-            if(keys__undo || _undo__pressed) {
+
+
+            if(keyBinds.clicked("undo") /*keys__undo || _undo__pressed*/) {
                 if(history_idx_tab0_schedule>0) {
                     history_idx_tab0_schedule--;
                     tab0_schedule = history_tab0_schedule[history_idx_tab0_schedule];
                 }
                 else {}
-                keys__undo = false;
-                _undo__pressed = false;
+                // keys__undo = false;
+                // _undo__pressed = false;
             }
-            if(keys__redo || _redo__pressed) {
+            if(keyBinds.clicked("redo") /*keys__redo || _redo__pressed*/) {
                 if(history_idx_tab0_schedule<history_tab0_schedule.size()-1) {
                     history_idx_tab0_schedule++;
                     tab0_schedule = history_tab0_schedule[history_idx_tab0_schedule];
                 }
                 else {}
-                keys__redo = false;
-                _redo__pressed = false;
+                // keys__redo = false;
+                // _redo__pressed = false;
             }
         }
         ImGui::Separator();
@@ -247,125 +249,128 @@ void tab_0(void) {
     //-------------
     // outMsg = "";
 
-    if(takePerf_tab_0) perf_tab0.set_T0("T:Keys"); //perf time_point:0
-    /**
-     * 515 [TAB]
-     * 568 [w]
-     * 525 [ENTER], 
-     * 527 [L_CTRL]
-     * 528 [L_SHIFT]
-     * 529 [L_ALT]
-     * 
-     * 531 [R_CTRL]
-     * 532 [R_SHIFT]
-     * 533 [R_ALT / alt-gr]
-     * 
-     * 569 [x]
-     * 570 [y]
-     * 571 [z]
-     * 
-     * 
-    */
-    ImGuiKey start_key = (ImGuiKey)0;
-    // std::cout << "----"<<start_key << std::endl;
-    // int key_
-
-
-    // int _keys_count_enter   = 0; //`ctrl+enter`
-    // int _keys_count_exit    = 0; //`ctrl+x`
-    // int _keys_count_undo    = 0; //`ctrl+z`
-    // int _keys_count_redo    = 0; //`ctrl+y` or `ctrl+shift+z`
     
-    static int _wait_keys__enter = 0;
-    static int _wait_keys__undo = 0;
-    static int _wait_keys__redo = 0;
+    // if(takePerf_tab_0) perf_tab0.set_T0("T:Keys"); //perf time_point:0
+    // /**
+    //  * 515 [TAB]
+    //  * 568 [w]
+    //  * 525 [ENTER], 
+    //  * 527 [L_CTRL]
+    //  * 528 [L_SHIFT]
+    //  * 529 [L_ALT]
+    //  * 
+    //  * 531 [R_CTRL]
+    //  * 532 [R_SHIFT]
+    //  * 533 [R_ALT / alt-gr]
+    //  * 
+    //  * 569 [x]
+    //  * 570 [y]
+    //  * 571 [z]
+    //  * 
+    //  * 
+    // */
+    // ImGuiKey start_key = (ImGuiKey)0;
+    // // std::cout << "----"<<start_key << std::endl;
+    // // int key_
 
-    static std::vector<int> keys_enter  {527, 662, 525};
-    static std::vector<int> keys_exit   {527, 662, 568};
-    static std::vector<int> keys_undo   {527, 662, 571};
-    static std::vector<int> keys_redo   {527, 662, 570};
-    static std::vector<int> keys_redo1  {527, 528, 662, 663, 571};
 
-    static std::vector<int> pressed_keys;
-    pressed_keys.clear();
-    for (ImGuiKey key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) {
-        if (/*IsLegacyNativeDupe(key) ||*/ !ImGui::IsKeyDown(key)) continue;
-        pressed_keys.push_back(key);
-        // ImGui::SameLine();
-        // ImGui::Text((key < ImGuiKey_NamedKey_BEGIN) ? "\"%s\"" : "\"%s\" %d", ImGui::GetKeyName(key), key);
-        // if(key==527 || key==531) { //`L_ctrl`/`R_ctrl`
-        //     _keys_count_enter++;
-        //     _keys_count_exit++;
-        //     _keys_count_undo++;
-        //     _keys_count_redo++;
-        // }
-        // if(key==528 || key==532) { //`L_shift`/`R_shift`
-        //     _keys_count_redo++;
-        //     _keys_count_undo--;
-        // }
-        // if(key==525) _keys_count_enter++;   //`enter`
-        // if(key==568) _keys_count_exit++;    //`w`
-        // if(key==571) _keys_count_undo++;    //`z`
-        // if(key==570) _keys_count_redo++;    //`y`
-    }
-    size_t size_pressed_keys = pressed_keys.size();
-    if(size_pressed_keys==3) {
-        if(match_vectors<int>(pressed_keys, keys_exit)) running = false;
-        if(match_vectors<int>(pressed_keys, keys_enter) && _wait_keys__enter==0) {
-            _ctrl_enter__pressed = true;
-            _wait_keys__enter = 1;
-        }
-        else _ctrl_enter__pressed = false;
-        if(match_vectors<int>(pressed_keys, keys_undo) && _wait_keys__undo==0) {
-            _undo__pressed = true;
-            _wait_keys__undo = 1;
-        }
-        else _undo__pressed = false;
-        if(match_vectors<int>(pressed_keys, keys_redo) && _wait_keys__redo==0) {
-            _redo__pressed = true;
-            _wait_keys__redo = 1;
-        }
-        else _redo__pressed = false;
-    }
-    else if(size_pressed_keys==5) {
-        if(match_vectors<int>(pressed_keys, keys_redo1) && _wait_keys__redo==0) {
-            _redo__pressed = true;
-            _wait_keys__redo = 1;
-        }
-        else _redo__pressed = false;
-    }
-    // if(size_pressed_keys!=0) std::cout<<DIY::prettyPrint_vec1<int>(pressed_keys)<<std::endl;
-    // // std::cout << std::endl;
-    // if(_keys_count_exit==2) running = false;
-    // // if(_keys_count_enter==2 && !_ctrl_enter__pressed) input_IK_enterPress = true;
-    // if(_keys_count_enter==2 && _wait_keys__enter==0) {
-    //     _ctrl_enter__pressed  = true;
-    //     _wait_keys__enter = 1;
+    // // int _keys_count_enter   = 0; //`ctrl+enter`
+    // // int _keys_count_exit    = 0; //`ctrl+x`
+    // // int _keys_count_undo    = 0; //`ctrl+z`
+    // // int _keys_count_redo    = 0; //`ctrl+y` or `ctrl+shift+z`
+    
+    // static int _wait_keys__enter = 0;
+    // static int _wait_keys__undo = 0;
+    // static int _wait_keys__redo = 0;
+
+    // static std::vector<int> keys_enter  {527, 662, 525};
+    // static std::vector<int> keys_exit   {527, 662, 568};
+    // static std::vector<int> keys_undo   {527, 662, 571};
+    // static std::vector<int> keys_redo   {527, 662, 570};
+    // static std::vector<int> keys_redo1  {527, 528, 662, 663, 571};
+
+    // static std::vector<int> pressed_keys;
+    // pressed_keys.clear();
+    // for (ImGuiKey key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) {
+    //     if (/*IsLegacyNativeDupe(key) ||*/ !ImGui::IsKeyDown(key)) continue;
+    //     pressed_keys.push_back(key);
+    //     // ImGui::SameLine();
+    //     // ImGui::Text((key < ImGuiKey_NamedKey_BEGIN) ? "\"%s\"" : "\"%s\" %d", ImGui::GetKeyName(key), key);
+    //     // if(key==527 || key==531) { //`L_ctrl`/`R_ctrl`
+    //     //     _keys_count_enter++;
+    //     //     _keys_count_exit++;
+    //     //     _keys_count_undo++;
+    //     //     _keys_count_redo++;
+    //     // }
+    //     // if(key==528 || key==532) { //`L_shift`/`R_shift`
+    //     //     _keys_count_redo++;
+    //     //     _keys_count_undo--;
+    //     // }
+    //     // if(key==525) _keys_count_enter++;   //`enter`
+    //     // if(key==568) _keys_count_exit++;    //`w`
+    //     // if(key==571) _keys_count_undo++;    //`z`
+    //     // if(key==570) _keys_count_redo++;    //`y`
     // }
-    // else _ctrl_enter__pressed = false;
-    // if(_keys_count_undo==2 && _wait_keys__undo==0) {
-    //     _undo__pressed = true;
-    //     _wait_keys__undo = 1;
+    // size_t size_pressed_keys = pressed_keys.size();
+    // if(size_pressed_keys==3) {
+    //     if(match_vectors<int>(pressed_keys, keys_exit)) running = false;
+    //     if(match_vectors<int>(pressed_keys, keys_enter) && _wait_keys__enter==0) {
+    //         _ctrl_enter__pressed = true;
+    //         _wait_keys__enter = 1;
+    //     }
+    //     else _ctrl_enter__pressed = false;
+    //     if(match_vectors<int>(pressed_keys, keys_undo) && _wait_keys__undo==0) {
+    //         _undo__pressed = true;
+    //         _wait_keys__undo = 1;
+    //     }
+    //     else _undo__pressed = false;
+    //     if(match_vectors<int>(pressed_keys, keys_redo) && _wait_keys__redo==0) {
+    //         _redo__pressed = true;
+    //         _wait_keys__redo = 1;
+    //     }
+    //     else _redo__pressed = false;
     // }
-    // else _undo__pressed = false;
-    // if(_keys_count_redo==2 && _wait_keys__redo==0) {
-    //     _redo__pressed = true;
-    //     _wait_keys__redo = 1;
+    // else if(size_pressed_keys==5) {
+    //     if(match_vectors<int>(pressed_keys, keys_redo1) && _wait_keys__redo==0) {
+    //         _redo__pressed = true;
+    //         _wait_keys__redo = 1;
+    //     }
+    //     else _redo__pressed = false;
     // }
+    // // if(size_pressed_keys!=0) std::cout<<DIY::prettyPrint_vec1<int>(pressed_keys)<<std::endl;
+    // // // std::cout << std::endl;
+    // // if(_keys_count_exit==2) running = false;
+    // // // if(_keys_count_enter==2 && !_ctrl_enter__pressed) input_IK_enterPress = true;
+    // // if(_keys_count_enter==2 && _wait_keys__enter==0) {
+    // //     _ctrl_enter__pressed  = true;
+    // //     _wait_keys__enter = 1;
+    // // }
+    // // else _ctrl_enter__pressed = false;
+    // // if(_keys_count_undo==2 && _wait_keys__undo==0) {
+    // //     _undo__pressed = true;
+    // //     _wait_keys__undo = 1;
+    // // }
+    // // else _undo__pressed = false;
+    // // if(_keys_count_redo==2 && _wait_keys__redo==0) {
+    // //     _redo__pressed = true;
+    // //     _wait_keys__redo = 1;
+    // // }
 
-    if(_wait_keys__enter>=LIM_SHORTCUT_KEYS) _wait_keys__enter=0;
-    else if(_wait_keys__enter>0) _wait_keys__enter++;
+    // if(_wait_keys__enter>=LIM_SHORTCUT_KEYS) _wait_keys__enter=0;
+    // else if(_wait_keys__enter>0) _wait_keys__enter++;
 
-    if(_wait_keys__undo>=LIM_SHORTCUT_KEYS) _wait_keys__undo=0;
-    else if(_wait_keys__undo>0) _wait_keys__undo++;
+    // if(_wait_keys__undo>=LIM_SHORTCUT_KEYS) _wait_keys__undo=0;
+    // else if(_wait_keys__undo>0) _wait_keys__undo++;
 
-    if(_wait_keys__redo>=LIM_SHORTCUT_KEYS) _wait_keys__redo=0;
-    else if(_wait_keys__redo>0) _wait_keys__redo++;
+    // if(_wait_keys__redo>=LIM_SHORTCUT_KEYS) _wait_keys__redo=0;
+    // else if(_wait_keys__redo>0) _wait_keys__redo++;
 
-    if(takePerf_tab_0) perf_tab0.set_T1("T:Keys"); //perf time_point:1
+    // if(takePerf_tab_0) perf_tab0.set_T1("T:Keys"); //perf time_point:1
+
+
 
     if(takePerf_tab_0) perf_tab0.set_T0("T:IK_group"); //prf time_point:0
-    if(input_IK_enterPress || _ctrl_enter__pressed) {
+    if(keyBinds.clicked("ctrlEnter") || input_IK_enterPress /*|| _ctrl_enter__pressed*/) {
         if(HW_KINEMATICS::getAngles(
                 output_IK_angles,
                 input_IK_pos,
@@ -386,7 +391,7 @@ void tab_0(void) {
         }
         else { outMsg = "error: No solution found."; }
         input_IK_enterPress = false;
-        _ctrl_enter__pressed = false;
+        // _ctrl_enter__pressed = false;
     }
     if(takePerf_tab_0)  perf_tab0.set_T1("T:IK_group"); //perf time_point:1
     

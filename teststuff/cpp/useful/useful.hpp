@@ -7,6 +7,7 @@
 #define M_PI  3.1415926535
 #endif
 
+#include <bitset>
 #include <math.h>
 #include <cmath>
 #include <string>
@@ -424,23 +425,43 @@ struct pos2d {
      * @param toFind the vector to find
      * @param toSearch the vector to find in / search through.
      * @param orderImportant whether the order of element values have to match the one's found-
-     * @return int of index position in `toSearch` where the `toFind` vector was found. If vector wasn't found then this function will return `-1`. 
+     * @return bool for whether all the elements of `toFind` was found in `toSearch` according to previous arguments
      */
     template<typename typeVar>
-    inline int find_vector(std::vector<typeVar> toFind, std::vector<typeVar> toSearch, bool orderImportant=false) {
+    inline bool find_vector(std::vector<typeVar> toFind, std::vector<typeVar> toSearch, bool orderImportant=false) {
         if(toFind.size() > toSearch.size()) throw std::invalid_argument("the toFind vector is bigger than toSearch.");
 
-        int foundIdx = -1;
-        for(size_t i=0; i<=toSearch-toFind.size(); i++) {
-            std::vector<typeVar> subVec;
-            for(size_t ii=i; toSearch.size()+i; ii++) subVec.push_back(toSearch[ii]);
-            if(match_vectors<typeVar>(toFind, subVec, orderImportant)) {
-                foundIdx = static_cast<int>(i);
-                break;
+
+        if(orderImportant) {
+            int foundIdx = -1;
+            for(size_t i=0; i<=toSearch.size()-toFind.size(); i++) {
+                std::vector<typeVar> subVec;
+                for(size_t ii=i; ii<toFind.size()+i; ii++) subVec.push_back(toSearch[ii]);
+
+                if(match_vectors<typeVar>(toFind, subVec, orderImportant)) {
+                    foundIdx = static_cast<int>(i);
+                    break;
+                }
             }
+            return (foundIdx!=-1? true : false);
         }
-    
-        return foundIdx;
+        else {
+            size_t ignBits = 0; // index to toFind elements to ignore cause they've been found.
+
+            for(size_t i=0; i<toSearch.size(); i++) {
+                
+                for(size_t ii=0; ii<toFind.size(); ii++) {
+                    if(!((ignBits & (1<<ii))>0) && toSearch[i]==toFind[ii]) {
+                        /// ii not found in ignBits byte string and it's a found element from toFind
+                        
+                        ignBits += 1<<ii;
+                        break;
+                    }
+                }
+            }
+            // std::cout << std::bitset<5>(ignBits) << " ";
+            return (ignBits==pow(2, toFind.size())-1? true : false);
+        }
     }
 
 
@@ -1258,6 +1279,24 @@ struct pos2d {
             if(itr!=--_container.end()) openSymb += ',';
         }
         return _out + closeSymb;
+    }
+
+    template<class T>
+    inline std::string formatVector(
+        std::vector<T>  _container,
+        int             _strWidth   = 0,
+        int             _precision  = 1,
+        std::string     _align      = "right",
+        bool            _numberFill = false,
+        char            _openSymb   = '{',
+        char            _closeSymb  = '}'
+    ) {
+        std::string _out(1, _openSymb);
+        for(size_t i=0; i<_container.size(); i++) {
+            _out += formatNumber(_container[i], _strWidth, _precision, _align, _numberFill);
+            if(i<_container.size()-1) _out += ',';
+        }
+        return _out + _closeSymb;
     }
 
     template<class T>

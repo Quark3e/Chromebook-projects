@@ -6,12 +6,14 @@
 #include <vector>
 #include <initializer_list>
 
+#include <chrono>
+
 /// @brief DIY keyBind handler namespace
 namespace DIY_KBH {
     using _funcDef = void(*)(void);
     
     /// @brief Number of instances that a key can not be called for it to still hold the "called" state.
-    size_t setting_callDecay = 0;
+    inline size_t setting_callDecay = 2;
 
 
     /// @brief Instance struct used for holding a single keybind configuration
@@ -20,9 +22,10 @@ namespace DIY_KBH {
         std::vector<int>    _keys;
         _funcDef            _callFunc;
         bool                _orderImportant = false;
-        bool                _isolImportant  = false;
+        bool                _isolImportant  = true;
         bool                _callEdge       = true;
     };
+
 
 
     /**
@@ -40,13 +43,14 @@ namespace DIY_KBH {
 
         /**
          * Main container that holds the configuration and values of every keybind
-         * 
          */
         std::vector<keyBind_handler_unit>   _keyBinds;
         // Positive integer value to assosciate with a keybind call to hold the decay value. 
-        std::vector<size_t>                 _callDecay;
+        std::vector<int>                    _callDecay;
         // Boolean for whether the keyBind decay value has reached the "opposite decay value" for it's callEdge after latest funcCall
         std::vector<bool>                   _released;
+        // Boolean for whether the keyBind has been called in this frame.
+        std::vector<bool>                   _called;
 
         public:
         void update(std::vector<int> _pressed_keys);
@@ -62,13 +66,15 @@ namespace DIY_KBH {
 
         size_t size() const;
 
-        int add(keyBind_handler_unit _newKBH);
-        int add(std::string _label, std::vector<int> _keys, _funcDef _callFunc, bool _ordImportant=false, bool _isolImportant=false, bool _callEdge=true);
+        // int add(keyBind_handler_unit _newKBH);
+        // int add(std::string _label, std::vector<int> _keys, _funcDef _callFunc, bool _ordImportant=false, bool _isolImportant=false, bool _callEdge=true);
 
-        // int edit(std::string _label);
-        
+        int edit(std::string _label, std::vector<int> _newKeys, bool _call_except=true);
 
+        keyBind_handler_unit get(std::string _label);
+        keyBind_handler_unit get(std::string _label) const;
 
+        bool clicked(std::string _label);
     };
 
 }

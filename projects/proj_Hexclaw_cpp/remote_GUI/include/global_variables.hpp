@@ -12,6 +12,8 @@
 #include <vector>
 
 #include <wirelessCOM.hpp>
+#include <nodeChart/extra_imgui.hpp>
+
 
 extern std::string programCWD; //NOT USED
 extern std::string __DIR_PROJECT_ROOT;
@@ -411,14 +413,21 @@ extern float output_IK_angles[6]; //mtx dependant
 // float output_FK_pos[3]   = {0, 0, 0};
 // float output_FK_orient[3]= {0, 0, 0};
 
+
+extern pressed_key__struct guiKeys;
+/// @brief Main keyBinds handler class
+extern DIY_KBH::keyBind_handler keyBinds;
+
+
 extern bool input_IK_enterPress;
-extern bool keys__undo;
-extern bool keys__redo;
+
+// extern bool keys__undo;
+// extern bool keys__redo;
 
 
-extern bool _ctrl_enter__pressed; //`ctrl+enter`
-extern bool _undo__pressed; //`ctrl+z`
-extern bool _redo__pressed; //`ctrl+y` or `ctrl+shift+z`
+// extern bool _ctrl_enter__pressed; //`ctrl+enter`
+// extern bool _undo__pressed; //`ctrl+z`
+// extern bool _redo__pressed; //`ctrl+y` or `ctrl+shift+z`
 
 
 // inline bool IsLegacyNativeDupe(ImGuiKey key) {

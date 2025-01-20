@@ -84,6 +84,7 @@ add_executable(remote_gui
     src/tab_options.cpp
     ${DIR_HC_USEFUL}/diy_dictionary.cpp
     ${DIR_HC_USEFUL}/wirelessCOM.cpp
+    ${DIR_HC_USEFUL}/keyBind_handler.cpp
     ${DIR_HC_USEFUL}/robotics/pathSchedule.cpp
     ${DIR_IMGUI}/imgui/backends/imgui_impl_allegro5.cpp
     ${imgui_depends}

@@ -164,14 +164,35 @@ float output_IK_angles[6]= {0, 0, 0, 0, 0, 0}; //mtx dependant
 // float output_FK_pos[3]   = {0, 0, 0};
 // float output_FK_orient[3]= {0, 0, 0};
 
+
+pressed_key__struct guiKeys;
+
+void keyBind_undo() {
+    std::cout << "----- keyBind called: undo" << std::endl;
+}
+void keyBind_redo() {
+    std::cout << "----- keyBind called: redo" << std::endl;
+}
+void keyBind_MasterClose() {
+    std::cout << "----- keyBind called: Master Close" << std::endl;
+    running = false;
+}
+DIY_KBH::keyBind_handler keyBinds({
+    {"undo",    {ImGuiKey_LeftCtrl, ImGuiKey_ReservedForModCtrl, ImGuiKey_Z}, keyBind_undo},
+    {"redo",    {ImGuiKey_LeftCtrl, ImGuiKey_ReservedForModCtrl, ImGuiKey_ReservedForModShift, ImGuiKey_LeftShift, ImGuiKey_Z}, keyBind_redo},
+    {"Master Close",   {ImGuiKey_LeftCtrl, ImGuiKey_ReservedForModCtrl, ImGuiKey_W}, keyBind_MasterClose},
+    {"ctrlEnter",{ImGuiKey_LeftCtrl,ImGuiKey_ReservedForModCtrl, ImGuiKey_Enter}, nullptr}
+});
+
+
 bool input_IK_enterPress = false;
-bool keys__undo = false;
-bool keys__redo = false;
+// bool keys__undo = false;
+// bool keys__redo = false;
 
 
-bool _ctrl_enter__pressed = false; //`ctrl+enter`
-bool _undo__pressed = false; //`ctrl+z`
-bool _redo__pressed = false; //`ctrl+y` or `ctrl+shift+z`
+// bool _ctrl_enter__pressed = false; //`ctrl+enter`
+// bool _undo__pressed = false; //`ctrl+z`
+// bool _redo__pressed = false; //`ctrl+y` or `ctrl+shift+z`
 
 
 

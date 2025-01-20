@@ -36,7 +36,6 @@
 #include "tab_options.hpp"
 
 
-
 int main(int argc, char** argv) {
 
     if(argc>1) {
@@ -148,6 +147,7 @@ int main(int argc, char** argv) {
 
     while(running.load()) {
         guiKeys.update();
+        keyBinds.update(guiKeys.pressed[guiKeys.pressed.size()-1]);
         ALLEGRO_EVENT al_event;
         while(al_get_next_event(queue, &al_event)) {
             ImGui_ImplAllegro5_ProcessEvent(&al_event);

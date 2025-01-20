@@ -14,6 +14,7 @@
 #include <useful.hpp>
 #include <diy_dictionary.hpp>
 
+#include <keyBind_handler.hpp>
 
 
 struct pressed_key__struct {
@@ -71,7 +72,6 @@ struct pressed_key__struct {
      */
     float keyPeriod(int keyID, bool mustAlone=false, int blankFrame=1, float msLim=200);
 };
-inline pressed_key__struct guiKeys;
 
 inline std::vector<std::vector<int>> pressed_key__struct::pressed;
 inline std::vector<std::chrono::steady_clock::time_point> pressed_key__struct::timePoints;
