@@ -388,12 +388,21 @@ struct pos2d {
         // return idx;
     }
 
-
+    /**
+     * @brief Match vectors for whether they contain the same elements
+     * 
+     * @tparam typeVar type of the elements in the vectors
+     * @param vec0 first vector
+     * @param vec1 second vector
+     * @param orderImportant whether the order element values have to match
+     * @return true if the vectors matched
+     * @return false if the vectors didn't match
+     */
     template<typename typeVar>
     inline bool match_vectors(std::vector<typeVar> vec0, std::vector<typeVar> vec1, bool orderImportant=false) {
-        if(vec0.size()!=vec1.size()) return false;
+        if(vec0.size()!=vec1.size()) throw std::invalid_argument("the vector's aren't the same size.");
 
-        std::vector<size_t> avoidIdx(0, 0);
+        std::vector<size_t> avoidIdx;
         for(size_t i=0; i<vec0.size(); i++) {
             for(size_t ii=0; ii<vec1.size(); ii++) {
                 if(vec0[i]==vec1[ii] && findVectorIndex<size_t>(avoidIdx, ii)!=ii) {
@@ -406,6 +415,32 @@ struct pos2d {
         if(avoidIdx.size()!=vec0.size()) return false;
 
         return true;
+    }
+
+    /**
+     * @brief Find a std::vector inside another std::vector
+     * 
+     * @tparam typeVar type of the elements in the vectors
+     * @param toFind the vector to find
+     * @param toSearch the vector to find in / search through.
+     * @param orderImportant whether the order of element values have to match the one's found-
+     * @return int of index position in `toSearch` where the `toFind` vector was found. If vector wasn't found then this function will return `-1`. 
+     */
+    template<typename typeVar>
+    inline int find_vector(std::vector<typeVar> toFind, std::vector<typeVar> toSearch, bool orderImportant=false) {
+        if(toFind.size() > toSearch.size()) throw std::invalid_argument("the toFind vector is bigger than toSearch.");
+
+        int foundIdx = -1;
+        for(size_t i=0; i<=toSearch-toFind.size(); i++) {
+            std::vector<typeVar> subVec;
+            for(size_t ii=i; toSearch.size()+i; ii++) subVec.push_back(toSearch[ii]);
+            if(match_vectors<typeVar>(toFind, subVec, orderImportant)) {
+                foundIdx = static_cast<int>(i);
+                break;
+            }
+        }
+    
+        return foundIdx;
     }
 
 

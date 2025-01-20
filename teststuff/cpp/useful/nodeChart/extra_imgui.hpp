@@ -16,8 +16,6 @@
 
 
 
-
-
 struct pressed_key__struct {
     int maxSize_history_pressed_keys = 200;
     static std::vector<std::vector<int>> pressed;
