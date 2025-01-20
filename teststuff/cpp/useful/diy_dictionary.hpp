@@ -700,7 +700,7 @@ namespace DIY {
         else if(abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
         else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
         
-        std::list<_store_type>::const_iterator itr = _values.begin();
+        auto itr = _values.begin();
         advance(itr, idx);
 
         return itr;

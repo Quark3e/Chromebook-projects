@@ -179,10 +179,7 @@ int IK_PATH::GCODE_schedule::_syntax_idx(std::string arg, bool *gcode_additional
 }
 
 
-enum IK_PATH::GCodeLevel {
-    GCodeLevel__primary,
-    GCodeLevel__secondary
-};
+
 bool IK_PATH::_contains_size_t(std::string arg, size_t startPos, bool call_except, std::string call_src_name, size_t *return_var) {
     try {
         size_t _retur = std::stoull(arg.substr(startPos));
@@ -225,19 +222,28 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
         return splits;
     };
 
+
     size_t pos_brace0 = line.find('(');
     size_t pos_brace1 = line.find(')');
     if(pos_brace1 < pos_brace0) {
         this->_parse_error_msg = "incorrect use of () braces.";
         return 1;
     }
-    if(pos_brace0!=std::string::npos) {
+    if(pos_brace0 != std::string::npos) {
+        line+=" ";
         line.erase(pos_brace0, pos_brace1-pos_brace0+1);
     }
     size_t pos_semicolon = line.find(';');
-    if(pos_semicolon!=std::string::npos) {
+    if(pos_semicolon != std::string::npos) {
+        line+=" ";
         line.erase(pos_semicolon);
     }
+
+    size_t pos_cR = line.find('\0');
+    if(pos_cR != std::string::npos) {
+        std::cout << "Warning: carriage return character was found in a gcode args." << std::endl;
+    }
+    std::cout << "<<"<<formatNumber<std::string>(line, 40, 0, "left") <<">>"<< std::endl;
 
     std::vector<std::string> args = splitString(line, " ");
     std::vector<std::string> parsed_args;
@@ -260,7 +266,6 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
             break;
         }
         if(__special_break) break;
-
 
         switch (currLevel) {
         case GCodeLevel__primary: { /// Searching for primary
@@ -287,7 +292,7 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
                 }
                 else this->_parse_error_msg = "\""+args.at(i)+"\" is not a valid gcode command.";
             }
-            else this->_parse_error_msg = "GCode command must contain integers to be valid commands.";
+            else this->_parse_error_msg = "GCode command \""+args.at(i)+"\" must contain integers to be valid commands.";
             return 1;
         }
         case GCodeLevel__secondary: {

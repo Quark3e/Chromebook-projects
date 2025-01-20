@@ -152,7 +152,7 @@ namespace IK_PATH {
 
     
     inline const DIY::typed_dict<std::string, DIY::typed_dict<std::string, std::vector<std::string>>> GCODE_syntax({
-        {"F<INT>", _TD_vStr({
+        {"F<INT>", _TD_vStr({ // set feedrate to (Coordinate unit)/min
             {"obl", {}},
             {"opt", {}}
         })},
@@ -238,7 +238,11 @@ namespace IK_PATH {
     //     {'M', {0, 3, 4, 5, 30}}
     // });
 
-    enum GCodeLevel;
+    enum GCodeLevel {
+        GCodeLevel__primary,
+        GCodeLevel__secondary
+    };
+
     /**
      * @brief check whether a command/code string contains a size_t/positive_integer (unsigned long long) value.
      * Basically do a try/catch in a function
