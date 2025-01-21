@@ -43,7 +43,7 @@ PERF::perf_isolated perf_loadBitmap_func;
 
 int mode = 0;
 
-al_bmp_threadClass bmpObj(640, 480, "GRAY", &running);
+al_bmp_threadClass bmpObj(640, 2*480, "GRAY", &running);
 
 
 // std::atomic<bool> threadClass_telemetry_receiver::_run_loop{true};

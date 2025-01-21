@@ -105,6 +105,9 @@ void *display(/*void *ptr*/) {
             imgGray.push_back(img[i].clone());
         }
     }
+    if(!imgFused.isContinuous()) {
+        imgFused = imgFused.clone();
+    }
 
     int imgSize = imgFused.total() * imgFused.elemSize();
     int bytes = 0;
@@ -126,14 +129,14 @@ void *display(/*void *ptr*/) {
         cap0 >> img[0];
         // cap1 >> img[1];
 
-        cv::cvtColor(img[0], imgGray[0], cv::COLOR_BGR2GRAY);
+        // cv::cvtColor(img[0], imgGray[0], cv::COLOR_BGR2GRAY);
         // cv::cvtColor(img[1], imgGray[1], cv::COLOR_BGR2GRAY);
 
-        // cv::vconcat(img[0], img[1], imgFused);
-
+        cv::vconcat(img[0], img[1], imgFused);
+        cv::cvtColor(imgFused, imgFused, cv::COLOR_BGR2GRAY);
 
         std::vector<uchar> bitArr;
-        cv::imencode(".jpg", imgGray[0], bitArr, bitArr_param);
+        cv::imencode(".jpg", imgFused, bitArr, bitArr_param);
         arrSize = bitArr.size();
 
 
@@ -170,6 +173,8 @@ void *display(/*void *ptr*/) {
 
         // cv::namedWindow("test Window", 1);
         cv::imshow("test Window", img[0]);
+        cv::imshow("test Window", img[1]);
+        cv::imshow("test Window", imgFused);
         cv::waitKey(10);
     }
     if(shutdown(tcpObj.get_localSocket(), SHUT_RDWR)) {
