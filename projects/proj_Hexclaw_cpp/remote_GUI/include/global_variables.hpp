@@ -288,6 +288,7 @@ inline void threadTask_bitArrayProcess(
     (*classBMP_obj).localRunning = true;
     while((*classBMP_obj).runningPtr->load()) {
         if((*classBMP_obj).newTask.load()) {
+            // mtx_print("tBit: new task");
             (*classBMP_obj).mtx.lock();
         
             if(loadBitmap_fromBitArray(
@@ -304,7 +305,8 @@ inline void threadTask_bitArrayProcess(
             (*classBMP_obj).newTask = false;
             (*classBMP_obj).mtx.unlock();
 
-
+            // mtx_print("size: "+formatNumber((*classBMP_obj).arr.size(), 0, 0));
+            // mtx_print("tBit: task finished");
         }
         else {
             

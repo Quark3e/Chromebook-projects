@@ -1,6 +1,6 @@
 
 #include "hexclaw_networkDataThread.hpp"
-
+// #include "C:\Users\berkh\Projects\Github_repo\Chromebook-projects\teststuff\cpp\useful\useful.hpp"
 
 // NETWORK_DATA_THREADCLASS::NETWORK_DATA_THREADCLASS() {
 //     this->func_init();
@@ -369,7 +369,7 @@ void _NDT_threadFunc(NETWORK_DATA_THREADCLASS* ndt_obj) {
     ) {
         // mtx_print("ndt: thread iteration");
         if(!(*ndt_obj).runLoop.load()) continue;
-        // mtx_print("ndt: proces started");
+        // mtx_print("ndt: process started");
         if(((*ndt_obj)._bytesSent = (*ndt_obj).func_send(0, "request---", 10, 0))==-1) {
             perror("send() for request failed: ");
             exit(1);
@@ -384,6 +384,8 @@ void _NDT_threadFunc(NETWORK_DATA_THREADCLASS* ndt_obj) {
             perror("recv() for bitArr failed: ");
             exit(1);
         }
+
+        // mtx_print("ndt: received size:"+formatNumber(arrSize, 0, 0));
 
         (*ndt_obj).img_size = arrSize;
         cinfo.err = jpeg_std_error(&jerr);
@@ -413,6 +415,7 @@ void _NDT_threadFunc(NETWORK_DATA_THREADCLASS* ndt_obj) {
         (*ndt_obj).imgArr = (*ndt_obj).imgArr_sub;
         u_lck_imgArr.unlock();
         (*ndt_obj).imgInit = true;
+        // mtx_print("ndt: updated imgArr");
     }
     if(((*ndt_obj)._bytesSent = (*ndt_obj).func_send(0, "disconnect", 10, 0))==-1) {
         perror("send() for disconnect failed: ");

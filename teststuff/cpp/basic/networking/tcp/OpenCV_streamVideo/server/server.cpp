@@ -96,7 +96,7 @@ void *display(/*void *ptr*/) {
     for(size_t i=0; i<2; i++) {
         if(!img[i].isContinuous()) {
             img[i] = img[i].clone();
-            imgGray = img[i].clone();
+            imgGray[i] = img[i].clone();
         }
     }
 
