@@ -127,7 +127,7 @@ void *display(/*void *ptr*/) {
 
 
         std::vector<uchar> bitArr;
-        cv::imencode(".jpg", imgFused, bitArr, bitArr_param);
+        cv::imencode(".jpg", img[0], bitArr, bitArr_param);
         arrSize = bitArr.size();
 
 
