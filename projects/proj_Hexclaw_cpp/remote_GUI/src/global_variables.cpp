@@ -46,6 +46,7 @@ int mode = 0;
 al_bmp_threadClass bmpObj(640, 2*480, "GRAY", &running);
 
 
+
 // std::atomic<bool> threadClass_telemetry_receiver::_run_loop{true};
 // vec3<float> threadClass_telemetry_receiver::data_accelerometer{0, 0, 0}; // accelerometer values
 // vec3<float> threadClass_telemetry_receiver::data_gyroscope{0, 0, 0}; // gyroscope values

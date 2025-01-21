@@ -515,7 +515,7 @@ void tab_1(void) {
     while(bmpObj.newTask.load() && bmpObj.localRunning.load());
 
 
-    if(ImGui::BeginChild("Settings", ImVec2(0, WIN_HEIGHT-imgSize[1]*0.75-150))) {
+    if(ImGui::BeginChild("Settings", ImVec2(0, WIN_HEIGHT-510))) {
         ImGui::SeparatorText("Settings");
         
         // ImGui::SetCursorPosX(0);
@@ -545,10 +545,10 @@ void tab_1(void) {
 
         ImGui::EndChild();
     }
-    if(ImGui::BeginChild("Data", ImVec2(0, imgSize[1]*0.75+50))) {
+    if(ImGui::BeginChild("Data", ImVec2(0, 0))) {
         ImGui::SeparatorText("Data");
 
-        ImGui::Image((ImTextureID)(intptr_t)bmpObj.BMP(), ImVec2(imgSize[0]*0.5, imgSize[1]*0.5));
+        ImGui::Image((ImTextureID)(intptr_t)bmpObj.BMP(), ImVec2(imgSize[0]*0.25, imgSize[1]*0.25));
         if(telemetryObj.isInit()) {
             u_lck_remote_telemetry__telemData.lock();
             ImGui::Text(("Accel:"+std::string(telemetryObj.data_accelerometer)).c_str());
