@@ -13,7 +13,7 @@ void *display(/*void**/);
 
 int capDev = 0;
 cv::VideoCapture cap0(capDev);
-cv::VideoCapture cap1(2);
+// cv::VideoCapture cap1(2);
 
 struct int2 {
     int x;
@@ -95,7 +95,7 @@ void *display(/*void *ptr*/) {
     std::vector<int> bitArr_param{cv::IMWRITE_JPEG_QUALITY, 80};
     uint16_t arrSize;
     // img = cv::Mat::zeros(480, 640, CV_8UC1);
-    for(size_t i=0; i<2; i++) {
+    for(size_t i=0; i<1; i++) {
         if(!img[i].isContinuous()) {
             img[i] = img[i].clone();
             imgGray[i] = img[i].clone();
@@ -120,12 +120,12 @@ void *display(/*void *ptr*/) {
             break;
         }
         cap0 >> img[0];
-        cap1 >> img[1];
+        // cap1 >> img[1];
 
         cv::cvtColor(img[0], imgGray[0], cv::COLOR_BGR2GRAY);
-        cv::cvtColor(img[1], imgGray[1], cv::COLOR_BGR2GRAY);
+        // cv::cvtColor(img[1], imgGray[1], cv::COLOR_BGR2GRAY);
 
-        cv::vconcat(img[0], img[1], imgFused);
+        // cv::vconcat(img[0], img[1], imgFused);
 
 
         std::vector<uchar> bitArr;
@@ -165,7 +165,7 @@ void *display(/*void *ptr*/) {
         if(__VERBOSE) std::cout << std::endl;
 
         // cv::namedWindow("test Window", 1);
-        cv::imshow("test Window", imgFused);
+        cv::imshow("test Window", img[0]);
         cv::waitKey(10);
     }
     if(shutdown(tcpObj.get_localSocket(), SHUT_RDWR)) {
