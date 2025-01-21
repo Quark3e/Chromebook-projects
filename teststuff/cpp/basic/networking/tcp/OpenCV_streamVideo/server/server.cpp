@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
     }
 
     if(!cap0.isOpened()) perror("Failed to open capture object [0]. ");
-    if(!cap1.isOpened()) perror("Failed to open capture object [1]. ");
+    // if(!cap1.isOpened()) perror("Failed to open capture object [1]. ");
 
     // pthread_t thread_id;
     tcpObj = NETWORKCLASS("ANY", port);
