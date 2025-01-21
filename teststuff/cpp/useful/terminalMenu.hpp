@@ -24,13 +24,14 @@
 
 
 #include <iostream>
-#include <ncurses.h>
+// #include <ncurses/
+#include <ncurses/ncurses.h>
 #include <vector>
 #include <algorithm>
 #include <cmath>
 
-#include <HC_useful/createTable.hpp>
-#include <useful.hpp>
+#include "createTable.hpp"
+#include "useful.hpp"
 
 
 /// @brief placeholder function for empty function parameter
