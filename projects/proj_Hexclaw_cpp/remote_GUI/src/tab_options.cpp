@@ -496,6 +496,7 @@ void tab_1(void) {
         imgSize[0] = al_get_bitmap_width(bmpObj.BMP());
         imgSize[1] = al_get_bitmap_height(bmpObj.BMP());
     }
+   
     if(t_bitArr.imgInit.load() && t_bitArr.runLoop.load()) {
         u_lck_ndt.lock();
         u_lck_bmpObj.lock();
@@ -513,7 +514,6 @@ void tab_1(void) {
 #endif
 
     while(bmpObj.newTask.load() && bmpObj.localRunning.load());
-
 
     if(ImGui::BeginChild("Settings", ImVec2(0, WIN_HEIGHT-510))) {
         ImGui::SeparatorText("Settings");
@@ -547,7 +547,6 @@ void tab_1(void) {
     }
     if(ImGui::BeginChild("Data", ImVec2(0, 0))) {
         ImGui::SeparatorText("Data");
-
         ImGui::Image((ImTextureID)(intptr_t)bmpObj.BMP(), ImVec2(imgSize[0]*0.25, imgSize[1]*0.25));
         if(telemetryObj.isInit()) {
             u_lck_remote_telemetry__telemData.lock();
@@ -558,6 +557,7 @@ void tab_1(void) {
         }
         ImGui::EndChild();
     }
+
 
     ImGui::EndGroup();
     if(init) init=false;
