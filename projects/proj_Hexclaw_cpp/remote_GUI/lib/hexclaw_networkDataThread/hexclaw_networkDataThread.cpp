@@ -100,11 +100,12 @@ int NETWORK_DATA_THREADCLASS::func_init() {
     }
 #if _WIN32
     BOOL _optVal = FALSE;
-    if(setsockopt(this->_localSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&_optVal, sizeof(BOOL))) {
+    if(setsockopt(this->_localSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&_optVal, sizeof(BOOL)))
 #else
     int _optval = 1;
-    if(setsockopt(this->_localSocket, SOL_SOCKET, SO_REUSEADDR, &_optval, sizeof(_optval))) {
+    if(setsockopt(this->_localSocket, SOL_SOCKET, SO_REUSEADDR, &_optval, sizeof(_optval)))
 #endif
+    {
         this->_error_code = 3;
         std::cerr << this->_info_name<<" setsockopt() failed." << std::endl;
         return 3;

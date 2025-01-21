@@ -107,7 +107,7 @@ inline bool loadBitmap_fromBitArray(
     if(!lockedReg) {
         return false;
     }
-    assert(lockedReg);
+    // assert(lockedReg);
 
     if(_BM_DEFINE) perf_loadBitmap_func.set_T1("set_target()");
     if(_BM_DEFINE) perf_loadBitmap_func.set_T0("loop start",  _bitArray->size());
@@ -317,7 +317,11 @@ inline void threadTask_bitArrayProcess(
 // extern ALLEGRO_THREAD   *th_allegThread;
 // extern ALLEGRO_MUTEX    *th_allegMutex;
 // extern ALLEGRO_COND     *th_allegCond;
-
+/// @brief 
+/// @param th_alleg 
+/// @param arg 
+/// @return 
+/// @warning NOT USED
 inline void* th_allegFunc(ALLEGRO_THREAD* th_alleg, void* arg) {
     al_bmp_threadClass& bmpClassObj = bmpClassObj;
     std::unique_lock<std::mutex> u_lck_al_bmp(bmpClassObj.mtx, std::defer_lock);
@@ -352,9 +356,7 @@ inline void* th_allegFunc(ALLEGRO_THREAD* th_alleg, void* arg) {
 }
 
 class threadClass_telemetry_receiver;
-
 void threadClass_telemetry_receiver_main_loop(threadClass_telemetry_receiver *telemPtr);
-
 class threadClass_telemetry_receiver {
     private:
     std::string _info_name = "threadClass_telemetry_receiver";

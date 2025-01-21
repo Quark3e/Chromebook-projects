@@ -39,12 +39,9 @@ ALLEGRO_DISPLAY* display = nullptr;
 // ALLEGRO_COND    *th_allegCond;
 
 
-
 PERF::perf_isolated perf_loadBitmap_func;
 
-
 int mode = 0;
-
 
 al_bmp_threadClass bmpObj(640, 480, "GRAY", &running);
 
@@ -87,14 +84,11 @@ void threadClass_telemetry_receiver_main_loop(threadClass_telemetry_receiver *te
 }
 // void threadClass_telemetry_receiver::var_init() {
 //     _run_loop = true;
-
 //     data_accelerometer  = vec3<float>{0, 0, 0}; // accelerometer values
 //     data_gyroscope      = vec3<float>{0, 0, 0}; // gyroscope values
 //     data_tilt           = vec3<float>{0, 0, 0}; // filtered tilt variables: {x: yaw, y: pitch, z: roll}
 //     data_tilt_RAW       = vec3<float>{0, 0, 0}; // raw tilt variables: {x: yaw, y: pitch, z: roll}
-
 //     loop_delay_milliseconds = std::chrono::milliseconds(30);    // minimum millisecond duration per thread function loop iteration.
-
 //     _orientObj = nodemcu_orient(_orientObj_IP, _orientObj_PORT, false);
 // }
 threadClass_telemetry_receiver::threadClass_telemetry_receiver(std::string _board_IP, int _board_PORT, bool _initialise): _orientObj(_board_IP, _board_PORT, false) {
