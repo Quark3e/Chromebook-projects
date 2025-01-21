@@ -94,10 +94,12 @@ void *display(/*void *ptr*/) {
     std::vector<cv::Mat> img, imgGray;
     img.push_back(cv::Mat::zeros(imgDim.y, imgDim.x, CV_8UC1));
     img.push_back(cv::Mat::zeros(imgDim.y, imgDim.x, CV_8UC1));
+    imgGray.push_back(img[0].clone());
+    imgGray.push_back(img[1].clone());
     std::vector<int> bitArr_param{cv::IMWRITE_JPEG_QUALITY, 80};
     uint16_t arrSize;
     // img = cv::Mat::zeros(480, 640, CV_8UC1);
-    for(size_t i=0; i<1; i++) {
+    for(size_t i=0; i<2; i++) {
         if(!img[i].isContinuous()) {
             img[i] = img[i].clone();
             imgGray.push_back(img[i].clone());
