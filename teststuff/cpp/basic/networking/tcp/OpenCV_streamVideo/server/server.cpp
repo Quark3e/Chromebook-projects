@@ -166,7 +166,7 @@ void *display(/*void *ptr*/) {
 
         // cv::namedWindow("test Window", 1);
         cv::imshow("test Window", imgFused);
-        cv::waitKey(0);
+        cv::waitKey(10);
     }
     if(shutdown(tcpObj.get_localSocket(), SHUT_RDWR)) {
         perror("shutdown of connection failed: ");
