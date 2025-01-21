@@ -12,8 +12,16 @@ NETWORKCLASS tcpObj;
 void *display(/*void**/);
 
 int capDev = 0;
-cv::VideoCapture cap(capDev);
+cv::VideoCapture cap0(capDev);
+cv::VideoCapture cap1(2);
 
+struct int2 {
+    int x;
+    int y;
+};
+
+
+int2 imgDim = {640, 480};
 
 bool __VERBOSE = false;
 
@@ -25,7 +33,8 @@ int main(int argc, char** argv) {
         if(!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
             std::cout <<"Usage: cv_video_srv -p/--port [port] -c/--cap [capture device]\n" <<
                         " port:         : socket port (1086 default)\n" <<
-                        " capture device: (0 default)" << std::endl;
+                        // " capture device: (0 default)" << 
+                        std::endl;
             return 0;
         }
         for(int i=1; i<argc; i++) {
@@ -33,9 +42,9 @@ int main(int argc, char** argv) {
                 if(!strcmp(argv[i], "-p") || !strcmp(argv[i], "--port")) {
                     port = std::stoi(argv[i+1]);
                 }
-                if(!strcmp(argv[i], "-c") || !strcmp(argv[i], "--cap")) {
-                    cap = cv::VideoCapture(std::stoi(argv[i+1]));
-                }
+                // if(!strcmp(argv[i], "-c") || !strcmp(argv[i], "--cap")) {
+                //     cap = cv::VideoCapture(std::stoi(argv[i+1]));
+                // }
             }
             if(!strcmp(argv[i], "-v") || !strcmp(argv[i], "--verbose")) __VERBOSE = true;
         }
@@ -79,16 +88,19 @@ int main(int argc, char** argv) {
 void *display(/*void *ptr*/) {
     // int socket = *(int*)ptr;
 
-    cv::Mat img, imgGray;
+    cv::Mat imgFused = cv::Mat::zeros(2*imgDim.y, imgDim.x, CV_8UC1); //vstacked fused image holder
+    std::vector<cv::Mat> img(2, cv::Mat::zeros(imgDim.y, imgDim.x, CV_8UC1)), imgGray(2, cv::Mat::zeros(imgDim.y, imgDim.x, CV_8UC1));
     std::vector<int> bitArr_param{cv::IMWRITE_JPEG_QUALITY, 80};
     uint16_t arrSize;
-    img = cv::Mat::zeros(480, 640, CV_8UC1);
-    if(!img.isContinuous()) {
-        img = img.clone();
-        imgGray = img.clone();
+    // img = cv::Mat::zeros(480, 640, CV_8UC1);
+    for(size_t i=0; i<2; i++) {
+        if(!img[i].isContinuous()) {
+            img[i] = img[i].clone();
+            imgGray = img[i].clone();
+        }
     }
 
-    int imgSize = img.total() * img.elemSize();
+    int imgSize = imgFused.total() * imgFused.elemSize();
     int bytes = 0;
     int key;
 
@@ -105,12 +117,17 @@ void *display(/*void *ptr*/) {
             std::cout << "disconnect msg received. Exiting client connection."<<std::endl;
             break;
         }
-        cap >> img;
+        cap0 >> img[0];
+        cap1 >> img[1];
 
-        cv::cvtColor(img, imgGray, cv::COLOR_BGR2GRAY);
-    
-        std::vector<uchar>  bitArr;
-        cv::imencode(".jpg", imgGray, bitArr, bitArr_param);
+        cv::cvtColor(img[0], imgGray[0], cv::COLOR_BGR2GRAY);
+        cv::cvtColor(img[1], imgGray[1], cv::COLOR_BGR2GRAY);
+
+        cv::vconcat(img[0], img[1], imgFused);
+
+
+        std::vector<uchar> bitArr;
+        cv::imencode(".jpg", imgFused, bitArr, bitArr_param);
         arrSize = bitArr.size();
 
 
