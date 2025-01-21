@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 project(Hexclaw)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(OpenCV "/usr/local/include")
 # set(opt6_src "HW_options/opt6_terminal.cpp")
 set(CMAKE_CXX_FLAGS "-DIMGUI_USER_CONFIG=\\\"/usr/local/include/imgui/examples/example_allegro5/imconfig_allegro5.h\\\"")

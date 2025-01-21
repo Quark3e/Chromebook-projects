@@ -37,6 +37,7 @@
 #include "useful.hpp"
 
 
+
 /// @brief placeholder function for empty function parameter
 inline void termMenu_nullFunc_void__() {}
 inline void termMenu_nullFunc_void_pBool(bool*) {}

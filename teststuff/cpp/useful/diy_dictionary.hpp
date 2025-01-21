@@ -820,6 +820,7 @@ namespace DIY {
             if(_keys[i]==key) return *(this->_getItr(i));
         }
         this->_call_error(0, "::get(_key_type)");
+        return *(this->_getItr(0));
     }
     template<class _key_type, class _store_type>
     _store_type  typed_dict<_key_type, _store_type>::get(_key_type key) const {
@@ -829,6 +830,7 @@ namespace DIY {
             if(_keys[i]==key) return const_cast<_store_type&>(*(this->_getItr(i)));
         }
         this->_call_error(0, "::get(_key_type)");
+        return *(this->_getItr(0));
     }
 
     template<class _key_type, class _store_type>
