@@ -13,7 +13,7 @@ void *display(/*void**/);
 
 int capDev = 0;
 cv::VideoCapture cap0(capDev);
-// cv::VideoCapture cap1(2);
+cv::VideoCapture cap1(2);
 
 struct int2 {
     int x;
@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
     }
 
     if(!cap0.isOpened()) perror("Failed to open capture object [0]. ");
-    // if(!cap1.isOpened()) perror("Failed to open capture object [1]. ");
+    if(!cap1.isOpened()) perror("Failed to open capture object [1]. ");
 
     // pthread_t thread_id;
     tcpObj = NETWORKCLASS("ANY", port);
@@ -127,7 +127,7 @@ void *display(/*void *ptr*/) {
             break;
         }
         cap0 >> img[0];
-        // cap1 >> img[1];
+        cap1 >> img[1];
 
         // cv::cvtColor(img[0], imgGray[0], cv::COLOR_BGR2GRAY);
         // cv::cvtColor(img[1], imgGray[1], cv::COLOR_BGR2GRAY);
@@ -172,10 +172,10 @@ void *display(/*void *ptr*/) {
         if(__VERBOSE) std::cout << std::endl;
 
         // cv::namedWindow("test Window", 1);
-        cv::imshow("test Window", img[0]);
-        cv::imshow("test Window", img[1]);
-        cv::imshow("test Window", imgFused);
-        cv::waitKey(10);
+        // cv::imshow("test Window", img[0]);
+        // cv::imshow("test Window", img[1]);
+        // cv::imshow("test Window", imgFused);
+        // cv::waitKey(10);
     }
     if(shutdown(tcpObj.get_localSocket(), SHUT_RDWR)) {
         perror("shutdown of connection failed: ");
