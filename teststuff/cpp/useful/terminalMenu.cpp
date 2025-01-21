@@ -436,6 +436,8 @@ const int* termMenu::driver(
         // }
 
         if(loopInit && (c==KEY_ENTER || c=='\n')) {
+            pressedCell[0] = currCell[0];
+            pressedCell[1] = currCell[1];
             if(callFunc) {
                 customCall_argLess(currCell[0], currCell[1]);
                 loopInit = false;
@@ -456,6 +458,8 @@ const int* termMenu::driver(
         for(int y=0; y<option_key.size(); y++) {
             for(int x=0; x<option_key.at(y).size(); x++) {
                 if(c==option_key.at(y).at(x)) {
+                    pressedCell[0] = currCell[0];
+                    pressedCell[1] = currCell[1];
                     if(callFunc) {
                         customCall_argLess(x, y);
                         loopInit = false;
@@ -493,6 +497,8 @@ const int* termMenu::driver(
                                 ( mouse_event.x>=relCellPos[0] && mouse_event.y<=relCellPos[0]+cellLen ) &&
                                 ( mouse_event.y==relCellPos[1] )
                             ) {
+                                pressedCell[0] = currCell[0];
+                                pressedCell[1] = currCell[1];
                                 if(callFunc) {
                                     customCall_argLess(x, y);
                                     loopInit = false;

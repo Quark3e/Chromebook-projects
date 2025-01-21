@@ -24,8 +24,11 @@
 
 
 #include <iostream>
-// #include <ncurses/
+#if _WIN32
 #include <ncurses/ncurses.h>
+#else
+#include <ncurses.h>
+#endif
 #include <vector>
 #include <algorithm>
 #include <cmath>
@@ -54,7 +57,6 @@ extern std::string  termMenu_nullParam_string;
 
 class termMenu {
 
-    int currCell[2] = {0, 0}; //"cursor" pos
     bool driverFuncInit = false; // init boolean for whether the driver has been called: class scope
     bool classInit = false;
     bool callFunc = false;
@@ -292,10 +294,18 @@ class termMenu {
     
     int lastKeyPress = 0;
     /// @brief boolean for whether to exit `termMenu::driver()` main while loop
-    bool exitDriver = true;
+    bool exitDriver = false;
 
+    /// @brief {x,y} coordinates of currently hovered cell in driver function.
+    int currCell[2] = {0, 0};
+    /// @brief Location of terminal
     int termLoc[2] = {0, 0};
+    /// @brief width, height dimensions of the terminal
     int termSize[2] = {0, 0};
+    /// @brief cell of the last pressed/selected.
+    int pressedCell[2] = {0, 0};
+
+
     /**
      * @brief class constructor. Must be called before using class instances
      * @param callFromDriver whether to call a specific function during an option
