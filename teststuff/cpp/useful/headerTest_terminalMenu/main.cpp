@@ -42,22 +42,27 @@ termMenu menu(true, 4, 4);
 bool running = true;
 int main(int argc, char** argv) {
     // menu.addOpt("(option 0:0)", 0, 0, -1, termMenu_nullFunc_void__);
-    for(size_t x=0; x<4; x++) {
-        for(size_t y=0; y<4; y++) {
-            menu.addOpt("(option: "+formatNumber(x,2,0)+","+formatNumber(y,2,0)+")", x, y, -1, termMenu_call);
-        }
-    }
-    menu.addOpt("exit", 0, 5, 27, exit_menu);
-
-
-    menu.driver(2, 2, 10, true, loop_call);
-    // const int *pressed_pos;
-    // while(running) {
-    //     pressed_pos = menu.driver(10, 10, 0, true, loop_call);
-    //     selectedPos.x = pressed_pos[0];
-    //     selectedPos.y = pressed_pos[1];
-    //     termMenu_call();
+    // for(size_t x=0; x<4; x++) {
+    //     for(size_t y=0; y<4; y++) {
+    //         menu.addOpt("(option: "+formatNumber(x,2,0)+","+formatNumber(y,2,0)+")", x, y, -1, termMenu_call);
+    //     }
     // }
+    // menu.addOpt("exit", 0, 5, 27, exit_menu);
+
+
+    // menu.driver(2, 2, 10, true, loop_call);
+    // // const int *pressed_pos;
+    // // while(running) {
+    // //     pressed_pos = menu.driver(10, 10, 0, true, loop_call);
+    // //     selectedPos.x = pressed_pos[0];
+    // //     selectedPos.y = pressed_pos[1];
+    // //     termMenu_call();
+    // // }
+
+
+    int dim[2] = {0, 0};
+    getTermSize(dim[0], dim[1]);
+    std::cout << "window dim:" << formatContainer1(dim, 2, 0, 0) << std::endl;
 
     return 0;
 }
