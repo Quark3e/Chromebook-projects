@@ -163,6 +163,9 @@ void *display(/*void *ptr*/) {
         //     break;
         // }
         if(__VERBOSE) std::cout << std::endl;
+
+        cv::namedWindow("test Window", 1);
+        cv::imshow("test Window", imgFused);
     }
     if(shutdown(tcpObj.get_localSocket(), SHUT_RDWR)) {
         perror("shutdown of connection failed: ");
