@@ -1,7 +1,7 @@
 
 #include "terminalMenu.hpp"
 
-#include <conio.h>
+// #include <conio.h>
 #include <stdio.h>
 
 
@@ -303,15 +303,16 @@ const int* termMenu::driver(
         display_dim[1][1]-display_dim[0][1]+1
     };
 
+#ifndef _WIN32
+    MEVENT mouse_event;
 
-    // MEVENT mouse_event;
-
-    // initscr(); std::cout<<" check 5.1"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
-    // cbreak(); std::cout<<" check 5.2"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
-    // noecho(); std::cout<<" check 5.3"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
-    // nodelay(stdscr, TRUE); std::cout<<" check 5.4"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
-    // keypad(stdscr, TRUE); std::cout<<" check 5.5"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
-    // scrollok(stdscr, TRUE); std::cout<<" check 5.6"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
+    initscr(); //std::cout<<" check 5.1"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
+    cbreak(); //std::cout<<" check 5.2"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
+    noecho(); //std::cout<<" check 5.3"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
+    nodelay(stdscr, TRUE); //std::cout<<" check 5.4"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
+    keypad(stdscr, TRUE); //std::cout<<" check 5.5"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
+    scrollok(stdscr, TRUE); //std::cout<<" check 5.6"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
+#endif
 
     int c = 0;
     if(!driverFuncInit) {
@@ -369,8 +370,7 @@ const int* termMenu::driver(
 
     if(!driverFuncInit) driverFuncInit=true;
     while(/*(c=getch()) != 27 &&*/ !exitDriver) {
-        // std::cout<<" check 6"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
-        // std::this_thread::sleep_for(std::chrono::milliseconds(msDelay));
+        std::this_thread::sleep_for(std::chrono::milliseconds(msDelay));
 
 
         if(init_driverCallKeys_count>0) {
@@ -379,9 +379,15 @@ const int* termMenu::driver(
         }
         else {
             
+#if _WIN32
             if(loopInit) c = getch();
+#else
+            c = getch();
+#endif
         }
+#if _WIN32
         if(loopInit) c = keyCheck(c);
+#endif
 
 
         loopFunc();
@@ -491,7 +497,8 @@ const int* termMenu::driver(
             if(subBreak) break;
         }
 
-        /*if(c==KEY_MOUSE) {
+#ifndef _WIN32
+        if(c==KEY_MOUSE) {
             if(getmouse(&mouse_event) == OK) {
                 if(mouse_event.bstate & BUTTON1_CLICKED) { //left mouse button pressed
                     ANSI_mvprint(100, 1, "MOUSE PRESSED");
@@ -532,7 +539,8 @@ const int* termMenu::driver(
                     }
                 }
             }
-        }*/
+        }
+#endif
         
         if(cursorMode==-1) {
             ansiPrint(
@@ -789,8 +797,9 @@ const int* termMenu::driver(
 
         }
         
-        
-        // refresh();
+#if _WIN32
+        refresh();
+#endif
 
         if(!loopInit) loopInit=true;
     }
@@ -801,8 +810,11 @@ const int* termMenu::driver(
     // std::cin.ignore();
     // std::cin.clear();
 
-    // endwin();
+#if _WIN32
     std::cout << ansi_code+"2J" <<std::endl;
+#else
+    endwin();
+#endif
 
     return pressed_option;
 }
