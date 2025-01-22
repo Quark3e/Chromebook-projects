@@ -797,7 +797,7 @@ const int* termMenu::driver(
 
         }
         
-#if _WIN32
+#ifndef _WIN32
         refresh();
 #endif
 
