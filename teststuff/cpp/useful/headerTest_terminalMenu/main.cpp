@@ -3,6 +3,9 @@
 #include <string>
 #include <terminalMenu.hpp>
 #include <useful.hpp>
+#include <chrono>
+
+#include <curses.h>
 
 struct int2 {
     int x;
@@ -39,17 +42,18 @@ int2 selectedPos{0, 0};
 int2 hoveredPos{0, 0};
 
 termMenu menu(true, 4, 4);
+
 bool running = true;
 int main(int argc, char** argv) {
     // menu.addOpt("(option 0:0)", 0, 0, -1, termMenu_nullFunc_void__);
+
     for(size_t x=0; x<4; x++) {
         for(size_t y=0; y<4; y++) {
             menu.addOpt("(option: "+formatNumber(x,2,0)+","+formatNumber(y,2,0)+")", x, y, -1, termMenu_call);
         }
     }
     menu.addOpt("exit", 0, 5, 27, exit_menu);
-
-
+    
     menu.driver(2, 2, 10, true, loop_call);
     // const int *pressed_pos;
     // while(running) {

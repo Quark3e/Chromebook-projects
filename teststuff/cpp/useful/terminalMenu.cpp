@@ -1,6 +1,10 @@
 
 #include "terminalMenu.hpp"
 
+#include <conio.h>
+#include <stdio.h>
+
+
 
 termMenu::termMenu(
     bool callFromDriver,
@@ -221,7 +225,6 @@ const int* termMenu::driver(
 
     menuTable.strExport("\n", false, "\n", " ");
 
-
     // createTable displayTable = menuTable;
 
     if(display_dim[1][0]-display_dim[0][0]>menuTable.table[0].size()-1) {
@@ -299,16 +302,16 @@ const int* termMenu::driver(
         display_dim[1][0]-display_dim[0][0]+1,
         display_dim[1][1]-display_dim[0][1]+1
     };
-    
 
-    MEVENT mouse_event;
 
-    initscr();
-    cbreak();
-    noecho();
-    nodelay(stdscr, TRUE);
-    keypad(stdscr, TRUE);
-    scrollok(stdscr, TRUE);
+    // MEVENT mouse_event;
+
+    // initscr(); std::cout<<" check 5.1"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
+    // cbreak(); std::cout<<" check 5.2"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
+    // noecho(); std::cout<<" check 5.3"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
+    // nodelay(stdscr, TRUE); std::cout<<" check 5.4"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
+    // keypad(stdscr, TRUE); std::cout<<" check 5.5"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
+    // scrollok(stdscr, TRUE); std::cout<<" check 5.6"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
 
     int c = 0;
     if(!driverFuncInit) {
@@ -335,6 +338,7 @@ const int* termMenu::driver(
      *
     */
     bool cursLock[2][2]= {{false, false}, {false, false}};
+
 
 
     /// vectors to hold the indices in a range for both axes {x/columns, y/rows}
@@ -365,20 +369,26 @@ const int* termMenu::driver(
 
     if(!driverFuncInit) driverFuncInit=true;
     while(/*(c=getch()) != 27 &&*/ !exitDriver) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(msDelay));
+        // std::cout<<" check 6"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
+        // std::this_thread::sleep_for(std::chrono::milliseconds(msDelay));
 
 
         if(init_driverCallKeys_count>0) {
             c = init_driverCallKeys.at(init_driverCallKeys_full-init_driverCallKeys_count);
             init_driverCallKeys_count--;
         }
-        else c = getch();
+        else {
+            
+            if(loopInit) c = getch();
+        }
+        if(loopInit) c = keyCheck(c);
+
 
         loopFunc();
 
         //???
-        if(!callFunc && c==ERR && driverInit) continue;
-        if(c==ERR && loopInit && loopInit_count==0) {
+        if(!callFunc && c==-1 && driverInit) continue;
+        if(c==-1 && loopInit && loopInit_count==0) {
             driverInit = true;
             if(callFunc) continue;
         }
@@ -388,7 +398,7 @@ const int* termMenu::driver(
 
         lastKeyPress = c;
 
-        if(c==KEY_LEFT) {
+        if(c==CUSTOM_KEY_LEFT) {
             currCell[0]--;
             if(currCell[0]<0) currCell[0] = menuTable.table[currCell[1]].size()-1;
             if(menuTable.table.at(currCell[1]).at(currCell[0])=="") { //skip empty cells
@@ -399,7 +409,7 @@ const int* termMenu::driver(
                 }
             }
         }
-        else if(c==KEY_RIGHT) {
+        else if(c==CUSTOM_KEY_RIGHT) {
             currCell[0]++;
             if(currCell[0]>(menuTable.table[currCell[1]].size()-1)) currCell[0]=0;
             if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
@@ -410,7 +420,7 @@ const int* termMenu::driver(
                 }
             }
         }
-        else if(c==KEY_UP) {
+        else if(c==CUSTOM_KEY_UP) {
             currCell[1]--;
             if(currCell[1]<0) currCell[1] = menuTable.table.size()-1;
             if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
@@ -421,7 +431,7 @@ const int* termMenu::driver(
                 }
             }
         }
-        else if(c==KEY_DOWN) {
+        else if(c==CUSTOM_KEY_DOWN) {
             currCell[1]++;
             if(currCell[1]>(menuTable.table.size()-1)) currCell[1]=0;
             if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
@@ -435,7 +445,7 @@ const int* termMenu::driver(
         // else if(c==9) { // tab
         // }
 
-        if(loopInit && (c==KEY_ENTER || c=='\n')) {
+        if(loopInit && (c==CUSTOM_KEY_ENTER || c=='\n')) {
             pressedCell[0] = currCell[0];
             pressedCell[1] = currCell[1];
             if(callFunc) {
@@ -481,7 +491,7 @@ const int* termMenu::driver(
             if(subBreak) break;
         }
 
-        if(c==KEY_MOUSE) {
+        /*if(c==KEY_MOUSE) {
             if(getmouse(&mouse_event) == OK) {
                 if(mouse_event.bstate & BUTTON1_CLICKED) { //left mouse button pressed
                     ANSI_mvprint(100, 1, "MOUSE PRESSED");
@@ -522,7 +532,7 @@ const int* termMenu::driver(
                     }
                 }
             }
-        }
+        }*/
         
         if(cursorMode==-1) {
             ansiPrint(
@@ -778,7 +788,9 @@ const int* termMenu::driver(
             // ANSI_mvprint(1, 9, "check 9");
 
         }
-        refresh();
+        
+        
+        // refresh();
 
         if(!loopInit) loopInit=true;
     }
@@ -789,8 +801,8 @@ const int* termMenu::driver(
     // std::cin.ignore();
     // std::cin.clear();
 
-    endwin();
-
+    // endwin();
+    std::cout << ansi_code+"2J" <<std::endl;
 
     return pressed_option;
 }
@@ -860,7 +872,7 @@ std::string termMenu::termInput(
     if(eventMethod==1) {
         int key_c=0;
         std::string outStr = "";
-        nodelay(stdscr, FALSE);
+        // nodelay(stdscr, FALSE);
         while((key_c=getch()) != '\n') {
             
             if(pos_x!=-1 && pos_y!=-1) {
@@ -872,7 +884,7 @@ std::string termMenu::termInput(
             }
 
             // if(key_c=='\n') break;
-            if(key_c==KEY_BACKSPACE && inputStr.length()>0) inputStr.erase(inputStr.length()-1);
+            if(key_c==CUSTOM_KEY_BACKSPACE && inputStr.length()>0) inputStr.erase(inputStr.length()-1);
             else if(key_c==9) {
                 //inputStr+=std::string(4, ' ');
                 (*tabCalled) = true;
@@ -902,7 +914,7 @@ std::string termMenu::termInput(
             //     ansi_code+text_colour+";"+bg_colour+"minput:"+inputStr
             // );
         }
-        nodelay(stdscr, TRUE);
+        // nodelay(stdscr, TRUE);
     }
     ANSI_mvprint(
         pos_x, pos_y,

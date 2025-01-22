@@ -24,14 +24,20 @@
 
 
 #include <iostream>
+
+// #define NCURSES_MOUSE_VERSION
 #if _WIN32
-#include <ncurses/ncurses.h>
+// #include <curses.h>
 #else
-#include <ncurses.h>
+// #include <ncurses.h>
 #endif
 #include <vector>
 #include <algorithm>
 #include <cmath>
+
+#include <dos.h>
+#include <conio.h>
+#include <chrono>
 
 #include "createTable.hpp"
 #include "useful.hpp"
@@ -57,6 +63,35 @@ extern std::string  termMenu_nullParam_string;
 
 
 class termMenu {
+
+    int CUSTOM_KEY_UP       = -691;
+    int CUSTOM_KEY_DOWN     = -692;
+    int CUSTOM_KEY_LEFT     = -693;
+    int CUSTOM_KEY_RIGHT    = -694;
+
+    int CUSTOM_KEY_ENTER    = 13;
+    int CUSTOM_KEY_BACKSPACE= 8;
+    int CUSTOM_KEY_ESCAPE   = 27;
+
+    /**
+     * @brief check for arrow key values. If they're arrow values, it'll return negative values, otherwise till return ascii values
+     * 
+     * @param ch getch ascii key value
+     * @return int value for checks: >0 the key value is not an arrow value,
+     * otherwise it'll return values equivalent to `termMenu::CUSTOM_KEY_..` values.
+     */
+    inline int keyCheck(int ch) {
+        if(!(ch=='\0' || ch==224)) return ch;
+        switch (getch()) {
+        case 72: return CUSTOM_KEY_UP;
+        case 80: return CUSTOM_KEY_DOWN;
+        case 75: return CUSTOM_KEY_LEFT;
+        case 77: return CUSTOM_KEY_RIGHT;
+        default:
+            break;
+        }
+        return ch;
+    }
 
     bool driverFuncInit = false; // init boolean for whether the driver has been called: class scope
     bool classInit = false;
