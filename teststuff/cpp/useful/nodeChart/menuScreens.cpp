@@ -366,7 +366,7 @@ void gNC::_menu__timeline(
     /// (relative to window) timeline child window position
     static ImVec2 timeline_pos      = ImVec2(50, 50);
     /// flags for timeline child window
-    static ImGuiChildFlags timeline_flags = ImGuiChildFlags_Borders;
+    static ImGuiChildFlags timeline_flags = ImGuiChildFlags_Border;
     /// scroll value of the timeline child window
     static ImVec2 scrollVal(0, 0);
 
