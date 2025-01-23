@@ -611,13 +611,47 @@ namespace gNC {
 
         guiNodeChart(/* args */);
 
+        /**
+         * @brief move the background screen position and the objects on it.
+         *
+         * @param x new x coordinate value
+         * @param y new y coordinate value
+         * @param moveMode
+         *  - `0` absolute
+         *  - `1` relative
+         * @return int
+         */
         int setScreen_pos(int x, int y, int moveMode = 0);
+        /**
+         * @brief Set the Screen dim
+         * 
+         * @param w new width.
+         * @param h new height
+         * @return int `0`-successfully set new dim.
+         */
         int setScreen_dim(int w, int h);
 
-
+        /**
+         * @brief Get the number of nodes/links in this chart.
+         * 
+         * @param whatList
+         *  `0`-size of `_nodes`
+         *  `1`-size of `_links`
+         * @return size_t 
+         */
         size_t size(int whatList=0);
 
+        /**
+         * @brief Get a copy of `_nodes` list
+         * 
+         * @return std::list<gNC::gNODE> 
+         */
         std::list<gNC::gNODE> NODES();
+        /**
+         * @brief Get a copy `_links` list
+         * 
+         * @return std::list<gNC::gLINK> 
+         */
         std::list<gNC::gLINK> LINKS();
 
         gNC::gNODE* lastAdded_NODE();
@@ -753,7 +787,17 @@ namespace gNC {
      */
     extern int dragConnectCreate_startedEnd;
 
+    /**
+     * @brief Menu screen with details of a gNODE
+     * 
+     * @param toDetail pointer to the gNODE to show in menuScreen
+     */
     void _menu__node_details(gNC::gNODE* toDetail);
+    /**
+     * @brief Menu screen with details of a gLINK
+     * 
+     * @param toDetail pointer to the gLINK to show in menuScreen
+     */
     void _menu__link_details(gNC::gLINK* toDetail);
     void _menu__rightClick(gNC::guiNodeChart* _chart);
     void _menu__timeline(gNC::guiNodeChart* _chart);

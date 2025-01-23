@@ -800,16 +800,7 @@ gNC::guiNodeChart::guiNodeChart(/* args */) :
 
 }
 
-/**
- * @brief move the background screen position and the objects on it.
- *
- * @param x new x coordinate value
- * @param y new y coordinate value
- * @param moveMode
- *  - `0` absolute
- *  - `1` relative
- * @return int
- */
+
 int gNC::guiNodeChart::setScreen_pos(int x, int y, int moveMode) {
     assert(moveMode > 0 && moveMode < 2);
     static int prev_x = 0, prev_y = 0;
@@ -854,7 +845,7 @@ int gNC::guiNodeChart::setScreen_dim(int w, int h) {
 size_t gNC::guiNodeChart::size(int whatList) {
     if (whatList == 0) return this->_nodes.size();
     else if (whatList == 1) return this->_links.size();
-    std::runtime_error("ERROR: " + this->_info_name + "size(int): input arguemnt for `whatList` does not match available options");
+    std::invalid_argument("ERROR: " + this->_info_name + "size(int): input arguemnt for `whatList` does not match available options");
     return 0;
 }
 gNC::gNODE* gNC::guiNodeChart::lastAdded_NODE() {
