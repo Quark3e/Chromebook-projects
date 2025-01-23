@@ -243,7 +243,7 @@ int IK_PATH::GCODE_schedule::_parse_line(std::string &line) {
     if(pos_cR != std::string::npos) {
         std::cout << "Warning: carriage return character was found in a gcode args." << std::endl;
     }
-    std::cout << "<<"<<formatNumber<std::string>(line, 40, 0, "left") <<">>"<< std::endl;
+    // std::cout << "<<"<<formatNumber<std::string>(line, 40, 0, "left") <<">>"<< std::endl;
 
     std::vector<std::string> args = splitString(line, " ");
     std::vector<std::string> parsed_args;
