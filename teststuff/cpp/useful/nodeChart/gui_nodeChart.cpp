@@ -39,9 +39,9 @@ gNC::gNODE::gNODE(
 ) : label{ par_label }, desc{ par_desc }, bodyText{ par_bodyText }, ln_in{ par_ln_in }, ln_out{ par_ln_out }, ln_add{ par_ln_add }, ln_share{ par_ln_share } {
     if (checkExistence<int>(par_layout, std::vector<int>{0, 1, 2, 3}) == -1) std::runtime_error("ERROR: gNC::gNODE constructor: par_layout is an invalid value");
     date = tm{};
-    date.tm_mday = 1;
-    date.tm_mon = 0;
-    date.tm_year = 2022 - 1900;
+    // date.tm_mday = 1;
+    // date.tm_mon = 0;
+    // date.tm_year = 2022 - 1900;
 
     layout = par_layout;
     width = par_width;
@@ -1310,7 +1310,9 @@ bool _draw__node_cosmetics(
 
     ImDrawList* local_drawList = ImGui::GetWindowDrawList();
 
-    ImGui::TextUnformatted((*itr).label.c_str());
+    // ImGui::SetWindowFontScale(1.2);
+    ImGui::TextWrapped((*itr).label.c_str());
+    // ImGui::SetWindowFontScale(1);
     // ImGui::SameLine();
     // if(ImGui::Button("D", ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight()))) {
         // ImGui::TestDateChooser("%d/%m/%Y", true);
@@ -1318,9 +1320,12 @@ bool _draw__node_cosmetics(
     // }
 
     ImGui::Separator();
-    ImGui::TextUnformatted((*itr).desc.c_str());
-    ImGui::Separator();
-    ImGui::TextWrapped((*itr).bodyText.c_str());
+    // ImGui::SetWindowFontScale(0.9);
+    ImGui::TextWrapped((*itr).desc.c_str());
+    // ImGui::SetWindowFontScale(1);
+
+    // ImGui::Separator();
+    // ImGui::TextWrapped((*itr).bodyText.c_str());
 
     (*itr).draw_connection(std::vector<ImDrawList*>{local_drawList, win_draw_list}, nodePos);
 
