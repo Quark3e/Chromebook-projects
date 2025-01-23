@@ -19,3 +19,4 @@ teststuff/cpp/basic/networking/udp/OpenCV_streamVideo/temp_winsock/server/build/
 .vscode
 projects/proj_Hexclaw_cpp/in\ rpi/build/
 projects/proj_Hexclaw_cpp/remote_GUI/build
+teststuff/cpp/gui/FTXUI/example0/build/
