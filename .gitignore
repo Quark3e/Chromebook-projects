@@ -1,25 +1,26 @@
 teststuff/python/opencv/angleArea/media/raw/
-teststuff/cpp/useful/nodeChart/build/
-teststuff/cpp/useful/headerTest_terminalMenu/build/
-teststuff/cpp/gui/imgui/windows/ex0/build/
-teststuff/cpp/windows/list_files_in_dir/build/
-teststuff/cpp/basic/networking/tcp/OpenCV_streamVideo/server/build/
-teststuff/cpp/basic/networking/tcp/OpenCV_streamVideo/client/build/
-teststuff/cpp/basic/networking/udp/OpenCV_streamVideo/server/build/
-teststuff/cpp/basic/networking/udp/OpenCV_streamVideo/client/build/
-teststuff/cpp/basic/networking/udp/pc_to_pc/build/
-teststuff/cpp/basic/networking/udp/udpCOM_toESP8266/build/
-teststuff/cpp/useful/wirelessCOM_test/build/
-teststuff/cpp/basic/networking/udp/win32/client/build/
-teststuff/cpp/basic/networking/udp/win32/server/build/
-teststuff/cpp/basic/networking/tcp/ex0_win32/build/
-teststuff/cpp/image_process/libjeg/decoding/build/
-teststuff/cpp/basic/networking/udp/OpenCV_streamVideo/temp_winsock/client/build/
-teststuff/cpp/basic/networking/udp/OpenCV_streamVideo/temp_winsock/server/build/
+# teststuff/cpp/useful/nodeChart/build/
+# teststuff/cpp/useful/headerTest_terminalMenu/build/
+# teststuff/cpp/gui/imgui/windows/ex0/build/
+# teststuff/cpp/windows/list_files_in_dir/build/
+# teststuff/cpp/basic/networking/tcp/OpenCV_streamVideo/server/build/
+# teststuff/cpp/basic/networking/tcp/OpenCV_streamVideo/client/build/
+# teststuff/cpp/basic/networking/udp/OpenCV_streamVideo/server/build/
+# teststuff/cpp/basic/networking/udp/OpenCV_streamVideo/client/build/
+# teststuff/cpp/basic/networking/udp/pc_to_pc/build/
+# teststuff/cpp/basic/networking/udp/udpCOM_toESP8266/build/
+# teststuff/cpp/useful/wirelessCOM_test/build/
+# teststuff/cpp/basic/networking/udp/win32/client/build/
+# teststuff/cpp/basic/networking/udp/win32/server/build/
+# teststuff/cpp/basic/networking/tcp/ex0_win32/build/
+# teststuff/cpp/image_process/libjeg/decoding/build/
+# teststuff/cpp/basic/networking/udp/OpenCV_streamVideo/temp_winsock/client/build/
+# teststuff/cpp/basic/networking/udp/OpenCV_streamVideo/temp_winsock/server/build/
 .vscode
-projects/proj_Hexclaw_cpp/Hexclaw_Main/build/
-projects/proj_Hexclaw_cpp/remote_GUI/build
-teststuff/cpp/gui/FTXUI/example0/build/
-teststuff/cpp/gui/FTXUI/button_animated/build/
-teststuff/cpp/gui/FTXUI/canvas_animated/build/
-
+# projects/proj_Hexclaw_cpp/Hexclaw_Main/build/
+# projects/proj_Hexclaw_cpp/remote_GUI/build
+# teststuff/cpp/gui/FTXUI/example0/build/
+# teststuff/cpp/gui/FTXUI/button_animated/build/
+# teststuff/cpp/gui/FTXUI/canvas_animated/build/
+# teststuff/cpp/gui/FTXUI/menu/build/
+**/build
