@@ -7,6 +7,7 @@
 
 
 #include "globals_includes.hpp"
+#include "extra_imgui.hpp"
 #if _WIN32
 #include <imgui\addons\imguifilesystem\dirent_portable.h>
 #else
@@ -138,6 +139,8 @@ extern ImVec2 _coef_dim__win_timeline;
  * @return ImVec2  (width, height)
  */
 ImVec2 dim__win_timeline();
+
+extern pressed_key__struct guiKeys;
 
 extern bool lockMove_screen;
 extern bool lockMove_node;

@@ -29,7 +29,7 @@
 //pca9685 communication
 #include <PiPCA9685/PCA9685.h>
 
-#include "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.hpp"
+#include "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/IK_header.hpp"
 
 using namespace std;
 

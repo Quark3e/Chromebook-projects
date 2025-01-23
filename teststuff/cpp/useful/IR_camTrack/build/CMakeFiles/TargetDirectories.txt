@@ -1,3 +1,3 @@
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/rebuild_cache.dir
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/edit_cache.dir
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/test_IR_camTrack.dir
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/rebuild_cache.dir
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/edit_cache.dir
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/test_IR_camTrack.dir

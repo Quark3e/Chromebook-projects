@@ -1,4 +1,4 @@
-# Install script for directory: /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack
+# Install script for directory: /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

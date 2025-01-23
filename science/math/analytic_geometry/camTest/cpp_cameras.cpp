@@ -27,7 +27,7 @@
 #endif
 
 #include "../../../../teststuff/cpp/useful/useful.hpp"
-#include "../../../../projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp"
+#include "../../../../projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/IR_camTrack.hpp"
 #include "../../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp"
 #include "../../../../teststuff/cpp/basic/Performance/getPerformance.hpp"
 #include "../../../../teststuff/cpp/opencv/recordVideo/recordFrames.hpp"

@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/IR_camTrack.hpp
 iostream
 -
 vector
@@ -24,7 +24,7 @@ opencv4/opencv2/imgproc/imgproc.hpp
 ../../../../teststuff/cpp/basic/Performance/getPerformance.hpp
 /home/pi/Chromebook-projects/teststuff/cpp/basic/Performance/getPerformance.hpp
 
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/main.cpp
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/main.cpp
 iostream
 -
 vector
@@ -38,7 +38,7 @@ cstring
 unistd.h
 -
 ../../IR_camTrack.hpp
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/IR_camTrack.hpp
 ../../../../../../teststuff/cpp/useful/useful.hpp
 /home/pi/Chromebook-projects/teststuff/cpp/useful/useful.hpp
 ../../../../../../teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp

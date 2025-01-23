@@ -147,9 +147,10 @@ ImVec2 dim__win_timeline() {
 }
 
 
+pressed_key__struct guiKeys;
+
 bool lockMove_screen    = true;
 bool lockMove_node      = true;
-
 
 int decay_mouseClick_left   = 0;
 int decay_mouseClick_right  = 0;

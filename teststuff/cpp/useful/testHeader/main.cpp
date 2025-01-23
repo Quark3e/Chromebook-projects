@@ -131,13 +131,13 @@ int main(int argc, char** argv) {
 
     for(auto key: inst0.keys()) {
         cout << DIY::formatNumber<std::string>(key,5,0,"left")<<": ";
-        cout << inst0[key] << endl;
+        cout << inst0.get(key) << endl;
     }
     cout << endl;
     inst0.insert(2, {"sub 0", "sub 1", "sub 2"}, {2.01, 2.1, 2.2});
     for(auto key: inst0.keys()) {
         cout << DIY::formatNumber<std::string>(key,5,0,"left")<<": ";
-        cout << inst0[key] << endl;
+        cout << inst0.get(key) << endl;
     }
 
     return 0;

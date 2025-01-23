@@ -51,10 +51,10 @@ chrono
 -
 PiPCA9685/PCA9685.h
 -
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.hpp
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/IK_header.hpp
 -
 
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/IK_header.hpp
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/IK_header.hpp
 unistd.h
 -
 PiPCA9685/PCA9685.h

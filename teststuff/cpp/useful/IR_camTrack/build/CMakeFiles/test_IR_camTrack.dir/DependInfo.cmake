@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/main.cpp" "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/test_IR_camTrack.dir/main.cpp.o"
+  "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/main.cpp" "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/test_IR_camTrack.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

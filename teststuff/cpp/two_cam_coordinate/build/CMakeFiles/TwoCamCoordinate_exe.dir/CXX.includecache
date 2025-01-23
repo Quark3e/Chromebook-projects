@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/IR_camTrack.hpp
 iostream
 -
 vector
@@ -85,8 +85,8 @@ two_cam_coordinate.hpp
 /home/pi/Chromebook-projects/teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp
 ../basic/Performance/getPerformance.hpp
 /home/pi/Chromebook-projects/teststuff/cpp/basic/Performance/getPerformance.hpp
-../../../projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp
-/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/IR_camTrack.hpp
+../../../projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/IR_camTrack.hpp
+/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/IR_camTrack.hpp
 
 /home/pi/Chromebook-projects/teststuff/cpp/two_cam_coordinate/two_cam_coordinate.hpp
 math.h

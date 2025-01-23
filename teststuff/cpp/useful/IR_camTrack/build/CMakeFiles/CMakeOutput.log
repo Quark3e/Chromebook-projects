@@ -10,7 +10,7 @@ The output was:
 
 Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
 
-The C compiler identification is GNU, found in "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/3.18.4/CompilerIdC/a.out"
+The C compiler identification is GNU, found in "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/3.18.4/CompilerIdC/a.out"
 
 Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
 Compiler: /usr/bin/c++ 
@@ -23,13 +23,13 @@ The output was:
 
 Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
 
-The CXX compiler identification is GNU, found in "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/3.18.4/CompilerIdCXX/a.out"
+The CXX compiler identification is GNU, found in "/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/3.18.4/CompilerIdCXX/a.out"
 
 Detecting C compiler ABI info compiled with the following output:
-Change Dir: /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp
+Change Dir: /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp
 
 Run Build Command(s):/usr/bin/gmake cmTC_ecd28/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_ecd28.dir/build.make CMakeFiles/cmTC_ecd28.dir/build
-gmake[1]: Entering directory '/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp'
+gmake[1]: Entering directory '/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp'
 Building C object CMakeFiles/cmTC_ecd28.dir/CMakeCCompilerABI.c.o
 /usr/bin/cc   -v -o CMakeFiles/cmTC_ecd28.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake-3.18/Modules/CMakeCCompilerABI.c
 Using built-in specs.
@@ -82,7 +82,7 @@ LIBRARY_PATH=/usr/lib/gcc/arm-linux-gnueabihf/10/:/usr/lib/gcc/arm-linux-gnueabi
 COLLECT_GCC_OPTIONS='-v' '-rdynamic' '-o' 'cmTC_ecd28'  '-mfloat-abi=hard' '-mfpu=vfp' '-mtls-dialect=gnu' '-marm' '-march=armv6+fp'
  /usr/lib/gcc/arm-linux-gnueabihf/10/collect2 -plugin /usr/lib/gcc/arm-linux-gnueabihf/10/liblto_plugin.so -plugin-opt=/usr/lib/gcc/arm-linux-gnueabihf/10/lto-wrapper -plugin-opt=-fresolution=/tmp/ccQspHZ7.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -export-dynamic -dynamic-linker /lib/ld-linux-armhf.so.3 -X --hash-style=gnu --as-needed -m armelf_linux_eabi -o cmTC_ecd28 /usr/lib/gcc/arm-linux-gnueabihf/10/../../../arm-linux-gnueabihf/crt1.o /usr/lib/gcc/arm-linux-gnueabihf/10/../../../arm-linux-gnueabihf/crti.o /usr/lib/gcc/arm-linux-gnueabihf/10/crtbegin.o -L/usr/lib/gcc/arm-linux-gnueabihf/10 -L/usr/lib/gcc/arm-linux-gnueabihf/10/../../../arm-linux-gnueabihf -L/usr/lib/gcc/arm-linux-gnueabihf/10/../../.. -L/lib/arm-linux-gnueabihf -L/usr/lib/arm-linux-gnueabihf CMakeFiles/cmTC_ecd28.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/arm-linux-gnueabihf/10/crtend.o /usr/lib/gcc/arm-linux-gnueabihf/10/../../../arm-linux-gnueabihf/crtn.o
 COLLECT_GCC_OPTIONS='-v' '-rdynamic' '-o' 'cmTC_ecd28'  '-mfloat-abi=hard' '-mfpu=vfp' '-mtls-dialect=gnu' '-marm' '-march=armv6+fp'
-gmake[1]: Leaving directory '/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp'
+gmake[1]: Leaving directory '/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp'
 
 
 
@@ -103,10 +103,10 @@ Parsed C implicit include dir info from above output: rv=done
 
 Parsed C implicit link information from above output:
   link line regex: [^( *|.*[/\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
-  ignore line: [Change Dir: /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp]
+  ignore line: [Change Dir: /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp]
   ignore line: []
   ignore line: [Run Build Command(s):/usr/bin/gmake cmTC_ecd28/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_ecd28.dir/build.make CMakeFiles/cmTC_ecd28.dir/build]
-  ignore line: [gmake[1]: Entering directory '/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp']
+  ignore line: [gmake[1]: Entering directory '/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp']
   ignore line: [Building C object CMakeFiles/cmTC_ecd28.dir/CMakeCCompilerABI.c.o]
   ignore line: [/usr/bin/cc   -v -o CMakeFiles/cmTC_ecd28.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake-3.18/Modules/CMakeCCompilerABI.c]
   ignore line: [Using built-in specs.]
@@ -213,10 +213,10 @@ Parsed C implicit link information from above output:
 
 
 Detecting CXX compiler ABI info compiled with the following output:
-Change Dir: /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp
+Change Dir: /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp
 
 Run Build Command(s):/usr/bin/gmake cmTC_d3d75/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_d3d75.dir/build.make CMakeFiles/cmTC_d3d75.dir/build
-gmake[1]: Entering directory '/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp'
+gmake[1]: Entering directory '/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp'
 Building CXX object CMakeFiles/cmTC_d3d75.dir/CMakeCXXCompilerABI.cpp.o
 /usr/bin/c++   -v -o CMakeFiles/cmTC_d3d75.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-3.18/Modules/CMakeCXXCompilerABI.cpp
 Using built-in specs.
@@ -273,7 +273,7 @@ LIBRARY_PATH=/usr/lib/gcc/arm-linux-gnueabihf/10/:/usr/lib/gcc/arm-linux-gnueabi
 COLLECT_GCC_OPTIONS='-v' '-rdynamic' '-o' 'cmTC_d3d75' '-shared-libgcc'  '-mfloat-abi=hard' '-mfpu=vfp' '-mtls-dialect=gnu' '-marm' '-march=armv6+fp'
  /usr/lib/gcc/arm-linux-gnueabihf/10/collect2 -plugin /usr/lib/gcc/arm-linux-gnueabihf/10/liblto_plugin.so -plugin-opt=/usr/lib/gcc/arm-linux-gnueabihf/10/lto-wrapper -plugin-opt=-fresolution=/tmp/cc2Elb19.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -export-dynamic -dynamic-linker /lib/ld-linux-armhf.so.3 -X --hash-style=gnu --as-needed -m armelf_linux_eabi -o cmTC_d3d75 /usr/lib/gcc/arm-linux-gnueabihf/10/../../../arm-linux-gnueabihf/crt1.o /usr/lib/gcc/arm-linux-gnueabihf/10/../../../arm-linux-gnueabihf/crti.o /usr/lib/gcc/arm-linux-gnueabihf/10/crtbegin.o -L/usr/lib/gcc/arm-linux-gnueabihf/10 -L/usr/lib/gcc/arm-linux-gnueabihf/10/../../../arm-linux-gnueabihf -L/usr/lib/gcc/arm-linux-gnueabihf/10/../../.. -L/lib/arm-linux-gnueabihf -L/usr/lib/arm-linux-gnueabihf CMakeFiles/cmTC_d3d75.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/arm-linux-gnueabihf/10/crtend.o /usr/lib/gcc/arm-linux-gnueabihf/10/../../../arm-linux-gnueabihf/crtn.o
 COLLECT_GCC_OPTIONS='-v' '-rdynamic' '-o' 'cmTC_d3d75' '-shared-libgcc'  '-mfloat-abi=hard' '-mfpu=vfp' '-mtls-dialect=gnu' '-marm' '-march=armv6+fp'
-gmake[1]: Leaving directory '/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp'
+gmake[1]: Leaving directory '/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp'
 
 
 
@@ -300,10 +300,10 @@ Parsed CXX implicit include dir info from above output: rv=done
 
 Parsed CXX implicit link information from above output:
   link line regex: [^( *|.*[/\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
-  ignore line: [Change Dir: /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp]
+  ignore line: [Change Dir: /home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp]
   ignore line: []
   ignore line: [Run Build Command(s):/usr/bin/gmake cmTC_d3d75/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_d3d75.dir/build.make CMakeFiles/cmTC_d3d75.dir/build]
-  ignore line: [gmake[1]: Entering directory '/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/in rpi/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp']
+  ignore line: [gmake[1]: Entering directory '/home/pi/Chromebook-projects/projects/proj_Hexclaw_cpp/HexclawMain/HW_headers/headerTest/IR_camTrack/build/CMakeFiles/CMakeTmp']
   ignore line: [Building CXX object CMakeFiles/cmTC_d3d75.dir/CMakeCXXCompilerABI.cpp.o]
   ignore line: [/usr/bin/c++   -v -o CMakeFiles/cmTC_d3d75.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-3.18/Modules/CMakeCXXCompilerABI.cpp]
   ignore line: [Using built-in specs.]
