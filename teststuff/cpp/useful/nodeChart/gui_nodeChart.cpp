@@ -2654,29 +2654,40 @@ std::vector<gNC::gNODE*> gNC::timeline::get_sides(
     if (!_vec) _vec = &this->_objects;
     std::vector<gNODE*> affected;
     for (size_t ch = _channel; ch < (_channel == 0 ? this->get_numChannels_used(_vec) : _channel + 1); ch++) {
+        /// Iterate through specified channel or every *used* channel.
+
+        // gNODE* to every timeObject in current channel `ch`
         std::vector<gNODE*> chNodes = this->get_timeObjects_inChannel(ch, _vec);
         for (size_t i = 0; i < chNodes.size(); i++) {
+            /// Iterate through every gNODE* in current channel `ch`
+
+            // Copy of currently iterated gNODE*
             timeObject obj = this->get_timeObject(chNodes[i], _vec);
-            if (_sideVal.value >= obj.start.value - _sidePadding && _sideVal.value <= obj.end.value + _sidePadding) {
-                if (_sideVal == obj.start || _sideVal == obj.end) {
+            if(_sideVal.value >= obj.start.value - _sidePadding && _sideVal.value <= obj.end.value + _sidePadding) {
+                /// If: sideVal is within ROI: start side with padding
+                if(_sideVal == obj.start || _sideVal == obj.end) {
+                    /// If: sideVal is exactly same as start or end: add the affected and go to next node
                     affected.push_back(chNodes.at(i));
                     continue;
                 }
-                else if (_sideVal.value > obj.start.value + _sidePadding * 2 && _sideVal.value < obj.end.value - _sidePadding * 2) continue;
+                else if(_sideVal.value > obj.start.value + _sidePadding * 2 && _sideVal.value < obj.end.value - _sidePadding * 2) {
+                    /// If: sideVal is not within side checking and is in the center area go to next node
+                    continue;
+                }
 
                 affected.push_back(chNodes.at(i));
-                if (_channel != 0 && _sideVal.value > obj.start.value + _sidePadding && _sideVal.value < obj.end.value - _sidePadding) {
+                if(_channel != 0 && _sideVal.value > obj.start.value + _sidePadding && _sideVal.value < obj.end.value - _sidePadding) {
                     /**
                      * This is a special case because the cursor is located at a timeObject side, and it's in the "inner" zones meaning no timeObject beside it in same channel can be affected.
                      * And because the function argument `_channel` is specific means there will be no other channels to look through so this is the only timeObject in described location/timeUnit for timeline
                      *  of container `_vec`.
                      * Just in case something went wrong and there somehow are other "registered"/affected timeObjects, I'll use assert.
+                     * 
+                     * update:  nvm idk why I'm assuming _channel has to be specific when I've allowed _channel==0 before this and this checking is for an inner region.
+                     * update2: nvm. THIS is where I'm not alloweing inner value. This is a valid region so i should just treat it like others. What i could add is make it exit this nodes loop and go to next channel.
                      */
-                    if (affected.size() > 1) {
-
-                        assert(false && " There somehow are more than a single timeObject affected by position for given timeUnit with specific _channel");
-                    }
-                    return affected;
+                    // if(affected.size() > 1) assert(false && " There somehow are more than a single timeObject affected by position for given timeUnit with specific _channel");
+                    break;
                 }
                 continue;
             }

@@ -7,6 +7,11 @@
 bool            __ON_TERMINAL   = false;
 unsigned int    __PROGRAM_FRAMES= (unsigned int)-1;
 
+
+bool running_main       = true;
+bool opt__enable_grid   = true;
+
+
 int __GLOBAL_FLAGS__WIN_RESIZED = 0;
 int __GLOBAL_FLAGS__WIN_CLOSING = 0;
 
@@ -150,7 +155,8 @@ ImVec2 dim__win_timeline() {
 pressed_key__struct guiKeys;
 
 void _keyBind__Master_Close() {
-
+    std::cout << " Master Close called." << std::endl;
+    running_main = false;
 }
 DIY_KBH::keyBind_handler keyBinds({
     {"undo",    {ImGuiKey_ReservedForModCtrl, ImGuiKey_LeftCtrl, ImGuiKey_Z}},

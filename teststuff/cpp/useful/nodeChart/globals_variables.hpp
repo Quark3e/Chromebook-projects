@@ -35,6 +35,13 @@ extern unsigned int __PROGRAM_FRAMES;
 
 // Global flags
 
+/// @brief Main program loop true statement. If this is set to `false` then the program will close.
+extern bool running_main ;
+
+extern bool opt__enable_grid;
+
+
+
 extern int __GLOBAL_FLAGS__WIN_RESIZED; //whether the main program window has been resized: 0 - false
 extern int __GLOBAL_FLAGS__WIN_CLOSING; //whether the program is closing (i.e. this is the last iteration/frame before the program closes): 1 = closing/true
 

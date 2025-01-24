@@ -324,7 +324,7 @@ void gNC::_menu__timeline(
 
     /// The padding value for the detection region for the mouse that separates moving the timeObject to moving the side.
     /// This also specifis the mininum width a timeObject can have because for "semantics sake" a timeObject cannot be smaller than 6x of these units wide.
-    static int __moving_side_detect_padding = 5;
+    static int __moving_side_detect_padding = 10;
 
 
     if(_chart != prev_chart || __GLOBAL_FLAGS__WIN_RESIZED>0) _init = true;
@@ -452,11 +452,12 @@ void gNC::_menu__timeline(
         static std::vector<ImU32> timeObject_colour_border{ IM_COL32(230, 230, 230, 230)};
         static std::vector<ImU32> timeObject_colour_bg{     IM_COL32(184, 184, 184, 184), IM_COL32(214, 214, 214, 214), IM_COL32(244, 244, 244, 10)};
         static size_t tO_colBord    = 0;
-        static size_t tO_colBG      = 0;
+        static size_t tO_colBG      = 0; // {`0`-default, `1`-hovered, `2`-selected}
+
 
         TL_ref.verbose_exceptions = true;
         if(_moving_gNODE) {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+            // ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
             timeObject obj = TL_ref.get_timeObject(_moving_gNODE);
             _update(io.MousePos, obj);
 
@@ -478,7 +479,8 @@ void gNC::_menu__timeline(
             }
         }
         else if(_moving_side__val.value != (size_t)-1) {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+            // ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+            // ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
             _updateRelativeMouse(io.MousePos);
             timeUnit _newSideVal = mousePos_relativeValues.x;
 
@@ -496,24 +498,27 @@ void gNC::_menu__timeline(
             }
         }
         else {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
+            // ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
         }
 
 
         /// temporary boolean for whether left mouse button was just recently registered as holding
         bool recentlyHolding_mouseLeft = keyBinds.clicked("MouseLeft");
         // bool recentlyHolding_mouseLeft =  guiKeys.isHolding(ImGuiKey_MouseLeft) && guiKeys.__refDict_holding_keys_occur.get(ImGuiKey_MouseLeft)==guiKeys.holding_keys__holdingLim-guiKeys.holding_keys__allowed_gaps;
-        
+        bool cosmetics__cursorChanged = false;
 
-        std::cout << formatNumber(keyBinds.clicked("MouseLeft"), 6, 0, "left") << " ";
-        std::cout << formatNumber(keyBinds.pressing("MouseLeft"), 6, 0, "left") << " ";
-        std::cout << guiKeys.__refDict_holding_keys_occur << "  ";
+
+        // std::cout << formatNumber(keyBinds.clicked("MouseLeft"), 6, 0, "left") << " ";
+        // std::cout << formatNumber(keyBinds.pressing("MouseLeft"), 6, 0, "left") << " ";
+        // std::cout << guiKeys.__refDict_holding_keys_occur << "  ";
 
         _updateRelativeMouse(io.MousePos);
-        std::vector<gNC::gNODE*> _affctd = TL_ref.get_sides(mousePos_relativeValues.x, mousePos_relativeValues.y, __moving_side_detect_padding, onTL);
+
+        std::vector<gNC::gNODE*> _affctd = TL_ref.get_sides(mousePos_relativeValues.x, mousePos_relativeValues.y, __moving_side_detect_padding, nullptr);
         if(_affctd.size()>0) {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-            std::cout << " on a side" << std::endl;
+            std::cout << formatVector(_affctd, 0, 0) << " ";
+            cosmetics__cursorChanged = true;
+
             if(!_moving_gNODE && _moving_side__val.value == (size_t)-1) {
                 if(recentlyHolding_mouseLeft) {
                     if(_affctd.size()==1) _moving_side__gNODE = _affctd[0];
@@ -521,6 +526,9 @@ void gNC::_menu__timeline(
                     _moving_side__val       = mousePos_relativeValues.x;
                 }
             }
+        }
+        else {
+
         }
         for(size_t i=0; i<TL_ref.size(); i++) {
             tO_colBG = 0;
@@ -531,30 +539,77 @@ void gNC::_menu__timeline(
 
             if(_moving_side__val.value==(size_t)-1 && inRegion(io.MousePos, timeObject_pos, ImVec2_add(timeObject_pos, timeObject_dim))) {
                 if(recentlyHolding_mouseLeft) {
-                    /// if it was recently set as isHolding mouseLeft
+                    /// if mouseLeft is clicked in this program frame
 
-                    if(
-                        !_moving_gNODE
-                    ) {
+                    if(!_moving_gNODE) {
                         /// moving the node object
                         _moving_gNODE = obj.objNode;
                         timeObject_cursorOffs = ImVec2_subtract(io.MousePos, timeObject_pos);
                     }
                 }
 
-                if(!_moving_gNODE) tO_colBG = 1;
+            }
+            else {}
+
+            // object-interaction colour stuff
+            if(inRegion(io.MousePos, ImVec2(timeObject_pos.x-__moving_side_detect_padding, timeObject_pos.y), ImVec2(timeObject_pos.x+timeObject_dim.x+__moving_side_detect_padding, timeObject_pos.y+timeObject_dim.y))) {
+                /// within region of timeObject with __moving_side_detect_padding
+
+                if(recentlyHolding_mouseLeft) {
+                    // tO_colBG = 2;
+                }
+                else {
+                    tO_colBG = 1;
+                    ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
+                }
             }
             else {
                 tO_colBG = 0;
+                if(!cosmetics__cursorChanged) ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
             }
             
             if(_moving_gNODE==obj.objNode) {
                 tO_colBG = 2;
             }
 
+            /// Draw the timeObject
             timeline_drawList->AddRectFilled(timeObject_pos, ImVec2_add(timeObject_pos, timeObject_dim), timeObject_colour_bg[tO_colBG], 2, 0);
             timeline_drawList->AddRect(timeObject_pos, ImVec2_add(timeObject_pos, timeObject_dim), timeObject_colour_border[tO_colBord], 2, 0, 1);
             timeline_drawList->AddText(ImVec2_add(timeObject_pos, ImVec2_multiply(timeObject_dim, ImVec2(0, 0.5))), IM_COL32(10, 10, 10, 255), ptrToStr<gNC::gNODE*>(obj.objNode).c_str());
+            
+            
+            timeline_drawList->AddLine(
+                ImVec2_subtract(timeObject_pos, ImVec2(__moving_side_detect_padding, 0)),
+                ImVec2_subtract(timeObject_pos, ImVec2(__moving_side_detect_padding, -timeObject_dim.y)),
+                IM_COL32(250, 10, 10, 250)
+            );
+            timeline_drawList->AddLine(
+                ImVec2_add(timeObject_pos, ImVec2(__moving_side_detect_padding, 0)),
+                ImVec2_add(timeObject_pos, ImVec2(__moving_side_detect_padding, timeObject_dim.y)),
+                IM_COL32(250, 10, 10, 250)
+            );
+            timeline_drawList->AddLine(
+                ImVec2_add(timeObject_pos, ImVec2(__moving_side_detect_padding*2, 0)),
+                ImVec2_add(timeObject_pos, ImVec2(__moving_side_detect_padding*2, timeObject_dim.y)),
+                IM_COL32(10, 10, 250, 250)
+            );
+
+
+            timeline_drawList->AddLine(
+                ImVec2(timeObject_pos.x + timeObject_dim.x + __moving_side_detect_padding, timeObject_pos.y),
+                ImVec2(timeObject_pos.x + timeObject_dim.x + __moving_side_detect_padding, timeObject_pos.y+timeObject_dim.y),
+                IM_COL32(250, 10, 10, 250)
+            );
+            timeline_drawList->AddLine(
+                ImVec2(timeObject_pos.x + timeObject_dim.x - __moving_side_detect_padding, timeObject_pos.y),
+                ImVec2(timeObject_pos.x + timeObject_dim.x - __moving_side_detect_padding, timeObject_pos.y+timeObject_dim.y),
+                IM_COL32(250, 10, 10, 250)
+            );
+            timeline_drawList->AddLine(
+                ImVec2_subtract(ImVec2(timeObject_pos.x+timeObject_dim.x, timeObject_pos.y), ImVec2(__moving_side_detect_padding*2, 0)),
+                ImVec2_subtract(ImVec2(timeObject_pos.x+timeObject_dim.x, timeObject_pos.y), ImVec2(__moving_side_detect_padding*2, -timeObject_dim.y)),
+                IM_COL32(10, 10, 250, 250)
+            );
         }
 
         if(inRegion(

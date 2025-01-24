@@ -10,14 +10,8 @@
  * 
  */
 
-
-
 #include "globals_includes.hpp"
 #include "globals_variables.hpp"
-
-
-bool running_main = true;
-bool opt__enable_grid = true;
 
 
 int main(int argc, char** argv) {
