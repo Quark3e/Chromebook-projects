@@ -468,7 +468,8 @@ void gNC::_menu__timeline(
             timeline_drawList->AddRectFilled(ImVec2_subtract(io.MousePos, timeObject_cursorOffs), ImVec2_add(ImVec2_subtract(io.MousePos, timeObject_cursorOffs), timeObject_dim), timeObject_colour_bg[0], 2, 0);
             timeline_drawList->AddRect(ImVec2_subtract(io.MousePos, timeObject_cursorOffs), ImVec2_add(ImVec2_subtract(io.MousePos, timeObject_cursorOffs), timeObject_dim), timeObject_colour_border[0], 2, 0, 1);
 
-            if(!guiKeys.isHolding(ImGuiKey_MouseLeft)) {
+            // if(!guiKeys.isHolding(ImGuiKey_MouseLeft)) {
+            if(!keyBinds.pressing("MouseLeft")) {
                 /// This iteration is a state change where the mouseLeft went from holding -> not holding
 
                 if(TL_ref.add_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, nullptr)) {
@@ -486,7 +487,8 @@ void gNC::_menu__timeline(
                 std::cout << "forVisuals move_sides error: " << call_code << std::endl;
             }
 
-            if(!guiKeys.isHolding(ImGuiKey_MouseLeft)) {
+            // if(!guiKeys.isHolding(ImGuiKey_MouseLeft)) {
+            if(!keyBinds.pressing("MouseLeft")) {
                 call_code = 0;
                 if((call_code = TL_ref.move_sides(_moving_side__val, _newSideVal, _moving_side__gNODE, _moving_side__channel, __moving_side_detect_padding, nullptr))) {
                     std::cout << "move_sides error: " << call_code << std::endl;
@@ -499,7 +501,13 @@ void gNC::_menu__timeline(
 
 
         /// temporary boolean for whether left mouse button was just recently registered as holding
-        bool recentlyHolding_mouseLeft = guiKeys.isHolding(ImGuiKey_MouseLeft) && guiKeys.__refDict_holding_keys_occur.get(ImGuiKey_MouseLeft)==guiKeys.holding_keys__holdingLim-guiKeys.holding_keys__allowed_gaps;
+        bool recentlyHolding_mouseLeft = keyBinds.clicked("MouseLeft");
+        // bool recentlyHolding_mouseLeft =  guiKeys.isHolding(ImGuiKey_MouseLeft) && guiKeys.__refDict_holding_keys_occur.get(ImGuiKey_MouseLeft)==guiKeys.holding_keys__holdingLim-guiKeys.holding_keys__allowed_gaps;
+        
+
+        std::cout << formatNumber(keyBinds.clicked("MouseLeft"), 6, 0, "left") << " ";
+        std::cout << formatNumber(keyBinds.pressing("MouseLeft"), 6, 0, "left") << " ";
+        std::cout << guiKeys.__refDict_holding_keys_occur << "  ";
 
         _updateRelativeMouse(io.MousePos);
         std::vector<gNC::gNODE*> _affctd = TL_ref.get_sides(mousePos_relativeValues.x, mousePos_relativeValues.y, __moving_side_detect_padding, onTL);
@@ -572,7 +580,8 @@ void gNC::_menu__timeline(
     // std::cout << std::endl;
 
 
-    if(guiKeys.isHolding(ImGuiKey_MouseLeft)) {
+    // if(guiKeys.isHolding(ImGuiKey_MouseLeft)) {
+    if(keyBinds.pressing("MouseLeft")) {
         onTL = &TL_ref.forVisuals;
     }
     else {

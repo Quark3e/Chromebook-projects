@@ -162,5 +162,15 @@ bool DIY_KBH::keyBind_handler::clicked(std::string _label) {
             return this->_called[i];
         }
     }
-    throw std::invalid_argument("clicked(std::string)   the label \""+_label+"\" doesn't exist in storage as keybind.");
+    throw std::invalid_argument("clicked(std::string)   the label \""+_label+"\" doesn't exist in storage as a keybind.");
+    return false;
+}
+bool DIY_KBH::keyBind_handler::pressing(std::string _label) {
+    for(size_t i=0; i<this->_keyBinds.size(); i++) {
+        if(_keyBinds[i]._label==_label) {
+            return !this->_released[i];
+        }
+    }
+    throw std::invalid_argument("pressing(std::string)   the label \""+_label+"\" doesn't exist in storage as a keybind.");
+    return false;
 }

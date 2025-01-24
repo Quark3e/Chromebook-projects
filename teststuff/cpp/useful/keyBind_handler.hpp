@@ -20,12 +20,11 @@ namespace DIY_KBH {
     struct keyBind_handler_unit {
         std::string         _label;
         std::vector<int>    _keys;
-        _funcDef            _callFunc;
+        _funcDef            _callFunc       = nullptr;
         bool                _orderImportant = false;
         bool                _isolImportant  = true;
         bool                _callEdge       = true;
     };
-
 
 
     /**
@@ -74,7 +73,22 @@ namespace DIY_KBH {
         keyBind_handler_unit get(std::string _label);
         keyBind_handler_unit get(std::string _label) const;
 
+        /**
+         * @brief Bool for whether the _label assosciated keybind is clicked in current program loop/iteration according to `callEdge` parameter (`callEdge==true`->initial press signal; `callEdge==false`->press release signal)
+         * @note if the keyBind is held, this function will only return true during the initial signal (according to callEdge as previously mentioned)
+         * @param _label `std::string` of keybind label
+         * @return true if keybind is pressed(callEdge*) in current update call.
+         * @return false every other scenario.
+         */
         bool clicked(std::string _label);
+        /**
+         * @brief Bool for whether the _label assosciated keybind is currently held
+         * 
+         * @param _label `std::string` of keybind label
+         * @return true if keybind is pressed(callEdge*)
+         * @return false every other scenario
+         */
+        bool pressing(std::string _label);
     };
 
 }

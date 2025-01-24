@@ -46,7 +46,7 @@ struct pressed_key__struct {
      *  - `>0`  newest key value is bigger than previous
      */
     DIY::typed_dict<int, int> __refDict_keyChangeDir;
-    void __update_holding_keys();
+    void __update_holding_keys(bool _printResult=false);
     /**
      * @brief Check whether an ImGuiKey is *registered as* "holding down" in accordance with member `holding_keys__` settings.
      * 
@@ -103,7 +103,7 @@ inline void pressed_key__struct::update() {
     this->__update_clicked_keys();
 }
 
-inline void pressed_key__struct::__update_holding_keys() {
+inline void pressed_key__struct::__update_holding_keys(bool _printResult) {
     static std::chrono::steady_clock::time_point _lastChecked = std::chrono::steady_clock::now();
 
     if(pressed.size()==0 || timePoints.size()==0) return;
@@ -182,6 +182,8 @@ inline void pressed_key__struct::__update_holding_keys() {
     // std::cout << DIY::prettyPrint_vec1<int>(this->holding_keys) << std::endl;
 
     _lastChecked = this->timePoints.at(timePoints.size()-1);
+
+    if(_printResult) std::cout << formatContainer1(__refDict_holding_keys_occur, __refDict_holding_keys_occur.size(), 3, 0) << std::endl;
 }
 inline bool pressed_key__struct::isHolding(int _key) {
     for(size_t i=0; i<this->holding_keys.size(); i++) {

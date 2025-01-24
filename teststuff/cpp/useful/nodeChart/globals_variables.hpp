@@ -8,6 +8,7 @@
 
 #include "globals_includes.hpp"
 #include "extra_imgui.hpp"
+#include "keyBind_handler.hpp"
 #if _WIN32
 #include <imgui\addons\imguifilesystem\dirent_portable.h>
 #else
@@ -140,7 +141,10 @@ extern ImVec2 _coef_dim__win_timeline;
  */
 ImVec2 dim__win_timeline();
 
-extern pressed_key__struct guiKeys;
+extern pressed_key__struct      guiKeys;
+/// @brief keyBind function called during master close keyBind call.
+void _keyBind__Master_Close();
+extern DIY_KBH::keyBind_handler keyBinds;
 
 extern bool lockMove_screen;
 extern bool lockMove_node;

@@ -134,6 +134,7 @@ int main(int argc, char** argv) {
         static std::vector<std::vector<int>>* pressed_keys;
         pressed_keys = &guiKeys.pressed;
         guiKeys.update();
+        keyBinds.update(guiKeys.pressed[guiKeys.pressed.size()-1]);
         // update_keys();
         ALLEGRO_EVENT al_event;
         while (al_get_next_event(queue, &al_event)) {

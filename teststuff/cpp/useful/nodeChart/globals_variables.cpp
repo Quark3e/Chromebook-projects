@@ -149,6 +149,18 @@ ImVec2 dim__win_timeline() {
 
 pressed_key__struct guiKeys;
 
+void _keyBind__Master_Close() {
+
+}
+DIY_KBH::keyBind_handler keyBinds({
+    {"undo",    {ImGuiKey_ReservedForModCtrl, ImGuiKey_LeftCtrl, ImGuiKey_Z}},
+    {"redo",    {ImGuiKey_ReservedForModCtrl, ImGuiKey_LeftCtrl, ImGuiKey_ReservedForModShift, ImGuiKey_LeftShift, ImGuiKey_Z}},
+    {"Master Close",{ImGuiKey_ReservedForModCtrl, ImGuiKey_LeftCtrl, ImGuiKey_W}, _keyBind__Master_Close},
+    {"Ctrl+Enter",  {ImGuiKey_ReservedForModCtrl, ImGuiKey_LeftCtrl, ImGuiKey_Enter}},
+    {"MouseLeft",   {ImGuiKey_MouseLeft}},
+    {"MouseRight",  {ImGuiKey_MouseRight}}
+});
+
 
 bool lockMove_screen    = true;
 bool lockMove_node      = true;
