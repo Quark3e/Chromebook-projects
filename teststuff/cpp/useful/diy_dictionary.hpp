@@ -564,12 +564,14 @@ namespace DIY {
             void _call_error(int code, std::string from_member="", std::string custom_error="") const;
 
             // auto _getItr_key(size_t idx);
+
+        public:
             auto _getItr(int idx);
             auto _getItr(int idx) const;
             auto _getItr_rev(int idx);
             auto _getItr_rev(int idx) const;
 
-        public:
+
             typed_dict() {}; //empty default constructor
             typed_dict(_key_type _key, _store_type _store);
             typed_dict(std::vector<_key_type> keys, std::list<_store_type> values);
@@ -694,8 +696,8 @@ namespace DIY {
         else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
         
         auto itr = _values.begin();
-        advance(itr, idx);
-
+        std::advance(itr, idx);
+        std::cout << &*itr << "  ";
         return itr;
     }
     template<class _key_type, class _store_type>
@@ -791,11 +793,14 @@ namespace DIY {
         if(hasRepetitions<_key_type>(vec_keys)) this->_call_error(0, "::typed_dict(std::initializer_list<_pair<_key_type, _store_type>>)", "there are repetitions within the keys.");
         this->_keys = vec_keys;
         this->_values = vec_values;
-        for(auto itr=_values.begin(); itr!=_values.end(); ++itr) _lookup.push_back(&(*itr));
+        for(auto itr=_values.begin(); itr!=_values.end(); ++itr) {
+            _lookup.push_back(&(*itr));
+        }
+
 
         size_t cnt = 0;
         for(auto itr=_values.begin(); itr!=_values.end(); ++itr) {
-            std::cout << std::setw(21)<<std::left<<_keys[cnt]<<" : "<< &*itr << " | " << _lookup[cnt] << std::endl;
+            std::cout << std::setw(21)<<std::left<<_keys[cnt]<<" : "<< (&(*itr)) << " | " << _lookup[cnt] << std::endl;
             cnt++;
         }
         this->_init_container = true;
@@ -809,9 +814,10 @@ namespace DIY {
         else if(abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
         else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
 
-        auto itr = _values.begin();
-        std::advance(itr, idx);
-        return *itr;
+        // auto itr = _values.begin();
+        // std::advance(itr, idx);
+        return *this->_lookup[idx];
+        // return *itr;
         // return *(this->_getItr(idx));
     }
     template<class _key_type, class _store_type>
@@ -839,10 +845,10 @@ namespace DIY {
         }
         if(idx<0) this->_call_error(0, "::get(_key_type)");
 
-        auto itr = _values.begin();
-        std::advance(itr, idx);
-        // return this->_lookup[idx];
-        return *(this->_getItr(0));
+        // auto itr = _values.begin();
+        // std::advance(itr, idx);
+        return *this->_lookup[idx];
+        // return *(this->_getItr(idx));
     }
     template<class _key_type, class _store_type>
     _store_type  typed_dict<_key_type, _store_type>::get(_key_type key) const {

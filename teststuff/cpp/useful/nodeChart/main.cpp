@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
     int setting_autosave_iterCount = 0;
     int setting_autosave_iterWait = 60; //how many frames/iterations to wait before saving
 
-
+    _SETTINGS[0][0] = true;
     while(_SETTINGS[0][0]) {
         __PROGRAM_FRAMES++;
         static std::vector<std::vector<int>>* pressed_keys;
@@ -194,7 +194,6 @@ int main(int argc, char** argv) {
 
 
             static const int GRID_STEP = 64;
-            std::cout << std::boolalpha<< bool(_SETTINGS.get("View").get("Draw Grid")) << "   ";
             if(_SETTINGS.get("View").get("Draw Grid")) {
                 draw_list->PushClipRect(ImVec2(0, 20), ImVec2(projects[_selected].chart.screen_dim[0], projects[_selected].chart.screen_dim[1]), true);
                 for(float x=0; x<projects[_selected].chart.screen_dim[0]; x+=GRID_STEP)
@@ -443,29 +442,23 @@ int main(int argc, char** argv) {
             }
         }
 
-        try {
-            // for(size_t i=0; i<_SETTINGS.size(); i++) {
-            //     std::cout << " "<<_SETTINGS[i].getKey(0)<<":"<< *_SETTINGS[i].getPtr_idx(0) << "/"<< _SETTINGS[i].get(_SETTINGS[i].getKey(0))<<" ";
-            // }
-            // std::cout << std::endl;
 
-            static auto lstCopy = _SETTINGS.values();
-            auto itr = lstCopy.begin();
-            size_t cnt = 0;
-            for(auto _key : _SETTINGS.keys()) {
-                std::cout << _SETTINGS.get(_key).getKey(0)<<"("<<itr->size()<<"):";
-                std::cout << "{"<<&_SETTINGS.get(_key)[0]<<"/"<<_SETTINGS.get(_key).getPtr_idx(0)<<"}lookup:"<<_SETTINGS.get(_key).lookup()[0]<<"   ";
-                // std::cout << "{"<<itr->getKey(0)<<": "<<(itr->operator[](0))<<"/"<<*_SETTINGS.get(_key).getPtr_idx(0)<<"}  ";
-                itr->operator[](0) = !itr->operator[](0);
-                ++itr;
-                cnt++;
-            }
+        // try {
+        //     for(size_t i=0; i<_SETTINGS.size(); i++) {
+        //         std::cout << _SETTINGS[i] << " ";
+        //     }
+        //     std::cout << std::endl;
+        // }
+        // catch(const std::exception& e) {
+        //     std::cout << e.what() << '\n';
+        // }
+        for(size_t i=0; i<_SETTINGS.size(); i++) {
+            std::cout << std::setw(21) << std::left<< _SETTINGS[i].getKey(0)<<" : ";
+            std::cout << _SETTINGS[i].getPtr_idx(0) << " / ";
+            (&(*_SETTINGS[i]._getItr(0)));
             std::cout << std::endl;
         }
-        catch(const std::exception& e) {
-            std::cout << e.what() << '\n';
-        }
-        
+        std::cout << std::endl;
 
 
         ImGui::End();
@@ -483,13 +476,13 @@ int main(int argc, char** argv) {
         if(__GLOBAL_FLAGS__WIN_RESIZED>0) {
             __GLOBAL_FLAGS__WIN_RESIZED = (__GLOBAL_FLAGS__WIN_RESIZED==1? 0 : __GLOBAL_FLAGS__WIN_RESIZED-1);
         }
-        // exit(0);
+        exit(0);
     }
     
-    for(size_t i=0; i<_SETTINGS.size(); i++) {
-        std::cout << _SETTINGS[i] << " ";
-    }
-    std::cout << std::endl;
+    // for(size_t i=0; i<_SETTINGS.size(); i++) {
+    //     std::cout << _SETTINGS[i] << " ";
+    // }
+    // std::cout << std::endl;
 
 
     ImGui_ImplAllegro5_Shutdown();
