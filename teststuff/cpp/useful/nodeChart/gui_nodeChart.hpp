@@ -314,12 +314,14 @@ namespace gNC {
          * 
          * @param _value the gNC::timeUnit value to check if it's a side or not
          * @param _margin the margin of error for which the checking is allowed to be wrong (so if `_margin==2`, `_value==120`, and a side is `119`, it'll return correct)
+         * @param _includeInnerSides whether to include the "inner region sides" when checking if a value is at a side, e.g. side+/-padding*2. This is used for detailed side_selection to
+         * differentiate between affected-by-outsider-calls to detect-inner-calls.
          * @return int code of whether the value is a side:
          *  - `0` no side found
          *  - `1` _start side
          *  - `2` _end side
          */
-        int is_side(timeUnit _value, size_t _margin=0);
+        int is_side(timeUnit _value, size_t _margin=0, bool _includeInnerSides=false);
         /**
          * @brief move the start timeUnit
          * 
@@ -407,7 +409,7 @@ namespace gNC {
          */
         size_t _channel_limit = 1;
     public:
-        bool verbose_exceptions = false;
+        bool verbose_exceptions = true;
 
         /// @brief copy version of the main _objects std::vector used for visualising temporary changes. Place this in gNC::timeline method args if changes are to be temporary
         std::vector<timeObject> forVisuals;
@@ -533,6 +535,8 @@ namespace gNC {
          * @return int for the return code. `0`-success, `-1`-no timeObject's side is located at given _oldVal
          */
         int move_sides(timeUnit _oldVal, timeUnit _newVal, gNC::gNODE* _toMove=nullptr, size_t _channel=0, size_t _sidePadding=0, std::vector<timeObject>* _vec=nullptr);
+
+        // int move_sides(timeUnit _oldVal, timeUnit _newVal, gNC::gNODE)
         /**
          * @brief Get the sides that are affected/in-region for a given timeUnit
          * 

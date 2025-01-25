@@ -602,8 +602,9 @@ namespace DIY {
             size_t size() const;
 
             _key_type key(int idx) const;
-            std::vector<_key_type> keys();
-            std::list<_store_type> values();
+            std::vector<_key_type>      keys();
+            std::list<_store_type>      values();
+            std::vector<_store_type*>   lookup();
 
             std::string str_export(_key_type key, int width=0, int precision=2, std::string align="right", bool useBoolAlpha=false);
 
@@ -629,7 +630,10 @@ namespace DIY {
                 os << "{";
                 for(size_t i=0; i<m._keys.size(); i++) {
                     // _outText + std::to_string(m._keys.at(i)) + ": " + std::to_string(*m._lookup.at(i));
-                    os << m._keys.at(i) << ": " << *m._lookup.at(i);
+                    // std::cout << " op-call:"<<m._keys.at(i) << " ";
+                    os << m._keys.at(i) << ": ";
+                    os << std::boolalpha;
+                    os << *(m._lookup.at(i));
                     if(i+1 < m._keys.size()) {
                         // _outText + ", ";
                         os << ", ";
@@ -787,7 +791,13 @@ namespace DIY {
         if(hasRepetitions<_key_type>(vec_keys)) this->_call_error(0, "::typed_dict(std::initializer_list<_pair<_key_type, _store_type>>)", "there are repetitions within the keys.");
         this->_keys = vec_keys;
         this->_values = vec_values;
-        for(auto itr=vec_values.begin(); itr!=vec_values.end(); ++itr) _lookup.push_back(&(*itr));
+        for(auto itr=_values.begin(); itr!=_values.end(); ++itr) _lookup.push_back(&(*itr));
+
+        size_t cnt = 0;
+        for(auto itr=_values.begin(); itr!=_values.end(); ++itr) {
+            std::cout << std::setw(21)<<std::left<<_keys[cnt]<<" : "<< &*itr << " | " << _lookup[cnt] << std::endl;
+            cnt++;
+        }
         this->_init_container = true;
     }
 
@@ -799,7 +809,10 @@ namespace DIY {
         else if(abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
         else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
 
-        return *(this->_getItr(idx));
+        auto itr = _values.begin();
+        std::advance(itr, idx);
+        return *itr;
+        // return *(this->_getItr(idx));
     }
     template<class _key_type, class _store_type>
     _store_type typed_dict<_key_type, _store_type>::operator[] (int idx) const {
@@ -816,10 +829,19 @@ namespace DIY {
     _store_type& typed_dict<_key_type, _store_type>::get(_key_type key) {
         if(!_init_container) this->_call_error(2, "::get(_key_type)");
 
+        int idx=-1;
         for(size_t i=0; i<_keys.size(); i++) {
-            if(_keys[i]==key) return *(this->_getItr(i));
+            if(_keys[i]==key) {
+                idx = i;
+                break;
+                // return *(this->_getItr(i));
+            }
         }
-        this->_call_error(0, "::get(_key_type)");
+        if(idx<0) this->_call_error(0, "::get(_key_type)");
+
+        auto itr = _values.begin();
+        std::advance(itr, idx);
+        // return this->_lookup[idx];
         return *(this->_getItr(0));
     }
     template<class _key_type, class _store_type>
@@ -888,6 +910,9 @@ namespace DIY {
 
     template<class _key_type, class _store_type>
     std::list<_store_type> typed_dict<_key_type, _store_type>::values() { return _values; }
+
+    template<class _key_type, class _store_type>
+    std::vector<_store_type*> typed_dict<_key_type, _store_type>::lookup() { return _lookup; }
 
     template<class _key_type, class _store_type>
     std::string typed_dict<_key_type, _store_type>::str_export(

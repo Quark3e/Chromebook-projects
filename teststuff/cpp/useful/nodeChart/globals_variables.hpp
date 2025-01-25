@@ -9,6 +9,7 @@
 #include "globals_includes.hpp"
 #include "extra_imgui.hpp"
 #include "keyBind_handler.hpp"
+#include "diy_dictionary.hpp"
 #if _WIN32
 #include <imgui\addons\imguifilesystem\dirent_portable.h>
 #else
@@ -36,10 +37,11 @@ extern unsigned int __PROGRAM_FRAMES;
 // Global flags
 
 /// @brief Main program loop true statement. If this is set to `false` then the program will close.
-extern bool running_main ;
+// extern bool running_main ;
 
-extern bool opt__enable_grid;
+// extern bool opt__enable_grid;
 
+extern DIY::typed_dict<std::string, DIY::typed_dict<std::string, bool>> _SETTINGS;
 
 
 extern int __GLOBAL_FLAGS__WIN_RESIZED; //whether the main program window has been resized: 0 - false
@@ -50,11 +52,7 @@ extern std::chrono::system_clock::time_point        __CURRENT__TIME_POINT;
 extern time_t                                       __CURRENT__TIME_T;
 extern std::string                                  __CURRENT__TIME_STRING;
 
-/**
- * @brief Get the current time object
- * 
- * @return time_t
- */
+
 inline std::string GET_CURRENT_TIME() {
     static unsigned long prev_frame = __PROGRAM_FRAMES-1; //this is really un-optimised/bad but im lazy.
 
@@ -201,8 +199,6 @@ extern int mouseTimer_decay;
  * 
  */
 extern int static_mouseAction_left;
-
-
 
 
 /**

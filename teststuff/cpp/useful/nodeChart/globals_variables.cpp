@@ -8,9 +8,30 @@ bool            __ON_TERMINAL   = false;
 unsigned int    __PROGRAM_FRAMES= (unsigned int)-1;
 
 
-bool running_main       = true;
-bool opt__enable_grid   = true;
+// bool running_main       = true;
+// bool opt__enable_grid   = true;
 
+DIY::typed_dict<std::string, DIY::typed_dict<std::string, bool>> _SETTINGS({
+    {
+        "Program", { // [0]
+            {"Running Main", true} // [0][0]
+        }
+    }, {
+        "View", { // [1]
+            {"Draw Grid", true} // [1][0]
+        }
+    }, {
+        "Timeline", { // [2]
+            {"use timeObject snap", true}, // [2][0]
+            {"test 1", false},
+            {"test 2", true}
+        }
+    }, {
+        "File", { // [3]
+            {"Auto Save", true} // [3][0]
+        }
+    }
+});
 
 int __GLOBAL_FLAGS__WIN_RESIZED = 0;
 int __GLOBAL_FLAGS__WIN_CLOSING = 0;
@@ -156,7 +177,7 @@ pressed_key__struct guiKeys;
 
 void _keyBind__Master_Close() {
     std::cout << " Master Close called." << std::endl;
-    running_main = false;
+    _SETTINGS[0][0] = false;
 }
 DIY_KBH::keyBind_handler keyBinds({
     {"undo",    {ImGuiKey_ReservedForModCtrl, ImGuiKey_LeftCtrl, ImGuiKey_Z}},

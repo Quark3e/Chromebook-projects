@@ -2138,10 +2138,11 @@ int gNC::timeObject::is_within(
 }
 int gNC::timeObject::is_side(
     gNC::timeUnit   _value,
-    size_t          _margin
+    size_t          _margin,
+    bool            _includeInnerSides
 ) {
-    if (_value.value >= this->start.value - _margin && _value.value <= this->start.value + _margin) return 1;
-    if (_value.value >= this->end.value - _margin && _value.value <= this->end.value + _margin) return 2;
+    if (_value.value >= this->start.value - _margin && _value.value <= this->start.value + (_includeInnerSides? _margin*2 : _margin)) return 1;
+    if (_value.value >= this->end.value - (_includeInnerSides? _margin*2 : _margin) && _value.value <= this->end.value + _margin) return 2;
     // for(size_t n=this->start.value-_margin; n<=this->start.value+_margin; n++) {
     //     if(_value.value==n) return 1;
     // }
@@ -2524,7 +2525,7 @@ std::vector<gNC::gNODE*> gNC::timeline::get_timeObjects_inChannel(
 int gNC::timeline::move_sides(
     gNC::timeUnit   _oldVal,
     gNC::timeUnit   _newVal,
-    gNC::gNODE* _toMove,
+    gNC::gNODE*     _toMove,
     size_t          _channel,
     size_t          _sidePadding,
     std::vector<timeObject>* _vec
@@ -2534,14 +2535,14 @@ int gNC::timeline::move_sides(
     if (_channel > this->_channel_limit && this->_channel_limit != 0) throw std::invalid_argument("_channel arg cannot be higher than the defined channel limit");
     if (!_vec) _vec = &this->_objects;
 
+    /// Go through every timeObject in specified _channel and add the timeObject and its corresponding side to change to `_newVal`
     for (size_t i = 0; i < _vec->size(); i++) {
-        /// Naturally the former located timeObject is the one that is "on the left side"
+        /// Naturally the former timeObject is the one that's located "on the left side"
         if (_channel == 0 || _vec->at(i).channel == _channel) {
             int _side = 0;
-            if ((_side = _vec->at(i).is_side(_oldVal, _sidePadding)) != 0) {
+            if ((_side = _vec->at(i).is_side(_oldVal, _sidePadding, true)) != 0) {
                 toMove.push_back(&_vec->at(i));
                 toMove_side.push_back(_side);
-                std::cout << " moveSides: found side: " << (_side == 2 ? "end" : "start") << " ";
                 switch (_side) {
                 case 1: _oldVal = _vec->at(i).start; break;
                 case 2: _oldVal = _vec->at(i).end; break;
@@ -2552,27 +2553,31 @@ int gNC::timeline::move_sides(
             }
         }
     }
-    std::cout << "getting newVal conflicts: ";
+    std::cout << " toMove:"<<formatVector(toMove, 0, 0, "left") << " specifd:" << (_toMove? ptrToStr(_toMove) : "nullptr") << " ";
+
+    /// Checking for outsider/external timeObjects that the _newVal may interfere-with/enroach-it's-area/affect
     for (size_t i = 0; i < _vec->size(); i++) {
         if (_channel == 0 || _vec->at(i).channel == _channel) {
             bool _next = false;
             for (size_t ii = 0; ii < toMove.size(); ii++) {
+                /// Ignore timeObjects that're already mentioned in `toMove`
                 if (toMove[ii] == &_vec->at(i)) {
                     _next = true;
                     break;
                 }
             }
             if (_next) continue;
+
             int _side = 0;
             if ((_side = _vec->at(i).is_within(_newVal)) != 0) {
-                // std::cout << std::boolalpha << (_oldVal > _vec->at(i).get_middle()) << " ";
+                /// If `_newVal` enroaches on an outsider/external timeObject, crop/limit _newVal to not affect the external timeObject
                 _newVal = (_oldVal < _vec->at(i).get_middle() ? _vec->at(i).start : _vec->at(i).end);
                 break;
             }
         }
     }
-    std::cout << " fixed. ";
 
+    /// Basic error checking
     if (toMove.size() == 0) {
         if (this->verbose_exceptions) std::cout << this->_info_name + "::move_sides(..) No timeObject side's found at given timeUnit." << std::endl;
         return 1;
@@ -2587,7 +2592,7 @@ int gNC::timeline::move_sides(
         if (_toMove && toMove.at(i)->objNode != _toMove && !toMove.at(i)->is_within(_newVal)) {
             /**
              * If:
-             *  - `_toMove` is not nullptr
+             *  - `_toMove` is not nullptr, i.e. a specific timeObject is to be moved
              *  - `_toMove` is not the same as current toMove.at(i) and
              *  - the timeObject at toMove.at(i) isn't affected by the _newVal
              *
@@ -2600,7 +2605,7 @@ int gNC::timeline::move_sides(
             toMove_side.erase(itrs);
             continue;
         }
-        std::cout << "test moving side... "; std::cout.flush();
+        // std::cout << "test moving side... "; std::cout.flush();
         switch (toMove_side.at(i)) {
         case 2:
             if (toMove.at(i)->move_end(_newVal, _sidePadding * 6, true) != 0) {
@@ -2621,7 +2626,7 @@ int gNC::timeline::move_sides(
         }
     }
 
-    std::cout << " test moved side successful."; std::cout.flush();
+    // std::cout << " test moved side successful."; std::cout.flush();
 
     if (toMove_side.size() != toMove.size()) {
         std::cout << " toMove_side and toMove doesn't have same number of elements:" << toMove_side.size() << " " << toMove.size() << ".";
@@ -2641,7 +2646,7 @@ int gNC::timeline::move_sides(
         }
     }
 
-    std::cout << " end of moveSides."; std::cout.flush();
+    // std::cout << " end of moveSides."; std::cout.flush();
 
     return 0;
 }

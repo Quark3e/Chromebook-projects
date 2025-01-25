@@ -15,7 +15,6 @@
 
 
 int main(int argc, char** argv) {
-    
 
     if(argc>1) {
         std::cout << "program entered arguments:" << std::endl;
@@ -123,7 +122,7 @@ int main(int argc, char** argv) {
     int setting_autosave_iterWait = 60; //how many frames/iterations to wait before saving
 
 
-    while(running_main) {
+    while(_SETTINGS[0][0]) {
         __PROGRAM_FRAMES++;
         static std::vector<std::vector<int>>* pressed_keys;
         pressed_keys = &guiKeys.pressed;
@@ -134,7 +133,8 @@ int main(int argc, char** argv) {
         while (al_get_next_event(queue, &al_event)) {
             ImGui_ImplAllegro5_ProcessEvent(&al_event);
             if(al_event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-                running_main = false;
+                // running_main = false;
+                _SETTINGS[0][0] = false;
                 __GLOBAL_FLAGS__WIN_CLOSING = 1;
             }
             if(al_event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
@@ -166,6 +166,7 @@ int main(int argc, char** argv) {
         ImGui::SetWindowSize(dim__main);
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
+
         if(_selected!=-1) {
             project_draw_list = ImGui::GetWindowDrawList();
 
@@ -193,7 +194,8 @@ int main(int argc, char** argv) {
 
 
             static const int GRID_STEP = 64;
-            if(opt__enable_grid) {
+            std::cout << std::boolalpha<< bool(_SETTINGS.get("View").get("Draw Grid")) << "   ";
+            if(_SETTINGS.get("View").get("Draw Grid")) {
                 draw_list->PushClipRect(ImVec2(0, 20), ImVec2(projects[_selected].chart.screen_dim[0], projects[_selected].chart.screen_dim[1]), true);
                 for(float x=0; x<projects[_selected].chart.screen_dim[0]; x+=GRID_STEP)
                     draw_list->AddLine(ImVec2(x+(projects[_selected].chart.screen_pos[0] % GRID_STEP), 0+canvas_p0.y), ImVec2(x+(projects[_selected].chart.screen_pos[0]%GRID_STEP), canvas_p1.y), IM_COL32(200, 200, 200, 40));
@@ -202,6 +204,7 @@ int main(int argc, char** argv) {
                     draw_list->AddLine(ImVec2(canvas_p0.x, y+(projects[_selected].chart.screen_pos[1] % GRID_STEP)), ImVec2(canvas_p1.x, y+(projects[_selected].chart.screen_pos[1]%GRID_STEP)), IM_COL32(200, 200, 200, 40));
                 draw_list->PopClipRect();
             }
+
 
             // if(cnt==0) {
             //     projects[_selected].chart.NODE_create(100, 100, "node0", "desc0", "body0");
@@ -313,7 +316,12 @@ int main(int argc, char** argv) {
                     }
                 }
                 ImGui::Separator();
-                ImGui::Checkbox("AutoSave", &setting_autosave);
+                // ImGui::Checkbox("AutoSave", &setting_autosave);
+                
+                auto& _ref = _SETTINGS.get("File");
+                for(size_t i=0; i<_ref.size(); i++) {
+                    ImGui::Checkbox(_ref.getKey(i).c_str(), _ref.getPtr_idx(i));
+                }
                 ImGui::EndMenu();
             }
             if(ImGui::BeginMenu("Project")) {
@@ -331,11 +339,21 @@ int main(int argc, char** argv) {
                 ImGui::EndMenu();
             }
             if(ImGui::BeginMenu("Program")) {
-                if(ImGui::MenuItem("Close")){ running_main = false; }
+                if(ImGui::MenuItem("Close")){ _SETTINGS.get("Program").get("Running Main") = false; }
                 ImGui::EndMenu();
             }
             if(ImGui::BeginMenu("View")) {
-
+                auto& _ref = _SETTINGS.get("View");
+                for(size_t i=0; i< _SETTINGS.get("View").size(); i++) {
+                    ImGui::Checkbox(_SETTINGS.get("View").getKey(i).c_str(), _SETTINGS.get("View").getPtr_idx(i));
+                }
+                ImGui::EndMenu();
+            }
+            if(ImGui::BeginMenu("Timeline")) {
+                auto& _ref = _SETTINGS.get("Timeline");
+                for(size_t i=0; i<_ref.size(); i++) {
+                    ImGui::Checkbox(_ref.getKey(i).c_str(), _ref.getPtr_idx(i));
+                }
                 ImGui::EndMenu();
             }
             ImGui::EndMenuBar();
@@ -425,6 +443,31 @@ int main(int argc, char** argv) {
             }
         }
 
+        try {
+            // for(size_t i=0; i<_SETTINGS.size(); i++) {
+            //     std::cout << " "<<_SETTINGS[i].getKey(0)<<":"<< *_SETTINGS[i].getPtr_idx(0) << "/"<< _SETTINGS[i].get(_SETTINGS[i].getKey(0))<<" ";
+            // }
+            // std::cout << std::endl;
+
+            static auto lstCopy = _SETTINGS.values();
+            auto itr = lstCopy.begin();
+            size_t cnt = 0;
+            for(auto _key : _SETTINGS.keys()) {
+                std::cout << _SETTINGS.get(_key).getKey(0)<<"("<<itr->size()<<"):";
+                std::cout << "{"<<&_SETTINGS.get(_key)[0]<<"/"<<_SETTINGS.get(_key).getPtr_idx(0)<<"}lookup:"<<_SETTINGS.get(_key).lookup()[0]<<"   ";
+                // std::cout << "{"<<itr->getKey(0)<<": "<<(itr->operator[](0))<<"/"<<*_SETTINGS.get(_key).getPtr_idx(0)<<"}  ";
+                itr->operator[](0) = !itr->operator[](0);
+                ++itr;
+                cnt++;
+            }
+            std::cout << std::endl;
+        }
+        catch(const std::exception& e) {
+            std::cout << e.what() << '\n';
+        }
+        
+
+
         ImGui::End();
         //--------------------
         ImGui::Render();
@@ -440,7 +483,14 @@ int main(int argc, char** argv) {
         if(__GLOBAL_FLAGS__WIN_RESIZED>0) {
             __GLOBAL_FLAGS__WIN_RESIZED = (__GLOBAL_FLAGS__WIN_RESIZED==1? 0 : __GLOBAL_FLAGS__WIN_RESIZED-1);
         }
+        // exit(0);
     }
+    
+    for(size_t i=0; i<_SETTINGS.size(); i++) {
+        std::cout << _SETTINGS[i] << " ";
+    }
+    std::cout << std::endl;
+
 
     ImGui_ImplAllegro5_Shutdown();
     ImGui::DestroyContext();

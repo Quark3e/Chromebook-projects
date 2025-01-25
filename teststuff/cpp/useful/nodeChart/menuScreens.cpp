@@ -325,6 +325,8 @@ void gNC::_menu__timeline(
     /// The padding value for the detection region for the mouse that separates moving the timeObject to moving the side.
     /// This also specifis the mininum width a timeObject can have because for "semantics sake" a timeObject cannot be smaller than 6x of these units wide.
     static int __moving_side_detect_padding = 10;
+    /// Minimum distance between timeObject's at which they'll snap together.
+    static gNC::timeUnit    _timeUnit_snapDistance = 20;
 
 
     if(_chart != prev_chart || __GLOBAL_FLAGS__WIN_RESIZED>0) _init = true;
@@ -414,6 +416,8 @@ void gNC::_menu__timeline(
         static ImVec2 mousePos_relativeValues(0, 0); // MousePos coordinate in relative terms of the timeline: [x=timeUnit, y=channel]
         std::cout << std::endl;
         std::cout << mousePos_relativeValues.x << " "<< mousePos_relativeValues.y << "  : ";
+        std::cout << ((_moving_side__val.value!=(size_t)-1)? _moving_side__val.value : -1) << "  ";
+        std::cout << formatNumber((_moving_side__val.value!=(size_t)-1), 5, 0, "left") << " ";
 
         static auto _updateRelativeMouse = [](ImVec2 mousePos) {
             mousePos_insideTimeline = ImVec2_subtract(ImVec2_subtract(mousePos, timeline_pos), placeOffs);
@@ -454,6 +458,7 @@ void gNC::_menu__timeline(
         static size_t tO_colBord    = 0;
         static size_t tO_colBG      = 0; // {`0`-default, `1`-hovered, `2`-selected}
 
+        bool cosmetics__cursorChanged = false;
 
         TL_ref.verbose_exceptions = true;
         if(_moving_gNODE) {
@@ -480,7 +485,8 @@ void gNC::_menu__timeline(
         }
         else if(_moving_side__val.value != (size_t)-1) {
             // ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-            // ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
+            cosmetics__cursorChanged = true;
             _updateRelativeMouse(io.MousePos);
             timeUnit _newSideVal = mousePos_relativeValues.x;
 
@@ -491,6 +497,8 @@ void gNC::_menu__timeline(
 
             // if(!guiKeys.isHolding(ImGuiKey_MouseLeft)) {
             if(!keyBinds.pressing("MouseLeft")) {
+                /// A side moving operation is to take effect on the "real" timeline instead of the "forVisuals purpose" one.
+
                 call_code = 0;
                 if((call_code = TL_ref.move_sides(_moving_side__val, _newSideVal, _moving_side__gNODE, _moving_side__channel, __moving_side_detect_padding, nullptr))) {
                     std::cout << "move_sides error: " << call_code << std::endl;
@@ -501,35 +509,33 @@ void gNC::_menu__timeline(
             // ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
         }
 
-
         /// temporary boolean for whether left mouse button was just recently registered as holding
         bool recentlyHolding_mouseLeft = keyBinds.clicked("MouseLeft");
-        // bool recentlyHolding_mouseLeft =  guiKeys.isHolding(ImGuiKey_MouseLeft) && guiKeys.__refDict_holding_keys_occur.get(ImGuiKey_MouseLeft)==guiKeys.holding_keys__holdingLim-guiKeys.holding_keys__allowed_gaps;
-        bool cosmetics__cursorChanged = false;
-
-
-        // std::cout << formatNumber(keyBinds.clicked("MouseLeft"), 6, 0, "left") << " ";
-        // std::cout << formatNumber(keyBinds.pressing("MouseLeft"), 6, 0, "left") << " ";
-        // std::cout << guiKeys.__refDict_holding_keys_occur << "  ";
 
         _updateRelativeMouse(io.MousePos);
 
-        std::vector<gNC::gNODE*> _affctd = TL_ref.get_sides(mousePos_relativeValues.x, mousePos_relativeValues.y, __moving_side_detect_padding, nullptr);
-        if(_affctd.size()>0) {
-            std::cout << formatVector(_affctd, 0, 0) << " ";
-            cosmetics__cursorChanged = true;
 
-            if(!_moving_gNODE && _moving_side__val.value == (size_t)-1) {
-                if(recentlyHolding_mouseLeft) {
-                    if(_affctd.size()==1) _moving_side__gNODE = _affctd[0];
-                    _moving_side__channel   = mousePos_relativeValues.y;
-                    _moving_side__val       = mousePos_relativeValues.x;
-                }
+        // std::cout << " | " << formatVector(_affctd, 0, 0) << " ";
+        if(!_moving_gNODE && _moving_side__val.value==(size_t)-1) {
+            std::vector<gNC::gNODE*> _affctd = TL_ref.get_sides(mousePos_relativeValues.x, mousePos_relativeValues.y, __moving_side_detect_padding, nullptr);
+            if(_affctd.size()>0) {
+                std::cout << "_affctd:" << formatVector(_affctd, 0, 0) << " ";
+                cosmetics__cursorChanged = true;
+
+                // if(!_moving_gNODE && _moving_side__val.value == (size_t)-1) {
+                    if(recentlyHolding_mouseLeft) {
+                        if(_affctd.size()==1) _moving_side__gNODE = _affctd[0];
+                        _moving_side__channel   = mousePos_relativeValues.y;
+                        _moving_side__val       = mousePos_relativeValues.x;
+                    }
+                // }
+            }
+            else {
+
             }
         }
-        else {
+        std::cout << " msGNODE:"<< (_moving_side__gNODE? ptrToStr(_moving_side__gNODE) : "nullptr") << " ";
 
-        }
         for(size_t i=0; i<TL_ref.size(); i++) {
             tO_colBG = 0;
             tO_colBord = 0;
@@ -573,43 +579,45 @@ void gNC::_menu__timeline(
             }
 
             /// Draw the timeObject
-            timeline_drawList->AddRectFilled(timeObject_pos, ImVec2_add(timeObject_pos, timeObject_dim), timeObject_colour_bg[tO_colBG], 2, 0);
-            timeline_drawList->AddRect(timeObject_pos, ImVec2_add(timeObject_pos, timeObject_dim), timeObject_colour_border[tO_colBord], 2, 0, 1);
-            timeline_drawList->AddText(ImVec2_add(timeObject_pos, ImVec2_multiply(timeObject_dim, ImVec2(0, 0.5))), IM_COL32(10, 10, 10, 255), ptrToStr<gNC::gNODE*>(obj.objNode).c_str());
-            
-            
-            timeline_drawList->AddLine(
-                ImVec2_subtract(timeObject_pos, ImVec2(__moving_side_detect_padding, 0)),
-                ImVec2_subtract(timeObject_pos, ImVec2(__moving_side_detect_padding, -timeObject_dim.y)),
-                IM_COL32(250, 10, 10, 250)
-            );
-            timeline_drawList->AddLine(
-                ImVec2_add(timeObject_pos, ImVec2(__moving_side_detect_padding, 0)),
-                ImVec2_add(timeObject_pos, ImVec2(__moving_side_detect_padding, timeObject_dim.y)),
-                IM_COL32(250, 10, 10, 250)
-            );
-            timeline_drawList->AddLine(
-                ImVec2_add(timeObject_pos, ImVec2(__moving_side_detect_padding*2, 0)),
-                ImVec2_add(timeObject_pos, ImVec2(__moving_side_detect_padding*2, timeObject_dim.y)),
-                IM_COL32(10, 10, 250, 250)
-            );
+            {
+                timeline_drawList->AddRectFilled(timeObject_pos, ImVec2_add(timeObject_pos, timeObject_dim), timeObject_colour_bg[tO_colBG], 2, 0);
+                timeline_drawList->AddRect(timeObject_pos, ImVec2_add(timeObject_pos, timeObject_dim), timeObject_colour_border[tO_colBord], 2, 0, 1);
+                timeline_drawList->AddText(ImVec2_add(timeObject_pos, ImVec2_multiply(timeObject_dim, ImVec2(0, 0.5))), IM_COL32(10, 10, 10, 255), ptrToStr<gNC::gNODE*>(obj.objNode).c_str());
+                
+                
+                timeline_drawList->AddLine(
+                    ImVec2_subtract(timeObject_pos, ImVec2(__moving_side_detect_padding, 0)),
+                    ImVec2_subtract(timeObject_pos, ImVec2(__moving_side_detect_padding, -timeObject_dim.y)),
+                    IM_COL32(250, 10, 10, 250)
+                );
+                timeline_drawList->AddLine(
+                    ImVec2_add(timeObject_pos, ImVec2(__moving_side_detect_padding, 0)),
+                    ImVec2_add(timeObject_pos, ImVec2(__moving_side_detect_padding, timeObject_dim.y)),
+                    IM_COL32(250, 10, 10, 250)
+                );
+                timeline_drawList->AddLine(
+                    ImVec2_add(timeObject_pos, ImVec2(__moving_side_detect_padding*2, 0)),
+                    ImVec2_add(timeObject_pos, ImVec2(__moving_side_detect_padding*2, timeObject_dim.y)),
+                    IM_COL32(10, 10, 250, 250)
+                );
 
 
-            timeline_drawList->AddLine(
-                ImVec2(timeObject_pos.x + timeObject_dim.x + __moving_side_detect_padding, timeObject_pos.y),
-                ImVec2(timeObject_pos.x + timeObject_dim.x + __moving_side_detect_padding, timeObject_pos.y+timeObject_dim.y),
-                IM_COL32(250, 10, 10, 250)
-            );
-            timeline_drawList->AddLine(
-                ImVec2(timeObject_pos.x + timeObject_dim.x - __moving_side_detect_padding, timeObject_pos.y),
-                ImVec2(timeObject_pos.x + timeObject_dim.x - __moving_side_detect_padding, timeObject_pos.y+timeObject_dim.y),
-                IM_COL32(250, 10, 10, 250)
-            );
-            timeline_drawList->AddLine(
-                ImVec2_subtract(ImVec2(timeObject_pos.x+timeObject_dim.x, timeObject_pos.y), ImVec2(__moving_side_detect_padding*2, 0)),
-                ImVec2_subtract(ImVec2(timeObject_pos.x+timeObject_dim.x, timeObject_pos.y), ImVec2(__moving_side_detect_padding*2, -timeObject_dim.y)),
-                IM_COL32(10, 10, 250, 250)
-            );
+                timeline_drawList->AddLine(
+                    ImVec2(timeObject_pos.x + timeObject_dim.x + __moving_side_detect_padding, timeObject_pos.y),
+                    ImVec2(timeObject_pos.x + timeObject_dim.x + __moving_side_detect_padding, timeObject_pos.y+timeObject_dim.y),
+                    IM_COL32(250, 10, 10, 250)
+                );
+                timeline_drawList->AddLine(
+                    ImVec2(timeObject_pos.x + timeObject_dim.x - __moving_side_detect_padding, timeObject_pos.y),
+                    ImVec2(timeObject_pos.x + timeObject_dim.x - __moving_side_detect_padding, timeObject_pos.y+timeObject_dim.y),
+                    IM_COL32(250, 10, 10, 250)
+                );
+                timeline_drawList->AddLine(
+                    ImVec2_subtract(ImVec2(timeObject_pos.x+timeObject_dim.x, timeObject_pos.y), ImVec2(__moving_side_detect_padding*2, 0)),
+                    ImVec2_subtract(ImVec2(timeObject_pos.x+timeObject_dim.x, timeObject_pos.y), ImVec2(__moving_side_detect_padding*2, -timeObject_dim.y)),
+                    IM_COL32(10, 10, 250, 250)
+                );
+            }
         }
 
         if(inRegion(
@@ -648,6 +656,7 @@ void gNC::_menu__timeline(
         onTL = nullptr;
         _moving_gNODE = nullptr;
         _moving_side__val = (size_t)-1;
+        _moving_side__gNODE = nullptr;
         
         // std::cout << "local pointers \"release\"" << std::endl;
     }
