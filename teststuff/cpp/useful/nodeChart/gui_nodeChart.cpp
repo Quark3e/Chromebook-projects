@@ -1568,15 +1568,17 @@ int gNC::guiNodeChart::draw() {
         }
 
 
-        if (ImGui::IsWindowFocused() || !local_init) {
+
+        if (ImGui::IsWindowFocused()) {
             // _menu__node_details(&(*itr));
             nodePtr_menu__node_details = &(*itr);
             if (guiKeys.isHolding(ImGuiKey_MouseLeft)) nodePtr_focused = &(*itr);
             node_focused = true;
-            if (!lockMove_node && ((*pressed_keys)[pressed_keys->size() - 1]).size() > 0 && isKeyPressed(655, &(*pressed_keys)[pressed_keys->size() - 1])) {
+            if (!lockMove_node && keyBinds.pressing("MouseLeft")) {
                 NODE_move(&(*itr), io.MouseDelta.x, io.MouseDelta.y, 1);
                 ImGui::SetWindowPos(ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]));
             }
+
         }
         else {
             ImGui::SetWindowPos(nodePos);

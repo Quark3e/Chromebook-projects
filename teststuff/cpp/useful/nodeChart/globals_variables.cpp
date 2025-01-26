@@ -11,6 +11,11 @@ unsigned int    __PROGRAM_FRAMES= (unsigned int)-1;
 // bool running_main       = true;
 // bool opt__enable_grid   = true;
 
+/**
+ * Main dictionary object for storing the guiNodeChart program's boolean settings, sorted into main categories
+ *  where each category holds their own dictionary for the main boolean values themselves. Does not contain specific values other than on/off.
+ * 
+ */
 DIY::typed_dict<std::string, DIY::typed_dict<std::string, bool>> _SETTINGS({
     {
         "Program", { // [0]
