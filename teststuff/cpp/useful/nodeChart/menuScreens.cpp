@@ -320,7 +320,8 @@ void gNC::_menu__timeline(
     /// Value for moving_side: gNODE. If this is `nullptr` then move all/both timeObject side(s) that exist at `_moving_side__val`, otherwise move the
     ///  timeObject containing this gNODE* only (assuming no conflicts at new value)
     static gNC::gNODE*      _moving_side__gNODE = nullptr;
-
+    static std::vector<gNC::gNODE*> _moving_side__gNODE_S;
+    /// Integer id vlaue for what side/edge of the timeObject is being moved, with: `1`-start side; `2`-end side
     static int              _moving_side__side  = 0;
 
     /// The padding value for the detection region for the mouse that separates moving the timeObject to moving the side.
@@ -469,6 +470,8 @@ void gNC::_menu__timeline(
 
         bool cosmetics__cursorChanged = false;
 
+        
+        
         // TL_ref.verbose_exceptions = true;
         if(_moving_gNODE) {
             // ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
@@ -478,36 +481,16 @@ void gNC::_menu__timeline(
             ImVec2 draw_obj = ImVec2_subtract(io.MousePos, timeObject_cursorOffs);
 
 
-            /**
-             * The "border" timeUnit value where if currently moving timeObject's side reaches another timeObjects side, it'll snap moving timeObject to that side.
-             * 
-             */
-            gNC::timeUnit snapCheck[2] = {
-                _relativePos.x, // - (_timeUnit_snapDistance.value > _relativePos.x? _timeUnit_snapDistance.value - _relativePos.x : _timeUnit_snapDistance.value),
-                _relativePos.x //+ (_timeUnit_snapDistance.value) + timeObject_dim.x
-            };
             if(_SETTINGS.get("Timeline").get("Use timeObject Snap")) {
+                /// The "border" timeUnit value where if currently moving timeObject's side reaches another timeObjects side, it'll snap moving timeObject to that side.
+                gNC::timeUnit snapCheck[2] = {
+                    _relativePos.x, // - (_timeUnit_snapDistance.value > _relativePos.x? _timeUnit_snapDistance.value - _relativePos.x : _timeUnit_snapDistance.value),
+                    _relativePos.x + timeObject_dim.x
+                };
                 snapCheck[0] -= (_timeUnit_snapDistance.value > _relativePos.x? _timeUnit_snapDistance.value - _relativePos.x : _timeUnit_snapDistance.value);
-                snapCheck[1] += (_timeUnit_snapDistance.value) + timeObject_dim.x;
-            }
-            
-            std::vector<gNC::gNODE*> _snapCollid = TL_ref.get_timeObjects_inTimeUnit(snapCheck[0], _relativePos.y, onTL);  //get_sides(snapCheck[0], _relativePos.y, 0);
-            for(size_t i=0; i<_snapCollid.size(); i++) { // erase the moving node from collision checks
-                if(_snapCollid.at(i)==_moving_gNODE) {
-                    auto itr = _snapCollid.begin();
-                    std::advance(itr, i);
-                    _snapCollid.erase(itr);
-                    break;
-                }
-            }
-            if(_snapCollid.size()!=0) {
-                snapCheck[0] = TL_ref.get_timeObject(_snapCollid[0], onTL).end;
-                _relativePos.x = snapCheck[0].value;
-                // std::cout << "("<<_snapCollid[0] << ")  ";
-                // std::cout << " [snap: start] ";
-            }
-            else {
-                _snapCollid = TL_ref.get_timeObjects_inTimeUnit(snapCheck[1], _relativePos.y, onTL);
+                snapCheck[1] += (_timeUnit_snapDistance.value);
+
+                std::vector<gNC::gNODE*> _snapCollid = TL_ref.get_timeObjects_inTimeUnit(snapCheck[0], _relativePos.y, onTL);  //get_sides(snapCheck[0], _relativePos.y, 0);
                 for(size_t i=0; i<_snapCollid.size(); i++) { // erase the moving node from collision checks
                     if(_snapCollid.at(i)==_moving_gNODE) {
                         auto itr = _snapCollid.begin();
@@ -517,42 +500,39 @@ void gNC::_menu__timeline(
                     }
                 }
                 if(_snapCollid.size()!=0) {
-                    snapCheck[1] = TL_ref.get_timeObject(_snapCollid[0], onTL).start;
-                    _relativePos.x = snapCheck[1].value-timeObject_dim.x;
-                    // std::cout << "("<<_snapCollid[0] << ")  ";
-                    // std::cout << " [snap: end] ";
+                    snapCheck[0] = TL_ref.get_timeObject(_snapCollid[0], onTL).end;
+                    _relativePos.x = snapCheck[0].value;
+                }
+                else {
+                    _snapCollid = TL_ref.get_timeObjects_inTimeUnit(snapCheck[1], _relativePos.y, onTL);
+                    for(size_t i=0; i<_snapCollid.size(); i++) { // erase the moving node from collision checks
+                        if(_snapCollid.at(i)==_moving_gNODE) {
+                            auto itr = _snapCollid.begin();
+                            std::advance(itr, i);
+                            _snapCollid.erase(itr);
+                            break;
+                        }
+                    }
+                    if(_snapCollid.size()!=0) {
+                        snapCheck[1] = TL_ref.get_timeObject(_snapCollid[0], onTL).start;
+                        _relativePos.x = snapCheck[1].value-timeObject_dim.x;
+                    }
+                }
+
+
+                if(_SETTINGS.get("View").get("Draw timeObject sides")) {
+                    timeline_drawList->AddLine(
+                        ImVec2(snapCheck[0].value + timeline_pos.x + placeOffs.x, _channel_to_y(_relativePos.y, timeObject_dim.y)),
+                        ImVec2(snapCheck[0].value + timeline_pos.x + placeOffs.x, _channel_to_y(_relativePos.y, timeObject_dim.y) + timeObject_dim.y),
+                        IM_COL32(10, 200, 10, 200)
+                    );
+                    timeline_drawList->AddLine(
+                        ImVec2(snapCheck[1].value + timeline_pos.x + placeOffs.x, _channel_to_y(_relativePos.y, timeObject_dim.y)),
+                        ImVec2(snapCheck[1].value + timeline_pos.x + placeOffs.x, _channel_to_y(_relativePos.y, timeObject_dim.y) + timeObject_dim.y),
+                        IM_COL32(10, 200, 10, 200)
+                    );
                 }
             }
-
-            if(_SETTINGS[1][1]) {
-                timeline_drawList->AddLine(
-                    ImVec2(snapCheck[0].value + timeline_pos.x + placeOffs.x, _channel_to_y(_relativePos.y, timeObject_dim.y)),
-                    ImVec2(snapCheck[0].value + timeline_pos.x + placeOffs.x, _channel_to_y(_relativePos.y, timeObject_dim.y) + timeObject_dim.y),
-                    IM_COL32(10, 200, 10, 200)
-                );
-                timeline_drawList->AddLine(
-                    ImVec2(snapCheck[1].value + timeline_pos.x + placeOffs.x, _channel_to_y(_relativePos.y, timeObject_dim.y)),
-                    ImVec2(snapCheck[1].value + timeline_pos.x + placeOffs.x, _channel_to_y(_relativePos.y, timeObject_dim.y) + timeObject_dim.y),
-                    IM_COL32(10, 200, 10, 200)
-                );
-            }
-
-            // timeline_drawList->AddLine(
-            //     ImVec2(draw_obj.x - _timeUnit_snapDistance.value, draw_obj.y),
-            //     ImVec2(draw_obj.x - _timeUnit_snapDistance.value, draw_obj.y+timeObject_dim.y),
-            //     IM_COL32(10, 200, 10, 200)
-            // );
-            // timeline_drawList->AddLine(
-            //     ImVec2(draw_obj.x + _timeUnit_snapDistance.value + timeObject_dim.x, draw_obj.y),
-            //     ImVec2(draw_obj.x + _timeUnit_snapDistance.value + timeObject_dim.x, draw_obj.y+timeObject_dim.y),
-            //     IM_COL32(10, 250, 10, 200)
-            // );
-
-            // std::cout << formatContainer1(timeObject_pos, 2, 0, 0) << " | " << _timeUnit_to_x(snapCheck[0])<<","<< _channel_to_y(_relativePos.y, timeObject_dim.y)<<" ";
-            // std::cout << formatContainer1(snapCheck, 2, 0, 0, "left")<<" | ";
-            // std::cout << formatContainer1(ImVec2(snapCheck[0].value + timeObject_pos.x + placeOffs.x, _channel_to_y(_relativePos.y, timeObject_dim.y)), 2, 0, 0, "left") << " - ";
-            // std::cout << formatContainer1(ImVec2(snapCheck[1].value + timeObject_pos.x + placeOffs.x, _channel_to_y(_relativePos.y, timeObject_dim.y)), 2, 0, 0, "left") << "   ";
-
 
             if(TL_ref.add_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, onTL)) {
                 int moveCode = TL_ref.move_timeObject(_moving_gNODE, _relativePos.x, _relativePos.x+timeObject_dim.x, _relativePos.y, 0, onTL);
@@ -587,6 +567,48 @@ void gNC::_menu__timeline(
             cosmetics__cursorChanged = true;
             _updateRelativeMouse(io.MousePos);
             timeUnit _newSideVal = mousePos_relativeValues.x;
+
+            if(_SETTINGS.get("Timeline").get("Use timeObject Snap")) {
+                gNC::timeUnit snapCheck = _newSideVal;
+                switch (_moving_side__side) {
+                case 0: break;
+                case 1:
+                    snapCheck -= (_timeUnit_snapDistance > _newSideVal? _timeUnit_snapDistance - _newSideVal : _timeUnit_snapDistance);
+                    break;
+                case 2:
+                    snapCheck += (_timeUnit_snapDistance);
+                    break;
+                default:
+                    std::cout << "ERROR: a moving side's side id is somehow nether 1 or 2."<<std::endl;
+                    break;
+                }
+            
+                std::vector<gNC::gNODE*> _snapCollid = TL_ref.get_timeObjects_inTimeUnit(snapCheck, _moving_side__channel, onTL);
+
+                for(auto _gnode : _moving_side__gNODE_S) {
+                    for(size_t i=0; i<_snapCollid.size(); i++) {
+                        if(_snapCollid.at(i)==_gnode) {
+                            auto itr = _snapCollid.begin();
+                            std::advance(itr, i);
+                            _snapCollid.erase(itr);
+                            break;
+                        }
+                    }
+                }
+                if(_snapCollid.size()!=0) {
+                    gNC::timeObject collidObj = TL_ref.get_timeObject(_snapCollid[0], onTL);
+                    snapCheck = (_moving_side__side==1? collidObj.end : collidObj.start);
+                    _newSideVal = snapCheck;
+                }
+
+                if(_SETTINGS.get("View").get("Draw timeObject sides"))  {
+                    timeline_drawList->AddLine(
+                        ImVec2(snapCheck.value + timeline_pos.x + placeOffs.x, _channel_to_y(_moving_side__channel, timeObject_dim.y)),
+                        ImVec2(snapCheck.value + timeline_pos.x + placeOffs.x, _channel_to_y(_moving_side__channel, timeObject_dim.y) + timeObject_dim.y),
+                        IM_COL32(10, 200, 10, 200)
+                    );
+                }
+            }
 
             int call_code = 0;
             if((call_code = TL_ref.move_sides(_moving_side__val, _newSideVal, _moving_side__gNODE, _moving_side__channel, __moving_side_detect_padding, onTL))) {
@@ -626,6 +648,7 @@ void gNC::_menu__timeline(
                     if(recentlyHolding_mouseLeft) {
                         _moving_side__channel   = mousePos_relativeValues.y;
                         _moving_side__val       = mousePos_relativeValues.x;
+                        _moving_side__gNODE_S = _affctd;
                         if(_affctd.size()==1) {
                             _moving_side__gNODE = _affctd[0];
                             // _moving_side__side = TL_ref.get_timeObject(_affctd[0]).is_within(_moving_side__val);
@@ -642,8 +665,9 @@ void gNC::_menu__timeline(
                     case 0: ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll); break;
                     case 1:
                     case 2: ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW); break;
-                    case 3: ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW); break;
+                    // case 3: ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW); break;
                     default:
+                        std::cout << "ERROR: _moving_side__side is an invalid value: `!=(0,1,2)`" << std::endl;
                         break;
                 }
             }
@@ -775,6 +799,7 @@ void gNC::_menu__timeline(
         _moving_gNODE = nullptr;
         _moving_side__val = (size_t)-1;
         _moving_side__gNODE = nullptr;
+        _moving_side__gNODE_S.clear();
         _moving_side__side  = 0;
         
         // std::cout << "local pointers \"release\"" << std::endl;
