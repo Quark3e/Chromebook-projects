@@ -566,6 +566,8 @@ namespace DIY {
             // auto _getItr_key(size_t idx);
 
         public:
+            void _update_lookup();
+            
             auto _getItr(int idx);
             auto _getItr(int idx) const;
             auto _getItr_rev(int idx);
@@ -573,6 +575,15 @@ namespace DIY {
 
 
             typed_dict() {}; //empty default constructor
+
+            /**
+             * @brief Construct a new typed dict object; Copy constructor
+             * 
+             * @param _copyDict 
+             */
+            typed_dict(const typed_dict<_key_type, _store_type> &_copyDict);
+
+
             typed_dict(_key_type _key, _store_type _store);
             typed_dict(std::vector<_key_type> keys, std::list<_store_type> values);
             typed_dict(std::vector<_key_type> keys, std::vector<_store_type> values);
@@ -581,8 +592,18 @@ namespace DIY {
             typed_dict(_pair<_key_type, _store_type> _key_value_pair);
             typed_dict(std::initializer_list<_pair<_key_type, _store_type>> _pairs);
 
+            /**
+             * @brief Assignment operator
+             * 
+             * @param _assignDict 
+             * @return typed_dict<_key_type, _store_type>& 
+             */
+            typed_dict<_key_type, _store_type> &operator=(const typed_dict<_key_type, _store_type> &_assignDict);
+
+
             _store_type& operator[] (int idx);
             _store_type  operator[] (int idx) const;
+
 
             _store_type& get(_key_type key);
             _store_type  get(_key_type key) const;
@@ -690,6 +711,14 @@ namespace DIY {
 
 
     template<class _key_type, class _store_type>
+    void typed_dict<_key_type, _store_type>::_update_lookup() {
+        this->_lookup.clear();
+        for(auto itr=_values.begin(); itr!=_values.end(); ++itr) {
+            _lookup.push_back(&*itr);
+        }
+    }
+
+    template<class _key_type, class _store_type>
     auto typed_dict<_key_type, _store_type>::_getItr(int idx) {
         if(idx>=static_cast<int>(_keys.size())) this->_call_error(0, "::_getItr(int)", "arg for `idx` is too large");
         else if(abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
@@ -697,7 +726,7 @@ namespace DIY {
         
         auto itr = _values.begin();
         std::advance(itr, idx);
-        std::cout << &*itr << "  ";
+        // std::cout << &*itr << "  ";
         return itr;
     }
     template<class _key_type, class _store_type>
@@ -735,6 +764,19 @@ namespace DIY {
     }
 
 
+    template<class _key_type, class _store_type>
+    typed_dict<_key_type, _store_type>::typed_dict(const typed_dict<_key_type, _store_type> &_copyDict):
+        _keys(_copyDict._keys),
+        _values(_copyDict._values),
+        _values_modified(_copyDict._values_modified),
+        _nullKey(_copyDict._nullKey),
+        _nullValue(_copyDict._nullValue),
+        _init_container(_copyDict._init_container)
+    {
+        for(auto itr=_values.begin(); itr!=_values.end(); ++itr) {
+            _lookup.push_back(&*itr);
+        }
+    }
 
     // template<class _key_type, class _store_type>
     // typed_dict<_key_type, _store_type>::typed_dict() {}
@@ -800,10 +842,27 @@ namespace DIY {
 
         size_t cnt = 0;
         for(auto itr=_values.begin(); itr!=_values.end(); ++itr) {
-            std::cout << std::setw(21)<<std::left<<_keys[cnt]<<" : "<< (&(*itr)) << " | " << _lookup[cnt] << std::endl;
+            std::cout << std::setw(21)<<std::left<<_keys[cnt]<<" : ";
+            std::cout << (&(*itr)) << " | " << _lookup[cnt] << " | "<< &_getItr(cnt) << " | " << &*_getItr(cnt);
+            std::cout << " || " << std::boolalpha << *itr << std::endl;
             cnt++;
         }
         this->_init_container = true;
+    }
+
+
+    template<class _key_type, class _store_type>
+    typed_dict<_key_type, _store_type> &typed_dict<_key_type, _store_type>::operator=(const typed_dict<_key_type, _store_type> &_assignDict) {
+        _keys       = _assignDict._keys;
+        _values     = _assignDict._values;
+        _values_modified = _assignDict._values_modified;
+        _nullKey    = _assignDict._nullKey;
+        _nullValue  = _assignDict._nullValue;
+        _init_container = _assignDict._init_container;
+        for(auto itr=_values.begin(); itr!=_values.end(); ++itr) {
+            _lookup.push_back(&*itr);
+        }
+        return *this;
     }
 
     template<class _key_type, class _store_type>
@@ -973,7 +1032,7 @@ namespace DIY {
         std::advance(itr, pos);
         this->_values.insert(itr, value);
         // itr = _look
-        this->_lookup.insert(this->_lookup.begin()+pos, &_getItr(pos));
+        this->_lookup.insert(this->_lookup.begin()+pos, &*_getItr(pos));
         this->_values_modified = true;
         return 0;
     }

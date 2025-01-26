@@ -18,13 +18,12 @@ DIY::typed_dict<std::string, DIY::typed_dict<std::string, bool>> _SETTINGS({
         }
     }, {
         "View", { // [1]
-            {"Draw Grid", true} // [1][0]
+            {"Draw Grid", true}, // [1][0]
+            {"Draw timeObject sides", false} // [1][1]
         }
     }, {
         "Timeline", { // [2]
-            {"use timeObject snap", true}, // [2][0]
-            {"test 1", false},
-            {"test 2", true}
+            {"Use timeObject Snap", true}, // [2][0]
         }
     }, {
         "File", { // [3]

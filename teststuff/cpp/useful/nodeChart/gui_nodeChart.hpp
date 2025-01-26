@@ -409,7 +409,7 @@ namespace gNC {
          */
         size_t _channel_limit = 1;
     public:
-        bool verbose_exceptions = true;
+        bool verbose_exceptions = false;
 
         /// @brief copy version of the main _objects std::vector used for visualising temporary changes. Place this in gNC::timeline method args if changes are to be temporary
         std::vector<timeObject> forVisuals;
@@ -513,6 +513,8 @@ namespace gNC {
          * @return timeObject value copy of the stored timeObject. If a timeObject couldn't be found then it'll throw invalid_argument error.
          */
         timeObject get_timeObject(int _idx, std::vector<timeObject>* _vec=nullptr);
+
+        std::vector<gNODE*> get_timeObjects_inTimeUnit(timeUnit _findAt, size_t _channel=0, std::vector<timeObject>* _vec=nullptr);
         /**
          * @brief Get a container/std::vector of gNODE's in a channel
          * 

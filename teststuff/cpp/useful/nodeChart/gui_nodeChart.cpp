@@ -2509,6 +2509,25 @@ gNC::timeObject  gNC::timeline::get_timeObject(
 
     return _vec->at(idx);
 }
+std::vector<gNC::gNODE*> gNC::timeline::get_timeObjects_inTimeUnit(
+    gNC::timeUnit   _findAt,
+    size_t          _channel,
+    std::vector<timeObject>* _vec
+) {
+    if(!_vec) _vec = &this->_objects;
+    if (_vec->size() == 0) throw std::invalid_argument("the vector of timeObjects doesn't have any elements.");
+
+    std::vector<gNC::gNODE*> _found;
+    for(size_t i=0; i<_vec->size(); i++) {
+        if(_channel==0 || _vec->at(i).channel==_channel) {
+            if(_vec->at(i).is_within(_findAt)) {
+                _found.push_back(_vec->at(i).objNode);
+            }
+        }
+        // if(_vec->operator[](i).is_within())
+    }
+    return _found;
+}
 std::vector<gNC::gNODE*> gNC::timeline::get_timeObjects_inChannel(
     size_t  _channel,
     std::vector<gNC::timeObject>* _vec
@@ -2553,7 +2572,7 @@ int gNC::timeline::move_sides(
             }
         }
     }
-    std::cout << " toMove:"<<formatVector(toMove, 0, 0, "left") << " specifd:" << (_toMove? ptrToStr(_toMove) : "nullptr") << " ";
+    // std::cout << " toMove:"<<formatVector(toMove, 0, 0, "left") << " specifd:" << (_toMove? ptrToStr(_toMove) : "nullptr") << " ";
 
     /// Checking for outsider/external timeObjects that the _newVal may interfere-with/enroach-it's-area/affect
     for (size_t i = 0; i < _vec->size(); i++) {

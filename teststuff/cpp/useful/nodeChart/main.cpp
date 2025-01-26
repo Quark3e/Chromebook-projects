@@ -26,6 +26,7 @@ int main(int argc, char** argv) {
         }
     }
     std::cout << std::endl;
+    
 
     std::cout << "Program configuration: ";
     if(__ON_TERMINAL) std::cout << "Terminal";
@@ -35,7 +36,6 @@ int main(int argc, char** argv) {
     // programCWD = getFileCWD(true);
     // std::cout << programCWD << std::endl;
     std::string default_proj_file = __dir_saveFiles + "default_chart.json";
-
     al_init();
     al_install_keyboard();
     al_install_mouse();
@@ -47,7 +47,6 @@ int main(int argc, char** argv) {
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_mouse_event_source());
-
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); //(void)io;
@@ -80,7 +79,7 @@ int main(int argc, char** argv) {
     
     // gNC::guiNodeChart proj0;
     // proj0.thisPtr = &proj0;
-    
+
     
     projects.add("project 0", nc_proj{"", false, gNC::guiNodeChart()});
     projects[0].chart.thisPtr = &(projects[0].chart);
@@ -121,7 +120,10 @@ int main(int argc, char** argv) {
     int setting_autosave_iterCount = 0;
     int setting_autosave_iterWait = 60; //how many frames/iterations to wait before saving
 
-    _SETTINGS[0][0] = true;
+
+
+
+    // _SETTINGS[0][0] = true;
     while(_SETTINGS[0][0]) {
         __PROGRAM_FRAMES++;
         static std::vector<std::vector<int>>* pressed_keys;
@@ -452,13 +454,14 @@ int main(int argc, char** argv) {
         // catch(const std::exception& e) {
         //     std::cout << e.what() << '\n';
         // }
-        for(size_t i=0; i<_SETTINGS.size(); i++) {
-            std::cout << std::setw(21) << std::left<< _SETTINGS[i].getKey(0)<<" : ";
-            std::cout << _SETTINGS[i].getPtr_idx(0) << " / ";
-            (&(*_SETTINGS[i]._getItr(0)));
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;
+
+        // for(size_t i=0; i<_SETTINGS.size(); i++) {
+        //     std::cout << std::setw(21) << std::left<< _SETTINGS[i].getKey(0)<<" : ";
+        //     std::cout << _SETTINGS[i].getPtr_idx(0) << " / ";
+        //     (&(*_SETTINGS[i]._getItr(0)));
+        //     std::cout << std::endl;
+        // }
+        // std::cout << std::endl;
 
 
         ImGui::End();
@@ -476,7 +479,7 @@ int main(int argc, char** argv) {
         if(__GLOBAL_FLAGS__WIN_RESIZED>0) {
             __GLOBAL_FLAGS__WIN_RESIZED = (__GLOBAL_FLAGS__WIN_RESIZED==1? 0 : __GLOBAL_FLAGS__WIN_RESIZED-1);
         }
-        exit(0);
+        // exit(0);
     }
     
     // for(size_t i=0; i<_SETTINGS.size(); i++) {
