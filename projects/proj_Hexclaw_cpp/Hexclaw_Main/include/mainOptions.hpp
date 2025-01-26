@@ -4,10 +4,10 @@
 #define HPP_HEXCLAW_OPTIONS
 
 
-#include <motion_control/motion_profiles.hpp>
-#include <constants.hpp>
-#include <includes.hpp>
-#include <global_variables.hpp>
+#include "motion_control/motion_profiles.hpp"
+#include "constants.hpp"
+#include "includes.hpp"
+#include "global_variables.hpp"
 #include <stringToFunc.hpp>
 #include <createTable.hpp>
 

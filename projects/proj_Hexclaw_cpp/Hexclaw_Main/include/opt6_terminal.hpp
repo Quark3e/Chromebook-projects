@@ -4,8 +4,8 @@
 #define HPP_HEXCLAW_OPTION_6
 
 #include <constants.hpp>
-#include <includes.hpp>
-#include <global_variables.hpp>
+#include "includes.hpp"
+#include "global_variables.hpp"
 
 
 

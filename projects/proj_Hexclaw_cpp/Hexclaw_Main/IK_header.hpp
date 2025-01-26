@@ -61,6 +61,7 @@ namespace HW_KINEMATICS  {
         setting_labels,
         settings.values()
     );
+    
 
     inline const DIY::typed_dict<std::string, std::string> setting_desc(
         setting_labels,
