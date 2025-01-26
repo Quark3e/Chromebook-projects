@@ -340,11 +340,23 @@ void gNC::_menu__timeline(
     else {}
 
     open = true;
-    static ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
+    static ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoMove;
+    
+    ImGuiIO &io = ImGui::GetIO();
+
     
 
+    ImGui::SetNextWindowSizeConstraints(ImVec2(dim__win_timeline().x, dim__win_timeline().y*0.01), ImVec2(dim__win_timeline().x, dim__main.y));
+    ImGui::SetNextWindowPos(
+        ImVec2(
+            0, //dim__main.x,// - ImGui::GetWindowSize().x,
+            dim__main.y// - ImGui::GetWindowSize().y
+        ),
+        0,
+        ImVec2(0, 1)
+    );
     ImGui::Begin("Timeline", &open, win_flags);
-    ImGui::SetWindowSize(dim__win_timeline());
+    if(_init) ImGui::SetWindowSize(dim__win_timeline());
     if(__PROGRAM_FRAMES<=1) {
         ImGui::SetWindowCollapsed(true);
         ImGui::SetWindowPos(ImVec2(
@@ -355,7 +367,7 @@ void gNC::_menu__timeline(
     // ImGui::SetWindowCollapsed(_collapse);
     _collapse = ImGui::IsWindowCollapsed();
 
-    ImGuiIO &io = ImGui::GetIO();
+    // ImGuiIO &io = ImGui::GetIO();
     ImDrawList* timeline_drawList = ImGui::GetWindowDrawList();
 
     if(_collapse != _collapse_prev || __GLOBAL_FLAGS__WIN_RESIZED>0) {
