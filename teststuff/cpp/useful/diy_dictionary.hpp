@@ -670,6 +670,7 @@ namespace DIY {
     
 
 
+
     /**
      * @brief private member function for `throw`:ing specific errors
      *  
@@ -816,7 +817,6 @@ namespace DIY {
         for(auto itr=_values.begin(); itr!=_values.end(); ++itr) _lookup.push_back(&(*itr));
         this->_init_container = true;
     }
-
     template<class _key_type, class _store_type>
     typed_dict<_key_type, _store_type>::typed_dict(_pair<_key_type, _store_type> _key_value_pair) {
         this->_keys.push_back(_key_value_pair.key);
