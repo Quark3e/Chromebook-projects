@@ -171,6 +171,7 @@ int main(int argc, char** argv) {
 
         if(_selected!=-1) {
             project_draw_list = ImGui::GetWindowDrawList();
+            project_draw_list->AddCircle(ImVec2(projects[_selected].chart.screen_pos[0], projects[_selected].chart.screen_pos[1]), 10, IM_COL32(20, 40, 200, 200), 5, 1);
 
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
             ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 0));
@@ -245,7 +246,6 @@ int main(int argc, char** argv) {
         ImGui::SetCursorPosX(10);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f/io.Framerate, io.Framerate);
         ImGui::End();
-
         cnt++;
 
         // ----------
@@ -360,7 +360,6 @@ int main(int argc, char** argv) {
             }
             ImGui::EndMenuBar();
         }
-
         if(ImGui::BeginTabBar("Tabs", ImGuiTabBarFlags_AutoSelectNewTabs)) {
             for(size_t i=0; i<projects.size(); i++) {
                 bool open = true;
@@ -390,7 +389,6 @@ int main(int argc, char** argv) {
             gNC::nodePtr_menu__rightClick = nullptr;
             gNC::linkPtr_menu__rightClick = nullptr;
         }
-
         if(_selected!=-1) gNC::_menu__timeline(&projects[_selected].chart);
         gNC::_menu__fileExplorer();
         if(!gNC::_mode__fileExplorer && gNC::_file__fileExplorer.length()!=0) {
@@ -445,7 +443,6 @@ int main(int argc, char** argv) {
             }
         }
 
-
         // try {
         //     for(size_t i=0; i<_SETTINGS.size(); i++) {
         //         std::cout << _SETTINGS[i] << " ";
@@ -472,8 +469,8 @@ int main(int argc, char** argv) {
         ImGui_ImplAllegro5_RenderDrawData(ImGui::GetDrawData());
         al_flip_display();
         #if _DEBUG
-        std::cout << "\n";
-        std::cout.flush();
+        // std::cout << "\n";
+        // std::cout.flush();
         #endif
 
 

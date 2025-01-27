@@ -16,7 +16,7 @@ void gNC::_menu__node_details(
     if(init_node) init_prev = true;
 
     static ImGuiWindowFlags win_flags = 0;
-    win_flags |= ImGuiWindowFlags_NoResize;
+    // win_flags |= ImGuiWindowFlags_NoResize;
     win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
     win_flags |= ImGuiWindowFlags_NoMove;
     win_flags |= ImGuiWindowFlags_NoCollapse;
@@ -36,30 +36,46 @@ void gNC::_menu__node_details(
     
     static int _win_widthOffset = 20;
 
+    if(linkPtr_menu__link_details) {
+        ImGui::SetNextWindowSizeConstraints(
+            ImVec2(dim__menu__detail[0], dim__menu__detail[1]*0.5),
+            ImVec2(dim__menu__detail[0]*3, dim__menu__detail[1]*0.5)
+        );
+    }
+    else {
+        ImGui::SetNextWindowSizeConstraints(
+            ImVec2(dim__menu__detail[0], dim__menu__detail[1]),
+            ImVec2(dim__menu__detail[0]*3, dim__menu__detail[1])
+        );
+    }
+    ImGui::SetNextWindowPos(pos__menu__detail__offset, 0, ImVec2(0, 0));
     if(ImGui::Begin((" node: "+toDetail->addr).c_str(), NULL, win_flags)) {
         // std::cout <<std::boolalpha << ImGui::IsWindowFocused()<<" | ";
         if(init_node!=toDetail) {
             // ImGui::SetWindowFocus((" node: "+toDetail->addr).c_str());
             // init_prev = false;
             // chart->setScreen_pos(toDetail->pos.x, toDetail->pos.y);
+            if(linkPtr_menu__link_details) {
+                ImGui::SetWindowSize(ImVec2(dim__menu__detail[0], dim__menu__detail[1]*0.5));
+            }
+            else {
+                ImGui::SetWindowSize(dim__menu__detail);
+            }
 
-            std::cout << "move pos to node:"<<formatContainer1(toDetail->pos, 2, 0, 0)<<std::endl;
+
         }
         else {
             if(!init_prev) mouseAction_left = 1;
         }
         _winFocused__node_details = ImGui::IsWindowFocused();
         // ImGui::SetWindowPos(ImGui::GetWindowPos());
-        ImGui::SetWindowPos(pos__menu__detail__offset);
-        if(linkPtr_menu__link_details) {
-            ImGui::SetWindowSize(ImVec2(dim__menu__detail[0], dim__menu__detail[1]*0.5));
-        }
-        else {
-            ImGui::SetWindowSize(dim__menu__detail);
-        }
+        // ImGui::SetWindowPos(pos__menu__detail__offset);
+
         // }
 
-        ImGui::PushItemWidth(dim__menu__detail.x - _win_widthOffset - 110);
+        ImVec2 menuWin_dim = ImGui::GetWindowSize();
+        // ImGui::PushItemWidth(dim__menu__detail.x - _win_widthOffset - 110);
+        ImGui::PushItemWidth(menuWin_dim.x - _win_widthOffset - 110);
         if(ImGui::InputText("##_title", &(toDetail->label), inpText_flags_label | ImGuiInputTextFlags_EnterReturnsTrue)) {
             toDetail->inChart->modified = true;
         }
@@ -71,16 +87,15 @@ void gNC::_menu__node_details(
         }
 
         ImGui::Separator();
-        ImGui::PushItemWidth(dim__menu__detail.x-_win_widthOffset);
+        ImGui::PushItemWidth(menuWin_dim.x-_win_widthOffset);
         if(ImGui::InputText("##_desc", &(toDetail->desc), inpText_flags_desc | ImGuiInputTextFlags_EnterReturnsTrue)) {
             toDetail->inChart->modified = true;
         }
         
         ImGui::Separator();
-        if(ImGui::InputTextMultiline("##_bodyText", &(toDetail->bodyText), ImVec2(dim__menu__detail.x-_win_widthOffset, ImGui::GetTextLineHeight()*5), inpText_flags_bodyT | ImGuiInputTextFlags_EnterReturnsTrue)) {
+        if(ImGui::InputTextMultiline("##_bodyText", &(toDetail->bodyText), ImVec2(menuWin_dim.x-_win_widthOffset, ImGui::GetTextLineHeight()*5), inpText_flags_bodyT | ImGuiInputTextFlags_EnterReturnsTrue)) {
             toDetail->inChart->modified = true;
         }
-
 
         ImGui::BeginGroup();
         if(ImGui::BeginChild("##window_node_links", ImVec2(-FLT_MIN, 0))) {
@@ -117,13 +132,20 @@ void gNC::_menu__node_details(
                             
                             nodePtr_menu__node_details = _printPtr;
                             if(_printPtr) {
+                                // lockMove_node = false;
+                                // lockMove_screen = false;
+                                // std::cout << "move pos to node:"<<formatContainer1(_printPtr->pos, 2, 0, 0)<<std::endl;
+                                chart->setScreen_pos(dim__main[0]*0.5-_printPtr->pos.x, dim__main[1]*0.5-_printPtr->pos.y);
+
                                 ImGui::SetWindowFocus(_printPtr->addr.c_str());
+                            
                             }
                         }
                         if(ImGui::IsItemHovered(ImGuiHoveredFlags_None)) {
                             itemHovrd = true;
                             _printPtr->draw__state = 1;
                             _link->draw__state = 1;
+                            
                         }
                         // ImGui::Text((_printPtr==nullptr? "nullptr" : ptrToStr<gNC::gNODE*>(_printPtr).c_str()));
                     }
@@ -1093,6 +1115,7 @@ void gNC::_menu__fileExplorer() {
                                             _file__fileExplorer = currDir + _pwdFileCont[i].name;
                                             win_open = false;
                                             // std::cout << " newDir: " << _file__fileExplorer << std::endl;
+
                                         }
                                         break;
                                     case DT_DIR:

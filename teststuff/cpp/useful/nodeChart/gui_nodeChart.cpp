@@ -804,7 +804,7 @@ gNC::guiNodeChart::guiNodeChart(/* args */) :
 
 
 int gNC::guiNodeChart::setScreen_pos(int x, int y, int moveMode) {
-    assert(moveMode > 0 && moveMode < 2);
+    assert(moveMode >= 0 && moveMode < 2);
     static int prev_x = 0, prev_y = 0;
 
     switch (moveMode) {
@@ -1317,6 +1317,9 @@ bool _draw__node_cosmetics(
     ImGui::TextWrapped((*itr).desc.c_str());
     // ImGui::SetWindowFontScale(1);
 
+    ImGui::Separator();
+    ImGui::Text(formatContainer1((*itr).pos, 2, 0, 0).c_str());
+
     // ImGui::Separator();
     // ImGui::TextWrapped((*itr).bodyText.c_str());
 
@@ -1371,7 +1374,7 @@ int gNC::guiNodeChart::draw() {
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
 #if _DEBUG
-    std::cout << "{" << std::setw(2) << mouseAction_left << "," << std::setw(3) << decay_mouseClick_left << "} ";
+    // std::cout << "{" << std::setw(2) << mouseAction_left << "," << std::setw(3) << decay_mouseClick_left << "} ";
 #endif
 
     /// @brief whether a node has been focused when they're iterated.
@@ -1560,11 +1563,14 @@ int gNC::guiNodeChart::draw() {
             else if (mouseAction_right != 2) { for (int i = 0; i < 6; i++) { if ((*itr).state_connections[i] != 0) (*itr).state_connections[i] = 0; } }
         }
 
-
+        if(ImGui::IsWindowFocused()) {
+            (*itr).draw__state = 2;
+        }
         /// Start drawing the node
-        ImGui::PushStyleColor(ImGuiCol_TitleBg, (*itr).colour_bg[(*itr).draw__state]);
+        ImGui::PushStyleColor(ImGuiCol_TitleBg, (*itr).winColour.get(ImGuiCol_TitleBg)[(*itr).draw__state]);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg,(*itr).winColour.get(ImGuiCol_WindowBg)[(*itr).draw__state]);
         ImGui::Begin((*itr).addr.c_str(), NULL, win_flags);
-        ImGui::PopStyleColor();
+        ImGui::PopStyleColor(2);
         ImGui::SetWindowSize(ImVec2(((*itr).width), (*itr).height));
 
         if (!(*itr).init) {
@@ -1574,6 +1580,7 @@ int gNC::guiNodeChart::draw() {
 
 
 
+        ImGui::SetWindowPos(nodePos);
         if (ImGui::IsWindowFocused()) {
             // _menu__node_details(&(*itr));
             nodePtr_menu__node_details = &(*itr);
@@ -1586,7 +1593,7 @@ int gNC::guiNodeChart::draw() {
 
         }
         else {
-            ImGui::SetWindowPos(nodePos);
+            // ImGui::SetWindowPos(nodePos);
         }
         _draw__node_cosmetics(itr, nodePos, draw_list);
 
@@ -1630,7 +1637,7 @@ int gNC::guiNodeChart::draw() {
         decay_mouseClick_left = 100;
         if (mouseDrag_left) focused_link = nullptr;
 #if _DEBUG
-        std::cout << " [screen]";
+        // std::cout << " [screen]";
 #endif
     }
     if (mouseAction_left != -1) {

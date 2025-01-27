@@ -217,11 +217,18 @@ namespace gNC {
 
         float fillet_radius = 0;
 
-        // ImU32 colour_bg = IM_COL32(23, 23, 23, 255);
-        DIY::typed_dict<std::string, ImU32> colour_bg = DIY::typed_dict<std::string, ImU32>({
-            {"Default", IM_COL32(23, 23, 23, 255)},
-            {"Hovered", IM_COL32(140, 140, 140, 255)},
-            {"Focused", IM_COL32(23, 23, 23, 255)}
+
+        DIY::typed_dict<ImGuiCol, DIY::typed_dict<std::string, ImU32>> winColour = DIY::typed_dict<ImGuiCol, DIY::typed_dict<std::string, ImU32>>({{
+            ImGuiCol_TitleBg, {
+                {"Default", IM_COL32(23, 23, 23, 250)},
+                {"Hovered", IM_COL32(100, 100, 100, 255)},
+                {"Focused", IM_COL32(23, 23, 23, 255)}
+            }}, {
+            ImGuiCol_WindowBg, {
+                {"Default", IM_COL32(15, 15, 15, 100)},
+                {"Hovered", IM_COL32(41, 41, 41, 160)},
+                {"Focused", IM_COL32(25, 25, 25, 240)}
+            }}
         });
 
         ImU32 colour_tab= IM_COL32(2, 2, 2, 255);

@@ -61,10 +61,10 @@ add_executable(${PROJECT_NAME}
     ${imgui_depends}
 )
 
-target_compile_options(${PROJECT_NAME}
-    PUBLIC
-    -fdiagnostics-color=always
-)
+# target_compile_options(${PROJECT_NAME}
+#     PUBLIC
+#     -fdiagnostics-color=always
+# )
 target_include_directories(${PROJECT_NAME} PUBLIC ${DIR_IMGUI})
 target_link_libraries(${PROJECT_NAME}
     allegro

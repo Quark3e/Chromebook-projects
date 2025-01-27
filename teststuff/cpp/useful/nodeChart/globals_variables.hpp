@@ -3,7 +3,7 @@
 #ifndef HPP__GUI_NODECHART__CONSTANTS
 #define HPP__GUI_NODECHART__CONSTANTS
 
-#define _DEBUG false
+// #define _DEBUG false
 
 
 #include "globals_includes.hpp"
