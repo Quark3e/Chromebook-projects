@@ -568,6 +568,8 @@ void gNC::gLINK::draw_link(
         }
     }
 
+
+    draw__state = 0;
 }
 bool gNC::gLINK::region(
     ImVec2 cursor,
@@ -1410,7 +1412,7 @@ int gNC::guiNodeChart::draw() {
                 }
             }
             else {
-                (*itr).draw__state = 1;
+                if((*itr).draw__state==0) (*itr).draw__state = 1;
             }
 
             if (isKeyPressed(656, &(*pressed_keys)[pressed_keys->size() - 1]) && !_mode__fileExplorer) {
@@ -1423,7 +1425,7 @@ int gNC::guiNodeChart::draw() {
             }
         }
         else {
-            (*itr).draw__state = 0;
+            // (*itr).draw__state = 0;
         }
 
         if (linkPtr_menu__link_details == &(*itr)) (*itr).draw__state = 2;
@@ -1440,6 +1442,7 @@ int gNC::guiNodeChart::draw() {
         win_flags |= ImGuiWindowFlags_NoCollapse;
         win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
         win_flags |= ImGuiWindowFlags_NoMove;
+        // win_flags |= ImGuiWindowFlags_
 
 
         int node_connect = _draw_NODEcheckConnects(itr, nodePos);
@@ -1559,7 +1562,9 @@ int gNC::guiNodeChart::draw() {
 
 
         /// Start drawing the node
+        ImGui::PushStyleColor(ImGuiCol_TitleBg, (*itr).colour_bg[(*itr).draw__state]);
         ImGui::Begin((*itr).addr.c_str(), NULL, win_flags);
+        ImGui::PopStyleColor();
         ImGui::SetWindowSize(ImVec2(((*itr).width), (*itr).height));
 
         if (!(*itr).init) {
@@ -1585,6 +1590,7 @@ int gNC::guiNodeChart::draw() {
         }
         _draw__node_cosmetics(itr, nodePos, draw_list);
 
+        (*itr).draw__state = 0;
         ImGui::End();
     }
 
@@ -1593,8 +1599,20 @@ int gNC::guiNodeChart::draw() {
     // std::cout <<std::boolalpha<<" "<<link_focused<<" ";
     // std::cout <<"mouseAction_left:"<<mouseAction_left;
 
-    if (nodePtr_menu__node_details) _menu__node_details(nodePtr_menu__node_details);
-    if (linkPtr_menu__link_details) _menu__link_details(linkPtr_menu__link_details);
+    if (nodePtr_menu__node_details) {
+        static gNC::gNODE* _prevNode = nullptr;
+        if(_prevNode!=nodePtr_menu__node_details) {
+            
+            // this->setScreen_pos(nodePtr_menu__node_details->pos.x, nodePtr_menu__node_details->pos.y);
+            _prevNode = nodePtr_menu__node_details;
+        }
+        _menu__node_details(nodePtr_menu__node_details, this);
+    }
+    if (linkPtr_menu__link_details) {
+        static gNC::gLINK* _prevLink = nullptr;
+
+        _menu__link_details(linkPtr_menu__link_details, this);
+    }
 
     if (static_mouseAction_left != 1 && (mouseDrag_left)) {
         if (!node_focused) nodePtr_menu__node_details = nullptr;

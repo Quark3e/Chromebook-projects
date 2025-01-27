@@ -15,8 +15,9 @@
 // #include "global_variables.hpp"
 
 
-
 namespace HW_KINEMATICS  {
+
+    
 
     /** 
      * settings:
@@ -62,7 +63,7 @@ namespace HW_KINEMATICS  {
         settings.values()
     );
     
-    inlien DIY::typed_dict<std::string, DIY::typed_dict<std::string
+    // inline DIY::typed_dict<std::string, DIY::typed_dict<std::string
 
     inline const DIY::typed_dict<std::string, std::string> setting_desc(
         setting_labels,

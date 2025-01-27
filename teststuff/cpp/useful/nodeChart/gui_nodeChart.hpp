@@ -5,6 +5,7 @@
 
 
 #include "globals_includes.hpp"
+#include <diy_dictionary.hpp>
 
 
 // extern template<typename _varType> int checkExistence(_varType toFind, const std::vector<_varType>& toSearch);
@@ -216,6 +217,16 @@ namespace gNC {
 
         float fillet_radius = 0;
 
+        // ImU32 colour_bg = IM_COL32(23, 23, 23, 255);
+        DIY::typed_dict<std::string, ImU32> colour_bg = DIY::typed_dict<std::string, ImU32>({
+            {"Default", IM_COL32(23, 23, 23, 255)},
+            {"Hovered", IM_COL32(140, 140, 140, 255)},
+            {"Focused", IM_COL32(23, 23, 23, 255)}
+        });
+
+        ImU32 colour_tab= IM_COL32(2, 2, 2, 255);
+
+
         /**
          * Different states of the node connections. Mainly used in cosmetics/visuals.
          *  container index to node connection:
@@ -232,7 +243,14 @@ namespace gNC {
          *  - `2` - on : click
         */
         std::vector<int> state_connections = std::vector<int>{0, 0, 0, 0, 0, 0};
-
+        
+        /**
+         * 
+         *  - `0` - off: default
+         *  - `1` - off: hover
+         *  - `2` - on : click/press
+         */
+        int draw__state = 0;
 
         std::vector<gNC::gLINK*> ln_in;     // type 0 //[optional]
         std::vector<gNC::gLINK*> ln_out;    // type 1 //[optional]
@@ -798,13 +816,13 @@ namespace gNC {
      * 
      * @param toDetail pointer to the gNODE to show in menuScreen
      */
-    void _menu__node_details(gNC::gNODE* toDetail);
+    void _menu__node_details(gNC::gNODE* toDetail, gNC::guiNodeChart *chart);
     /**
      * @brief Menu screen with details of a gLINK
      * 
      * @param toDetail pointer to the gLINK to show in menuScreen
      */
-    void _menu__link_details(gNC::gLINK* toDetail);
+    void _menu__link_details(gNC::gLINK* toDetail, gNC::guiNodeChart *chart);
     void _menu__rightClick(gNC::guiNodeChart* _chart);
     void _menu__timeline(gNC::guiNodeChart* _chart);
 

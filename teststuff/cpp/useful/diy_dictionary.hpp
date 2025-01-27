@@ -840,13 +840,13 @@ namespace DIY {
         }
 
 
-        size_t cnt = 0;
-        for(auto itr=_values.begin(); itr!=_values.end(); ++itr) {
-            std::cout << std::setw(21)<<std::left<<_keys[cnt]<<" : ";
-            std::cout << (&(*itr)) << " | " << _lookup[cnt] << " | "<< &_getItr(cnt) << " | " << &*_getItr(cnt);
-            std::cout << " || " << std::boolalpha << *itr << std::endl;
-            cnt++;
-        }
+        // size_t cnt = 0;
+        // for(auto itr=_values.begin(); itr!=_values.end(); ++itr) {
+        //     std::cout << std::setw(21)<<std::left<<_keys[cnt]<<" : ";
+        //     std::cout << (&(*itr)) << " | " << _lookup[cnt] << " | "<< &_getItr(cnt) << " | " << &*_getItr(cnt);
+        //     std::cout << " || " << std::boolalpha << *itr << std::endl;
+        //     cnt++;
+        // }
         this->_init_container = true;
     }
 

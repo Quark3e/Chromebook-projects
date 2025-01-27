@@ -7,7 +7,8 @@ bool gNC::_winFocused__link_details = false;
 
 
 void gNC::_menu__node_details(
-    gNC::gNODE* toDetail
+    gNC::gNODE* toDetail,
+    gNC::guiNodeChart *chart
 ) {
     assert(toDetail!=nullptr);
     static gNC::gNODE* init_node = nullptr;
@@ -40,6 +41,9 @@ void gNC::_menu__node_details(
         if(init_node!=toDetail) {
             // ImGui::SetWindowFocus((" node: "+toDetail->addr).c_str());
             // init_prev = false;
+            // chart->setScreen_pos(toDetail->pos.x, toDetail->pos.y);
+
+            std::cout << "move pos to node:"<<formatContainer1(toDetail->pos, 2, 0, 0)<<std::endl;
         }
         else {
             if(!init_prev) mouseAction_left = 1;
@@ -86,6 +90,7 @@ void gNC::_menu__node_details(
                 ImGui::TableSetupColumn("Node");
                 ImGui::TableHeadersRow();
                 
+                bool itemHovrd = false;
                 for(int v=0; v<4; v++) {
                     std::vector<gNC::gLINK*>& vecRef = (v==0? toDetail->ln_in : (v==1? toDetail->ln_out : (v==2? toDetail->ln_add : toDetail->ln_share)));
                     ImGui::TableNextRow();
@@ -97,6 +102,11 @@ void gNC::_menu__node_details(
                     for(auto _link : vecRef) {
                         if(ImGui::Button((_link? ptrToStr<gNC::gLINK*>(_link).c_str() : "nullptr"))) {
                             linkPtr_menu__link_details = _link;
+                            
+                        }
+                        if(ImGui::IsItemHovered(ImGuiHoveredFlags_None)) {
+                            itemHovrd = true;
+                            _link->draw__state = 1;
                         }
                         // ImGui::Text((_link==nullptr? "nullptr" : ptrToStr<gNC::gLINK*>(_link).c_str()));
                     }
@@ -104,14 +114,22 @@ void gNC::_menu__node_details(
                     for(auto _link : vecRef) {
                         gNC::gNODE* _printPtr = (v%2==0? _link->src : _link->dest);
                         if(ImGui::Button((_printPtr? ptrToStr<gNC::gNODE*>(_printPtr).c_str() : "nullptr"))) {
+                            
                             nodePtr_menu__node_details = _printPtr;
                             if(_printPtr) {
                                 ImGui::SetWindowFocus(_printPtr->addr.c_str());
                             }
                         }
+                        if(ImGui::IsItemHovered(ImGuiHoveredFlags_None)) {
+                            itemHovrd = true;
+                            _printPtr->draw__state = 1;
+                            _link->draw__state = 1;
+                        }
                         // ImGui::Text((_printPtr==nullptr? "nullptr" : ptrToStr<gNC::gNODE*>(_printPtr).c_str()));
                     }
                 }
+                // if(itemHovrd) std::cout << "a item is hovered." << std::endl;
+                // else std::cout << "item is not hovered." << std::endl;
 
                 ImGui::EndTable();
             }
@@ -126,7 +144,8 @@ void gNC::_menu__node_details(
 }
 
 void gNC::_menu__link_details(
-    gNC::gLINK* toDetail
+    gNC::gLINK* toDetail,
+    gNC::guiNodeChart *chart
 ) {
     assert(toDetail!=nullptr);
     static gNC::gLINK* init_link = nullptr;
