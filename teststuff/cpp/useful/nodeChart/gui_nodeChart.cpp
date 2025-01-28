@@ -1460,8 +1460,8 @@ int gNC::guiNodeChart::draw() {
         ImVec2 nodePos = ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]);
 
         if (
-            ((nodePos.x + (*itr).width)*_DRAW_SCALAR.x  < 0 || (nodePos.x)*_DRAW_SCALAR.x > screen_dim[0]) ||
-            ((nodePos.y + (*itr).height)*_DRAW_SCALAR.y < 0 || (nodePos.y)*_DRAW_SCALAR.y > screen_dim[1])
+            ((nodePos.x + (*itr).width) *_DRAW_SCALAR.x  < 0 || (nodePos.x)*_DRAW_SCALAR.x > screen_dim[0]) ||
+            ((nodePos.y + (*itr).height)*_DRAW_SCALAR.y  < 0 || (nodePos.y)*_DRAW_SCALAR.y > screen_dim[1])
         ) continue;
 
         ImGuiWindowFlags win_flags = 0;

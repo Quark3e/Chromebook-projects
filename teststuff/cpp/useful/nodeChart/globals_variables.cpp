@@ -71,7 +71,7 @@ ImVec2 pos__menu__detail__offset    = ImVec2(20, 60);
 
 
 ImVec2 dim__main__drawScalar        = ImVec2(1, 1);
-
+float drawScalar_mouseWheelStep     = 0.1;
 
 ImVec2 _coef_dim__win_fileExplorer  = ImVec2(0.7, 0.8);
 ImVec2 dim__win_fileExplorer() {

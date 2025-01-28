@@ -107,7 +107,8 @@ extern ImVec2 pos__menu__detail__offset;
 
 /// @brief xy size/pos scalar value for changing size of the objects on screen
 extern ImVec2 dim__main__drawScalar;
-
+/// @brief number of steps to change the `dim__main__drawScalar` xy values by with each mouseWheel scroll value
+extern float drawScalar_mouseWheelStep;
 
 /**
  * Coefficients/scalars to solve window dimensions of fileExplorer relative to

@@ -22,16 +22,21 @@ struct Vec2i {
     int y;
     Vec2i(int _x, int _y): x(_x), y(_y) {}
     Vec2i(ImVec2 _vec2f): x(static_cast<int>(_vec2f.x)), y(static_cast<int>(_vec2f.y)) {}
-    int &operator=(size_t _i) {
+    int &operator[](size_t _i) {
         switch (_i) {
             case 0: return x;
             case 1: return y;
             default: break;
         }
-        throw std::out_of_range("Vec2i operator=(size_t) argument out of range {0, 1}.");
+        throw std::out_of_range("Vec2i operator[](size_t) argument out of range {0, 1}.");
         return x;
     }
-    
+    Vec2i &operator=(ImVec2 _vec) {
+        x = static_cast<int>(_vec.x);
+        y = static_cast<int>(_vec.y);
+        return *this;
+    }
+    operator ImVec2() { return ImVec2(static_cast<float>(x), static_cast<float>(y)); }
 };
 
 namespace gNC {
@@ -42,6 +47,10 @@ namespace gNC {
 
 
     extern ImVec2 _DRAW_SCALAR;
+
+    inline ImVec2 DrawScal_ModifToReal(ImVec2 _modifiedPos) {
+        
+    }
 
     class guiNodeChart;
     struct gNODE;
@@ -657,7 +666,7 @@ namespace gNC {
 
         gNC::guiNodeChart* thisPtr = nullptr;
         
-        int screen_pos[2] = {0, 0};
+        Vec2i screen_pos{0, 0};
         int screen_pos_delta[2] = {0, 0};
 
         int screen_dim[2] = {1280, 720};

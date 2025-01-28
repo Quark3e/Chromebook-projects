@@ -154,6 +154,7 @@ int main(int argc, char** argv) {
                 }
             }
         }
+        
         ImGui_ImplAllegro5_NewFrame();
         ImGui::NewFrame();
         //--------------------
@@ -169,8 +170,24 @@ int main(int argc, char** argv) {
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
 
+
         if(_selected!=-1) {
             project_draw_list = ImGui::GetWindowDrawList();
+
+            static ImVec2 relativePos(0, 0);
+            relativePos = ImVec2(io.MousePos.x/dim__main[0], io.MousePos.y/dim__main[1]);
+            if(io.MouseWheel!=0) {
+                ImVec2 _prevPos(
+                    (1.0/gNC::_DRAW_SCALAR.x)*(io.MousePos.x) - projects[_selected].chart.screen_pos[0],
+                    (1.0/gNC::_DRAW_SCALAR.y)*(io.MousePos.y) - projects[_selected].chart.screen_pos[1]
+                );
+                gNC::_DRAW_SCALAR.x += drawScalar_mouseWheelStep * io.MouseWheel;
+                gNC::_DRAW_SCALAR.y += drawScalar_mouseWheelStep * io.MouseWheel;
+                projects[_selected].chart.setScreen_pos(
+                    (dim__main[0]*relativePos.x*(1.0/gNC::_DRAW_SCALAR.x)) - _prevPos.x,
+                    (dim__main[1]*relativePos.y*(1.0/gNC::_DRAW_SCALAR.y)) - _prevPos.y
+                );
+            }
 
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
             ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 0));
@@ -180,7 +197,7 @@ int main(int argc, char** argv) {
             
             if(ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
                 if(!lockMove_screen && isKeyPressed(655, &((*pressed_keys)[pressed_keys->size()-1]))) {
-                    projects[_selected].chart.setScreen_pos(io.MouseDelta.x, io.MouseDelta.y, 1); //??
+                    projects[_selected].chart.setScreen_pos(io.MouseDelta.x*(1.0/gNC::_DRAW_SCALAR.x), io.MouseDelta.y*(1.0/gNC::_DRAW_SCALAR.y), 1); //??
                     // std::cout << "new screen pos: " << formatContainer1(projects[_selected].chart.screen_pos, 2, 0, 0) << std::endl;
                     mouseDrag_left = true;
                 }
@@ -194,23 +211,23 @@ int main(int argc, char** argv) {
             if(canvas_sz.x < 50.0f) canvas_sz.x = 50.0f;
             if(canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
             ImVec2 canvas_p1 = ImVec2(canvas_p0.x+canvas_sz.x, canvas_p0.y+canvas_sz.y);
-
+            canvas_p1 = ImVec2_divide(canvas_p1, gNC::_DRAW_SCALAR);
 
             static const int GRID_STEP = 64;
-            Vec2i scal_GRID_STEP = ImVec2_multiply(gNC::_DRAW_SCALAR, ImVec2(GRID_STEP, GRID_STEP));
+            // Vec2i scal_GRID_STEP = ImVec2_multiply(gNC::_DRAW_SCALAR, ImVec2(GRID_STEP, GRID_STEP));
             if(_SETTINGS.get("View").get("Draw Grid")) {
-                draw_list->PushClipRect(ImVec2(0, 20), ImVec2(projects[_selected].chart.screen_dim[0], projects[_selected].chart.screen_dim[1]), true);
-                for(float x=0; x<projects[_selected].chart.screen_dim[0]; x+=scal_GRID_STEP.x)
+                draw_list->PushClipRect(ImVec2(0, 20), ImVec2(dim__main[0], dim__main[1]), true);
+                for(float x=0; x<dim__main[0]/gNC::_DRAW_SCALAR.x; x+=GRID_STEP)
                     draw_list->AddLine(
-                        ImVec2(x+(projects[_selected].chart.screen_pos[0] % scal_GRID_STEP.x), canvas_p0.y),
-                        ImVec2(x+(projects[_selected].chart.screen_pos[0] % scal_GRID_STEP.x), canvas_p1.y),
+                        ImVec2_multiply(ImVec2(x+(projects[_selected].chart.screen_pos[0] % GRID_STEP), canvas_p0.y), gNC::_DRAW_SCALAR),
+                        ImVec2_multiply(ImVec2(x+(projects[_selected].chart.screen_pos[0] % GRID_STEP), canvas_p1.y), gNC::_DRAW_SCALAR),
                         IM_COL32(200, 200, 200, 40)
                     );
 
-                for(float y=0; y<projects[_selected].chart.screen_dim[1]; y+=scal_GRID_STEP.y)
+                for(float y=0; y<dim__main[1]/gNC::_DRAW_SCALAR.y; y+=GRID_STEP)
                     draw_list->AddLine(
-                        ImVec2(canvas_p0.x, y+(projects[_selected].chart.screen_pos[1] % scal_GRID_STEP.y)),
-                        ImVec2(canvas_p1.x, y+(projects[_selected].chart.screen_pos[1] % scal_GRID_STEP.y)),
+                        ImVec2_multiply(ImVec2(canvas_p0.x, y+(projects[_selected].chart.screen_pos[1] % GRID_STEP)), gNC::_DRAW_SCALAR),
+                        ImVec2_multiply(ImVec2(canvas_p1.x, y+(projects[_selected].chart.screen_pos[1] % GRID_STEP)), gNC::_DRAW_SCALAR),
                         IM_COL32(200, 200, 200, 40)
                     );
                 draw_list->PopClipRect();
@@ -244,15 +261,19 @@ int main(int argc, char** argv) {
             style.WindowRounding = 15.0f;
             projects[_selected].chart.draw();
 
-            ImGui::SetCursorPos(ImVec2(10, dim__main[1] - 25 - ImGui::GetTextLineHeight()*2));
-            ImGui::Text("Chart pos: x:%3.1f y:%3.1f", (io.MousePos.x+projects[_selected].chart.screen_pos[0]), (io.MousePos.y+projects[_selected].chart.screen_pos[1]));
+
+            // ImGui::SetCursorPos(ImVec2(10, dim__main[1] - 25 - ImGui::GetTextLineHeightWithSpacing()*4));
+            // ImGui::Text("Rel pos:    x:%2.1f y:%2.1f", relativePos.x*100.0, relativePos.y*100.0);
+            // ImGui::SetCursorPos(ImVec2(10, dim__main[1] - 25 - ImGui::GetTextLineHeightWithSpacing()*3));
+            // ImGui::Text("Screen pos:x:%3.1d y:%3.1d", projects[_selected].chart.screen_pos[0], projects[_selected].chart.screen_pos[1]);
+            ImGui::SetCursorPos(ImVec2(10, dim__main[1] - 25 - ImGui::GetTextLineHeightWithSpacing()*2));
+            ImGui::Text("Chart pos: x:%3.1f y:%3.1f", (1.0/gNC::_DRAW_SCALAR.x)*(io.MousePos.x) - projects[_selected].chart.screen_pos[0], (1.0/gNC::_DRAW_SCALAR.y)*(io.MousePos.y) - projects[_selected].chart.screen_pos[1]);
 
             ImGui::EndChild();
 
         }
-
-
-        ImGui::SetCursorPos(ImVec2(10, dim__main[1] - 25 - ImGui::GetTextLineHeight()*1));
+        
+        ImGui::SetCursorPos(ImVec2(10, dim__main[1] - 25 - ImGui::GetTextLineHeightWithSpacing()*1));
         ImGui::Text("Mouse pos: x:%3.1f y:%3.1f", io.MousePos.x, io.MousePos.y);
         ImGui::SetCursorPosX(10);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f/io.Framerate, io.Framerate);
@@ -354,6 +375,7 @@ int main(int argc, char** argv) {
             if(ImGui::BeginMenu("Program")) {
                 if(ImGui::MenuItem("Close")){ _SETTINGS.get("Program").get("Running Main") = false; }
                 // if(ImGui::MenuItem(""))
+                dim__main__drawScalar = gNC::_DRAW_SCALAR;
                 float _inputScalar = dim__main__drawScalar.x;
                 ImGui::SliderFloat("Scalar", &_inputScalar, 0.1f, 2);
                 dim__main__drawScalar.x = _inputScalar;

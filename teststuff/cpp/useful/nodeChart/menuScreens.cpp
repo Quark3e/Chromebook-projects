@@ -115,6 +115,7 @@ void gNC::_menu__node_details(
                     // ImGui::TableSetColumnIndex(1);
                     ImGui::TableSetColumnIndex(1);
                     for(auto _link : vecRef) {
+                        // if(_link->draw__state==1) 
                         if(ImGui::Button((_link? ptrToStr<gNC::gLINK*>(_link).c_str() : "nullptr"))) {
                             linkPtr_menu__link_details = _link;
                             
@@ -128,6 +129,7 @@ void gNC::_menu__node_details(
                     ImGui::TableSetColumnIndex(2);
                     for(auto _link : vecRef) {
                         gNC::gNODE* _printPtr = (v%2==0? _link->src : _link->dest);
+                        // if(_printPtr->draw__state==1)  
                         if(ImGui::Button((_printPtr? ptrToStr<gNC::gNODE*>(_printPtr).c_str() : "nullptr"))) {
                             
                             nodePtr_menu__node_details = _printPtr;
@@ -135,7 +137,7 @@ void gNC::_menu__node_details(
                                 // lockMove_node = false;
                                 // lockMove_screen = false;
                                 // std::cout << "move pos to node:"<<formatContainer1(_printPtr->pos, 2, 0, 0)<<std::endl;
-                                chart->setScreen_pos((dim__main[0]*0.5 - _printPtr->pos.x)*_DRAW_SCALAR.x, (dim__main[1]*0.5 - _printPtr->pos.y)*_DRAW_SCALAR.y);
+                                chart->setScreen_pos((dim__main[0]*0.5*(1.0/_DRAW_SCALAR.x)) - _printPtr->pos.x, (dim__main[1]*0.5*(1.0/_DRAW_SCALAR.y)) - _printPtr->pos.y);
 
                                 ImGui::SetWindowFocus(_printPtr->addr.c_str());
                             
