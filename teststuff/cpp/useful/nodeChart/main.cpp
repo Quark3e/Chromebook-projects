@@ -244,12 +244,15 @@ int main(int argc, char** argv) {
             style.WindowRounding = 15.0f;
             projects[_selected].chart.draw();
 
-            
+            ImGui::SetCursorPos(ImVec2(10, dim__main[1] - 25 - ImGui::GetTextLineHeight()*2));
+            ImGui::Text("Chart pos: x:%3.1f y:%3.1f", (io.MousePos.x+projects[_selected].chart.screen_pos[0]), (io.MousePos.y+projects[_selected].chart.screen_pos[1]));
+
             ImGui::EndChild();
 
         }
 
-        ImGui::SetCursorPos(ImVec2(10, dim__main[1] - 25 - ImGui::GetTextLineHeight()));
+
+        ImGui::SetCursorPos(ImVec2(10, dim__main[1] - 25 - ImGui::GetTextLineHeight()*1));
         ImGui::Text("Mouse pos: x:%3.1f y:%3.1f", io.MousePos.x, io.MousePos.y);
         ImGui::SetCursorPosX(10);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f/io.Framerate, io.Framerate);
