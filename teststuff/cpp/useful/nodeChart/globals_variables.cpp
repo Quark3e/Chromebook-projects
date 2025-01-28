@@ -24,7 +24,9 @@ DIY::typed_dict<std::string, DIY::typed_dict<std::string, bool>> _SETTINGS({
     }, {
         "View", { // [1]
             {"Draw Grid", true}, // [1][0]
-            {"Draw timeObject sides", false} // [1][1]
+            {"Draw timeObject sides", false}, // [1][1]
+            {"Link draw lines", false},
+            {"Link draw points", false}
         }
     }, {
         "Timeline", { // [2]
@@ -66,6 +68,9 @@ ImVec2 dim__main        = ImVec2(1280, 700);
 ImVec2 dim__menu__detail= ImVec2(300, 600);
 
 ImVec2 pos__menu__detail__offset    = ImVec2(20, 60);
+
+
+ImVec2 dim__main__drawScalar        = ImVec2(1, 1);
 
 
 ImVec2 _coef_dim__win_fileExplorer  = ImVec2(0.7, 0.8);

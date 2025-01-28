@@ -180,7 +180,7 @@ int main(int argc, char** argv) {
             
             if(ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
                 if(!lockMove_screen && isKeyPressed(655, &((*pressed_keys)[pressed_keys->size()-1]))) {
-                    projects[_selected].chart.setScreen_pos(io.MouseDelta.x, io.MouseDelta.y, 1);
+                    projects[_selected].chart.setScreen_pos(io.MouseDelta.x, io.MouseDelta.y, 1); //??
                     // std::cout << "new screen pos: " << formatContainer1(projects[_selected].chart.screen_pos, 2, 0, 0) << std::endl;
                     mouseDrag_left = true;
                 }
@@ -197,13 +197,22 @@ int main(int argc, char** argv) {
 
 
             static const int GRID_STEP = 64;
+            Vec2i scal_GRID_STEP = ImVec2_multiply(gNC::_DRAW_SCALAR, ImVec2(GRID_STEP, GRID_STEP));
             if(_SETTINGS.get("View").get("Draw Grid")) {
                 draw_list->PushClipRect(ImVec2(0, 20), ImVec2(projects[_selected].chart.screen_dim[0], projects[_selected].chart.screen_dim[1]), true);
-                for(float x=0; x<projects[_selected].chart.screen_dim[0]; x+=GRID_STEP)
-                    draw_list->AddLine(ImVec2(x+(projects[_selected].chart.screen_pos[0] % GRID_STEP), 0+canvas_p0.y), ImVec2(x+(projects[_selected].chart.screen_pos[0]%GRID_STEP), canvas_p1.y), IM_COL32(200, 200, 200, 40));
+                for(float x=0; x<projects[_selected].chart.screen_dim[0]; x+=scal_GRID_STEP.x)
+                    draw_list->AddLine(
+                        ImVec2(x+(projects[_selected].chart.screen_pos[0] % scal_GRID_STEP.x), canvas_p0.y),
+                        ImVec2(x+(projects[_selected].chart.screen_pos[0] % scal_GRID_STEP.x), canvas_p1.y),
+                        IM_COL32(200, 200, 200, 40)
+                    );
 
-                for(float y=0; y<projects[_selected].chart.screen_dim[1]; y+=GRID_STEP)
-                    draw_list->AddLine(ImVec2(canvas_p0.x, y+(projects[_selected].chart.screen_pos[1] % GRID_STEP)), ImVec2(canvas_p1.x, y+(projects[_selected].chart.screen_pos[1]%GRID_STEP)), IM_COL32(200, 200, 200, 40));
+                for(float y=0; y<projects[_selected].chart.screen_dim[1]; y+=scal_GRID_STEP.y)
+                    draw_list->AddLine(
+                        ImVec2(canvas_p0.x, y+(projects[_selected].chart.screen_pos[1] % scal_GRID_STEP.y)),
+                        ImVec2(canvas_p1.x, y+(projects[_selected].chart.screen_pos[1] % scal_GRID_STEP.y)),
+                        IM_COL32(200, 200, 200, 40)
+                    );
                 draw_list->PopClipRect();
             }
 
@@ -341,6 +350,14 @@ int main(int argc, char** argv) {
             }
             if(ImGui::BeginMenu("Program")) {
                 if(ImGui::MenuItem("Close")){ _SETTINGS.get("Program").get("Running Main") = false; }
+                // if(ImGui::MenuItem(""))
+                float _inputScalar = dim__main__drawScalar.x;
+                ImGui::SliderFloat("Scalar", &_inputScalar, 0.1f, 2);
+                dim__main__drawScalar.x = _inputScalar;
+                dim__main__drawScalar.y = _inputScalar;
+                gNC::_DRAW_SCALAR = dim__main__drawScalar;
+                
+                // std::cout << formatContainer1(gNC::_DRAW_SCALAR, 2, 5, 2) << std::endl;
                 ImGui::EndMenu();
             }
             if(ImGui::BeginMenu("View")) {
@@ -459,7 +476,6 @@ int main(int argc, char** argv) {
         //     std::cout << std::endl;
         // }
         // std::cout << std::endl;
-
 
         ImGui::End();
         //--------------------

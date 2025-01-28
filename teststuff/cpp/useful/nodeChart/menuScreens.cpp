@@ -135,7 +135,7 @@ void gNC::_menu__node_details(
                                 // lockMove_node = false;
                                 // lockMove_screen = false;
                                 // std::cout << "move pos to node:"<<formatContainer1(_printPtr->pos, 2, 0, 0)<<std::endl;
-                                chart->setScreen_pos(dim__main[0]*0.5-_printPtr->pos.x, dim__main[1]*0.5-_printPtr->pos.y);
+                                chart->setScreen_pos((dim__main[0]*0.5 - _printPtr->pos.x)*_DRAW_SCALAR.x, (dim__main[1]*0.5 - _printPtr->pos.y)*_DRAW_SCALAR.y);
 
                                 ImGui::SetWindowFocus(_printPtr->addr.c_str());
                             
@@ -289,7 +289,7 @@ void gNC::_menu__rightClick(
     static bool init = false;
 
     static ImGuiIO& io = ImGui::GetIO();
-    ImVec2 mousePos_temp = io.MousePos;
+    ImVec2 mousePos_temp = ImVec2_divide(io.MousePos, _DRAW_SCALAR);
 
     if(ImGui::BeginPopup("_menu__rightClick__default")) {
 

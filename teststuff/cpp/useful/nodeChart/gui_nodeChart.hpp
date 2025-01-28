@@ -14,11 +14,34 @@
 // extern template<typename addrType> std::string ptrToStr(addrType toConv);
 
 
+static auto to_ImVec2 = [](pos2d toConv) { return ImVec2(toConv.x, toConv.y); };
+static auto to_pos2d  = [](ImVec2 toConv){ return pos2d(toConv.x, toConv.y); };
+
+struct Vec2i {
+    int x;
+    int y;
+    Vec2i(int _x, int _y): x(_x), y(_y) {}
+    Vec2i(ImVec2 _vec2f): x(static_cast<int>(_vec2f.x)), y(static_cast<int>(_vec2f.y)) {}
+    int &operator=(size_t _i) {
+        switch (_i) {
+            case 0: return x;
+            case 1: return y;
+            default: break;
+        }
+        throw std::out_of_range("Vec2i operator=(size_t) argument out of range {0, 1}.");
+        return x;
+    }
+    
+};
+
 namespace gNC {
 
 
     static auto to_ImVec2 = [](pos2d toConv) { return ImVec2(toConv.x, toConv.y); };
     static auto to_pos2d  = [](ImVec2 toConv){ return pos2d(toConv.x, toConv.y); };
+
+
+    extern ImVec2 _DRAW_SCALAR;
 
     class guiNodeChart;
     struct gNODE;

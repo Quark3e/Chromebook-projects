@@ -1,8 +1,11 @@
 
 
 #include "globals_includes.hpp"
+#include "globals_variables.hpp"
 #include <chrono>
 
+
+ImVec2 gNC::_DRAW_SCALAR = ImVec2(1, 1);
 
 gNC::gNODE* gNC::nodePtr_focused = nullptr;
 gNC::gNODE* gNC::nodePtr_menu__node_details = nullptr;
@@ -146,9 +149,9 @@ void gNC::gNODE::draw_connection(
     static ImU32 colour_border = IM_COL32(200, 200, 200, 255);
 
     for (int i = 0; i < 6; i++) {
-        ImVec2 tempPos = getConnectionPos(i);
-        tempPos.x += nodePos.x;
-        tempPos.y += nodePos.y;
+        ImVec2 tempPos = ImVec2_multiply(getConnectionPos(i), _DRAW_SCALAR);
+        tempPos.x += nodePos.x * _DRAW_SCALAR.x;
+        tempPos.y += nodePos.y * _DRAW_SCALAR.y;
 
         // (
         // i==0?   ImVec2(pos_in[0]     + nodePos.x, pos_in[1]     + nodePos.y) :
@@ -160,12 +163,12 @@ void gNC::gNODE::draw_connection(
         // );
 
         for (ImDrawList* el : draw_win) {
-            el->AddCircleFilled(tempPos, ROI_attach[0] * 0.5, colour_bg, 50);
-            el->AddCircle(tempPos, ROI_attach[0] * 0.5, colour_border, 50, 3);
+            el->AddCircleFilled(tempPos, _DRAW_SCALAR.x*(ROI_attach[0] * 0.5), colour_bg, 50);
+            el->AddCircle(      tempPos, _DRAW_SCALAR.x*(ROI_attach[0] * 0.5), colour_border, 50, 3);
 
             switch (state_connections[i]) {
-            case 1: el->AddCircleFilled(tempPos, ROI_attach[0] * 0.5, colour_hover, 50); break;
-            case 2: el->AddCircleFilled(tempPos, ROI_attach[0] * 0.3, colour_press, 50); break;
+            case 1: el->AddCircleFilled(tempPos, _DRAW_SCALAR.x*(ROI_attach[0] * 0.5), colour_hover, 50); break;
+            case 2: el->AddCircleFilled(tempPos, _DRAW_SCALAR.x*(ROI_attach[0] * 0.3), colour_press, 50); break;
             default:
                 break;
             }
@@ -431,8 +434,8 @@ void gNC::gLINK::draw_link(
     ImU32 linkColour_border = (draw__state == 2 ? colour_borderCl : colour_border);
 
 
-    static bool draw__lines = false;
-    static bool draw__points = false;
+    // static bool draw__lines = false;
+    // static bool draw__points = false;
 
     /**
      * @brief add the relative drag screen offset
@@ -543,27 +546,43 @@ void gNC::gLINK::draw_link(
     // draw_win[0]->AddCircle(addOffs(link_points_raw[0]), 10, IM_COL32(255, 20, 20, 250), 10, 2);
     for (int i = 1; i < link_points_raw.size(); i++) {
 
-        draw_win[0]->AddLine(addOffs(link_points_raw[i - 1]), addOffs(link_points_raw[i]), linkColour_border, link_lineWidth);
-        draw_win[0]->AddLine(addOffs(link_points_raw[i - 1]), addOffs(link_points_raw[i]), linkColour, link_lineWidth * 0.7);
+        draw_win[0]->AddLine(
+            ImVec2_multiply(addOffs(link_points_raw[i - 1]), _DRAW_SCALAR),
+            ImVec2_multiply(addOffs(link_points_raw[i]),     _DRAW_SCALAR),
+            linkColour_border,
+            link_lineWidth * _DRAW_SCALAR.x
+        );
+        draw_win[0]->AddLine(
+            ImVec2_multiply(addOffs(link_points_raw[i - 1]), _DRAW_SCALAR),
+            ImVec2_multiply(addOffs(link_points_raw[i]),     _DRAW_SCALAR),
+            linkColour,
+            link_lineWidth * 0.7 * _DRAW_SCALAR.x
+        );
         // draw_win[0]->AddCircle(addOffs(link_points_raw[i]), 10, IM_COL32(255, 20, 20, 250), 10, 2);
         // draw_win[0]->AddLine(addOffs(link_points_raw[i-1]), addOffs(link_points_raw[i]), IM_COL32(255, 20, 20, 250), 2);
     }
 
 
-    if (draw__lines || draw__points) {
+    if (_SETTINGS.get("View").get("Link draw lines") || _SETTINGS.get("View").get("Link draw points")) {
         for (int i = 0; i < link_points.size() - 1; i++) {
             for (ImDrawList* el : draw_win) {
-                if (draw__points) {
-                    el->AddCircle(addOffs(link_points[i]), 10, IM_COL32(255, 10, 10, 255), 10, 2);
-                    el->AddCircle(addOffs(link_points[i]), 3, linkColour, 10, 3);
+                if (_SETTINGS.get("View").get("Link draw points")) {
+                    el->AddCircle(ImVec2_multiply(addOffs(link_points[i]), _DRAW_SCALAR), 10, IM_COL32(255, 10, 10, 255), 10, 2);
+                    el->AddCircle(ImVec2_multiply(addOffs(link_points[i]), _DRAW_SCALAR), 3, linkColour, 10, 3);
                 }
-                if (draw__lines) el->AddLine(addOffs(link_points[i]), addOffs(link_points[i + 1]), linkColour);
+                if (_SETTINGS.get("View").get("Link draw lines"))
+                    el->AddLine(
+                        ImVec2_multiply(addOffs(link_points[i]),     _DRAW_SCALAR),
+                        ImVec2_multiply(addOffs(link_points[i + 1]), _DRAW_SCALAR),
+                        linkColour,
+                        _DRAW_SCALAR.x
+                    );
             }
         }
         for (ImDrawList* el : draw_win) {
-            if (draw__points) {
-                el->AddCircle(addOffs(link_points[link_points.size() - 1]), 10, IM_COL32(255, 10, 10, 255), 10, 2);
-                el->AddCircle(addOffs(link_points[link_points.size() - 1]), 3, linkColour, 10, 3);
+            if (_SETTINGS.get("View").get("Link draw points")) {
+                el->AddCircle(ImVec2_multiply(addOffs(link_points[link_points.size() - 1]), _DRAW_SCALAR), 10*_DRAW_SCALAR.x, IM_COL32(255, 10, 10, 255), 10, 2);
+                el->AddCircle(ImVec2_multiply(addOffs(link_points[link_points.size() - 1]), _DRAW_SCALAR), 3*_DRAW_SCALAR.x, linkColour, 10, 3);
             }
         }
     }
@@ -1303,6 +1322,7 @@ bool _draw__node_cosmetics(
 
     ImDrawList* local_drawList = ImGui::GetWindowDrawList();
 
+    ImGui::SetWindowFontScale(gNC::_DRAW_SCALAR.x);
     // ImGui::SetWindowFontScale(1.2);
     ImGui::TextWrapped((*itr).label.c_str());
     // ImGui::SetWindowFontScale(1);
@@ -1348,7 +1368,7 @@ int _draw_NODEcheckConnects(
                             (*_node).pos_share_1))))
             );
         if (inRegion(
-            io.MousePos,
+            ImVec2_divide(io.MousePos, gNC::_DRAW_SCALAR),
             ImVec2(nodePos.x + tempPos.x - attachROI.x / 2, nodePos.y + tempPos.y - attachROI.y / 2),
             ImVec2(nodePos.x + tempPos.x + attachROI.x / 2, nodePos.y + tempPos.y + attachROI.y / 2)
         )) {
@@ -1384,11 +1404,12 @@ int gNC::guiNodeChart::draw() {
 
     static gLINK* focused_link{ nullptr };
 
+    ImVec2 sMousePos = ImVec2_divide(io.MousePos, _DRAW_SCALAR);
 
     for (auto itr = _links.begin(); itr != this->_links.end(); ++itr) {
         std::vector<ImVec2> linkPos{
-            ImVec2((*itr).Pos_src.x + screen_pos[0], (*itr).Pos_src.y + screen_pos[1]),
-            ImVec2((*itr).Pos_dest.x + screen_pos[0], (*itr).Pos_dest.y + screen_pos[1])
+            ImVec2_multiply(ImVec2((*itr).Pos_src.x + screen_pos[0], (*itr).Pos_src.y + screen_pos[1]),  _DRAW_SCALAR),
+            ImVec2_multiply(ImVec2((*itr).Pos_dest.x + screen_pos[0], (*itr).Pos_dest.y + screen_pos[1]),_DRAW_SCALAR)
         };
         if (
             (linkPos[0].x < 0 && linkPos[1].x < 0) || (linkPos[0].x > screen_dim[0] && linkPos[1].x > screen_dim[0]) ||
@@ -1396,7 +1417,7 @@ int gNC::guiNodeChart::draw() {
             ) continue;
 
         if ((*itr).region(
-            io.MousePos,
+            sMousePos,
             ImVec2(screen_pos[0], screen_pos[1])
         )) {
             if (
@@ -1438,7 +1459,10 @@ int gNC::guiNodeChart::draw() {
     for (auto itr = _nodes.begin(); itr != this->_nodes.end(); ++itr) {
         ImVec2 nodePos = ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]);
 
-        if ((nodePos.x + (*itr).width  < 0 || nodePos.x > screen_dim[0]) || (nodePos.y + (*itr).height < 0 || nodePos.y > screen_dim[1])) continue;
+        if (
+            ((nodePos.x + (*itr).width)*_DRAW_SCALAR.x  < 0 || (nodePos.x)*_DRAW_SCALAR.x > screen_dim[0]) ||
+            ((nodePos.y + (*itr).height)*_DRAW_SCALAR.y < 0 || (nodePos.y)*_DRAW_SCALAR.y > screen_dim[1])
+        ) continue;
 
         ImGuiWindowFlags win_flags = 0;
         win_flags |= ImGuiWindowFlags_NoResize;
@@ -1453,7 +1477,7 @@ int gNC::guiNodeChart::draw() {
 
         if (isKeyPressed(ImGuiKey_MouseLeft, &(*pressed_keys)[pressed_keys->size() - 1]) && !_mode__fileExplorer) {
             if (node_connect == -1) {
-                if (inRegion(io.MousePos, nodePos, ImVec2(nodePos.x + (*itr).width, nodePos.y + (*itr).height))) { //region: Node
+                if (inRegion(sMousePos, nodePos, ImVec2(nodePos.x + (*itr).width, nodePos.y + (*itr).height))) { //region: Node
                     if (mouseAction_left == 1 || mouseAction_left == -1) {
                         lockMove_node = false;
                         mouseAction_left = 1;
@@ -1462,10 +1486,10 @@ int gNC::guiNodeChart::draw() {
                 }
                 if (mouseAction_left == 2 && dragConnectCreate_tempLink._init) {
                     if (dragConnectCreate_startedEnd == 1) { // started at src
-                        dragConnectCreate_tempLink.move_link(ImVec2(-2, -2), ImVec2(io.MousePos.x - screen_pos[0], io.MousePos.y - screen_pos[1]));
+                        dragConnectCreate_tempLink.move_link(ImVec2(-2, -2), ImVec2(sMousePos.x - screen_pos[0], sMousePos.y - screen_pos[1]));
                     }
                     else { // started at dest
-                        dragConnectCreate_tempLink.move_link(ImVec2(io.MousePos.x - screen_pos[0], io.MousePos.y - screen_pos[1]), ImVec2(-2, -2));
+                        dragConnectCreate_tempLink.move_link(ImVec2(sMousePos.x - screen_pos[0], sMousePos.y - screen_pos[1]), ImVec2(-2, -2));
                     }
                     // dragConnectCreate_tempLink.move_link()
                     dragConnectCreate_tempLink.draw_link(std::vector<ImDrawList*>{draw_list}, ImVec2(screen_pos[0], screen_pos[1]));
@@ -1542,7 +1566,7 @@ int gNC::guiNodeChart::draw() {
 
         if (isKeyPressed(ImGuiKey_MouseRight, &(*pressed_keys)[pressed_keys->size() - 1]) && !_mode__fileExplorer) {
             if (node_connect == -1) {
-                if (inRegion(io.MousePos, nodePos, ImVec2(nodePos.x + (*itr).width, nodePos.y + (*itr).height))) {
+                if (inRegion(sMousePos, nodePos, ImVec2(nodePos.x + (*itr).width, nodePos.y + (*itr).height))) {
                     if (mouseAction_right == 1 || mouseAction_right == -1) {
                         mouseAction_right = 1;
                         nodePtr_menu__rightClick = &(*itr);
@@ -1570,25 +1594,25 @@ int gNC::guiNodeChart::draw() {
         ImGui::PushStyleColor(ImGuiCol_WindowBg,(*itr).winColour.get(ImGuiCol_WindowBg)[(*itr).draw__state]);
         ImGui::Begin((*itr).addr.c_str(), NULL, win_flags);
         ImGui::PopStyleColor(2);
-        ImGui::SetWindowSize(ImVec2(((*itr).width), (*itr).height));
+        ImGui::SetWindowSize(ImVec2_multiply(ImVec2(((*itr).width), (*itr).height), _DRAW_SCALAR));
 
 
         if (!(*itr).init) {
-            ImGui::SetWindowPos(ImVec2((*itr).pos[0], (*itr).pos[1]));
+            ImGui::SetWindowPos(ImVec2_multiply(ImVec2((*itr).pos[0], (*itr).pos[1]), _DRAW_SCALAR));
             (*itr).init = true;
         }
 
 
 
-        ImGui::SetWindowPos(nodePos);
+        ImGui::SetWindowPos(ImVec2_multiply(nodePos, _DRAW_SCALAR));
         if (ImGui::IsWindowFocused()) {
             // _menu__node_details(&(*itr));
             nodePtr_menu__node_details = &(*itr);
             if (guiKeys.isHolding(ImGuiKey_MouseLeft)) nodePtr_focused = &(*itr);
             node_focused = true;
             if (!lockMove_node && keyBinds.pressing("MouseLeft")) {
-                NODE_move(&(*itr), io.MouseDelta.x, io.MouseDelta.y, 1);
-                ImGui::SetWindowPos(ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]));
+                NODE_move(&(*itr), io.MouseDelta.x/_DRAW_SCALAR.x, io.MouseDelta.y/_DRAW_SCALAR.y, 1);
+                ImGui::SetWindowPos(ImVec2_multiply(ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]), _DRAW_SCALAR));
             }
 
         }
@@ -1604,7 +1628,6 @@ int gNC::guiNodeChart::draw() {
         }
         ImGui::End();
     }
-
 
     // std::cout <<"winFocus: ["<< (nodePtr_menu__node_details? ptrToStr<gNC::gNODE*>(nodePtr_menu__node_details) : "nullptr")<<", "<< (linkPtr_menu__link_details? ptrToStr<gNC::gLINK*>(linkPtr_menu__link_details) : "nullptr")<<"]";
     // std::cout <<std::boolalpha<<" "<<link_focused<<" ";

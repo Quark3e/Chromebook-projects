@@ -105,6 +105,8 @@ extern ImVec2 dim__menu__detail;
 /// @brief window topleft corner coordinate position
 extern ImVec2 pos__menu__detail__offset;
 
+/// @brief xy size/pos scalar value for changing size of the objects on screen
+extern ImVec2 dim__main__drawScalar;
 
 
 /**
