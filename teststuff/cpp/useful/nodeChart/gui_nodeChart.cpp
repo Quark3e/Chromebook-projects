@@ -1563,15 +1563,15 @@ int gNC::guiNodeChart::draw() {
             else if (mouseAction_right != 2) { for (int i = 0; i < 6; i++) { if ((*itr).state_connections[i] != 0) (*itr).state_connections[i] = 0; } }
         }
 
-        if(ImGui::IsWindowFocused()) {
-            (*itr).draw__state = 2;
-        }
+        if(&(*itr)==nodePtr_menu__node_details) (*itr).draw__state = 2;
+
         /// Start drawing the node
         ImGui::PushStyleColor(ImGuiCol_TitleBg, (*itr).winColour.get(ImGuiCol_TitleBg)[(*itr).draw__state]);
         ImGui::PushStyleColor(ImGuiCol_WindowBg,(*itr).winColour.get(ImGuiCol_WindowBg)[(*itr).draw__state]);
         ImGui::Begin((*itr).addr.c_str(), NULL, win_flags);
         ImGui::PopStyleColor(2);
         ImGui::SetWindowSize(ImVec2(((*itr).width), (*itr).height));
+
 
         if (!(*itr).init) {
             ImGui::SetWindowPos(ImVec2((*itr).pos[0], (*itr).pos[1]));

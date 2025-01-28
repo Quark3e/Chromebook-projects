@@ -225,8 +225,8 @@ namespace gNC {
                 {"Focused", IM_COL32(23, 23, 23, 255)}
             }}, {
             ImGuiCol_WindowBg, {
-                {"Default", IM_COL32(15, 15, 15, 100)},
-                {"Hovered", IM_COL32(41, 41, 41, 160)},
+                {"Default", IM_COL32(15, 15, 15, 150)},
+                {"Hovered", IM_COL32(41, 41, 41, 200)},
                 {"Focused", IM_COL32(25, 25, 25, 240)}
             }}
         });
