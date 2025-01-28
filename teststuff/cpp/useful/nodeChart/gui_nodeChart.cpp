@@ -1598,6 +1598,10 @@ int gNC::guiNodeChart::draw() {
         _draw__node_cosmetics(itr, nodePos, draw_list);
 
         (*itr).draw__state = 0;
+
+        if(ImGui::IsWindowHovered()) {
+            (*itr).draw__state = 1;
+        }
         ImGui::End();
     }
 

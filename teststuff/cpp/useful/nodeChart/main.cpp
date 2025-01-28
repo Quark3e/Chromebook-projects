@@ -171,7 +171,6 @@ int main(int argc, char** argv) {
 
         if(_selected!=-1) {
             project_draw_list = ImGui::GetWindowDrawList();
-            project_draw_list->AddCircle(ImVec2(projects[_selected].chart.screen_pos[0], projects[_selected].chart.screen_pos[1]), 10, IM_COL32(20, 40, 200, 200), 5, 1);
 
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
             ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(50, 50, 50, 0));
