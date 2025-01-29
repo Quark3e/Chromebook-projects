@@ -1414,7 +1414,10 @@ int gNC::guiNodeChart::draw() {
         if (
             (linkPos[0].x < 0 && linkPos[1].x < 0) || (linkPos[0].x > screen_dim[0] && linkPos[1].x > screen_dim[0]) ||
             (linkPos[0].y < 0 && linkPos[1].y < 0) || (linkPos[0].y > screen_dim[1] && linkPos[1].y > screen_dim[1])
-            ) continue;
+        ) {
+            (*itr).draw__state = 0;
+            continue;
+        }
 
         if ((*itr).region(
             sMousePos,
@@ -1462,7 +1465,10 @@ int gNC::guiNodeChart::draw() {
         if (
             ((nodePos.x + (*itr).width) *_DRAW_SCALAR.x  < 0 || (nodePos.x)*_DRAW_SCALAR.x > screen_dim[0]) ||
             ((nodePos.y + (*itr).height)*_DRAW_SCALAR.y  < 0 || (nodePos.y)*_DRAW_SCALAR.y > screen_dim[1])
-        ) continue;
+        ) {
+            (*itr).draw__state = 0;
+            continue;
+        }
 
         ImGuiWindowFlags win_flags = 0;
         win_flags |= ImGuiWindowFlags_NoResize;

@@ -115,11 +115,22 @@ void gNC::_menu__node_details(
                     // ImGui::TableSetColumnIndex(1);
                     ImGui::TableSetColumnIndex(1);
                     for(auto _link : vecRef) {
-                        // if(_link->draw__state==1) 
+                        if(_link->draw__state==1) {
+                            ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(66, 150, 250, 255));
+                        }
+                        else {
+                            ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(66, 150, 250, 102));
+                        }
                         if(ImGui::Button((_link? ptrToStr<gNC::gLINK*>(_link).c_str() : "nullptr"))) {
+
+
                             linkPtr_menu__link_details = _link;
                             
                         }
+                        // if(_link->draw__state==1) {
+                            ImGui::PopStyleColor();
+                        // }
+
                         if(ImGui::IsItemHovered(ImGuiHoveredFlags_None)) {
                             itemHovrd = true;
                             _link->draw__state = 1;
@@ -129,9 +140,13 @@ void gNC::_menu__node_details(
                     ImGui::TableSetColumnIndex(2);
                     for(auto _link : vecRef) {
                         gNC::gNODE* _printPtr = (v%2==0? _link->src : _link->dest);
-                        // if(_printPtr->draw__state==1)  
+                        if(_printPtr->draw__state==1) {
+                            ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(66, 150, 250, 255));
+                        }
+                        else {
+                            ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(66, 150, 250, 102));
+                        }
                         if(ImGui::Button((_printPtr? ptrToStr<gNC::gNODE*>(_printPtr).c_str() : "nullptr"))) {
-                            
                             nodePtr_menu__node_details = _printPtr;
                             if(_printPtr) {
                                 // lockMove_node = false;
@@ -143,6 +158,9 @@ void gNC::_menu__node_details(
                             
                             }
                         }
+                        // if(_printPtr->draw__state==1) {
+                            ImGui::PopStyleColor();
+                        // }
                         if(ImGui::IsItemHovered(ImGuiHoveredFlags_None)) {
                             itemHovrd = true;
                             _printPtr->draw__state = 1;
