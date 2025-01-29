@@ -1770,6 +1770,7 @@ int gNC::guiNodeChart::saveToFile(
     _file << std::string(ind * 4, ' ') << formatNumber<std::string>("\"name\"", 12, 0, "left") << ": " << "\"" + project_name + "\"" << ",\n";
     _file << std::string(ind * 4, ' ') << formatNumber<std::string>("\"screen_pos\"", 12, 0, "left") << ": " << formatContainer1(screen_pos, 2, 5, 0, "right", false, '[', ']') << ",\n";
     _file << std::string(ind * 4, ' ') << formatNumber<std::string>("\"screen_dim\"", 12, 0, "left") << ": " << formatContainer1(screen_dim, 2, 5, 0, "right", false, '[', ']') << ",\n";
+    _file << std::string(ind * 4, ' ') << formatNumber<std::string>("\"draw_scal\"",  12, 0, "left") << ": " << formatContainer1(_DRAW_SCALAR, 2, 5, 3, "right", false, '[', ']')<<",\n";
     _file << std::string(ind * 4, ' ') << "\"nodes\"" << "\t: [\n"; ind++;
 
     for (auto itr = _nodes.begin(); itr != _nodes.end(); ++itr) {
@@ -1878,6 +1879,10 @@ int gNC::guiNodeChart::loadFile(
         if (_pair.key == "screen_dim") {
             // this->screen_dim[0] = _pair[0].get10();
             // this->screen_dim[1] = _pair[1].get10();
+        }
+        if (_pair.key == "draw_scal") {
+            gNC::_DRAW_SCALAR.x = _pair[0].get11();
+            gNC::_DRAW_SCALAR.y = _pair[1].get11();
         }
         if (_pair.key == "nodes") {
             for (JSON_P::jsonPair _node : _pair.get3()) {
