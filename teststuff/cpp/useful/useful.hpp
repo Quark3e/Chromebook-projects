@@ -66,6 +66,13 @@ struct pos2d {
             round(y*pow(10, decimals)) / pow(10, decimals)
         );
     }
+    template<class _twoSizeContainerType>
+    operator _twoSizeContainerType() {
+        _twoSizeContainerType _var;
+        _var[0] = x;
+        _var[1] = y;
+        return _var;
+    }
 };
 
 

@@ -6,6 +6,7 @@
 
 
 ImVec2 gNC::_DRAW_SCALAR = ImVec2(1, 1);
+bool gNC::_DRAW_SCALAR_SCOLL_LOCK = false;
 
 gNC::gNODE* gNC::nodePtr_focused = nullptr;
 gNC::gNODE* gNC::nodePtr_menu__node_details = nullptr;
@@ -444,11 +445,11 @@ void gNC::gLINK::draw_link(
      */
     auto addOffs = [screen_offset](ImVec2 toAdd) {
         return ImVec2(toAdd.x + screen_offset.x, toAdd.y + screen_offset.y);
-        };
+    };
 
 
     /// number of segments to create for the quadratic bezier curve
-    int bezierSegs = 10;
+    int bezierSegs = 8 * _DRAW_SCALAR.x + 2;
 
     /// erase points with the same position
     for (int i = 0; i < link_points.size() - 1; i++) {
@@ -500,7 +501,7 @@ void gNC::gLINK::draw_link(
     // }
     // float _minDist = findVal(_distances, 1);
 
-    /// Draw the points onto the window(s)
+    /// Double check link_points
     for (int i = 0; i < link_points.size() - 2; i++) {
 
         prevAxis = _define_prevAxis(link_points[i], link_points[i + 1]);
@@ -529,6 +530,9 @@ void gNC::gLINK::draw_link(
             // link_points_coeffs.push_back(getCoef_linear(to_pos2d(link_points[i]), to_pos2d(link_points[i+1])));
         }
 
+        if(_SETTINGS.get("View").get("Link draw individual")) {
+            draw_win[0]->AddCircle(ImVec2_multiply(addOffs(link_points[i]), _DRAW_SCALAR), 15, IM_COL32(50, 200, 100, 250), 10, 2);
+        }
     }
     if (
         _define_prevAxis(link_points[link_points.size() - 3], link_points[link_points.size() - 2]) ==
@@ -540,10 +544,13 @@ void gNC::gLINK::draw_link(
 
         // draw_win[0]->AddLine(addOffs(link_points[lineIDX[0]]), addOffs(link_points[lineIDX[1]]), colour_border, link_lineWidth);
         // draw_win[0]->AddLine(addOffs(link_points[lineIDX[0]]), addOffs(link_points[lineIDX[1]]), linkColour, link_lineWidth*0.7);
+        
     }
     link_points_raw__updated = false;
 
     // draw_win[0]->AddCircle(addOffs(link_points_raw[0]), 10, IM_COL32(255, 20, 20, 250), 10, 2);
+
+    /// Draw the points onto the window(s)
     for (int i = 1; i < link_points_raw.size(); i++) {
 
         draw_win[0]->AddLine(
@@ -558,8 +565,14 @@ void gNC::gLINK::draw_link(
             linkColour,
             link_lineWidth * 0.7 * _DRAW_SCALAR.x
         );
-        // draw_win[0]->AddCircle(addOffs(link_points_raw[i]), 10, IM_COL32(255, 20, 20, 250), 10, 2);
-        // draw_win[0]->AddLine(addOffs(link_points_raw[i-1]), addOffs(link_points_raw[i]), IM_COL32(255, 20, 20, 250), 2);
+        if(_SETTINGS.get("View").get("Link draw individual")) {
+            draw_win[0]->AddCircle(ImVec2_multiply(addOffs(link_points_raw[i]), _DRAW_SCALAR), 10, IM_COL32(255, 20, 20, 250), 10, 2);
+            draw_win[0]->AddLine(
+                ImVec2_multiply(addOffs(link_points_raw[i-1]), _DRAW_SCALAR),
+                ImVec2_multiply(addOffs(link_points_raw[i]), _DRAW_SCALAR),
+                IM_COL32(255, 20, 20, 250), 2
+            );
+        }
     }
 
 

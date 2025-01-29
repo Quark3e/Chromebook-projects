@@ -176,7 +176,7 @@ int main(int argc, char** argv) {
 
             static ImVec2 relativePos(0, 0);
             relativePos = ImVec2(io.MousePos.x/dim__main[0], io.MousePos.y/dim__main[1]);
-            if(io.MouseWheel!=0) {
+            if(io.MouseWheel!=0 && !gNC::_DRAW_SCALAR_SCOLL_LOCK) {
                 ImVec2 _prevPos(
                     (1.0/gNC::_DRAW_SCALAR.x)*(io.MousePos.x) - projects[_selected].chart.screen_pos[0],
                     (1.0/gNC::_DRAW_SCALAR.y)*(io.MousePos.y) - projects[_selected].chart.screen_pos[1]
@@ -187,6 +187,9 @@ int main(int argc, char** argv) {
                     (dim__main[0]*relativePos.x*(1.0/gNC::_DRAW_SCALAR.x)) - _prevPos.x,
                     (dim__main[1]*relativePos.y*(1.0/gNC::_DRAW_SCALAR.y)) - _prevPos.y
                 );
+            }
+            else {
+                gNC::_DRAW_SCALAR_SCOLL_LOCK = false;
             }
 
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));

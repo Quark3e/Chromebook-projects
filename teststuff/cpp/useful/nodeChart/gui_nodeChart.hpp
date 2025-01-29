@@ -47,6 +47,8 @@ namespace gNC {
 
 
     extern ImVec2 _DRAW_SCALAR;
+    /// @brief Whether to lock mouse scroll based `gNC::_DRAW_SCALAR` change.
+    extern bool _DRAW_SCALAR_SCOLL_LOCK;
 
     inline ImVec2 DrawScal_ModifToReal(ImVec2 _modifiedPos) {
         

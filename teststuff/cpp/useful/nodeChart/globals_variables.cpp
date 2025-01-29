@@ -26,7 +26,8 @@ DIY::typed_dict<std::string, DIY::typed_dict<std::string, bool>> _SETTINGS({
             {"Draw Grid", true}, // [1][0]
             {"Draw timeObject sides", false}, // [1][1]
             {"Link draw lines", false},
-            {"Link draw points", false}
+            {"Link draw points", false},
+            {"Link draw individual", false}
         }
     }, {
         "Timeline", { // [2]

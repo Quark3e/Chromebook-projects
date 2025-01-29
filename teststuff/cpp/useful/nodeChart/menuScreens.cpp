@@ -215,6 +215,10 @@ void gNC::_menu__link_details(
     static int _win_widthOffset = 20;
 
     if(ImGui::Begin((" link: "+toDetail->addr).c_str(), NULL, win_flags)) {
+        if(ImGui::IsWindowHovered(ImGuiHoveredFlags_None)) {
+            gNC::_DRAW_SCALAR_SCOLL_LOCK = true;
+        }
+
         if(toDetail != init_link) {
             // ImGui::SetWindowFocus((" link: "+toDetail->addr).c_str());
         }
@@ -253,8 +257,8 @@ void gNC::_menu__link_details(
         }
 
 
-        ImGui::BeginGroup();
-        if(ImGui::BeginChild("##window_link_nodes", ImVec2(-FLT_MIN, 0))) {
+        // ImGui::BeginGroup();
+        // if(ImGui::BeginChild("##window_link_nodes", ImVec2(-FLT_MIN, 0))) {
             if(ImGui::BeginTable("link_nodes", 3, links_table_flags, ImVec2(dim__menu__detail.x-_win_widthOffset, 0))) {
                 ImGui::TableSetupColumn("##_LCorner");
                 ImGui::TableSetupColumn("Address");
@@ -291,9 +295,43 @@ void gNC::_menu__link_details(
 
                 ImGui::EndTable();
             }
-            ImGui::EndChild();
+            // ImGui::EndChild();
+        // }
+        // ImGui::EndGroup();
+        if(ImGui::TreeNode("Link points")) {
+            ImGui::SetCursorPosX(10);
+            if(ImGui::BeginTable("link_points_raw", 3, links_table_flags, ImVec2(dim__menu__detail.x-_win_widthOffset-20, 0))) {
+                ImGui::TableSetupColumn("Index");
+                ImGui::TableSetupColumn("X");
+                ImGui::TableSetupColumn("Y");
+                ImGui::TableHeadersRow();
+                
+                for(size_t i=0; i<toDetail->link_points_raw.size(); i++) {
+                    ImVec2 &currPoint = toDetail->link_points_raw[i];
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    ImGui::TextUnformatted(formatNumber(i, 3, 0).c_str());
+                    ImGui::TableSetColumnIndex(1);
+                    if(ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns)) {
+
+                    }
+                    if(ImGui::IsItemHovered(ImGuiHoveredFlags_None)) {
+                        if(project_draw_list) {
+                            project_draw_list->AddCircle(ImVec2_multiply(ImVec2_add(currPoint, chart->screen_pos), _DRAW_SCALAR), 12, IM_COL32(200, 200, 10, 200), 10, 1);
+                            std::cout << "drew circle: " << formatContainer1(ImVec2_multiply(ImVec2_add(currPoint, chart->screen_pos), _DRAW_SCALAR), 2, 0, 0) << std::endl;
+                        }
+                    }
+                    ImGui::SameLine();
+                    ImGui::TextUnformatted(formatNumber(currPoint.x, 5, 0).c_str());
+                    ImGui::TableSetColumnIndex(2);
+                    ImGui::TextUnformatted(formatNumber(currPoint.y, 5, 0).c_str());
+                    ImGui::PushID(i);
+                    ImGui::PopID();
+                }
+                ImGui::EndTable();
+            }
+            ImGui::TreePop();
         }
-        ImGui::EndGroup();
 
     }
     ImGui::End();
@@ -458,6 +496,9 @@ void gNC::_menu__timeline(
     ImVec2 timeline_dim = ImVec2(dim__win_timeline().x, TL_ref.get_numChannels_used()*gui_objDim__height*gui_objDim__scal.y);
     
     if(!_collapse) {
+        if(ImGui::IsWindowHovered()) {
+            gNC::_DRAW_SCALAR_SCOLL_LOCK = true;
+        }
         // if(_init) {
         TL_ref.update_forVisuals();
         // }
