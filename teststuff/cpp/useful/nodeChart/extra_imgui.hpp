@@ -336,17 +336,40 @@ inline std::string ptrToStr(addrType toConv) {
  * @param cursor position to check relative to the bounding box
  * @param pos_topLeft 2d coordinates of the top-left corner of the region bounding box
  * @param pos_botRight 2d coordinates of the bottom-right corner of the region bounding box
+ * @param padding extra padding on the roi boundary.
+ * @param corner_ambiguous whether the corner values aren't specifically mentioned corners.
  * @return true if `cursor` coordinate is within the regions bounding box.
  * @return false if `cursor` coordinate is outside the regions bounding box.
  */
 inline bool inRegion(
     ImVec2 cursor,
     ImVec2 pos_topLeft,
-    ImVec2 pos_botRight
+    ImVec2 pos_botRight,
+    ImVec2 padding = ImVec2(0, 0),
+    bool   corner_ambiguous = false
 ) {
+    if(corner_ambiguous) {
+        ImVec2 tl_corner{
+            (pos_topLeft.x<pos_botRight.x? pos_topLeft.x : pos_botRight.x),
+            (pos_topLeft.y<pos_botRight.y? pos_topLeft.y : pos_botRight.y)
+        };
+        ImVec2 br_corner{
+            (pos_topLeft.x>pos_botRight.x? pos_topLeft.x : pos_botRight.x),
+            (pos_topLeft.y>pos_botRight.y? pos_topLeft.y : pos_botRight.y)
+        };
+
+        if(
+            (cursor.x > tl_corner.x-padding.x && cursor.x < br_corner.x+padding.x) &&
+            (cursor.y > tl_corner.y-padding.y && cursor.y < br_corner.y+padding.y)
+        ) {
+            return true;
+        }
+        return false;
+
+    }
     if(
-        (cursor.x > pos_topLeft.x && cursor.x < pos_botRight.x) &&
-        (cursor.y > pos_topLeft.y && cursor.y < pos_botRight.y)
+        (cursor.x > pos_topLeft.x-padding.x && cursor.x < pos_botRight.x+padding.x) &&
+        (cursor.y > pos_topLeft.y-padding.y && cursor.y < pos_botRight.y+padding.y)
     ) return true;
     return false;
 }

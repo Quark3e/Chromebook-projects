@@ -57,6 +57,21 @@ struct pos2d {
         if(i==0) return x;
         return y;
     }
+    bool operator<(pos2d const& m) {
+        float avgDiff = (x-m.y)+(y-m.y);
+        return avgDiff<0;
+    }
+    bool operator>(pos2d const& m) {
+        float avgDiff = (x-m.y)+(y-m.y);
+        return avgDiff>0;
+    }
+    bool operator==(pos2d const& m) {
+        return (
+            (roundf(m.x*pow(10, round_prec))/pow(10, round_prec)==roundf(this->x*pow(10, round_prec))/pow(10, round_prec)) &&
+            (roundf(m.y*pow(10, round_prec))/pow(10, round_prec)==roundf(this->y*pow(10, round_prec))/pow(10, round_prec))
+        );
+    }
+    int round_prec = 2;
     pos2d(float X, float Y): x{X}, y{Y} { }
     pos2d() {}
     std::string getStr() { return std::string(std::to_string(x)+", "+std::to_string(y)); }
@@ -72,6 +87,11 @@ struct pos2d {
         _var[0] = x;
         _var[1] = y;
         return _var;
+    }
+
+    friend auto operator<<(std::ostream &os, pos2d const& m) -> std::ostream& {
+        os << "("<<m.x<<","<<m.y<<")";
+        return os;
     }
 };
 

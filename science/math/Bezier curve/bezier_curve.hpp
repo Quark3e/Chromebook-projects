@@ -63,7 +63,10 @@ inline pos2d getIntersect(
     if(_coefs_B) (*_coefs_B) = coefs_B;
 
 
-    if(coefs_A[1] == coefs_B[1]) return pos2d(-1, -1);
+    if(coefs_A[1] == coefs_B[1]) {
+        /// Both lines have the same tilt meaning they'll never cross
+        return pos2d(-1, -1);
+    }
 
     intersect_pos.x = ((coefs_B[0]-coefs_A[0])) / (coefs_A[1]-coefs_B[1]);
     intersect_pos.y = coefs_A[1]*intersect_pos.x + coefs_A[0];
@@ -93,16 +96,19 @@ inline std::vector<pos2d> quadratic_bezier(
     pos2d point_C,
     int segNum,
     std::vector<std::vector<float>>* _coeffs = nullptr,
-    std::string _coeffs_option = "0"
+    std::string _coeffs_option = "0",
+    std::string *_outStr = nullptr
 ) {
+    if(_outStr) (*_outStr) = "";
     //numLines = segNum-1
     std::vector<pos2d> curvePoints = std::vector<pos2d>(segNum+2, pos2d());
 
     if(
-        (point_A.x==point_C.x && point_A.y==point_C.y) ||
-        (point_B.x==point_C.x && point_B.y==point_C.y) ||
+        (point_A == point_C) ||
+        (point_B == point_C) ||
         ((point_A.x == point_C.x && point_B.x == point_C.x) || (point_A.y == point_C.y && point_B.y == point_C.y))
     ) {
+        if(_outStr) (*_outStr) += "special case / sameline";
         curvePoints[0] = point_A;
         for(int i=1; i<=segNum; i++) {
             curvePoints[i] = pos2d(
@@ -149,7 +155,7 @@ inline std::vector<pos2d> quadratic_bezier(
             _temp = getIntersect(AC[i], CB[i], AC[i-1], CB[i-1], (_coeffs? &(temp_coeffs[i]) : nullptr), ((_coeffs && i==1? &(temp_coeffs[i-1]) : nullptr)));
         }
         catch(const std::exception& e) {
-            // std::cerr << e.what() << '\n';
+            std::cout << e.what() << " || ";
             _temp = curvePoints[i-1];
         }
         if(isnan(_temp.x) || isnan(_temp.y)) _temp = curvePoints[i-1];

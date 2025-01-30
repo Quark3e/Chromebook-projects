@@ -452,12 +452,23 @@ void gNC::gLINK::draw_link(
     int bezierSegs = 8 * _DRAW_SCALAR.x + 2;
 
     /// erase points with the same position
-    for (int i = 0; i < link_points.size() - 1; i++) {
-        if (link_points[i].x == link_points[i + 1].x && link_points[i].y == link_points[i + 1].y) {
-            auto itr = link_points.begin();
-            advance(itr, i);
-            link_points.erase(itr);
-            i--;
+    // for (int i = 0; i < link_points.size() - 1; i++) {
+    //     if (to_pos2d(link_points[i]) == to_pos2d(link_points[i + 1])) {
+    //         auto itr = link_points.begin();
+    //         advance(itr, i);
+    //         link_points.erase(itr);
+    //         i--;
+    //     }
+    // }
+    for(size_t i=0; i<link_points.size(); i++) {
+        ImVec2 checkP = link_points.at(i);
+        for(size_t ii=i+1; ii<link_points.size(); ii++) {
+            if(to_pos2d(checkP)==to_pos2d(link_points.at(ii))) {
+                auto itr = link_points.begin();
+                std::advance(itr, ii);
+                link_points.erase(itr);
+                ii--;
+            }
         }
     }
 
@@ -507,7 +518,28 @@ void gNC::gLINK::draw_link(
         prevAxis = _define_prevAxis(link_points[i], link_points[i + 1]);
         if (_define_prevAxis(link_points[i + 1], link_points[i + 2]) != prevAxis /*&& _minDist > _gui__bezier_min*/) {
             // std::vector<pos2d> curve = quadratic_bezier(to_pos2d(link_points[i]), to_pos2d(link_points[i+2]), to_pos2d(link_points[i+1]), bezierSegs, &link_points_coeffs, "1");
-            std::vector<pos2d> curve = quadratic_bezier(to_pos2d(link_points[i]), to_pos2d(link_points[i + 2]), to_pos2d(link_points[i + 1]), bezierSegs);
+            std::string _tempMsgStr="";
+            std::vector<std::vector<float>> _coefs;
+            std::vector<pos2d> curve = quadratic_bezier(to_pos2d(link_points[i]), to_pos2d(link_points[i + 2]), to_pos2d(link_points[i + 1]), bezierSegs, &_coefs, "0", &_tempMsgStr);
+            // std::cout << formatVector(curve) << std::endl;
+            for(size_t ii=0; ii<curve.size(); ii++) {
+                if(!inRegion(curve[ii], link_points[i], link_points[i+2], ImVec2(2, 2), true)) {
+                    std::cout << formatNumber(ii, 2, 0)<<": NOT IN REGION{ "<<to_pos2d(link_points[i])<<", "<<to_pos2d(link_points[i+2])<<" : "<<to_pos2d(link_points[i+1])<< " } -> " << formatContainer1(curve[ii], 2, 8, 2);
+                    // std::cout << formatVector(curve, 0, 1) << " | \"" /*<< formatNumber<std::string>(_tempMsgStr, 10, 0, "left")*/ << "\"" << std::endl;
+                    if(_coefs.size()>0) {
+
+                    }
+                    std::cout << std::endl;
+                }
+            }
+            // project_draw_list->AddBezierQuadratic(
+            //     ImVec2_multiply(addOffs(link_points[i]), _DRAW_SCALAR),
+            //     ImVec2_multiply(addOffs(link_points[i+1]), _DRAW_SCALAR),
+            //     ImVec2_multiply(addOffs(link_points[i+2]), _DRAW_SCALAR),
+            //     linkColour,
+            //     link_lineWidth * 0.7 * _DRAW_SCALAR.x,
+            //     bezierSegs
+            // );
             // std::cout << "----------"<<std::endl;
             // std::cout << curve[0].getStr() << std::endl;
             link_points_raw.push_back(to_ImVec2(curve[0]));
@@ -545,6 +577,17 @@ void gNC::gLINK::draw_link(
         // draw_win[0]->AddLine(addOffs(link_points[lineIDX[0]]), addOffs(link_points[lineIDX[1]]), colour_border, link_lineWidth);
         // draw_win[0]->AddLine(addOffs(link_points[lineIDX[0]]), addOffs(link_points[lineIDX[1]]), linkColour, link_lineWidth*0.7);
         
+    }
+    for(size_t i=0; i<link_points_raw.size(); i++) {
+        ImVec2 checkP = link_points_raw.at(i);
+        for(size_t ii=i+1; ii<link_points_raw.size(); ii++) {
+            if(to_pos2d(checkP)==to_pos2d(link_points_raw.at(ii))) {
+                auto itr = link_points_raw.begin();
+                std::advance(itr, ii);
+                link_points_raw.erase(itr);
+                ii--;
+            }
+        }
     }
     link_points_raw__updated = false;
 

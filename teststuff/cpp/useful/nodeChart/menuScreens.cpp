@@ -312,9 +312,11 @@ void gNC::_menu__link_details(
                     ImGui::TableSetColumnIndex(0);
                     ImGui::TextUnformatted(formatNumber(i, 3, 0).c_str());
                     ImGui::TableSetColumnIndex(1);
+                    ImGui::PushID(i);
                     if(ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns)) {
 
                     }
+                    ImGui::PopID();
                     if(ImGui::IsItemHovered(ImGuiHoveredFlags_None)) {
                         if(project_draw_list) {
                             project_draw_list->AddCircle(ImVec2_multiply(ImVec2_add(currPoint, chart->screen_pos), _DRAW_SCALAR), 12, IM_COL32(200, 200, 10, 200), 10, 1);
@@ -325,8 +327,7 @@ void gNC::_menu__link_details(
                     ImGui::TextUnformatted(formatNumber(currPoint.x, 5, 0).c_str());
                     ImGui::TableSetColumnIndex(2);
                     ImGui::TextUnformatted(formatNumber(currPoint.y, 5, 0).c_str());
-                    ImGui::PushID(i);
-                    ImGui::PopID();
+
                 }
                 ImGui::EndTable();
             }
