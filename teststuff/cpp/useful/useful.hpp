@@ -49,6 +49,18 @@
 #endif
 
 
+template<class _contType>
+inline bool decimalSame(_contType _var0, _contType _var1, size_t _contSize, size_t _precision=6) {
+    bool matched = true;
+    for(size_t i=0; i<_contSize; i++) {
+        if(roundf(_var0[i]*pow(10, _precision))/pow(10, _precision) != roundf(_var1[i]*pow(10, _precision))/pow(10, _precision)) {
+            matched = false;
+            break;
+        }
+    }
+    return matched;
+}
+
 struct pos2d {
     float x;
     float y;
@@ -71,7 +83,7 @@ struct pos2d {
             (roundf(m.y*pow(10, round_prec))/pow(10, round_prec)==roundf(this->y*pow(10, round_prec))/pow(10, round_prec))
         );
     }
-    int round_prec = 2;
+    int round_prec = 6;
     pos2d(float X, float Y): x{X}, y{Y} { }
     pos2d() {}
     std::string getStr() { return std::string(std::to_string(x)+", "+std::to_string(y)); }

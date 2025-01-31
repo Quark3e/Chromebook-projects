@@ -97,9 +97,9 @@ inline std::vector<pos2d> quadratic_bezier(
     int segNum,
     std::vector<std::vector<float>>* _coeffs = nullptr,
     std::string _coeffs_option = "0",
-    std::string *_outStr = nullptr
+    std::vector<pos2d> *_AC = nullptr,
+    std::vector<pos2d> *_CB = nullptr
 ) {
-    if(_outStr) (*_outStr) = "";
     //numLines = segNum-1
     std::vector<pos2d> curvePoints = std::vector<pos2d>(segNum+2, pos2d());
 
@@ -108,7 +108,6 @@ inline std::vector<pos2d> quadratic_bezier(
         (point_B == point_C) ||
         ((point_A.x == point_C.x && point_B.x == point_C.x) || (point_A.y == point_C.y && point_B.y == point_C.y))
     ) {
-        if(_outStr) (*_outStr) += "special case / sameline";
         curvePoints[0] = point_A;
         for(int i=1; i<=segNum; i++) {
             curvePoints[i] = pos2d(
@@ -134,7 +133,8 @@ inline std::vector<pos2d> quadratic_bezier(
     AC.push_back(point_C);
     CB.push_back(point_B);
 
-
+    if(_AC) *_AC = AC;
+    if(_CB) *_CB = CB;
 
     static std::vector<std::vector<float>> temp_coeffs;
     if(_coeffs) {

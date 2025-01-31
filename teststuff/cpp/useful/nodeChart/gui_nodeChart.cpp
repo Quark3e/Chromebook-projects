@@ -463,7 +463,7 @@ void gNC::gLINK::draw_link(
     for(size_t i=0; i<link_points.size(); i++) {
         ImVec2 checkP = link_points.at(i);
         for(size_t ii=i+1; ii<link_points.size(); ii++) {
-            if(to_pos2d(checkP)==to_pos2d(link_points.at(ii))) {
+            if(decimalSame(checkP, link_points.at(ii), 2, 1)) {
                 auto itr = link_points.begin();
                 std::advance(itr, ii);
                 link_points.erase(itr);
@@ -518,41 +518,24 @@ void gNC::gLINK::draw_link(
         prevAxis = _define_prevAxis(link_points[i], link_points[i + 1]);
         if (_define_prevAxis(link_points[i + 1], link_points[i + 2]) != prevAxis /*&& _minDist > _gui__bezier_min*/) {
             // std::vector<pos2d> curve = quadratic_bezier(to_pos2d(link_points[i]), to_pos2d(link_points[i+2]), to_pos2d(link_points[i+1]), bezierSegs, &link_points_coeffs, "1");
-            std::string _tempMsgStr="";
             std::vector<std::vector<float>> _coefs;
-            std::vector<pos2d> curve = quadratic_bezier(to_pos2d(link_points[i]), to_pos2d(link_points[i + 2]), to_pos2d(link_points[i + 1]), bezierSegs, &_coefs, "0", &_tempMsgStr);
+            std::vector<pos2d> curve = quadratic_bezier(to_pos2d(link_points[i]), to_pos2d(link_points[i + 2]), to_pos2d(link_points[i + 1]), bezierSegs, &_coefs, "0");
             // std::cout << formatVector(curve) << std::endl;
             for(size_t ii=0; ii<curve.size(); ii++) {
                 if(!inRegion(curve[ii], link_points[i], link_points[i+2], ImVec2(2, 2), true)) {
-                    std::cout << formatNumber(ii, 2, 0)<<": NOT IN REGION{ "<<to_pos2d(link_points[i])<<", "<<to_pos2d(link_points[i+2])<<" : "<<to_pos2d(link_points[i+1])<< " } -> " << formatContainer1(curve[ii], 2, 8, 2);
-                    // std::cout << formatVector(curve, 0, 1) << " | \"" /*<< formatNumber<std::string>(_tempMsgStr, 10, 0, "left")*/ << "\"" << std::endl;
-                    if(_coefs.size()>0) {
+                    // std::cout << formatNumber(ii, 2, 0)<<": NOT IN REGION{ "<<to_pos2d(link_points[i])<<", "<<to_pos2d(link_points[i+2])<<" : "<<to_pos2d(link_points[i+1])<< " } -> " << formatContainer1(curve[ii], 2, 8, 2);
+                    // if(_coefs.size()>0) {
 
-                    }
-                    std::cout << std::endl;
+                    // }
+                    // std::cout << std::endl;
                 }
             }
-            // project_draw_list->AddBezierQuadratic(
-            //     ImVec2_multiply(addOffs(link_points[i]), _DRAW_SCALAR),
-            //     ImVec2_multiply(addOffs(link_points[i+1]), _DRAW_SCALAR),
-            //     ImVec2_multiply(addOffs(link_points[i+2]), _DRAW_SCALAR),
-            //     linkColour,
-            //     link_lineWidth * 0.7 * _DRAW_SCALAR.x,
-            //     bezierSegs
-            // );
-            // std::cout << "----------"<<std::endl;
-            // std::cout << curve[0].getStr() << std::endl;
             link_points_raw.push_back(to_ImVec2(curve[0]));
             for (int ii = 0; ii < curve.size(); ii++) {
                 // draw_win[0]->AddLine(addOffs(to_ImVec2(curve[ii-1])), addOffs(to_ImVec2(curve[ii])), IM_COL32(255, 10, 10, 200), link_lineWidth);
                 link_points_raw.push_back(to_ImVec2(curve[ii]));
                 // std::cout << curve[ii].getStr() << std::endl;
             }
-            // std::cout << "----------   ----------"<<std::endl;
-
-            // draw_win[0]->AddBezierQuadratic(addOffs(link_points[i]), addOffs(link_points[i+1]), addOffs(link_points[i+2]), colour_border, link_lineWidth, bezierSegs);
-            // draw_win[0]->AddBezierQuadratic(addOffs(link_points[i]), addOffs(link_points[i+1]), addOffs(link_points[i+2]), colour_bg, link_lineWidth*0.7, bezierSegs);
-
             i += 1;
         }
         else {
