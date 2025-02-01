@@ -98,10 +98,43 @@ extern DIY::typed_dict<std::string, nc_proj> projects;
  */
 extern ImDrawList* project_draw_list;
 
+struct dim_lim {
+    ImVec2 min;
+    ImVec2 max;
+    dim_lim(ImVec2 _min, ImVec2 _max) {
+        min = _min;
+        max = _max;
+    }
+    ImVec2 &operator[](size_t _i) {
+        switch (_i) {
+            case 0: return min;
+            case 1: return max;
+        }
+        throw std::invalid_argument("size_t arg for index is invalid.");
+        return ImVec2(0, 0);
+    }
+    ImVec2 operator[](size_t _i) const {
+        switch (_i) {
+            case 0: return min;
+            case 1: return max;
+        }
+        throw std::invalid_argument("size_t arg for index is invalid.");
+        return ImVec2(0, 0);
+    }
+    dim_lim operator+(dim_lim const& m) {
+        dim_lim(ImVec2_add(this->min, m.min), ImVec2_add(this->max, m.max));
+    }
+    dim_lim operator-(dim_lim const& m) {
+        dim_lim(ImVec2_subtract(this->min, m.min), ImVec2_subtract(this->max, m.max));
+    }
+
+};
+
 /// @brief Main window dimensions
 extern ImVec2 dim__main;
-/// @brief details menu(link, node e.t.c) window dimensions
-extern ImVec2 dim__menu__detail;
+/// @brief details menu(link, node e.t.c) window dimensions. Max size is: x: ; y: `dim__main.y-100`
+dim_lim dim__menu__detail();
+// extern ImVec2 dim__menu__detail;
 /// @brief window topleft corner coordinate position
 extern ImVec2 pos__menu__detail__offset;
 

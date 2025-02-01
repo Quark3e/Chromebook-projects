@@ -22,7 +22,6 @@ void gNC::_menu__node_details(
     win_flags |= ImGuiWindowFlags_NoMove;
     win_flags |= ImGuiWindowFlags_NoCollapse;
     win_flags |= ImGuiWindowFlags_HorizontalScrollbar;
-    // win_flags |= ImGuiWindowFlags_Verti
 
     static ImGuiInputTextFlags inpText_flags_label  = 0;
     static ImGuiInputTextFlags inpText_flags_desc   = 0;
@@ -39,14 +38,14 @@ void gNC::_menu__node_details(
 
     if(linkPtr_menu__link_details) {
         ImGui::SetNextWindowSizeConstraints(
-            ImVec2(dim__menu__detail[0], dim__menu__detail[1]*0.5),
-            ImVec2(dim__menu__detail[0]*3, dim__menu__detail[1]*0.5)
+            dim__menu__detail().min,
+            ImVec2(dim__menu__detail().max.x, dim__menu__detail().min.y)
         );
     }
     else {
         ImGui::SetNextWindowSizeConstraints(
-            ImVec2(dim__menu__detail[0], dim__menu__detail[1]),
-            ImVec2(dim__menu__detail[0]*3, dim__menu__detail[1])
+            dim__menu__detail().min,
+            dim__menu__detail().max
         );
     }
     ImGui::SetNextWindowPos(pos__menu__detail__offset, 0, ImVec2(0, 0));
@@ -60,10 +59,10 @@ void gNC::_menu__node_details(
             // init_prev = false;
             // chart->setScreen_pos(toDetail->pos.x, toDetail->pos.y);
             if(linkPtr_menu__link_details) {
-                ImGui::SetWindowSize(ImVec2(dim__menu__detail[0], dim__menu__detail[1]*0.5));
+                ImGui::SetWindowSize(dim__menu__detail().min);
             }
             else {
-                ImGui::SetWindowSize(dim__menu__detail);
+                ImGui::SetWindowSize(ImVec2(dim__menu__detail().min.x, dim__menu__detail().min.y));
             }
 
 
@@ -78,7 +77,7 @@ void gNC::_menu__node_details(
         // }
 
         ImVec2 menuWin_dim = ImGui::GetWindowSize();
-        // ImGui::PushItemWidth(dim__menu__detail.x - _win_widthOffset - 110);
+        // ImGui::PushItemWidth(ImGui::GetWindowSize().x - _win_widthOffset - 110);
         ImGui::PushItemWidth(menuWin_dim.x - _win_widthOffset - 110);
         if(ImGui::InputText("##_title", &(toDetail->label), inpText_flags_label | ImGuiInputTextFlags_EnterReturnsTrue)) {
             toDetail->inChart->modified = true;
@@ -103,7 +102,7 @@ void gNC::_menu__node_details(
 
         ImGui::BeginGroup();
         if(ImGui::BeginChild("##window_node_links", ImVec2(-FLT_MIN, 0))) {
-            if(ImGui::BeginTable("node_links", 3, node_links_table_flags, ImVec2(dim__menu__detail.x-_win_widthOffset, 0))) {
+            if(ImGui::BeginTable("node_links", 3, node_links_table_flags, ImVec2(ImGui::GetWindowSize().x, 0))) {
                 ImGui::TableSetupColumn("Type");
                 ImGui::TableSetupColumn("Link");
                 ImGui::TableSetupColumn("Node");
@@ -120,6 +119,7 @@ void gNC::_menu__node_details(
                     ImGui::TableSetColumnIndex(1);
                     for(auto _link : vecRef) {
                         if(_link->draw__state==1) {
+                            std::cout << "link state hovered" << std::endl;
                             ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(66, 150, 250, 255));
                         }
                         else {
@@ -153,9 +153,6 @@ void gNC::_menu__node_details(
                         if(ImGui::Button((_printPtr? ptrToStr<gNC::gNODE*>(_printPtr).c_str() : "nullptr"))) {
                             nodePtr_menu__node_details = _printPtr;
                             if(_printPtr) {
-                                // lockMove_node = false;
-                                // lockMove_screen = false;
-                                // std::cout << "move pos to node:"<<formatContainer1(_printPtr->pos, 2, 0, 0)<<std::endl;
                                 chart->setScreen_pos((dim__main[0]*0.5*(1.0/_DRAW_SCALAR.x)) - _printPtr->pos.x, (dim__main[1]*0.5*(1.0/_DRAW_SCALAR.y)) - _printPtr->pos.y);
 
                                 ImGui::SetWindowFocus(_printPtr->addr.c_str());
@@ -196,7 +193,7 @@ void gNC::_menu__link_details(
 
 
     static ImGuiWindowFlags win_flags = 0;
-    win_flags |= ImGuiWindowFlags_NoResize;
+    // win_flags |= ImGuiWindowFlags_NoResize;
     win_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
     win_flags |= ImGuiWindowFlags_NoMove;
     win_flags |= ImGuiWindowFlags_NoCollapse;
@@ -216,26 +213,56 @@ void gNC::_menu__link_details(
 
     static int _win_widthOffset = 20;
 
+
+    if(nodePtr_menu__node_details) {
+        ImGui::SetNextWindowSizeConstraints(
+            dim__menu__detail().min,
+            ImVec2(dim__menu__detail().max.x, dim__menu__detail().min.y)
+        );
+        ImGui::SetNextWindowPos(
+            ImVec2_add(pos__menu__detail__offset, ImVec2(0, dim__menu__detail().min.y)),
+            0,
+            ImVec2(0, 0)
+        );
+    }
+    else {
+        ImGui::SetNextWindowSizeConstraints(
+            dim__menu__detail().min,
+            dim__menu__detail().max
+        );
+        ImGui::SetNextWindowPos(
+            pos__menu__detail__offset,
+            0,
+            ImVec2(0, 0)
+        );
+    }
     if(ImGui::Begin((" link: "+toDetail->addr).c_str(), NULL, win_flags)) {
         if(ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows)) {
             gNC::_DRAW_SCALAR_SCOLL_LOCK = true;
         }
 
-        if(toDetail != init_link) {
-            // ImGui::SetWindowFocus((" link: "+toDetail->addr).c_str());
+        if(toDetail!=init_link) {
+            /// Init called for a new link
+            if(nodePtr_menu__node_details) {
+                ImGui::SetWindowSize(dim__menu__detail().min);
+            }
+            else {
+                ImGui::SetWindowSize(ImVec2(dim__menu__detail().min.x, dim__menu__detail().min.y));
+            }
         }
         _winFocused__link_details = ImGui::IsWindowFocused();
         // ImGui::SetWindowPos(ImGui::GetWindowPos());
-        if(nodePtr_menu__node_details) {
-            ImGui::SetWindowPos(ImVec2(pos__menu__detail__offset.x, pos__menu__detail__offset.y+dim__menu__detail[1]*0.5));
-            ImGui::SetWindowSize(ImVec2(dim__menu__detail[0], dim__menu__detail[1]*0.5));
-        }
-        else {
-            ImGui::SetWindowPos(pos__menu__detail__offset);
-            ImGui::SetWindowSize(dim__menu__detail);
-        }
+        // ImVec2 _winSize(0, 0);
+        // if(nodePtr_menu__node_details) {
+        //     ImGui::SetWindowPos(ImVec2(pos__menu__detail__offset.x, pos__menu__detail__offset.y+dim__menu__detail[1]*0.5));
+        //     ImGui::SetWindowSize(ImVec2(dim__menu__detail[0], dim__menu__detail[1]*0.5));
+        // }
+        // else {
+        //     ImGui::SetWindowPos(pos__menu__detail__offset);
+        //     ImGui::SetWindowSize(dim__menu__detail);
+        // }
 
-        ImGui::PushItemWidth(dim__menu__detail.x - _win_widthOffset - 110);
+        ImGui::PushItemWidth(ImGui::GetWindowSize().x - _win_widthOffset - 110);
         if(ImGui::InputText("##_title", &(toDetail->label), inpText_flags_label | ImGuiInputTextFlags_EnterReturnsTrue)) {
             toDetail->inChart->modified = true;
         }
@@ -248,61 +275,92 @@ void gNC::_menu__link_details(
 
 
         ImGui::Separator();
-        ImGui::PushItemWidth(dim__menu__detail.x-_win_widthOffset);
+        ImGui::PushItemWidth(ImGui::GetWindowSize().x-_win_widthOffset);
         if(ImGui::InputText("##_desc", &(toDetail->desc), inpText_flags_desc | ImGuiInputTextFlags_EnterReturnsTrue)) {
             toDetail->inChart->modified = true;
         }
 
         ImGui::Separator();
-        if(ImGui::InputTextMultiline("##_bodyText", &(toDetail->bodyText), ImVec2(dim__menu__detail.x-_win_widthOffset, ImGui::GetTextLineHeight()*5), inpText_flags_bodyT | ImGuiInputTextFlags_EnterReturnsTrue)) {
+        if(ImGui::InputTextMultiline("##_bodyText", &(toDetail->bodyText), ImVec2(ImGui::GetWindowSize().x-_win_widthOffset, ImGui::GetTextLineHeight()*5), inpText_flags_bodyT | ImGuiInputTextFlags_EnterReturnsTrue)) {
             toDetail->inChart->modified = true;
         }
 
 
         // ImGui::BeginGroup();
         // if(ImGui::BeginChild("##window_link_nodes", ImVec2(-FLT_MIN, 0))) {
-            if(ImGui::BeginTable("link_nodes", 3, links_table_flags, ImVec2(dim__menu__detail.x-_win_widthOffset, 0))) {
-                ImGui::TableSetupColumn("##_LCorner");
-                ImGui::TableSetupColumn("Address");
-                ImGui::TableSetupColumn("Type");
-                ImGui::TableHeadersRow();
+        if(ImGui::BeginTable("link_nodes", 3, links_table_flags, ImVec2(ImGui::GetWindowSize().x-_win_widthOffset, 0))) {
+            ImGui::TableSetupColumn("##_LCorner");
+            ImGui::TableSetupColumn("Address");
+            ImGui::TableSetupColumn("Type");
+            ImGui::TableHeadersRow();
 
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::Text("src:");
-                ImGui::TableSetColumnIndex(1);
-                if(ImGui::Button((toDetail->src? ptrToStr<gNC::gNODE*>(toDetail->src).c_str() : "nullptr"))) {
-                    nodePtr_menu__node_details = toDetail->src;
-                    if(toDetail->src) {
-                        ImGui::SetWindowFocus(toDetail->src->addr.c_str());
-                    }
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("src:");
+            ImGui::TableSetColumnIndex(1);
+            if(toDetail->src) {
+                if(toDetail->src->draw__state==1) {
+                    ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(66, 150, 250, 255));
                 }
-                // ImGui::Text((toDetail->src? ptrToStr<gNC::gNODE*>(toDetail->src).c_str() : "nullptr"));
-                ImGui::TableSetColumnIndex(2);
-                ImGui::Text((toDetail->type_src==1? "out" : "share"));
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::Text("dest:");
-                ImGui::TableSetColumnIndex(1);
-                // ImGui::Text((toDetail->dest? ptrToStr<gNC::gNODE*>(toDetail->dest).c_str() : "nullptr"));
-                if(ImGui::Button((toDetail->dest? ptrToStr<gNC::gNODE*>(toDetail->dest).c_str() : "nullptr"))) {
-                    nodePtr_menu__node_details = toDetail->dest;
-                    if(toDetail->dest) {
-                        ImGui::SetWindowFocus(toDetail->dest->addr.c_str());
-                    }
+                else {
+                    ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(66, 150, 250, 102));
                 }
-                ImGui::TableSetColumnIndex(2);
-                ImGui::Text((toDetail->type_dest==0? "in" : "add"));
-
-
-                ImGui::EndTable();
             }
-            // ImGui::EndChild();
+            if(ImGui::Button((toDetail->src? ptrToStr<gNC::gNODE*>(toDetail->src).c_str() : "nullptr"))) {
+                nodePtr_menu__node_details = toDetail->src;
+                if(toDetail->src) {
+                    chart->setScreen_pos((dim__main[0]*0.5*(1.0/_DRAW_SCALAR.x)) - toDetail->src->pos.x, (dim__main[1]*0.5*(1.0/_DRAW_SCALAR.y)) - toDetail->src->pos.y);
+                    ImGui::SetWindowFocus(toDetail->src->addr.c_str());
+
+                }
+            }
+            if(toDetail->src) {
+                if(ImGui::IsItemHovered()) {
+                    toDetail->src->draw__state = 1;
+                }
+                ImGui::PopStyleColor();
+            }
+            // ImGui::Text((toDetail->src? ptrToStr<gNC::gNODE*>(toDetail->src).c_str() : "nullptr"));
+            ImGui::TableSetColumnIndex(2);
+            ImGui::Text((toDetail->type_src==1? "out" : "share"));
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("dest:");
+            ImGui::TableSetColumnIndex(1);
+            // ImGui::Text((toDetail->dest? ptrToStr<gNC::gNODE*>(toDetail->dest).c_str() : "nullptr"));
+            if(toDetail->dest) {
+                if(toDetail->dest->draw__state==1) {
+                    ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(66, 150, 250, 255));
+                }
+                else {
+                    ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(66, 150, 250, 102));
+                }
+            }
+            if(ImGui::Button((toDetail->dest? ptrToStr<gNC::gNODE*>(toDetail->dest).c_str() : "nullptr"))) {
+                nodePtr_menu__node_details = toDetail->dest;
+                if(toDetail->dest) {
+                    chart->setScreen_pos((dim__main[0]*0.5*(1.0/_DRAW_SCALAR.x)) - toDetail->dest->pos.x, (dim__main[1]*0.5*(1.0/_DRAW_SCALAR.y)) - toDetail->dest->pos.y);
+                    ImGui::SetWindowFocus(toDetail->dest->addr.c_str());
+                }
+            }
+            if(toDetail->dest) {
+                if(ImGui::IsItemHovered()) {
+                    toDetail->dest->draw__state = 1;
+                }
+                ImGui::PopStyleColor();
+            }
+            ImGui::TableSetColumnIndex(2);
+            ImGui::Text((toDetail->type_dest==0? "in" : "add"));
+
+
+            ImGui::EndTable();
+        }
+        // ImGui::EndChild();
         // }
         // ImGui::EndGroup();
         if(ImGui::TreeNode("Link points")) {
             ImGui::SetCursorPosX(10);
-            if(ImGui::BeginTable("link_points_raw", 3, links_table_flags, ImVec2(dim__menu__detail.x-_win_widthOffset-20, 0))) {
+            if(ImGui::BeginTable("link_points_raw", 3, links_table_flags, ImVec2(ImGui::GetWindowSize().x-_win_widthOffset-20, 0))) {
                 ImGui::TableSetupColumn("Index");
                 ImGui::TableSetupColumn("X");
                 ImGui::TableSetupColumn("Y");
@@ -322,7 +380,7 @@ void gNC::_menu__link_details(
                     if(ImGui::IsItemHovered(ImGuiHoveredFlags_None)) {
                         if(project_draw_list) {
                             project_draw_list->AddCircle(ImVec2_multiply(ImVec2_add(currPoint, chart->screen_pos), _DRAW_SCALAR), 12, IM_COL32(200, 200, 10, 200), 10, 1);
-                            std::cout << "drew circle: " << formatContainer1(ImVec2_multiply(ImVec2_add(currPoint, chart->screen_pos), _DRAW_SCALAR), 2, 0, 0) << std::endl;
+                            // std::cout << "drew circle: " << formatContainer1(ImVec2_multiply(ImVec2_add(currPoint, chart->screen_pos), _DRAW_SCALAR), 2, 0, 0) << std::endl;
                         }
                     }
                     ImGui::SameLine();

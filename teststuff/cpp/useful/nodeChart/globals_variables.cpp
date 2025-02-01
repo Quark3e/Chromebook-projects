@@ -66,7 +66,11 @@ ImDrawList* project_draw_list = nullptr;
 
 
 ImVec2 dim__main        = ImVec2(1280, 700);
-ImVec2 dim__menu__detail= ImVec2(300, 600);
+dim_lim dim__menu__detail() {
+    ImVec2 padding(50, 50);
+    return dim_lim(ImVec2(300, (dim__main.y-padding.y*2)/2), ImVec2(dim__main.x-padding.x*2, dim__main.y-padding.y*2));
+}
+// ImVec2 dim__menu__detail= ImVec2(300, 600);
 
 ImVec2 pos__menu__detail__offset    = ImVec2(20, 60);
 
