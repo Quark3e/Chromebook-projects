@@ -1444,6 +1444,7 @@ int gNC::guiNodeChart::draw() {
     static gLINK* focused_link{ nullptr };
 
     ImVec2 sMousePos = ImVec2_divide(io.MousePos, _DRAW_SCALAR);
+    static ImVec2 _moving_node__origPos = ImVec2(0, 0);
 
     for (auto itr = _links.begin(); itr != this->_links.end(); ++itr) {
         std::vector<ImVec2> linkPos{
@@ -1463,8 +1464,9 @@ int gNC::guiNodeChart::draw() {
             ImVec2(screen_pos[0], screen_pos[1])
         )) {
             if (
-                isKeyPressed(655, &(*pressed_keys)[pressed_keys->size() - 1]) && //current frame has leftclick pressed
-                !isKeyPressed(655, &(*pressed_keys)[pressed_keys->size() - 2]) && //prev frame doesn't have leftclick pressed
+                keyBinds.clicked("MouseLeft") &&
+                // isKeyPressed(655, &(*pressed_keys)[pressed_keys->size() - 1]) && //current frame has leftclick pressed
+                // !isKeyPressed(655, &(*pressed_keys)[pressed_keys->size() - 2]) && //prev frame doesn't have leftclick pressed
                 !_mode__fileExplorer
                 // !_winFocused__node_details
                 ) {
@@ -1481,7 +1483,10 @@ int gNC::guiNodeChart::draw() {
                 if((*itr).draw__state==0) (*itr).draw__state = 1;
             }
 
-            if (isKeyPressed(656, &(*pressed_keys)[pressed_keys->size() - 1]) && !_mode__fileExplorer) {
+            if (
+                keyBinds.pressing("MouseRight")
+                // isKeyPressed(656, &(*pressed_keys)[pressed_keys->size() - 1])
+                && !_mode__fileExplorer) {
                 // if(isKeyPressed(656, pressed_keys, -1)) {
                 if (mouseAction_right == 3 || mouseAction_right == -1) {
                     mouseAction_right = 3;
@@ -1520,14 +1525,23 @@ int gNC::guiNodeChart::draw() {
         int node_connect = _draw_NODEcheckConnects(itr, nodePos);
 
 
-        if (isKeyPressed(ImGuiKey_MouseLeft, &(*pressed_keys)[pressed_keys->size() - 1]) && !_mode__fileExplorer) {
+        // if (isKeyPressed(ImGuiKey_MouseLeft, &(*pressed_keys)[pressed_keys->size() - 1]) && !_mode__fileExplorer) {
+        // if (guiKeys.isClicked(ImGuiKey_MouseLeft) && !_mode__fileExplorer) {
+        if (keyBinds.pressing("MouseLeft") && !_mode__fileExplorer) {
+        // std::cout << formatNumber(keyBinds.pressing("MouseLeft"), 5, 0, "left")<< " | " << formatNumber(guiKeys.isClicked(ImGuiKey_MouseLeft), 5, 0)<< " | " << formatNumber(isKeyPressed(ImGuiKey_MouseLeft, &(*pressed_keys)[pressed_keys->size() - 1]), 5, 0);
             if (node_connect == -1) {
                 if (inRegion(sMousePos, nodePos, ImVec2(nodePos.x + (*itr).width, nodePos.y + (*itr).height))) { //region: Node
                     if (mouseAction_left == 1 || mouseAction_left == -1) {
+                        if(mouseAction_left==-1) {
+                            _moving_node__origPos = nodePos;
+                        }
                         lockMove_node = false;
                         mouseAction_left = 1;
                         decay_mouseClick_left = 100;
                     }
+                }
+                else {
+
                 }
                 if (mouseAction_left == 2 && dragConnectCreate_tempLink._init) {
                     if (dragConnectCreate_startedEnd == 1) { // started at src
@@ -1600,7 +1614,19 @@ int gNC::guiNodeChart::draw() {
                 }
             }
             else {
+                if(mouseAction_left==1 && nodePtr_menu__node_details==&*itr) {
+                    if(keyBinds.released("MouseLeft") && !_mode__fileExplorer) {
+                        ///Node moving released.
 
+                        if(_winHover__timeline) {
+                            nodePos = _moving_node__origPos;
+                            NODE_move(&(*itr), nodePos.x-screen_pos.x, nodePos.y-screen_pos.y, 0);
+                        }
+                    }
+                    else {
+
+                    }
+                }
             }
 
             if (mouseAction_left != 2) {
@@ -1609,7 +1635,7 @@ int gNC::guiNodeChart::draw() {
 
         }
 
-        if (isKeyPressed(ImGuiKey_MouseRight, &(*pressed_keys)[pressed_keys->size() - 1]) && !_mode__fileExplorer) {
+        if (keyBinds.pressing("MouseRight") /*isKeyPressed(ImGuiKey_MouseRight, &(*pressed_keys)[pressed_keys->size() - 1])*/ && !_mode__fileExplorer) {
             if (node_connect == -1) {
                 if (inRegion(sMousePos, nodePos, ImVec2(nodePos.x + (*itr).width, nodePos.y + (*itr).height))) {
                     if (mouseAction_right == 1 || mouseAction_right == -1) {
@@ -1641,6 +1667,7 @@ int gNC::guiNodeChart::draw() {
         ImGui::PopStyleColor(2);
         ImGui::SetWindowSize(ImVec2_multiply(ImVec2(((*itr).width), (*itr).height), _DRAW_SCALAR));
 
+        // std::cout << formatNumber(keyBinds.pressing("MouseLeft"), 5, 0)<< " " << formatNumber(keyBinds.released("MouseLeft"), 5, 0) << std::endl;
 
         if (!(*itr).init) {
             ImGui::SetWindowPos(ImVec2_multiply(ImVec2((*itr).pos[0], (*itr).pos[1]), _DRAW_SCALAR));
@@ -1648,24 +1675,31 @@ int gNC::guiNodeChart::draw() {
         }
 
 
-
         ImGui::SetWindowPos(ImVec2_multiply(nodePos, _DRAW_SCALAR));
         if (ImGui::IsWindowFocused()) {
             // _menu__node_details(&(*itr));
             nodePtr_menu__node_details = &(*itr);
-            if (guiKeys.isHolding(ImGuiKey_MouseLeft)) nodePtr_focused = &(*itr);
+            // if (guiKeys.isHolding(ImGuiKey_MouseLeft)) nodePtr_focused = &(*itr);
+            if(keyBinds.pressing("MouseLeft")) nodePtr_focused = &(*itr);
             node_focused = true;
             if (!lockMove_node && keyBinds.pressing("MouseLeft")) {
+                draw_list->AddRect(
+                    ImVec2_multiply(_moving_node__origPos, _DRAW_SCALAR),
+                    ImVec2_multiply(ImVec2_add(_moving_node__origPos, ImVec2(itr->width, itr->height)), _DRAW_SCALAR),
+                    IM_COL32(150, 150, 150, 250),
+                    15, 0, 1
+                );
                 NODE_move(&(*itr), io.MouseDelta.x/_DRAW_SCALAR.x, io.MouseDelta.y/_DRAW_SCALAR.y, 1);
-                ImGui::SetWindowPos(ImVec2_multiply(ImVec2((*itr).pos[0] + screen_pos[0], (*itr).pos[1] + screen_pos[1]), _DRAW_SCALAR));
+                ImGui::SetWindowPos(ImVec2_multiply(ImVec2_add((*itr).pos, screen_pos), _DRAW_SCALAR));
             }
 
         }
         else {
             // ImGui::SetWindowPos(nodePos);
         }
-        _draw__node_cosmetics(itr, nodePos, draw_list);
 
+
+        _draw__node_cosmetics(itr, nodePos, draw_list);
         (*itr).draw__state = 0;
 
         if(ImGui::IsWindowHovered()) {
@@ -1703,7 +1737,7 @@ int gNC::guiNodeChart::draw() {
     if (!guiKeys.isHolding(ImGuiKey_MouseLeft)) nodePtr_focused = nullptr;
 
 
-    if ((mouseAction_left == 0 || mouseAction_left == -1) && isKeyPressed(655, &(*pressed_keys)[pressed_keys->size() - 1]) && !_mode__fileExplorer) {
+    if ((mouseAction_left == 0 || mouseAction_left == -1) && keyBinds.pressing("MouseLeft") /*isKeyPressed(655, &(*pressed_keys)[pressed_keys->size() - 1])*/ && !_mode__fileExplorer) {
         lockMove_screen = false;
         mouseAction_left = 0;
         decay_mouseClick_left = 100;
@@ -1714,7 +1748,7 @@ int gNC::guiNodeChart::draw() {
     }
     if (mouseAction_left != -1) {
         if (decay_mouseClick_left > 0) {
-            if (!isKeyPressed(655, &(*pressed_keys)[pressed_keys->size() - 1])) decay_mouseClick_left -= mouseTimer_decay;
+            if (!keyBinds.pressing("MouseLeft") /*isKeyPressed(655, &(*pressed_keys)[pressed_keys->size() - 1])*/) decay_mouseClick_left -= mouseTimer_decay;
         }
         else {
             decay_mouseClick_left = 0;
@@ -1737,15 +1771,15 @@ int gNC::guiNodeChart::draw() {
         }
     }
 
-    if (isKeyPressed(656, &(*pressed_keys)[pressed_keys->size() - 1]) && !_mode__fileExplorer) {
+    if (keyBinds.pressing("MouseRight") /*isKeyPressed(656, &(*pressed_keys)[pressed_keys->size() - 1])*/ && !_mode__fileExplorer) {
 
         switch (mouseAction_right) {
-        case -1:
-        case 0: ImGui::OpenPopup("_menu__rightClick__default"); break;
-        case 1: ImGui::OpenPopup("_menu__rightClick__node");    break;
-        case 2: break;
-        case 3: ImGui::OpenPopup("_menu__rightClick__link");    break;
-        default: break;
+            case -1:
+            case 0: ImGui::OpenPopup("_menu__rightClick__default"); break;
+            case 1: ImGui::OpenPopup("_menu__rightClick__node");    break;
+            case 2: break;
+            case 3: ImGui::OpenPopup("_menu__rightClick__link");    break;
+            default: break;
         };
     }
     _menu__rightClick(thisPtr);

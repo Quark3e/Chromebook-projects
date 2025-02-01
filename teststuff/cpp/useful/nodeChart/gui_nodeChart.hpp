@@ -8,11 +8,6 @@
 #include <diy_dictionary.hpp>
 
 
-// extern template<typename _varType> int checkExistence(_varType toFind, const std::vector<_varType>& toSearch);
-// extern template<typename _varType> int checkExistence(_varType toFind, const std::list<_varType>& toSearch);
-// extern template<typename _varType> int checkExistence(_varType toFind, _varType toSearch[], int arrLen);
-// extern template<typename addrType> std::string ptrToStr(addrType toConv);
-
 
 static auto to_ImVec2 = [](pos2d toConv) { return ImVec2(toConv.x, toConv.y); };
 static auto to_pos2d  = [](ImVec2 toConv){ return pos2d(toConv.x, toConv.y); };
@@ -37,6 +32,51 @@ struct Vec2i {
         return *this;
     }
     operator ImVec2() { return ImVec2(static_cast<float>(x), static_cast<float>(y)); }
+    
+    bool operator==(Vec2i const& m) {
+        return (this->x==m.x && this->y==m.y);
+    }
+    bool operator!=(Vec2i const& m) {
+        return !(this->x==m.x && this->y==m.y);
+    }
+    
+    Vec2i operator-(Vec2i const& m) {
+        return Vec2i(this->x-m.x, this->y-m.y);
+    }
+    Vec2i operator+(Vec2i const& m) {
+        return Vec2i(this->x+m.x, this->y+m.y);
+    }
+    Vec2i operator*(Vec2i const& m) {
+        return Vec2i(this->x*m.x, this->y*m.y);
+    }
+    Vec2i operator/(Vec2i const& m) {
+        return Vec2i(this->x/m.x, this->x/m.y);
+    }
+    Vec2i& operator+=(Vec2i const& m) {
+        this->x += m.x;
+        this->y += m.y;
+        return *this;
+    }
+    Vec2i operator-=(Vec2i const& m) {
+        this->x -= m.x;
+        this->y -= m.y;
+        return *this;
+    }
+    Vec2i operator*=(Vec2i const& m) {
+        this->x *= m.x;
+        this->y *= m.y;
+        return *this;
+    }
+    Vec2i operator/=(Vec2i const& m) {
+        this->x /= m.x;
+        this->y /= m.y;
+        return *this;
+    }
+
+    friend auto operator<<(std::ostream &os, Vec2i const& m) -> std::ostream& {
+        os << "("<<m.x<<","<<m.y<<")";
+        return os;
+    }
 };
 
 namespace gNC {
@@ -50,9 +90,7 @@ namespace gNC {
     /// @brief Whether to lock mouse scroll based `gNC::_DRAW_SCALAR` change.
     extern bool _DRAW_SCALAR_SCOLL_LOCK;
 
-    inline ImVec2 DrawScal_ModifToReal(ImVec2 _modifiedPos) {
-        
-    }
+    
 
     class guiNodeChart;
     struct gNODE;
@@ -878,8 +916,11 @@ namespace gNC {
     extern std::vector<std::string> _valid__extensions;
     void        _menu__fileExplorer();
 
+    /// @brief Whether the window for the node-details is focused or not.
     extern bool _winFocused__node_details;
     extern bool _winFocused__link_details;
+
+    extern bool _winHover__timeline;
 }
 
 

@@ -66,6 +66,10 @@ void DIY_KBH::keyBind_handler::update(std::vector<int> _pressed_keys) {
         /// Update _released
         if((_keyBinds[i]._callEdge && newDecayVal==0) || !_keyBinds[i]._callEdge && newDecayVal==setting_callDecay) {
             _released[i] = true;
+            _just_released[i] = true;
+        }
+        else {
+            _just_released[i] = false;
         }
 
 
@@ -84,12 +88,14 @@ DIY_KBH::keyBind_handler::keyBind_handler(keyBind_handler_unit _kbh_inst) {
     _callDecay.push_back(0);
     _released.push_back(_kbh_inst._callEdge);
     _called.push_back(false);
+    _just_released.push_back(false);
 }
 DIY_KBH::keyBind_handler::keyBind_handler(std::string _label, std::vector<int> _keys, void (*_func)(void), bool _ordImportant, bool _isolImportant, bool _callSignalEdge) {
     _keyBinds.push_back(keyBind_handler_unit{_label, _keys, _func, _ordImportant, _isolImportant, _callSignalEdge});
     _callDecay.push_back(0);
     _released.push_back(_callSignalEdge);
     _called.push_back(false);
+    _just_released.push_back(false);
 }
 DIY_KBH::keyBind_handler::keyBind_handler(std::initializer_list<keyBind_handler_unit> _kbhi_cont) {
     _keyBinds = std::vector<keyBind_handler_unit>(_kbhi_cont);
@@ -98,6 +104,7 @@ DIY_KBH::keyBind_handler::keyBind_handler(std::initializer_list<keyBind_handler_
         _released.push_back(_keyBinds[i]._callEdge);
     }
     _called = std::vector<bool>(_kbhi_cont.size(), false);
+    _just_released = std::vector<bool>(_kbhi_cont.size(), false);
 }
 DIY_KBH::keyBind_handler::keyBind_handler(std::vector<keyBind_handler_unit> _kbhi_cont) {
     _keyBinds = std::vector<keyBind_handler_unit>(_kbhi_cont);
@@ -106,6 +113,7 @@ DIY_KBH::keyBind_handler::keyBind_handler(std::vector<keyBind_handler_unit> _kbh
         _released.push_back(_keyBinds[i]._callEdge);
     }
     _called = std::vector<bool>(_kbhi_cont.size(), false);
+    _just_released = std::vector<bool>(_kbhi_cont.size(), false);
 }
 
 DIY_KBH::keyBind_handler::~keyBind_handler() {
@@ -172,5 +180,14 @@ bool DIY_KBH::keyBind_handler::pressing(std::string _label) {
         }
     }
     throw std::invalid_argument("pressing(std::string)   the label \""+_label+"\" doesn't exist in storage as a keybind.");
+    return false;
+}
+bool DIY_KBH::keyBind_handler::released(std::string _label) {
+    for(size_t i=0; i<this->_just_released.size(); i++) {
+        if(_keyBinds[i]._label==_label) {
+            return this->_just_released[i];
+        }
+    }
+    throw std::invalid_argument("released(std::string)  the label \""+_label+"\" doesn't exist in storage as a keybind.");
     return false;
 }

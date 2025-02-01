@@ -49,6 +49,8 @@ namespace DIY_KBH {
         std::vector<int>                    _callDecay;
         // Boolean for whether the keyBind decay value has reached the "opposite decay value" for it's callEdge after latest funcCall
         std::vector<bool>                   _released;
+        // Boolean for whether the keybind 
+        std::vector<bool>                   _just_released;
         // Boolean for whether the keyBind has been called in this frame.
         std::vector<bool>                   _called;
 
@@ -75,7 +77,7 @@ namespace DIY_KBH {
         keyBind_handler_unit get(std::string _label) const;
 
         /**
-         * @brief Bool for whether the _label assosciated keybind is clicked in current program loop/iteration according to `callEdge` parameter (`callEdge==true`->initial press signal; `callEdge==false`->press release signal)
+         * @brief Bool for whether the _label assosciated keybind is clicked in current program loop-iteration/update according to `callEdge` parameter (`callEdge==true`->initial press signal; `callEdge==false`->press release signal)
          * @note if the keyBind is held, this function will only return true during the initial signal (according to callEdge as previously mentioned)
          * @param _label `std::string` of keybind label
          * @return true if keybind is pressed(callEdge*) in current update call.
@@ -90,6 +92,14 @@ namespace DIY_KBH {
          * @return false every other scenario
          */
         bool pressing(std::string _label);
+        /**
+         * @brief Bool for whether the _label assosciated keybind was released (reached opposite callEdge signal) in current program loop-iteration/update.
+         * 
+         * @param _label `std::string` of keybind label
+         * @return true if keybind was released
+         * @return false 
+         */
+        bool released(std::string _label);
     };
 
 }

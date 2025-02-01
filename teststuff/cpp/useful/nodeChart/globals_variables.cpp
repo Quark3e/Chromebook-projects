@@ -189,12 +189,15 @@ void _keyBind__Master_Close() {
     std::cout << " Master Close called." << std::endl;
     _SETTINGS[0][0] = false;
 }
+void _keyBind__MouseLeft() {
+
+}
 DIY_KBH::keyBind_handler keyBinds({
     {"undo",    {ImGuiKey_ReservedForModCtrl, ImGuiKey_LeftCtrl, ImGuiKey_Z}},
     {"redo",    {ImGuiKey_ReservedForModCtrl, ImGuiKey_LeftCtrl, ImGuiKey_ReservedForModShift, ImGuiKey_LeftShift, ImGuiKey_Z}},
     {"Master Close",{ImGuiKey_ReservedForModCtrl, ImGuiKey_LeftCtrl, ImGuiKey_W}, _keyBind__Master_Close},
     {"Ctrl+Enter",  {ImGuiKey_ReservedForModCtrl, ImGuiKey_LeftCtrl, ImGuiKey_Enter}},
-    {"MouseLeft",   {ImGuiKey_MouseLeft}},
+    {"MouseLeft",   {ImGuiKey_MouseLeft}, _keyBind__MouseLeft},
     {"MouseRight",  {ImGuiKey_MouseRight}}
 });
 

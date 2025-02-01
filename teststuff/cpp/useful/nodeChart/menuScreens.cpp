@@ -5,6 +5,7 @@
 bool gNC::_winFocused__node_details = false;
 bool gNC::_winFocused__link_details = false;
 
+bool gNC::_winHover__timeline = false;
 
 void gNC::_menu__node_details(
     gNC::gNODE* toDetail,
@@ -50,6 +51,9 @@ void gNC::_menu__node_details(
     }
     ImGui::SetNextWindowPos(pos__menu__detail__offset, 0, ImVec2(0, 0));
     if(ImGui::Begin((" node: "+toDetail->addr).c_str(), NULL, win_flags)) {
+        if(ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows)) {
+            gNC::_DRAW_SCALAR_SCOLL_LOCK = true;
+        }
         // std::cout <<std::boolalpha << ImGui::IsWindowFocused()<<" | ";
         if(init_node!=toDetail) {
             // ImGui::SetWindowFocus((" node: "+toDetail->addr).c_str());
@@ -170,8 +174,6 @@ void gNC::_menu__node_details(
                         // ImGui::Text((_printPtr==nullptr? "nullptr" : ptrToStr<gNC::gNODE*>(_printPtr).c_str()));
                     }
                 }
-                // if(itemHovrd) std::cout << "a item is hovered." << std::endl;
-                // else std::cout << "item is not hovered." << std::endl;
 
                 ImGui::EndTable();
             }
@@ -215,7 +217,7 @@ void gNC::_menu__link_details(
     static int _win_widthOffset = 20;
 
     if(ImGui::Begin((" link: "+toDetail->addr).c_str(), NULL, win_flags)) {
-        if(ImGui::IsWindowHovered(ImGuiHoveredFlags_None)) {
+        if(ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows)) {
             gNC::_DRAW_SCALAR_SCOLL_LOCK = true;
         }
 
@@ -495,11 +497,16 @@ void gNC::_menu__timeline(
 
 
     ImVec2 timeline_dim = ImVec2(dim__win_timeline().x, TL_ref.get_numChannels_used()*gui_objDim__height*gui_objDim__scal.y);
-    
+
+
+    if((gNC::_winHover__timeline = inRegion(io.MousePos, ImGui::GetWindowPos(), ImVec2_add(ImGui::GetWindowPos(), ImGui::GetWindowSize())))) {
+        gNC::_DRAW_SCALAR_SCOLL_LOCK = true;
+    }
     if(!_collapse) {
-        if(ImGui::IsWindowHovered()) {
-            gNC::_DRAW_SCALAR_SCOLL_LOCK = true;
-        }
+        // if((gNC::_winHover__timeline = ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows))) {
+        //     gNC::_DRAW_SCALAR_SCOLL_LOCK = true;
+            
+        // }
         // if(_init) {
         TL_ref.update_forVisuals();
         // }
