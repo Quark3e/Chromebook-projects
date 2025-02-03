@@ -19,7 +19,7 @@ namespace HW_KINEMATICS  {
 
     
 
-    /** 
+    /**
      * settings:
      *  "a1:frameX"   : default: true   desc: getAngles: "frame1X = frame1X * cos(b)"
      *  "a1:a1"       : default: true   desc: getAngles: "a1 = a1 * cos(b)"

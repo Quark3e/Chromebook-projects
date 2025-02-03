@@ -1,0 +1,84 @@
+/**
+ * @file hw_option_1.cpp
+ * @author your name (you@domain.com)
+ * @brief the option that runs the intro script for the hexclaw robot arm.
+ * @version 0.1
+ * @date 2025-02-02
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
+
+#include "hw_options.hpp"
+
+
+void HW_option1_intro() {
+	simplified_init();
+	if(!_init_status.get("pca").isInit()) {
+		ANSI_mvprint(0, 0, std::string("ERROR: pca library failed to initialise:"+_init_status.get("pca").get_callMsg()+". Cannot run intro."), true, "abs", "rel");
+		// std::cout << "ERROR: pca library failed to initialise:"<< _init_status.get("pca").get_callMsg() <<". Cannot run intro."<<std::endl;
+		return;
+	}
+	printFuncLabel(" Running: Into sequence");
+
+	current_q[0] = -45;
+	current_q[1] = 25;
+	current_q[2] = -115;
+	current_q[3] = -45;
+	current_q[4] = -90;
+	current_q[5] = 90;
+	add_defaults(current_q);
+	new_q[0] = 0;
+	new_q[1] = 135;
+	new_q[2] = -90;
+	new_q[3] = 0;
+	new_q[4] = -45;
+	new_q[5] = 0;
+	// printf("running intro...\n");
+	//sendToServo(&pca, current_q, new_q, false, 0, 0);
+	usleep(1'000'000);
+	if(_init_status.get("pigpio").isInit()) {
+		gpioWrite(pin_ledRelay, 0);
+		gpioWrite(pin_ledRelay, 1);
+	}
+	usleep(750'000);
+	// std::cout<<"\n- section: \"slow start\"\n";
+	ANSI_mvprint(0, 0, "\n- section: \"slow start\"\n", true, "abs", "rel");
+	sendToServo(&pca, new_q, current_q, false, 2, 10);
+
+	// std::cout<<"intro finished\n";
+	ANSI_mvprint(0, 0, "intro finished\n", true, "abs", "rel");
+	usleep(3'000'000);
+	if(_init_status.get("pigpio").isInit()) {
+		for(int i=0; i<4; i++) {
+			gpioWrite(pin_ledRelay, 0);
+			usleep(30'000);
+			gpioWrite(pin_ledRelay, 1);
+			usleep(30'000);
+		}
+		usleep(1'500'000);
+		gpioWrite(pin_ledRelay, 0);
+		usleep(250'000);
+		gpioWrite(pin_ledRelay, 1);
+		usleep(500'000);
+		gpioWrite(pin_ledRelay, 0);
+		usleep(100'000);
+		gpioWrite(pin_ledRelay, 1);
+		usleep(2'000'000);
+		gpioWrite(pin_ledRelay, 0);
+	}
+	usleep(2'000'000);
+
+	if(_init_status.get("pigpio").isInit()) gpioWrite(pin_ledRelay, 1);
+	new_q[0] = 45;
+	new_q[1] = 0;
+	new_q[2] = -45;
+	new_q[3] = 89;
+	new_q[4] = 89;
+	new_q[5] = 0;
+	// std::cout<<"\n- section: \"crash\"\n";
+	ANSI_mvprint(0, 0, "\n- section: \"crash\"\n", true, "abs", "rel");
+	sendToServo(&pca,new_q,current_q, false);
+	usleep(2'000'000);
+
+}
