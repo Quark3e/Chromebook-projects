@@ -3,7 +3,6 @@
 #ifndef HPP_HEXCLAW_CONSTANTS
 #define HPP_HEXCLAW_CONSTANTS
 
-
 /// Whether to use threads
 #define useThreads		true
 /// Whether to print checkpoints
@@ -20,6 +19,9 @@
 /// Whether to record opencv frame/image/`cv::Mat` variables received from `cv::VideoCapture` object(s)
 #define recordFrames	false
 
+
+#define DEFAULT_WIDTH   640
+#define DEFAULT_HEIGHT  480
 
 
 #endif

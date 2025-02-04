@@ -61,36 +61,58 @@ inline bool decimalSame(_contType _var0, _contType _var1, size_t _contSize, size
     return matched;
 }
 
+#ifndef _VAR__pos2d
+#define _VAR__pos2d
+
+template<typename _varType>
 struct pos2d {
-    float x;
-    float y;
-    float& operator[](size_t i) {
-        assert(i==0 || i==1);
-        if(i==0) return x;
-        return y;
+    _varType x;
+    _varType y;
+    pos2d() {}
+    // pos2d(_varType *_arrPtr): x(_arrPtr[0]), y(_arrPtr[1]) {}
+    pos2d(const pos2d &_copy) {
+        this->x = _copy.x;
+        this->y = _copy.y;
     }
-    bool operator<(pos2d const& m) {
-        float avgDiff = (x-m.y)+(y-m.y);
-        return avgDiff<0;
+    pos2d(_varType _x, _varType _y): x(_x), y(_y) {}
+    _varType &operator[](size_t _i) {
+        switch (_i) {
+            case 0: return this->x;
+            case 1: return this->y;
+        }
+        throw std::out_of_range("size_t index value is out of range.");
+        return x;
     }
-    bool operator>(pos2d const& m) {
-        float avgDiff = (x-m.y)+(y-m.y);
-        return avgDiff>0;
+    _varType operator[](size_t _i) const {
+        switch (_i) {
+            case 0: return this->x;
+            case 1: return this->y;
+        }
+        throw std::out_of_range("size_t index value is out of range.");
+        return x;
     }
+
+    pos2d &operator=(const pos2d<_varType>& m) {
+        this->x = m.x;
+        this->y = m.y;
+        return *this;
+    }
+    bool operator<(pos2d const& m)  { return ((x-m.x)+(y-m.y))<0; }
+    bool operator>(pos2d const& m)  { return ((x-m.x)+(y-m.y))>0; }
+    int equalCompare_round_prec = 6;
     bool operator==(pos2d const& m) {
         return (
-            (roundf(m.x*pow(10, round_prec))/pow(10, round_prec)==roundf(this->x*pow(10, round_prec))/pow(10, round_prec)) &&
-            (roundf(m.y*pow(10, round_prec))/pow(10, round_prec)==roundf(this->y*pow(10, round_prec))/pow(10, round_prec))
+            (roundf(m.x*pow(10, equalCompare_round_prec))/pow(10, equalCompare_round_prec)==roundf(this->x*pow(10, equalCompare_round_prec))/pow(10, equalCompare_round_prec)) &&
+            (roundf(m.y*pow(10, equalCompare_round_prec))/pow(10, equalCompare_round_prec)==roundf(this->y*pow(10, equalCompare_round_prec))/pow(10, equalCompare_round_prec))
         );
+        // return (x==m.x && y==m.y);
     }
-    int round_prec = 6;
-    pos2d(float X, float Y): x{X}, y{Y} { }
-    pos2d() {}
-    std::string getStr() { return std::string(std::to_string(x)+", "+std::to_string(y)); }
+    bool operator!=(pos2d const& m) { return !(x==m.x && y==m.y); }
+
     pos2d rounded(int decimals) {
         return pos2d(
-            round(x*pow(10, decimals)) / pow(10, decimals),
-            round(y*pow(10, decimals)) / pow(10, decimals)
+            roundf(this->x*pow(10, decimals)) / pow(10, decimals),
+            roundf(this->y*pow(10, decimals)) / pow(10, decimals)
         );
     }
     template<class _twoSizeContainerType>
@@ -101,11 +123,17 @@ struct pos2d {
         return _var;
     }
 
+    int _printPrecision = 2;
+    int _printWidth     = 0;
     friend auto operator<<(std::ostream &os, pos2d const& m) -> std::ostream& {
+        os << std::setw(m._printWidth) << std::setprecision(m._printPrecision);
         os << "("<<m.x<<","<<m.y<<")";
         return os;
     }
 };
+
+#endif
+
 
 
 // namespace USEFUL {

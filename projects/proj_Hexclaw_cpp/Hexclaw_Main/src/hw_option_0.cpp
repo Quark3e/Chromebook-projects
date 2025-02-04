@@ -164,7 +164,7 @@ void HW_option0() {
 		perfObj[0].add_checkpoint("upd.Cam"); /*c1*/
 		#endif
 		if(numContours_main[0]>0) {
-			getCoordinates(2);
+			// getCoordinates(camObjPos_main[0], camObjPos_main[1], 2);
 			printTable.insertNum(PP[0],1,1,1);
 			printTable.insertNum(PP[1],2,1,1);
 			printTable.insertNum(PP[2],3,1,1);
