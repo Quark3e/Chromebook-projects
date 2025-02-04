@@ -66,7 +66,6 @@
 #include <terminalMenu.hpp>
 
 #include <diy_performance.hpp>
-
 #include <diy_dictionary.hpp>
 
 
@@ -74,8 +73,11 @@
 #include <opencv/recordVideo/recordFrames.hpp>
 // #include "../../../teststuff/cpp/basic/Performance/getPerformance.hpp"
 
-// #include <servo_control.hpp>
 #include "../IK_header.hpp"
 
+#include "global_variables.hpp"
+
+#include "servo_control.hpp"
+#include "hw_options.hpp"
 
 #endif
