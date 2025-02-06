@@ -138,6 +138,9 @@ struct pos2d {
 
 // namespace USEFUL {
 
+
+
+
     /// @brief Convert decimal number to std::string with set decimal numbers and minimum total width
     /// @tparam T 
     /// @param value decimal number to convert
@@ -154,6 +157,15 @@ struct pos2d {
         std::string align="right",
         bool numberFill= false
     );
+
+    
+    inline size_t get_sumStrVec_len(std::vector<std::string> _vec) {
+        size_t sz=0;
+        for(size_t i=0; i<_vec.size(); i++) {
+            sz+=_vec.at(i).size();
+        }
+        return sz;
+    }
 
 
 
@@ -585,6 +597,19 @@ struct pos2d {
         else return -1;
     }
 
+
+    /**
+     * @brief Get the value of a desired value
+     * 
+     * @tparam varType value type
+     * @param toCheck the container to check
+     * @param toFind what to find.
+     * ```
+     * - `0` - biggest value
+     * - `1` - smallest value
+     * ```
+     * @return The desired element
+     */
     template<typename varType>
     inline varType findVal(std::vector<varType> toCheck, int toFind) {
         int index = 0;
@@ -1337,13 +1362,14 @@ struct pos2d {
         int varPrecision,
         std::string align = "right",
         bool numberFill = false,
-        char openSymb = '{',
-        char closeSymb= '}'
+        char openSymb   = '{',
+        char closeSymb  = '}',
+        char _sepSymb   = ','
     ) {
         std::string _out(1, openSymb);
         for(auto itr=_container.begin(); itr!=_container.end(); ++itr) {
             _out += formatNumber(*itr, strWidth, varPrecision, align, numberFill);
-            if(itr!=--_container.end()) openSymb += ',';
+            if(itr!=--_container.end()) openSymb += _sepSymb;
         }
         return _out + closeSymb;
     }
@@ -1356,12 +1382,13 @@ struct pos2d {
         std::string     _align      = "right",
         bool            _numberFill = false,
         char            _openSymb   = '{',
-        char            _closeSymb  = '}'
+        char            _closeSymb  = '}',
+        char            _sepSymb    = ','
     ) {
         std::string _out(1, _openSymb);
         for(size_t i=0; i<_container.size(); i++) {
             _out += formatNumber(_container[i], _strWidth, _precision, _align, _numberFill);
-            if(i<_container.size()-1) _out += ',';
+            if(i<_container.size()-1) _out += _sepSymb;
         }
         return _out + _closeSymb;
     }
@@ -1374,13 +1401,14 @@ struct pos2d {
         int varPrecision,
         std::string align = "right",
         bool numberFill = false,
-        char openSymb = '{',
-        char closeSymb= '}'
+        char openSymb   = '{',
+        char closeSymb  = '}',
+        char _sepSymb   = ','
     ) {
         std::string _out(1, openSymb);
         for(size_t i=0; i<contSize; i++) {
             _out += formatNumber(_container[i], strWidth, varPrecision, align, numberFill);
-            if(i<contSize-1) _out += ',';
+            if(i<contSize-1) _out += _sepSymb;
         }
         return _out + closeSymb;
     }
