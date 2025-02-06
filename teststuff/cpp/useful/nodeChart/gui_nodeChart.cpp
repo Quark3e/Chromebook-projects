@@ -42,7 +42,14 @@ gNC::gNODE::gNODE(
     float par_posX_share, float par_posY_share
 ) : label{ par_label }, desc{ par_desc }, bodyText{ par_bodyText }, ln_in{ par_ln_in }, ln_out{ par_ln_out }, ln_add{ par_ln_add }, ln_share{ par_ln_share } {
     if (checkExistence<int>(par_layout, std::vector<int>{0, 1, 2, 3}) == -1) std::runtime_error("ERROR: gNC::gNODE constructor: par_layout is an invalid value");
+    
+    // std::time_t t = std::time(nullptr);
+    // std::tm date = *std::localtime(&t);
     date = tm{};
+    // std::cout << std::put_time(&date, "%A, %B %d, %Y") << std::endl;
+    // std::cout << "created node with date: " << date.tm_mday << " " << date.tm_mon << " " << date.tm_year << std::endl;
+    // if(date.tm_mday<1) date.tm_mday = 1;
+    // else if(date.tm_mday>31) date.tm_mday = 31;
     // date.tm_mday = 1;
     // date.tm_mon = 0;
     // date.tm_year = 2022 - 1900;
