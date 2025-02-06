@@ -6,16 +6,149 @@
 
 
 
-termMenu::termMenu(
-    bool callFromDriver,
+TUI::optItem::optItem(
+    std::string _name,
+    int _x,
+    int _y,
+    int _key,
+    TDEF_void__     _func
+): name(_name), x(_x), y(_y), key(_key), _funcType_id(0), func_void__(_func) {
+
+}
+TUI::optItem::optItem(
+    std::string _name,
+    int _x,
+    int _y,
+    int _key,
+    TDEF_void_pBool _func,
+    bool *_param
+): name(_name), x(_x), y(_y), key(_key), _funcType_id(1), func_void_pBool(_func), param_pBool(_param) {
+
+}
+TUI::optItem::optItem(
+    std::string _name,
+    int _x,
+    int _y,
+    int _key,
+    TDEF_void_pInt  _func,
+    int *_param
+): name(_name), x(_x), y(_y), key(_key), _funcType_id(2), func_void_pInt(_func), param_pInt(_param) {
+
+}
+TUI::optItem::optItem(
+    std::string _name,
+    int _x,
+    int _y,
+    int _key,
+    TDEF_void_pChar _func,
+    char *_param
+): name(_name), x(_x), y(_y), key(_key), _funcType_id(3), func_void_pChar(_func), param_pChar(_param) {
+
+}
+TUI::optItem::optItem(
+    std::string _name,
+    int _x,
+    int _y,
+    int _key,
+    TDEF_void_pStr  _func,
+    std::string *_param
+): name(_name), x(_x), y(_y), key(_key), _funcType_id(4), func_void_pStr(_func), param_pStr(_param) {
+
+}
+
+
+
+void TUI::termMenu::extend_containers(int xAdd, int yAdd) {
+    if(xAdd<1 && yAdd<1) return;
+
+    if(option_key.size()==0) {
+        menuTable = createTable(xAdd, yAdd);
+    }
+    else {
+        menuTable.add_col(xAdd);
+        menuTable.add_row(yAdd);
+    }
+
+    int xSize = menuTable.table.at(0).size();
+    for(int yDiff=0; yDiff<yAdd; yDiff++) {
+        option_key.push_back(std::vector<int>(xSize, -1));
+        optFunc_identifier.push_back(std::vector<int>(xSize, -1));
+
+        optFunc_id0.push_back(std::vector<TDEF_void__>(xSize, termMenu_nullFunc_void__));
+        optFunc_id1_.push_back(std::vector<TDEF_void_pBool>(xSize, termMenu_nullFunc_void_pBool));
+        optFunc_id2_.push_back(std::vector<TDEF_void_pInt>(xSize, termMenu_nullFunc_void_pInt));
+        optFunc_id3_.push_back(std::vector<TDEF_void_pChar>(xSize, termMenu_nullFunc_void_pChar));
+        optFunc_id4_.push_back(std::vector<TDEF_void_pStr>(xSize, termMenu_nullFunc_void_pStr));
+
+        optFunc_id1_p0.push_back(std::vector<bool*>(xSize, &termMenu_nullParam_bool));
+        optFunc_id2_p0.push_back(std::vector<int*>(xSize, &termMenu_nullParam_int));
+        optFunc_id3_p0.push_back(std::vector<char*>(xSize, &termMenu_nullParam_char));
+        optFunc_id4_p0.push_back(std::vector<std::string*>(xSize, &termMenu_nullParam_string));
+    }
+    for(int y=0; y<menuTable.table.size(); y++) {
+        for(int xDiff=0; xDiff<xAdd; xDiff++) {
+            option_key.at(y).push_back(-1);
+            optFunc_identifier.at(y).push_back(-1);
+
+            optFunc_id0.at(y).push_back(termMenu_nullFunc_void__);
+            optFunc_id1_.at(y).push_back(termMenu_nullFunc_void_pBool);
+            optFunc_id2_.at(y).push_back(termMenu_nullFunc_void_pInt);
+            optFunc_id3_.at(y).push_back(termMenu_nullFunc_void_pChar);
+            optFunc_id4_.at(y).push_back(termMenu_nullFunc_void_pStr);
+
+            optFunc_id1_p0.at(y).push_back(&termMenu_nullParam_bool);
+            optFunc_id2_p0.at(y).push_back(&termMenu_nullParam_int);
+            optFunc_id3_p0.at(y).push_back(&termMenu_nullParam_char);
+            optFunc_id4_p0.at(y).push_back(&termMenu_nullParam_string);
+        }
+    }
+    menuTable.checkMaxLen();
+}
+int TUI::termMenu::container_insertKey(int keyPress, int x_column, int y_row) {
+    if(keyPress==-1) {
+        option_key.at(y_row).at(x_column) = -1;
+    }
+    else {
+        bool toBreak=false;
+        for(int y=0; y<option_key.size(); y++) {
+            for(int x=0; x<option_key.at(y).size(); x++) {
+                if(x==x_column && y==y_row) continue;
+                if(option_key.at(y).at(x)==keyPress) {
+                    toBreak = true;
+                    break;
+                }
+            }
+            if(toBreak) break;
+        }
+        if(toBreak) option_key.at(y_row).at(x_column) = -1;
+        else option_key.at(y_row).at(x_column) = keyPress;
+        // return -1;
+    }
+    return 0;
+}
+int TUI::termMenu::customCall_argLess(int pos_x, int pos_y) {
+    switch (optFunc_identifier.at(pos_y).at(pos_x)) {
+        case 0: if(optFunc_id0.at(pos_y).at(pos_x)) optFunc_id0.at(pos_y).at(pos_x)(); break;
+        case 1: if(optFunc_id1_.at(pos_y).at(pos_x)) optFunc_id1_.at(pos_y).at(pos_x)(optFunc_id1_p0.at(pos_y).at(pos_x)); break;
+        case 2: if(optFunc_id2_.at(pos_y).at(pos_x)) optFunc_id2_.at(pos_y).at(pos_x)(optFunc_id2_p0.at(pos_y).at(pos_x)); break;
+        case 3: if(optFunc_id3_.at(pos_y).at(pos_x)) optFunc_id3_.at(pos_y).at(pos_x)(optFunc_id3_p0.at(pos_y).at(pos_x)); break;
+        case 4: if(optFunc_id4_.at(pos_y).at(pos_x)) optFunc_id4_.at(pos_y).at(pos_x)(optFunc_id4_p0.at(pos_y).at(pos_x)); break;
+        default:
+            return -1;
+    }
+
+    return 0;
+}
+
+
+TUI::termMenu::termMenu(
     int menuColumns,
-    int menuRows
+    int menuRows,
+    bool callFromDriver
 ) {
     if(menuColumns<1 || menuRows<1) {
-        std::cerr << "ERROR: termMenu init: menu{Columns/Rows} can't be smaller than 1"<<std::endl;
-        return;
+        throw std::invalid_argument("ERROR: termMenu init: menu{Columns/Rows} can't be smaller than 1");
     }
-    classInit = true;
     callFunc = callFromDriver;
 
     
@@ -23,10 +156,67 @@ termMenu::termMenu(
         menuColumns,
         menuRows
     );
+
+    classInit = true;
+}
+TUI::termMenu::termMenu(
+    std::initializer_list<TUI::optItem> _items,
+    bool callFromDriver
+) {
+    for(auto itr=_items.begin(); itr!=_items.end(); ++itr) {
+        switch (itr->_funcType_id) {
+            case 0: this->addOpt(itr->name, itr->x, itr->y, itr->key, itr->func_void__); break;
+            case 1: this->addOpt(itr->name, itr->x, itr->y, itr->key, itr->func_void_pBool, itr->param_pBool);break;
+            case 2: this->addOpt(itr->name, itr->x, itr->y, itr->key, itr->func_void_pInt,  itr->param_pInt); break;
+            case 3: this->addOpt(itr->name, itr->x, itr->y, itr->key, itr->func_void_pChar, itr->param_pChar);break;
+            case 4: this->addOpt(itr->name, itr->x, itr->y, itr->key, itr->func_void_pStr,  itr->param_pStr); break;
+        default:
+            break;
+        }
+    }
+
+    classInit = true;
+    callFunc = callFromDriver;
+
+}
+TUI::termMenu::termMenu(
+    std::initializer_list<TUI::optItem> _items,
+    int menuColumns,
+    int menuRows,
+    bool callFromDriver
+) {
+    if(menuColumns<1 || menuRows<1) {
+        throw std::invalid_argument("ERROR: termMenu init: menu{Columns/Rows} can't be smaller than 1");
+    }
+    callFunc = callFromDriver;
+
+    
+    extend_containers(
+        menuColumns,
+        menuRows
+    );
+    
+    for(auto itr=_items.begin(); itr!=_items.end(); ++itr) {
+        switch (itr->_funcType_id) {
+            case 0: this->addOpt(itr->name, itr->x, itr->y, itr->key, itr->func_void__); break;
+            case 1: this->addOpt(itr->name, itr->x, itr->y, itr->key, itr->func_void_pBool, itr->param_pBool);break;
+            case 2: this->addOpt(itr->name, itr->x, itr->y, itr->key, itr->func_void_pInt,  itr->param_pInt); break;
+            case 3: this->addOpt(itr->name, itr->x, itr->y, itr->key, itr->func_void_pChar, itr->param_pChar);break;
+            case 4: this->addOpt(itr->name, itr->x, itr->y, itr->key, itr->func_void_pStr,  itr->param_pStr); break;
+        default:
+            break;
+        }
+    }
+
+    classInit = true;
 }
 
+void TUI::DEDICATED__exitDriver(bool* _driverExit) {
+    assert(_driverExit && "ERROR: incorrect pointer sent to TUI::DEDICATED__exitDriver function");
+    *_driverExit = true;
+}
 
-int termMenu::setDisplayDim(
+int TUI::termMenu::setDisplayDim(
     int c0_x,
     int c0_y,
     int c1_x,
@@ -45,8 +235,8 @@ int termMenu::setDisplayDim(
 
         // display_dim[0][0] = menuTable.getCellX(0, 0);
         // display_dim[0][1] = menuTable.getCellY(0, 0);
-        // display_dim[1][0] = menuTable.getCellX(menuTable.table.at(0).size()-1, menuTable.table.size()-1);
-        // display_dim[1][1] = menuTable.getCellY(menuTable.table.at(0).size()-1, menuTable.table.size()-1);
+        // display_dim[1][0] = menuTable.getCellX(static_cast<int>((menuTable.table.size()>0? menuTable.table.at(0).size() : 0) -1 ), static_cast<int>(menuTable.table.size())-1);
+        // display_dim[1][1] = menuTable.getCellY(static_cast<int>((menuTable.table.size()>0? menuTable.table.at(0).size() : 0) -1 ), static_cast<int>(menuTable.table.size())-1);
     }
     else {
         cursorMode = cursMode;
@@ -60,7 +250,7 @@ int termMenu::setDisplayDim(
 }
 
 
-int termMenu::setButtonWidth(int width) {
+int TUI::termMenu::setButtonWidth(int width) {
     if(width-menuTable.getColTotMax()<0) return -1;
 
     button_totWidth = width;
@@ -69,7 +259,7 @@ int termMenu::setButtonWidth(int width) {
     return 0;
 }
 
-int termMenu::addOpt(
+int TUI::termMenu::addOpt(
     std::string optName,
     int x_column,
     int y_row,
@@ -78,8 +268,8 @@ int termMenu::addOpt(
 ) {
 
     extend_containers(
-        x_column-(menuTable.table.at(0).size()-1),
-        y_row-(menuTable.table.size()-1)
+        x_column-(static_cast<int>((menuTable.table.size()>0? menuTable.table.at(0).size() : 0) -1 )),
+        y_row-(static_cast<int>(menuTable.table.size())-1)
     );
     if(container_insertKey(keyPress, x_column, y_row)==-1) return 1;
     menuTable.insertText(optName, x_column, y_row);
@@ -90,7 +280,7 @@ int termMenu::addOpt(
 
     return 0;
 }
-int termMenu::addOpt(
+int TUI::termMenu::addOpt(
     std::string optName,
     int x_column,
     int y_row,
@@ -100,8 +290,8 @@ int termMenu::addOpt(
 ) {
 
     extend_containers(
-        x_column-(menuTable.table.at(0).size()-1),
-        y_row-(menuTable.table.size()-1)
+        x_column-(static_cast<int>((menuTable.table.size()>0? menuTable.table.at(0).size() : 0) -1 )),
+        y_row-(static_cast<int>(menuTable.table.size())-1)
     );
     if(container_insertKey(keyPress, x_column, y_row)==-1) return 1;
     menuTable.insertText(optName, x_column, y_row);
@@ -109,11 +299,16 @@ int termMenu::addOpt(
 
     optFunc_identifier.at(y_row).at(x_column) = 1;
     optFunc_id1_.at(y_row).at(x_column) = optFunc;
-    optFunc_id1_p0.at(y_row).at(x_column) = param0;
+    if(optFunc==TUI::DEDICATED__exitDriver) {
+        optFunc_id1_p0.at(y_row).at(x_column) = &this->exitDriver;
+    }
+    else {
+        optFunc_id1_p0.at(y_row).at(x_column) = param0;
+    }
 
     return 0;
 }
-int termMenu::addOpt(
+int TUI::termMenu::addOpt(
     std::string optName,
     int x_column,
     int y_row,
@@ -123,8 +318,8 @@ int termMenu::addOpt(
 ) {
 
     extend_containers(
-        x_column-(menuTable.table.at(0).size()-1),
-        y_row-(menuTable.table.size()-1)
+        x_column-(static_cast<int>((menuTable.table.size()>0? menuTable.table.at(0).size() : 0) -1 )),
+        y_row-(static_cast<int>(menuTable.table.size())-1)
     );
     if(container_insertKey(keyPress, x_column, y_row)==-1) return 1;
     menuTable.insertText(optName, x_column, y_row);
@@ -136,7 +331,7 @@ int termMenu::addOpt(
 
     return 0;
 }
-int termMenu::addOpt(
+int TUI::termMenu::addOpt(
     std::string optName,
     int x_column,
     int y_row,
@@ -146,8 +341,8 @@ int termMenu::addOpt(
 ) {
 
     extend_containers(
-        x_column-(menuTable.table.at(0).size()-1),
-        y_row-(menuTable.table.size()-1)
+        x_column-(static_cast<int>((menuTable.table.size()>0? menuTable.table.at(0).size() : 0) -1 )),
+        y_row-(static_cast<int>(menuTable.table.size())-1)
     );
     if(container_insertKey(keyPress, x_column, y_row)==-1) return 1;
     menuTable.insertText(optName, x_column, y_row);
@@ -159,7 +354,7 @@ int termMenu::addOpt(
 
     return 0;
 }
-int termMenu::addOpt(
+int TUI::termMenu::addOpt(
     std::string optName,
     int x_column,
     int y_row,
@@ -169,8 +364,8 @@ int termMenu::addOpt(
 ) {
 
     extend_containers(
-        x_column-(menuTable.table.at(0).size()-1),
-        y_row-(menuTable.table.size()-1)
+        x_column-(static_cast<int>((menuTable.table.size()>0? menuTable.table.at(0).size() : 0) -1 )),
+        y_row-(static_cast<int>(menuTable.table.size())-1)
     );
     if(container_insertKey(keyPress, x_column, y_row)==-1) return 1;
     menuTable.insertText(optName, x_column, y_row);
@@ -184,7 +379,8 @@ int termMenu::addOpt(
 }
 
 
-int termMenu::rename_opt(
+
+int TUI::termMenu::rename_opt(
     int x_column,
     int y_row,
     std::string new_optName
@@ -195,7 +391,7 @@ int termMenu::rename_opt(
     return 0;
 }
 
-const int* termMenu::driver(
+const int* TUI::termMenu::driver(
     int pos_x,
     int pos_y,
     int msDelay,
@@ -230,8 +426,8 @@ const int* termMenu::driver(
     if(display_dim[1][0]-display_dim[0][0]>menuTable.table[0].size()-1) {
         display_dim[1][0] = display_dim[0][0] + menuTable.table[0].size()-1;
     }
-    if(display_dim[1][1]-display_dim[0][1]>menuTable.table.size()-1) {
-        display_dim[1][1] = display_dim[0][1] + menuTable.table.size()-1;
+    if(display_dim[1][1]-display_dim[0][1]>static_cast<int>(menuTable.table.size())-1) {
+        display_dim[1][1] = display_dim[0][1] + static_cast<int>(menuTable.table.size())-1;
     }
 
 
@@ -239,13 +435,13 @@ const int* termMenu::driver(
         display_dim[0][0] = 0;
         display_dim[0][1] = 0;
         display_dim[1][0] = menuTable.table[0].size()-1;
-        display_dim[1][1] = menuTable.table.size()-1;
+        display_dim[1][1] = static_cast<int>(menuTable.table.size())-1;
     }
 
-    if(menuTable.getCellX(menuTable.table[0].size()-1,menuTable.table.size()-1)+pos_x>termSize[0]) { //lower right corner x check
+    if(menuTable.getCellX(menuTable.table[0].size()-1,static_cast<int>(menuTable.table.size())-1)+pos_x>termSize[0]) { //lower right corner x check
         if(cursorMode==-1) cursorMode = 0;
         for(int x=menuTable.table[0].size()-1; x>=0; x--) {
-            if(menuTable.getCellX(x,menuTable.table.size()-1)+pos_x<termSize[0]) {
+            if(menuTable.getCellX(x,static_cast<int>(menuTable.table.size())-1)+pos_x<termSize[0]) {
                 display_dim[1][0] = x;
                 break;
             }
@@ -260,9 +456,9 @@ const int* termMenu::driver(
             }
         }
     }
-    if(menuTable.getCellY(menuTable.table[0].size()-1,menuTable.table.size()-1)+pos_y>termSize[1]) { //lower right corner y check
+    if(menuTable.getCellY(menuTable.table[0].size()-1,static_cast<int>(menuTable.table.size())-1)+pos_y>termSize[1]) { //lower right corner y check
         if(cursorMode==-1) cursorMode = 0;
-        for(int y=menuTable.table.size()-1; y>=0; y--) {
+        for(int y=static_cast<int>(menuTable.table.size())-1; y>=0; y--) {
             if(menuTable.getCellY(menuTable.table[0].size()-1, y)+pos_y<termSize[1]) {
                 display_dim[1][1] = y;
                 break;
@@ -389,7 +585,6 @@ const int* termMenu::driver(
         if(loopInit) c = keyCheck(c);
 #endif
 
-
         loopFunc();
 
         //???
@@ -404,6 +599,7 @@ const int* termMenu::driver(
 
         lastKeyPress = c;
 
+        /// Cell movement
         if(c==CUSTOM_KEY_LEFT) {
             currCell[0]--;
             if(currCell[0]<0) currCell[0] = menuTable.table[currCell[1]].size()-1;
@@ -428,28 +624,29 @@ const int* termMenu::driver(
         }
         else if(c==CUSTOM_KEY_UP) {
             currCell[1]--;
-            if(currCell[1]<0) currCell[1] = menuTable.table.size()-1;
+            if(currCell[1]<0) currCell[1] = static_cast<int>(menuTable.table.size())-1;
             if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
                 for(int i=0; i<menuTable.table.size(); i++) {
                     currCell[1]--;
-                    if(currCell[1]<0) currCell[1] = menuTable.table.size()-1;
+                    if(currCell[1]<0) currCell[1] = static_cast<int>(menuTable.table.size())-1;
                     if(menuTable.table.at(currCell[1]).at(currCell[0])!="") break;
                 }
             }
         }
         else if(c==CUSTOM_KEY_DOWN) {
             currCell[1]++;
-            if(currCell[1]>(menuTable.table.size()-1)) currCell[1]=0;
+            if(currCell[1]>(static_cast<int>(menuTable.table.size())-1)) currCell[1]=0;
             if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
                 for(int i=0; i<menuTable.table.size(); i++) {
                     currCell[1]++;
-                    if(currCell[1]>(menuTable.table.size()-1)) currCell[1]=0;
+                    if(currCell[1]>(static_cast<int>(menuTable.table.size())-1)) currCell[1]=0;
                     if(menuTable.table.at(currCell[1]).at(currCell[0])!="") break;
                 }
             }
         }
         // else if(c==9) { // tab
         // }
+
 
         if(loopInit && (c==CUSTOM_KEY_ENTER || c=='\n')) {
             pressedCell[0] = currCell[0];
@@ -542,6 +739,7 @@ const int* termMenu::driver(
         }
 #endif
         
+        /// cursorMode based movement drawing.
         if(cursorMode==-1) {
             ansiPrint(
                 menuTable.exportStr,
@@ -648,7 +846,7 @@ const int* termMenu::driver(
             if(currCell[0]-dispDim[0]/2>=0) cursLock[0][0] = true;
             if(currCell[0]+dispDim[0]/2<=menuTable.table[0].size()-1) cursLock[1][0] = true;
             if(currCell[1]-dispDim[1]/2>=0) cursLock[0][1] = true;
-            if(currCell[1]+dispDim[1]/2<=menuTable.table.size()-1) cursLock[1][1] = true;
+            if(currCell[1]+dispDim[1]/2<=static_cast<int>(menuTable.table.size())-1) cursLock[1][1] = true;
 
 
             /// Set display/dymanic-edges width parameters
@@ -679,8 +877,8 @@ const int* termMenu::driver(
                     display_dim[1][1] = dispDim[1];
                 }
                 else if(!cursLock[1][1]) {
-                    display_dim[1][1] = menuTable.table.size()-1;
-                    display_dim[0][1] = menuTable.table.size()-1 - dispDim[1];
+                    display_dim[1][1] = static_cast<int>(menuTable.table.size())-1;
+                    display_dim[0][1] = static_cast<int>(menuTable.table.size())-1 - dispDim[1];
                 }
             }
 
@@ -743,7 +941,7 @@ const int* termMenu::driver(
                     else if(displayIDX_raw[y][x][0]>menuTable.table[0].size()-1) displayIDX_raw[y][x][0] -= menuTable.table[0].size();
 
                     if(displayIDX_raw[y][x][1]<0) displayIDX_raw[y][x][1] = menuTable.table.size()+displayIDX_raw[y][x][1];
-                    else if(displayIDX_raw[y][x][1]>menuTable.table.size()-1) displayIDX_raw[y][x][1] -= menuTable.table.size();
+                    else if(displayIDX_raw[y][x][1]>static_cast<int>(menuTable.table.size())-1) displayIDX_raw[y][x][1] -= menuTable.table.size();
                     
                     // ANSI_mvprint(
                     //     20, 4,
@@ -820,7 +1018,7 @@ const int* termMenu::driver(
 }
 
 
-std::string termMenu::termInput(
+std::string TUI::termMenu::termInput(
     int eventMethod,
     int pos_x,
     int pos_y,
@@ -886,7 +1084,13 @@ std::string termMenu::termInput(
         std::string outStr = "";
         // nodelay(stdscr, FALSE);
         while((key_c=getch()) != '\n') {
-            
+            if(key_c==-1) continue;
+            static int cnt = 0;
+            ANSI_mvprint(95, 3, formatNumber(key_c, 0, 0));
+            ANSI_mvprint(100, 3, formatNumber(cnt/1000, 0, 0));
+            cnt++;
+            if(cnt>10'000'000'000) cnt = 0;
+
             if(pos_x!=-1 && pos_y!=-1) {
                 if(bar_height>0 && bar_width>0) {
                     for(int y=pos_y; y<pos_y+bar_height; y++) {
@@ -937,14 +1141,14 @@ std::string termMenu::termInput(
 }
 
 
-int termMenu::redefine_function(int x_column, int y_row, TDEF_void__ newFunc) {
+int TUI::termMenu::redefine_function(int x_column, int y_row, TDEF_void__ newFunc) {
     if(x_column>=menuTable.table[0].size() || y_row>=menuTable.table.size()) return 1;
     optFunc_id0[x_column][y_row] = newFunc;
 
     return 0;
 }
 
-int termMenu::redefine_opt_id0_id1(int x_column, int y_row, TDEF_void_pBool optFunc, bool* param0) {
+int TUI::termMenu::redefine_opt_id0_id1(int x_column, int y_row, TDEF_void_pBool optFunc, bool* param0) {
     if(x_column>=menuTable.table[0].size() || y_row>=menuTable.table.size()) return 1;
     
     optFunc_id0.at(y_row).at(x_column) = termMenu_nullFunc_void__;
@@ -955,41 +1159,41 @@ int termMenu::redefine_opt_id0_id1(int x_column, int y_row, TDEF_void_pBool optF
     return 0;
 }
 
-int termMenu::getCellPos_x(int column, int row, std::string rowSep) {
+int TUI::termMenu::getCellPos_x(int column, int row, std::string rowSep) {
     return menuTable.getCellX(column,row,rowSep);
 }
 
-int termMenu::getCellPos_y(int column, int row, std::string rowSep) {
+int TUI::termMenu::getCellPos_y(int column, int row, std::string rowSep) {
     return menuTable.getCellY(column,row,rowSep);
 }
 
-std::string termMenu::getCellName(int column, int row) {
+std::string TUI::termMenu::getCellName(int column, int row) {
     return menuTable.table.at(row).at(column);
 }
 
 
-void termMenu::init_driverCallKeys_add(int key, int addLoc) {
+void TUI::termMenu::init_driverCallKeys_add(int key, int addLoc) {
     if(addLoc<0 || addLoc>=init_driverCallKeys.size()) init_driverCallKeys.push_back(key);
     else {
         std::vector<int>::iterator itr = init_driverCallKeys.begin() + addLoc;
         init_driverCallKeys.insert(itr, key);
     }
 }
-void termMenu::init_driverCallKeys_add(std::vector<int> keys, int addLoc) {
+void TUI::termMenu::init_driverCallKeys_add(std::vector<int> keys, int addLoc) {
     if(addLoc<0 || addLoc>init_driverCallKeys.size()-1) addLoc = init_driverCallKeys.size();
     std::vector<int>::iterator itr = init_driverCallKeys.begin() + addLoc;
     init_driverCallKeys.insert(itr, keys.begin(), keys.end());
 }
 
-void termMenu::init_driverCallKeys_clear() {
+void TUI::termMenu::init_driverCallKeys_clear() {
     init_driverCallKeys.clear();
 }
 
 
-void termMenu::moveCurrCell(size_t col, size_t row) {
+void TUI::termMenu::moveCurrCell(size_t col, size_t row) {
 
 }
-void termMenu::moveCurrCell(int xDir, int yDir) {
+void TUI::termMenu::moveCurrCell(int xDir, int yDir) {
 
     if(xDir<0) {
         for(int x=xDir; x<0; x++) {
@@ -1020,11 +1224,11 @@ void termMenu::moveCurrCell(int xDir, int yDir) {
     if(yDir>0) {
         for(int y=0; y<yDir; y++) {
             currCell[1]++;
-            if(currCell[1]>(menuTable.table.size()-1)) currCell[1]=0;
+            if(currCell[1]>(static_cast<int>(menuTable.table.size())-1)) currCell[1]=0;
             if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
                 for(int i=0; i<menuTable.table.size(); i++) {
                     currCell[1]++;
-                    if(currCell[1]>(menuTable.table.size()-1)) currCell[1]=0;
+                    if(currCell[1]>(static_cast<int>(menuTable.table.size())-1)) currCell[1]=0;
                     if(menuTable.table.at(currCell[1]).at(currCell[0])!="") break;
                 }
             }
@@ -1033,11 +1237,11 @@ void termMenu::moveCurrCell(int xDir, int yDir) {
     else if(yDir<0) {
         for(int y=yDir; y<0; y++) {
             currCell[1]--;
-            if(currCell[1]<0) currCell[1] = menuTable.table.size()-1;
+            if(currCell[1]<0) currCell[1] = static_cast<int>(menuTable.table.size())-1;
             if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
                 for(int i=0; i<menuTable.table.size(); i++) {
                     currCell[1]--;
-                    if(currCell[1]<0) currCell[1] = menuTable.table.size()-1;
+                    if(currCell[1]<0) currCell[1] = static_cast<int>(menuTable.table.size())-1;
                     if(menuTable.table.at(currCell[1]).at(currCell[0])!="") break;
                 }
             }
@@ -1047,7 +1251,7 @@ void termMenu::moveCurrCell(int xDir, int yDir) {
 }
 
 
-int termMenu::getMenu_width() {
+int TUI::termMenu::getMenu_width() {
     if(!menuTable.read_exportCalled()) {
         int tempWidth = static_cast<int>(array_sum(menuTable.maxColumnLen));
         return tempWidth+menuTable.maxColumnLen.size();
@@ -1066,7 +1270,7 @@ int termMenu::getMenu_width() {
     return result;
 }
 
-int termMenu::getMenu_height() {
+int TUI::termMenu::getMenu_height() {
     if(!menuTable.read_exportCalled()) {
         return menuTable.table.size();
     }
@@ -1074,7 +1278,7 @@ int termMenu::getMenu_height() {
 }
 
 
-bool termMenu_nullParam_bool = false;
-int termMenu_nullParam_int = 0;
-char termMenu_nullParam_char = '0';
-std::string termMenu_nullParam_string = "0";
+bool TUI::termMenu_nullParam_bool = false;
+int  TUI::termMenu_nullParam_int = 0;
+char TUI::termMenu_nullParam_char = '0';
+std::string TUI::termMenu_nullParam_string = "0";

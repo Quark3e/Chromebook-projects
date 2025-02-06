@@ -20,8 +20,8 @@
 #define recordFrames	false
 
 
-#define DEFAULT_WIDTH   640
-#define DEFAULT_HEIGHT  480
+#define DEFAULT_PREF_WIDTH   640
+#define DEFAULT_PREF_HEIGHT  480
 
 
 #endif

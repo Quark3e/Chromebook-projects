@@ -1,4 +1,5 @@
 
+#include <useful.hpp>
 #include "global_variables.hpp"
 
 std::string absPath;
@@ -30,7 +31,8 @@ float Pitch=0, Roll=0;
 nodemcu_orient orientObj(orient, "192.168.1.177", DEFAULT__PORT, false);
 
 
-int prefSize[2] = {640, 480};
+int prefSize[2] = {DEFAULT_PREF_WIDTH, DEFAULT_PREF_HEIGHT};
+
 
 bool useAutoBrightne = true;
 bool takeCVTrackPerf = true;
@@ -270,14 +272,66 @@ void thread_task(IR_camTracking* camPtr, int t_idx) {
 
 #endif
 
+int subMenuPos[2] = {20, 0};
+// void subMenu_exit() {
+// 	hardExit = true;
+// 	modeMenu.exitDriver = true;
+// 	startMenu.exitDriver = true;
+// }
+void subMenu_mode() {
 
-termMenu startMenu(true, 1, 6);
-termMenu modeMenu(true, 1, 6);
+	// modeMenu.addOpt("0. Main", 0, 0, -1, HW_option0);
+	// modeMenu.addOpt("1. Servo motor disconnected", 0, 1, -1, HW_option3);
+	// modeMenu.addOpt("2. Don't display opencv", 0, 2, -1, HW_option4);
+	// modeMenu.addOpt("3. Orient movement", 0, 3, -1, HW_option5_orient);
+	// modeMenu.addOpt("Back", 0, 4, 27, TUI::bool_true, &modeMenu.exitDriver);
+	// modeMenu.addOpt("Exit", 0, 5, 'e', exitFrom_lvl2, &modeMenu.exitDriver);
+
+	modeMenu.driver(subMenuPos[0], subMenuPos[1], 0, false);
+}
 
 
-termMenu opt6_startMenu(true, 1, 6);
+// TUI::termMenu startMenu(1, 6, true);
+TUI::termMenu startMenu({
+	TUI::optItem{"[1]   Intro    ", 0, 0, '1', HW_option1_intro},
+	TUI::optItem{"[2]   Calibrate", 0, 1, '2', HW_option2},
+	TUI::optItem{"[3]   Main     ", 0, 2, '3', HW_option0},
+	TUI::optItem{"[t]   Terminal ", 0, 3, 't', HW_option6_terminal},
+	TUI::optItem{"[m]   mode:    ", 0, 4, 'm', subMenu_mode},
+	TUI::optItem{"[esc] Exit     ", 0, 5, 27, TUI::DEDICATED__exitDriver}
+});
+// TUI::termMenu modeMenu(1, 6, true);
+TUI::termMenu modeMenu({
+	{"[0]	Main", 0, 0, -1, HW_option0},
+	{"[1] 	Servo motor disconnected", 0, 1, -1, HW_option3},
+	{"[2]	Don't display opencv", 0, 2, -1, HW_option4},
+	{"[3]	Orient movement", 0, 3, -1, HW_option5_orient},
+	{" Back", 0, 4, 27, TUI::DEDICATED__exitDriver},
+	{" Exit", 0, 5, 'e', TUI::DEDICATED__exitDriver}
+});
 
-termMenu opt6_control_panel(false, 7, 7);
+// TUI::termMenu opt6_startMenu(1, 6, true);
+TUI::termMenu opt6_startMenu({
+	{"[1]	Control Panel", 0, 0, '1', HW_option6_control_panel},
+	{"[2]	Raw input", 	0, 1, '2', HW_option6_rawTerminal},
+	{"[3]	Run file", 		0, 2, '3', HW_option6_runFromFile},
+	{"[s]	Settings", 		0, 4, 's', HW_option6_settings},
+	{"[esc]	Back", 			0, 6, 27, TUI::DEDICATED__exitDriver},
+	{"[e]	Exit", 			0, 7, 'e', TUI::DEDICATED__exitDriver}
+});
+TUI::termMenu opt6_control_panel({
+	{formatNumber("x:",8,0,"left"), 1, 1, 'x', static_cast<TUI::TDEF_void__>(nullptr)},
+	{formatNumber("y:",8,0,"left"), 3, 1, 'y', static_cast<TUI::TDEF_void__>(nullptr)},
+	{formatNumber("z:",8,0,"left"), 5, 1, 'z', static_cast<TUI::TDEF_void__>(nullptr)},
+
+	{formatNumber("a:",8,0,"left"), 1, 3, 'a', static_cast<TUI::TDEF_void__>(nullptr)},
+	{formatNumber("B:",8,0,"left"), 3, 3, 'b', static_cast<TUI::TDEF_void__>(nullptr)},
+	{formatNumber("Y:",8,0,"left"), 5, 3, 'y', static_cast<TUI::TDEF_void__>(nullptr)},
+
+	{"back", 1, 5, 27, static_cast<TUI::TDEF_void__>(nullptr)},
+	{"enter", 5, 5, 10, static_cast<TUI::TDEF_void__>(nullptr)}
+}, false);
+// TUI::termMenu opt6_control_panel(7, 7, false);
 
 void exitFrom_lvl2(bool* driverBool) {
 	startMenu.exitDriver = true;

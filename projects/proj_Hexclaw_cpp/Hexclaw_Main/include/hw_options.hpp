@@ -50,6 +50,11 @@ void HW_option5_orient();
 */
 void HW_option6_terminal();
 
+void HW_option6_control_panel();
+void HW_option6_rawTerminal();
+void HW_option6_settings();
+void HW_option6_runFromFile();
+
 
 
 /**

@@ -11,15 +11,8 @@
 
 #include "hw_options.hpp"
 
-bool opt6_hardExit = false;
-bool opt6_localExit = false;
-
-
-
-void HW_option6_control_panel();
-void HW_option6_rawTerminal();
-void HW_option6_settings();
-void HW_option6_runFromFile();
+// bool opt6_hardExit = false;
+// bool opt6_localExit = false;
 
 
 void HW_option6_terminal() {
@@ -38,15 +31,15 @@ void HW_option6_terminal() {
     */
     
 
-    opt6_startMenu.addOpt("[1]   Control Panel", 0, 0, '1', HW_option6_control_panel);
-    opt6_startMenu.addOpt("[2]   Raw input    ", 0, 1, '2', HW_option6_rawTerminal);
-    opt6_startMenu.addOpt("[3]   Run file     ", 0, 2, '3', HW_option6_runFromFile);
-    opt6_startMenu.addOpt("[s]   Settings     ", 0, 4, 's', HW_option6_settings);
-    opt6_startMenu.addOpt("[esc] Back         ", 0, 5, 27, bool_true, &opt6_startMenu.exitDriver);
-    opt6_startMenu.addOpt("[e]   Exit         ", 0, 6, 'e', exitFrom_lvl2, &opt6_startMenu.exitDriver);
+    // opt6_startMenu.addOpt("[1]   Control Panel", 0, 0, '1', HW_option6_control_panel);
+    // opt6_startMenu.addOpt("[2]   Raw input    ", 0, 1, '2', HW_option6_rawTerminal);
+    // opt6_startMenu.addOpt("[3]   Run file     ", 0, 2, '3', HW_option6_runFromFile);
+    // opt6_startMenu.addOpt("[s]   Settings     ", 0, 4, 's', HW_option6_settings);
+    // opt6_startMenu.addOpt("[esc] Back         ", 0, 5, 27, TUI::bool_true, &opt6_startMenu.exitDriver);
+    // opt6_startMenu.addOpt("[e]   Exit         ", 0, 6, 'e', exitFrom_lvl2, &opt6_startMenu.exitDriver);
 
 
-    opt6_startMenu.driver(1, 1, 0, false);
+    opt6_startMenu.driver(1, 1, 0, true);
 }
 
 
@@ -82,16 +75,16 @@ void HW_option6_control_panel() {
 
     bool exitLoop = false;
 
-    opt6_control_panel.addOpt("x:"+std::string(1+digits_integers+digits_decimals,' '),1,1,-1,termMenu_nullFunc_void__);
-    opt6_control_panel.addOpt("y:"+std::string(1+digits_integers+digits_decimals,' '),3,1,-1,termMenu_nullFunc_void__);
-    opt6_control_panel.addOpt("z:"+std::string(1+digits_integers+digits_decimals,' '),5,1,-1,termMenu_nullFunc_void__);
+    // opt6_control_panel.addOpt("x:"/*+std::string(1+digits_integers+digits_decimals,' ')*/,1,1,-1,TUI::termMenu_nullFunc_void__);
+    // opt6_control_panel.addOpt("y:"/*+std::string(1+digits_integers+digits_decimals,' ')*/,3,1,-1,TUI::termMenu_nullFunc_void__);
+    // opt6_control_panel.addOpt("z:"/*+std::string(1+digits_integers+digits_decimals,' ')*/,5,1,-1,TUI::termMenu_nullFunc_void__);
 
-    opt6_control_panel.addOpt("a:"+std::string(1+digits_integers+digits_decimals,' '),1,3,-1,termMenu_nullFunc_void__);
-    opt6_control_panel.addOpt("B:"+std::string(1+digits_integers+digits_decimals,' '),3,3,-1,termMenu_nullFunc_void__);
-    opt6_control_panel.addOpt("Y:"+std::string(1+digits_integers+digits_decimals,' '),5,3,-1,termMenu_nullFunc_void__);
+    // opt6_control_panel.addOpt("a:"/*+std::string(1+digits_integers+digits_decimals,' ')*/,1,3,-1,TUI::termMenu_nullFunc_void__);
+    // opt6_control_panel.addOpt("B:"/*+std::string(1+digits_integers+digits_decimals,' ')*/,3,3,-1,TUI::termMenu_nullFunc_void__);
+    // opt6_control_panel.addOpt("Y:"/*+std::string(1+digits_integers+digits_decimals,' ')*/,5,3,-1,TUI::termMenu_nullFunc_void__);
 
-    opt6_control_panel.addOpt("back", key_back[0],key_back[1],27, termMenu_nullFunc_void__);
-    opt6_control_panel.addOpt("enter",key_enter[0],key_enter[1],-1, termMenu_nullFunc_void__);
+    // opt6_control_panel.addOpt("back", key_back[0],key_back[1], 27, TUI::termMenu_nullFunc_void__);
+    // opt6_control_panel.addOpt("enter",key_enter[0],key_enter[1],-1, TUI::termMenu_nullFunc_void__);
 
 
     const int* pressedKey;
@@ -141,7 +134,7 @@ void HW_option6_control_panel() {
         else {
             opt6_control_panel.init_driverCallKeys_clear();
         }
-        pressedKey = opt6_control_panel.driver(termLoc_control_panel[0],termLoc_control_panel[1],0,false,termMenu_nullFunc_void__,false);
+        pressedKey = opt6_control_panel.driver(termLoc_control_panel[0],termLoc_control_panel[1],0,false,TUI::termMenu_nullFunc_void__,false);
         if(tabCalled) {
             tabCalled = false;
             opt6_control_panel.init_driverCallKeys_clear();

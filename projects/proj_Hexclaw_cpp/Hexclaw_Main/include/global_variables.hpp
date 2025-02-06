@@ -255,11 +255,11 @@ void thread_task(IR_camTracking* camPtr, int t_idx);
 #endif
 
 
-extern termMenu startMenu;
-extern termMenu modeMenu;
+extern TUI::termMenu startMenu;
+extern TUI::termMenu modeMenu;
 
 
-extern termMenu opt6_startMenu;
+extern TUI::termMenu opt6_startMenu;
 
 /**
  *  _ _ _ _ _ _ _
@@ -271,7 +271,7 @@ extern termMenu opt6_startMenu;
  *  _ _ _ _ _ _ _
  * 
 */
-extern termMenu opt6_control_panel;
+extern TUI::termMenu opt6_control_panel;
 
 void exitFrom_lvl2(bool* driverBool);
 

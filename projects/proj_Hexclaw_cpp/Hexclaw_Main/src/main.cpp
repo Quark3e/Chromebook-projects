@@ -12,8 +12,8 @@
 
 
 #include <includes.hpp>
-#include <global_variables.hpp>
 #include <servo_control.hpp>
+#include <global_variables.hpp>
 #include <constants.hpp>
 
 
@@ -189,24 +189,6 @@ void loadData_csvArtif(bool printVar=true) {
 
 
 
-int subMenuPos[2] = {20, 0};
-// void subMenu_exit() {
-// 	hardExit = true;
-// 	modeMenu.exitDriver = true;
-// 	startMenu.exitDriver = true;
-// }
-void subMenu_mode() {
-
-	modeMenu.addOpt("0. Main", 0, 0, -1, HW_option0);
-	modeMenu.addOpt("1. Servo motor disconnected", 0, 1, -1, HW_option3);
-	modeMenu.addOpt("2. Don't display opencv", 0, 2, -1, HW_option4);
-	modeMenu.addOpt("3. Orient movement", 0, 3, -1, HW_option5_orient);
-	modeMenu.addOpt("Back", 0, 4, 27, bool_true, &modeMenu.exitDriver);
-	modeMenu.addOpt("Exit", 0, 5, 'e', exitFrom_lvl2, &modeMenu.exitDriver);
-
-	modeMenu.driver(subMenuPos[0], subMenuPos[1], 0, false);
-}
-
 
 
 int main(int argc, char* argv[]) {
@@ -217,12 +199,12 @@ int main(int argc, char* argv[]) {
 
 	// pca.init();
 
-	startMenu.addOpt("[1]   Intro    ", 0, 0, '1', HW_option1_intro);
-	startMenu.addOpt("[2]   Calibrate", 0, 1, '2', HW_option2);
-	startMenu.addOpt("[3]   Main     ", 0, 2, '3', HW_option0);
-	startMenu.addOpt("[t]   Terminal ", 0, 3, 't', HW_option6_terminal);
-	startMenu.addOpt("[m]   mode:    ", 0, 4, 'm', subMenu_mode);
-	startMenu.addOpt("[esc] Exit     ", 0, 5, 27, bool_true, &startMenu.exitDriver);
+	// startMenu.addOpt("[1]   Intro    ", 0, 0, '1', HW_option1_intro);
+	// startMenu.addOpt("[2]   Calibrate", 0, 1, '2', HW_option2);
+	// startMenu.addOpt("[3]   Main     ", 0, 2, '3', HW_option0);
+	// startMenu.addOpt("[t]   Terminal ", 0, 3, 't', HW_option6_terminal);
+	// startMenu.addOpt("[m]   mode:    ", 0, 4, 'm', subMenu_mode);
+	// startMenu.addOpt("[esc] Exit     ", 0, 5, 27, TUI::bool_true, &startMenu.exitDriver);
 
 	// startMenu.setButtonWidth(10);
 

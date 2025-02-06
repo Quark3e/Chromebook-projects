@@ -86,7 +86,7 @@ int getCoordinates(
     pos2d<float> cam0_pos,
     pos2d<float> cam1_pos,
     int mode,
-    pos2d<float> camDim = pos2d<float>(DEFAULT_WIDTH, DEFAULT_HEIGHT)
+    pos2d<float> camDim = pos2d<float>(DEFAULT_PREF_WIDTH, DEFAULT_PREF_HEIGHT)
 );
 
 
