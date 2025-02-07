@@ -1085,11 +1085,6 @@ std::string TUI::termMenu::termInput(
         // nodelay(stdscr, FALSE);
         while((key_c=getch()) != '\n') {
             if(key_c==-1) continue;
-            static int cnt = 0;
-            ANSI_mvprint(95, 3, formatNumber(key_c, 0, 0));
-            ANSI_mvprint(100, 3, formatNumber(cnt/1000, 0, 0));
-            cnt++;
-            if(cnt>10'000'000'000) cnt = 0;
 
             if(pos_x!=-1 && pos_y!=-1) {
                 if(bar_height>0 && bar_width>0) {

@@ -291,7 +291,6 @@ void subMenu_mode() {
 }
 
 
-// TUI::termMenu startMenu(1, 6, true);
 TUI::termMenu startMenu({
 	TUI::optItem{"[1]   Intro    ", 0, 0, '1', HW_option1_intro},
 	TUI::optItem{"[2]   Calibrate", 0, 1, '2', HW_option2},
@@ -300,7 +299,8 @@ TUI::termMenu startMenu({
 	TUI::optItem{"[m]   mode:    ", 0, 4, 'm', subMenu_mode},
 	TUI::optItem{"[esc] Exit     ", 0, 5, 27, TUI::DEDICATED__exitDriver}
 });
-// TUI::termMenu modeMenu(1, 6, true);
+
+
 TUI::termMenu modeMenu({
 	{"[0]	Main", 0, 0, -1, HW_option0},
 	{"[1] 	Servo motor disconnected", 0, 1, -1, HW_option3},
@@ -331,7 +331,7 @@ TUI::termMenu opt6_control_panel({
 	{"back", 1, 5, 27, static_cast<TUI::TDEF_void__>(nullptr)},
 	{"enter", 5, 5, 10, static_cast<TUI::TDEF_void__>(nullptr)}
 }, false);
-// TUI::termMenu opt6_control_panel(7, 7, false);
+
 
 void exitFrom_lvl2(bool* driverBool) {
 	startMenu.exitDriver = true;
