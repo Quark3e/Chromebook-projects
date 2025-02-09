@@ -14,7 +14,7 @@
 #include <opencv4/opencv2/imgproc/imgproc.hpp>
 
 
-#include <HC_useful/getPerformance.hpp>
+#include <getPerformance.hpp>
 
 // using namespace std;
 
@@ -38,19 +38,20 @@ class IR_camTracking {
     int camIdx;
     getPerf perfObj;
     
-    int prefSize[2];
+    std::vector<int> prefSize{640, 480};
 
     int areaLim = 1000;
-    vector<vector<float>> allCnt_pos;
+    std::vector<std::vector<float>> allCnt_pos;
 
     /// @brief final/total/avg contour position
-    float totCnt_pos[2];
+    std::vector<float> totCnt_pos{0, 0};
+    // float totCnt_pos[2] = {0, 0};
     /// @brief total sum of contour areas
     float totCnt_area = 0;
 
     cv::VideoCapture cap;
-    vector<cv::Vec4i> hierarchy;
-    vector<vector<cv::Point>> contours;
+    std::vector<cv::Vec4i> hierarchy;
+    std::vector<std::vector<cv::Point>> contours;
 
     cv::Mat imgRaw, imgOriginal, imgFlipped, imgHSV, imgThreshold;
 
@@ -59,10 +60,10 @@ class IR_camTracking {
     bool takePerformance = true;
     bool printAll = true;
 
-    int l_HSV[3] = {0, 0, 255};
-    int u_HSV[3] = {179, 9, 255};
+    std::vector<int> l_HSV{0, 0, 255};
+    std::vector<int> u_HSV{179, 9, 255};
 
-    const char* win_name = "Window";
+    std::string win_name = "Window";
 
     /** Return code holder variable incase `IR_camTracking::processCam()` is called without access to return value or by some error
      *  0 = normal/successful
@@ -70,6 +71,7 @@ class IR_camTracking {
     */
     int processReturnCode = 0;
 
+    IR_camTracking(const IR_camTracking& _other);
     IR_camTracking(
         int camIndex,
         int prefWidth = 640,
@@ -77,29 +79,34 @@ class IR_camTracking {
         bool setAutoBright = true,
         bool useWindow = false,
         bool readDelays = true,
-        const char* windowName = "Window"
+        std::string windowName = "Window"
     );
     IR_camTracking(
         int camIndex,
-        const char* windowName = "Window",
+        std::string windowName = "Window",
         int prefWidth = 640,
         int prefHeight = 480
     );
+    ~IR_camTracking();
+    
+    IR_camTracking& operator=(const IR_camTracking& _other);
+
+
 
     /// @brief create a window for the class. If `windowName` is already used then it won't create a new window
     /// @param windowName name of the window
     /// @param width_resize new width for window
     /// @param height_resize new height for window
     void setup_window(
-        const char* windowName = "Window",
+        std::string windowName = "Window",
         int width_resize = 1280,
         int height_resize = 960
     );
 
     void getAvg_cntPos();
     int processCam();
-    void createTrackbars(const char* win_name);
-    void updateTrackbarPos(const char* win_name);
+    void createTrackbars(std::string win_name);
+    void updateTrackbarPos(std::string win_name);
     void close();
 
 };
@@ -107,16 +114,16 @@ class IR_camTracking {
 void hsv_settingsRead(
     std::vector<IR_camTracking>& camObject,
     int argHSV[2][3],
-    const char* window_name = "",
+    std::string window_name = "",
     int indeks=1,
-    string filePath="hsv_settings.dat",
+    std::string filePath="hsv_settings.dat",
     bool displayWin=true
 );
 void hsv_settingsWrite(
     int argHSV[2][3],
     int indeks=0,
     bool overWrite=false,
-    string filePath="hsv_settings.dat"
+    std::string filePath="hsv_settings.dat"
 );
 
 

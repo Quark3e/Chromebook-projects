@@ -122,7 +122,7 @@ extern opencv_recorder recObj;
 */
 void lock_cout(
 	std::mutex &coutMutex,
-	string toPrint,
+	std::string toPrint,
 	bool blockingLock = true,
 	bool flushOut = false,
 	bool startClearScr = false
@@ -255,8 +255,8 @@ void thread_task(IR_camTracking* camPtr, int t_idx);
 #endif
 
 
-extern TUI::termMenu startMenu;
-extern TUI::termMenu modeMenu;
+extern TUI::termMenu menu_group__main;
+extern TUI::termMenu menu_group__calibrate;
 
 
 extern TUI::termMenu opt6_startMenu;
@@ -272,8 +272,6 @@ extern TUI::termMenu opt6_startMenu;
  * 
 */
 extern TUI::termMenu opt6_control_panel;
-
-void exitFrom_lvl2(bool* driverBool);
 
 
 struct _initClass_dataStruct {

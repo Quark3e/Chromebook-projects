@@ -822,7 +822,8 @@ struct pos2d {
         std::string printText,
         bool flushEnd = true,
         std::string x_method = "abs",
-        std::string y_method = "abs"
+        std::string y_method = "abs",
+        bool initClearScr = false
     ) {
         static int prevPos[2] = {0, 0};
 
@@ -830,6 +831,11 @@ struct pos2d {
         if(y_method=="rel") posY = prevPos[1]+posY;
 
         std::string ansiCode = "\x1B[";
+
+        if(initClearScr) {
+            std::cout<<ansiCode<<"2J";
+            std::cout.flush();
+        }
 
         size_t tPos=0, ePos=0;
         int rowCount= 0;

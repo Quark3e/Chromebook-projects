@@ -49,7 +49,7 @@ void q_corrections(float angles[6]) {
 bool exceedCheck(float angles[6], bool printErrors) {
     bool exceeded = false;
     bool whichExceeded[6] = {false, false, false, false, false, false};
-    string typeOfExceeded[6] = {"null", "null", "null", "null", "null", "null"};
+    std::vector<std::string> typeOfExceeded{"null", "null", "null", "null", "null", "null"};
 
     for(int i=0; i<5; i++) {
         if(int(angles[i])<0) {
@@ -163,7 +163,7 @@ int sendToServo(
                 if(printResult) printf("%3d ",int(round(val)));
             }
             if(printResult) printf("----------\n");
-            if(totalTime>0.1) usleep(int(totalTime/total_iteration*1'000'000));
+            if(totalTime>0.1) std::this_thread::sleep_for(std::chrono::milliseconds(int(totalTime/total_iteration*1'000)));
         }
     }
     if(printResult) {

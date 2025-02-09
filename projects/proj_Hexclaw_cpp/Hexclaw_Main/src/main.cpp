@@ -143,7 +143,7 @@ void loadData_csvArtif(bool printVar=true) {
 		std::fstream csvFile;
 
 		filename = absPath+filenom[0]+std::to_string(part)+filenom[1];
-		csvFile.open(filename, ios::in);
+		csvFile.open(filename, std::ios::in);
 		if(!csvFile.is_open()) std::cout << "error: file \""<< filename <<"\" could not be opened" << std::endl;
 		
 		std::getline(csvFile, line);
@@ -226,15 +226,16 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	else {
-		std::cout<<"\x1B[2J"<<std::endl;
-		startMenu.driver(1, 1, 0, false);
+		HW_group__main();
+		// std::cout<<"\x1B[2J"<<std::endl;
+		// startMenu.driver(1, 1, 0, false);
 	}
 
 	if(hardExit) {
 		return 0;
 	}
 
-	if(startMenu.exitDriver) {
+	if(menu_group__main.exitDriver) {
 		std::cout << "\x1B[H"<<"\x1B[2J";
 		std::cout.flush();
 		return 0;

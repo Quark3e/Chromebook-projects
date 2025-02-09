@@ -36,38 +36,38 @@ void HW_option1_intro() {
 	new_q[5] = 0;
 	// printf("running intro...\n");
 	//sendToServo(&pca, current_q, new_q, false, 0, 0);
-	usleep(1'000'000);
+	std::this_thread::sleep_for(std::chrono::milliseconds(1'000));
 	if(_init_status.get("pigpio").isInit()) {
 		gpioWrite(pin_ledRelay, 0);
 		gpioWrite(pin_ledRelay, 1);
 	}
-	usleep(750'000);
+	std::this_thread::sleep_for(std::chrono::milliseconds(750));
 	// std::cout<<"\n- section: \"slow start\"\n";
 	ANSI_mvprint(0, 0, "\n- section: \"slow start\"\n", true, "abs", "rel");
 	sendToServo(&pca, new_q, current_q, false, 2, 10);
 
 	// std::cout<<"intro finished\n";
 	ANSI_mvprint(0, 0, "intro finished\n", true, "abs", "rel");
-	usleep(3'000'000);
+	std::this_thread::sleep_for(std::chrono::milliseconds(3'000));
 	if(_init_status.get("pigpio").isInit()) {
 		for(int i=0; i<4; i++) {
 			gpioWrite(pin_ledRelay, 0);
-			usleep(30'000);
+			std::this_thread::sleep_for(std::chrono::milliseconds(30));
 			gpioWrite(pin_ledRelay, 1);
-			usleep(30'000);
+			std::this_thread::sleep_for(std::chrono::milliseconds(30));
 		}
-		usleep(1'500'000);
+		std::this_thread::sleep_for(std::chrono::milliseconds(1'500));
 		gpioWrite(pin_ledRelay, 0);
-		usleep(250'000);
+		std::this_thread::sleep_for(std::chrono::milliseconds(250));
 		gpioWrite(pin_ledRelay, 1);
-		usleep(500'000);
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		gpioWrite(pin_ledRelay, 0);
-		usleep(100'000);
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		gpioWrite(pin_ledRelay, 1);
-		usleep(2'000'000);
+		std::this_thread::sleep_for(std::chrono::milliseconds(2'000));
 		gpioWrite(pin_ledRelay, 0);
 	}
-	usleep(2'000'000);
+	std::this_thread::sleep_for(std::chrono::milliseconds(2'000));
 
 	if(_init_status.get("pigpio").isInit()) gpioWrite(pin_ledRelay, 1);
 	new_q[0] = 45;
@@ -79,6 +79,6 @@ void HW_option1_intro() {
 	// std::cout<<"\n- section: \"crash\"\n";
 	ANSI_mvprint(0, 0, "\n- section: \"crash\"\n", true, "abs", "rel");
 	sendToServo(&pca,new_q,current_q, false);
-	usleep(2'000'000);
+	std::this_thread::sleep_for(std::chrono::milliseconds(2'000));
 
 }

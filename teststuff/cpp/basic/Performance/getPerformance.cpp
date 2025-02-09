@@ -3,6 +3,42 @@
 
 
 
+getPerf::getPerf(
+    const getPerf& _other
+):
+strLenMax(_other.strLenMax), CSV_save(_other.CSV_save), CSV_filename(_other.CSV_filename),
+CSV_lineCount(_other.CSV_lineCount), CSV_init(_other.CSV_init),
+delayFilter(_other.delayFilter), printNames(_other.printNames), names(_other.names), times(_other.times), delays_ms(_other.delays_ms),
+total_delay(_other.total_delay), FPS(_other.FPS) {
+    // csvFile = _other.csvFile;
+
+}
+getPerf::getPerf(std::string nameInitStr) {
+    names.push_back(nameInitStr+"_t0");
+    times.push_back(std::chrono::steady_clock::now());
+    delays_ms.push_back(0);
+}
+getPerf::~getPerf() {
+
+}
+
+getPerf& getPerf::operator=(const getPerf& _other) {
+    strLenMax   = _other.strLenMax;
+    CSV_save    = _other.CSV_save;
+    CSV_filename    = _other.CSV_filename;
+    CSV_lineCount   = _other.CSV_lineCount;
+    CSV_init    = _other.CSV_init;
+    delayFilter = _other.delayFilter;
+    printNames  = _other.printNames;
+    names   = _other.names;
+    times   = _other.times;
+    delays_ms   = _other.delays_ms;
+    total_delay = _other.total_delay;
+    FPS = _other.FPS;
+
+    return *this;
+}
+
 void getPerf::close() {
     if(CSV_save) {
         csvFile << "# " << getDate();
@@ -12,16 +48,16 @@ void getPerf::close() {
     }
 }
 
-auto getPerf::getTime(string name) {
+auto getPerf::getTime(std::string name) {
     int idx=getIdx(name);
     if(idx==-1) {
         printf("error: \"%s\" named checkpoint doesn't exist.\n", name.c_str());
-        return chrono::steady_clock::now();
+        return std::chrono::steady_clock::now();
     }
     return times.at(idx);
 }
 
-string getPerf::cutStr(string& var, int maxLen) {
+std::string getPerf::cutStr(std::string& var, int maxLen) {
 	int varLen = var.size();
     if(varLen>=maxLen) {
         // printf(" note: name \"%s\" has been modified to ", var.c_str());
@@ -31,7 +67,7 @@ string getPerf::cutStr(string& var, int maxLen) {
     return var;
 }
 
-float getPerf::getDelay(string name) {
+float getPerf::getDelay(std::string name) {
     auto idx=getIdx(name);
     if(idx==-1) {
         printf("error: \"%s\" named checkpoint doesn't exist.\n", name.c_str());
@@ -42,42 +78,42 @@ float getPerf::getDelay(string name) {
 
 
 void getPerf::csv_setup(
-    string filename,
+    std::string filename,
     bool overwrite
 ) {
     CSV_save = true;
     if(overwrite) {
-        csvFile.open(filename+".csv", ios::trunc);
+        csvFile.open(filename+".csv", std::ios::trunc);
         CSV_filename = filename;
     }
     else {
         int i = 0;
         if(isFile(filename+".csv")) {
             while(true) {
-                if(!isFile(filename+"_"+to_string(i)+".csv")) { break; }
+                if(!isFile(filename+"_"+std::to_string(i)+".csv")) { break; }
                 i++;
             }
         }
-        csvFile.open(filename+"_"+to_string(i)+".csv");
-        CSV_filename = filename+"_"+to_string(i);
+        csvFile.open(filename+"_"+std::to_string(i)+".csv");
+        CSV_filename = filename+"_"+std::to_string(i);
     }
     csvFile << "# " << getDate();
 }
 
-void getPerf::add_checkpoint(string name) {
-    auto tempTime = chrono::steady_clock::now();
+void getPerf::add_checkpoint(std::string name) {
+    auto tempTime = std::chrono::steady_clock::now();
     if(name.size()>=strLenMax) name = cutStr(name, strLenMax);
     int idx=getIdx(name);
     if(idx != -1) {
         // If `name` already exist in vector `names
         times.at(idx) = tempTime;
-        auto elapsed = chrono::duration_cast<chrono::microseconds>(tempTime-times.at(idx-1));
+        auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(tempTime-times.at(idx-1));
         // delays_ms.at(idx) = 1000000*(tempTime-times.at(idx-1))/(double)CLOCKS_PER_SEC;
         delays_ms.at(idx) = (elapsed.count()*0.001)*delayFilter+(1.0-delayFilter)*delays_ms.at(idx);
     }
     else {
         printNames = true;
-        auto elapsed = chrono::duration_cast<chrono::microseconds>(tempTime-times.back());
+        auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(tempTime-times.back());
         // delays_ms.push_back(1'000'000*(tempTime-times.back())/(double)CLOCKS_PER_SEC);
         delays_ms.push_back((elapsed.count()*0.001));
         times.push_back(tempTime);
@@ -86,7 +122,7 @@ void getPerf::add_checkpoint(string name) {
     // printf("%7.4f", delays_ms.back());
 }
 
-string getPerf::update_totalInfo(
+std::string getPerf::update_totalInfo(
     bool reset_t0,
     bool printResult,
     bool printAll,
@@ -100,26 +136,26 @@ string getPerf::update_totalInfo(
 
     // total_delay = 1000*(times.back()-times.front())/(double)CLOCKS_PER_SEC;
 
-    auto elapsed = chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now()-times.front());
+    auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now()-times.front());
     total_delay = (elapsed.count()*0.001)*delayFilter+(1.0-delayFilter)*total_delay;
     FPS = float(1)/(total_delay/1000);
 
-    string totalVar = "|", tempS, totStr;
-    if(reset_t0) times.at(0) = chrono::steady_clock::now();
+    std::string totalVar = "|", tempS, totStr;
+    if(reset_t0) times.at(0) = std::chrono::steady_clock::now();
     if(printAll) {
         //prints individual delays
-        string totalStr = "|";
+        std::string totalStr = "|";
         // printf("%d|%d|%d|\n", times.size(), names.size(), delays_ms.size());
         for(auto i=0; i<times.size(); i++) {
             if(printNames) {
-                string emptySpace(strLenMax-(names.at(i)).length()+1, ' ');
+                std::string emptySpace(strLenMax-(names.at(i)).length()+1, ' ');
                 totalStr += " " + names.at(i) + emptySpace + "|";
             }
-            stringstream sstream;
+            std::stringstream sstream;
 
-            sstream << fixed << setprecision(2) << delays_ms.at(i);
+            sstream << std::fixed << std::setprecision(2) << delays_ms.at(i);
             tempS = sstream.str();
-            string emptySpace2(strLenMax-tempS.size()-1, ' ');
+            std::string emptySpace2(strLenMax-tempS.size()-1, ' ');
             totalVar += emptySpace2 + tempS + "ms " + "|";
         }
         rawPrintStrings[0] = totalVar;
@@ -133,9 +169,9 @@ string getPerf::update_totalInfo(
     }
     if(printResult) {
         //prints FPS and total_delay
-        stringstream streamPrint[2];
-        streamPrint[0] << fixed << setprecision(2) << FPS;
-        streamPrint[1] << fixed << setprecision(2) << total_delay;
+        std::stringstream streamPrint[2];
+        streamPrint[0] << std::fixed << std::setprecision(2) << FPS;
+        streamPrint[1] << std::fixed << std::setprecision(2) << total_delay;
         totStr = "loop iteration info: fps:"+streamPrint[0].str()+" | total_delay:"+streamPrint[1].str()+"ms"+resultEndSymb1; 
         if(!printAll) printf("%s",totStr.c_str());
     }
@@ -155,18 +191,18 @@ string getPerf::update_totalInfo(
         }
         csvFile << CSV_lineCount << ",";
         for(auto i=0; i<times.size(); i++) {
-            csvFile << fixed << setprecision(2) << delays_ms.at(i);
+            csvFile << std::fixed << std::setprecision(2) << delays_ms.at(i);
             if(i<times.size()-1) csvFile << ",";
         }
         float sumDelay = 0;
         for(float& n : delays_ms)  sumDelay+=n;
-        csvFile << "," << fixed<<setprecision(2)<< sumDelay << "\n";
+        csvFile << "," << std::fixed<<std::setprecision(2)<< sumDelay << "\n";
         CSV_lineCount+=1;
     }
     return "";
 }
 
-int getPerf::getIdx(string name) {
+int getPerf::getIdx(std::string name) {
     auto pos = find(names.begin(), names.end(), name);
     if(pos == names.end()) {
         //doesn't exis

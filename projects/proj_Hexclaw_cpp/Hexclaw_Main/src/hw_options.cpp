@@ -13,7 +13,7 @@ void printFuncLabel(std::string functionName) {
 	// std::cout << std::endl << std::string(termDim[0], '-')<<std::endl;
 	// std::cout << functionName << std::endl;
 	// std::cout << std::string(termDim[0], '-')<<std::endl;
-	ANSI_mvprint(0, 0, std::string(termDim[0], '-'));
+	ANSI_mvprint(0, 0, std::string(termDim[0], '-'), true, "abs", "rel", true);
 	ANSI_mvprint(0, 0, functionName, true, "abs", "rel");
 	ANSI_mvprint(0, 0, std::string(termDim[0], '-'), true, "abs", "rel");
 }
@@ -53,5 +53,17 @@ void HW_setup_options() {
     hexclaw_cmdArgs.add_func(std::vector<std::string>{"-4"}, HW_option4, "Calibrate servo motors by reading error rate and solving reverse correction function coefficients");
     hexclaw_cmdArgs.add_func(std::vector<std::string>{"-5"}, HW_option5_orient, "Only read and send end-effector orientation from nodemcu device to hexclaw robot-arm");
 	hexclaw_cmdArgs.add_func(std::vector<std::string>{"-6", "-t", "--terminal"}, HW_option6_terminal, "Control robot with terminal position inputs");
+
+}
+
+
+void HW_group__main() {
+
+    menu_group__main.driver(1, 1, 5, true);
+}
+
+void HW_group__calibrate() {
+
+    menu_group__calibrate.driver(1, 1,  5, true);
 
 }

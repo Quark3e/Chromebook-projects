@@ -20,6 +20,17 @@ void printFuncLabel(std::string functionName);
 void cmdArgs_info();
 
 
+/// Sub section group termMenu's for some of the hw option functions
+/**
+ * Main function group for the default options. This function is called when no cmd argument flags are set during program startup.
+ */
+void HW_group__main();
+/**
+ * Group menu function for calibration functions.
+ */
+void HW_group__calibrate();
+
+
 /// @brief run intro servo movement
 void HW_option1_intro();
 /// @brief calibrate HSV values
@@ -27,7 +38,7 @@ void HW_option2();
 
 /// @brief mode0: run main/default option
 void HW_option0();
-/// @brief mode 1: track with opencv and display result but don't control/move servo motors
+/// @brief mode 1: track with opencv and receive telemetry data and display result but don't control/move servo motors
 void HW_option3();
 /// @brief mode 2: calibrate servo motors by sending rotation signals to the motors individually and compare them with statically recorded tilt readings
 void HW_option4();

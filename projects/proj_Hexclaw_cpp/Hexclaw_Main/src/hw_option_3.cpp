@@ -19,7 +19,7 @@ void HW_option3() {
 		for(int _=0; _<3; _++) {
 			// std::cout << " ."; std::cout.flush();
 			ANSI_mvprint(0, -1, " .", true, "rel", "rel");
-			usleep(1'000'000);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1'000));
 		}
 		return;
 	}

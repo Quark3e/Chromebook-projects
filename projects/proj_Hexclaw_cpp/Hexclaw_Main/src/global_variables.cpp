@@ -83,7 +83,7 @@ opencv_recorder recObj;
 
 void lock_cout(
 	std::mutex &coutMutex,
-	string toPrint,
+	std::string toPrint,
 	bool blockingLock,
 	bool flushOut,
 	bool startClearScr
@@ -194,7 +194,7 @@ void thread_task(IR_camTracking* camPtr, int t_idx) {
 		// 	else break;
 		// 	std::this_thread::sleep_for(10ms);
 		// }
-		// if(threadDebug) lock_cout(mtx_cout, "\n["+to_string(t_idx)+"]: sub-threads have been synced",true,true);
+		// if(threadDebug) lock_cout(mtx_cout, "\n["+std::to_string(t_idx)+"]: sub-threads have been synced",true,true);
 		// u_lck_sync.unlock();
 
 		#if takePerf
@@ -249,7 +249,7 @@ void thread_task(IR_camTracking* camPtr, int t_idx) {
 		transferCamVars(camPtr, t_idx);
 		if(!threadsInit[t_idx]) threadsInit[t_idx] = true;
 		if(threadDebug) {
-			lock_cout(mtx_cout, "\n\tthread:["+to_string(t_idx)+"]: transferCamVars called",true,false);
+			lock_cout(mtx_cout, "\n\tthread:["+std::to_string(t_idx)+"]: transferCamVars called",true,false);
 		}
 		if(exit_thread[t_idx] || returCodes_interm[t_idx]==-1) {
 			u_lck_cout.lock();
@@ -273,42 +273,24 @@ void thread_task(IR_camTracking* camPtr, int t_idx) {
 #endif
 
 int subMenuPos[2] = {20, 0};
-// void subMenu_exit() {
-// 	hardExit = true;
-// 	modeMenu.exitDriver = true;
-// 	startMenu.exitDriver = true;
-// }
-void subMenu_mode() {
 
-	// modeMenu.addOpt("0. Main", 0, 0, -1, HW_option0);
-	// modeMenu.addOpt("1. Servo motor disconnected", 0, 1, -1, HW_option3);
-	// modeMenu.addOpt("2. Don't display opencv", 0, 2, -1, HW_option4);
-	// modeMenu.addOpt("3. Orient movement", 0, 3, -1, HW_option5_orient);
-	// modeMenu.addOpt("Back", 0, 4, 27, TUI::bool_true, &modeMenu.exitDriver);
-	// modeMenu.addOpt("Exit", 0, 5, 'e', exitFrom_lvl2, &modeMenu.exitDriver);
-
-	modeMenu.driver(subMenuPos[0], subMenuPos[1], 0, false);
-}
-
-
-TUI::termMenu startMenu({
-	TUI::optItem{"[1]   Intro    ", 0, 0, '1', HW_option1_intro},
-	TUI::optItem{"[2]   Calibrate", 0, 1, '2', HW_option2},
-	TUI::optItem{"[3]   Main     ", 0, 2, '3', HW_option0},
-	TUI::optItem{"[t]   Terminal ", 0, 3, 't', HW_option6_terminal},
-	TUI::optItem{"[m]   mode:    ", 0, 4, 'm', subMenu_mode},
-	TUI::optItem{"[esc] Exit     ", 0, 5, 27, TUI::DEDICATED__exitDriver}
+TUI::termMenu menu_group__main({
+	{"[0]	Intro", 0, 0, '0', HW_option1_intro},
+	{"[1]	Calibrate", 0, 2, '1', HW_group__calibrate},
+	{"[2]	Main", 0, 4, '2', HW_option0},
+	{"[3]	Tracking-telemetry", 0, 5, '3', HW_option3},
+	{"[4]	Orient", 0, 6, '4', HW_option5_orient},
+	{"[t]	Terminal", 0, 7, 't', HW_option6_terminal},
+	// {"[m]	Modes", 0, 7, 'm', subMenu_mode},
+	{"[esc]	Exit",	    0, 9,  27, TUI::DEDICATED__exitDriver}
+});
+TUI::termMenu menu_group__calibrate({
+	{"[0]	Webcam object tracking HSV-values", 0, 0, '0', HW_option2},
+	{"[1]	Servo motor drift trend-solution",  0, 1, '1', HW_option4},
+	{"[esc] Exit", 0, 3, 27, TUI::DEDICATED__exitDriver}
 });
 
 
-TUI::termMenu modeMenu({
-	{"[0]	Main", 0, 0, -1, HW_option0},
-	{"[1] 	Servo motor disconnected", 0, 1, -1, HW_option3},
-	{"[2]	Don't display opencv", 0, 2, -1, HW_option4},
-	{"[3]	Orient movement", 0, 3, -1, HW_option5_orient},
-	{" Back", 0, 4, 27, TUI::DEDICATED__exitDriver},
-	{" Exit", 0, 5, 'e', TUI::DEDICATED__exitDriver}
-});
 
 // TUI::termMenu opt6_startMenu(1, 6, true);
 TUI::termMenu opt6_startMenu({
@@ -333,11 +315,6 @@ TUI::termMenu opt6_control_panel({
 }, false);
 
 
-void exitFrom_lvl2(bool* driverBool) {
-	startMenu.exitDriver = true;
-	(*driverBool) = true;
-}
-
 
 _initClass::_initClass(
 	int (*_init_function)(_initClass_dataStruct*),
@@ -358,7 +335,7 @@ _initClass::~_initClass() {
 }
 int 	_initClass::call_init() {
 	int _returnCode = 0;
-	if(this->_init) return -69;
+	// if(this->_init) return -69;
 	if(_init_func) _returnCode = _init_func(&this->_callData);
 	if(_returnCode==0) this->_init = true;
 	return _returnCode;
@@ -432,8 +409,10 @@ int _init__pca(_initClass_dataStruct *_passData) {
 }
 int _init__camObj(_initClass_dataStruct *_passData) {
 	try {
-		camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf));
-		camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf));
+		camObj = std::vector<IR_camTracking>{
+			IR_camTracking(0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf),
+			IR_camTracking(2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf)
+		};
 	} catch (const std::logic_error& e) {
 		_passData->_message = e.what();
 		return 1;

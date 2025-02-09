@@ -12,20 +12,24 @@
 
 
 void HW_option0() {
+	printFuncLabel(" Running: opt0: Main loop with opencv and servo control");
 	simplified_init();
-	if(!_init_status.get("pca").isInit()) ANSI_mvprint(0, 0, "NOTE: PCA9685 library has not been successfully initialised: "+_init_status.get("pca").get_callMsg(), true, "abs", "rel");
-	// std::cout << "NOTE: PCA9685 board has not been successfully initialised: "<<_init_status.get("pca").get_callMsg()<<std::endl;
-	if(!_init_status.get("camObj").isInit()) {
-		// std::cout << "ERROR: camObj has not been able to be initialised."; std::cout.flush();
-		ANSI_mvprint(0, 0, "ERROR: camObj has not been successfully initialised: "+_init_status.get("camObj").get_callMsg(), true, "abs", "rel");
-		for(int _=0; _<3; _++) {
-			// std::cout << " ."; std::cout.flush();
-			ANSI_mvprint(0, -1, " .", true, "rel", "rel");
-			usleep(1'000'000);
-		}
+
+	if(!_init_status.get("pca").isInit()) { ANSI_mvprint(0, 0, "NOTE: PCA9685 library has not been successfully initialised: "+_init_status.get("pca").get_callMsg(), true, "abs", "rel"); }
+	if(!_init_status.get("camObj").isInit()) { ANSI_mvprint(0, 0, "ERROR: camObj has not been successfully initialised: "+_init_status.get("camObj").get_callMsg(), true, "abs", "rel"); }
+	if(!(_init_status.get("pca").isInit() && _init_status.get("camObj").isInit())) {
+		ANSI_mvprint(0, 0, "Exiting \"opt0: Main loop\"", true, "abs", "rel");
+		std::this_thread::sleep_for(std::chrono::seconds(5));
 		return;
 	}
-	printFuncLabel(" Running: opt0: Main loop with opencv and servo control");
+	ANSI_mvprint(
+		0, 0,
+		formatNumber(_init_status.get("pca").isInit(), 5, 0, "left")+" "+formatNumber(_init_status.get("camObj").isInit(), 5, 0, "left"),
+		true, "abs", "rel"
+	);
+	std::this_thread::sleep_for(std::chrono::seconds(5));
+
+
 
 	//create windows regardless because i need a way to properly exit the loop
 	camObj[0].setup_window("Main thread window");
@@ -104,7 +108,7 @@ void HW_option0() {
 
         std::thread t_cam0(thread_task, &camObj[0], 0);
         std::thread t_cam1(thread_task, &camObj[1], 1);
-        std::this_thread::sleep_for(1000ms);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     #endif
 
 	while(true) {
@@ -121,9 +125,9 @@ void HW_option0() {
 
 			while(!threadsInit[2]) {
 				u_lck0.lock();
-				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -u_lck0 locked."); std::this_thread::sleep_for(100ms); }
+				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -u_lck0 locked."); std::this_thread::sleep_for(std::chrono::milliseconds(100)); }
 				u_lck1.lock();
-				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -u_lck1 locked."); std::this_thread::sleep_for(100ms); }
+				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -u_lck1 locked."); std::this_thread::sleep_for(std::chrono::milliseconds(100)); }
 				updateCamVars(0);
 				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -updateCamVars(0)."); }
 				updateCamVars(1);
@@ -139,7 +143,7 @@ void HW_option0() {
 					threadsInit[2] = true;
 				}
 				if(threadDebug) lock_cout(mtx_cout, ".", true, true);
-				std::this_thread::sleep_for(500ms);
+				std::this_thread::sleep_for(std::chrono::milliseconds(500));
 				u_lck1.unlock();
 				u_lck0.unlock();
 			}
@@ -253,7 +257,7 @@ void HW_option0() {
 			// lock_cout(mtx_cout, "\nT[0]: tPerfObj locked",true,true);
 			static bool init_delayTable_name = false;
 			if(!init_delayTable_name && camProcess_delayNames[0].size()>1) {
-				lock_cout(mtx_cout,to_string(camProcess_delayNames[0].size()));
+				lock_cout(mtx_cout, std::to_string(camProcess_delayNames[0].size()));
 				// u_lck_cout.lock();
 				// std::cin.get();
 				// u_lck_cout.unlock();
@@ -334,7 +338,7 @@ void HW_option0() {
 			hsv_settingsWrite(HW_HSV, 0);
 		}
 		else if(keyInp==114) { //'r'
-			string inputVar = "";
+			std::string inputVar = "";
 			int indVar = 0;
 			// std::cout << "Enter index in hsv file\ninput: ";
 			ANSI_mvprint(0, 0, "Enter index in hsv file", true, "abs", "rel");
@@ -342,8 +346,8 @@ void HW_option0() {
 			std::cin >> inputVar;
 			if(inputVar=="exit") exit(1);
 			indVar = stoi(inputVar);
-			cin.clear();
-			cin.ignore();
+			std::cin.clear();
+			std::cin.ignore();
 			hsv_settingsRead(camObj, HW_HSV, window_name, indVar);
 		}
 		else if(keyInp==116) { /*'t'*/ hsv_settingsRead(camObj, HW_HSV, window_name, 0); }
