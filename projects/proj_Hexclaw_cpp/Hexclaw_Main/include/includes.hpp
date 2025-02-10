@@ -17,23 +17,39 @@
 #include <stdint.h>
 #include <vector>
 
+
 // path related headers
 #include <cstring>
 #include <unistd.h>
+
+#if _MACHINE__RPI_MAIN
 #include <libgen.h>
 #include <linux/limits.h>
+#else
+
+#endif
 
 // opencv/image tracking
+#if _MACHINE__RPI_MAIN
 #include <opencv4/opencv2/opencv.hpp>
 #include <opencv4/opencv2/highgui/highgui.hpp>
 #include <opencv4/opencv2/imgproc/imgproc.hpp>
+#else
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#endif
 
 
 // PCA9685 communication
+#if _MACHINE__RPI_MAIN
 #include <PiPCA9685/PCA9685.h>
+#endif
 
 // RPi specific functions
+#if _MACHINE__RPI_MAIN
 #include <pigpio.h>
+#endif
 
 // #if useThreads
 #include <thread>
@@ -41,7 +57,7 @@
 // #endif
 
 
-#include <curses.h>
+// #include <curses.h>
 #include <menu.h>
 #include <cstdlib>
 

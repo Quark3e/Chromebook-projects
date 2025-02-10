@@ -220,9 +220,9 @@ class nodemcu_orient {
     nodemcu_orient(std::string board_address, int board_port, bool initialise=true);
     nodemcu_orient(float ptrOrient[3], std::string board_address, int board_port, bool initialise=true);
 
-
     void update(bool printResult=true);
     bool parseData(std::string _str);
+
 };
 
 

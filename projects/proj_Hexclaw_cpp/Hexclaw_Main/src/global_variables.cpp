@@ -1,38 +1,53 @@
 
 #include <useful.hpp>
+#include "constants.hpp"
 #include "global_variables.hpp"
 
 std::string absPath;
 
 // PiPCA9685::PCA9685 pca{}; //("/dev/i2c-1", 0x40, false);
+// #if _MACHINE__RPI_MAIN
 PiPCA9685::PCA9685 pca(false);
+// #endif
 
 bool hardExit = false;
 
 // IK related: ik calc variable declaration
 
-float current_q[6]	= {0,0,0,0,0,0};
-float new_q[6]		= {0,0,0,0,0,0};
+// float current_q[6]	= {0,0,0,0,0,0};
+// float new_q[6]		= {0,0,0,0,0,0};
+
+servo_angles_6DOF current_q(0);
+servo_angles_6DOF new_q(0);
+
 /**
  * `{yaw, pitch, roll}` variables:
  * unit: degrees
  * */
-float orient[3]		= {0,0,0};
-float PP[3]			= {0,150,150};
-float axisScal[3]	= {1, 1, 1};
-float axisOffset[3]	= {0, 100, -200};
-float axisFilter[3]	= {1, 1, 1};
+// float orient[3]		= {0,0,0};
+// float PP[3]			= {0,150,150};
+// float axisScal[3]	= {1, 1, 1};
+// float axisOffset[3]	= {0, 100, -200};
+// float axisFilter[3]	= {1, 1, 1};
+
+pos3d<float> orient{0, 0, 0};
+pos3d<float> PP{0, 150, 150};
+pos3d<float> axisScal{1, 1, 1};
+pos3d<float> axisOffset{0, 100, 200};
+pos3d<float> axisFilter{1, 1, 1};
+
+
 
 float pitch, roll;
 
 float Pitch=0, Roll=0;
 
 // nodemcu_orient orientObj(orient, "192.168.1.231");
-nodemcu_orient orientObj(orient, "192.168.1.177", DEFAULT__PORT, false);
+nodemcu_orient orientObj("192.168.1.177", DEFAULT__PORT, false);
 
 
-int prefSize[2] = {DEFAULT_PREF_WIDTH, DEFAULT_PREF_HEIGHT};
-
+// int prefSize[2] = {DEFAULT_PREF_WIDTH, DEFAULT_PREF_HEIGHT};
+pos2d<int> prefSize{DEFAULT_PREF_WIDTH, DEFAULT_PREF_HEIGHT};
 
 bool useAutoBrightne = true;
 bool takeCVTrackPerf = true;
@@ -46,12 +61,17 @@ bool displayTFT = false;
 
 // int l_HSV[3] = {0, 0, 255};
 // int u_HSV[3] = {179, 9, 255};
-int HW_HSV[2][3] = {
+// int HW_HSV[2][3] = {
+// 	{0, 0, 255},
+// 	{179, 9, 255}
+// };
+
+std::vector<pos3d<int>> HW_HSV{
 	{0, 0, 255},
 	{179, 9, 255}
 };
 
-const char* window_name = "Window";
+std::string window_name = "Window";
 // IR camtracking header class initialization
 std::vector<IR_camTracking> camObj;
 // {0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf},
@@ -60,6 +80,7 @@ std::vector<IR_camTracking> camObj;
 
 // Two_cam_triangle header class initialisation
 float camPosition[2][2] = {{0, 0}, {250, 0}};
+
 float camAng_offs[2] = {90, 123};
 float inpPos[2], solvedPos[2];
 camTriangle camTri(camPosition, camAng_offs);
@@ -396,6 +417,7 @@ void simplified_init() {
 }
 
 int _init__pca(_initClass_dataStruct *_passData) {
+#if _MACHINE__RPI_MAIN
 	bool init_success = false;
 	try {
 		init_success = pca.init();
@@ -406,6 +428,10 @@ int _init__pca(_initClass_dataStruct *_passData) {
 	if(!init_success) return 1;
 	pca.set_pwm_freq(50.0);
 	return 0;
+#else
+	_passData->_message = "_init__pca: _MACHINE__RPI_MAIN==false";
+	return 1;
+#endif
 }
 int _init__camObj(_initClass_dataStruct *_passData) {
 	try {
@@ -420,6 +446,7 @@ int _init__camObj(_initClass_dataStruct *_passData) {
 	return 0;
 }
 int _init__pigpio(_initClass_dataStruct *_passData) {
+#if _MACHINE__RPI_MAIN
 	// std::cout << "before pigpio init..."<<std::endl;
 	try {
 		if(gpioInitialise() < 0) {
@@ -434,6 +461,11 @@ int _init__pigpio(_initClass_dataStruct *_passData) {
 	}
 
 	return 0;
+#else
+	_passData->_message = "_init__pigpio: _MACHINE__RPI_MAIN=false";
+	return 1;
+#endif
+
 }
 int _init__opencv_recorder(_initClass_dataStruct *_passData) {
 	try {
@@ -466,7 +498,11 @@ int _close__camObj(_initClass_dataStruct *_passData) {
 	return 0;
 }
 int _close__pigpio(_initClass_dataStruct *_passData) {
+#if _MACHINE__RPI_MAIN
 	gpioTerminate();
+#else
+
+#endif
 	return 0;
 }
 int _close__opencv_recorder(_initClass_dataStruct *_passData) {

@@ -20,18 +20,18 @@
 /// @brief 0-direct function; 1-use 2d coefs; 2-use arificial; 3-use two_cam_triangle
 int zSol=3;
 
-void initPaths() {
-    char result[PATH_MAX];
-    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-    const char *pathP;
-    if (count != -1) {
-        pathP = dirname(result);
-    }
+// void initPaths() {
+//     char result[PATH_MAX];
+//     ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+//     const char *pathP;
+//     if (count != -1) {
+//         pathP = dirname(result);
+//     }
 
-    char path[100];
-    std::string temp = strcat(strcpy(path, pathP), "/");
-    absPath = temp.substr(0, temp.find("/projects"))+"/teststuff/python/opencv/angleArea/data/csv_artif/";
-}
+//     char path[100];
+//     std::string temp = strcat(strcpy(path, pathP), "/");
+//     absPath = temp.substr(0, temp.find("/projects"))+"/teststuff/python/opencv/angleArea/data/csv_artif/";
+// }
 
 
 
@@ -249,8 +249,10 @@ int main(int argc, char* argv[]) {
 		sendToServo(&pca, new_q, current_q, false, 2, 2);
 	}
 	if(_init_status.get("pigpio").isInit()) {
+		#if _MACHINE__RPI_MAIN
 		gpioWrite(pin_ledRelay, 0);
 		// gpioTerminate();
+		#endif
 	}
 
 	std::cout << "\x1B[H";

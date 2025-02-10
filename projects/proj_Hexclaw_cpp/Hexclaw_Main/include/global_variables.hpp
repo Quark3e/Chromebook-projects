@@ -9,7 +9,10 @@
 #include <string>
 #include <iostream>
 
+#if _MACHINE__RPI_MAIN
 #include <PiPCA9685/PCA9685.h>
+#endif
+
 #include <wirelessCOM.hpp>
 #include <IR_camTrack.hpp>
 #include <terminalMenu.hpp>
@@ -23,37 +26,46 @@
 /// @brief absolute path of the current directory for this program
 extern std::string absPath;
 
-
+// #if _MACHINE__RPI_MAIN
 /// @brief pca9685-board libraries obbject
 extern PiPCA9685::PCA9685 pca;
+// #endif
+
 
 extern bool hardExit;
 
 // IK related: ik calc variable declaration
 
 /// @brief container array for the current/old servo motors angles
-extern float current_q[6];
+extern servo_angles_6DOF current_q;
+// extern float current_q[6];
 
 /// @brief new servo rotations angles
-extern float new_q[6];
+extern servo_angles_6DOF new_q;
+// extern float new_q[6];
 
 /**
  * `{yaw, pitch, roll}` variables:
  * unit: degrees
  * */
-extern float orient[3];
+extern pos3d<float> orient;
+// extern float orient[3];
 
 /// @brief `{x, y, z}` coordinate array container
-extern float PP[3];
+extern pos3d<float> PP;
+// extern float PP[3];
 
 /// @brief new axis value scalars
-extern float axisScal[3];
+extern pos3d<float> axisScal;
+// extern float axisScal[3];
 
 /// @brief new axis value offset
-extern float axisOffset[3];
+extern pos3d<float> axisOffset;
+// extern float axisOffset[3];
 
 /// @brief new axis filter
-extern float axisFilter[3];
+extern pos3d<float> axisFilter;
+// extern float axisFilter[3];
 
 /// @brief raw tilt values from accelerometer readings
 extern float pitch;
@@ -69,7 +81,8 @@ extern nodemcu_orient orientObj;
 
 
 /// @brief prefered image size to resize/convert/use for all images
-extern int prefSize[2];
+extern pos2d<int> prefSize;
+// extern int prefSize[2];
 
 /// @brief whether to use automatic brightness adjustment with opencv cam tracking
 extern bool useAutoBrightne;
@@ -84,9 +97,12 @@ extern bool displayTFT;
 
 // int l_HSV[3] = {0, 0, 255};
 // int u_HSV[3] = {179, 9, 255};
-extern int HW_HSV[2][3];
+// extern int HW_HSV[2][3];
 
-extern const char* window_name;
+extern std::vector<pos3d<int>> HW_HSV;
+
+// extern const char* window_name;
+extern std::string window_name;
 // IR camtracking header class initialization
 extern std::vector<IR_camTracking> camObj;
 

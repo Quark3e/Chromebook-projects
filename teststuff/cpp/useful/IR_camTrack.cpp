@@ -256,7 +256,13 @@ void IR_camTracking::getAvg_cntPos() {
 /// @param displayWin 
 void hsv_settingsRead(
     std::vector<IR_camTracking>& camObject,
-    int argHSV[2][3],
+    // int argHSV[2][3],
+    int& u_HSV_H,
+    int& u_HSV_S,
+    int& u_HSV_V,
+    int& l_HSV_H,
+    int& l_HSV_S,
+    int& l_HSV_V,
     std::string window_name,
     int indeks,
     std::string filePath,
@@ -288,12 +294,12 @@ void hsv_settingsRead(
 			tempVal[5]=std::stoi(line.substr(0,line.find(']')));
 
 			for(int i=0; i<6; i++) { printf(" %d", tempVal[i]); }
-			argHSV[0][0] = tempVal[0];
-			argHSV[0][1] = tempVal[1];
-			argHSV[0][2] = tempVal[2];
-			argHSV[1][0] = tempVal[3];
-			argHSV[1][1] = tempVal[4];
-			argHSV[1][2] = tempVal[5];
+			u_HSV_H = tempVal[0];
+			u_HSV_S = tempVal[1];
+			u_HSV_V = tempVal[2];
+			l_HSV_H = tempVal[3];
+			l_HSV_S = tempVal[4];
+			l_HSV_V = tempVal[5];
 			if(displayWin) camObject.at(0).updateTrackbarPos(window_name);
 			hsvFile.close();
 			return;
@@ -303,7 +309,13 @@ void hsv_settingsRead(
 }
 
 void hsv_settingsWrite(
-    int argHSV[2][3],
+    // int argHSV[2][3],
+    int& u_HSV_H,
+    int& u_HSV_S,
+    int& u_HSV_V,
+    int& l_HSV_H,
+    int& l_HSV_S,
+    int& l_HSV_V,
     int indeks,
     bool overWrite,
     std::string filePath
@@ -328,14 +340,14 @@ void hsv_settingsWrite(
 	// printf("total rows:%d\n",rowLen_2);
 	if(!overWrite) {rowLen_2++;}
 	else {}
-	std::string fileRows[rowLen_2];
+	std::vector<std::string> fileRows(rowLen_2, "");
 	for(int i=0; i<rowLen_2; i++) {
 		// printf("row %d out of %d rows: ",i,rowLen_2);
 		// std::cout << fileContents.substr(0,fileContents.find('\n')+1) << std::endl;
 		if(i==rowLen_2-1 && !overWrite) {
 			fileRows[i] = std::to_string(i-2)+";["+
-			std::to_string(argHSV[0][0])+","+std::to_string(argHSV[0][1])+","+std::to_string(argHSV[0][2])+":"+
-			std::to_string(argHSV[1][0])+","+std::to_string(argHSV[1][1])+","+std::to_string(argHSV[1][2])+"]\n";
+			std::to_string(u_HSV_H)+","+std::to_string(u_HSV_S)+","+std::to_string(u_HSV_V)+":"+
+			std::to_string(l_HSV_H)+","+std::to_string(l_HSV_S)+","+std::to_string(l_HSV_V)+"]\n";
 		}
 		else {
 			fileRows[i] = fileContents.substr(0,fileContents.find('\n')+1);
@@ -343,8 +355,8 @@ void hsv_settingsWrite(
 			if(fileRows[i].substr(0,1)==std::to_string(indeks-1) && overWrite) {
 				i++;
 				fileRows[i] = std::to_string(i)+";["+
-				std::to_string(argHSV[0][0])+","+std::to_string(argHSV[0][1])+","+std::to_string(argHSV[0][2])+":"+
-				std::to_string(argHSV[1][0])+","+std::to_string(argHSV[1][1])+","+std::to_string(argHSV[1][2])+"]\n";
+				std::to_string(u_HSV_H)+","+std::to_string(u_HSV_S)+","+std::to_string(u_HSV_V)+":"+
+				std::to_string(l_HSV_H)+","+std::to_string(l_HSV_S)+","+std::to_string(l_HSV_V)+"]\n";
 				fileContents.erase(0,fileContents.find('\n')+1);
 			}
 		}

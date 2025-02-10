@@ -69,6 +69,25 @@ namespace TUI {
     typedef void    (*TDEF_void_pChar)(char*);      /*id:`3`: type `void (char*)`*/
     typedef void    (*TDEF_void_pStr)(std::string*);/*id:`4`: type `void (std::string*)`*/
 
+    #if _WIN32
+        int CUSTOM_KEY_UP       = -691;
+        int CUSTOM_KEY_DOWN     = -692;
+        int CUSTOM_KEY_LEFT     = -693;
+        int CUSTOM_KEY_RIGHT    = -694;
+        int CUSTOM_KEY_BACKSPACE= 8;
+        int CUSTOM_KEY_ENTER    = 13;
+        int CUSTOM_KEY_ESCAPE   = 27;
+
+    #else
+        int CUSTOM_KEY_UP       = KEY_UP;
+        int CUSTOM_KEY_DOWN     = KEY_DOWN;
+        int CUSTOM_KEY_LEFT     = KEY_LEFT;
+        int CUSTOM_KEY_RIGHT    = KEY_RIGHT;
+        int CUSTOM_KEY_BACKSPACE= KEY_BACKSPACE;
+    
+        int CUSTOM_KEY_ENTER    = KEY_ENTER;
+        int CUSTOM_KEY_ESCAPE   = 27;
+    #endif
     
     struct optItem {
         std::string name;
@@ -104,26 +123,7 @@ namespace TUI {
 
     class termMenu {
         private:
-    #if _WIN32
-        int CUSTOM_KEY_UP       = -691;
-        int CUSTOM_KEY_DOWN     = -692;
-        int CUSTOM_KEY_LEFT     = -693;
-        int CUSTOM_KEY_RIGHT    = -694;
-        int CUSTOM_KEY_BACKSPACE= 8;
-        int CUSTOM_KEY_ENTER    = 13;
-        int CUSTOM_KEY_ESCAPE   = 27;
 
-    #else
-        int CUSTOM_KEY_UP       = KEY_UP;
-        int CUSTOM_KEY_DOWN     = KEY_DOWN;
-        int CUSTOM_KEY_LEFT     = KEY_LEFT;
-        int CUSTOM_KEY_RIGHT    = KEY_RIGHT;
-        int CUSTOM_KEY_BACKSPACE= KEY_BACKSPACE;
-    
-        int CUSTOM_KEY_ENTER    = KEY_ENTER;
-        int CUSTOM_KEY_ESCAPE   = 27;
-    
-    #endif
 
     #if _WIN32
         /**

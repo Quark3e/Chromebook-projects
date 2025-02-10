@@ -9,10 +9,15 @@
 #include <string>
 #include <fstream>
 // opencv/image tracking
+#if _WIN32
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#else
 #include <opencv4/opencv2/opencv.hpp>
 #include <opencv4/opencv2/highgui/highgui.hpp>
 #include <opencv4/opencv2/imgproc/imgproc.hpp>
-
+#endif
 
 #include <getPerformance.hpp>
 
@@ -113,14 +118,26 @@ class IR_camTracking {
 
 void hsv_settingsRead(
     std::vector<IR_camTracking>& camObject,
-    int argHSV[2][3],
+    // int argHSV[2][3],
+    int& u_HSV_H,
+    int& u_HSV_S,
+    int& u_HSV_V,
+    int& l_HSV_H,
+    int& l_HSV_S,
+    int& l_HSV_V,
     std::string window_name = "",
     int indeks=1,
     std::string filePath="hsv_settings.dat",
     bool displayWin=true
 );
 void hsv_settingsWrite(
-    int argHSV[2][3],
+    // int argHSV[2][3],
+    int& u_HSV_H,
+    int& u_HSV_S,
+    int& u_HSV_V,
+    int& l_HSV_H,
+    int& l_HSV_S,
+    int& l_HSV_V,
     int indeks=0,
     bool overWrite=false,
     std::string filePath="hsv_settings.dat"

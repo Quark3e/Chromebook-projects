@@ -7,31 +7,41 @@
 #include "constants.hpp"
 #include "global_variables.hpp"
 #include "../IK_header.hpp"
+
+#if _MACHINE__RPI_MAIN
 #include <PiPCA9685/PCA9685.h>
+#endif
 
 using namespace PiPCA9685;
 
 
 /**Angle offset to apply to given angles to make sure angle-origo/0 is paralllel along the arm axis*/
-extern float offset_q[6];
+extern servo_angles_6DOF offset_q;
+// extern float offset_q[6];
 
 /**Angles to send to the servo motors at startup to hold a pose*/
-extern float startup_q[6];
+extern servo_angles_6DOF startup_q;
+// extern float startup_q[6];
 
 
 /// @brief Apply real-world servo motor offsets to input angles
 /// @param angles float()[6] values to add defaults onto: NOTE: original var will be modified
-void add_defaults(float angles[6]);
+void add_defaults(servo_angles_6DOF& angles);
+
+// void add_defaults(float angles[6]);
 
 /// @brief apply correction function values for each servos error rate
 /// @param angles float array of rotation values to correct
 /// @return nothing. Modifies parameter variable
-void q_corrections(float angles[6]);
+void q_corrections(servo_angles_6DOF& angles);
+// void q_corrections(float angles[6]);
+
 /// @brief Check if any angle in {angles} is exceeding servo motors range
 /// @param angles angles to check
 /// @param printErrors whether to print out any exceedings onto the terminal
 /// @return boolean of whether any angles have exceeded
-bool exceedCheck(float angles[6], bool printErrors=true);
+bool exceedCheck(servo_angles_6DOF& angles, bool printErrors=true);
+// bool exceedCheck(float angles[6], bool printErrors=true);
 
 
 /// @brief Sends rotation commands to servo motors
@@ -48,16 +58,26 @@ bool exceedCheck(float angles[6], bool printErrors=true);
 /// @note if `useDefault` is true then it'll modify `new_rotation` accordingly to default value addition
 int sendToServo(
     PCA9685* pcaBoard,
-    float new_rotation[6],
-    float old_rotation[6],
+    servo_angles_6DOF& new_rotation,
+    servo_angles_6DOF& old_rotation,
     bool servoInitialize,
     int mode = 0,
     float totalTime = 0,
     bool useDefault = true,
-    bool printErrors = true,
-    bool printResult = false
+    bool printErrors= true,
+    bool printResult= false
 );
-
+// int sendToServo(
+//     PCA9685* pcaBoard,
+//     float new_rotation[6],
+//     float old_rotation[6],
+//     bool servoInitialize,
+//     int mode = 0,
+//     float totalTime = 0,
+//     bool useDefault = true,
+//     bool printErrors = true,
+//     bool printResult = false
+// );
 
 
 /**

@@ -10,6 +10,9 @@
 #include <math.h>
 #include <cmath>
 
+#include <vector>
+#include <array>
+
 #include <diy_dictionary.hpp>
 
 #include "include/motion_control/motion_profiles.hpp"
@@ -68,6 +71,92 @@ struct pos3d {
 };
 #endif
 
+#ifndef _VAR__servo_angles_6DOF
+#define _VAR__servo_angles_6DOF
+struct servo_angles_6DOF {
+    float q0;
+    float q1;
+    float q2;
+    float q3;
+    float q4;
+    float q5;
+
+    servo_angles_6DOF(float _defaultVal): q0(_defaultVal), q1(_defaultVal), q2(_defaultVal), q3(_defaultVal), q4(_defaultVal), q5(_defaultVal) {
+
+    }
+    servo_angles_6DOF(float _q0, float _q1, float _q2, float _q3, float _q4, float _q5): q0(_q0), q1(_q1), q2(_q2), q3(_q3), q4(_q4), q5(_q5) {
+
+    }
+    servo_angles_6DOF(const servo_angles_6DOF& _other): q0(_other.q0), q1(_other.q1), q2(_other.q2), q3(_other.q3), q4(_other.q4), q5(_other.q5) {
+
+    }
+    
+    ~servo_angles_6DOF() {
+
+    }
+
+    float& operator[](size_t _i) {
+        switch (_i) {
+            case 0: return q0;
+            case 1: return q1;
+            case 2: return q2;
+            case 3: return q3;
+            case 4: return q4;
+            case 5: return q5;
+            default: break;
+        }
+        throw std::invalid_argument("size_t index is invalid.");
+        return q0;
+    }
+    float operator[](size_t _i) const {
+        switch (_i) {
+            case 0: return q0;
+            case 1: return q1;
+            case 2: return q2;
+            case 3: return q3;
+            case 4: return q4;
+            case 5: return q5;
+            default: break;
+        }
+        throw std::invalid_argument("size_t index is invalid.");
+        return q0;
+    }
+
+    servo_angles_6DOF& operator=(const servo_angles_6DOF& _other) {
+        q0 = _other.q0;
+        q1 = _other.q1;
+        q2 = _other.q2;
+        q3 = _other.q3;
+        q4 = _other.q4;
+        q5 = _other.q5;
+        
+        return *this;
+    }
+    operator std::array<float, 6>() const {
+        return {q0, q1, q2, q3, q4, q5};
+    }
+    operator std::vector<float>() const {
+        return {q0, q1, q2, q3, q4, q5};
+    }
+
+    size_t size() const { return 6; }
+
+    int _printPrecision = 2;
+    int _printWidth     = 0;
+    friend auto operator<<(std::ostream &os, servo_angles_6DOF const& m) -> std::ostream& {
+        os << std::setw(m._printWidth) << std::fixed << std::setprecision(m._printPrecision);
+        os << "[";
+        for(size_t i=0; i<6; i++) {
+            os << "q"<<i<<": "<< m[i];
+            if(i+1<6) os << ",";
+        }
+        os << "]";
+        return os;
+    }
+
+};
+#endif
+
 // #ifndef _VAR__pos2d
 // #define _VAR__pos2d
 
@@ -120,7 +209,6 @@ struct pos3d {
 
 namespace HW_KINEMATICS  {
 
-    
 
     /**
      * settings:
@@ -185,13 +273,16 @@ namespace HW_KINEMATICS  {
 
 
     /**Length of the six arms. unit: [mm]*/
-    inline float arm_link[6] = {145, 130, 75, 50, 25, 25};
+    inline servo_angles_6DOF arm_link{145, 130, 75, 50, 25, 25};
+    // inline float arm_link[6] = {145, 130, 75, 50, 25, 25};
 
     /**Weight of the load the motor at index [] is carrying. unit: [kg]*/
-    inline float sLoadWeight[6] = {0, 0.130, 0.085, 0.051, 0.03, 0.01};
+    inline servo_angles_6DOF sLoadWeight{0, 0.130, 0.085, 0.051, 0.03, 0.01};
+    // inline float sLoadWeight[6] = {0, 0.130, 0.085, 0.051, 0.03, 0.01};
 
     /**Namespace scope array of values to store newly solved angles by getAngles()*/
-    inline float solved_q[6] = {0, 0, 0, 0, 0, 0};
+    inline servo_angles_6DOF solved_q(0);
+    // inline float solved_q[6] = {0, 0, 0, 0, 0, 0};
 
 
     inline float _servo_lim[2] = {0, 180};
@@ -217,8 +308,10 @@ namespace HW_KINEMATICS  {
     /// @param printErrors whether to print essential-info/error-info
     /// @return returns true if position is reachable with given setups; false otherwise
     inline bool getAngles(
-        float q[6],
-        float PP[3],
+        // float q[6],
+        // float PP[3],
+        servo_angles_6DOF &q,
+        pos3d<float>& PP,
         float a, float b, float Y,
         int mode = 0,
         char posOption = '-',
@@ -357,7 +450,16 @@ namespace HW_KINEMATICS  {
     /// @param retOrient pointer to array container for result orients.
     /// @param qAngles servo motor angles to find valid orient for
     /// @return whether the function managed to find a valid orient
-    inline bool findValidOrient(float PP[3], float currOrient[3], float retOrient[2], float qAngles[6]) {
+    inline bool findValidOrient(
+        pos3d<float>& PP,
+        pos3d<float>& currOrient,
+        pos3d<float>& retOrient,
+        servo_angles_6DOF& qAngles
+        // float PP[3],
+        // float currOrient[3],
+        // float retOrient[2],
+        // float qAngles[6]
+    ) {
         int B_dir = 0;
         int orientAcc[2] = {10, 10};
 

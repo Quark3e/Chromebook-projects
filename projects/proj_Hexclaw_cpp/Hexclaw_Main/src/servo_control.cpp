@@ -2,12 +2,15 @@
 #include <servo_control.hpp>
 
 
-float offset_q[6] = {90, 0, 135, 90, 90, 90};
+servo_angles_6DOF offset_q{90, 0, 135, 90, 90, 90};
+// float offset_q[6] = {90, 0, 135, 90, 90, 90};
 
-float startup_q[6] = {0, 115, -90, 0, -25, 00};
+servo_angles_6DOF startup_q{0, 115, -90, 0, -25, 0};
+// float startup_q[6] = {0, 115, -90, 0, -25, 00};
 
 
-void add_defaults(float angles[6]) {
+// void add_defaults(float angles[6]) {
+void add_defaults(servo_angles_6DOF& angles) {
     angles[0] = offset_q[0] + angles[0];
     angles[1] = offset_q[1] + angles[1];
     angles[2] = 180 - (offset_q[2] + angles[2]);
@@ -16,7 +19,8 @@ void add_defaults(float angles[6]) {
     angles[5] = offset_q[5] + angles[5];
 }
 
-void q_corrections(float angles[6]) {
+// void q_corrections(float angles[6]) {
+void q_corrections(servo_angles_6DOF& angles) {
     float error_Consts[6] = {
         0.802139037433155,
         0.7538,
@@ -46,7 +50,8 @@ void q_corrections(float angles[6]) {
     angles[5] = angles[5] * error_Consts[5];
 }
 
-bool exceedCheck(float angles[6], bool printErrors) {
+// bool exceedCheck(float angles[6], bool printErrors) {
+bool exceedCheck(servo_angles_6DOF& angles, bool printErrors) {
     bool exceeded = false;
     bool whichExceeded[6] = {false, false, false, false, false, false};
     std::vector<std::string> typeOfExceeded{"null", "null", "null", "null", "null", "null"};
@@ -77,15 +82,16 @@ bool exceedCheck(float angles[6], bool printErrors) {
 
 int sendToServo(
     PCA9685* pcaBoard,
-    float new_rotation[6],
-    float old_rotation[6],
+    servo_angles_6DOF& new_rotation,
+    servo_angles_6DOF& old_rotation,
     bool servoInitialize,
     int mode,
     float totalTime,
     bool useDefault,
     bool printErrors,
     bool printResult
-){/*
+) {
+    /*
     When the function is ran for the first time and servoInitialize is one, an empty array
     needs to be entered that will be used in *EVERY* call of sendToServo
     */

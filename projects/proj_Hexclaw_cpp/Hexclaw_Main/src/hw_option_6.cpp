@@ -91,9 +91,14 @@ void HW_option6_control_panel() {
     std::string keyInput_str, printStr;
     float keyInput_float = 0;
 
-    float PP_pos[3] = {0, 0, 0};
-    float PP_tilt[3] = {0, 0, 0};
-    float temp_q[6] = {0,0,0,0,0,0};
+    // float PP_pos[3] = {0, 0, 0};
+    // float PP_tilt[3] = {0, 0, 0};
+    // float temp_q[6] = {0,0,0,0,0,0};
+
+    pos3d<float> PP_pos(0, 0, 0);
+    pos3d<float> PP_tilt(0, 0, 0);
+    servo_angles_6DOF temp_q(0);
+
     /// @brief container of boolean to check if a value has been added/set to an input box
     bool init_PP_init[2][3] = {{false,false,false},{true,true,true}};
     int pressedTermPos[2] = {0, 0};
@@ -104,7 +109,7 @@ void HW_option6_control_panel() {
      * orient: -90:90 {min:max}
     */
     int inpLim[2][2] = {
-        {-static_cast<int>(array_sum(HW_KINEMATICS::arm_link,6)), static_cast<int>(array_sum(HW_KINEMATICS::arm_link,6))},
+        {-static_cast<int>(array_sum(HW_KINEMATICS::arm_link)), static_cast<int>(array_sum(HW_KINEMATICS::arm_link))},
         {-90, 90}
     };
 
@@ -123,7 +128,7 @@ void HW_option6_control_panel() {
     float tempLim=0;
 
     bool tabCalled = false;
-    std::vector<int> tabCallVec{32, KEY_ENTER};
+    std::vector<int> tabCallVec{32, TUI::CUSTOM_KEY_ENTER};
     while(!exitLoop) {
         if(tabCalled) {
             tabCalled = false;
@@ -140,7 +145,7 @@ void HW_option6_control_panel() {
             opt6_control_panel.init_driverCallKeys_clear();
         }
         if(pressedKey[0]==key_back[0] && pressedKey[1]==key_back[1]) {
-            endwin();
+            // endwin();
             break;
         }
         if(pressedKey[0]%2!=0 && pressedKey[0]<=5 && pressedKey[1]%2!=0 && pressedKey[1]<=3) {

@@ -335,7 +335,7 @@ void HW_option0() {
 		else if(keyInp==32) break; //'space'
 		else if(keyInp==115) { /*'s'*/
 			/*save HSV values*/
-			hsv_settingsWrite(HW_HSV, 0);
+			hsv_settingsWrite(HW_HSV[0][0], HW_HSV[0][1], HW_HSV[0][2], HW_HSV[1][0], HW_HSV[1][1], HW_HSV[1][2], 0);
 		}
 		else if(keyInp==114) { //'r'
 			std::string inputVar = "";
@@ -348,9 +348,9 @@ void HW_option0() {
 			indVar = stoi(inputVar);
 			std::cin.clear();
 			std::cin.ignore();
-			hsv_settingsRead(camObj, HW_HSV, window_name, indVar);
+			hsv_settingsRead(camObj, HW_HSV[0][0], HW_HSV[0][1], HW_HSV[0][2], HW_HSV[1][0], HW_HSV[1][1], HW_HSV[1][2], window_name, indVar);
 		}
-		else if(keyInp==116) { /*'t'*/ hsv_settingsRead(camObj, HW_HSV, window_name, 0); }
+		else if(keyInp==116) { /*'t'*/ hsv_settingsRead(camObj, HW_HSV[0][0], HW_HSV[0][1], HW_HSV[0][2], HW_HSV[1][0], HW_HSV[1][1], HW_HSV[1][2], window_name, 0); }
 		
 
 

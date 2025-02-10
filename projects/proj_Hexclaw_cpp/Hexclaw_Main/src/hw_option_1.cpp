@@ -38,8 +38,10 @@ void HW_option1_intro() {
 	//sendToServo(&pca, current_q, new_q, false, 0, 0);
 	std::this_thread::sleep_for(std::chrono::milliseconds(1'000));
 	if(_init_status.get("pigpio").isInit()) {
+		#if _MACHINE__RPI_MAIN
 		gpioWrite(pin_ledRelay, 0);
 		gpioWrite(pin_ledRelay, 1);
+		#endif
 	}
 	std::this_thread::sleep_for(std::chrono::milliseconds(750));
 	// std::cout<<"\n- section: \"slow start\"\n";
@@ -50,6 +52,8 @@ void HW_option1_intro() {
 	ANSI_mvprint(0, 0, "intro finished\n", true, "abs", "rel");
 	std::this_thread::sleep_for(std::chrono::milliseconds(3'000));
 	if(_init_status.get("pigpio").isInit()) {
+
+		#if _MACHINE__RPI_MAIN
 		for(int i=0; i<4; i++) {
 			gpioWrite(pin_ledRelay, 0);
 			std::this_thread::sleep_for(std::chrono::milliseconds(30));
@@ -66,10 +70,15 @@ void HW_option1_intro() {
 		gpioWrite(pin_ledRelay, 1);
 		std::this_thread::sleep_for(std::chrono::milliseconds(2'000));
 		gpioWrite(pin_ledRelay, 0);
+		#endif
+	
 	}
 	std::this_thread::sleep_for(std::chrono::milliseconds(2'000));
 
+	#if _MACHINE__RPI_MAIN
 	if(_init_status.get("pigpio").isInit()) gpioWrite(pin_ledRelay, 1);
+	#endif
+	
 	new_q[0] = 45;
 	new_q[1] = 0;
 	new_q[2] = -45;
@@ -78,7 +87,7 @@ void HW_option1_intro() {
 	new_q[5] = 0;
 	// std::cout<<"\n- section: \"crash\"\n";
 	ANSI_mvprint(0, 0, "\n- section: \"crash\"\n", true, "abs", "rel");
-	sendToServo(&pca,new_q,current_q, false);
+	sendToServo(&pca, new_q, current_q, false);
 	std::this_thread::sleep_for(std::chrono::milliseconds(2'000));
 
 }
