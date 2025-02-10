@@ -200,7 +200,7 @@ struct pos2d {
     template<class T>
     inline double array_sum(T vec) {
         double sum = 0;
-        for(size_t i=0; i<vec.size(); i++) sum += vec.at(i);
+        for(size_t i=0; i<vec.size(); i++) sum += vec[i];
         return sum;
     }
 
