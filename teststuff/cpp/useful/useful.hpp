@@ -124,7 +124,7 @@ struct pos2d {
             inReg = ((x>=corner_min.x && y>=corner_min.y) && (x<=corner_max.x && y<=corner_max.y));
         }
         else {
-            inReg = ((x> corner_min.x && y> corner_min.y) && (x< corner_max.x && y< corner_max.y)):;
+            inReg = ((x> corner_min.x && y> corner_min.y) && (x< corner_max.x && y< corner_max.y));
         }
 
         return inReg;
@@ -214,27 +214,6 @@ struct pos2d {
         bool numberFill= false
     );
 
-    /**
-     * @brief Get the index to desired value from given vector of `std::string`'s
-     * 
-     * @param _vec `std::vector<std::string>` of the strings to search through.
-     * @param _toFind `0`-index to biggest; `1`-index to smallest
-     * @return size_t index to desired value/element.
-     */
-    inline size_t getVal_findString(
-        std::vector<std::string> _vec,
-        int _toFind
-    ) {
-        if(_vec.size()==0) throw std::invalid_argument("getVal_findString: std::vector size can't be 0.");
-        if(_toFind!=0 && _toFind!=1) throw std::invalid_argument("getVal_findString: invalid code for _toFind.");
-
-        std::vector<size_t> _sizes(_vec.size());
-        for(size_t i=0; i<_vec.size(); i++) {
-            _sizes[i] = _vec.at(i).size();
-        }
-
-        return findIdx(_vec, _toFind); 
-    }
     
     inline size_t get_sumStrVec_len(std::vector<std::string> _vec) {
         size_t sz=0;
@@ -737,6 +716,28 @@ struct pos2d {
         return findIdx<varType>(toCheck, toFind);
     }
 
+    
+    /**
+     * @brief Get the index to desired value from given vector of `std::string`'s
+     * 
+     * @param _vec `std::vector<std::string>` of the strings to search through.
+     * @param _toFind `0`-index to biggest; `1`-index to smallest
+     * @return size_t index to desired value/element.
+     */
+    inline size_t getVal_findString(
+        std::vector<std::string> _vec,
+        int _toFind
+    ) {
+        if(_vec.size()==0) throw std::invalid_argument("getVal_findString: std::vector size can't be 0.");
+        if(_toFind!=0 && _toFind!=1) throw std::invalid_argument("getVal_findString: invalid code for _toFind.");
+
+        std::vector<size_t> _sizes(_vec.size());
+        for(size_t i=0; i<_vec.size(); i++) {
+            _sizes[i] = _vec.at(i).size();
+        }
+
+        return findIdx(_vec, _toFind); 
+    }
 
     /**
      * @brief 
