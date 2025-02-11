@@ -297,6 +297,7 @@ int subMenuPos[2] = {20, 0};
 
 
 TUI::termMenu menu__config_options({
+	{"", 0, 0, -1, TUI::TDEF_void__(nullptr)}
 }, false);
 
 TUI::termMenu menu_group__main({
