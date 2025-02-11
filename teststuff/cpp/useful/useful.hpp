@@ -121,10 +121,10 @@ struct pos2d {
     bool inRegion(pos2d corner_min, pos2d corner_max, bool _includeBB=true) {
         bool inReg = false;
         if(_includeBB) {
-            inReg = ((x>=corner_min.x && y>=corner_min.y) && (x<=corner_max.x && y<=corner_max.y)):
+            inReg = ((x>=corner_min.x && y>=corner_min.y) && (x<=corner_max.x && y<=corner_max.y));
         }
         else {
-            inReg = ((x> corner_min.x && y> corner_min.y) && (x< corner_max.x && y< corner_max.y)):
+            inReg = ((x> corner_min.x && y> corner_min.y) && (x< corner_max.x && y< corner_max.y)):;
         }
 
         return inReg;
