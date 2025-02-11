@@ -81,7 +81,7 @@ void HW__config_options() {
     // }
 
 
-    while(!menu__config_options.exitDriver) {
+    while(true) {
         for(size_t i=0; i<_CONFIG_OPTIONS.size(); i++) {
             menu__config_options.addOpt(_CONFIG_OPTIONS.getKey(i), 0, i, -1, TUI::TDEF_void__(nullptr));
             menu__config_options.addOpt(formatNumber(_CONFIG_OPTIONS[i], 5, 0, "left"), 1, i, i, TUI::TDEF_void__(nullptr));

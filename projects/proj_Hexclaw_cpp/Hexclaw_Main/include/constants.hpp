@@ -7,7 +7,7 @@
  * Whether the project is built on the main rpi board.
  * If this is `false` then the project is being built on remote machines without gpio methods.
  */
-#define _MACHINE__RPI_MAIN  false
+#define _MACHINE__RPI_MAIN  !_WIN32
 
 
 /// Whether to use threads
