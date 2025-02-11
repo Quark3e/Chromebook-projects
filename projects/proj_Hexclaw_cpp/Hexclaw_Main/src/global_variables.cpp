@@ -49,10 +49,10 @@ nodemcu_orient orientObj("192.168.1.177", DEFAULT__PORT, false);
 // int prefSize[2] = {DEFAULT_PREF_WIDTH, DEFAULT_PREF_HEIGHT};
 pos2d<int> prefSize{DEFAULT_PREF_WIDTH, DEFAULT_PREF_HEIGHT};
 
-bool useAutoBrightne = true;
-bool takeCVTrackPerf = true;
+// bool useAutoBrightne = true;
+// bool takeCVTrackPerf = true;
 
-bool displayToWindow = false;
+// bool displayToWindow = false;
 
 
 bool displayTFT = false;
@@ -295,6 +295,10 @@ void thread_task(IR_camTracking* camPtr, int t_idx) {
 
 int subMenuPos[2] = {20, 0};
 
+
+TUI::termMenu menu__config_options({
+}, false);
+
 TUI::termMenu menu_group__main({
 	{"[0]	Intro", 0, 0, '0', HW_option1_intro},
 	{"[1]	Calibrate", 0, 2, '1', HW_group__calibrate},
@@ -303,14 +307,14 @@ TUI::termMenu menu_group__main({
 	{"[4]	Orient", 0, 6, '4', HW_option5_orient},
 	{"[t]	Terminal", 0, 7, 't', HW_option6_terminal},
 	// {"[m]	Modes", 0, 7, 'm', subMenu_mode},
-	{"[esc]	Exit",	    0, 9,  27, TUI::DEDICATED__exitDriver}
+	{"[o]	options", 0, 9, 'o', HW__config_options},
+	{"[esc]	Exit",	    0, 10,  27, TUI::DEDICATED__exitDriver}
 });
 TUI::termMenu menu_group__calibrate({
 	{"[0]	Webcam object tracking HSV-values", 0, 0, '0', HW_option2},
 	{"[1]	Servo motor drift trend-solution",  0, 1, '1', HW_option4},
 	{"[esc] Exit", 0, 3, 27, TUI::DEDICATED__exitDriver}
 });
-
 
 
 // TUI::termMenu opt6_startMenu(1, 6, true);
@@ -436,8 +440,8 @@ int _init__pca(_initClass_dataStruct *_passData) {
 int _init__camObj(_initClass_dataStruct *_passData) {
 	try {
 		camObj = std::vector<IR_camTracking>{
-			IR_camTracking(0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf),
-			IR_camTracking(2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf)
+			IR_camTracking(0, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf")),
+			IR_camTracking(2, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf"))
 		};
 	} catch (const std::logic_error& e) {
 		_passData->_message = e.what();

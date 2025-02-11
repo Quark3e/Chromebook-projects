@@ -31,6 +31,9 @@ void HW_group__main();
 void HW_group__calibrate();
 
 
+void HW__config_options();
+
+
 /// @brief run intro servo movement
 void HW_option1_intro();
 /// @brief calibrate HSV values

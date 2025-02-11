@@ -67,3 +67,33 @@ void HW_group__calibrate() {
     menu_group__calibrate.driver(1, 1,  5, true);
 
 }
+
+
+void HW__config_options() {
+    static bool _init = true;
+    // if(_init) {
+        
+        // for(size_t i=0; i<_CONFIG_OPTIONS.size(); i++) {
+        //     menu__config_options.addOpt(_CONFIG_OPTIONS.getKey(i), 0, i, -1, TUI::TDEF_void__(nullptr));
+        //     menu__config_options.addOpt(formatNumber(_CONFIG_OPTIONS[i], 5, 0, "left"), 1, i, i, TUI::TDEF_void__(nullptr));
+        // }
+        // menu__config_options.addOpt("exit", 0, 1+_CONFIG_OPTIONS.size(), 27, TUI::DEDICATED__exitDriver);
+    // }
+
+
+    while(!menu__config_options.exitDriver) {
+        for(size_t i=0; i<_CONFIG_OPTIONS.size(); i++) {
+            menu__config_options.addOpt(_CONFIG_OPTIONS.getKey(i), 0, i, -1, TUI::TDEF_void__(nullptr));
+            menu__config_options.addOpt(formatNumber(_CONFIG_OPTIONS[i], 5, 0, "left"), 1, i, i, TUI::TDEF_void__(nullptr));
+        }
+        menu__config_options.addOpt("exit", 0, 1+_CONFIG_OPTIONS.size(), 27, TUI::DEDICATED__exitDriver);
+
+        pos2d<int> pressed_pos = menu__config_options.driver(1, 1, 5, true, nullptr, false);
+        if(pressed_pos.inRegion({1, 0}, {1, _CONFIG_OPTIONS.size()})) {
+            _CONFIG_OPTIONS[pressed_pos.y] = !_CONFIG_OPTIONS[pressed_pos.y];
+        }
+        if(pressed_pos==pos2d<int>{0, 1+_CONFIG_OPTIONS.size()}) break;
+    }
+
+    if(_init) _init = false;
+}

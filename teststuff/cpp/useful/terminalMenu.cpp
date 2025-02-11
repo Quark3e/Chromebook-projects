@@ -6,52 +6,23 @@
 
 
 
-TUI::optItem::optItem(
-    std::string _name,
-    int _x,
-    int _y,
-    int _key,
-    TDEF_void__     _func
+TUI::optItem::optItem(std::string _name, int _x, int _y, int _key, TDEF_void__     _func
 ): name(_name), x(_x), y(_y), key(_key), _funcType_id(0), func_void__(_func) {
 
 }
-TUI::optItem::optItem(
-    std::string _name,
-    int _x,
-    int _y,
-    int _key,
-    TDEF_void_pBool _func,
-    bool *_param
+TUI::optItem::optItem(std::string _name, int _x, int _y, int _key, TDEF_void_pBool _func, bool *_param
 ): name(_name), x(_x), y(_y), key(_key), _funcType_id(1), func_void_pBool(_func), param_pBool(_param) {
 
 }
-TUI::optItem::optItem(
-    std::string _name,
-    int _x,
-    int _y,
-    int _key,
-    TDEF_void_pInt  _func,
-    int *_param
+TUI::optItem::optItem(std::string _name, int _x, int _y, int _key, TDEF_void_pInt  _func, int  *_param
 ): name(_name), x(_x), y(_y), key(_key), _funcType_id(2), func_void_pInt(_func), param_pInt(_param) {
 
 }
-TUI::optItem::optItem(
-    std::string _name,
-    int _x,
-    int _y,
-    int _key,
-    TDEF_void_pChar _func,
-    char *_param
+TUI::optItem::optItem(std::string _name, int _x, int _y, int _key, TDEF_void_pChar _func, char *_param
 ): name(_name), x(_x), y(_y), key(_key), _funcType_id(3), func_void_pChar(_func), param_pChar(_param) {
 
 }
-TUI::optItem::optItem(
-    std::string _name,
-    int _x,
-    int _y,
-    int _key,
-    TDEF_void_pStr  _func,
-    std::string *_param
+TUI::optItem::optItem(std::string _name, int _x, int _y, int _key, TDEF_void_pStr  _func, std::string *_param
 ): name(_name), x(_x), y(_y), key(_key), _funcType_id(4), func_void_pStr(_func), param_pStr(_param) {
 
 }
@@ -259,12 +230,7 @@ int TUI::termMenu::setButtonWidth(int width) {
     return 0;
 }
 
-int TUI::termMenu::addOpt(
-    std::string optName,
-    int x_column,
-    int y_row,
-    int keyPress,
-    TDEF_void__ optFunc
+int TUI::termMenu::addOpt(std::string optName, int x_column, int y_row, int keyPress, TDEF_void__ optFunc
 ) {
 
     extend_containers(
@@ -280,13 +246,7 @@ int TUI::termMenu::addOpt(
 
     return 0;
 }
-int TUI::termMenu::addOpt(
-    std::string optName,
-    int x_column,
-    int y_row,
-    int keyPress,
-    TDEF_void_pBool optFunc,
-    bool* param0
+int TUI::termMenu::addOpt(std::string optName, int x_column, int y_row, int keyPress, TDEF_void_pBool optFunc, bool *param0
 ) {
 
     extend_containers(
@@ -308,13 +268,7 @@ int TUI::termMenu::addOpt(
 
     return 0;
 }
-int TUI::termMenu::addOpt(
-    std::string optName,
-    int x_column,
-    int y_row,
-    int keyPress,
-    TDEF_void_pInt optFunc,
-    int* param0
+int TUI::termMenu::addOpt(std::string optName, int x_column, int y_row, int keyPress, TDEF_void_pInt  optFunc, int  *param0
 ) {
 
     extend_containers(
@@ -331,13 +285,7 @@ int TUI::termMenu::addOpt(
 
     return 0;
 }
-int TUI::termMenu::addOpt(
-    std::string optName,
-    int x_column,
-    int y_row,
-    int keyPress,
-    TDEF_void_pChar optFunc,
-    char* param0
+int TUI::termMenu::addOpt(std::string optName, int x_column, int y_row, int keyPress, TDEF_void_pChar optFunc, char* param0
 ) {
 
     extend_containers(
@@ -354,13 +302,7 @@ int TUI::termMenu::addOpt(
 
     return 0;
 }
-int TUI::termMenu::addOpt(
-    std::string optName,
-    int x_column,
-    int y_row,
-    int keyPress,
-    TDEF_void_pStr optFunc,
-    std::string* param0
+int TUI::termMenu::addOpt(std::string optName, int x_column, int y_row, int keyPress, TDEF_void_pStr  optFunc, std::string* param0
 ) {
 
     extend_containers(
@@ -379,7 +321,6 @@ int TUI::termMenu::addOpt(
 }
 
 
-
 int TUI::termMenu::rename_opt(
     int x_column,
     int y_row,
@@ -391,7 +332,7 @@ int TUI::termMenu::rename_opt(
     return 0;
 }
 
-const int* TUI::termMenu::driver(
+pos2d<int> TUI::termMenu::driver(
     int pos_x,
     int pos_y,
     int msDelay,
@@ -413,7 +354,8 @@ const int* TUI::termMenu::driver(
     getTermSize(termSize[0], termSize[1]);
 
 
-    static int pressed_option[2] = {0, 0};
+    // static int pressed_option[2] = {0, 0};
+    pos2d<int> pressed_option(0, 0);
     bool loopInit = false; //boolean for whether the driver loop has ran a full iteration already
     int loopInit_count = 0;
 

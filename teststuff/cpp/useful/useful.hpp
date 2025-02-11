@@ -109,12 +109,69 @@ struct pos2d {
     }
     bool operator!=(pos2d const& m) { return !(x==m.x && y==m.y); }
 
+    /**
+     * @brief Check whether a pos2d value is within the region given by min-max corners of a Bounding Box.
+     * 
+     * @param corner_min corner coordinate with minimum values.
+     * @param corner_max corner coordinate with maximum values.
+     * @param _includeBB whether to include the Bounding Box borner region (ex: `>=`) or not (`>`)
+     * @return true is within region.
+     * @return false is not within region.
+     */
+    bool inRegion(pos2d corner_min, pos2d corner_max, bool _includeBB=true) {
+        bool inReg = false;
+        if(_includeBB) {
+            inReg = ((x>=corner_min.x && y>=corner_min.y) && (x<=corner_max.x && y<=corner_max.y)):
+        }
+        else {
+            inReg = ((x> corner_min.x && y> corner_min.y) && (x< corner_max.x && y< corner_max.y)):
+        }
+
+        return inReg;
+    }
+
+    pos2d& operator+=(pos2d const& m) {
+        x+=m.x;
+        y+=m.y;
+        return *this;
+    }
+    pos2d& operator-=(pos2d const& m) {
+        x-=m.x;
+        y-=m.y;
+        return *this;
+    }
+    pos2d& operator*=(pos2d const& m) {
+        x*=m.x;
+        y*=m.y;
+        return *this;
+    }
+    pos2d& operator/=(pos2d const& m) {
+        x/=m.x;
+        y/=m.y;
+        return *this;
+    }
+    
+    pos2d operator+(pos2d const& m) {
+        return pos2d(x+m.x, y+m.y);
+    }
+    pos2d operator-(pos2d const& m) {
+        return pos2d(x-m.x, y-m.y);
+    }
+    pos2d operator*(pos2d const& m) {
+        return pos2d(x*m.x, y*m.y);
+    }
+    pos2d operator/(pos2d const& m) {
+        return pos2d(x/m.x, y/m.y);
+    }
+    
+
     pos2d rounded(int decimals) {
         return pos2d(
             roundf(this->x*pow(10, decimals)) / pow(10, decimals),
             roundf(this->y*pow(10, decimals)) / pow(10, decimals)
         );
     }
+    
     template<class _twoSizeContainerType>
     operator _twoSizeContainerType() {
         _twoSizeContainerType _var;
@@ -122,6 +179,7 @@ struct pos2d {
         _var[1] = y;
         return _var;
     }
+
 
     int _printPrecision = 2;
     int _printWidth     = 0;
@@ -137,8 +195,6 @@ struct pos2d {
 
 
 // namespace USEFUL {
-
-
 
 
     /// @brief Convert decimal number to std::string with set decimal numbers and minimum total width
@@ -158,6 +214,27 @@ struct pos2d {
         bool numberFill= false
     );
 
+    /**
+     * @brief Get the index to desired value from given vector of `std::string`'s
+     * 
+     * @param _vec `std::vector<std::string>` of the strings to search through.
+     * @param _toFind `0`-index to biggest; `1`-index to smallest
+     * @return size_t index to desired value/element.
+     */
+    inline size_t getVal_findString(
+        std::vector<std::string> _vec,
+        int _toFind
+    ) {
+        if(_vec.size()==0) throw std::invalid_argument("getVal_findString: std::vector size can't be 0.");
+        if(_toFind!=0 && _toFind!=1) throw std::invalid_argument("getVal_findString: invalid code for _toFind.");
+
+        std::vector<size_t> _sizes(_vec.size());
+        for(size_t i=0; i<_vec.size(); i++) {
+            _sizes[i] = _vec.at(i).size();
+        }
+
+        return findIdx(_vec, _toFind); 
+    }
     
     inline size_t get_sumStrVec_len(std::vector<std::string> _vec) {
         size_t sz=0;
@@ -166,7 +243,6 @@ struct pos2d {
         }
         return sz;
     }
-
 
 
     /**

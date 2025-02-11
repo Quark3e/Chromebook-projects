@@ -22,6 +22,15 @@
 #include "includes.hpp"
 
 
+/**
+ * @brief settings dict for config options relating to different options within the separate class objects e.t.c e.t.c
+ * 
+ */
+inline DIY::typed_dict<std::string, bool> _CONFIG_OPTIONS({
+	{"useAutoBrightness", 	true},
+	{"takeCVTrackPerf",		true},
+	{"displayToWindow",		true}
+});
 
 /// @brief absolute path of the current directory for this program
 extern std::string absPath;
@@ -84,13 +93,12 @@ extern nodemcu_orient orientObj;
 extern pos2d<int> prefSize;
 // extern int prefSize[2];
 
-/// @brief whether to use automatic brightness adjustment with opencv cam tracking
-extern bool useAutoBrightne;
-/// @brief whether to read and measure performance (delays/fps) for `IR_camTracking` class
-extern bool takeCVTrackPerf;
-
-/// @brief whether to display `IR_camTracking`'s images
-extern bool displayToWindow;
+// /// @brief whether to use automatic brightness adjustment with opencv cam tracking
+// extern bool useAutoBrightne;
+// /// @brief whether to read and measure performance (delays/fps) for `IR_camTracking` class
+// extern bool takeCVTrackPerf;
+// /// @brief whether to display `IR_camTracking`'s images
+// extern bool displayToWindow;
 
 extern bool displayTFT;
 
@@ -271,12 +279,13 @@ void thread_task(IR_camTracking* camPtr, int t_idx);
 #endif
 
 
+extern TUI::termMenu menu__config_options;
+
 extern TUI::termMenu menu_group__main;
 extern TUI::termMenu menu_group__calibrate;
 
 
 extern TUI::termMenu opt6_startMenu;
-
 /**
  *  _ _ _ _ _ _ _
  *  _ 0 _ 0 _ 0 _

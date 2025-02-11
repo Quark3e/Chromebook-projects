@@ -41,7 +41,7 @@ void exit_menu();
 int2 selectedPos{0, 0};
 int2 hoveredPos{0, 0};
 
-termMenu menu(true, 4, 4);
+TUI::termMenu menu(true, 4, 4);
 
 bool running = true;
 int main(int argc, char** argv) {
