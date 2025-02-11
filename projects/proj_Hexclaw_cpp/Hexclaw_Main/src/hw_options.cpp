@@ -95,10 +95,13 @@ void HW__config_options() {
         ANSI_mvprint(0, 0, "check 2", true, "abs", "rel");
         std::this_thread::sleep_for(std::chrono::seconds(1));
         pos2d<int> pressed_pos = menu__config_options.driver(1, 1, 5, true, nullptr, false);
+        
+        ANSI_mvprint(0, 0, "check 3", true, "abs", "rel");
+        std::this_thread::sleep_for(std::chrono::seconds(1));
         if(pressed_pos.inRegion({1, 0}, {1, _CONFIG_OPTIONS.size()})) {
             _CONFIG_OPTIONS[pressed_pos.y] = !_CONFIG_OPTIONS[pressed_pos.y];
         }
-        ANSI_mvprint(0, 0, "check 3", true, "abs", "rel");
+        ANSI_mvprint(0, 0, "check 4", true, "abs", "rel");
         std::this_thread::sleep_for(std::chrono::seconds(1));
         if(pressed_pos==pos2d<int>{0, 1+_CONFIG_OPTIONS.size()}) break;
     }
