@@ -87,7 +87,7 @@ void HW_option6_control_panel() {
     // opt6_control_panel.addOpt("enter",key_enter[0],key_enter[1],-1, TUI::termMenu_nullFunc_void__);
 
 
-    const int* pressedKey;
+    pos2d<int> pressedKey{0, 0};
     std::string keyInput_str, printStr;
     float keyInput_float = 0;
 
