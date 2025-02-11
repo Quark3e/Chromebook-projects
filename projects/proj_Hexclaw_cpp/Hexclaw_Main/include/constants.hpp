@@ -32,6 +32,8 @@
 
 
 #if !_MACHINE__RPI_MAIN
+#include <stdint.h>
+
 /// Mockup/Replica version of the pca library with empty replica functions just for the sake of cross-platform compatibility without the use of the original class
 namespace PiPCA9685 {
     class PCA9685 {

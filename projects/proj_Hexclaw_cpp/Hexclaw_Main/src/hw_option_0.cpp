@@ -34,7 +34,7 @@ void HW_option0() {
 	//create windows regardless because i need a way to properly exit the loop
 	camObj[0].setup_window("Main thread window");
 	camObj[1].setup_window("Main thread window");
-	if(!displayToWindow) {
+	if(!_CONFIG_OPTIONS.get("displayToWindow")) {
 		cv::resizeWindow("Main thread window", 100, 100);
 	}
 
@@ -325,7 +325,7 @@ void HW_option0() {
 			recObj.addFrame(concatImg);
 		}
 
-		if(displayToWindow) {
+		if(_CONFIG_OPTIONS.get("displayToWindow")) {
 			cv::Mat winImg;
 			cv::hconcat(flippedImg_main[0], flippedImg_main[1], winImg);
 			cv::imshow("Main thread window", winImg);
@@ -357,7 +357,7 @@ void HW_option0() {
 		loopInit=true;
 		// lock_cout(mtx_cout, "\x1B[2J\n",true,true);
 	}
-	// if(displayToWindow)
+	// if(_CONFIG_OPTIONS.get("displayToWindow"))
 	cv::destroyWindow("Main thread window");
 
 	if(recordFrames) recObj.releaseVideo();
