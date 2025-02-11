@@ -172,13 +172,13 @@ struct pos2d {
         );
     }
     
-    template<class _twoSizeContainerType>
-    operator _twoSizeContainerType() {
-        _twoSizeContainerType _var;
-        _var[0] = x;
-        _var[1] = y;
-        return _var;
-    }
+    // template<class _twoSizeContainerType>
+    // operator _twoSizeContainerType() {
+    //     _twoSizeContainerType _var;
+    //     _var[0] = x;
+    //     _var[1] = y;
+    //     return _var;
+    // }
 
 
     int _printPrecision = 2;
