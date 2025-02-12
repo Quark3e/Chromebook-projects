@@ -44,7 +44,7 @@
 
 
 namespace TUI {
-
+    inline bool n_print = false;
     /// @brief placeholder function for empty function parameter
     inline void termMenu_nullFunc_void__() {}
     inline void termMenu_nullFunc_void_pBool(bool*) {}

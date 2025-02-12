@@ -7,6 +7,7 @@ std::string absPath;
 
 // PiPCA9685::PCA9685 pca{}; //("/dev/i2c-1", 0x40, false);
 // #if _MACHINE__RPI_MAIN
+
 PiPCA9685::PCA9685 pca(false);
 // #endif
 
@@ -296,9 +297,7 @@ void thread_task(IR_camTracking* camPtr, int t_idx) {
 int subMenuPos[2] = {20, 0};
 
 
-TUI::termMenu menu__config_options({
-	{"", 0, 0, -1, TUI::TDEF_void__(nullptr)}
-}, false);
+TUI::termMenu menu__config_options({}, false);
 
 TUI::termMenu menu_group__main({
 	{"[0]	Intro", 0, 0, '0', HW_option1_intro},

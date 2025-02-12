@@ -50,7 +50,7 @@ void HW_option6_exit_control_panel(bool* boolVar) {
 }
 void HW_option6_control_panel() {
     int digits_integers = 4; // number of whole numbers
-    int digits_decimals = 3;
+    int digits_decimals = 2;
 
     int termLoc_title_bar[2]    = {1, 1};       //rows: 3
     int termLoc_control_panel[2]= {1, 3};       //rows: 7
@@ -74,18 +74,6 @@ void HW_option6_control_panel() {
 
 
     bool exitLoop = false;
-
-    // opt6_control_panel.addOpt("x:"/*+std::string(1+digits_integers+digits_decimals,' ')*/,1,1,-1,TUI::termMenu_nullFunc_void__);
-    // opt6_control_panel.addOpt("y:"/*+std::string(1+digits_integers+digits_decimals,' ')*/,3,1,-1,TUI::termMenu_nullFunc_void__);
-    // opt6_control_panel.addOpt("z:"/*+std::string(1+digits_integers+digits_decimals,' ')*/,5,1,-1,TUI::termMenu_nullFunc_void__);
-
-    // opt6_control_panel.addOpt("a:"/*+std::string(1+digits_integers+digits_decimals,' ')*/,1,3,-1,TUI::termMenu_nullFunc_void__);
-    // opt6_control_panel.addOpt("B:"/*+std::string(1+digits_integers+digits_decimals,' ')*/,3,3,-1,TUI::termMenu_nullFunc_void__);
-    // opt6_control_panel.addOpt("Y:"/*+std::string(1+digits_integers+digits_decimals,' ')*/,5,3,-1,TUI::termMenu_nullFunc_void__);
-
-    // opt6_control_panel.addOpt("back", key_back[0],key_back[1], 27, TUI::termMenu_nullFunc_void__);
-    // opt6_control_panel.addOpt("enter",key_enter[0],key_enter[1],-1, TUI::termMenu_nullFunc_void__);
-
 
     pos2d<int> pressedKey{0, 0};
     std::string keyInput_str, printStr;
@@ -113,16 +101,13 @@ void HW_option6_control_panel() {
         {-90, 90}
     };
 
-    std::cout << opt6_control_panel.ansi_code << "2J";
-    std::cout.flush();
 
-    ANSI_mvprint(termLoc_title_bar[0], termLoc_title_bar[1], "Control Panel");
+    ANSI_mvprint(termLoc_title_bar[0], termLoc_title_bar[1], "Control Panel", true, "abs", "abs", true);
     ANSI_mvprint(termLoc_title_bar[0], termLoc_title_bar[1]+1, "  input three of each parameter type (coordinate, tilt)");
     ANSI_mvprint(
         termLoc_title_bar[0], termLoc_title_bar[1]+2, 
         "  range: coord{"+std::to_string(inpLim[0][0])+":"+std::to_string(inpLim[0][1])+"}"+" orient{"+std::to_string(inpLim[1][0])+":"+std::to_string(inpLim[1][1])+"}"
     );
-
 
 
     float tempLim=0;
@@ -139,7 +124,7 @@ void HW_option6_control_panel() {
         else {
             opt6_control_panel.init_driverCallKeys_clear();
         }
-        pressedKey = opt6_control_panel.driver(termLoc_control_panel[0],termLoc_control_panel[1],0,false,TUI::termMenu_nullFunc_void__,false);
+        pressedKey = opt6_control_panel.driver(termLoc_control_panel[0], termLoc_control_panel[1], 0, false, TUI::termMenu_nullFunc_void__, true);
         if(tabCalled) {
             tabCalled = false;
             opt6_control_panel.init_driverCallKeys_clear();

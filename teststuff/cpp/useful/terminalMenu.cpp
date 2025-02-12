@@ -344,7 +344,9 @@ pos2d<int> TUI::termMenu::driver(
     std::string bg_textColour,
     std::string bg_bgColour
 ) {
-
+    if(menuTable.table.size()==0) {
+        throw std::logic_error("menuTable.table is empty. No cell's are made.");
+    }
     if(pos_x==0) pos_x = 1;
     if(pos_y==0) pos_y = 1;
 
@@ -353,18 +355,15 @@ pos2d<int> TUI::termMenu::driver(
 
     getTermSize(termSize[0], termSize[1]);
 
-
     // static int pressed_option[2] = {0, 0};
     pos2d<int> pressed_option(0, 0);
     bool loopInit = false; //boolean for whether the driver loop has ran a full iteration already
     int loopInit_count = 0;
 
     exitDriver = false;
-
     menuTable.strExport("\n", false, "\n", " ");
-
     // createTable displayTable = menuTable;
-
+    
     if(display_dim[1][0]-display_dim[0][0]>menuTable.table[0].size()-1) {
         display_dim[1][0] = display_dim[0][0] + menuTable.table[0].size()-1;
     }
@@ -372,14 +371,12 @@ pos2d<int> TUI::termMenu::driver(
         display_dim[1][1] = display_dim[0][1] + static_cast<int>(menuTable.table.size())-1;
     }
 
-
     if(cursorMode==-1) {
         display_dim[0][0] = 0;
         display_dim[0][1] = 0;
         display_dim[1][0] = menuTable.table[0].size()-1;
         display_dim[1][1] = static_cast<int>(menuTable.table.size())-1;
     }
-
     if(menuTable.getCellX(menuTable.table[0].size()-1,static_cast<int>(menuTable.table.size())-1)+pos_x>termSize[0]) { //lower right corner x check
         if(cursorMode==-1) cursorMode = 0;
         for(int x=menuTable.table[0].size()-1; x>=0; x--) {
@@ -416,7 +413,6 @@ pos2d<int> TUI::termMenu::driver(
             }
         }
     }
-
     // createTable displayTable(display_dim[1][0]-display_dim[0][0], display_dim[1][1]-display_dim[0][1]);
 
     /// @brief bounding boxed table which will be displayed to terminal if cursorMode != -1
@@ -427,14 +423,12 @@ pos2d<int> TUI::termMenu::driver(
             ""
         )
     );
-
     /// @brief `createTable` instance that is a cropped/ROI version of menuTable
     createTable dispTable(
         display_dim[1][0]-display_dim[0][0]+1,
         display_dim[1][1]-display_dim[0][1]+1
     );
 
-    
     /// @brief width and height of displayed-window/dynamic-edges
     int dispDim[2] = {
         display_dim[1][0]-display_dim[0][0]+1,
@@ -460,10 +454,16 @@ pos2d<int> TUI::termMenu::driver(
         }
         else {
             bool xPlus=true;
-            while(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
-                if(xPlus) currCell[0]++;
-                else currCell[1]++;
-                xPlus = !xPlus;
+            bool _cellFound = false;
+            for(size_t _y=0; _y<menuTable.table.size(); _y++) {
+                for(size_t _x=0; _x<menuTable.table.at(_y).size(); _x++) {
+                    if(menuTable.table.at(_y).at(_x)!="") {
+                        currCell = pos2d<int>(_x, _y);
+                        _cellFound = true;
+                        break;
+                    }
+                }
+                if(_cellFound) break;
             }
         }
     }
@@ -477,7 +477,6 @@ pos2d<int> TUI::termMenu::driver(
      *
     */
     bool cursLock[2][2]= {{false, false}, {false, false}};
-
 
 
     /// vectors to hold the indices in a range for both axes {x/columns, y/rows}
@@ -497,7 +496,6 @@ pos2d<int> TUI::termMenu::driver(
             std::vector<int>(2, /*number of values {x, y}*/ 0  /*value*/)
         )
     );
-
     if(init_clear) std::cout << ansi_code+"2J" <<std::endl;
     
 
@@ -505,11 +503,9 @@ pos2d<int> TUI::termMenu::driver(
 
     int init_driverCallKeys_count = init_driverCallKeys.size();
     int init_driverCallKeys_full = init_driverCallKeys_count;
-
     if(!driverFuncInit) driverFuncInit=true;
     while(/*(c=getch()) != 27 &&*/ !exitDriver) {
         std::this_thread::sleep_for(std::chrono::milliseconds(msDelay));
-
 
         if(init_driverCallKeys_count>0) {
             c = init_driverCallKeys.at(init_driverCallKeys_full-init_driverCallKeys_count);
@@ -527,8 +523,7 @@ pos2d<int> TUI::termMenu::driver(
         if(loopInit) c = keyCheck(c);
 #endif
 
-        loopFunc();
-
+        if(loopFunc) loopFunc();
         //???
         if(!callFunc && c==-1 && driverInit) continue;
         if(c==-1 && loopInit && loopInit_count==0) {
@@ -540,7 +535,6 @@ pos2d<int> TUI::termMenu::driver(
         if(c==-1) c=0;
 
         lastKeyPress = c;
-
         /// Cell movement
         if(c==CUSTOM_KEY_LEFT) {
             currCell[0]--;
@@ -588,7 +582,6 @@ pos2d<int> TUI::termMenu::driver(
         }
         // else if(c==9) { // tab
         // }
-
 
         if(loopInit && (c==CUSTOM_KEY_ENTER || c=='\n')) {
             pressedCell[0] = currCell[0];
@@ -680,7 +673,6 @@ pos2d<int> TUI::termMenu::driver(
             }
         }
 #endif
-        
         /// cursorMode based movement drawing.
         if(cursorMode==-1) {
             ansiPrint(
@@ -940,7 +932,6 @@ pos2d<int> TUI::termMenu::driver(
 #ifndef _WIN32
         refresh();
 #endif
-
         if(!loopInit) loopInit=true;
     }
     loopInit = false;
