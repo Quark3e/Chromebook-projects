@@ -444,14 +444,19 @@ int _init__pca(_initClass_dataStruct *_passData) {
 }
 int _init__camObj(_initClass_dataStruct *_passData) {
 	camObj.clear(); // = std::vector<IR_camTracking>(2);
+	camObj.reserve(2);
 	try {
-		camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf")));
+		// camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf")));
+		new (&camObj[0]) IR_camTracking(0, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf"));
+		_passData->_message = "";
 	} catch (const std::exception& e) {
 		_passData->_message = "cam0:"+std::string(e.what());
 		return 1;
 	}
 	try {
-		camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf")));
+		// camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf")));
+		new (&camObj[1]) IR_camTracking(2, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf"));
+		_passData->_message = "";
 	} catch (const std::exception& e) {
 		_passData->_message = "cam1:"+std::string(e.what());
 		return 1;
@@ -509,7 +514,9 @@ int _close__pca(_initClass_dataStruct *_passData) {
 	return 0;
 }
 int _close__camObj(_initClass_dataStruct *_passData) {
-
+	(&camObj[0])->~IR_camTracking();
+	(&camObj[1])->~IR_camTracking();
+	
 	return 0;
 }
 int _close__pigpio(_initClass_dataStruct *_passData) {

@@ -33,16 +33,16 @@ IR_camTracking::IR_camTracking(
     std::string windowName
 ) {//}: cap(camIndex), perfObj("["+std::to_string(camIndex)+"]") {
     try {
-        std::cout<<"a[0]";std::cout.flush();
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        // std::cout<<"a[0]";std::cout.flush();
+        // std::this_thread::sleep_for(std::chrono::milliseconds(500));
         cap = cv::VideoCapture(camIndex);
     }
     catch(const std::exception& e) {
         throw std::runtime_error("VideoCapture member initialization list failure.");
     }
     try {
-        std::cout<<"a[1]";std::cout.flush();
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        // std::cout<<"a[1]";std::cout.flush();
+        // std::this_thread::sleep_for(std::chrono::milliseconds(500));
         perfObj = getPerf("["+std::to_string(camIndex)+"]");
     }
     catch(const std::exception& e) {
@@ -50,19 +50,19 @@ IR_camTracking::IR_camTracking(
     }
     
     
-    try {
-        std::cout<<"a[2]";std::cout.flush();
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    // try {
+        // std::cout<<"a[2]";std::cout.flush();
+        // std::this_thread::sleep_for(std::chrono::milliseconds(500));
         if(!cap.isOpened()) {
             throw std::runtime_error(("IR_camTracking: cannot open webcam with idx:"+std::to_string(camIndex)).c_str());
         }
-    }
-    catch(const std::exception& e) {
-        throw std::runtime_error("cap isOpened failure.");
-    }
+    // }
+    // catch(const std::exception& e) {
+    //     throw std::runtime_error("cap isOpened failure.");
+    // }
     
-    std::cout<<"a[3]";std::cout.flush();
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    // std::cout<<"a[3]";std::cout.flush();
+    // std::this_thread::sleep_for(std::chrono::milliseconds(500));
     win_name = windowName;
     camIdx = camIndex;
     prefSize[0] = prefWidth;
@@ -73,8 +73,8 @@ IR_camTracking::IR_camTracking(
     takePerformance = readDelays;
 
     try {
-        std::cout<<"a[4]";std::cout.flush();
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        // std::cout<<"a[4]";std::cout.flush();
+        // std::this_thread::sleep_for(std::chrono::milliseconds(500));
         if(!useAutoBrightness) cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);
         
     }
@@ -85,12 +85,12 @@ IR_camTracking::IR_camTracking(
     
     if(displayToWindow) {
         try {
-            std::cout<<"a[5]";std::cout.flush();
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            // std::cout<<"a[5]";std::cout.flush();
+            // std::this_thread::sleep_for(std::chrono::milliseconds(500));
             cv::namedWindow(win_name, 0);
             // createTrackbars(win_name);
-            std::cout<<"a[6]";std::cout.flush();
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            // std::cout<<"a[6]";std::cout.flush();
+            // std::this_thread::sleep_for(std::chrono::milliseconds(500));
             cv::resizeWindow(win_name, 1280, 960);
         }
         catch(const std::exception& e) {
@@ -98,8 +98,8 @@ IR_camTracking::IR_camTracking(
         }
         
     }
-    std::cout<<"a[7]";std::cout.flush();
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    // std::cout<<"a[7]";std::cout.flush();
+    // std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
 }
 IR_camTracking::IR_camTracking(
@@ -120,7 +120,7 @@ IR_camTracking::IR_camTracking(
 }
 
 IR_camTracking::~IR_camTracking() {
-
+    cap.release();
 }
 
 IR_camTracking& IR_camTracking::operator=(const IR_camTracking& _other) {
