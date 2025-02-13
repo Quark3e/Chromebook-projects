@@ -7,6 +7,7 @@
 
 namespace PiPCA9685 {
 
+
     PCA9685::PCA9685(const std::string &device, int address) {
         std::cout << "constructor called"<<std::endl;
         this->device    = device;
@@ -16,6 +17,8 @@ namespace PiPCA9685 {
     PCA9685::PCA9685(bool init) {
         if(init) this->init();
     }
+
+
 
     bool PCA9685::init() {
         if(_init) return false;

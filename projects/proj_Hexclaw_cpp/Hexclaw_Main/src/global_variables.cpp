@@ -298,31 +298,37 @@ int subMenuPos[2] = {20, 0};
 
 
 TUI::termMenu menu__config_options({}, false);
+TUI::termMenu menu__init_options({}, false);
 
 TUI::termMenu menu_group__main({
 	{"[0]	Intro", 0, 0, '0', HW_option1_intro},
 	{"[1]	Calibrate", 0, 2, '1', HW_group__calibrate},
+
 	{"[2]	Main", 0, 4, '2', HW_option0},
 	{"[3]	Tracking-telemetry", 0, 5, '3', HW_option3},
 	{"[4]	Orient", 0, 6, '4', HW_option5_orient},
 	{"[t]	Terminal", 0, 7, 't', HW_option6_terminal},
-	// {"[m]	Modes", 0, 7, 'm', subMenu_mode},
+
 	{"[o]	options", 0, 9, 'o', HW__config_options},
-	{"[esc]	Exit",	    0, 10,  27, TUI::DEDICATED__exitDriver}
+	{"[i]	init-status", 0, 10, 'i', HW__init_options},
+
+	{"[esc]	Exit",	    0, 12,  27, TUI::DEDICATED__exitDriver}
 });
 TUI::termMenu menu_group__calibrate({
 	{"[0]	Webcam object tracking HSV-values", 0, 0, '0', HW_option2},
 	{"[1]	Servo motor drift trend-solution",  0, 1, '1', HW_option4},
+
 	{"[esc] Exit", 0, 3, 27, TUI::DEDICATED__exitDriver}
 });
 
 
-// TUI::termMenu opt6_startMenu(1, 6, true);
 TUI::termMenu opt6_startMenu({
 	{"[1]	Control Panel", 0, 0, '1', HW_option6_control_panel},
 	{"[2]	Raw input", 	0, 1, '2', HW_option6_rawTerminal},
 	{"[3]	Run file", 		0, 2, '3', HW_option6_runFromFile},
+
 	{"[s]	Settings", 		0, 4, 's', HW_option6_settings},
+
 	{"[esc]	Back", 			0, 6, 27, TUI::DEDICATED__exitDriver},
 	{"[e]	Exit", 			0, 7, 'e', TUI::DEDICATED__exitDriver}
 });
@@ -338,7 +344,6 @@ TUI::termMenu opt6_control_panel({
 	{"back", 1, 5, 27, static_cast<TUI::TDEF_void__>(nullptr)},
 	{"enter", 5, 5, 10, static_cast<TUI::TDEF_void__>(nullptr)}
 }, false);
-
 
 
 _initClass::_initClass(
@@ -438,13 +443,17 @@ int _init__pca(_initClass_dataStruct *_passData) {
 #endif
 }
 int _init__camObj(_initClass_dataStruct *_passData) {
+	camObj.clear(); // = std::vector<IR_camTracking>(2);
 	try {
-		camObj = std::vector<IR_camTracking>{
-			IR_camTracking(0, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf")),
-			IR_camTracking(2, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf"))
-		};
-	} catch (const std::logic_error& e) {
-		_passData->_message = e.what();
+		camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf")));
+	} catch (const std::exception& e) {
+		_passData->_message = "cam0:"+std::string(e.what());
+		return 1;
+	}
+	try {
+		camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf")));
+	} catch (const std::exception& e) {
+		_passData->_message = "cam1:"+std::string(e.what());
 		return 1;
 	}
 	return 0;
@@ -494,6 +503,8 @@ int _init__orientObj(_initClass_dataStruct *_passData) {
 	return init_success;
 }
 int _close__pca(_initClass_dataStruct *_passData) {
+	(&pca)->~PCA9685();
+	new (&pca) PiPCA9685::PCA9685(false);
 
 	return 0;
 }
@@ -514,7 +525,8 @@ int _close__opencv_recorder(_initClass_dataStruct *_passData) {
 	return 0;
 }
 int _close__orientObj(_initClass_dataStruct *_passData) {
-
+	(&orientObj)->~nodemcu_orient();
+	new (&orientObj) nodemcu_orient("192.168.1.177", DEFAULT__PORT, false);
 	return 0;
 }
 

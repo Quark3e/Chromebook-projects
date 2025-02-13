@@ -56,12 +56,10 @@ void HW_setup_options() {
 
 }
 
-
 void HW_group__main() {
 
     menu_group__main.driver(1, 1, 5, true);
 }
-
 void HW_group__calibrate() {
 
     menu_group__calibrate.driver(1, 1, 5, true);
@@ -75,8 +73,8 @@ void HW__config_options() {
     if(_init) {
         maxStrSize = _CONFIG_OPTIONS.getKey(getVal_findString(_CONFIG_OPTIONS.keys(), 0)).length();
     }
-    TUI::n_print = true;
-    ANSI_mvprint(0, 0, "", true, "abs", "abs", true);
+
+    // ANSI_mvprint(0, 0, "", true, "abs", "abs", true);
     while(true) {
         for(size_t i=0; i<_CONFIG_OPTIONS.size(); i++) {
             menu__config_options.addOpt(formatNumber(_CONFIG_OPTIONS.getKey(i), maxStrSize+1, 0, "left")+":  "+formatNumber(_CONFIG_OPTIONS[i], 5, 0, "left"), 0, i, -1, static_cast<TUI::TDEF_void__>(nullptr));
@@ -95,3 +93,46 @@ void HW__config_options() {
 
     if(_init) _init = false;
 }
+
+void HW__init_options() {
+    static bool _init = true;
+    static size_t maxStrSize = 0;
+    // if(_init) {
+        maxStrSize = _init_status.getKey(getVal_findString(_init_status.keys(), 0)).length();
+    // }
+
+    while(true) {
+        for(size_t i=0; i<_init_status.size(); i++) {
+            menu__init_options.addOpt(
+                formatNumber(_init_status.getKey(i), maxStrSize+1, 0, "left")+": "+formatNumber(_init_status[i].isInit(), 5, 0, "left"),
+                0, i, -1, static_cast<TUI::TDEF_void__>(nullptr)
+            );
+        }
+        menu__init_options.addOpt("exit", 0, 1+_init_status.size(), 27, TUI::DEDICATED__exitDriver);
+
+        pos2d<int> pressed_pos = menu__init_options.driver(1, 1, 1, true);
+
+        if(pressed_pos.inRegion({0, 0}, {0, static_cast<int>(_init_status.size())})) {
+            /// Calling a init status value
+            if(_init_status[pressed_pos[1]].isInit()) {
+                /// init status being turned off
+                if(_init_status[pressed_pos[1]].call_closing()) {
+                    menu__init_options.addOpt("close failed: "+_init_status[pressed_pos[1]].get_callMsg(), 2, pressed_pos[1], -1, static_cast<TUI::TDEF_void__>(nullptr));
+                }
+            }
+            else {
+                /// init status being called to turn on
+                if(_init_status[pressed_pos[1]].call_init()) {
+                    menu__init_options.addOpt("init  failed: "+_init_status[pressed_pos[1]].get_callMsg(), 2, pressed_pos[1], -1, static_cast<TUI::TDEF_void__>(nullptr));
+                }
+            }
+        }
+
+        if(pressed_pos==pos2d<int>{0, static_cast<int>(1+_init_status.size())}) {
+            break;
+        }
+    }
+    if(_init) _init = false;
+
+}
+

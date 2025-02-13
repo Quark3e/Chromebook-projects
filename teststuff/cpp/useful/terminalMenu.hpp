@@ -44,7 +44,6 @@
 
 
 namespace TUI {
-    inline bool n_print = false;
     /// @brief placeholder function for empty function parameter
     inline void termMenu_nullFunc_void__() {}
     inline void termMenu_nullFunc_void_pBool(bool*) {}
@@ -295,6 +294,7 @@ namespace TUI {
         */
         int cursorMode = -1;
 
+        bool _ncurses_windowOpen = false;
         public:
         const std::string ansi_code = "\x1B[";
 
@@ -327,7 +327,7 @@ namespace TUI {
         termMenu(int menuColumns, int menuRows, bool callFromDriver);
         termMenu(std::initializer_list<optItem> _items, bool callFromDriver=true);
         termMenu(std::initializer_list<optItem> _items, int menuColumns, int menuRows, bool callFromDriver=true);
-
+        ~termMenu();
 
         /**
          * @brief get input from terminal
@@ -366,6 +366,8 @@ namespace TUI {
             std::string startText = "",
             bool *tabCalled = &termMenu_nullParam_bool
         );
+
+
 
         /**
          * @brief set width of all buttons/options

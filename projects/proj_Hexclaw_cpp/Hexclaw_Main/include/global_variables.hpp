@@ -280,6 +280,7 @@ void thread_task(IR_camTracking* camPtr, int t_idx);
 
 
 extern TUI::termMenu menu__config_options;
+extern TUI::termMenu menu__init_options;
 
 extern TUI::termMenu menu_group__main;
 extern TUI::termMenu menu_group__calibrate;

@@ -5,43 +5,43 @@
 #include <useful.hpp>
 #include <chrono>
 
-#include <curses.h>
+// #include <curses.h>
 
-struct int2 {
-    int x;
-    int y;
-    int operator[](size_t i) {
-        switch (i) {
-        case 0: return x;
-        case 1: return y;
-        default:
-            break;
-        }
-        throw std::invalid_argument("Invalid argument.");
-    }
-    int2 operator=(int2& m) {
-        int2 temp{m.x, m.y};
-        this->x = m.x;
-        this->y = m.y;
-        return temp;
-    }
-    int2 operator=(int _ptr[2]) {
-        int2 temp{_ptr[0], _ptr[1]};
-        this->x = temp.x;
-        this->y = temp.y;
-        return temp;
-    }
-};
+// struct int2 {
+//     int x;
+//     int y;
+//     int operator[](size_t i) {
+//         switch (i) {
+//         case 0: return x;
+//         case 1: return y;
+//         default:
+//             break;
+//         }
+//         throw std::invalid_argument("Invalid argument.");
+//     }
+//     int2 operator=(int2& m) {
+//         int2 temp{m.x, m.y};
+//         this->x = m.x;
+//         this->y = m.y;
+//         return temp;
+//     }
+//     int2 operator=(int _ptr[2]) {
+//         int2 temp{_ptr[0], _ptr[1]};
+//         this->x = temp.x;
+//         this->y = temp.y;
+//         return temp;
+//     }
+// };
 
 
 void termMenu_call();
 void loop_call();
 void exit_menu();
 
-int2 selectedPos{0, 0};
-int2 hoveredPos{0, 0};
+pos2d<int> selectedPos{0, 0};
+pos2d<int> hoveredPos{0, 0};
 
-TUI::termMenu menu(true, 4, 4);
+TUI::termMenu menu(4, 4, false);
 
 bool running = true;
 int main(int argc, char** argv) {
@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
         }
     }
     menu.addOpt("exit", 0, 5, 27, exit_menu);
-    
+        
     menu.driver(2, 2, 10, true, loop_call);
     // const int *pressed_pos;
     // while(running) {

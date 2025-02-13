@@ -182,6 +182,14 @@ TUI::termMenu::termMenu(
     classInit = true;
 }
 
+TUI::termMenu::~termMenu() {
+#ifndef _WIN32
+    if(_ncurses_windowOpen) endwin();
+#else
+
+#endif
+}
+
 void TUI::DEDICATED__exitDriver(bool* _driverExit) {
     assert(_driverExit && "ERROR: incorrect pointer sent to TUI::DEDICATED__exitDriver function");
     *_driverExit = true;
@@ -444,6 +452,7 @@ pos2d<int> TUI::termMenu::driver(
     nodelay(stdscr, TRUE); //std::cout<<" check 5.4"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
     keypad(stdscr, TRUE); //std::cout<<" check 5.5"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
     scrollok(stdscr, TRUE); //std::cout<<" check 5.6"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
+    _ncurses_windowOpen = true;
 #endif
 
     int c = 0;

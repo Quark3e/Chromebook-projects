@@ -33,6 +33,8 @@ void HW_group__calibrate();
 
 void HW__config_options();
 
+void HW__init_options();
+
 
 /// @brief run intro servo movement
 void HW_option1_intro();
