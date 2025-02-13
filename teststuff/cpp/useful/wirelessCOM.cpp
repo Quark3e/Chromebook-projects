@@ -47,8 +47,10 @@ int nodemcu_connect::init() {
 	this->_server_sockaddr_in.sin_port		= htons(this->_port);
 	this->_server_sockaddr_in.sin_addr.s_addr	= inet_addr(this->_ipAddr.c_str());
 
-	if(this->ms_timeout > 0) {
-		if(setsockopt(this->_sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&ms_timeout, sizeof(int))!=0) {
+
+	if(this->timeout.tv_sec>0 || this->timeout.tv_usec>0) {
+		std::cout << "timeout set.";
+		if(setsockopt(this->_sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(struct timeval))!=0) {
 			std::cout << this->_info_name<<"::init() "<< "ERROR: recv timeout setsockopt failed." << std::endl;
 		}
 	}
@@ -179,7 +181,7 @@ void nodemcu_orient::update(bool printResult) {
 		return;
 	}
     int n = connectObj.request(printResult);
-	if(n<0) throw std::runtime_error("nodemcu_orient connectObj.request() failed.");
+	if(n<0) throw std::runtime_error("nodemcu_orient connectObj.request() failed. timeout.");
 	std::string temp = std::string(connectObj.buffer);
 	if(connectObj.buffer[0]=='{' && connectObj.buffer[n-1]==';') { //{x:y:z}
 		if(!this->parseData(connectObj.buffer)) {

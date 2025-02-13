@@ -514,8 +514,10 @@ int _close__pca(_initClass_dataStruct *_passData) {
 	return 0;
 }
 int _close__camObj(_initClass_dataStruct *_passData) {
-	(&camObj[0])->~IR_camTracking();
-	(&camObj[1])->~IR_camTracking();
+	if(_init_status.get("camObj").isInit()) {
+		(&camObj[0])->~IR_camTracking();
+		(&camObj[1])->~IR_camTracking();
+	}
 	
 	return 0;
 }
@@ -528,7 +530,7 @@ int _close__pigpio(_initClass_dataStruct *_passData) {
 	return 0;
 }
 int _close__opencv_recorder(_initClass_dataStruct *_passData) {
-
+	(&recObj)->~opencv_recorder();
 	return 0;
 }
 int _close__orientObj(_initClass_dataStruct *_passData) {

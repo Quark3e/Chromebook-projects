@@ -36,13 +36,12 @@ void HW__config_options();
 void HW__init_options();
 
 
+/// @brief mode0: run main/default option
+void HW_option0();
 /// @brief run intro servo movement
 void HW_option1_intro();
 /// @brief calibrate HSV values
 void HW_option2();
-
-/// @brief mode0: run main/default option
-void HW_option0();
 /// @brief mode 1: track with opencv and receive telemetry data and display result but don't control/move servo motors
 void HW_option3();
 /// @brief mode 2: calibrate servo motors by sending rotation signals to the motors individually and compare them with statically recorded tilt readings

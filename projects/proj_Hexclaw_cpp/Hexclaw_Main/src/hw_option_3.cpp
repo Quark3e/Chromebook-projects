@@ -13,9 +13,9 @@
 
 void HW_option3() {
 	simplified_init();
-	if(!_init_status.get("camObj").isInit()) {
-		// std::cout << "ERROR: camObj has not been able to be initialised: " << _init_status.get("camObj").get_callMsg()<<std::endl;
-		ANSI_mvprint(0, 0, "ERROR: camObj has not been able to be initialised: "+_init_status.get("camObj").get_callMsg(), true, "abs", "rel");
+	if(!(_init_status.get("camObj").isInit() && _init_status.get("orientObj").isInit())) {
+		if(!_init_status.get("camObj").isInit()) 	ANSI_mvprint(0, 0, "ERROR: camObj    has not been initialised (required): "+_init_status.get("camObj").get_callMsg(), true, "abs", "rel");
+		if(!_init_status.get("orientObj").isInit()) ANSI_mvprint(0, 0, "ERROR: orientObj has not been initialised (required): "+_init_status.get("orientObj").get_callMsg(), true, "abs", "rel");
 		for(int _=0; _<3; _++) {
 			// std::cout << " ."; std::cout.flush();
 			ANSI_mvprint(0, -1, " .", true, "rel", "rel");
@@ -23,6 +23,32 @@ void HW_option3() {
 		}
 		return;
 	}
+
 	printFuncLabel(" Running: opt3: display opencv but don't move servo");
+	bool _connected = false;
+	ANSI_mvprint(0, 0, " orientObj connection test:", true, "abs", "rel");
+	for(size_t i=0; i<3; i++) {
+		ANSI_mvprint(0, 0, " - test #"+std::to_string(i)+": ", true, "abs", "rel");
+		try {
+			orientObj.update(false);
+			ANSI_mvprint(0, 0-1, " success. ", true, "rel", "rel");
+			_connected = true;
+			break;
+		}
+		catch(const std::exception& e) {
+			ANSI_mvprint(0, 0-1, " failed. ", true, "rel", "rel");
+		}
+	}
+	if(!_connected) {
+		ANSI_mvprint(0, 0, "ERROR: orientObj connectivity test failed.", true, "abs", "rel");
+		for(int _=0; _<3; _++) {
+			// std::cout << " ."; std::cout.flush();
+			ANSI_mvprint(0, -1, " .", true, "rel", "rel");
+			std::this_thread::sleep_for(std::chrono::milliseconds(1'000));
+		}
+		return;
+	}
+
+
 
 }
