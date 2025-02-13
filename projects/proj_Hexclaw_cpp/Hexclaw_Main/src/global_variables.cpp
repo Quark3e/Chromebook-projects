@@ -504,7 +504,22 @@ int _init__orientObj(_initClass_dataStruct *_passData) {
 		_passData->_message = e.what();
 		return 1;
 	}
-	
+	bool _connected = false;
+	for(size_t i=0; i<3; i++) {
+		try {
+			orientObj.update(false);
+			_connected = true;
+			break;
+		}
+		catch(const std::exception& e) {
+
+		}
+	}
+	if(!_connected) {
+		_passData->_message = "failed to establish connection.";
+		init_success = -1;
+	}
+
 	return init_success;
 }
 int _close__pca(_initClass_dataStruct *_passData) {

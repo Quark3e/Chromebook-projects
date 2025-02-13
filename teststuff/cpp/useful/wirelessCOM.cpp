@@ -49,7 +49,6 @@ int nodemcu_connect::init() {
 
 
 	if(this->timeout.tv_sec>0 || this->timeout.tv_usec>0) {
-		std::cout << "timeout set.";
 		if(setsockopt(this->_sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(struct timeval))!=0) {
 			std::cout << this->_info_name<<"::init() "<< "ERROR: recv timeout setsockopt failed." << std::endl;
 		}
