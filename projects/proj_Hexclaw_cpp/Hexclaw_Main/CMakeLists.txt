@@ -14,24 +14,21 @@ set(DIR_CPP_USEFUL "${REPO_ROOT}/teststuff/cpp")
 set(DIR_HC_USEFUL "${DIR_CPP_USEFUL}/useful")
 
 if(WIN32)
-set(DIR_PDCURSES "C:/Users/berkh/Libraries/vcpkg/installed/x64-windows")
-find_library(pdcurses
-    pdcurses
-    PATHS "C:/Users/berkh/Libraries/vcpkg/installed/x64-windows/lib/"
-    REQUIRED
-)
+    set(DIR_PDCURSES "C:/Users/berkh/Libraries/vcpkg/installed/x64-windows")
+    find_library(pdcurses
+        pdcurses
+        PATHS "C:/Users/berkh/Libraries/vcpkg/installed/x64-windows/lib/"
+        REQUIRED
+    )
 
-set(CMAKE_TOOLCHAIN_FILE "C:\\Users\\berkh\\Libraries\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake")
-set(CMAKE_CXX_STANDARD 17)
-set(DIR_HC_USEFUL "${PROJECT_SOURCE_DIR}/../../../teststuff/cpp/useful/")
+    set(CMAKE_TOOLCHAIN_FILE "C:\\Users\\berkh\\Libraries\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake")
 
 else()
-find_package(PiPCA9685 REQUIRED)
+    find_package(PiPCA9685 REQUIRED)
 endif(WIN32)
 
-# message(PiPCA9685 Path = ${PiPCA9685_LIBRARY})
+
 find_package(OpenCV REQUIRED)
-# find_package(imgui REQUIRED)
 
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -74,12 +71,6 @@ add_executable(Hexclaw_Main
     ${DIR_CPP_USEFUL}/basic/Performance/getPerformance.cpp
     ${DIR_CPP_USEFUL}/two_cam_coordinate/two_cam_coordinate.cpp
     ${HW_depends}
-    # /usr/local/include/imgui/backends/imgui_impl_allegro5.cpp
-    # /usr/local/include/imgui/imgui_demo.cpp
-    # /usr/local/include/imgui/imgui_draw.cpp
-    # /usr/local/include/imgui/imgui_tables.cpp
-    # /usr/local/include/imgui/imgui_widgets.cpp
-    # /usr/local/include/imgui/imgui.cpp
 )
 
 target_include_directories(Hexclaw_Main PRIVATE ${DIR_PDCURSES}/include/)
