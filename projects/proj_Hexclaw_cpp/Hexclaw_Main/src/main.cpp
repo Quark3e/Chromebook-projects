@@ -16,7 +16,7 @@
 #include "global_variables.hpp"
 #include "constants.hpp"
 
-#include "pigpio.h"
+// #include "pigpio.h"
 
 
 /// @brief 0-direct function; 1-use 2d coefs; 2-use arificial; 3-use two_cam_triangle

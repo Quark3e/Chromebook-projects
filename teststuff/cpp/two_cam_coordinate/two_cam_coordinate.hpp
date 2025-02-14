@@ -9,6 +9,11 @@
 #include <iostream>
 #include <iomanip>
 
+#ifndef M_PI
+#define M_PI  3.1415926535
+#endif
+
+
 #ifndef toDEGREES
 #define toDEGREES(RAD) (RAD*180)/M_PI
 #endif

@@ -20,11 +20,11 @@
 
 // path related headers
 #include <cstring>
-#include <unistd.h>
 
 #if _MACHINE__RPI_MAIN
 #include <libgen.h>
 #include <linux/limits.h>
+#include <unistd.h>
 #else
 
 #endif
@@ -58,7 +58,7 @@
 
 
 // #include <curses.h>
-#include <menu.h>
+// #include <menu.h>
 #include <cstdlib>
 
 // imgui related stuff

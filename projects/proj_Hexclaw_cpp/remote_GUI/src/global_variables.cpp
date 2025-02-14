@@ -151,10 +151,10 @@ NETWORK_DATA_THREADCLASS t_bitArr(false, "192.168.1.177", 1086);
 threadClass_telemetry_receiver telemetryObj(false);
 
 
-float input_IK_pos[3]    = {0, 200, 150};
-float input_IK_orient[3] = {0, 0, 0};
+pos3d<float> input_IK_pos{0, 200, 150};
+pos3d<float> input_IK_orient{0, 0, 0};
 
-float output_IK_angles[6]= {0, 0, 0, 0, 0, 0}; //mtx dependant
+servo_angles_6DOF output_IK_angles{0, 0, 0, 0, 0, 0}; //mtx dependant
 
 // float output_FK_pos[3]   = {0, 0, 0};
 // float output_FK_orient[3]= {0, 0, 0};

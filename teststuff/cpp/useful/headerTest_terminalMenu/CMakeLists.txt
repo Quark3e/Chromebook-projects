@@ -11,6 +11,8 @@ set(DIR_PDCURSES "C:/Users/berkh/Libraries/vcpkg/installed/x64-windows")
 #     curses.h
 #     HINTS "${VCPKG_ROOT}\\installed\\x64-windows\\"
 # )
+find_package(OpenCV REQUIRED)
+
 find_library(pdcurses
     pdcurses
     PATHS "C:/Users/berkh/Libraries/vcpkg/installed/x64-windows/lib/"

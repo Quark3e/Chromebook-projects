@@ -409,10 +409,10 @@ extern NETWORK_DATA_THREADCLASS t_bitArr;
 // extern nodemcu_orient orientObj;
 extern threadClass_telemetry_receiver telemetryObj;
 
-extern float input_IK_pos[3];
-extern float input_IK_orient[3];
+extern pos3d<float> input_IK_pos;
+extern pos3d<float> input_IK_orient;
 
-extern float output_IK_angles[6]; //mtx dependant
+extern servo_angles_6DOF output_IK_angles; //mtx dependant
 
 // float output_FK_pos[3]   = {0, 0, 0};
 // float output_FK_orient[3]= {0, 0, 0};

@@ -65,9 +65,10 @@ void tab_0(void) {
 
         // ImGui::InputFloat3("tilt", input_IK_orient);
         static float _lim_orient[2] = {-90, 90};
-        for(float& elem: input_IK_orient)
+        for(size_t _i=0; _i<3; _i++) {
+            float& elem = input_IK_orient[_i];
             elem = (elem>_lim_orient[1] ? elem=_lim_orient[1] : elem<_lim_orient[0] ? elem=_lim_orient[0] : elem=elem);
-        
+        }
         // ImGui::SetCursorPosX(float(WIN_INPUT_IK_POS[0]));
         // ImGui::SetCursorPos(ImVec2(WIN_INPUT_IK_POS[0], WIN_INPUT_IK_POS[1]+WIN_INPUT_IK_HEIGHT-50));
         ImGui::SetCursorPos(ImVec2(275, 75));
