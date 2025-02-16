@@ -59,6 +59,8 @@ void HW_setup_options() {
 void HW_group__main() {
 
     menu_group__main.driver(1, 1, 5, true);
+
+    
 }
 void HW_group__calibrate() {
 
@@ -111,7 +113,7 @@ void HW__init_options() {
         menu__init_options.addOpt("exit", 0, 1+_init_status.size(), 27, TUI::DEDICATED__exitDriver);
 
         pos2d<int> pressed_pos = menu__init_options.driver(1, 1, 1, true);
-
+        std::cout<<"a[-1]";std::cout.flush();
         if(pressed_pos.inRegion({0, 0}, {0, static_cast<int>(_init_status.size())})) {
             /// Calling a init status value
             if(_init_status[pressed_pos[1]].isInit()) {
@@ -122,12 +124,18 @@ void HW__init_options() {
             }
             else {
                 /// init status being called to turn on
+                std::string call_msg = "";
                 if(_init_status[pressed_pos[1]].call_init()) {
-                    menu__init_options.addOpt("init  failed: "+_init_status[pressed_pos[1]].get_callMsg(), 2, pressed_pos[1], -1, static_cast<TUI::TDEF_void__>(nullptr));
+                    call_msg = "init  failed: "+_init_status[pressed_pos[1]].get_callMsg();
                 }
+                else {
+                    call_msg = "init  success.";
+                }
+                menu__init_options.addOpt(call_msg, 2, pressed_pos[1], -1, static_cast<TUI::TDEF_void__>(nullptr));
+
             }
         }
-
+        std::cout<<"a[0+1]";std::cout.flush();
         if(pressed_pos==pos2d<int>{0, static_cast<int>(1+_init_status.size())}) {
             break;
         }

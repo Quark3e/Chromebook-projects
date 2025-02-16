@@ -76,6 +76,7 @@ class IR_camTracking {
     */
     int processReturnCode = 0;
 
+    IR_camTracking() = default;
     IR_camTracking(const IR_camTracking& _other);
     IR_camTracking(
         int camIndex,

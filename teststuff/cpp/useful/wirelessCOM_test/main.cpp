@@ -20,8 +20,15 @@ int main(int argc, char** argv) {
     std::cout << "starting loop:" << std::endl;
     while(true) {
         std::this_thread::sleep_for(std::chrono::milliseconds(2));
-
-        orientObj.update(false);
+        try {
+            orientObj.update(false);
+        }
+        catch(const std::exception& e) {
+            std::cout << e.what() << '\n';
+        }
+        
+        
+        
         std::cout << "accel:" << orientObj.accel << " gyro:" << orientObj.gyro << "   ";
         std::cout << formatNumber<float>(orientObj.Roll, 5, 1) << " " << formatNumber<float>(orientObj.Pitch, 5, 1)<< "\n";
     }

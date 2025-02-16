@@ -44,10 +44,11 @@ float pitch, roll;
 float Pitch=0, Roll=0;
 
 // nodemcu_orient orientObj(orient, "192.168.1.231");
-nodemcu_orient orientObj("192.168.1.177", DEFAULT__PORT, false);
+nodemcu_orient orientObj("192.168.1.117", DEFAULT__PORT, false);
 
 
 // int prefSize[2] = {DEFAULT_PREF_WIDTH, DEFAULT_PREF_HEIGHT};
+
 pos2d<int> prefSize{DEFAULT_PREF_WIDTH, DEFAULT_PREF_HEIGHT};
 
 // bool useAutoBrightne = true;
@@ -443,19 +444,23 @@ int _init__pca(_initClass_dataStruct *_passData) {
 #endif
 }
 int _init__camObj(_initClass_dataStruct *_passData) {
-	camObj.clear(); // = std::vector<IR_camTracking>(2);
-	camObj.reserve(2);
+	camObj = std::vector<IR_camTracking>(2);
+	// camObj.reserve(2);
+	IR_camTracking* camObj_ptr = nullptr;
 	try {
 		// camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf")));
-		new (&camObj[0]) IR_camTracking(0, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf"));
+		camObj_ptr = &camObj.at(0);
+		new (camObj_ptr) IR_camTracking(0, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf"));
 		_passData->_message = "";
 	} catch (const std::exception& e) {
-		_passData->_message = "cam0:"+std::string(e.what());
+		_passData->_message = 	"cam0:"+std::string(e.what());
 		return 1;
 	}
+	std::cout<<"[3]";std::cout.flush();std::this_thread::sleep_for(std::chrono::milliseconds(500));
 	try {
 		// camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf")));
-		new (&camObj[1]) IR_camTracking(2, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf"));
+		camObj_ptr = &camObj.at(1);
+		new (camObj_ptr) IR_camTracking(2, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf"));
 		_passData->_message = "";
 	} catch (const std::exception& e) {
 		_passData->_message = "cam1:"+std::string(e.what());
@@ -550,7 +555,7 @@ int _close__opencv_recorder(_initClass_dataStruct *_passData) {
 }
 int _close__orientObj(_initClass_dataStruct *_passData) {
 	(&orientObj)->~nodemcu_orient();
-	new (&orientObj) nodemcu_orient("192.168.1.177", DEFAULT__PORT, false);
+	new (&orientObj) nodemcu_orient("192.168.1.117", DEFAULT__PORT, false);
 	return 0;
 }
 

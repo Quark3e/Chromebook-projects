@@ -1021,6 +1021,7 @@ struct pos2d {
         std::string end = "\n",
         bool initClear = true
     ) {
+        
         int terminalDim[2] = {0, 0};
         int printPos[2] = {0, 0};
         int textDim[2] = {0, 0};

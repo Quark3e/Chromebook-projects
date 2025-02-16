@@ -7,11 +7,21 @@ set(BUILD_MODE Debug)
 # set(OpenCV "/usr/local/include")
 # set(opt6_src "HW_options/opt6_terminal.cpp")
 # set(CMAKE_CXX_FLAGS "-DIMGUI_USER_CONFIG=\\\"/usr/local/include/imgui/examples/example_allegro5/imconfig_allegro5.h\\\"")
+# set(CMAKE_BUILD_TYPE Debug)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 set(REPO_ROOT "../../..")
 set(DIR_CPP_USEFUL "${REPO_ROOT}/teststuff/cpp")
 set(DIR_HC_USEFUL "${DIR_CPP_USEFUL}/useful")
+
+if (MSVC)
+    # warning level 4
+    # add_compile_options(/FS)
+else()
+    # additional warnings
+    # add_compile_options(-Wall -Wextra -Wpedantic)
+    # add_compile_options(-FS)
+endif()
 
 if(WIN32)
     set(DIR_PDCURSES "C:/Users/berkh/Libraries/vcpkg/installed/x64-windows")

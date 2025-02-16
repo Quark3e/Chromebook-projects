@@ -43,6 +43,11 @@
 #include "useful.hpp"
 
 
+// #define DEBUG__PRINT
+
+inline std::string debug_checkPointStr = "";
+
+
 namespace TUI {
     /// @brief placeholder function for empty function parameter
     inline void termMenu_nullFunc_void__() {}
@@ -157,7 +162,7 @@ namespace TUI {
         bool init_table = false;
         int option_width = 0;
 
-        int button_totWidth = -1;
+        int button_totWidth = 1;
 
 
         // typedef void    (*TDEF_void_Bool)(bool); /*id:`2`: type `void (bool) `*/

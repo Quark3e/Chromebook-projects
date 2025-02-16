@@ -47,9 +47,13 @@ int nodemcu_connect::init() {
 	this->_server_sockaddr_in.sin_port		= htons(this->_port);
 	this->_server_sockaddr_in.sin_addr.s_addr	= inet_addr(this->_ipAddr.c_str());
 
-
-	if(this->timeout.tv_sec>0 || this->timeout.tv_usec>0) {
-		if(setsockopt(this->_sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(struct timeval))!=0) {
+#if _WIN32
+	if(this->timeout>0)
+#else
+	if(this->timeout.tv_sec>0 || this->timeout.tv_usec>0)
+#endif
+	{
+		if(setsockopt(this->_sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout))!=0) {
 			std::cout << this->_info_name<<"::init() "<< "ERROR: recv timeout setsockopt failed." << std::endl;
 		}
 	}

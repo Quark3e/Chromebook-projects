@@ -186,7 +186,7 @@ TUI::termMenu::~termMenu() {
 #ifndef _WIN32
     if(_ncurses_windowOpen) endwin();
 #else
-
+    // std::cout << ansi_code + "2J" << std::endl;
 #endif
 }
 
@@ -352,33 +352,46 @@ pos2d<int> TUI::termMenu::driver(
     std::string bg_textColour,
     std::string bg_bgColour
 ) {
+    #ifdef DEBUG__PRINT
+    debug_checkPointStr = "0";
+    #endif
     if(menuTable.table.size()==0) {
         throw std::logic_error("menuTable.table is empty. No cell's are made.");
     }
     if(pos_x==0) pos_x = 1;
     if(pos_y==0) pos_y = 1;
-
+    #ifdef DEBUG__PRINT
+    debug_checkPointStr  = "1";
+    #endif
     termLoc[0] = pos_x;
     termLoc[1] = pos_y;
 
     getTermSize(termSize[0], termSize[1]);
-
+    #ifdef DEBUG__PRINT
+    debug_checkPointStr  = "2";
+    #endif
     // static int pressed_option[2] = {0, 0};
     pos2d<int> pressed_option(0, 0);
     bool loopInit = false; //boolean for whether the driver loop has ran a full iteration already
     int loopInit_count = 0;
-
+    #ifdef DEBUG__PRINT
+    debug_checkPointStr  = "3";
+    #endif
     exitDriver = false;
     menuTable.strExport("\n", false, "\n", " ");
     // createTable displayTable = menuTable;
-    
+    #ifdef DEBUG__PRINT
+    debug_checkPointStr  = "4";
+    #endif
     if(display_dim[1][0]-display_dim[0][0]>menuTable.table[0].size()-1) {
         display_dim[1][0] = display_dim[0][0] + menuTable.table[0].size()-1;
     }
     if(display_dim[1][1]-display_dim[0][1]>static_cast<int>(menuTable.table.size())-1) {
         display_dim[1][1] = display_dim[0][1] + static_cast<int>(menuTable.table.size())-1;
     }
-
+    #ifdef DEBUG__PRINT
+    debug_checkPointStr  = "5";
+    #endif
     if(cursorMode==-1) {
         display_dim[0][0] = 0;
         display_dim[0][1] = 0;
@@ -422,7 +435,9 @@ pos2d<int> TUI::termMenu::driver(
         }
     }
     // createTable displayTable(display_dim[1][0]-display_dim[0][0], display_dim[1][1]-display_dim[0][1]);
-
+    #ifdef DEBUG__PRINT
+    debug_checkPointStr  = "6";
+    #endif
     /// @brief bounding boxed table which will be displayed to terminal if cursorMode != -1
     std::vector<std::vector<std::string>> dispTable_vec(
         display_dim[1][1]-display_dim[0][1],
@@ -431,12 +446,17 @@ pos2d<int> TUI::termMenu::driver(
             ""
         )
     );
+    #ifdef DEBUG__PRINT
+    debug_checkPointStr  = "7";
+    #endif
     /// @brief `createTable` instance that is a cropped/ROI version of menuTable
     createTable dispTable(
         display_dim[1][0]-display_dim[0][0]+1,
         display_dim[1][1]-display_dim[0][1]+1
     );
-
+    #ifdef DEBUG__PRINT
+    debug_checkPointStr  = "8";
+    #endif
     /// @brief width and height of displayed-window/dynamic-edges
     int dispDim[2] = {
         display_dim[1][0]-display_dim[0][0]+1,
@@ -454,7 +474,9 @@ pos2d<int> TUI::termMenu::driver(
     scrollok(stdscr, TRUE); //std::cout<<" check 5.6"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
     _ncurses_windowOpen = true;
 #endif
-
+#ifdef DEBUG__PRINT
+    debug_checkPointStr  = "9";
+#endif
     int c = 0;
     if(!driverFuncInit) {
         if(cursorMode!=-1) {
@@ -486,7 +508,9 @@ pos2d<int> TUI::termMenu::driver(
      *
     */
     bool cursLock[2][2]= {{false, false}, {false, false}};
-
+    #ifdef DEBUG__PRINT
+    debug_checkPointStr  = "10";
+    #endif
 
     /// vectors to hold the indices in a range for both axes {x/columns, y/rows}
     std::vector<int> display_range[2] = {
@@ -507,7 +531,9 @@ pos2d<int> TUI::termMenu::driver(
     );
     if(init_clear) std::cout << ansi_code+"2J" <<std::endl;
     
-
+    #ifdef DEBUG__PRINT
+    debug_checkPointStr  = "11";
+    #endif
     bool driverInit = false;
 
     int init_driverCallKeys_count = init_driverCallKeys.size();
@@ -515,7 +541,9 @@ pos2d<int> TUI::termMenu::driver(
     if(!driverFuncInit) driverFuncInit=true;
     while(/*(c=getch()) != 27 &&*/ !exitDriver) {
         std::this_thread::sleep_for(std::chrono::milliseconds(msDelay));
-
+        #ifdef DEBUG__PRINT
+        debug_checkPointStr  = "11.1";
+        #endif
         if(init_driverCallKeys_count>0) {
             c = init_driverCallKeys.at(init_driverCallKeys_full-init_driverCallKeys_count);
             init_driverCallKeys_count--;
@@ -531,7 +559,9 @@ pos2d<int> TUI::termMenu::driver(
 #if _WIN32
         if(loopInit) c = keyCheck(c);
 #endif
-
+#ifdef DEBUG__PRINT
+debug_checkPointStr  = "11.2";
+#endif
         if(loopFunc) loopFunc();
         //???
         if(!callFunc && c==-1 && driverInit) continue;
@@ -539,7 +569,9 @@ pos2d<int> TUI::termMenu::driver(
             driverInit = true;
             if(callFunc) continue;
         }
-
+        #ifdef DEBUG__PRINT
+        debug_checkPointStr  = "11.3";
+        #endif
         if(loopInit_count>0) { loopInit_count--; }
         if(c==-1) c=0;
 
@@ -591,7 +623,9 @@ pos2d<int> TUI::termMenu::driver(
         }
         // else if(c==9) { // tab
         // }
-
+        #ifdef DEBUG__PRINT
+        debug_checkPointStr  = "11.4";
+        #endif
         if(loopInit && (c==CUSTOM_KEY_ENTER || c=='\n')) {
             pressedCell[0] = currCell[0];
             pressedCell[1] = currCell[1];
@@ -637,7 +671,9 @@ pos2d<int> TUI::termMenu::driver(
             }
             if(subBreak) break;
         }
-
+        #ifdef DEBUG__PRINT
+        debug_checkPointStr  = "11.5.0";
+        #endif
 #ifndef _WIN32
         if(c==KEY_MOUSE) {
             if(getmouse(&mouse_event) == OK) {
@@ -682,6 +718,9 @@ pos2d<int> TUI::termMenu::driver(
             }
         }
 #endif
+        #ifdef DEBUG__PRINT
+        debug_checkPointStr  = "11.5.0.1";
+        #endif
         /// cursorMode based movement drawing.
         if(cursorMode==-1) {
             ansiPrint(
@@ -689,11 +728,9 @@ pos2d<int> TUI::termMenu::driver(
                 static_cast<int>(pos_x),
                 static_cast<int>(pos_y)
             );
-
             //locate terminal pos of highlighted cell in respect to cell container 2d location
             carriagePos[0] = menuTable.getCellX(currCell[0], currCell[1]);
             carriagePos[1] = menuTable.getCellY(currCell[0], currCell[1]);
-
             //display/highlight the currentCell that is hovered over.
             ANSI_mvprint(
                 carriagePos[0]+pos_x,
@@ -703,7 +740,7 @@ pos2d<int> TUI::termMenu::driver(
                 +ansi_code+bg_textColour+";"+bg_bgColour+"m"
             );
         }
-        else if(cursorMode==0) {
+        if(cursorMode==0) {
             int diff=0;
             if(currCell[0]<display_dim[0][0]) {
                 diff = currCell[0]-display_dim[0][0];
@@ -725,7 +762,6 @@ pos2d<int> TUI::termMenu::driver(
                 display_dim[0][1] += diff;
                 display_dim[1][1] += diff;
             }
-
             // ANSI_mvprint(
             //     0, 0, 
             //     "{{"+
@@ -752,31 +788,32 @@ pos2d<int> TUI::termMenu::driver(
                     );
                 }
             }
-
+            
             menuTable.copyTo_settings(dispTable);
             dispTable.strExport("\n", false, "\n", " ");
-
             ansiPrint(
                 dispTable.exportStr,
                 static_cast<int>(pos_x),
                 static_cast<int>(pos_y)
             );
-
             carriagePos[0] = menuTable.getCellX(currCell[0]-display_dim[0][0], currCell[1]-display_dim[0][1]);
             carriagePos[1] = menuTable.getCellY(currCell[0]-display_dim[0][0], currCell[1]-display_dim[0][1]);
 
             //display/highlight the currentCell that is hovered over.
+            std::string colCode0= ansi_code+highlight_textColour+";"+highlight_bgColour+"m";
+            std::string colCode1= ansi_code+bg_textColour+";"+bg_bgColour+"m";
+            std::string mainStr = menuTable.table.at(currCell[1]).at(currCell[0]);
+            mainStr += std::string(button_totWidth*menuTable.maxColumnLen.at(currCell[0]), ' ');
+
             ANSI_mvprint(
                 carriagePos[0]+pos_x,
                 carriagePos[1]+pos_y,
-                ansi_code+highlight_textColour+";"+highlight_bgColour+"m"+
-                menuTable.table.at(currCell[1]).at(currCell[0])+
-                std::string(button_totWidth*menuTable.maxColumnLen.at(currCell[0]), ' ')
-                +ansi_code+bg_textColour+";"+bg_bgColour+"m"
+                colCode0+
+                mainStr+
+                colCode1
             );
-
         }
-        else if(cursorMode==1) {
+        if(cursorMode==1) {
 
             for(int i=0; i<2; i++) {
                 for(int ii=0; ii<2; ii++) {
@@ -861,7 +898,7 @@ pos2d<int> TUI::termMenu::driver(
             );
 
         }
-        else if(cursorMode==2) {
+        if(cursorMode==2) {
             // /**
             //  * Same as cursorMode 1 but the cursor doesn't unlock from the center. Instead
             //  * the display table fills in the missing cells with with what is supposed to be there
@@ -938,24 +975,33 @@ pos2d<int> TUI::termMenu::driver(
 
         }
         
+        #ifdef DEBUG__PRINT
+        debug_checkPointStr  = "11.6";
+        #endif
 #ifndef _WIN32
         refresh();
 #endif
         if(!loopInit) loopInit=true;
     }
     loopInit = false;
-
+    #ifdef DEBUG__PRINT
+    debug_checkPointStr  = "12";
+    #endif
     ANSI_mvprint(termSize[0]-10, 1, "exited");
     // std::cin.get();
     // std::cin.ignore();
     // std::cin.clear();
-
+    #ifdef DEBUG__PRINT
+    debug_checkPointStr  = "13";
+    #endif
 #if _WIN32
     std::cout << ansi_code+"2J" <<std::endl;
 #else
     endwin();
 #endif
-
+#ifdef DEBUG__PRINT    
+debug_checkPointStr  = "14";
+#endif
     return pressed_option;
 }
 

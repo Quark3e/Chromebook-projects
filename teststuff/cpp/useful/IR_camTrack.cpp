@@ -120,7 +120,7 @@ IR_camTracking::IR_camTracking(
 }
 
 IR_camTracking::~IR_camTracking() {
-    cap.release();
+    if(cap.isOpened()) cap.release();
 }
 
 IR_camTracking& IR_camTracking::operator=(const IR_camTracking& _other) {

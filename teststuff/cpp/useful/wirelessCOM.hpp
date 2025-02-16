@@ -156,8 +156,12 @@ class nodemcu_connect {
     /// @brief Initialiser function for internal UDP socket setup
     /// @return Whether it successfully initialied [`0`] or an error has occurred [`!=0`]
     int init();
+#if _WIN32
+    int timeout = 2000;
+#else
 	struct timeval timeout = {2,0};
-    
+#endif
+
     /// @brief Constructor call with remote board's IP and PORT.
     /// @param _board_IP IP of the esp8266 board's server.
     /// @param _board_PORT PORT of the esp8266 board's server.
