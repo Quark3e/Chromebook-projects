@@ -47,7 +47,6 @@
 
 inline std::string debug_checkPointStr = "";
 
-
 namespace TUI {
     /// @brief placeholder function for empty function parameter
     inline void termMenu_nullFunc_void__() {}
@@ -72,6 +71,8 @@ namespace TUI {
     typedef void    (*TDEF_void_pInt)(int*);        /*id:`2`: type `void (int*)*/
     typedef void    (*TDEF_void_pChar)(char*);      /*id:`3`: type `void (char*)`*/
     typedef void    (*TDEF_void_pStr)(std::string*);/*id:`4`: type `void (std::string*)`*/
+
+
 
     #if _WIN32
         inline int CUSTOM_KEY_UP       = -691;
@@ -112,6 +113,8 @@ namespace TUI {
         char    *param_pChar;
         std::string *param_pStr;
         
+
+        optItem(std::string _name, int _x, int _y, int _key);
         optItem(std::string _name, int _x, int _y, int _key, TDEF_void__     _func);
         optItem(std::string _name, int _x, int _y, int _key, TDEF_void_pBool _func, bool *_param = nullptr);
         optItem(std::string _name, int _x, int _y, int _key, TDEF_void_pInt  _func, int  *_param = nullptr);
@@ -123,7 +126,6 @@ namespace TUI {
     
     /// Dedicated function to exit driver function. If an termMenu opt is assigned this function then it'll re
     void DEDICATED__exitDriver(bool* _driverExit = nullptr);
-
 
     class termMenu {
         private:
@@ -409,6 +411,18 @@ namespace TUI {
         int setDisplayDim(int c0_x, int c0_y, int c1_x, int c1_y, int cursMode);
 
         /**
+         * @brief add/set/edit an option/button info with nullfunc
+         * @param optName `std::string` variable of name for the button
+         * @param x_column x-coordinate/column location button/option to add/set/edit
+         * @param y_row y-coordinate/row location of button/option to add/set/edit
+         * @param keyPress int of the key event to react to: if `-1` then it will only be called with button press.
+         * @note - If `x_column`/`y_row` are further out than the already created dimensions (ex. there are less columns than x_column calls)
+         * @note then it'll expand the 2d-container/table dimension along that axis.
+         * @note - If `keyPress` isn't `-1` and that keyPress has already been "used" it'll set that keyPress to `-1` and return function -1
+         * @return `0` if successfully added: `1` if an error occurred trying to addOpt
+        */
+        int addOpt_nullFunc(std::string optName, int x_column, int y_row, int keyPress=-1);
+        /**
          * @brief add/set/edit an option/button info
          * @param optName `std::string` variable of name for the button
          * @param x_column x-coordinate/column location button/option to add/set/edit
@@ -420,7 +434,7 @@ namespace TUI {
          * @note - If `keyPress` isn't `-1` and that keyPress has already been "used" it'll set that keyPress to `-1` and return function -1
          * @return `0` if successfully added: `1` if an error occurred trying to addOpt
         */
-        int addOpt(std::string optName, int x_column=0, int y_row=0, int keyPress=-1, TDEF_void__ optFunc=termMenu_nullFunc_void__);
+        int addOpt(std::string optName, int x_column, int y_row, int keyPress=-1, TDEF_void__ optFunc=termMenu_nullFunc_void__);
         /**
          * @brief add/set/edit an option/button info
          * @param optName `std::string` variable of name for the button
@@ -434,7 +448,7 @@ namespace TUI {
          * @note - If `keyPress` isn't `-1` and that keyPress has already been "used" it'll set that keyPress to `-1` and return function -1
          * @return `0` if successfully added: `1` if an error occurred trying to addOpt
         */
-        int addOpt(std::string optName, int x_column=0, int y_row=0, int keyPress=-1, TDEF_void_pBool optFunc=termMenu_nullFunc_void_pBool, bool* param0=&termMenu_nullParam_bool);
+        int addOpt(std::string optName, int x_column, int y_row, int keyPress=-1, TDEF_void_pBool optFunc=termMenu_nullFunc_void_pBool, bool* param0=&termMenu_nullParam_bool);
         /**
          * @brief add/set/edit an option/button info
          * @param optName `std::string` variable of name for the button
@@ -448,7 +462,7 @@ namespace TUI {
          * @note - If `keyPress` isn't `-1` and that keyPress has already been "used" it'll set that keyPress to `-1` and return function -1
          * @return `0` if successfully added: `1` if an error occurred trying to addOpt
         */
-        int addOpt(std::string optName, int x_column=0, int y_row=0, int keyPress=-1, TDEF_void_pInt optFunc=termMenu_nullFunc_void_pInt, int* param0=&termMenu_nullParam_int);
+        int addOpt(std::string optName, int x_column, int y_row, int keyPress=-1, TDEF_void_pInt optFunc=termMenu_nullFunc_void_pInt, int* param0=&termMenu_nullParam_int);
         /**
          * @brief add/set/edit an option/button info
          * @param optName `std::string` variable of name for the button
@@ -462,7 +476,7 @@ namespace TUI {
          * @note - If `keyPress` isn't `-1` and that keyPress has already been "used" it'll set that keyPress to `-1` and return function -1
          * @return `0` if successfully added: `1` if an error occurred trying to addOpt
         */
-        int addOpt(std::string optName, int x_column=0, int y_row=0, int keyPress=-1, TDEF_void_pChar optFunc=termMenu_nullFunc_void_pChar, char* param0=&termMenu_nullParam_char);
+        int addOpt(std::string optName, int x_column, int y_row, int keyPress=-1, TDEF_void_pChar optFunc=termMenu_nullFunc_void_pChar, char* param0=&termMenu_nullParam_char);
         /**
          * @brief add/set/edit an option/button info
          * @param optName `std::string` variable of name for the button
@@ -476,7 +490,7 @@ namespace TUI {
          * @note - If `keyPress` isn't `-1` and that keyPress has already been "used" it'll set that keyPress to `-1` and return function -1
          * @return `0` if successfully added: `1` if an error occurred trying to addOpt
         */
-        int addOpt(std::string optName, int x_column=0, int y_row=0, int keyPress=-1, TDEF_void_pStr optFunc=termMenu_nullFunc_void_pStr, std::string* param0=&termMenu_nullParam_string);
+        int addOpt(std::string optName, int x_column, int y_row, int keyPress=-1, TDEF_void_pStr optFunc=termMenu_nullFunc_void_pStr, std::string* param0=&termMenu_nullParam_string);
 
 
         /**

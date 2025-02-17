@@ -13,7 +13,7 @@ void printFuncLabel(std::string functionName) {
 	// std::cout << std::endl << std::string(termDim[0], '-')<<std::endl;
 	// std::cout << functionName << std::endl;
 	// std::cout << std::string(termDim[0], '-')<<std::endl;
-	ANSI_mvprint(0, 0, std::string(termDim[0], '-'), true, "abs", "rel", true);
+	ANSI_mvprint(0, 2, std::string(termDim[0], '-'), true, "abs", "abs", true);
 	ANSI_mvprint(0, 0, functionName, true, "abs", "rel");
 	ANSI_mvprint(0, 0, std::string(termDim[0], '-'), true, "abs", "rel");
 }
@@ -60,31 +60,26 @@ void HW_group__main() {
 
     menu_group__main.driver(1, 1, 5, true);
 
-    
 }
 void HW_group__calibrate() {
 
     menu_group__calibrate.driver(1, 1, 5, true);
-
 }
 
 
 void HW__config_options() {
     static bool _init = true;
     static size_t maxStrSize = 0;
-    if(_init) {
-        maxStrSize = _CONFIG_OPTIONS.getKey(getVal_findString(_CONFIG_OPTIONS.keys(), 0)).length();
-    }
 
+    maxStrSize = _CONFIG_OPTIONS.getKey(getVal_findString(_CONFIG_OPTIONS.keys(), 0)).length();
+    
     // ANSI_mvprint(0, 0, "", true, "abs", "abs", true);
     while(true) {
         for(size_t i=0; i<_CONFIG_OPTIONS.size(); i++) {
             menu__config_options.addOpt(formatNumber(_CONFIG_OPTIONS.getKey(i), maxStrSize+1, 0, "left")+":  "+formatNumber(_CONFIG_OPTIONS[i], 5, 0, "left"), 0, i, -1, static_cast<TUI::TDEF_void__>(nullptr));
         }
-        menu__config_options.addOpt("exit", 0, 1+_CONFIG_OPTIONS.size(), 27, TUI::DEDICATED__exitDriver);
-    
+        menu__config_options.addOpt("back", 0, 1+_CONFIG_OPTIONS.size(), 27, TUI::DEDICATED__exitDriver);
         pos2d<int> pressed_pos = menu__config_options.driver(1, 1, 1, true);
-
         if(pressed_pos.inRegion({0, 0}, {0, static_cast<int>(_CONFIG_OPTIONS.size())})) {
             _CONFIG_OPTIONS[pressed_pos.y] = !_CONFIG_OPTIONS[pressed_pos.y];
         }
@@ -102,6 +97,10 @@ void HW__init_options() {
     // if(_init) {
         maxStrSize = _init_status.getKey(getVal_findString(_init_status.keys(), 0)).length();
     // }
+    menu__init_options.addOpt_nullFunc("maxStrSize: "+formatNumber(maxStrSize), 5, 0, -1);
+    menu__init_options.addOpt_nullFunc("keys: "+formatVector(_init_status.keys()), 5, 1, -1);
+    menu__init_options.addOpt_nullFunc("_sizes: "+formatVector(_tempRef), 5, 2, -1);
+    menu__init_options.addOpt_nullFunc("key idx: "+formatNumber(getVal_findString(_init_status.keys(), 0)), 5, 3, -1);
 
     while(true) {
         for(size_t i=0; i<_init_status.size(); i++) {
@@ -110,10 +109,9 @@ void HW__init_options() {
                 0, i, -1, static_cast<TUI::TDEF_void__>(nullptr)
             );
         }
-        menu__init_options.addOpt("exit", 0, 1+_init_status.size(), 27, TUI::DEDICATED__exitDriver);
+        menu__init_options.addOpt("back", 0, 1+_init_status.size(), 27, TUI::DEDICATED__exitDriver);
 
         pos2d<int> pressed_pos = menu__init_options.driver(1, 1, 1, true);
-        std::cout<<"a[-1]";std::cout.flush();
         if(pressed_pos.inRegion({0, 0}, {0, static_cast<int>(_init_status.size())})) {
             /// Calling a init status value
             if(_init_status[pressed_pos[1]].isInit()) {
@@ -126,16 +124,15 @@ void HW__init_options() {
                 /// init status being called to turn on
                 std::string call_msg = "";
                 if(_init_status[pressed_pos[1]].call_init()) {
-                    call_msg = "init  failed: "+_init_status[pressed_pos[1]].get_callMsg();
+                    call_msg = "init  failed    : "+_init_status[pressed_pos[1]].get_callMsg();
                 }
                 else {
-                    call_msg = "init  success.";
+                    call_msg = "init  success   : "+_init_status[pressed_pos[1]].get_callMsg();
                 }
                 menu__init_options.addOpt(call_msg, 2, pressed_pos[1], -1, static_cast<TUI::TDEF_void__>(nullptr));
 
             }
         }
-        std::cout<<"a[0+1]";std::cout.flush();
         if(pressed_pos==pos2d<int>{0, static_cast<int>(1+_init_status.size())}) {
             break;
         }

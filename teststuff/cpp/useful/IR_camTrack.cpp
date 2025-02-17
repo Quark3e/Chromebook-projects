@@ -321,7 +321,7 @@ void hsv_settingsRead(
 	//read HSV values from file with given indeks and change global l_HSV/u_HSV variables
 	std::ifstream hsvFile(filePath);
 	if(!hsvFile.is_open()) {
-		printf("can't open file \"%s\"",filePath);
+		printf("can't open file \"%s\"",filePath.c_str());
 		return;
 	}
 	std::string line;

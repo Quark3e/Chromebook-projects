@@ -8,13 +8,13 @@ set(BUILD_MODE Debug)
 # set(opt6_src "HW_options/opt6_terminal.cpp")
 # set(CMAKE_CXX_FLAGS "-DIMGUI_USER_CONFIG=\\\"/usr/local/include/imgui/examples/example_allegro5/imconfig_allegro5.h\\\"")
 # set(CMAKE_BUILD_TYPE Debug)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 set(REPO_ROOT "../../..")
 set(DIR_CPP_USEFUL "${REPO_ROOT}/teststuff/cpp")
 set(DIR_HC_USEFUL "${DIR_CPP_USEFUL}/useful")
 
 if (MSVC)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
     # warning level 4
     # add_compile_options(/FS)
 else()

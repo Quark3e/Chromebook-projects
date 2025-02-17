@@ -694,18 +694,16 @@ struct pos2d {
     template<typename varType>
     inline size_t findIdx(std::vector<varType> toCheck, int toFind) {
         size_t index = 0;
-        varType val = toCheck[0];
         for(size_t i=1; i<toCheck.size(); i++) {
             switch (toFind) {
             case 0: //max
-                if(toCheck[i]>val) index = i;
+                if(toCheck[i]>toCheck[index]) {index = i;}
                 break;
             case 1: //min
-                if(toCheck[i]<val) index = i;
+                if(toCheck[i]<toCheck[index]) {index = i;}
                 break;
             default:
-                std::cerr << "Incorrect find integer set." << std::endl;
-                exit(1);
+                throw std::invalid_argument("findIdx: invalid `toFind` argument.");
                 break;
             }
         }
@@ -717,7 +715,7 @@ struct pos2d {
         return findIdx<varType>(toCheck, toFind);
     }
 
-    
+    inline std::vector<size_t> _tempRef;
     /**
      * @brief Get the index to desired value from given vector of `std::string`'s
      * 
@@ -731,13 +729,13 @@ struct pos2d {
     ) {
         if(_vec.size()==0) throw std::invalid_argument("getVal_findString: std::vector size can't be 0.");
         if(_toFind!=0 && _toFind!=1) throw std::invalid_argument("getVal_findString: invalid code for _toFind.");
-
-        std::vector<size_t> _sizes(_vec.size());
+        static std::vector<size_t> _sizes;
+        _sizes = std::vector<size_t>(_vec.size());
         for(size_t i=0; i<_vec.size(); i++) {
             _sizes[i] = _vec.at(i).size();
         }
-
-        return findIdx(_vec, _toFind); 
+        _tempRef = _sizes;
+        return findIdx(_sizes, _toFind);
     }
 
     /**

@@ -5,7 +5,10 @@
 #include <stdio.h>
 
 
+TUI::optItem::optItem(std::string _name, int _x, int _y, int _key
+): name(_name), x(_x), y(_y), key(_key), _funcType_id(0), func_void__(nullptr) {
 
+}
 TUI::optItem::optItem(std::string _name, int _x, int _y, int _key, TDEF_void__     _func
 ): name(_name), x(_x), y(_y), key(_key), _funcType_id(0), func_void__(_func) {
 
@@ -186,7 +189,7 @@ TUI::termMenu::~termMenu() {
 #ifndef _WIN32
     if(_ncurses_windowOpen) endwin();
 #else
-    // std::cout << ansi_code + "2J" << std::endl;
+    std::cout << ansi_code + "2J" << std::endl;
 #endif
 }
 
@@ -238,6 +241,21 @@ int TUI::termMenu::setButtonWidth(int width) {
     return 0;
 }
 
+int TUI::termMenu::addOpt_nullFunc(std::string optName, int x_column, int y_row, int keyPress
+) {
+
+    extend_containers(
+        x_column- (static_cast<int>((menuTable.table.size()>0? menuTable.table.at(0).size() : 0) -1 )),
+        y_row   - (static_cast<int>(menuTable.table.size())-1)
+    );
+    if(container_insertKey(keyPress, x_column, y_row)==-1) return 1;
+    menuTable.insertText(optName, x_column, y_row);
+
+    optFunc_identifier.at(y_row).at(x_column) = 0;
+    optFunc_id0.at(y_row).at(x_column) = nullptr;
+
+    return 0;
+}
 int TUI::termMenu::addOpt(std::string optName, int x_column, int y_row, int keyPress, TDEF_void__ optFunc
 ) {
 

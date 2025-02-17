@@ -303,13 +303,14 @@ TUI::termMenu menu__init_options({}, false);
 
 TUI::termMenu menu_group__main({
 	{"[0]	Intro", 0, 0, '0', HW_option1_intro},
-	{"[1]	Calibrate", 0, 2, '1', HW_group__calibrate},
 
-	{"[2]	Main", 0, 4, '2', HW_option0},
-	{"[3]	Tracking-telemetry", 0, 5, '3', HW_option3},
-	{"[4]	Orient", 0, 6, '4', HW_option5_orient},
-	{"[t]	Terminal", 0, 7, 't', HW_option6_terminal},
-
+	{"[2]	Main", 0, 2, '2', HW_option0},
+	{"[3]	Tracking-telemetry", 0, 3, '3', HW_option3},
+	{"[4]	Orient", 0, 4, '4', HW_option5_orient},
+	{"[t]	Terminal", 0, 5, 't', HW_option6_terminal},
+	
+	{"[c]	Calibrate", 0, 7, 'c', HW_group__calibrate},
+	
 	{"[o]	options", 0, 9, 'o', HW__config_options},
 	{"[i]	init-status", 0, 10, 'i', HW__init_options},
 
@@ -334,16 +335,16 @@ TUI::termMenu opt6_startMenu({
 	{"[e]	Exit", 			0, 7, 'e', TUI::DEDICATED__exitDriver}
 });
 TUI::termMenu opt6_control_panel({
-	{formatNumber("x:",8,0,"left"), 1, 1, 'x', static_cast<TUI::TDEF_void__>(nullptr)},
-	{formatNumber("y:",8,0,"left"), 3, 1, 'y', static_cast<TUI::TDEF_void__>(nullptr)},
-	{formatNumber("z:",8,0,"left"), 5, 1, 'z', static_cast<TUI::TDEF_void__>(nullptr)},
+	{formatNumber("x:",8,0,"left"), 1, 1, 'x'},
+	{formatNumber("y:",8,0,"left"), 3, 1, 'y'},
+	{formatNumber("z:",8,0,"left"), 5, 1, 'z'},
 
-	{formatNumber("a:",8,0,"left"), 1, 3, 'a', static_cast<TUI::TDEF_void__>(nullptr)},
-	{formatNumber("B:",8,0,"left"), 3, 3, 'b', static_cast<TUI::TDEF_void__>(nullptr)},
-	{formatNumber("Y:",8,0,"left"), 5, 3, 'y', static_cast<TUI::TDEF_void__>(nullptr)},
+	{formatNumber("a:",8,0,"left"), 1, 3, 'a'},
+	{formatNumber("B:",8,0,"left"), 3, 3, 'b'},
+	{formatNumber("Y:",8,0,"left"), 5, 3, 'y'},
 
-	{"back", 1, 5, 27, static_cast<TUI::TDEF_void__>(nullptr)},
-	{"enter", 5, 5, 10, static_cast<TUI::TDEF_void__>(nullptr)}
+	{"back", 1, 5, 27},
+	{"enter", 5, 5, 10}
 }, false);
 
 
@@ -439,9 +440,11 @@ int _init__pca(_initClass_dataStruct *_passData) {
 	pca.set_pwm_freq(50.0);
 	return 0;
 #else
-	_passData->_message = "_init__pca: _MACHINE__RPI_MAIN==false";
-	return 1;
+	_passData->_message = "NOTE: _init__pca: _MACHINE__RPI_MAIN==false";
+	// return 1;
 #endif
+
+	return 0;
 }
 int _init__camObj(_initClass_dataStruct *_passData) {
 	camObj = std::vector<IR_camTracking>(2);
