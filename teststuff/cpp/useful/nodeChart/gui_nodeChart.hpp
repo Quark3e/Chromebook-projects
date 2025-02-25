@@ -6,9 +6,9 @@
 
 #include "globals_includes.hpp"
 #include <diy_dictionary.hpp>
+#include "pos2d.hpp"
 
-
-
+template<typename _varType>
 static auto to_ImVec2 = [](pos2d toConv) { return ImVec2(toConv.x, toConv.y); };
 static auto to_pos2d  = [](ImVec2 toConv){ return pos2d(toConv.x, toConv.y); };
 
@@ -81,7 +81,7 @@ struct Vec2i {
 
 namespace gNC {
 
-
+    template<typename _varType>
     static auto to_ImVec2 = [](pos2d toConv) { return ImVec2(toConv.x, toConv.y); };
     static auto to_pos2d  = [](ImVec2 toConv){ return pos2d(toConv.x, toConv.y); };
 

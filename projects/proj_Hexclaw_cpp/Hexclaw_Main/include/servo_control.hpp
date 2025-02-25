@@ -8,6 +8,8 @@
 #include "global_variables.hpp"
 #include "../IK_header.hpp"
 
+#include <pos2d.hpp>
+
 #if _MACHINE__RPI_MAIN
 #include <PiPCA9685/PCA9685.h>
 #endif

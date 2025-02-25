@@ -41,7 +41,7 @@
 
 #include "createTable.hpp"
 #include "useful.hpp"
-
+#include "pos2d.hpp"
 
 // #define DEBUG__PRINT
 

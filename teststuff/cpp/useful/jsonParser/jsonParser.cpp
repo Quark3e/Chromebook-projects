@@ -1,6 +1,6 @@
 
 #include "jsonParser.hpp"
-
+#include "pos2d.hpp"
 
 bool JSON_P::jsonPair::init() const {
     return this->_init;
@@ -556,7 +556,7 @@ int JSON_P::jsonPair::loadFile(
      *    - [1]/.y - if [0] value is an array or a json object (which it has to be if another jsonPair/_tempPairs-element is indexed to it), [1] refers to the element indenx
      * 
      */
-    std::vector<pos2d> _pairLoc;
+    std::vector<pos2d<int>> _pairLoc;
 
     std::fstream _file;
     _file.open(filename, std::fstream::in);
@@ -874,7 +874,7 @@ int JSON_P::Parser::loadFile(
      *    - [1]/.y - if [0] value is an array or a json object (which it has to be if another jsonPair/_tempPairs-element is indexed to it), [1] refers to the element indenx
      * 
      */
-    std::vector<pos2d> _pairLoc;
+    std::vector<pos2d<int>> _pairLoc;
 
     std::fstream _file;
     _file.open(filename, std::fstream::in);

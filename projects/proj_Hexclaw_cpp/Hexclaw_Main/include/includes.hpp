@@ -78,6 +78,7 @@
 
 #include <createTable.hpp>
 #include <useful.hpp>
+#include <pos2d.hpp>
 #include <stringToFunc.hpp>
 #include <terminalMenu.hpp>
 

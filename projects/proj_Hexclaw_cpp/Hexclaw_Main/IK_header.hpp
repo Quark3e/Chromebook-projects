@@ -157,55 +157,7 @@ struct servo_angles_6DOF {
 };
 #endif
 
-// #ifndef _VAR__pos2d
-// #define _VAR__pos2d
 
-// template<typename _varType>
-// struct pos2d {
-//     _varType x;
-//     _varType y;
-//     pos2d() {}
-//     // pos2d(_varType *_arrPtr): x(_arrPtr[0]), y(_arrPtr[1]) {}
-//     pos2d(const pos2d &_copy) {
-//         this->x = _copy.x;
-//         this->y = _copy.y;
-//     }
-//     pos2d(_varType _x, _varType _y): x(_x), y(_y) {}
-//     _varType &operator[](size_t _i) {
-//         switch (_i) {
-//             case 0: return this->x;
-//             case 1: return this->y;
-//         }
-//         throw std::out_of_range("size_t index value is out of range.");
-//         return x;
-//     }
-//     _varType operator[](size_t _i) const {
-//         switch (_i) {
-//             case 0: return this->x;
-//             case 1: return this->y;
-//         }
-//         throw std::out_of_range("size_t index value is out of range.");
-//         return x;
-//     }
-
-//     pos2d &operator=(const pos2d<_varType>& m) {
-//         this->x = m.x;
-//         this->y = m.y;
-//         return *this;
-//     }
-//     bool operator==(pos2d const& m) { return  (x==m.x && y==m.y); }
-//     bool operator!=(pos2d const& m) { return !(x==m.x && y==m.y); }
-
-//     int _printPrecision = 2;
-//     int _printWidth     = 0;
-//     friend auto operator<<(std::ostream &os, pos2d const& m) -> std::ostream& {
-//         os << std::setw(m._printWidth) << std::setprecision(m._printPrecision);
-//         os << "("<<m.x<<","<<m.y<<")";
-//         return os;
-//     }
-// };
-
-// #endif
 
 namespace HW_KINEMATICS  {
 

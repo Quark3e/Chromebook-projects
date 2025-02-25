@@ -3,6 +3,7 @@
 #include <string>
 #include <terminalMenu.hpp>
 #include <useful.hpp>
+#include <pos2d.hpp>
 #include <chrono>
 
 // #include <curses.h>
