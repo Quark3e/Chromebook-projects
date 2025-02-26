@@ -3,6 +3,9 @@
 #define _VAR__pos2d
 
 #include <cmath>
+
+#include <string>
+#include <sstream>
 #include <iostream>
 #include <iomanip>
 
@@ -51,6 +54,13 @@ struct pos2d {
         // return (x==m.x && y==m.y);
     }
     bool operator!=(pos2d const& m) { return !(x==m.x && y==m.y); }
+
+    operator std::string() {
+        std::stringstream ss;
+        ss << std::setw(_printWidth) << std::setprecision(_printPrecision);
+        ss << "("<<x<<","<<y<<")";
+        return ss.str();
+    }
 
     /**
      * @brief Check whether a pos2d value is within the region given by min-max corners of a Bounding Box.

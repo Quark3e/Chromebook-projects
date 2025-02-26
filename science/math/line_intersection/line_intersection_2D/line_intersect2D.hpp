@@ -4,16 +4,27 @@
 
 #include <cmath>
 #include <vector>
-// #include <useful.hpp>
+#include <useful.hpp> //for debugging purposes
 #include <pos2d.hpp>
 
 
+#ifndef max
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#endif
+
+
 #ifndef RADIANS
-#define RADIANS(deg) (deg*M_PI)/360.0
+// Convert degrees to radians
+#define RADIANS(deg) (double(deg)*(double(M_PI)/double(180.0)))
 #endif //RADIANS
 
 #ifndef DEGREES
-#define DEGREES(rad) (rad*360.0)/M_PI
+// Convert radians to degrees
+#define DEGREES(rad) (double(rad)*double(180.0))/double(M_PI)
 #endif //DEGREES
 
 
@@ -67,21 +78,26 @@ inline pos2d<_varType> rotateCoordinate(
     pos2d<_varType> delta(toRotate - centerOfRotation);
 
     pos2d<_varType> magnitude = delta.modify([](_varType _var) { return (_var>0? _var : _var*(-1)); });
-    // pos2d<_varType> magnitude = delta.abs();
-
+    
     pos2d<int> unitVec(0, 0);
     for(size_t i=0; i<2; i++) {
-        if(magnitude[i]!=0) unitVec[i] = magnitude[i];
+        if(magnitude[i]!=0) {
+            unitVec[i] = roundf(delta[i]/magnitude[i]);
+        }
+        else {
+        }
     }
     
     _varType    radius  = delta.hypotenuse();
     double      theta   = DEGREES(acos(delta.x / radius));
     if(unitVec.y < 0) theta = 360 - theta;
 
-    return centerOfRotation + pos2d<_varType>(
-        radius * cos(RADIANS(theta + anglesToRotate_CCW)),
-        radius * sin(RADIANS(theta + anglesToRotate_CCW))
+    pos2d<_varType> newPos(
+        centerOfRotation.x +  radius * cos(RADIANS(theta + anglesToRotate_CCW)),
+        centerOfRotation.y +  radius * sin(RADIANS(theta + anglesToRotate_CCW))
     );
+    
+    return newPos;
 }
 
 template<typename _varType>
@@ -104,7 +120,9 @@ inline pos2d<_varType> getLineIntersect_2D(
     pos2d<_varType> lineA_1,
     pos2d<_varType> lineB_0,
     pos2d<_varType> lineB_1,
-    bool limited_lines = false
+    bool            limited_lines = false,
+    int             precision = 3,
+    double          tolerance = 0.0001
 ) {
     if(lineA_0==lineA_1) throw std::invalid_argument("lineA end point coordinates can't be the same.");
     if(lineB_0==lineB_1) throw std::invalid_argument("lineA end point coordinates can't be the same.");
@@ -129,22 +147,20 @@ inline pos2d<_varType> getLineIntersect_2D(
     // Delta-distance between center B and center A
     pos2d<_varType> centerDelta(centerB - centerA);
     // Center coordinate position between line A and B
-    pos2d<_varType> pivot_point = (
-        centerA.x + centerDelta.x/2,
-        centerA.y + centerDelta.y/2
+    pos2d<_varType> pivot_point(
+        centerA.x + centerDelta.x/2 + 0.7,
+        centerA.y + centerDelta.y/2 + 2.3
     ); 
     
 
-    // double theta_A = getTheta(lineA_1, lineA_0);
-    // double theta_B = getTheta(lineB_1, lineB_0);
     double theta_A  = DEGREES(asin(deltaA.y / deltaA.hypotenuse()));
     double theta_B  = DEGREES(asin(deltaB.y / deltaB.hypotenuse()));
     double theta_AB = abs(theta_B - theta_A);
 
-    // double theta_newAngle = 0;
 
     double theta_newDelta = 0;
     
+
     if(abs(theta_A)>45 || abs(theta_B)>45) {
         double dir_A    = dir_A / abs(dir_A);
         double dir_B    = dir_B / abs(dir_B);
@@ -165,6 +181,7 @@ inline pos2d<_varType> getLineIntersect_2D(
         }
 
     }
+
     /// If the lines need to be rotated, rotate them here.
     if(theta_newDelta != 0) {
         lineA_0 = rotateCoordinate(lineA_0, pivot_point, theta_newDelta);
@@ -173,11 +190,12 @@ inline pos2d<_varType> getLineIntersect_2D(
         lineB_1 = rotateCoordinate(lineB_1, pivot_point, theta_newDelta);
     }
 
+    
     std::vector<_varType> coeffs_A = getLinearCoefficients(lineA_0, lineA_1);
     std::vector<_varType> coeffs_B = getLinearCoefficients(lineB_0, lineB_1);
 
-    if(coeffs_A[1] == coeffs_B[1]) {
 
+    if(coeffs_A[1] == coeffs_B[1]) {
         return pos2d<_varType>(-1, -1);
     }
 
@@ -186,19 +204,36 @@ inline pos2d<_varType> getLineIntersect_2D(
     intersect_pos.x = ((coeffs_B[0]-coeffs_A[0])) / (coeffs_A[1]-coeffs_B[1]);
     intersect_pos.y = coeffs_A[1]*intersect_pos.x + coeffs_A[0];
 
+
     if(theta_newDelta != 0) {
-        intersect_pos = rotateCoordinate(intersect_pos, pivot_point, 0.0-theta_newDelta);
+        intersect_pos = rotateCoordinate(intersect_pos, pivot_point, -theta_newDelta);
+
+        lineA_0 = rotateCoordinate(lineA_0, pivot_point, -theta_newDelta);
+        lineA_1 = rotateCoordinate(lineA_1, pivot_point, -theta_newDelta);
+        lineB_0 = rotateCoordinate(lineB_0, pivot_point, -theta_newDelta);
+        lineB_1 = rotateCoordinate(lineB_1, pivot_point, -theta_newDelta);
     }
 
+    intersect_pos.x = roundf(intersect_pos.x*pow(10, precision)) / pow(10, precision);
+    intersect_pos.y = roundf(intersect_pos.y*pow(10, precision)) / pow(10, precision);
+
+
+
     if(limited_lines) {
-        if(
-            intersect_pos.x < min(lineA_0.x, lineA_1.x) || intersect_pos.x > max(lineA_0.x, lineA_1.x) || 
-            intersect_pos.x < min(lineB_0.x, lineB_1.x) || intersect_pos.x > max(lineB_0.x, lineB_1.x) || 
-            intersect_pos.y < min(lineA_0.y, lineA_1.y) || intersect_pos.y > max(lineA_0.y, lineA_1.y) || 
-            intersect_pos.y < min(lineB_0.y, lineB_1.y) || intersect_pos.y > max(lineB_0.y, lineB_1.y)
-        ) {
-            throw std::runtime_error("found intersection position is outside given line limitations whilst ´limited_lines=true`");
-        }
+        std::string exceptStr = std::string("ERROR: found intersection at position: ") + std::string(intersect_pos) + std::string(" but it's outside given line limitations");
+
+        if(intersect_pos.x < min(lineA_0.x, lineA_1.x)-_varType(tolerance)) throw std::runtime_error(exceptStr+" for x axis for line A minimum: "+formatNumber(min(lineA_0.x, lineA_1.x), 5, 2));
+        if(intersect_pos.x > max(lineA_0.x, lineA_1.x)+_varType(tolerance)) throw std::runtime_error(exceptStr+" for x axis for line A maximum: "+formatNumber(max(lineA_0.x, lineA_1.x), 5, 2));
+        
+        if(intersect_pos.x < min(lineB_0.x, lineB_1.x)-_varType(tolerance)) throw std::runtime_error(exceptStr+" for x axis for line B minimum: "+formatNumber(min(lineB_0.x, lineB_1.x), 5, 2));
+        if(intersect_pos.x > max(lineB_0.x, lineB_1.x)+_varType(tolerance)) throw std::runtime_error(exceptStr+" for x axis for line B maximum: "+formatNumber(max(lineB_0.x, lineB_1.x), 5, 2));
+        
+        if(intersect_pos.y < min(lineA_0.y, lineA_1.y)-_varType(tolerance)) throw std::runtime_error(exceptStr+" for y axis for line A minimum: "+formatNumber(min(lineA_0.y, lineA_1.y), 5, 2));
+        if(intersect_pos.y > max(lineA_0.y, lineA_1.y)+_varType(tolerance)) throw std::runtime_error(exceptStr+" for y axis for line A maximum: "+formatNumber(max(lineA_0.y, lineA_1.y), 5, 2));
+        
+        if(intersect_pos.y < min(lineB_0.y, lineB_1.y)-_varType(tolerance)) throw std::runtime_error(exceptStr+" for y axis for line B minimum: "+formatNumber(min(lineB_0.y, lineB_1.y), 5, 2));
+        if(intersect_pos.y > max(lineB_0.y, lineB_1.y)+_varType(tolerance)) throw std::runtime_error(exceptStr+" for y axis for line B maximum: "+formatNumber(max(lineB_0.y, lineB_1.y), 5, 2));
+        
     }
 
     return intersect_pos;

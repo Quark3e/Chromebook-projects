@@ -36,6 +36,7 @@
 #include <iostream>
 #include <iomanip>
 
+#include <pos2d.hpp>
 
 #if _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -1570,6 +1571,147 @@ inline bool decimalSame(_contType _var0, _contType _var1, size_t _contSize, size
 
         return _RGB;
     }
+
+
+    
+inline pos2d<float> parse__2D_coord(
+    std::string _toParse,
+    std::string _delimiter  = ",",
+    std::string _braces     = "[]",
+    std::vector<char> _toIgnore = std::vector<char>()
+) {
+    pos2d<float> coord(0, 0);
+
+    if(_delimiter.size()==0) throw std::invalid_argument("_delimiter can't be empty.");
+
+    for(size_t ign=0; ign<_toIgnore.size(); ign++) {
+        for(size_t i=0; i<_toParse.size(); i++) {
+            if(_toParse[i]==_toIgnore[ign]) {
+                _toParse.erase(i);
+                ign--;
+            }
+        }
+    }
+
+    size_t startPos = 0;
+    switch (_braces.size()) {
+        case 0:
+        break;
+        case 1:
+            if((startPos=_toParse.find(_braces[0])) == std::string::npos) throw std::invalid_argument("parse__2D_coord: cannot find brace char in string \""+_toParse+"\".");
+            startPos+=1;
+        break;
+        case 2:
+            if(_braces[0]==_braces[1]) throw std::invalid_argument("parse__2D_coord: _braces can't have the same opening and closing char.");
+            if((startPos=_toParse.find(_braces[0])) == std::string::npos) throw std::invalid_argument("parse__2D_coord: cannot find opening braces char's in string \""+_toParse+"\".");
+            startPos+=1; //skip over opening braces char;
+        break;
+        default:
+            throw std::invalid_argument("parse__2D_coord: invalid _braces argument.");
+        break;
+    }
+
+    size_t first_delim_pos = 0;
+    bool delim_matched = false;
+    for(size_t i=startPos; i<_toParse.size()-_delimiter.size(); i++) {
+
+        if(_toParse[i]==_delimiter[0]) {
+            delim_matched = true;
+            for(size_t ii=1; ii<_delimiter.size(); ii++) {
+                /// Check if the substring can be found from current string char index `i`.
+                if(_toParse[i+ii]!=_delimiter[ii]) {
+                    delim_matched = false;
+                    break;
+                }
+            }
+            if(!delim_matched) continue;
+
+            first_delim_pos = i;
+            break;
+        }
+    }
+    std::string str_x = _toParse.substr(startPos, first_delim_pos);
+    try {
+        coord.x = std::stof(str_x);
+    }
+    catch(const std::exception& e) {
+        std::cout << "parse__2D_coord: \"" << str_x << "\" " << e.what() << '\n';
+        exit(1);
+    }
+
+    _toParse.erase(0, first_delim_pos+_delimiter.size());
+
+    try {
+        coord.y = std::stof(_toParse);
+    }
+    catch(const std::exception& e) {
+        std::cout << "parse__2D_coord: \"" << str_x << "\" " << e.what() << '\n';
+        exit(1);
+    }
+
+    return coord;
+}
+
+
+inline std::vector<pos2d<float>> parse__2D_coordinates(
+    std::string     _toParse,
+    std::string     _delimiter,
+    std::string     _braces,
+    std::vector<char> _toIgnore
+) {
+    std::vector<pos2d<float>> coords;
+
+    if(_delimiter.size()==0) throw std::invalid_argument("parse__2D_coordinates: _delimiter can't be empty.");
+
+    // std::cout << "parse__2D_coordinates: raw string:\"" << _toParse << "\"." << std::endl;
+    for(size_t ign=0; ign<_toIgnore.size(); ign++) {
+        for(size_t i=0; i<_toParse.size(); i++) {
+            if(_toParse[i]==_toIgnore[ign]) {
+                _toParse.erase(i);
+                ign--;
+            }
+        }
+    }
+    size_t startPos = 0;
+    switch (_braces.size()) {
+        case 0:
+        break;
+        case 1:
+            if((startPos=_toParse.find(_braces[0])) == std::string::npos) throw std::invalid_argument("parse__2D_coordinates: cannot find opening braces char in string.");
+            startPos+=1;
+        break;
+        case 2:
+            if(_braces[0]==_braces[1]) throw std::invalid_argument("parse__2D_coordinates: _braces can't have the same opening and closing char.");
+            if((startPos=_toParse.find(_braces[0])) == std::string::npos) throw std::invalid_argument("parse__2D_coordinates: cannot find opening braces char in string.");
+            startPos+=1; //skip over opening braces char;
+        break;
+        default:
+            throw std::invalid_argument("parse__2D_coordinates: invalid _braces argument.");
+        break;
+    }
+
+    // std::cout << "parse__2D_coordinates: trimmed string:\"" << _toParse << "\"" << std::endl;
+
+    bool inside_parenth = false;
+    std::vector<size_t> coord_pos{0};
+    for(size_t i=1; i<_toParse.size(); i++) {
+        if(_toParse[i]==_braces[0]) {
+            if(_braces.size()==2 && inside_parenth) throw std::invalid_argument("parse__2D_coordinates: too many opening braces inside string arg '_toParse'.");
+            coord_pos.push_back(i);
+            inside_parenth = true;
+        }
+        if(_braces.size()==2 && _braces[1]==_toParse[i]) inside_parenth = false;
+    }
+    if(coord_pos.size()==1) throw std::invalid_argument("parse__2D_coordinates: string to parse doesn't contain any braces.");
+    coord_pos.push_back(_toParse.size());
+
+    // std::cout << "parse__2D_coordinates: indices:" << formatVector(coord_pos, 0, 0) << std::endl;
+    for(size_t i=0; i<coord_pos.size()-1; i++) {
+        coords.push_back(parse__2D_coord(_toParse.substr(coord_pos[i], coord_pos[i+1]-coord_pos[i]),_delimiter,_braces,_toIgnore));
+    }
+
+    return coords;
+}
 
 
 // }
