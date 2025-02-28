@@ -109,7 +109,7 @@ const bool guiwin_nc::imguiwin::running() {
 
 ImDrawList* guiwin_nc::imguiwin::draw() {
     if(!__init)         throw std::runtime_error("ERROR: newFrame called when library hasn't been initialised.");
-    if(__frameStarted)  throw std::runtime_error("ERROR: a frame hasn't been called to end before trying to set a new frame.");
+    if(!__frameStarted) throw std::runtime_error("ERROR: a frame hasn't been started before trying to draw.");
     if(!__running)      throw std::runtime_error("ERROR: the library is not running before newFrame is called. Likely the window has been closed.");
 
     return ImGui::GetWindowDrawList();
