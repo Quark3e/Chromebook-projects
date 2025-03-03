@@ -12,3 +12,6 @@ add_executable(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PUBLIC imguiwin)
 target_link_libraries(${PROJECT_NAME} PRIVATE imguiwin::imguiwin)
+
+# cmake -S app -B app/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="C:\Users\berkh\Projects\Github_repo\Chromebook-projects\teststuff\cpp\gui\lib_imguiwin\lib\build\Debug"
+# cmake --build build

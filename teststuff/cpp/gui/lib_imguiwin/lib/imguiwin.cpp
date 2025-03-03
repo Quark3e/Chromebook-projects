@@ -2,6 +2,32 @@
 #include "imguiwin.hpp"
 
 
+bool guiwin_nc::inRegion(ImVec2 cursorPos, ImVec2 cornerA, ImVec2 cornerB, bool includeEdge) {
+    if(cornerA.x==cornerB.x && cornerA.y==cornerB.y) throw std::invalid_argument("guiwin_nc::inRegion(ImVec2, ImVec2, ImVec2) the coordinates of the corner's can't be the exact same.");
+    ///cornerA will hold minimum values and cornerB will hold maximum values
+    if(cornerA.x>cornerB.x) {
+        float temp = cornerA.x;
+        cornerA.x = cornerB.x;
+        cornerB.x = temp;
+    }
+    if(cornerA.y>cornerB.y) {
+        float temp = cornerA.y;
+        cornerA.y = cornerB.y;
+        cornerB.y = temp;
+    }
+
+    
+    if(includeEdge) {
+        if(cursorPos.x >= cornerA.x && cursorPos.x <= cornerB.x && cursorPos.y >= cornerA.y && cursorPos.y <= cornerB.y) return true;
+        else return false;
+    }
+    else {
+        if(cursorPos.x >  cornerA.x && cursorPos.x <  cornerB.x && cursorPos.y >  cornerA.y && cursorPos.y <  cornerB.y) return true;
+        else return false;
+    }
+}
+
+
 guiwin_nc::imguiwin::imguiwin(bool _init) {
     if(__init) throw std::runtime_error("ERROR: imguiwin(bool) this library instance is already initialised.");
     
@@ -113,4 +139,8 @@ ImDrawList* guiwin_nc::imguiwin::draw() {
     if(!__running)      throw std::runtime_error("ERROR: the library is not running before newFrame is called. Likely the window has been closed.");
 
     return ImGui::GetWindowDrawList();
+}
+
+void guiwin_nc::imguiwin::exit() {
+    __running = false;
 }

@@ -117,6 +117,42 @@ struct pos2d {
         return pos2d(x/m.x, y/m.y);
     }
     
+    pos2d operator+(_varType var) {
+        return pos2d(x+var, y+var);
+    }
+    pos2d operator-(_varType var) {
+        return pos2d(x-var, y-var);
+    }
+    pos2d operator*(_varType var) {
+        return pos2d(x*var, y*var);
+    }
+    pos2d operator/(_varType var) {
+        return pos2d(x/var, y/var);
+    }
+    
+    
+    pos2d& operator+=(_varType var) {
+        x+=var;
+        y+=var;
+        return *this;
+    }
+    pos2d& operator-=(_varType var) {
+        x-=var;
+        y-=var;
+        return *this;
+    }
+    pos2d& operator*=(_varType var) {
+        x*=var;
+        y*=var;
+        return *this;
+    }
+    pos2d& operator/=(_varType var) {
+        x/=var;
+        y/=var;
+        return *this;
+    }
+    
+
 
     pos2d rounded(int decimals) {
         return pos2d(
@@ -129,10 +165,20 @@ struct pos2d {
     pos2d modify(_lambda modificationFunc) {
         return pos2d(modificationFunc(x), modificationFunc(y));
     }
+
+    template<typename _castType>
+    pos2d<_castType> cast() {
+        return pos2d<_castType>(_castType(x), _castType(y));
+    }
+    template<typename _castType, typename _lambda>
+    pos2d<_castType> cast(_lambda modificationFunc) {
+        return pos2d<_castType>(modificationFunc(x), modificationFunc(y));
+    }
+
     pos2d abs() {
         return pos2d(
             (x>0? x : x*(-1)),
-            (y>0? x : y*(-1))
+            (y>0? y : y*(-1))
         );
     }
     _varType hypotenuse() {
