@@ -32,7 +32,6 @@ pos2d<double> solveVector_sumChargeForce(
 void exitFunc() { exit(0); }
 
 
-
 double  meter_per_px    = 0.0001; // Conversion rate of how many meters is represented per each screen pixel (1meter = 100px <=> 1px = 0.01m)
 double  force_per_px    = 1;    // Conversion rate of how many newtons is represented per each screen pixel.
 float   fieldVectorDist = 20;   // pixel distance between each electric field vector along both axes
