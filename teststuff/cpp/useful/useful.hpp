@@ -52,6 +52,39 @@
 #endif
 
 
+
+#ifndef max
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#endif
+
+
+#ifndef RADIANS
+// Convert degrees to radians
+#define RADIANS(deg) (double(deg)*(double(M_PI)/double(180.0)))
+#endif //RADIANS
+
+#ifndef DEGREES
+// Convert radians to degrees
+#define DEGREES(rad) (double(rad)*double(180.0))/double(M_PI)
+#endif //DEGREES
+
+
+
+/**
+ * @brief Check if two decimal number containers' elements/values are equal to a specific precision/decimal-numbers
+ * 
+ * @tparam _contType the type of variable/decimal-number containers
+ * @param _var0 decimal number container 0
+ * @param _var1 decimal number container 1
+ * @param _contSize size of the decimal number containers
+ * @param _precision the precision to check equality for.
+ * @return true if the two containers have the same numbers for given precision.
+ * @return false if there are non-same numbers.
+ */
 template<class _contType>
 inline bool decimalSame(_contType _var0, _contType _var1, size_t _contSize, size_t _precision=6) {
     bool matched = true;
@@ -63,9 +96,6 @@ inline bool decimalSame(_contType _var0, _contType _var1, size_t _contSize, size
     }
     return matched;
 }
-
-
-
 
 
 // namespace USEFUL {

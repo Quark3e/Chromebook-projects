@@ -32,6 +32,12 @@ pos2d<double> solveVector_sumChargeForce(
 void exitFunc() { exit(0); }
 
 
+std::vector<charge_q> system_charges{
+    charge_q{{0.02, 0.04}, -charge_electon},
+    charge_q{{0.08, 0.04}, charge_electon}
+    // charge_q{{0.04, 0.09}, -charge_electon}
+};
+
 double  meter_per_px    = 0.0001; // Conversion rate of how many meters is represented per each screen pixel (1meter = 100px <=> 1px = 0.01m)
 double  force_per_px    = 1;    // Conversion rate of how many newtons is represented per each screen pixel.
 float   fieldVectorDist = 20;   // pixel distance between each electric field vector along both axes
@@ -85,13 +91,16 @@ ImU32 col_chargePos = IM_COL32(10, 10, 200, 100);
 
 int chargeDetectRadius = 20;
 
+
 // bool setting_showGrid   = false;
 
 guiwin_nc::imguiwin guiwin(false);
 
 
 void _keyBind__Master_Close() {
-    exit(1);
+    std::cout << "keyBind_hander: keyBind called: Master Close." << std::endl;
+    
+    // exit(1);
 }
 DIY_KBH::keyBind_handler keyBinds({
     {"Master Close",    {ImGuiKey_ReservedForModCtrl, ImGuiKey_LeftCtrl, ImGuiKey_W}, _keyBind__Master_Close},
@@ -100,17 +109,26 @@ DIY_KBH::keyBind_handler keyBinds({
 });
 pressed_key__struct guiKeys;
 
+/**
+ * Action identifier holding variable for left mouse button.
+ *  - `-1` - no action
+ *  - ` 0` - 
+ *  - ` 1` - dragging charge 
+ * 
+ */
+int keyAction_mouseLeft = -1;
+/**
+ * Index to the element/charge in system_charges that's being manipulated
+ * 
+ */
+size_t keyAction_chargeIDX = 0;
 
 
 int main(int argc, char** argv) {
     guiwin_nc::win_dim = ImVec2(1000, 1000);
     guiwin.callback_func__running_exit = exitFunc;
     
-    std::vector<charge_q> system_charges{
-        charge_q{{0.02, 0.04}, -charge_electon},
-        charge_q{{0.08, 0.04}, charge_electon}
-        // charge_q{{0.04, 0.09}, -charge_electon}
-    };
+
     meter_per_px = ((system_charges[1].pos.x - system_charges[0].pos.x) / 600);
 
     pos2d<size_t> numSides(
@@ -150,10 +168,20 @@ int main(int argc, char** argv) {
             guiwin.draw()->AddRect(guiwin_nc::toImVec2(pixel_pos-chargeDetectRadius), guiwin_nc::toImVec2(pixel_pos+chargeDetectRadius), IM_COL32(100, 100, 100, 100));
             if(guiwin_nc::inRegion(io.MousePos, guiwin_nc::toImVec2(pixel_pos-chargeDetectRadius), guiwin_nc::toImVec2(pixel_pos+chargeDetectRadius))) {
                 if(keyBinds.pressing("MouseLeft")) {
-                    charg.pos = guiwin_nc::toPos2d(io.MousePos).cast<double>().modify([](double _var){ return (_var*meter_per_px); });
-
+                    keyAction_mouseLeft = 1;
+                    keyAction_chargeIDX = i;
                 }
             }
+        }
+        switch (keyAction_mouseLeft) {
+            case 0:
+                
+                break;
+            case 1:
+                system_charges.at(keyAction_chargeIDX).pos = guiwin_nc::toPos2d(io.MousePos).cast<double>().modify([](double _var){ return (_var*meter_per_px); });
+                break;
+            default:
+                break;
         }
     
         for(size_t x=0; x<numSides.x; x++) {
@@ -200,9 +228,9 @@ int main(int argc, char** argv) {
                     guiwin_nc::toImVec2((bg_vectLoc[x][y]+locOffset)),
                     col_fieldDir
                 );
-                guiwin.draw()->AddCircleFilled(
-                    guiwin_nc::toImVec2(bg_vectLoc[x][y]), 2, col_fieldDir, 10
-                );
+                // guiwin.draw()->AddCircleFilled(
+                //     guiwin_nc::toImVec2(bg_vectLoc[x][y]), 2, col_fieldDir, 10
+                // );
             }
         }
 
@@ -215,6 +243,8 @@ int main(int argc, char** argv) {
         }
 
         guiwin.endFrame();
+    
+        if(keyAction_mouseLeft!=-1 && !keyBinds.pressing("MouseLeft")) keyAction_mouseLeft = -1;
     }
 
 
