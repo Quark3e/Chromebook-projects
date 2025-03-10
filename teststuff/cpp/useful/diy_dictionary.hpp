@@ -26,6 +26,7 @@
 #include <list>
 #include <iterator>
 #include <initializer_list>
+#include <cstdlib>
 
 // #include <useful.hpp>
 #include <search_multithread.hpp>
@@ -246,12 +247,12 @@ namespace DIY {
             bool init_storage() { return this->_storage_init; }
 
             std::string& operator[] (int i) { 
-                if(static_cast<size_t>(abs(i)) >= _keys.size()) throw std::runtime_error(_info_name+": & operator arg too big: \"abs("+std::to_string(i)+")>size()\"");
+                if(static_cast<size_t>(std::abs(i)) >= _keys.size()) throw std::runtime_error(_info_name+": & operator arg too big: \"std::abs("+std::to_string(i)+")>size()\"");
                 if(i<0) return _keys.at(_keys.size()+static_cast<size_t>(i));
                 return _keys.at(i);
             }
             std::string  operator[] (int i) const {
-                if(static_cast<size_t>(abs(i)) >= _keys.size()) throw std::runtime_error(_info_name+": & operator arg too big: \"abs("+std::to_string(i)+")>size()\"");
+                if(static_cast<size_t>(std::abs(i)) >= _keys.size()) throw std::runtime_error(_info_name+": & operator arg too big: \"std::abs("+std::to_string(i)+")>size()\"");
                 if(i<0) return const_cast<std::string&>(_keys.at(_keys.size()+static_cast<size_t>(i)));
                 return const_cast<std::string&>(_keys.at(i));
             }
@@ -722,7 +723,7 @@ namespace DIY {
     template<class _key_type, class _store_type>
     auto typed_dict<_key_type, _store_type>::_getItr(int idx) {
         if(idx>=static_cast<int>(_keys.size())) this->_call_error(0, "::_getItr(int)", "arg for `idx` is too large");
-        else if(abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
+        else if(std::abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
         else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
         
         auto itr = _values.begin();
@@ -733,7 +734,7 @@ namespace DIY {
     template<class _key_type, class _store_type>
     auto typed_dict<_key_type, _store_type>::_getItr(int idx) const {
         if(idx>=static_cast<int>(_keys.size())) this->_call_error(0, "::_getItr(int)", "arg for `idx` is too large");
-        else if(abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
+        else if(std::abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
         else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
         
         auto itr = _values.begin();
@@ -744,7 +745,7 @@ namespace DIY {
     template<class _key_type, class _store_type>
     auto typed_dict<_key_type, _store_type>::_getItr_rev(int idx) {
         if(idx>=static_cast<int>(_keys.size())) this->_call_error(0, "::_getItr(size_t)", "arg for `idx` is too large");
-        else if(abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
+        else if(std::abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
         else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
         
         auto itr = _values.rbegin();
@@ -755,7 +756,7 @@ namespace DIY {
     template<class _key_type, class _store_type>
     auto typed_dict<_key_type, _store_type>::_getItr_rev(int idx) const {
         if(idx>=static_cast<int>(_keys.size())) this->_call_error(0, "::_getItr(size_t)", "arg for `idx` is too large");
-        else if(abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
+        else if(std::abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
         else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
         
         auto itr = _values.rbegin();
@@ -870,7 +871,7 @@ namespace DIY {
         if(!_init_container) this->_call_error(2, "::_operator[] (int)");
 
         if(idx>=static_cast<int>(_keys.size())) this->_call_error(0, "::_operator[] (int)", " arg for index `idx` is bigger than available number of keys: "+std::to_string(_keys.size()));
-        else if(abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
+        else if(std::abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
         else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
 
         // auto itr = _values.begin();
@@ -884,7 +885,7 @@ namespace DIY {
         if(!_init_container) this->_call_error(2, "::_operator[] (int) const");
 
         if(idx>=static_cast<int>(_keys.size())) this->_call_error(0, "::_operator[] (int)", " arg for index `idx` is bigger than available number of keys: "+std::to_string(_keys.size()));
-        else if(abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
+        else if(std::abs(idx)>_keys.size()) this->_call_error(0, "::_operator[] (int)", " value for reverse indexing is too small");
         else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
 
         return const_cast<_store_type&>(*(this->_getItr(idx)));
@@ -940,7 +941,7 @@ namespace DIY {
         if(!_init_container) this->_call_error(2, "::getPtr_idx(int)");
         
         if(idx>=static_cast<int>(_keys.size())) this->_call_error(0, "::getPtr_idx(int)", "idx is bigger than stored number of keys");
-        else if(abs(idx)>_keys.size()) this->_call_error(0, "::getPtr_idx(int)", "argument for `idx` goes too far into the negative. There are "+std::to_string(_keys.size())+" stored. Input arg was: "+std::to_string(idx));
+        else if(std::abs(idx)>_keys.size()) this->_call_error(0, "::getPtr_idx(int)", "argument for `idx` goes too far into the negative. There are "+std::to_string(_keys.size())+" stored. Input arg was: "+std::to_string(idx));
         else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
 
         return this->_lookup[idx];
@@ -964,7 +965,7 @@ namespace DIY {
         if(!_init_container) this->_call_error(2, "::key(int)");
 
         if(idx>=static_cast<int>(_keys.size())) this->_call_error(0, "::key(int)", " arg for index `idx` is bigger than available number of keys: "+std::to_string(_keys.size()));
-        else if(abs(idx)>_keys.size()) this->_call_error(0, "::key (int)", " value for reverse indexing is too small");
+        else if(std::abs(idx)>_keys.size()) this->_call_error(0, "::key (int)", " value for reverse indexing is too small");
         else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
 
         return this->_keys.at(idx);
@@ -1123,7 +1124,7 @@ namespace DIY {
         if(!_init_container) this->_call_error(2, "::eraseIdx(int)");
 
         if(idx>=static_cast<int>(_keys.size())) this->_call_error(0, "::eraseIdx(int)", " arg for index `idx` is bigger than available number of keys: "+std::to_string(_keys.size()));
-        else if(abs(idx)>_keys.size()) this->_call_error(0, "::eraseIdx(int)", " value for reverse indexing is too small");
+        else if(std::abs(idx)>_keys.size()) this->_call_error(0, "::eraseIdx(int)", " value for reverse indexing is too small");
         else if(idx<0) idx = static_cast<int>(_keys.size()) + idx;
 
         this->_keys.erase(this->_keys.begin()+idx);

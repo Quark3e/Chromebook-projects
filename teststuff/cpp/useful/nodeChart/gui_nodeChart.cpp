@@ -2,7 +2,9 @@
 
 #include "globals_includes.hpp"
 #include "globals_variables.hpp"
+
 #include <chrono>
+#include <cstdlib>
 
 
 ImVec2 gNC::_DRAW_SCALAR = ImVec2(1, 1);
@@ -239,7 +241,7 @@ void gNC::gLINK::move_link(
 
 
     /// @brief half of the smallest delta
-    std::vector<float> tempVec{ abs(pos_delta.x), abs(pos_delta.y) };
+    std::vector<float> tempVec{ std::abs(pos_delta.x), std::abs(pos_delta.y) };
     float smallestDelta = findVal(tempVec, 1) / 2;
     /// @brief `0`- x is smallest; `1`- y is smallest
     int smallestType = (pos_delta.x < pos_delta.y ? 0 : 1);
@@ -252,8 +254,8 @@ void gNC::gLINK::move_link(
     */
     int connDir_dest = -1;
     int connDir_src = -1;
-    if (type_dest != 0 && dest) connDir_dest = PoN(dest->getConnectionPos(type_dest).y - dest->height / 2); // / abs(dest->getConnectionPos(type_dest).y - dest->height/2);
-    if (type_src != 1 && src) connDir_src = PoN(src->getConnectionPos(type_src).y - src->height / 2); /// abs(src->getConnectionPos(type_src).y - src->height/2);
+    if (type_dest != 0 && dest) connDir_dest = PoN(dest->getConnectionPos(type_dest).y - dest->height / 2); // / std::abs(dest->getConnectionPos(type_dest).y - dest->height/2);
+    if (type_src != 1 && src) connDir_src = PoN(src->getConnectionPos(type_src).y - src->height / 2); /// std::abs(src->getConnectionPos(type_src).y - src->height/2);
 
 
     link_points.clear();
@@ -814,8 +816,8 @@ void gNC::guiNodeChart::update_connect(
 
     if (!isNULL[1] && ((toCheck->type_src == 3 && toCheck->type_dest == 4) || (toCheck->type_src == 5 && toCheck->type_dest == 2))) { // if connPoints are on opposite sides
         if (
-            (abs(node[0]->pos.y + node[0]->height - destPos.y) < toCheck->min__node) ||
-            (abs(node[1]->pos.y + node[1]->height - srcPos.y) < toCheck->min__node)
+            (std::abs(node[0]->pos.y + node[0]->height - destPos.y) < toCheck->min__node) ||
+            (std::abs(node[1]->pos.y + node[1]->height - srcPos.y) < toCheck->min__node)
             ) {
             toCheck->type_dest = (toCheck->type_src == 3 ? 2 : 4); //convert them to same side
 
@@ -823,7 +825,7 @@ void gNC::guiNodeChart::update_connect(
     }
     if ((toCheck->type_src - toCheck->type_dest == 1) && toCheck->type_src != 1) { // if connPoints are on the same side
         if (
-            ((abs(pos_delta_node.y) > (toCheck->min__node) * 2))
+            ((std::abs(pos_delta_node.y) > (toCheck->min__node) * 2))
             ) { //if connPoints are on the same side and have not reached minimal distance: convert to opposide side
 
             // toCheck->type_dest = (toCheck->type_src==3? 4 : 2);
@@ -1173,8 +1175,8 @@ gNC::gLINK* gNC::guiNodeChart::LINK_create(
 
     if ((type_src == 3 && type_dest == 4) || (type_src == 5 && type_dest == 2)) {
         if (
-            abs(NODE_src->pos.y + NODE_src->height - NODE_dest->pos.y) < _lastAddedLink->min__node ||
-            abs(NODE_dest->pos.y + NODE_dest->height - NODE_src->pos.y) < _lastAddedLink->min__node
+            std::abs(NODE_src->pos.y + NODE_src->height - NODE_dest->pos.y) < _lastAddedLink->min__node ||
+            std::abs(NODE_dest->pos.y + NODE_dest->height - NODE_src->pos.y) < _lastAddedLink->min__node
             ) {
             _lastAddedLink->type_dest = (type_src == 3 ? 2 : 4);
             type_dest = _lastAddedLink->type_dest;

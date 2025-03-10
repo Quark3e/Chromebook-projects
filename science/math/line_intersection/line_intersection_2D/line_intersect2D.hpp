@@ -3,6 +3,7 @@
 #ifndef HPP__LINE_INTERSECT_2D
 
 #include <cmath>
+#include <cstdlib>
 #include <vector>
 #include <useful.hpp> //for debugging purposes
 #include <pos2d.hpp>
@@ -54,7 +55,7 @@ inline double getTheta(
     pos2d<_varType> delta(pos__line_end - pos__line_pivot);
     
     pos2d<_varType> magnitude = delta.modify([](_varType _var) { return (_var>0? _var : _var*(-1)); });
-    // pos2d<_varType> magnitude = delta.abs();
+    // pos2d<_varType> magnitude = delta.std::abs();
 
     pos2d<int> unitVec(0, 0);
     for(size_t i=0; i<2; i++) {
@@ -155,26 +156,26 @@ inline pos2d<_varType> getLineIntersect_2D(
 
     double theta_A  = DEGREES(asin(deltaA.y / deltaA.hypotenuse()));
     double theta_B  = DEGREES(asin(deltaB.y / deltaB.hypotenuse()));
-    double theta_AB = abs(theta_B - theta_A);
+    double theta_AB = std::abs(theta_B - theta_A);
 
 
     double theta_newDelta = 0;
     
 
-    if(abs(theta_A)>45 || abs(theta_B)>45) {
-        double dir_A    = dir_A / abs(dir_A);
-        double dir_B    = dir_B / abs(dir_B);
+    if(std::abs(theta_A)>45 || std::abs(theta_B)>45) {
+        double dir_A    = dir_A / std::abs(dir_A);
+        double dir_B    = dir_B / std::abs(dir_B);
 
-        double theta_deltaA = abs(theta_A) - 45;
-        double theta_deltaB = abs(theta_B) - 45;
+        double theta_deltaA = std::abs(theta_A) - 45;
+        double theta_deltaB = std::abs(theta_B) - 45;
         
         double dir_new  = 0;
-        if(abs(theta_A) > abs(theta_B)) {
+        if(std::abs(theta_A) > std::abs(theta_B)) {
             theta_newDelta = (-1.0)*dir_A*theta_deltaA;
             if(theta_AB <= 90) {} 
             else theta_newDelta += dir_A*90.0;
         }
-        else { //abs(theta_A) < abs(theta_B)
+        else { //std::abs(theta_A) < std::abs(theta_B)
             theta_newDelta = (-1.0)*dir_B*theta_deltaB;
             if(theta_AB <= 90) {}
             else theta_newDelta += dir_B*90.0;

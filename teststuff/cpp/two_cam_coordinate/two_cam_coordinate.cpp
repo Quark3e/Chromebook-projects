@@ -1,6 +1,6 @@
 
 #include "two_cam_coordinate.hpp"
-
+#include <cstdlib>
 
 camTriangle::camTriangle(float camLocation[2][2], float camAngleOffset[2]) {
     // t1 = clock();
@@ -36,7 +36,7 @@ void camTriangle::setCamCoefs() {
 void camTriangle::solveAngles() {
     ang_tri[0] = 90-ang_d[0]-ang_read[0];
     ang_tri[1] = 180-ang_offset[1]+ang_d[0]+ang_read[1];
-    ang_p = 180 - abs(ang_tri[0]) - abs(ang_tri[1]);
+    ang_p = 180 - std::abs(ang_tri[0]) - std::abs(ang_tri[1]);
 }
 /// @brief Solve real world positions from given webcam pixel positions
 /// @param rawPos Unchanged pixel positions from both webcams NOTE:(x: left->right; y: up->down)

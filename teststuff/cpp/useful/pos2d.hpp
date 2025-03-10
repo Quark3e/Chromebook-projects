@@ -3,6 +3,7 @@
 #define _VAR__pos2d
 
 #include <cmath>
+#include <cstdlib>
 
 #include <string>
 #include <sstream>
@@ -175,7 +176,7 @@ struct pos2d {
         return pos2d<_castType>(modificationFunc(x), modificationFunc(y));
     }
 
-    pos2d abs() {
+    pos2d std::abs() {
         return pos2d(
             (x>0? x : x*(-1)),
             (y>0? y : y*(-1))

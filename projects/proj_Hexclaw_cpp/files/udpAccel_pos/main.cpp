@@ -56,7 +56,7 @@ bool moveServos = false;
 float accelRaw[3] = {0, 0, 0}; //store raw values received from nodemcu_board/accelerometer
 float accelFin[3] = {0, 0, 0}; //"finished" and presented values that is used in the movement calculated e.t.c.
 float accelOffset[3] = {0, 0, 1}; //NOTE: it is under the assumption that the controller doesnt tilt in any way.
-// float accelThresh[3] = {0.5, 0.5, 0.5}; //threshold where if abs(readAccel[i])>accelThresh[i] then PP[i] is moved
+// float accelThresh[3] = {0.5, 0.5, 0.5}; //threshold where if std::abs(readAccel[i])>accelThresh[i] then PP[i] is moved
 float accelScalar[3] = {1, 1, 1}; //read-sent adjustment variable
 
 float v_0[3] = {0, 0, 0};

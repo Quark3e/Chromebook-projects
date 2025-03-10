@@ -1,4 +1,5 @@
 
+#include <cstdlib>
 #include <useful.hpp>
 #include "constants.hpp"
 #include "global_variables.hpp"
@@ -195,7 +196,7 @@ void thread_task(IR_camTracking* camPtr, int t_idx) {
 	std::unique_lock<std::mutex> u_lck(mtx[t_idx], std::defer_lock);
 	std::unique_lock<std::mutex> u_lck_cout(mtx_cout, std::defer_lock);
 	std::unique_lock<std::mutex> u_lck_sync(mtx_sync[t_idx], std::defer_lock);
-	std::unique_lock<std::mutex> u_lck_syncCheck(mtx_sync[abs(t_idx-1)], std::defer_lock);
+	std::unique_lock<std::mutex> u_lck_syncCheck(mtx_sync[std::abs(t_idx-1)], std::defer_lock);
 	#if takePerf
 	std::unique_lock<std::mutex> u_lck_threadPerfObj(mtx_perfObj_threads[t_idx], std::defer_lock);
 	#endif

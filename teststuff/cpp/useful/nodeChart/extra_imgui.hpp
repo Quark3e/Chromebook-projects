@@ -9,6 +9,8 @@
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_allegro5.h>
 
+#include <cstdlib>
+
 #include <vector>
 #include <list>
 #include <useful.hpp>
@@ -247,7 +249,7 @@ inline float pressed_key__struct::keyPeriod(int keyID, bool mustAlone, int blank
     for(int i=pressed.size()-1; i>=0; i--) {
         for(auto _key : pressed[i]) {
             if(_key==keyID && (!mustAlone || (mustAlone && pressed[i].size()==1))) {
-                if(found1 != -1 && abs(i-found1) > blankFrame) {
+                if(found1 != -1 && std::abs(i-found1) > blankFrame) {
                     found2 = i;
                     _t2 = timePoints[i];
                 }
@@ -287,7 +289,7 @@ inline bool isKeyPressed(int keyID, std::vector<std::vector<int>>* pressed_keys_
     size_t _history_size = pressed_keys_history->size();
     assert(_history_size > 0);
     assert(history_idx < static_cast<int>(_history_size));
-    assert(abs(history_idx) < _history_size);
+    assert(std::abs(history_idx) < _history_size);
 
     if(history_idx < 0) history_idx = static_cast<int>(_history_size) + history_idx;
 
@@ -298,7 +300,7 @@ inline bool areKeysPressed(std::vector<int> keyIDs, std::vector<std::vector<int>
     size_t _history_size = pressed_keys_history->size();
     assert(_history_size > 0);
     assert(history_idx < static_cast<int>(_history_size));
-    assert(abs(history_idx) < _history_size);
+    assert(std::abs(history_idx) < _history_size);
     assert(keyIDs.size()>0);
 
     if(history_idx < 0) history_idx = static_cast<int>(_history_size) + history_idx;

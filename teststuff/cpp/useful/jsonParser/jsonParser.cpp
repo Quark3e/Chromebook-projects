@@ -1,4 +1,6 @@
 
+#include <cstdlib>
+
 #include "jsonParser.hpp"
 #include "pos2d.hpp"
 
@@ -138,7 +140,7 @@ void JSON_P::jsonPair::insert(int idx, jsonPair newPair) {
     int _Lsize = static_cast<int>(lePair.size());
     assert(idx < _Lsize);
     if(idx<0) {
-        if(idx!=-1) assert(abs(idx) <= _Lsize);
+        if(idx!=-1) assert(std::abs(idx) <= _Lsize);
         idx = _Lsize += idx +1;
     }
     auto itr = lePair.begin();
@@ -153,7 +155,7 @@ void JSON_P::jsonPair::erase(int idx) {
     int _Lsize = static_cast<int>(lePair.size());
     assert(idx < _Lsize);
     if(idx<0) {
-        assert(abs(idx) <= _Lsize);
+        assert(std::abs(idx) <= _Lsize);
         idx = _Lsize += idx +1;
     }
     auto itr = lePair.begin();
@@ -378,7 +380,7 @@ JSON_P::jsonPair& JSON_P::jsonPair::operator[] (int _idx) {
     int valSize = toReturn.size();
     assert(_idx<valSize);
     if(_idx<0) {
-        assert(abs(_idx)<=valSize);
+        assert(std::abs(_idx)<=valSize);
         _idx = valSize + _idx;
     }
     auto itr = toReturn.begin();
