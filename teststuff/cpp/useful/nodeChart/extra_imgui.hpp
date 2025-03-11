@@ -449,4 +449,184 @@ inline ImVec2 ImVec2_divide(ImVec2 _a, ImVec2 _b) {
 }
 
 
+
+#ifndef HPP__LOADBITMAP_FROMBITARRAY
+#define HPP__LOADBITMAP_FROMBITARRAY
+
+
+DIY::typed_dict<std::string, DIY::typed_dict<std::string, size_t>> imageFormats(
+    {"HSV", "RGB", "RGBA", "GRAY"}, {
+        DIY::typed_dict<std::string, size_t>(
+            {"n-bytes"}, {3}),
+        DIY::typed_dict<std::string, size_t>(
+            {"n-bytes"}, {3}),
+        DIY::typed_dict<std::string, size_t>(
+            {"n-bytes"}, {4}),
+        DIY::typed_dict<std::string, size_t>(
+            {"n-bytes"}, {1})
+    }
+);
+
+
+inline void* getPixelPtr(
+    size_t x,
+    size_t y,
+    ALLEGRO_LOCKED_REGION* lockedReg
+) {
+    // lockedReg->data
+    return ((char*)lockedReg->data + x*lockedReg->pixel_size + lockedReg->pitch*y);
+}
+
+
+/**
+ * @brief Load assigned ALLEGRO_BITMAP with uncompressed data/bits from a bit array
+ * 
+ * @param _bm_toLoad pointer to the ALLEGRO_BITMAP to load the data into/onto
+ * @param _bitArray the bit-array/std::vector<uint8_t> of bits to load into the bitmap
+ * @param _colourFormat name of the colour format/type to load the data as, which'll
+ *  also set the colour channels and bit separation. Is defined according to `imageFormats`
+ * @param _width number of pixels for the width
+ * @param _height number of pixels for the height
+ * @param _incompleteArray whether the input bitArray is incomplete/not-the-full-size. Used
+ * as an indicator for whether the input `bitArray` is intentionally not the full expected size (n-channels * width * height).
+ * If this is set to `true` then the function will still load in the existing data and return true. If false and the input bitArray
+ * is not the expected size then it'll not load the data in and instead return false.
+ * this is set to `true` the function will load the
+ * @return true if the data has been successfully loaded in
+ * @return false if an error occurred
+ */
+inline bool loadBitmap_fromBitArray(
+    ALLEGRO_BITMAP* _bitmap,
+    std::vector<uint8_t>* _bitArray,
+    std::string _colourFormat,
+    size_t _width,
+    size_t _height,
+    bool _incompleteArray = false
+) {
+    static bool init = true;
+    assert(_bitmap);
+    size_t numBytes = imageFormats.get(_colourFormat).get("n-bytes");
+    if((!_incompleteArray && _bitArray->size() != numBytes * _width * _height)) {
+        return false;
+    }
+    // std::cout<<"b:0:size:"<<_bitArray->size()<<std::endl;
+
+    int pixel = 0, currByte = 0;
+    size_t pos[2] = {0, 0};
+    ALLEGRO_COLOR col;
+    
+    ALLEGRO_LOCKED_REGION* lockedReg = al_lock_bitmap(_bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
+    if(!lockedReg) {
+        return false;
+    }
+    // assert(lockedReg);
+
+    // std::cout<<"b:1"<<std::endl;
+
+    size_t iCnt = 0;
+    size_t iLim = _bitArray->size() / 60;
+    bool iTrue = true;
+
+
+    // std::cout<<"b:2"<<std::endl;
+    for(size_t i=0; i<_bitArray->size(); i++) {
+        if(currByte>=numBytes) { //new pixel
+            // std::cout<<"[";std::cout.flush();
+            
+            // pos[0] = i%_width;
+            // pos[1] = floor(float(i)/_height);
+            // mtx_print("T1: newPixel: i:"+std::to_string(i));
+            if(pos[0]>al_get_bitmap_width(_bitmap)) {
+                std::cerr << "i:"<< i << " ";
+                std::cerr << pos[0] << " - "<<al_get_bitmap_width(_bitmap);
+                std::cerr << "; width x too far."<<std::endl;
+                exit(1);
+            }
+            if(pos[1]>al_get_bitmap_height(_bitmap)) {
+                std::cerr << "i:"<< i << " ";
+                std::cerr << pos[1] << " - "<<al_get_bitmap_height(_bitmap);
+                std::cerr << "; height y too far."<<std::endl;
+                exit(1);
+            }
+            int startIdx = i-numBytes;
+
+            uint32_t _colour = 0;
+    
+            // if(init && _bitArray->operator[](startIdx)==250) std::cout << startIdx << std::endl;
+            if(iCnt<iLim) {
+                iTrue = false;
+                iCnt++;
+            }
+            else {
+                iCnt = 0;
+                iTrue = true;
+            }
+            // // std::cout << "i: " << i << std::endl;
+            // std::cout<<"1("<<startIdx<<"),";std::cout.flush();
+
+            if(_colourFormat=="HSV") {
+                std::vector<int> _RGB = convert_HSV_RGB({_bitArray->operator[](startIdx), _bitArray->operator[](startIdx), _bitArray->operator[](startIdx)});
+                _colour = (255<<24) + (unsigned(_RGB[2])<<16) + (unsigned(_RGB[1])<<8) + (unsigned(_RGB[0]));
+            }
+            else if(_colourFormat=="RGB") {
+                // col = al_map_rgb(unsigned(_bitArray->at(startIdx)), unsigned(_bitArray->at(startIdx+1)), unsigned(_bitArray->at(startIdx+2)));
+                _colour = (255<<24) + (unsigned(_bitArray->at(startIdx+2))<<16) + (unsigned(_bitArray->at(startIdx+1))<<8) + unsigned(_bitArray->at(startIdx));
+            }
+            else if(_colourFormat=="RGBA") {
+                // col = al_map_rgba(unsigned(_bitArray->at(startIdx)), unsigned(_bitArray->at(startIdx+1)), unsigned(_bitArray->at(startIdx+2)), unsigned(_bitArray->at(startIdx+3)));
+                _colour = (unsigned(_bitArray->at(startIdx+3))<<24) + (unsigned(_bitArray->at(startIdx+2))<<16) + (unsigned(_bitArray->at(startIdx+1))<<8) + unsigned(_bitArray->at(startIdx));
+            }
+            else if(_colourFormat=="GRAY") {
+                // col = al_map_rgb(unsigned(_bitArray->at(startIdx)), unsigned(_bitArray->at(startIdx)), unsigned(_bitArray->at(startIdx)));
+                // col = al_map_rgb(200, 200, 200);
+                // _colour = (255<<24) + (unsigned(_bitArray->at(startIdx))<<16) + (unsigned(_bitArray->at(startIdx))<<8) + unsigned(_bitArray->at(startIdx));
+                uint8_t *ptr = _bitArray->data();
+                _colour = (255<<24) + (unsigned(ptr[startIdx])<<16) + (unsigned(ptr[startIdx])<<8) + (unsigned(ptr[startIdx]));
+            }
+            // al_put_pixel(pos[0], pos[1], col);
+            // std::cout<<"2,";std::cout.flush();
+
+            // void* _temp = getPixelPtr(pos[0], pos[1], lockedReg);
+            // uint32_t* _temp2 = (uint32_t*)(_temp);
+            // *_temp2 = _colour;
+            *((uint32_t*)(getPixelPtr(pos[0], pos[1], lockedReg))) = _colour; //0x208CE0; //BGR //00100000 10001100 11100000 //32 140 224
+
+            // std::cout<<"3,";std::cout.flush();
+
+            pixel++;
+            currByte = 0;
+            if(pos[0]+1<_width) pos[0]++;
+            else {
+                pos[0] = 0;
+                pos[1]++;
+            }
+            // std::cout<<"]";std::cout.flush();
+        }
+        else {
+            currByte++;
+        }
+        // std::cout<<"b:3:"<<i<<std::endl;
+    }
+    // std::cout<<"b:4"<<std::endl;
+
+    // void* _temp = getPixelPtr(200, 200, lockedReg);
+    // uint32_t* _temp2 = (uint32_t*)(_temp);
+    // *_temp2 = 0xFF208CE0;
+
+    // *((uint32_t*)(getPixelPtr(201, 200, lockedReg))) = 0xFF208CE0;
+    // *((uint32_t*)(getPixelPtr(1, 1, lockedReg))) = 0xFF208CE0;
+    // mtx_print("T1: unlock bitmap");
+    al_unlock_bitmap(_bitmap);
+
+    // std::cout<<"b:5"<<std::endl;
+    // mtx_print("bmp: new bitmap loaded");
+
+    // al_set_target_backbuffer(display);
+
+    if(init) init = false;
+    return true;
+}
+#endif
+
+
 #endif

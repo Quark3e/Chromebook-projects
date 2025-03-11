@@ -202,8 +202,6 @@ int main(int argc, char** argv) {
             }
         }
 
-
-
         /// Draw bg field vectors
         for(size_t x=0; x<bg_vectors.size(); x++) {
             for(size_t y=0; y<bg_vectors[x].size(); y++) {

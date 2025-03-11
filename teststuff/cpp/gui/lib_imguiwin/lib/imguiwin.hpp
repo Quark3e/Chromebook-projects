@@ -48,7 +48,8 @@ namespace guiwin_nc {
             ImGuiWindowFlags_NoResize | 
             ImGuiWindowFlags_NoCollapse |
             ImGuiWindowFlags_NoTitleBar |
-            ImGuiWindowFlags_NoBringToFrontOnFocus;
+            ImGuiWindowFlags_NoBringToFrontOnFocus |
+            ImGuiWindowFlags_NoScrollbar;
     
         imguiwin(bool _init=true);
         ~imguiwin();

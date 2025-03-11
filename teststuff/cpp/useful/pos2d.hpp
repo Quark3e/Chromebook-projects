@@ -176,13 +176,16 @@ struct pos2d {
         return pos2d<_castType>(modificationFunc(x), modificationFunc(y));
     }
 
-    pos2d std::abs() {
+    pos2d abs() {
         return pos2d(
             (x>0? x : x*(-1)),
             (y>0? y : y*(-1))
         );
     }
     _varType hypotenuse() {
+        return sqrt(pow(x, 2)+pow(y, 2));
+    }
+    _varType hypotenuse() const {
         return sqrt(pow(x, 2)+pow(y, 2));
     }
 
