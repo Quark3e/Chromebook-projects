@@ -1,150 +1,22 @@
 
-#include <imguiwin.hpp>
+#include "includes.hpp"
 
-#include <pos2d.hpp>
+#include "variables_data.hpp"
+#include "functions_data.hpp"
 
-#include <vector>
-#include <cmath>
-#include <cstdlib>
-
-#include <keyBind_handler.hpp>
-#include <nodeChart/extra_imgui.hpp>
-
-
-#include <useful.hpp>
-
-#define unit(val) (val)/std::abs(val)
-
-
-#define scalMethod 0
-
-guiwin_nc::imguiwin guiwin(false);
-
-
-void _keyBind__Master_Close() {
-    exit(1);
-}
-DIY_KBH::keyBind_handler keyBinds({
-    {"Master Close",    {ImGuiKey_ReservedForModCtrl, ImGuiKey_LeftCtrl, ImGuiKey_W}, _keyBind__Master_Close},
-    {"MouseLeft",       {ImGuiKey_MouseLeft}},
-    {"MouseRight",      {ImGuiKey_MouseRight}}
-});
-pressed_key__struct guiKeys;
-
-
-struct WaveSource {
-    pos2d<double>   pos;
-    double          wavelength;
-
-    WaveSource(pos2d<double> _pos, double _wavelength): pos(_pos), wavelength(_wavelength) {
-
-    }
-    
-    double getPhaseShiftAngle(double distance) {
-        return (2*M_PI)*(distance/wavelength);
-    }
-    pos2d<double> getPhaseShiftVector(double distance) {
-        double theta = this->getPhaseShiftAngle(distance);
-        return pos2d<double>(cos(theta), sin(theta));
-    }
-};
+#include "variables_gui.hpp"
+#include "functions_gui.hpp"
 
 
 
-pos2d<double> getWaveVectorSum(
-    pos2d<double> _pos,
-    std::vector<WaveSource> _waves
-) {
-    pos2d<double> sumPhaseShiftVector(0, 0);
 
-    for(size_t i=0; i<_waves.size(); i++) {
-        pos2d<double> delta = _pos - _waves[i].pos;
-        sumPhaseShiftVector += _waves[i].getPhaseShiftVector(delta.hypotenuse());
-    }
-
-    return sumPhaseShiftVector;
-}
-double getWavePhaseAmplitudeSum(
-    pos2d<double> _pos,
-    std::vector<WaveSource> _waves
-) {
-    double sumAmplitude = 0;
-
-    for(size_t i=0; i<_waves.size(); i++) {
-        pos2d<double> delta = _pos - _waves[i].pos;
-        sumAmplitude += sin(_waves[i].getPhaseShiftAngle(delta.hypotenuse()));
-    }
-
-    return sumAmplitude;
-}
-
-float scalarMethod(pos2d<double> &_objPos, std::vector<WaveSource> &_system_waves, std::vector<double> &_lim, int _method=0) {
-    float scal = 0;
-    if(_lim.size()!=2) throw std::invalid_argument("invalid _lim arg.");
-    switch(_method) {
-        case 0: { // sine wave amplitude sum
-            double amplSum = getWavePhaseAmplitudeSum(_objPos, _system_waves);
-            return (amplSum/_lim[1]);
-        }
-        break;
-        case 1: { // phase shift vector sum sq
-            pos2d<double> vecSum = getWaveVectorSum(_objPos, _system_waves);
-            return (pow(vecSum.hypotenuse(), 2) / pow(_lim[1], 2));
-        }
-        break;
-        default: throw std::invalid_argument("invalid _method arg.");
-    }
-    return 0;
-}
-
-std::vector<uint8_t> graph_colour_scale(float _val) {
-    if(_val < -1.0)     throw std::invalid_argument("ERROR: graph_colour_scale(float): float _val cannot be smaller than -1.0.");
-    else if(_val > 1.0) throw std::invalid_argument("ERROR: graph_colour_scale(float): float _val cannot be bigger than 1.0.");
-
-    std::vector<uint8_t> _RGB{
-        uint8_t(127+_val*120),
-        //0, //(_val<=0? int(255.0*_val) : 0),
-        0,
-        0, //(_val>=0? int(100.0*_val) : 0)
-    };
-    
-    return _RGB;
-}
-
-size_t pixelSpacing = 2;
-pos2d<int> abs_cam_pixelPos(0, 0);
-size_t numColour = 1;
-
-std::vector<WaveSource> system_waves{
-    // WaveSource{{0.02, 0.0185}, 5*pow(10, -4)},
-
-    WaveSource{{0.02, 0.0385}, 5*pow(10, -4)},
-    WaveSource{{0.02, 0.0390}, 5*pow(10, -4)},
-    WaveSource{{0.02, 0.0395}, 5*pow(10, -4)},
-    WaveSource{{0.02, 0.0400}, 5*pow(10, -4)},
-    WaveSource{{0.02, 0.0405}, 5*pow(10, -4)},
-    WaveSource{{0.02, 0.0410}, 5*pow(10, -4)},
-    WaveSource{{0.02, 0.0415}, 5*pow(10, -4)},
-    
-    // WaveSource{{0.02, 0.0615}, 5*pow(10, -4)}
-};
-
-
-double  meter_per_px    = 0.0001;
-
-std::vector<pos2d<float>> detectLine{
-    {800,  86},
-    {800, 715}
-};
-
-void exitFunc() { exit(0); }
 int main(int argc, char** argv) {
     guiwin_nc::win_dim = ImVec2(1000, 1000);
     ImVec2 info_win_dim = ImVec2(guiwin_nc::win_dim.x, 200);
     
     std::vector<uint8_t> bitArr(int(float(numColour*guiwin_nc::win_dim.x*guiwin_nc::win_dim.y)/(pixelSpacing*pixelSpacing)), 0);
 
-    guiwin.callback_func__running_exit = exitFunc;
+    guiwin.callback_func__running_exit = _keyBind__Master_Close;
 
     meter_per_px = (0.06 /*(system_waves[1].pos.y-system_waves[0].pos.y)*/ / 600);
     

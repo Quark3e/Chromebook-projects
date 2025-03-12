@@ -454,7 +454,7 @@ inline ImVec2 ImVec2_divide(ImVec2 _a, ImVec2 _b) {
 #define HPP__LOADBITMAP_FROMBITARRAY
 
 
-DIY::typed_dict<std::string, DIY::typed_dict<std::string, size_t>> imageFormats(
+inline DIY::typed_dict<std::string, DIY::typed_dict<std::string, size_t>> imageFormats(
     {"HSV", "RGB", "RGBA", "GRAY"}, {
         DIY::typed_dict<std::string, size_t>(
             {"n-bytes"}, {3}),
