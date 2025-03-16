@@ -9,6 +9,7 @@
 
 #define scalMethod 1
 
+extern pos2d<size_t> system_dim;
 
 struct WaveSource {
     pos2d<double>   pos;
@@ -21,6 +22,7 @@ struct WaveSource {
 };
 
 struct SystemWaveData_info_ref {
+    pos2d<size_t>   &idx;
     pos2d<double>   &pos;
     
     std::vector<double>         &indiv_amplitude;
@@ -28,6 +30,17 @@ struct SystemWaveData_info_ref {
 
     double          &sum_amplitude;
     pos2d<double>   &sum_phaseVector;
+
+    friend auto operator<<(std::ostream &os, SystemWaveData_info_ref const& m) -> std::ostream& {
+        os << m.idx << " {"<<"";
+        os << "" << m.pos << "," <<"";
+        os << "" << formatVector(m.indiv_amplitude, 10, 7) << ","<<"";
+        os << "" << formatVector(m.indiv_phaseVector, 10, 7) << ","<<"";
+        os << "" << m.sum_amplitude << ","<<"";
+        os << "" << m.sum_phaseVector<<"";
+        os << "}"<<"";
+        return os;
+    }
 };
 
 struct SystemWaveData_info {
@@ -65,12 +78,18 @@ class BMP_SystemWaveData {
     BMP_SystemWaveData& operator==(BMP_SystemWaveData& const __obj);
 
     SystemWaveData_info_ref at(size_t __x, size_t __y);
-    SystemWaveData_info  at(size_t __x, size_t __y) const;
+    // SystemWaveData_info  at(size_t __x, size_t __y) const;
+    
+    pos2d<double>&  at_pos(size_t __x, size_t __y);
+    double&         at_sum_ampl(size_t __x, size_t __y);
+    pos2d<double>&  at_sum_phaseVec(size_t __x, size_t __y);
+    std::vector<double>& at_indiv_ampl(size_t __x, size_t __y);
+    std::vector<pos2d<double>>& at_indiv_phaseVec(size_t __x, size_t __y);
 
     void resize_dim(size_t newWidth, size_t newHeight, size_t sizingMethod=0);
     void resize_colourChannelNum(size_t newChannelNum);
     
-    std::vector<uint8_t> get_BMP_arr();
+    std::vector<uint8_t>& get_BMP_arr();
 };
 
 extern BMP_SystemWaveData BMP_system__thread_calc;
@@ -78,6 +97,18 @@ extern BMP_SystemWaveData BMP_system__thread_gui;
 
 extern BMP_SystemWaveData* ptr_BMP_system_calc; //"write" object ptr
 extern BMP_SystemWaveData* ptr_BMP_system_gui;  //"read" object ptr
+
+
+extern std::mutex mtx__cout;                    // terminal printing mutex
+extern std::mutex mtx__ptrBMPsystem_Switch;     // mutex for switching `BMP_system__thread_` object addresses for reading/writing.
+extern std::mutex mtx__abs_cam_pixelPos_Access; // mutex for accessing `abs_cam_pixelPos` 2d variable
+extern std::mutex mtx__system_waves_Access;     // mutex for accessing `system_waves`
+extern std::mutex mtx__meter_per_px_Access;     // mutex for accessing `meter_per_px` variable
+
+/// @brief atomic boolean read by the calc-thread to check whether it is to continue running.
+extern std::atomic<bool> atm__running_process_calc;
+
+extern std::atomic<size_t> maxThreadNum;
 
 
 /// @brief Pixel spacing between each data point pixel
@@ -94,7 +125,7 @@ extern std::vector<WaveSource> system_waves;
 /// @brief Conversion for how many meters are represented per pixel.
 extern double meter_per_px;
 
-/// @brief End point coordinates for a line that is used to pull a slice/range of data points
+/// @brief End point coordinates for a line that is used to pull a slice/range of data points in pixel coordinates
 extern std::vector<pos2d<float>> detectLine;
 
 

@@ -5,6 +5,15 @@
 #include "includes.hpp"
 #include "variables_data.hpp"
 
+
+inline void mutex_cout(std::string _print, std::mutex& _cout_mtx, std::string _end="\n", bool _flushEnd=true) {
+    std::unique_lock lck_cout(_cout_mtx, std::defer_lock);
+    lck_cout.lock();
+    std::cout << _print << _end;
+    if(_flushEnd) std::cout.flush();
+    lck_cout.unlock();
+}
+
 /**
  * @brief Function to get a relative {-1.0, 1.0} scalar value for a given value in accordance to the system waves
  * 

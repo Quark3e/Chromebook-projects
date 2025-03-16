@@ -1,6 +1,8 @@
 
 #include "variables_data.hpp"
 
+pos2d<size_t> system_dim{1000, 1000};
+
 WaveSource::WaveSource(pos2d<double> _pos, double _wavelength): pos(_pos), wavelength(_wavelength) {
 
 }
@@ -167,9 +169,10 @@ SystemWaveData_info_ref BMP_SystemWaveData::at(size_t __x, size_t __y) {
     if(__x<0 || __x+1>_width) throw std::invalid_argument("__x out of width range of "+std::to_string(_width));
     if(__y<0 || __y+1>_width) throw std::invalid_argument("__y out of height range of "+std::to_string(_height));
 
-    size_t absDataPos = __x*__y;
+    size_t absDataPos = __x+__y*_width;
 
     return SystemWaveData_info_ref{
+        pos2d<size_t>{__x, __y},
         _pos[absDataPos],
         _indiv_amplitude[absDataPos],
         _indiv_phaseVector[absDataPos],
@@ -177,26 +180,72 @@ SystemWaveData_info_ref BMP_SystemWaveData::at(size_t __x, size_t __y) {
         _sum_phaseVector[absDataPos]
     };
 }
-SystemWaveData_info BMP_SystemWaveData::at(size_t __x, size_t __y) const {
+pos2d<double>&  BMP_SystemWaveData::at_pos(size_t __x, size_t __y) {
     if(__x<0 || __x+1>_width) throw std::invalid_argument("__x out of width range of "+std::to_string(_width));
     if(__y<0 || __y+1>_width) throw std::invalid_argument("__y out of height range of "+std::to_string(_height));
-
-    size_t absDataPos = __x*__y;
-
-    return SystemWaveData_info{
-        _pos[absDataPos],
-        _indiv_amplitude[absDataPos],
-        _indiv_phaseVector[absDataPos],
-        _sum_amplitude[absDataPos],
-        _sum_phaseVector[absDataPos]
-    };
+    size_t absDataPos = __x+__y*_width;
+    return _pos[absDataPos];
 }
-std::vector<uint8_t> BMP_SystemWaveData::get_BMP_arr() {
+double&         BMP_SystemWaveData::at_sum_ampl(size_t __x, size_t __y) {
+    if(__x<0 || __x+1>_width) throw std::invalid_argument("__x out of width range of "+std::to_string(_width));
+    if(__y<0 || __y+1>_width) throw std::invalid_argument("__y out of height range of "+std::to_string(_height));
+    size_t absDataPos = __x+__y*_width;
+    return _sum_amplitude[absDataPos];
+}
+pos2d<double>&  BMP_SystemWaveData::at_sum_phaseVec(size_t __x, size_t __y) {
+    if(__x<0 || __x+1>_width) throw std::invalid_argument("__x out of width range of "+std::to_string(_width));
+    if(__y<0 || __y+1>_width) throw std::invalid_argument("__y out of height range of "+std::to_string(_height));
+    size_t absDataPos = __x+__y*_width;
+    return _sum_phaseVector[absDataPos];
+}
+std::vector<double>& BMP_SystemWaveData::at_indiv_ampl(size_t __x, size_t __y) {
+    if(__x<0 || __x+1>_width) throw std::invalid_argument("__x out of width range of "+std::to_string(_width));
+    if(__y<0 || __y+1>_width) throw std::invalid_argument("__y out of height range of "+std::to_string(_height));
+    size_t absDataPos = __x+__y*_width;
+    return _indiv_amplitude[absDataPos];
+}
+std::vector<pos2d<double>>& BMP_SystemWaveData::at_indiv_phaseVec(size_t __x, size_t __y) {
+    if(__x<0 || __x+1>_width) throw std::invalid_argument("__x out of width range of "+std::to_string(_width));
+    if(__y<0 || __y+1>_width) throw std::invalid_argument("__y out of height range of "+std::to_string(_height));
+    size_t absDataPos = __x+__y*_width;
+    return _indiv_phaseVector[absDataPos];
+}
+// SystemWaveData_info BMP_SystemWaveData::at(size_t __x, size_t __y) const {
+//     if(__x<0 || __x+1>_width) throw std::invalid_argument("__x out of width range of "+std::to_string(_width));
+//     if(__y<0 || __y+1>_width) throw std::invalid_argument("__y out of height range of "+std::to_string(_height));
+//     size_t absDataPos = __x+__y*_width;
+//     return SystemWaveData_info{
+//         _pos[absDataPos],
+//         _indiv_amplitude[absDataPos],
+//         _indiv_phaseVector[absDataPos],
+//         _sum_amplitude[absDataPos],
+//         _sum_phaseVector[absDataPos]
+//     };
+// }
+std::vector<uint8_t>& BMP_SystemWaveData::get_BMP_arr() {
     return _bitmap_arr;
 }
 
 
-size_t pixelSpacing = 2;
+BMP_SystemWaveData BMP_system__thread_calc{system_dim.x, system_dim.y, 1};
+BMP_SystemWaveData BMP_system__thread_gui{system_dim.x, system_dim.y, 1};
+
+BMP_SystemWaveData* ptr_BMP_system_calc = &BMP_system__thread_calc; //"write" object ptr
+BMP_SystemWaveData* ptr_BMP_system_gui  = &BMP_system__thread_gui;  //"read" object ptr
+
+
+std::mutex mtx__cout;
+std::mutex mtx__ptrBMPsystem_Switch;
+std::mutex mtx__abs_cam_pixelPos_Access;
+std::mutex mtx__system_waves_Access;
+std::mutex mtx__meter_per_px_Access;
+
+std::atomic<bool> atm__running_process_calc{true};
+
+std::atomic<size_t> maxThreadNum{0};
+
+
+size_t pixelSpacing = 1;
 pos2d<int> abs_cam_pixelPos(0, 0);
 
 size_t numColour = 1;
@@ -222,16 +271,5 @@ std::vector<pos2d<float>> detectLine{
     {800, 715}
 };
 
-
-std::vector<uint8_t> bitArr_subThread;
-std::vector<uint8_t> bitArr_mainThread;
-
-std::mutex mtx__bitArr_Transfer;
-std::mutex mtx__abs_cam_pixelPos_Access;
-std::mutex mtx__system_waves_Access;
-std::mutex mtx__meter_per_px_Access;
-std::mutex mtx_cout;
-
-std::atomic<bool> running__process_calc;
 
 

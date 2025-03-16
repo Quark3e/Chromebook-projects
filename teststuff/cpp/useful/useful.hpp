@@ -1370,12 +1370,15 @@ inline bool decimalSame(_contType _var0, _contType _var1, size_t _contSize, size
         bool            _numberFill = false,
         char            _openSymb   = '{',
         char            _closeSymb  = '}',
-        char            _sepSymb    = ','
+        char            _sepSymb    = ',',
+        size_t          _startIdx   = 0,
+        size_t          _endIdx     = std::string::npos
     ) {
         std::string _out(1, _openSymb);
-        for(size_t i=0; i<_container.size(); i++) {
+        size_t endIdx = (_endIdx==std::string::npos? _container.size() : _endIdx);
+        for(size_t i=_startIdx; i<endIdx; i++) {
             _out += formatNumber(_container[i], _strWidth, _precision, _align, _numberFill);
-            if(i<_container.size()-1) _out += _sepSymb;
+            if(i<endIdx-1) _out += _sepSymb;
         }
         return _out + _closeSymb;
     }
