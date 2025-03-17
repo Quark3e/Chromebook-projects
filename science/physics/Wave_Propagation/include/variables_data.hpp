@@ -9,6 +9,10 @@
 
 #define scalMethod 1
 
+/**
+ * Pixel dimensions of the system that holds everything.
+ * 
+ */
 extern pos2d<size_t> system_dim;
 
 struct WaveSource {
