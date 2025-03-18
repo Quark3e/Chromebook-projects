@@ -13,7 +13,9 @@ void process_gui() {
     std::unique_lock<std::mutex> u_lck__abs_cam_pixelPos(mtx__abs_cam_pixelPos_Access, std::defer_lock);
     std::unique_lock<std::mutex> u_lck__system_waves(mtx__system_waves_Access, std::defer_lock);
     std::unique_lock<std::mutex> u_lck__meter_per_px(mtx__meter_per_px_Access, std::defer_lock);
-    
+    #if takePerformance_processCalc
+    std::unique_lock<std::mutex> u_lck__delays_processCalc(mtx__delays_processCalc_switch, std::defer_lock);
+    #endif //takePerformance_processCalc
 
     guiwin_nc::win_dim = ImVec2(system_dim.x, system_dim.y);
     ImVec2 info_win_dim = ImVec2(guiwin_nc::win_dim.x, 200);
@@ -68,12 +70,11 @@ void process_gui() {
 
         if(ImGui::Begin("Graph Window", NULL, graphWin_flags)) {
             ImGui::SetWindowPos(ImVec2(0, guiwin_nc::win_dim.y-ImGui::GetWindowSize().y));
-            pos2d<float> pixelPos = detectLine[0];
+            pos2d<float> pixelPos = detectLine[0].modify([](float _var){return _var/pixelSpacing;});
             std::vector<pos2d<double>>  elemPos;
             std::vector<float>          elemScalar;
             
             std::vector<double> amplitudeLim{-system_waves.size()*1.0, system_waves.size()*1.0};
-            
             u_lck__ptrBMPsystem.lock();
             for(float _gap=0; _gap<=detectDelta.hypotenuse(); _gap+=detectDelta_gap.hypotenuse()) {
                 
@@ -95,7 +96,7 @@ void process_gui() {
                 elemPos.push_back(detectPos);
                 elemScalar.push_back(sumScal);
                 
-                pixelPos += detectDelta_gap;
+                pixelPos += detectDelta_gap.modify([](float _var) {return _var/pixelSpacing; });
             }
             u_lck__ptrBMPsystem.unlock();
             ImVec2 childDim(info_win_dim.x-20, info_win_dim.y-20);
@@ -115,6 +116,31 @@ void process_gui() {
             ImGui::SetWindowPos(ImVec2(0, guiwin_nc::win_dim.y-ImGui::GetWindowSize().y));
         }
         ImGui::End();
+
+        #if takePerformance_processCalc
+        static ImVec2 delays_tableDim(220, 150);
+        ImGui::SetNextWindowSizeConstraints(ImVec2(delays_tableDim.x+20, 150), ImVec2(delays_tableDim.x+20, 400));
+        // ImGui::SetNextWindowPos(ImVec2(system_dim.x, 0), 0, ImVec2(1, 0));
+        if(ImGui::Begin("Delays_calc window", NULL)) {
+            if(ImGui::BeginTable("Delays_calc table", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit, delays_tableDim)) {
+                ImGui::TableSetupColumn("Label");
+                ImGui::TableSetupColumn("Delays [sec]");
+                ImGui::TableHeadersRow();
+                u_lck__delays_processCalc.lock();
+                for(size_t i=0; i<ptr_delays__process_calc_gui->size(); i++) {
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    ImGui::Text(ptr_delays__process_calc_gui->getKey(i).c_str());
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::Text(formatNumber(ptr_delays__process_calc_gui->operator[](i),10,3).c_str());
+                }
+                u_lck__delays_processCalc.unlock();
+                ImGui::EndTable();
+            }
+        }
+        ImGui::End();
+        #endif //takePerformance_processCalc
+
         // u_lck__system_waves.lock();
         for(size_t i=0; i<system_waves.size(); i++) {
             WaveSource& src = system_waves[i];
