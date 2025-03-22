@@ -1,6 +1,6 @@
 
 #include "processes.hpp"
-
+#include <fstream>
 
 void subProcess_calc(size_t processIdx, size_t idx_start, size_t idx_end);
 
@@ -28,11 +28,35 @@ void process_calc() {
         default:
         numSubProcesses = maxThreadNum-2;
     }
+    numSubProcesses = 10;
     #if takePerformance_processCalc
-    numSubProcesses = 1;
-    
-    subProcess_split__delays = std::vector<std::vector<double>>(numSubProcesses, std::vector<double>(ptr_delays__process_calc_calc->size()-1, 0));
-    #endif
+
+    #if takePerformance_processCalc_saveDelays
+    size_t saveFile_numIterations = 100;
+    size_t saveFile_numIterations_count = 0;
+
+
+    /**
+     * 
+     * COLUMNS:
+     * - numSubProcesses
+     * - iteration number
+     * - "init prep"
+     * - "sum amplitude"
+     * - "sum phaseVector"
+     * - "define BMP_sys"
+     * - "get colour scale"
+     * - "define pixel col"
+     * - "Process time"
+     * - absolute calc totalTime
+     * 
+     */
+    std::fstream saveFile("perf_delays_graph/perf_delaysFile__Wave_Propagation.csv", std::fstream::in | std::fstream::out | std::fstream::app);
+    if(!saveFile.is_open()) throw std::runtime_error("ERROR: Failed to open saveFile for perf_delays.");
+    #endif //takePerformance_processCalc_saveDelays
+
+    subProcess_split__delays = std::vector<std::vector<double>>(numSubProcesses, std::vector<double>(ptr_BMP_system_calc->delays__process_calc.size(), 0));
+    #endif //takePerformance_processCalc
 
     size_t maxArrLen = (system_dim.x*system_dim.y)/(pixelSpacing*pixelSpacing);
     std::vector<pos2d<size_t>> idxRange;
@@ -49,59 +73,83 @@ void process_calc() {
     std::unique_lock<std::mutex> u_lck__abs_cam_pixelPos(mtx__abs_cam_pixelPos_Access, std::defer_lock);
     std::unique_lock<std::mutex> u_lck__system_waves(mtx__system_waves_Access, std::defer_lock);
     std::unique_lock<std::mutex> u_lck__meter_per_px(mtx__meter_per_px_Access, std::defer_lock);
-    #if takePerformance_processCalc
-    std::unique_lock<std::mutex> u_lck__delays_processCalc(mtx__delays_processCalc_switch, std::defer_lock);
-    #endif
+    // #if takePerformance_processCalc
+    // std::unique_lock<std::mutex> u_lck__delays_processCalc(mtx__delays_processCalc_switch, std::defer_lock);
+    // #endif
 
     mutex_cout("thread-calc: init", mtx__cout);
+    mutex_cout("numSubProcesses:"+formatNumber(numSubProcesses,0,0), mtx__cout);
     while(atm__running_process_calc.load()) {
         // u_lck__abs_cam_pixelPos.lock();
         // u_lck__system_waves.lock();
         // u_lck__meter_per_px.lock();
 
+        // #if takePerformance_processCalc
         auto timePoint = std::chrono::steady_clock::now();
+        // #endif
+
         try {
             
             std::vector<std::thread> threadObjects;
             for(size_t n=1; n<numSubProcesses; n++) {
-                threadObjects.emplace_back(
-                    [idxRange, n] {subProcess_calc(n, idxRange[n].x, idxRange[n].y);}
-                );
+                std::thread threadInit(subProcess_calc, n, idxRange[n].x, idxRange[n].y);
+                threadObjects.push_back(std::move(threadInit));
+                // threadObjects.emplace_back(
+                //     [idxRange, n] {subProcess_calc(n, idxRange[n].x, idxRange[n].y);}
+                // );
             }
             subProcess_calc(0, idxRange[0].x, idxRange[0].y);
-            // mutex_cout("thread-calc: waiting for sub calc threads.", mtx__cout);
 
             for(size_t i=0; i<threadObjects.size(); i++) {
                 if(threadObjects.at(i).joinable()) threadObjects.at(i).join();
             }
-            // mutex_cout("thread-calc: joined and finished all threads..", mtx__cout);
         }
         catch(const std::exception& e) {
             std::cerr << "ERROR: " << e.what() << '\n';
             exit(1);
         }
 
-        
+        auto& delaysDict = ptr_BMP_system_calc->delays__process_calc;
+        ptr_BMP_system_calc->delays__process_calc_totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()-timePoint).count();
         #if takePerformance_processCalc
         /// Clear the existing data
-        for(size_t i=0; i<ptr_delays__process_calc_calc->size(); i++) {
-                ptr_delays__process_calc_calc->operator[](i) = 0;
+        for(size_t i=0; i<delaysDict.size(); i++) {
+            delaysDict[i] = 0;
         }
-
-        for(size_t i=0; i<ptr_delays__process_calc_calc->size()-1; i++) {
+        // ptr_BMP_system_calc->delays__process_calc_totalTime = 0;
+        
+        for(size_t i=0; i<delaysDict.size(); i++) {
             for(size_t n=0; n<numSubProcesses; n++) {
-                ptr_delays__process_calc_calc->operator[](i) += subProcess_split__delays[n][i];
+                delaysDict[i] += subProcess_split__delays[n][i];
             }
-            ptr_delays__process_calc_calc->operator[](i) /= (((system_dim.x*system_dim.y)/(pixelSpacing*pixelSpacing))*numSubProcesses);
+            delaysDict[i] /= (numSubProcesses);
+            if(i < delaysDict.size()-1) {
+                delaysDict.operator[](i) /= ((system_dim.x*system_dim.y)/(pixelSpacing*pixelSpacing));
 
+            }
         }
-        ptr_delays__process_calc_calc->get("Total abs time") = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()-timePoint).count();
+        #if takePerformance_processCalc_saveDelays
+        if(saveFile_numIterations_count <= saveFile_numIterations) {
+            saveFile << numSubProcesses << ",";
+            saveFile << saveFile_numIterations_count << ",";
+            saveFile << delaysDict.get("init prep") << ",";
+            saveFile << delaysDict.get("sum amplitude") << ",";
+            saveFile << delaysDict.get("sum phaseVector") << ",";
+            saveFile << delaysDict.get("define BMP_sys") << ",";
+            saveFile << delaysDict.get("get colour scale") << ",";
+            saveFile << delaysDict.get("define pixel col") << ",";
+            saveFile << delaysDict.get("Process time") << ",";
+            saveFile << ptr_BMP_system_calc->delays__process_calc_totalTime << "\n";
+            mutex_cout("thread-calc: loaded saveFile iter:"+formatNumber(saveFile_numIterations_count,0,0), mtx__cout);
+            saveFile_numIterations_count++;
+        }
+        else {
+            atm__running_process_calc = false;
+            break;
+        }
 
-        u_lck__delays_processCalc.lock();
-        auto temp_delaysPtr = ptr_delays__process_calc_calc;
-        ptr_delays__process_calc_calc = ptr_delays__process_calc_gui;
-        ptr_delays__process_calc_gui = temp_delaysPtr;
-        u_lck__delays_processCalc.unlock();
+        #endif //takePerformance_processCalc_saveDelays
+
         #endif
 
         /*
@@ -163,6 +211,14 @@ void process_calc() {
         // u_lck__abs_cam_pixelPos.unlock();
     }
 
+
+    #if takePerformance_processCalc
+    #if takePerformance_processCalc_saveDelays
+    saveFile.close();
+
+    #endif //takePerformance_processCalc_saveDelays
+    #endif //takePerformance_processCalc
+
 }
 
 void subProcess_calc(size_t processIdx, size_t idx_start, size_t idx_end) {
@@ -185,15 +241,16 @@ void subProcess_calc(size_t processIdx, size_t idx_start, size_t idx_end) {
     std::vector<double> amplitudeLim{-double(system_waves.size()*1.0), double(system_waves.size()*1.0)};
 
     #if takePerformance_processCalc
-    auto timePoint = std::chrono::steady_clock::now();
+    auto timePoint_init = std::chrono::steady_clock::now();
+    auto timePoint = timePoint_init;
 
-    for(size_t i=0; i<ptr_delays__process_calc_calc->size()-1; i++) {
+    for(size_t i=0; i<ptr_BMP_system_calc->delays__process_calc.size(); i++) {
         subProcess_split__delays.at(processIdx).at(i) = 0;
-        // ptr_delays__process_calc_calc->operator[](i) = 0;
+        // ptr_BMP_system_calc->delays__process_calc.operator[](i) = 0;
     }
     #endif
     for(size_t i=idx_start; i<idx_end; i++) {
-        if(!atm__running_process_calc.load()) break;
+        if(i%10==0 && !atm__running_process_calc.load()) break;
         pos2d<size_t> pixelPos = getPos(i);
         
         realPos.x = (double(pixelPos.x*pixelSpacing) + double(abs_cam_pixelPos.x)) * meter_per_px;
@@ -268,5 +325,9 @@ void subProcess_calc(size_t processIdx, size_t idx_start, size_t idx_end) {
         timePoint = std::chrono::steady_clock::now();
         #endif
     }
+
+    #if takePerformance_processCalc
+    subProcess_split__delays[processIdx][6] += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()-timePoint_init).count();
+    #endif
 
 }

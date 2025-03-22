@@ -9,6 +9,7 @@
 
 #define scalMethod 1
 #define takePerformance_processCalc true
+#define takePerformance_processCalc_saveDelays false
 
 
 /**
@@ -77,6 +78,18 @@ class BMP_SystemWaveData {
     std::vector<uint8_t> _bitmap_arr;
 
     public:
+    DIY::typed_dict<std::string, double> delays__process_calc = DIY::typed_dict<std::string, double>({
+        {"init prep"        , 0},
+        {"sum amplitude"    , 0},
+        {"sum phaseVector"  , 0},
+        {"define BMP_sys"   , 0},
+        {"get colour scale" , 0},
+        {"define pixel col" , 0},
+        {"Process time"   , 0}
+    });
+    float delays__process_calc_totalTime = 0;
+
+
 
     BMP_SystemWaveData(size_t __width, size_t __height, size_t __numColourChannels, bool __initElements=true);
     ~BMP_SystemWaveData();
@@ -134,22 +147,23 @@ extern double meter_per_px;
 /// @brief End point coordinates for a line that is used to pull a slice/range of data points in pixel coordinates
 extern std::vector<pos2d<float>> detectLine;
 
-#if takePerformance_processCalc
-/**
- * Dicitonary used to hold processed/delays result values for different parts of the calculation methods.
- * Used to figure out delays and such. Only accessible through 
- * 
- */
-extern DIY::typed_dict<std::string, double> delays__process_calc__calc;
-/// @brief copy of `delays__process_calc` that is used by the gui for drawing.
-extern DIY::typed_dict<std::string, double> delays__process_calc__gui;
-extern DIY::typed_dict<std::string, double>* ptr_delays__process_calc_calc;
-extern DIY::typed_dict<std::string, double>* ptr_delays__process_calc_gui;
-/**
- * Mutex used specifically for accessing the delays__process_calc__gui typed_dict. This mutex is used to copy over
- * results from the calc-thread version of the dict onto the gui version.
- */
-extern std::mutex mtx__delays_processCalc_switch;
-#endif //takePerformance_processCalc
+
+// #if takePerformance_processCalc
+// /**
+//  * Dicitonary used to hold processed/delays result values for different parts of the calculation methods.
+//  * Used to figure out delays and such. Only accessible through 
+//  * 
+//  */
+// extern DIY::typed_dict<std::string, double> delays__process_calc__calc;
+// /// @brief copy of `delays__process_calc` that is used by the gui for drawing.
+// extern DIY::typed_dict<std::string, double> delays__process_calc__gui;
+// extern DIY::typed_dict<std::string, double>* ptr_delays__process_calc_calc;
+// extern DIY::typed_dict<std::string, double>* ptr_delays__process_calc_gui;
+// /**
+//  * Mutex used specifically for accessing the delays__process_calc__gui typed_dict. This mutex is used to copy over
+//  * results from the calc-thread version of the dict onto the gui version.
+//  */
+// extern std::mutex mtx__delays_processCalc_switch;
+// #endif //takePerformance_processCalc
 
 #endif //HPP_WAVE_PROPAGATION__VARIABLES_DATA

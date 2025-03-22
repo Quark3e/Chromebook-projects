@@ -13,9 +13,7 @@ void process_gui() {
     std::unique_lock<std::mutex> u_lck__abs_cam_pixelPos(mtx__abs_cam_pixelPos_Access, std::defer_lock);
     std::unique_lock<std::mutex> u_lck__system_waves(mtx__system_waves_Access, std::defer_lock);
     std::unique_lock<std::mutex> u_lck__meter_per_px(mtx__meter_per_px_Access, std::defer_lock);
-    #if takePerformance_processCalc
-    std::unique_lock<std::mutex> u_lck__delays_processCalc(mtx__delays_processCalc_switch, std::defer_lock);
-    #endif //takePerformance_processCalc
+
 
     guiwin_nc::win_dim = ImVec2(system_dim.x, system_dim.y);
     ImVec2 info_win_dim = ImVec2(guiwin_nc::win_dim.x, 200);
@@ -117,29 +115,38 @@ void process_gui() {
         }
         ImGui::End();
 
-        #if takePerformance_processCalc
-        static ImVec2 delays_tableDim(220, 150);
-        ImGui::SetNextWindowSizeConstraints(ImVec2(delays_tableDim.x+20, 150), ImVec2(delays_tableDim.x+20, 400));
+        // #if takePerformance_processCalc
+        static ImVec2 delays_tableDim(220, 200);
+        ImGui::SetNextWindowSizeConstraints(ImVec2(delays_tableDim.x+20, 200), ImVec2(delays_tableDim.x+20, 400));
         // ImGui::SetNextWindowPos(ImVec2(system_dim.x, 0), 0, ImVec2(1, 0));
         if(ImGui::Begin("Delays_calc window", NULL)) {
             if(ImGui::BeginTable("Delays_calc table", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit, delays_tableDim)) {
                 ImGui::TableSetupColumn("Label");
                 ImGui::TableSetupColumn("Delays [sec]");
                 ImGui::TableHeadersRow();
-                u_lck__delays_processCalc.lock();
-                for(size_t i=0; i<ptr_delays__process_calc_gui->size(); i++) {
+                for(size_t i=0; i<ptr_BMP_system_gui->delays__process_calc.size(); i++) {
+                    if(i>=ptr_BMP_system_gui->delays__process_calc.size()-1) {
+                        ImGui::TableNextRow();
+                        ImGui::TableSetColumnIndex(0);
+                        ImGui::Text("");
+                    }
+
                     ImGui::TableNextRow();
                     ImGui::TableSetColumnIndex(0);
-                    ImGui::Text(ptr_delays__process_calc_gui->getKey(i).c_str());
+                    ImGui::Text(ptr_BMP_system_gui->delays__process_calc.getKey(i).c_str());
                     ImGui::TableSetColumnIndex(1);
-                    ImGui::Text(formatNumber(ptr_delays__process_calc_gui->operator[](i),10,3).c_str());
+                    ImGui::Text(formatNumber(ptr_BMP_system_gui->delays__process_calc[i],10,3).c_str());
                 }
-                u_lck__delays_processCalc.unlock();
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("Total time");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text(formatNumber(ptr_BMP_system_gui->delays__process_calc_totalTime, 10, 3).c_str());
                 ImGui::EndTable();
             }
         }
         ImGui::End();
-        #endif //takePerformance_processCalc
+        // #endif //takePerformance_processCalc
 
         // u_lck__system_waves.lock();
         for(size_t i=0; i<system_waves.size(); i++) {

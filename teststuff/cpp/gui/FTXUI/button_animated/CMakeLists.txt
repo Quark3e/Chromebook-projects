@@ -33,12 +33,15 @@ else()
 endif(WIN32)
 
 
-include_directories(${DIR_HC_USEFUL})
-link_directories(${DIR_HC_USEFUL})
+# include_directories(${DIR_HC_USEFUL})
+# link_directories(${DIR_HC_USEFUL})
 
 add_executable(${PROJECT_NAME}
     main.cpp
 )
+
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${DIR_HC_USEFUL})
 
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} PRIVATE ftxui::dom ftxui::screen ftxui::component)

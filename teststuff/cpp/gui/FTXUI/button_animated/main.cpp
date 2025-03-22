@@ -11,9 +11,10 @@
 #include "ftxui/component/screen_interactive.hpp"  // for ScreenInteractive
 #include "ftxui/dom/elements.hpp"  // for gauge, separator, text, vbox, operator|, Element, border
 #include "ftxui/screen/color.hpp"  // for Color, Color::Blue, Color::Green, Color::Red
- 
+
 using namespace ftxui;
- 
+
+
 int main() {
     int value = 50;
     

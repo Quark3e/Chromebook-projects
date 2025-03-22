@@ -245,7 +245,7 @@ std::atomic<bool> atm__running_process_calc{true};
 std::atomic<size_t> maxThreadNum{0};
 
 
-size_t pixelSpacing = 2;
+size_t pixelSpacing = 1;
 pos2d<int> abs_cam_pixelPos(0, 0);
 
 size_t numColour = 2;
@@ -271,20 +271,21 @@ std::vector<pos2d<float>> detectLine{
     {800, 715}
 };
 
-#if takePerformance_processCalc
-DIY::typed_dict<std::string, double> delays__process_calc__calc({
-    {"init prep"        , 0},
-    {"sum amplitude"    , 0},
-    {"sum phaseVector"  , 0},
-    {"define BMP_sys"   , 0},
-    {"get colour scale" , 0},
-    {"define pixel col" , 0},
-    {"Total abs time"   , 0}
-});
-DIY::typed_dict<std::string, double> delays__process_calc__gui(delays__process_calc__calc);
-DIY::typed_dict<std::string, double>* ptr_delays__process_calc_calc = &delays__process_calc__calc;
-DIY::typed_dict<std::string, double>* ptr_delays__process_calc_gui  = &delays__process_calc__gui;
-std::mutex mtx__delays_processCalc_switch;
 
-#endif //takePerformance_processCalc
+// #if takePerformance_processCalc
+// DIY::typed_dict<std::string, double> delays__process_calc__calc({
+//     {"init prep"        , 0},
+//     {"sum amplitude"    , 0},
+//     {"sum phaseVector"  , 0},
+//     {"define BMP_sys"   , 0},
+//     {"get colour scale" , 0},
+//     {"define pixel col" , 0},
+//     {"Total abs time"   , 0}
+// });
+// DIY::typed_dict<std::string, double> delays__process_calc__gui(delays__process_calc__calc);
+// DIY::typed_dict<std::string, double>* ptr_delays__process_calc_calc = &delays__process_calc__calc;
+// DIY::typed_dict<std::string, double>* ptr_delays__process_calc_gui  = &delays__process_calc__gui;
+// std::mutex mtx__delays_processCalc_switch;
+
+// #endif //takePerformance_processCalc
 
