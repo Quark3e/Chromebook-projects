@@ -622,6 +622,13 @@ namespace DIY {
              * @return int the index. If none found and `_call_except==false` then it'll return `-1`
              */
             int find(_key_type key, bool _call_except=true) const;
+            /**
+             * @brief Find the index/position to a given `key`
+             * 
+             * @param key the key to find index/position of.
+             * @return int the index. If none found then it'll return `-1`
+             */
+            int find_key(_key_type key) const;
 
             size_t size() const;
 
@@ -953,6 +960,13 @@ namespace DIY {
             if(_keys[i]==key) return i;
         }
         if(_call_except) this->_call_error(0, "::find(_key_type, bool)");
+        return -1;
+    }
+    template<class _key_type, class _store_type>
+    int typed_dict<_key_type, _store_type>::find_key(_key_type key) const {
+        for(size_t i=0; i<_keys.size(); i++) {
+            if(_keys[i]==key) return i;
+        }
         return -1;
     }
 

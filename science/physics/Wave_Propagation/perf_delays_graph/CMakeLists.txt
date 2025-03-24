@@ -13,6 +13,10 @@ find_package(imguiwin REQUIRED)
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
+    src/graph_selections.cpp
+    src/graph_methods.cpp
+    src/settings.cpp
+    src/variables.cpp
     ${DIR_USEFUL}/keyBind_handler.cpp
 )
 
