@@ -26,19 +26,19 @@ int main(int argc, char** argv) {
         while(graphWin.running()) {
             graphWin.newFrame();
             if(!graphWin.running()) break;
-
             ImGui::SetNextWindowPos(ImVec2(0,0));
             ImGui::SetNextWindowSize(guiwin_nc::toImVec2(dim__selectionsWindow));
             ImGui::PushStyleColor(ImGuiCol_WindowBg, bgWindowCol);
             if(ImGui::Begin("selectionsWindow", NULL, bgWindowFlags)) {
                 ImGui::PopStyleColor();
                 for(size_t i=0; i<graph_selections.size(); i++) {
-                    if(ImGui::Button(graph_selections.getKey(i).c_str())) {
+                    if(ImGui::Button(graph_selections.getKey(i).c_str(), ImVec2(dim__selectionsWindow.x-15, 0))) {
                         selected__graph_selections = i;
                     }
                 }
             }
             ImGui::End();
+            // if(!graphWin.running()) break;
             ImGui::SetNextWindowPos(ImVec2(dim__selectionsWindow.x, 0));
             ImGui::SetNextWindowSize(guiwin_nc::toImVec2(dim__graphWindow));
             ImGui::PushStyleColor(ImGuiCol_WindowBg, bgWindowCol);
@@ -48,8 +48,8 @@ int main(int argc, char** argv) {
                 graph_selections[selected__graph_selections]();
             }
             ImGui::End();
-    
-    
+            // if(!graphWin.running()) break;
+            
             graphWin.endFrame();
         }
         

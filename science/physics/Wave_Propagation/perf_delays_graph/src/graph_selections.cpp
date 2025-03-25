@@ -23,19 +23,20 @@ void graph__default() {
      */
     static std::vector<std::vector<float>> iterSum;
     static std::vector<unsigned> plotColours{
-        IM_COL32(234, 245,  78, 255*0.5),
-        IM_COL32(  4,  79,  13, 255*0.5),
-        IM_COL32( 91,  50,  50, 255*0.5),
-        IM_COL32(106, 191, 251, 255*0.5),
-        IM_COL32(144, 192, 100, 255*0.5),
-        IM_COL32(  0, 169, 113, 255*0.5),
-        IM_COL32(  0,  70, 169, 255*0.5),
-        IM_COL32(169,   0,   0, 255*0.5)
+        IM_COL32(234, 245,  78, 255*0.9),
+        IM_COL32(  4,  79,  13, 255*0.9),
+        IM_COL32( 91,  50,  50, 255*0.9),
+        IM_COL32(106, 191, 251, 255*0.9),
+        IM_COL32(144, 192, 100, 255*0.9),
+        IM_COL32(  0, 169, 113, 255*0.9),
+        IM_COL32(  0,  70, 169, 255*0.9),
+        IM_COL32(169,   0,   0, 255*0.9)
     };
 
-    std::vector<double> values_x;
-    
-    // if(init) {
+    static std::vector<double> values_x;
+    ImDrawList* graphDrawList = ImGui::GetWindowDrawList();
+
+    if(init) {
 
         iterSum = std::vector<std::vector<float>>(Loaded_Data__perfDelays.size(), std::vector<float>(Loaded_Data__perfDelays[0].size(), 0));
         if(iterSum[0].size() != plotColours.size()) throw std::runtime_error("ERROR: plotColours not same len.");
@@ -47,7 +48,6 @@ void graph__default() {
                 }
                 iterSum[n][i] /= Loaded_Data__perfDelays[n][i].size();
             }
-            if(n==0) std::cout << formatVector(iterSum[n]) << std::endl;
         }
 
         std::vector<float> yMaxValues;
@@ -55,15 +55,12 @@ void graph__default() {
             yMaxValues.push_back(*std::max_element(iterSum[i].begin(), iterSum[i].end()));
         }
         float maxValue = *std::max_element(yMaxValues.begin(), yMaxValues.end());
-        // std::cout << maxValue << std::endl;
-        // std::cout << formatVector(iterSum[0]) << std::endl;
         graphObj.setRange_x(values_x[0], values_x[values_x.size()-1]);
         graphObj.setRange_y(0, maxValue/1000);
         graphObj.setSpacing_x(1);
         graphObj.setSpacing_y(0.5);
 
-    // }
-        // graphObj.plotData({0, 3}, {0, 1});
+    }
 
     for(size_t i=0; i<iterSum[0].size(); i++) {
         std::vector<double> values_y;
@@ -71,14 +68,39 @@ void graph__default() {
             if(i<iterSum[0].size()-2) values_y.push_back(iterSum[n][i]);
             else values_y.push_back(iterSum[n][i]/1000.0);
         }
-        // if(i==0) std::cout << formatVector(values_y) << std::endl;
         graphObj.plotData(values_x, values_y, plotType_line, plotColours[i]);
     }
+
+    ImVec2 graphWinPos = ImGui::GetWindowPos();
     
+    ImGui::SetNextWindowPos(ImVec2(graphWinPos.x+20, graphWinPos.y+20));
+    ImGui::SetNextWindowSize(ImVec2(250, 170));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(255, 255, 255, 200));
+    if(ImGui::Begin("graph legend", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoTitleBar)) {
+        ImGui::PopStyleColor();
+        ImVec2 legendWinPos = ImGui::GetWindowPos();
+        ImGui::SetCursorPosY(12);
+        for(size_t i=0; i<iterSum[0].size(); i++) {
+            ImVec2 itemPos = ImVec2(legendWinPos.x+5, legendWinPos.y+ImGui::GetTextLineHeightWithSpacing()*i+20);
+            graphDrawList->AddLine(itemPos, ImVec2_add(itemPos, ImVec2(20, 0)), plotColours[i]/*IM_COL32(120, 120, 120, 200)*/, 7);
+            graphDrawList->AddLine(itemPos, ImVec2_add(itemPos, ImVec2(20, 0)), plotColours[i], 5);
+            ImGui::SetCursorPosX(30);
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(100, 100, 100, 250));
+            ImGui::Text(Loaded_Data__perfDelays[0].getKey(i).c_str());
+            ImGui::PopStyleColor();
+        }
+    }
+    ImGui::End();
+
     init = false;
 }
 void graph__totalTime() {
+    static bool init = true;
 
+    static std::vector<float> values_x;
+    static std::vector<float> values_y;
+
+    
 }
 void graph__processTime() {
 
