@@ -189,6 +189,11 @@ struct pos2d {
         return sqrt(pow(x, 2)+pow(y, 2));
     }
 
+    _varType delta(bool reverse=false) {
+        if(reverse) return x-y;
+        return y-x;
+    }
+
     // template<class _twoSizeContainerType>
     // operator _twoSizeContainerType() {
     //     _twoSizeContainerType _var;

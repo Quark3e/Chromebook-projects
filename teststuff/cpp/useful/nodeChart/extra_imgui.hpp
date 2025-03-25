@@ -565,7 +565,7 @@ inline bool loadBitmap_fromBitArray(
             // std::cout<<"1("<<startIdx<<"),";std::cout.flush();
 
             if(_colourFormat=="HSV") {
-                std::vector<int> _RGB = convert_HSV_RGB({_bitArray->operator[](startIdx), _bitArray->operator[](startIdx), _bitArray->operator[](startIdx)});
+                std::vector<float> _RGB = convert_HSV_RGB({static_cast<float>(_bitArray->operator[](startIdx)), static_cast<float>(_bitArray->operator[](startIdx)), float(_bitArray->operator[](startIdx))});
                 _colour = (255<<24) + (unsigned(_RGB[2])<<16) + (unsigned(_RGB[1])<<8) + (unsigned(_RGB[0]));
             }
             else if(_colourFormat=="RGB") {

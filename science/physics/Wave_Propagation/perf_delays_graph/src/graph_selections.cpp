@@ -23,7 +23,7 @@ void graph__default() {
      */
     static std::vector<std::vector<float>> iterSum;
     static std::vector<unsigned> plotColours{
-        IM_COL32(234, 245,  78, 255*0.9),
+        IM_COL32(204, 215,  78, 255*0.9),
         IM_COL32(  4,  79,  13, 255*0.9),
         IM_COL32( 91,  50,  50, 255*0.9),
         IM_COL32(106, 191, 251, 255*0.9),
@@ -97,10 +97,64 @@ void graph__default() {
 void graph__totalTime() {
     static bool init = true;
 
-    static std::vector<float> values_x;
-    static std::vector<float> values_y;
+    static std::vector<double> values_x;
+    static std::vector<double> values_y;
 
+    /**
+     * [0] thread
+     * [0][0] iteration
+     */
+    static std::vector<std::vector<double>> threadSum;
+
+    static std::vector<std::vector<int>> plotColours;
+    if(init) {
+        pos2d<float> HSV_range(0, 360);
+        float HSV_spacing = HSV_range.delta()/(Loaded_Data__perfDelays.size());
+        for(size_t i=0; i<Loaded_Data__perfDelays.size(); i++) {
+            std::vector<float> HSV_col{HSV_range[0], 80, 99};
+            std::vector<float> rgbConv = convert_HSV_RGB(HSV_col);
+            plotColours.push_back(std::vector<int>{int(rgbConv[0]), int(rgbConv[1]), int(rgbConv[2]), 255});
+            HSV_range[0] += HSV_spacing;
+            std::cout << formatVector(HSV_col, 3, 0) << " -> " << formatVector(plotColours[i],3) << std::endl;
+        }
+    }
+
+    ImDrawList* graphDrawList = ImGui::GetWindowDrawList();
+
+    size_t dataItemLoc = Loaded_Data__perfDelays[0].size()-1;
+    size_t numIter = Loaded_Data__perfDelays[0][dataItemLoc].size();
+    pos2d<size_t> graphLim_y(Loaded_Data__perfDelays[0][dataItemLoc][0]/1000, Loaded_Data__perfDelays[0][dataItemLoc][0]/1000);
     
+    if(init) {
+        for(size_t th=0; th<Loaded_Data__perfDelays.size(); th++) {
+            threadSum.push_back(std::vector<double>(numIter, 0));
+            for(size_t i=0; i<numIter; i++) {
+                threadSum[th][i] = Loaded_Data__perfDelays[th][dataItemLoc][i]/1000;
+                
+                if(threadSum[th][i]>graphLim_y[1]) graphLim_y[1] = threadSum[th][i];
+                else if(threadSum[th][i]<graphLim_y[0]) graphLim_y[0] = threadSum[th][i];
+            }
+        }
+        for(size_t i=0; i<numIter; i++) {
+            values_x.push_back(i+1);
+        }
+    
+        graphObj.setRange_x(1, numIter);
+        graphObj.setRange_y(graphLim_y[0], graphLim_y[1]);
+        graphObj.setSpacing_x(10);
+        graphObj.setSpacing_y((graphLim_y[1]-graphLim_y[0])*0.1);
+    }
+
+    for(size_t th=0; th<threadSum.size(); th++) {
+        graphObj.plotData(values_x, threadSum[th], plotType_line, IM_COL32(plotColours[th][0], plotColours[th][1], plotColours[th][2], plotColours[th][3]));
+    }
+
+    // ImVec2 graphWinPos = ImGui::GetWindowPos();
+
+    // ImGui::SetNextWindowPos()
+
+
+    init = false;
 }
 void graph__processTime() {
 

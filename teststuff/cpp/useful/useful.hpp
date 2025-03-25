@@ -1555,10 +1555,10 @@ inline bool decimalSame(_contType _var0, _contType _var1, size_t _contSize, size
         return HSV;
     }
 
-    inline std::vector<int> convert_HSV_RGB(
-        std::vector<int> HSV
+    inline std::vector<float> convert_HSV_RGB(
+        std::vector<float> HSV
     ) {
-        std::vector<int> _RGB(3, 0);
+        std::vector<float> _RGB(3, 0);
         std::vector<float> RGB_p(3, 0);
         std::vector<float> HSV_p{
             static_cast<float>(HSV[0]),
@@ -1567,8 +1567,10 @@ inline bool decimalSame(_contType _var0, _contType _var1, size_t _contSize, size
         };
 
         float C = HSV_p[2] * HSV_p[1];
-        float X = C * (1 - abs((static_cast<int>(HSV_p[0])/60)%2 -1));
+        float X = C * float(1 - abs(fmod(HSV_p[0]/60, 2) -1));
         float m = HSV_p[2] - C;
+
+        // std::cout<<"{"<<C<<", "<<X<<", "<<m<<"}\n";
 
         if(HSV_p[0] < 60) {
             RGB_p[0] = C;
