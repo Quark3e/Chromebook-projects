@@ -1555,6 +1555,12 @@ inline bool decimalSame(_contType _var0, _contType _var1, size_t _contSize, size
         return HSV;
     }
 
+    /**
+     * @brief Convert HSV values to RGB values
+     * 
+     * @param HSV float values of HSV (Hue, Saturation, Value) (degrees, percentage, percentage) [0-360, 0-100, 0-100]
+     * @return std::vector<float> of the HSV values [0-255]
+     */
     inline std::vector<float> convert_HSV_RGB(
         std::vector<float> HSV
     ) {
