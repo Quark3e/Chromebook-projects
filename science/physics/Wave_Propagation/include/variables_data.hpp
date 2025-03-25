@@ -94,7 +94,7 @@ class BMP_SystemWaveData {
     BMP_SystemWaveData(size_t __width, size_t __height, size_t __numColourChannels, bool __initElements=true);
     ~BMP_SystemWaveData();
 
-    BMP_SystemWaveData& operator==(BMP_SystemWaveData& const __obj);
+    BMP_SystemWaveData& operator==(const BMP_SystemWaveData& __obj);
 
     SystemWaveData_info_ref at(size_t __x, size_t __y);
     // SystemWaveData_info  at(size_t __x, size_t __y) const;

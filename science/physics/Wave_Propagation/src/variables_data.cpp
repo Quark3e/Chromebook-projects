@@ -46,7 +46,7 @@ BMP_SystemWaveData::~BMP_SystemWaveData() {
 
 }
 
-BMP_SystemWaveData& BMP_SystemWaveData::operator==(BMP_SystemWaveData& const __obj) {
+BMP_SystemWaveData& BMP_SystemWaveData::operator==(const BMP_SystemWaveData& __obj) {
     this->_pos = __obj._pos;
     this->_sum_amplitude = __obj._sum_amplitude;
     this->_sum_phaseVector = __obj._sum_phaseVector;
@@ -72,7 +72,7 @@ void BMP_SystemWaveData::resize_dim(size_t newWidth, size_t newHeight, size_t si
     if(newWidth == _width && newHeight == _height) return;
 
     pos2d<size_t> newDim(newWidth, newHeight);
-    pos2d<long int> delta(long int(newWidth)-long int(_width), long int(newHeight)-long int(_height));
+    pos2d<long int> delta(static_cast<long int>(newWidth)-static_cast<long int>(_width), static_cast<long int>(newHeight)-static_cast<long int>(_height));
     pos2d<size_t> dim_lim(0, 0);
     pos2d<float> scalars(float(newDim.x)/float(_width), float(newDim.y)/float(_height));
 
@@ -157,7 +157,7 @@ void BMP_SystemWaveData::resize_colourChannelNum(size_t newChannelNum) {
     if(newChannelNum==0) throw std::invalid_argument("ERROR: resize_colourChannelNum(size_t, size_t, size_t, bool): newChannelNum arg cannot be 0.");
     if(newChannelNum==this->_bitmap_colourChannels) return;
 
-    // long int deltaSize = long int() - long int(this->_bitmap_arr.size());
+    // long int deltaSize = static_cast<long int>() - static_cast<long int>(this->_bitmap_arr.size());
     // if(newChannelNum > this->_bitmap_colourChannels) {
     // }
     // else {
@@ -171,8 +171,9 @@ SystemWaveData_info_ref BMP_SystemWaveData::at(size_t __x, size_t __y) {
 
     size_t absDataPos = __x+__y*_width;
 
+    static pos2d<size_t> localRef(__x, __y);
     return SystemWaveData_info_ref{
-        pos2d<size_t>{__x, __y},
+        localRef,
         _pos[absDataPos],
         _indiv_amplitude[absDataPos],
         _indiv_phaseVector[absDataPos],

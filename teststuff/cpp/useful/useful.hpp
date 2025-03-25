@@ -37,6 +37,8 @@
 #include <iostream>
 #include <iomanip>
 
+#include <fstream>
+
 #include <pos2d.hpp>
 
 #if _WIN32

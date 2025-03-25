@@ -28,7 +28,7 @@ void process_calc() {
         default:
         numSubProcesses = maxThreadNum-2;
     }
-    numSubProcesses = 10;
+    numSubProcesses = 2;
     #if takePerformance_processCalc
 
     #if takePerformance_processCalc_saveDelays
