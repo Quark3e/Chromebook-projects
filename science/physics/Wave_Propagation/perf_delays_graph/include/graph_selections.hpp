@@ -10,6 +10,8 @@ extern DIY::typed_dict<std::string, void (*)()> graph_selections;
 
 extern size_t selected__graph_selections;
 
+extern bool selected_init;
+
 /**
  * @brief avg times per thread-count, includes all delays shown in a decent manner (seconds/milliseconds for process/abs-calc-process time)
  * 

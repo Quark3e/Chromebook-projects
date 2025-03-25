@@ -34,6 +34,7 @@ int main(int argc, char** argv) {
                 for(size_t i=0; i<graph_selections.size(); i++) {
                     if(ImGui::Button(graph_selections.getKey(i).c_str(), ImVec2(dim__selectionsWindow.x-15, 0))) {
                         selected__graph_selections = i;
+                        selected_init = true;
                     }
                 }
             }
