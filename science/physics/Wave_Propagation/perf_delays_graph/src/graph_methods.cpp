@@ -130,29 +130,27 @@ void imguigraph::drawBackground() {
     );
 
     for(float x=_range_x[0]; x<_range_x[1]; x+=_spacing_x) {
-        float scal = x/(_range_x[1]-_range_x[0]);
+        float scal = (x-_range_x[0])/(_range_x[1]-_range_x[0]);
         ImVec2 linePos(_pos_origo.x + scal*_dim_graphWindow.x, _pos_origo.y);
         graphDrawList->AddLine(linePos, ImVec2_add(linePos, ImVec2(0, -_dim_graphWindow.y)), IM_COL32(170,170,170,200), 1);
-    
     }
     for(float y=_range_y[0]; y<_range_y[1]; y+=_spacing_y) {
-        float scal = y/(_range_y[1]-_range_y[0]);
+        float scal = (y-_range_y[0])/(_range_y[1]-_range_y[0]);
         ImVec2 linePos(_pos_origo.x, _pos_origo.y - scal*_dim_graphWindow.y);
         graphDrawList->AddLine(linePos, ImVec2_add(linePos, ImVec2(_dim_graphWindow.x, 0)), IM_COL32(170,170,170,200), 1);
-        
     }
     
     graphDrawList->AddCircle(_pos_origo, 5, IM_COL32(10,10,10,250), 10);
     graphDrawList->AddText(_pos_origo, IM_COL32(10,10,10,250), "0");
     for(size_t i_x=0; i_x<=(_range_x[1]-_range_x[0])/_spacing_x; i_x++) {
-        ImVec2 pos(_pos_origo.x+i_x*_spacing_x/_scal_x-5, _pos_origo.y+ImGui::GetTextLineHeightWithSpacing());
+        ImVec2 pos(_pos_origo.x+(i_x*_spacing_x)/_scal_x-5, _pos_origo.y+ImGui::GetTextLineHeightWithSpacing());
         ImGui::SetCursorPos(pos);
         ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0,0,0,255));
         graphDrawList->AddText(pos, IM_COL32(0,0,0,255), formatNumber(i_x*_spacing_x+_range_x[0], 0, 1).c_str());
         ImGui::PopStyleColor();
     }
     for(size_t i_y=0; i_y<=(_range_y[1]-_range_y[0])/_spacing_y; i_y++) {
-        ImVec2 pos(_pos_origo.x-50, _pos_origo.y-i_y*_spacing_y/_scal_y-ImGui::GetTextLineHeightWithSpacing()/2);
+        ImVec2 pos(_pos_origo.x-50, _pos_origo.y-(i_y*_spacing_y)/_scal_y-ImGui::GetTextLineHeightWithSpacing()/2);
         ImGui::SetCursorPos(pos);
         ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0,0,0,255));
         graphDrawList->AddText(pos, IM_COL32(0,0,0,255), formatNumber(i_y*_spacing_y+_range_y[0], 0, 1).c_str());

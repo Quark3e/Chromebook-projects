@@ -23,6 +23,10 @@ void graph__default();
  */
 void graph__totalTime();
 void graph__processTime();
+/**
+ * @brief time of delay for each process_calc section, per iteration
+ * 
+ */
 void graph__iterationDelays();
 
 
