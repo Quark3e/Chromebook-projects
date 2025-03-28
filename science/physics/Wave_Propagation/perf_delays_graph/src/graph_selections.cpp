@@ -362,35 +362,18 @@ void graph__iterationDelays() {
     static std::vector<std::vector<std::vector<int>>> plotColours;
     if(init) {
         // plotColours.clear();
-        pos2d<float> HSV_range(0, 360);
+        pos2d<float> HSV_range(0, 180);
         float HSV_spacing = HSV_range.delta()/(Loaded_Data__perfDelays[0].size());
-        // plotColours = std::vector<std::vector<std::vector<int>>>(
-            // Loaded_Data__perfDelays.size(), std::vector<std::vector<int>>(
-                // Loaded_Data__perfDelays[0].size()-2, std::vector<int>{0, 0, 0, 0}
-            // )
-        // );
         for(size_t t=0; t<Loaded_Data__perfDelays.size(); t++) {
             plotColours.push_back(std::vector<std::vector<int>>());
             HSV_range[0] = 0;
             for(size_t i=0; i<Loaded_Data__perfDelays[0].size()-2; i++) {
-                std::vector<float> HSV_col{HSV_range[0], (50*(float(t)/Loaded_Data__perfDelays.size())+50), 99};
+                std::vector<float> HSV_col{HSV_range[0], (80*(float(t)/Loaded_Data__perfDelays.size())+20), 99};
                 std::vector<float> rgbConv = convert_HSV_RGB(HSV_col);
                 plotColours[t].push_back(std::vector<int>{int(rgbConv[0]), int(rgbConv[1]), int(rgbConv[2]), 255});
                 HSV_range[0]+=HSV_spacing;
             }
         }
-        // for(size_t i=0; i<Loaded_Data__perfDelays[0].size()-2; i++) {
-        //     // plotColours.push_back(std::vector<std::vector<int>>(Loaded_Data__perfDelays[0].size(), std::vector<int>{0, 0, 0, 0}));
-        //     for(size_t t=0; t<Loaded_Data__perfDelays.size(); i++) {
-        //         // plotColours.push_back(std::vector<std::vector<int>>(Loaded_Data__perfDelays[0].size(), std::vector<int>{0, 0, 0, 0}));
-        //         std::vector<float> HSV_col{HSV_range[0], (80*(float(t)/Loaded_Data__perfDelays.size())+10), 99};
-        //         std::vector<float> rgbConv = convert_HSV_RGB(HSV_col);
-        //         for(size_t n=0; n<4; n++) {
-        //             plotColours[t][i][n] = rgbConv[n];
-        //         }
-        //         HSV_range[0] += HSV_spacing;
-        //     }
-        // }
     }
 
     ImDrawList* graphDrawList = ImGui::GetWindowDrawList();
@@ -404,11 +387,6 @@ void graph__iterationDelays() {
 
     if(init) {
         selected_init = true;
-
-        // options_threadSelected = DIY::typed_dict<size_t, bool>();
-        // for(size_t i=0; i<Loaded_Data__perfDelays.size(); i++) {
-        //     options_threadSelected.add(i, true);
-        // }
         options_typeSelected = DIY::typed_dict<size_t, bool>();
         for(size_t i=0; i<Loaded_Data__perfDelays[0].size(); i++) {
             options_typeSelected.add(i, (i==3? true : true));
@@ -422,7 +400,6 @@ void graph__iterationDelays() {
         for(size_t th=0; th<numThreads; th++) {
             valuesToDisplay.push_back(std::vector<std::vector<double>>(Loaded_Data__perfDelays[th].size()-2, std::vector<double>(numIter, 0)));
             for(size_t i=0; i<Loaded_Data__perfDelays[th].size()-2; i++) {
-
                 std::vector<float>& dictArrRef = Loaded_Data__perfDelays[th][i];
                 for(size_t ii=0; ii<numIter; ii++) {
                     if((nbRounding[0]+nbRounding[1])>0) {
@@ -461,7 +438,7 @@ void graph__iterationDelays() {
         graphObj.setSpacing_y((graphLim_y[1]-graphLim_y[0])*0.1);
     }
     for(size_t th=0; th<numThreads; th++) {
-        for(size_t i=0; i<valuesToDisplay[th].size()-2; i++) {
+        for(size_t i=0; i<valuesToDisplay[th].size(); i++) {
             if(options_typeSelected[i]) {
                 graphObj.plotData(values_x, valuesToDisplay[th][i], plotType_line, IM_COL32(plotColours[th][i][0], plotColours[th][i][1], plotColours[th][i][2], plotColours[th][i][3]));
             }
@@ -470,7 +447,7 @@ void graph__iterationDelays() {
     ImVec2 graphWinPos = ImGui::GetWindowPos();
 
     ImGui::SetNextWindowPos(ImVec2(graphWinPos.x+dim__graphWindow.x-20, graphWinPos.y+20), 0, ImVec2(1, 0));
-    ImGui::SetNextWindowSize(ImVec2(150, ImGui::GetTextLineHeightWithSpacing()*Loaded_Data__perfDelays.size()+20));
+    ImGui::SetNextWindowSize(ImVec2(200, ImGui::GetTextLineHeightWithSpacing()*Loaded_Data__perfDelays.size()+20));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(255, 255, 255, 200));
     if(ImGui::Begin("graph legend", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar)) {
         if(selected_init) ImGui::SetWindowFocus("graph legend");
@@ -481,13 +458,21 @@ void graph__iterationDelays() {
         ImDrawList* legendWinDrawList = ImGui::GetWindowDrawList();
         for(size_t i=0; i<Loaded_Data__perfDelays[0].size()-2; i++) {
 
-            ImVec2 itemPos = ImVec2(legendWinPos.x+5, legendWinPos.y+ImGui::GetTextLineHeightWithSpacing()*i+20);
-            // legendWinDrawList->AddLine(itemPos, ImVec2_add(itemPos, ImVec2(20, 0)), IM_COL32(10, 10, 10, 255), 7);
-            legendWinDrawList->AddLine(itemPos, ImVec2_add(itemPos, ImVec2(20, 0)), IM_COL32(plotColours[lastIdx][i][0], plotColours[lastIdx][i][1], plotColours[lastIdx][i][2], 255), 5);
-            ImGui::SetCursorPosX(30);
+            ImGui::PushID(i);
+            ImGui::Checkbox("", &options_typeSelected[i]);
+            ImGui::PopID();
+            ImGui::SameLine();
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(100, 100, 100, 250));
             ImGui::Text("%s", Loaded_Data__perfDelays[0].getKey(i).c_str());
             ImGui::PopStyleColor();
+
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(150);
+            ImVec2 cursPos = ImGui::GetCursorPos();
+        
+            ImVec2 itemPos = ImVec2_add(legendWinPos, ImVec2(cursPos.x, cursPos.y+10));
+            legendWinDrawList->AddLine(itemPos, ImVec2_add(itemPos, ImVec2(20, 0)), IM_COL32(plotColours[lastIdx][i][0], plotColours[lastIdx][i][1], plotColours[lastIdx][i][2], 255), 5);
+            ImGui::NewLine();
         }
     }
     // ImGui::PopStyleColor();
