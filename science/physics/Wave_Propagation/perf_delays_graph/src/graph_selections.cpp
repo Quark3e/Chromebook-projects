@@ -80,6 +80,7 @@ void graph__default() {
     ImGui::SetNextWindowSize(ImVec2(250, 170));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(255, 255, 255, 200));
     if(ImGui::Begin("graph legend", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoTitleBar)) {
+        if(selected_init) ImGui::SetWindowFocus("graph legend");
         ImVec2 legendWinPos = ImGui::GetWindowPos();
         ImGui::SetCursorPosY(12);
         ImDrawList* legendWinDrawList = ImGui::GetWindowDrawList();
@@ -201,6 +202,7 @@ void graph__totalTime() {
     ImGui::SetNextWindowSize(ImVec2(50, ImGui::GetTextLineHeightWithSpacing()*Loaded_Data__perfDelays.size()+20));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(255, 255, 255, 200));
     if(ImGui::Begin("graph legend", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoTitleBar)) {
+        if(selected_init) ImGui::SetWindowFocus("graph legend");
         ImVec2 legendWinPos = ImGui::GetWindowPos();
         ImGui::SetCursorPosY(12);
         ImDrawList* legendWinDrawList = ImGui::GetWindowDrawList();
@@ -322,6 +324,7 @@ void graph__processTime() {
     ImGui::SetNextWindowSize(ImVec2(50, ImGui::GetTextLineHeightWithSpacing()*Loaded_Data__perfDelays.size()+20));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(255, 255, 255, 200));
     if(ImGui::Begin("graph legend", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoTitleBar)) {
+        if(selected_init) ImGui::SetWindowFocus("graph legend");
         ImVec2 legendWinPos = ImGui::GetWindowPos();
         ImGui::SetCursorPosY(12);
         ImDrawList* legendWinDrawList = ImGui::GetWindowDrawList();
@@ -470,6 +473,7 @@ void graph__iterationDelays() {
     ImGui::SetNextWindowSize(ImVec2(150, ImGui::GetTextLineHeightWithSpacing()*Loaded_Data__perfDelays.size()+20));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(255, 255, 255, 200));
     if(ImGui::Begin("graph legend", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar)) {
+        if(selected_init) ImGui::SetWindowFocus("graph legend");
         ImGui::PopStyleColor();
         ImVec2 legendWinPos = ImGui::GetWindowPos();
         ImGui::SetCursorPosY(12);
