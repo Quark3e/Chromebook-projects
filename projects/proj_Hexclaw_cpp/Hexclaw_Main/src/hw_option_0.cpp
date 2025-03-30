@@ -128,7 +128,7 @@ void HW_option0() {
 				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -u_lck0 locked."); std::this_thread::sleep_for(std::chrono::milliseconds(100)); }
 				u_lck1.lock();
 				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -u_lck1 locked."); std::this_thread::sleep_for(std::chrono::milliseconds(100)); }
-				updateCamVars(0);
+				0(0);
 				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -updateCamVars(0)."); }
 				updateCamVars(1);
 				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -updateCamVars(1)."); }
@@ -187,20 +187,12 @@ void HW_option0() {
 			perfObj[0].add_checkpoint("getCoords"); /*c2*/
 			#endif
 
-			if(HW_KINEMATICS::getAngles(
-				new_q, PP,
-				toRadians(orient[0]),
-				toRadians(orient[1]),
-				toRadians(orient[2]),
-				1
-			)) {
+			if(HW_KINEMATICS::getAngles(new_q, PP, toRadians(orient[0]), toRadians(orient[1]), toRadians(orient[2]), 1)) {
 				if(_init_status.get("pca").isInit()) sendToServo(&pca,new_q,current_q,false);
 				for(int i=0; i<6; i++) printTable.insertNum(new_q[i],1+i,3,1);
 				printTable.strExport(std::string(21,' ')+"\n");
 			}
-			else if (HW_KINEMATICS::findValidOrient(
-				PP, orient, orient, new_q
-			)) {
+			else if (HW_KINEMATICS::findValidOrient(PP, orient, orient, new_q)) {
 				if(_init_status.get("pca").isInit()) sendToServo(&pca,new_q,current_q,false);
 				printTable.insertNum(orient[0],1,2,1);
 				printTable.insertNum(orient[1],2,2,1);
@@ -214,22 +206,8 @@ void HW_option0() {
 			#if useThreads
 			u_lck_cout.lock();
 			#endif
-			ansiPrint(
-				printTable.exportStr,
-				static_cast<float>(1),
-				static_cast<float>(0.1),
-				false,
-				false,
-				"\n","\n",false
-			);
-			ansiPrint(
-				delayTable.exportStr,
-				static_cast<float>(1),
-				static_cast<float>(0.3),
-				false,
-				false,
-				"\n","\n",false
-			);
+			ansiPrint(printTable.exportStr, 1.1, 0.1, false, false, "\n", "\n", false);
+			ansiPrint(delayTable.exportStr, 1.0, 0.3, false, false, "\n", "\n", false);
 			std::cout.flush();
 			#if useThreads
 			u_lck_cout.unlock();

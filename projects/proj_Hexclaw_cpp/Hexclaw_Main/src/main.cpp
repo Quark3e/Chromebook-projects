@@ -192,7 +192,6 @@ void loadData_csvArtif(bool printVar=true) {
 #include <hw_options.hpp>
 
 
-
 int main(int argc, char* argv[]) {
 	// std::cout<<"\x1B[2J"<<std::endl;
 
