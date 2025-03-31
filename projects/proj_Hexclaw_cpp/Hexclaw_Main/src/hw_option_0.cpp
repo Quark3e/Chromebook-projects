@@ -128,7 +128,7 @@ void HW_option0() {
 				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -u_lck0 locked."); std::this_thread::sleep_for(std::chrono::milliseconds(100)); }
 				u_lck1.lock();
 				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -u_lck1 locked."); std::this_thread::sleep_for(std::chrono::milliseconds(100)); }
-				0(0);
+				updateCamVars(0);
 				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -updateCamVars(0)."); }
 				updateCamVars(1);
 				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -updateCamVars(1)."); }

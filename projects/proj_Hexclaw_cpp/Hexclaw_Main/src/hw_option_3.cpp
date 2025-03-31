@@ -39,7 +39,133 @@ void HW_option3() {
 	printTable.insertText("servo", 0, 3);
 
 	#if useThreads
-	
+	std::unique_lock<std::mutex> u_lck0(mtx[0], std::defer_lock);
+	std::unique_lock<std::mutex> u_lck1(mtx[1], std::defer_lock);
+	std::unique_lock<std::mutex> u_lck_cout(mtx_cout, std::defer_lock);
+
+	std::thread t0(thread_task, &camObj[0], 0);
+	std::thread t1(thread_task, &camObj[1], 1);
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	#endif //useThreads
 
+	bool loopInit = false;
+	while(true) {
+		if(!threadsInit[2]) {
+			while(!threadsInit[2]) {
+				u_lck0.lock();
+				u_lck1.lock();
+				updateCamVars(0);
+				updateCamVars(1);
+				if(threadsInit[0] && threadsInit[1]) {
+					threadsInit[2] = true;
+				}
+				u_lck1.unlock();
+				u_lck0.unlock();
+			}
+		}
+
+		u_lck0.lock();
+		updateCamVars(0);
+		u_lck0.unlock();
+		u_lck1.lock();
+		updateCamVars(1);
+		u_lck1.unlock();
+		if(returCodes_main[0]==-1) {
+			if(threadDebug) lock_cout(mtx_cout,"\ncamObj[0] process error\n",true,true);
+			return;
+		}
+		if(returCodes_main[1]==-1) {
+			if(threadDebug) lock_cout(mtx_cout,"\ncamObj[1] process error\n",true,true);
+			return;
+		}
+
+		if(numContours_main[0]>0) {
+			printTable.insertNum(PP[0],1,1,1);
+			printTable.insertNum(PP[1],2,1,1);
+			printTable.insertNum(PP[2],3,1,1);
+
+			orientObj.update(false);
+			printTable.insertNum(orient[0],1,2,1);
+			printTable.insertNum(orient[1],2,2,1);
+			printTable.insertNum(orient[2],3,2,1);
+
+			printTable.insertNum(camObjPos_main[0][0],1,0,1);
+			printTable.insertNum(camObjPos_main[0][1],2,0,1);
+			printTable.insertNum(camObjPos_main[1][0],3,0,1);
+			printTable.insertNum(camObjPos_main[1][1],4,0,1);
+		}
+		else {
+			printTable.insertText("ERROR:no valid orient", 1, 1);
+		}
+
+		if(HW_KINEMATICS::getAngles(new_q, PP, RADIANS(orient[0]), RADIANS(orient[1]), RADIANS(orient[2]), 1)) {
+			for(int i=0; i<6; i++) printTable.insertNum(new_q[i],1+i,3,1);
+			printTable.strExport(std::string(21,' ')+"\n");
+		}
+		else if(HW_KINEMATICS::findValidOrient(PP, orient, orient, new_q)) {
+			printTable.insertNum(orient[0],1,2,1);
+			printTable.insertNum(orient[1],2,2,1);
+			printTable.insertNum(orient[2],3,2,1);
+			for(int i=0; i<6; i++) printTable.insertNum(new_q[i],1+i,3,1);
+			printTable.strExport(std::string(21,' ')+"\n");
+		}
+		else {
+			printTable.insertText("ERROR:no valid angles", 1, 3);
+		}
+
+		if(_CONFIG_OPTIONS.get("displayToWindow")) {
+			cv::Mat winImg;
+			cv::hconcat(flippedImg_main[0], flippedImg_main[1], winImg);
+			cv::imshow("Main thread window", winImg);
+		
+			int keyInp = cv::waitKey(5);
+		
+			bool _exitLoop = false;
+			switch (keyInp) {
+			case 27: _exitLoop=true; break;
+			case 32: _exitLoop=true; break;
+			case 114: { //'r'
+				std::string inputVar = "";
+				int indVar = 0;
+				// std::cout << "Enter index in hsv file\ninput: ";
+				ANSI_mvprint(0, 0, "Enter index in hsv file", true, "abs", "rel");
+				ANSI_mvprint(0, 0, "input: ", true, "abs", "rel");
+				std::cin >> inputVar;
+				if(inputVar=="exit") exit(1);
+				indVar = stoi(inputVar);
+				std::cin.clear();
+				std::cin.ignore();
+				hsv_settingsRead(camObj, HW_HSV[0][0], HW_HSV[0][1], HW_HSV[0][2], HW_HSV[1][0], HW_HSV[1][1], HW_HSV[1][2], window_name, indVar);
+			}
+			case 115: { //'s'
+				hsv_settingsWrite(HW_HSV[0][0], HW_HSV[0][1], HW_HSV[0][2], HW_HSV[1][0], HW_HSV[1][1], HW_HSV[1][2], 0);
+				break;
+			}
+			case 116: { //'t'
+				hsv_settingsRead(camObj, HW_HSV[0][0], HW_HSV[0][1], HW_HSV[0][2], HW_HSV[1][0], HW_HSV[1][1], HW_HSV[1][2], window_name, 0); 
+			}
+			default:
+				break;
+			}
+			if(_exitLoop) break;
+			if(keyInp==27) break;
+		
+
+		}
+		
+		loopInit = true;
+	}
+
+	if(_CONFIG_OPTIONS.get("displayToWindow")) {
+		cv::destroyWindow("Main thread window");
+	}
+
+	u_lck0.lock();
+	exit_thread[0] = true;
+	u_lck0.unlock();
+	u_lck1.lock();
+	exit_thread[1] = true;
+	u_lck1.unlock();
+
+	ANSI_mvprint(0, 0, "Exiting main thread", true, "abs", "rel");
 }
