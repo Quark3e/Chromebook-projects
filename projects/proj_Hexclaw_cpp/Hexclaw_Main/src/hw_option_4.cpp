@@ -96,19 +96,25 @@ void HW_option4() {
 					// }
 				}
 				else if(pressed_pos==pos2d<int>(1, 20)) {
+					std::vector<float> refrAngles(19, 0);
 					std::vector<float> readAngles(19, 0);
 					for(size_t i=0; i<19; i++) {
+						refrAngles[i] = i*100;
 						try {
 							readAngles[i] = std::stof(menu__calibrateMotor_angles.getCellName(2, i+2));
 						}
 						catch(const std::invalid_argument& e) {
-							ANSI_mvprint(0, 0, "ERROR: invalid input", true, "abs", "rel");
+							ANSI_mvprint(0, 0, "ERROR: invalid input: "+std::string(e.what()), true, "abs", "rel");
 							std::this_thread::sleep_for(std::chrono::seconds(1));
-							break;
+							readAngles[i] = 0;
+							// break;
 						}
 					}
 
-
+					std::cout << "refrAngles: " << formatVector(refrAngles, 6, 1) << std::endl;
+					std::cout << "readAngles: " << formatVector(readAngles, 6, 1) << std::endl;
+				
+					
 				}
 				else if(pressed_pos==pos2d<int>(1, 22)) {
 					runAngles = false;
@@ -117,6 +123,8 @@ void HW_option4() {
 					runAngles = false;
 					runMain = false;
 				}
+
+
 
 			}
 		}

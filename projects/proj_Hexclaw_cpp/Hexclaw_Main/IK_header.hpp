@@ -18,6 +18,8 @@
 #include "include/motion_control/motion_profiles.hpp"
 // #include "global_variables.hpp"
 
+#include <Eigen/Dense>
+
 
 #ifndef _VAR__pos3d
 #define _VAR__pos3d
@@ -452,6 +454,37 @@ namespace HW_KINEMATICS  {
         return false;
     }
 
+
+
+    inline std::vector<float> solveServoDriftRegression(
+        const std::vector<float>& refrValues,
+        const std::vector<float>& readValues,
+        size_t numPolynomialTerms
+    ) {
+        if (refrValues.size() != readValues.size() || refrValues.empty()) {
+            throw std::invalid_argument("Input vectors must have the same non-zero size.");
+        }
+
+        size_t n = refrValues.size();
+        Eigen::MatrixXd X(n, numPolynomialTerms);
+        Eigen::VectorXd Y(n);
+
+        // Construct the design matrix X and the target vector Y
+        for (size_t i = 0; i < n; ++i) {
+            float x = refrValues[i];
+            Y(i) = readValues[i];
+            for (size_t j = 0; j < numPolynomialTerms; ++j) {
+                X(i, j) = std::pow(x, j);
+            }
+        }
+
+        // Solve for the coefficients using the normal equation: (X^T * X) * coeffs = X^T * Y
+        Eigen::VectorXd coeffs = (X.transpose() * X).ldlt().solve(X.transpose() * Y);
+
+        // Convert Eigen vector to std::vector<float>
+        std::vector<float> result(coeffs.data(), coeffs.data() + coeffs.size());
+        return result;
+    }
 }
 
 
