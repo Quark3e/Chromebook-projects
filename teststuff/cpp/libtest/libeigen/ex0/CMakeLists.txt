@@ -1,3 +1,5 @@
+#NOTE: Only for specific windows11 machine that has imgui installed.
+
 cmake_minimum_required(VERSION 3.18)
 project(libeigen_test)
 
@@ -14,6 +16,7 @@ set(DIR_HC_USEFUL "${DIR_CPP_USEFUL}/useful")
 set(CMAKE_PREFIX_PATH ${REPO_ROOT}/teststuff/cpp/gui/lib_imguiwin/lib/build/)
 
 set(EIGEN3_INCLUDE_DIR "C:/msys64/mingw64/include/eigen3")
+
 
 find_package(imguiwin REQUIRED)
 # find_package(Eigen3 REQUIRED PATHS "C:/msys64/mingw64/share/cmake/Eigen3" NO_DEFAULT_PATH)
