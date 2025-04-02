@@ -17,7 +17,7 @@ void HW_option3() {
 	// simplified_init();
 	bool init_camObj = _init_status.get("camObj").isInit();
 	bool init_orientObj = _init_status.get("orientObj").isInit();
-	if(!(init_camObj && init_orientObj)) {
+	if(!init_camObj && !init_orientObj) {
 		if(!init_camObj) 	ANSI_mvprint(0, 0, "ERROR: camObj    has not been initialised (required): "+_init_status.get("camObj").get_callMsg(), true, "abs", "rel");
 		if(!init_orientObj) ANSI_mvprint(0, 0, "ERROR: orientObj has not been initialised (required): "+_init_status.get("orientObj").get_callMsg(), true, "abs", "rel");
 		for(int _=0; _<3; _++) {
