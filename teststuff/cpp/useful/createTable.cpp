@@ -16,6 +16,7 @@ void createTable::setColPadding(std::vector<int> paddings) {
 }
 
 void createTable::checkMaxLen(int whichRow) {
+    // maxColumnLen = std::vector<int>(table[0].size(), 0);
     for(size_t i=0; i<table[0].size(); i++) { //iterate columns
         if(whichRow==-1) {
             for(size_t row=0; row<table.size(); row++) { //iterate rows
@@ -33,11 +34,16 @@ void createTable::checkMaxLen(int whichRow) {
 
 }
 
+void createTable::setColWidth(int column, int width) {
+    if(column>=table[0].size()) throw std::invalid_argument("createTable::setColWidth: column index out of range.");
+    if(column<0) {
+        column = table[0].size() + column;
+    }
+    maxColumnLen[column] = width;
+}
+
 createTable::createTable() {}
-createTable::createTable(
-    int columns,
-    int rows
-) {
+createTable::createTable(int columns, int rows) {
     table           = std::vector<std::vector<std::string>>(rows, std::vector<std::string>(columns, ""));
     cellType        = std::vector<std::vector<std::string>>(rows, std::vector<std::string>(columns, "text"));
     columnLabel     = std::vector<std::string>(columns, "");

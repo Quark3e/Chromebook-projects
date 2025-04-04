@@ -126,6 +126,9 @@ void HW_option3() {
 		}
 		#endif //useThreads
 
+		for(size_t i=0; i<6; i++) {
+			printTable.setColWidth(i+1, 6);
+		}
 		try {
 			if(HW_KINEMATICS::getAngles(new_q, PP, RADIANS(orient[0]), RADIANS(orient[1]), RADIANS(orient[2]), 1)) {
 				for(int i=0; i<6; i++) printTable.insertNum(new_q[i],1+i,3,1);

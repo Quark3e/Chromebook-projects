@@ -144,7 +144,14 @@ class createTable {
      * @param paddings `std::vector<int>` of new padding values
     */
     void setColPadding(std::vector<int> paddings);
-    
+    /**
+     * @brief Set the width of the column
+     * 
+     * @param column column index to set the width of
+     * @param width number of characters to set the column width to
+     */
+    void setColWidth(int column, int width);
+
     /**
      * @brief check and update `maxColumnLen` vector value accuracy with table vector
      * @param whichRow which row to compare maxColumnLen with. If it's `-1`
