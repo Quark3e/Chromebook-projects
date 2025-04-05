@@ -88,6 +88,7 @@
 
 #include <two_cam_coordinate/two_cam_coordinate.hpp>
 #include <opencv/recordVideo/recordFrames.hpp>
+#include <camObjTracker/camObjTracker.hpp>
 // #include "../../../teststuff/cpp/basic/Performance/getPerformance.hpp"
 
 #include "../IK_header.hpp"

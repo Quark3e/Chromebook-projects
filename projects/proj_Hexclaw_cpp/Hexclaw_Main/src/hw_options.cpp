@@ -57,8 +57,8 @@ void HW_setup_options() {
 }
 
 void HW_group__main() {
-
-    menu_group__main.driver(1, 1, 5, true);
+    
+    menu_group__main.driver(1, 1, 5, true, TUI::termMenu_nullFunc_void__, true);
 
 }
 void HW_group__calibrate() {
