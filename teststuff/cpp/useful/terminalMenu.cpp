@@ -649,6 +649,7 @@ debug_checkPointStr  = "11.2";
             pressedCell[1] = currCell[1];
             if(callFunc) {
                 customCall_argLess(currCell[0], currCell[1]);
+                if(iterClear) std::cout << ansi_code+"2J" << ansi_code+"H"; std::cout.flush();
                 loopInit = false;
                 loopInit_count=1;
             }
@@ -660,7 +661,6 @@ debug_checkPointStr  = "11.2";
                 exitDriver = true;
                 return pressed_option;
             }
-            if(iterClear) std::cout << ansi_code+"2J";
         }
 
         bool subBreak = false;
@@ -671,6 +671,7 @@ debug_checkPointStr  = "11.2";
                     pressedCell[1] = currCell[1];
                     if(callFunc) {
                         customCall_argLess(x, y);
+                        if(iterClear) std::cout << ansi_code+"2J" << ansi_code+"H"; std::cout.flush();
                         loopInit = false;
                         loopInit_count=1;
                     }
@@ -684,7 +685,6 @@ debug_checkPointStr  = "11.2";
                     }
                     subBreak = true;
                     break;
-                    if(iterClear) std::cout << ansi_code+"2J";
                 }
             }
             if(subBreak) break;
