@@ -104,7 +104,7 @@ namespace CVTRACK {
         int _camIdx = -1;
         
         /**
-         * A schedule of morhological operations to be performed on the image/frame.
+         * A __schedule of morhological operations to be performed on the image/frame.
          * if the value is <0 then it's an erode operation, if >0 then it's a dilate operation.
          * 
          */
@@ -147,42 +147,77 @@ namespace CVTRACK {
         public:
         
         camObjTracker() = default;
+        /**
+         * @brief Constructor for the camObjTracker class.
+         * 
+         * @param __callInit A boolean flag to determine whether to initialize the tracker upon creation.
+         * @param __camIndex The index of the camera to be used for tracking.
+         * @param __frameWidth The width of the video frame (default is 640).
+         * @param __frameHeight The height of the video frame (default is 480).
+         * @param __setAutoBrightness A boolean flag to enable or disable automatic brightness adjustment (default is true).
+         * @param __useThreads A boolean flag to enable or disable multithreading for processing (default is true).
+         * @param __morphological_schedule__size A vector specifying the size of the morphological operations schedule (default is {-1, 6}).
+         * @param __u_HSV A vector specifying the upper HSV threshold values (default is {180, 255, 255}).
+         * @param __l_HSV A vector specifying the lower HSV threshold values (default is {0, 0, 0}).
+         * @param areaLim The minimum area limit for object detection (default is 1000).
+         */
         camObjTracker(
-            bool callInit,
-            int camIndex,
-            int frameWidth = 640,
-            int frameHeight = 480,
-            bool setAutoBrightness = true,
-            bool useThreads = true,
-            std::vector<int> morphological_schedule__size = {-1, 6},
-            std::vector<int> u_HSV = {180, 255, 255},
-            std::vector<int> l_HSV = {0, 0, 0},
+            bool __callInit,
+            int __camIndex,
+            int __frameWidth = 640,
+            int __frameHeight = 480,
+            bool __setAutoBrightness = true,
+            bool __useThreads = true,
+            std::vector<int> __morphological_schedule__size = {-1, 6},
+            std::vector<int> __u_HSV = {180, 255, 255},
+            std::vector<int> __l_HSV = {0, 0, 0},
             int areaLim = 1000
         );
-        camObjTracker(camObjTracker&& _other) = delete;
+        camObjTracker(camObjTracker&& _other);
+        camObjTracker& operator=(camObjTracker&& _other);
+
         camObjTracker(const camObjTracker& _other) = delete;
-        camObjTracker& operator=(camObjTracker&& _other) = delete;
         camObjTracker& operator=(const camObjTracker& _other) = delete;
+        /**
+         * @brief Destructor for the camObjTracker class.
+         * 
+         * Cleans up resources and performs any necessary cleanup 
+         * when an instance of camObjTracker is destroyed.
+         */
         ~camObjTracker();
 
         bool init();
+        /**
+         * @brief Initializes the camera object tracker with the specified parameters.
+         * 
+         * @param __camIndex The index of the camera to be used.
+         * @param __frameWidth The width of the video frame. Default is 640.
+         * @param __frameHeight The height of the video frame. Default is 480.
+         * @param __setAutoBrightness Flag to enable or disable automatic brightness adjustment. Default is true.
+         * @param __useThreads Flag to enable or disable multithreading. Default is true.
+         * @param __morphological_schedule__size A vector specifying the size of the morphological operations schedule. Default is {-1, 6}.
+         * @param __u_HSV A vector specifying the upper HSV threshold values. Default is {180, 255, 255}.
+         * @param __l_HSV A vector specifying the lower HSV threshold values. Default is {0, 0, 0}.
+         * @param areaLim The minimum area limit for object detection. Default is 1000.
+         * @return true if initialization is successful, false otherwise.
+         */
         bool init(
-            int camIndex,
-            int frameWidth = 640,
-            int frameHeight = 480,
-            bool setAutoBrightness = true,
-            bool useThreads = true,
-            std::vector<int> morphological_schedule__size = {-1, 6},
-            std::vector<int> u_HSV = {180, 255, 255},
-            std::vector<int> l_HSV = {0, 0, 0},
+            int __camIndex,
+            int __frameWidth = 640,
+            int __frameHeight = 480,
+            bool __setAutoBrightness = true,
+            bool __useThreads = true,
+            std::vector<int> __morphological_schedule__size = {-1, 6},
+            std::vector<int> __u_HSV = {180, 255, 255},
+            std::vector<int> __l_HSV = {0, 0, 0},
             int areaLim = 1000
         );
 
-        void setAutoBrightness(bool setAutoBrightness);
+        void setAutoBrightness(bool __setAutoBrightness);
         void setFrameSize(int width, int height);
         void setAreaLim(int areaLim);
-        void setMorphologicalSchedule(std::vector<int> schedule);
-        void setHSV(std::vector<int> u_HSV, std::vector<int> l_HSV);
+        void setMorphologicalSchedule(std::vector<int> __schedule);
+        void setHSV(std::vector<int> __u_HSV, std::vector<int> __l_HSV);
 
         bool isInit();
         bool isRunning();

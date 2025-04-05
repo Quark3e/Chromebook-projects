@@ -3,25 +3,96 @@
 namespace CVTRACK {
 
     camObjTracker::camObjTracker(
-        bool callInit,
-        int camIndex,
-        int frameWidth,
-        int frameHeight,
-        bool setAutoBrightness,
-        bool useThreads,
-        std::vector<int> morphological_schedule__size,
-        std::vector<int> u_HSV,
-        std::vector<int> l_HSV,
+        bool __callInit,
+        int __camIndex,
+        int __frameWidth,
+        int __frameHeight,
+        bool __setAutoBrightness,
+        bool __useThreads,
+        std::vector<int> __morphological_schedule__size,
+        std::vector<int> __u_HSV,
+        std::vector<int> __l_HSV,
         int areaLim
-    ) : _camIdx(camIndex), _frameSize(frameWidth, frameHeight), 
-        _options_autoBrightness(setAutoBrightness), _options_useThreads(useThreads),
-        _morphological_schedule__size(morphological_schedule__size), _u_HSV(u_HSV), _l_HSV(l_HSV), _areaLim(areaLim)
+    ) : _camIdx(__camIndex), _frameSize(__frameWidth, __frameHeight), 
+        _options_autoBrightness(__setAutoBrightness), _options_useThreads(__useThreads),
+        _morphological_schedule__size(__morphological_schedule__size), _u_HSV(__u_HSV), _l_HSV(__l_HSV), _areaLim(areaLim)
     {
-        if (callInit) {
-            this->init(camIndex, frameWidth, frameHeight, setAutoBrightness, useThreads, morphological_schedule__size, u_HSV, l_HSV, areaLim);
+        if (__callInit) {
+            this->init(__camIndex, __frameWidth, __frameHeight, __setAutoBrightness, __useThreads, __morphological_schedule__size, __u_HSV, __l_HSV, areaLim);
         }
     }
+    camObjTracker::camObjTracker(camObjTracker&& _other) noexcept
+        : _cap(std::move(_other._cap)),
+        _thread_processCam(std::move(_other._thread_processCam)),
+        _options_autoBrightness(_other._options_autoBrightness),
+        _options_useThreads(_other._options_useThreads),
+        _init(_other._init),
+        _isRunning(_other._isRunning.load()),
+        _data_write(std::move(_other._data_write)),
+        _data_read(std::move(_other._data_read)),
+        _frameSize(_other._frameSize),
+        _areaLim(_other._areaLim),
+        _l_HSV(std::move(_other._l_HSV)),
+        _u_HSV(std::move(_other._u_HSV)),
+        _camIdx(_other._camIdx),
+        _morphological_schedule__size(std::move(_other._morphological_schedule__size))
+    {
+        // Update pointers to point to the moved data
+        ptr_data_write = &_data_write;
+        ptr_data_read = &_data_read;
 
+        // Reset the state of _other
+        _other._init = false;
+        _other._isRunning = false;
+        _other.ptr_data_write = nullptr;
+        _other.ptr_data_read = nullptr;
+    }
+    camObjTracker& camObjTracker::operator=(camObjTracker&& _other) {
+        if (this != &_other) {
+            // Stop the current thread if running
+            if (_isRunning) {
+                _isRunning = false;
+                if (_thread_processCam.joinable()) {
+                    _thread_processCam.join();
+                }
+            }
+    
+            // Release the current camera if opened
+            if (_cap.isOpened()) {
+                _cap.release();
+            }
+    
+            // Move all members from _other to this instance
+            _cap = std::move(_other._cap);
+            // _mtx_dataSwitch = std::move(_other._mtx_dataSwitch);
+            // _mtx_dataAccess = std::move(_other._mtx_dataAccess);
+            _thread_processCam = std::move(_other._thread_processCam);
+    
+            _options_autoBrightness = _other._options_autoBrightness;
+            _options_useThreads = _other._options_useThreads;
+            _init = _other._init;
+            _isRunning = _other._isRunning.load();
+    
+            _data_write = std::move(_other._data_write);
+            _data_read = std::move(_other._data_read);
+            ptr_data_write = &_data_write;
+            ptr_data_read = &_data_read;
+    
+            _frameSize = _other._frameSize;
+            _areaLim = _other._areaLim;
+            _l_HSV = std::move(_other._l_HSV);
+            _u_HSV = std::move(_other._u_HSV);
+            _camIdx = _other._camIdx;
+            _morphological_schedule__size = std::move(_other._morphological_schedule__size);
+    
+            // Reset the state of _other
+            _other._init = false;
+            _other._isRunning = false;
+            _other.ptr_data_write = nullptr;
+            _other.ptr_data_read = nullptr;
+        }
+        return *this;
+    }
     camObjTracker::~camObjTracker() {
         if (_isRunning) {
             _isRunning = false;
@@ -38,38 +109,38 @@ namespace CVTRACK {
         return init(_camIdx, static_cast<int>(_frameSize.x), static_cast<int>(_frameSize.y), _options_autoBrightness, _options_useThreads);
     }
     bool camObjTracker::init(
-        int camIndex,
-        int frameWidth = 640,
-        int frameHeight = 480,
-        bool setAutoBrightness = true,
-        bool useThreads = true,
-        std::vector<int> morphological_schedule__size = {-1, 6},
-        std::vector<int> u_HSV = {180, 255, 255},
-        std::vector<int> l_HSV = {0, 0, 0},
-        int areaLim = 1000
+        int __camIndex,
+        int __frameWidth,
+        int __frameHeight,
+        bool __setAutoBrightness,
+        bool __useThreads,
+        std::vector<int> __morphological_schedule__size,
+        std::vector<int> __u_HSV,
+        std::vector<int> __l_HSV,
+        int areaLim
     ) {
         if (_isRunning) {
-            std::cerr << "Camera is already running!" << std::endl;
+            throw std::runtime_error("Camera is already running!");
             return false;
         }
         if (_init) {
-            std::cerr << "Class object is already initialized!" << std::endl;
+            throw std::runtime_error("Class object is already initialized!");
             return false;
         }
 
-        _camIdx = camIndex;
-        _frameSize = pos2d<float>(frameWidth, frameHeight);
-        _options_useThreads = useThreads;
-        _options_autoBrightness = setAutoBrightness;
-        _morphological_schedule__size = morphological_schedule__size;
-        _u_HSV = u_HSV;
-        _l_HSV = l_HSV;
+        _camIdx = __camIndex;
+        _frameSize = pos2d<float>(__frameWidth, __frameHeight);
+        _options_useThreads = __useThreads;
+        _options_autoBrightness = __setAutoBrightness;
+        _morphological_schedule__size = __morphological_schedule__size;
+        _u_HSV = __u_HSV;
+        _l_HSV = __l_HSV;
         _areaLim = areaLim;
 
 
         _cap.open(_camIdx);
         if (!_cap.isOpened()) {
-            std::cerr << "Failed to open camera with index: " << _camIdx << std::endl;
+            throw std::runtime_error("Failed to open camera with index: " + std::to_string(_camIdx));
             return false;
         }
 
@@ -87,7 +158,7 @@ namespace CVTRACK {
             _thread_processCam = std::thread(camObjTracker_processThreadFunc, this);
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             if (!_thread_processCam.joinable()) {
-                std::cerr << "Failed to create thread for camera processing!" << std::endl;
+                throw std::runtime_error("Failed to create thread for camera processing!");
                 return false;
             }
         } else {
@@ -105,20 +176,20 @@ namespace CVTRACK {
     }
 
 
-    void camObjTracker::setAutoBrightness(bool setAutoBrightness) {
+    void camObjTracker::setAutoBrightness(bool __setAutoBrightness) {
         std::lock_guard<std::mutex> lock(_mtx_dataAccess);
-        if (setAutoBrightness == _options_autoBrightness) {
+        if (__setAutoBrightness == _options_autoBrightness) {
             return;
         }
         if (_cap.isOpened()) {
-            _cap.set(cv::CAP_PROP_AUTO_EXPOSURE, setAutoBrightness ? 1 : 0);
+            _cap.set(cv::CAP_PROP_AUTO_EXPOSURE, __setAutoBrightness ? 1 : 0);
         }
-        _options_autoBrightness = setAutoBrightness;
+        _options_autoBrightness = __setAutoBrightness;
     }
     void camObjTracker::setFrameSize(int width, int height) {
         std::lock_guard<std::mutex> lock(_mtx_dataAccess);
         if (width <= 0 || height <= 0) {
-            std::cerr << "Frame size must be positive!" << std::endl;
+            throw std::runtime_error("Frame size must be positive!");
             return;
         }
         if (_cap.isOpened()) {
@@ -134,32 +205,32 @@ namespace CVTRACK {
             return;
         }
         if (areaLim < 0) {
-            std::cerr << "Area limit must be non-negative!" << std::endl;
+            throw std::runtime_error("Area limit must be non-negative!");
             return;
         }
         _areaLim = areaLim;
     }
-    void camObjTracker::setMorphologicalSchedule(std::vector<int> schedule) {
+    void camObjTracker::setMorphologicalSchedule(std::vector<int> __schedule) {
         std::lock_guard<std::mutex> lock(_mtx_dataAccess);
-        if (schedule == _morphological_schedule__size) {
+        if (__schedule == _morphological_schedule__size) {
             return;
         }
-        _morphological_schedule__size = schedule;
+        _morphological_schedule__size = __schedule;
     }
-    void camObjTracker::setHSV(std::vector<int> u_HSV, std::vector<int> l_HSV) {
+    void camObjTracker::setHSV(std::vector<int> __u_HSV, std::vector<int> __l_HSV) {
         std::lock_guard<std::mutex> lock(_mtx_dataAccess);
-        if (u_HSV == _u_HSV && l_HSV == _l_HSV) {
+        if (__u_HSV == _u_HSV && __l_HSV == _l_HSV) {
             return;
         }
-        _u_HSV = u_HSV;
-        _l_HSV = l_HSV;
+        _u_HSV = __u_HSV;
+        _l_HSV = __l_HSV;
     }
     
 
     void camObjTracker::_process__1_readCam() {
         _cap >> ptr_data_write->imgRaw;
         if (ptr_data_write->imgRaw.empty()) {
-            std::cerr << "Failed to read frame from camera!" << std::endl;
+            throw std::runtime_error("Failed to read frame from camera!");
         }
     }
     void camObjTracker::_process__2_resizeImg() {
@@ -228,14 +299,12 @@ namespace CVTRACK {
 
     camObjTrackerData camObjTracker::updateData() {
         if(!isInit()) {
-            std::cerr << "Class object is not initialized!" << std::endl;
-            return;
+            throw std::runtime_error("Class object is not initialized!");
         }
         if(_options_useThreads) {
-            std::cerr << "Class object is running in thread mode. Use `data()` to get the latest data." << std::endl;
-            return;
+            throw std::runtime_error("Class object is running in thread mode. Use `data()` to get the latest data.");
         }
-        
+
         _process__1_readCam();
         _process__2_resizeImg();
         _process__3_cvt();
