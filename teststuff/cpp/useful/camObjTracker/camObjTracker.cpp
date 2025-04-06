@@ -195,7 +195,7 @@ namespace CVTRACK {
         ptr_data_read = &_data_read;
 
         if (_options_useThreads) {
-            _thread_processCam = std::thread(camObjTracker_processThreadFunc, this);
+            _thread_processCam = std::thread(&CVTRACK::camObjTracker::camObjTracker_processThreadFunc, this);
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             if (!_thread_processCam.joinable()) {
                 throw std::runtime_error("Failed to create thread for camera processing!");

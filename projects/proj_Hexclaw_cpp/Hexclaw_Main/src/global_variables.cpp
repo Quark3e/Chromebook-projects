@@ -293,6 +293,10 @@ int _init__camObj(_initClass_dataStruct *_passData) {
 		// camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf")));
 		camObj_ptr = &camObj.at(0);
 		new (camObj_ptr) CVTRACK::camObjTracker(false, 0, 640, 480, false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000);
+		if(!camObj.at(0).init()) {
+			throw std::runtime_error("_init__camObj[0]: init() failed");
+		}
+		
 		_passData->_message = "";
 	} catch (const std::exception& e) {
 		_passData->_message = 	"cam0:"+std::string(e.what());
@@ -303,6 +307,9 @@ int _init__camObj(_initClass_dataStruct *_passData) {
 		// camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf")));
 		camObj_ptr = &camObj.at(1);
 		new (camObj_ptr) CVTRACK::camObjTracker(false, 2, 640, 480, false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000);
+		if(!camObj.at(1).init()) {
+			throw std::runtime_error("_init__camObj[1]: init() failed");
+		}
 		_passData->_message = "";
 	} catch (const std::exception& e) {
 		_passData->_message = "cam1:"+std::string(e.what());
