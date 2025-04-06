@@ -87,6 +87,8 @@ namespace CVTRACK {
         
         camObjTrackerData _data_write;
         camObjTrackerData* ptr_data_write = &_data_write;
+        /// @brief Whether the processing thread function loop is initialized. Default is false.
+        std::atomic<bool> _threadLoopInit{false};
         
         /// Read/Share data: Read data (data that is shared to outside-scope/users-of-this-class)
         
@@ -142,6 +144,8 @@ namespace CVTRACK {
                 _this->ptr_data_write = _this->ptr_data_read;
                 _this->ptr_data_read = temp;
                 u_lck_dataSwitch.unlock();
+
+                _this->_threadLoopInit = true;
             }
         }
         public:
@@ -169,15 +173,37 @@ namespace CVTRACK {
             bool __setAutoBrightness = true,
             bool __useThreads = true,
             std::vector<int> __morphological_schedule__size = {-1, 6},
-            std::vector<int> __u_HSV = {180, 255, 255},
+            std::vector<int> __u_HSV = {179, 254, 254},
             std::vector<int> __l_HSV = {0, 0, 0},
             int areaLim = 1000
         );
-        camObjTracker(camObjTracker&& _other);
+        /**
+         * @brief Copy constructor for the camObjTracker class.
+         * 
+         * @param _other The other instance of camObjTracker to be copied.
+         */
+        camObjTracker(const camObjTracker& _other);
+        /**
+         * @brief Move constructor for the camObjTracker class.
+         * 
+         * @param _other The other instance of camObjTracker to be moved.
+         */
+        camObjTracker(camObjTracker&& _other) noexcept;
+        /**
+         * @brief Assignment operator for the camObjTracker class.
+         * 
+         * @param _other The other instance of camObjTracker to be assigned.
+         * @return A reference to the current instance of camObjTracker.
+         */
         camObjTracker& operator=(camObjTracker&& _other);
+        /**
+         * @brief Assignment operator for the camObjTracker class.
+         * 
+         * @param _other The other instance of camObjTracker to be assigned.
+         * @return A reference to the current instance of camObjTracker.
+         */
+        camObjTracker& operator=(const camObjTracker& _other);
 
-        camObjTracker(const camObjTracker& _other) = delete;
-        camObjTracker& operator=(const camObjTracker& _other) = delete;
         /**
          * @brief Destructor for the camObjTracker class.
          * 
@@ -219,7 +245,12 @@ namespace CVTRACK {
         void setMorphologicalSchedule(std::vector<int> __schedule);
         void setHSV(std::vector<int> __u_HSV, std::vector<int> __l_HSV);
 
+        void exitThreadLoop();
+
         bool isInit();
+        /// @brief Check if the thread loop is initialized.
+        /// @return true if the thread loop is initialized, false otherwise.
+        bool isThreadLoopInit();
         bool isRunning();
         camObjTrackerData data();
 

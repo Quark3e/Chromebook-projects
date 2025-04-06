@@ -21,6 +21,23 @@ namespace CVTRACK {
             this->init(__camIndex, __frameWidth, __frameHeight, __setAutoBrightness, __useThreads, __morphological_schedule__size, __u_HSV, __l_HSV, areaLim);
         }
     }
+    camObjTracker::camObjTracker(const camObjTracker& _other) {
+        // Copy constructor implementation
+        _cap = _other._cap;
+        // _thread_processCam = _other._thread_processCam;
+        _options_autoBrightness = _other._options_autoBrightness;
+        _options_useThreads = _other._options_useThreads;
+        _init = _other._init;
+        _isRunning = _other._isRunning.load();
+        ptr_data_write = &_data_write;
+        ptr_data_read = &_data_read;
+        _frameSize = _other._frameSize;
+        _areaLim = _other._areaLim;
+        _l_HSV = _other._l_HSV;
+        _u_HSV = _other._u_HSV;
+        _camIdx = _other._camIdx;
+        _morphological_schedule__size = _other._morphological_schedule__size;
+    }
     camObjTracker::camObjTracker(camObjTracker&& _other) noexcept
         : _cap(std::move(_other._cap)),
         _thread_processCam(std::move(_other._thread_processCam)),
@@ -93,6 +110,28 @@ namespace CVTRACK {
         }
         return *this;
     }
+    camObjTracker& camObjTracker::operator=(const camObjTracker& _other) {
+        if (this != &_other) {
+            // Copy all members from _other to this instance
+            _cap = _other._cap;
+            // _thread_processCam = _other._thread_processCam;
+            _options_autoBrightness = _other._options_autoBrightness;
+            _options_useThreads = _other._options_useThreads;
+            // _init = _other._init;
+            // _isRunning = _other._isRunning.load();
+            ptr_data_write = &_data_write;
+            ptr_data_read = &_data_read;
+            _frameSize = _other._frameSize;
+            _areaLim = _other._areaLim;
+            _l_HSV = _other._l_HSV;
+            _u_HSV = _other._u_HSV;
+            _camIdx = _other._camIdx;
+            _morphological_schedule__size = _other._morphological_schedule__size;
+        }
+        return *this;
+    }
+    
+    
     camObjTracker::~camObjTracker() {
         if (_isRunning) {
             _isRunning = false;
@@ -104,6 +143,7 @@ namespace CVTRACK {
             _cap.release();
         }
     }
+
 
     bool camObjTracker::init() {
         return init(_camIdx, static_cast<int>(_frameSize.x), static_cast<int>(_frameSize.y), _options_autoBrightness, _options_useThreads);
@@ -226,6 +266,12 @@ namespace CVTRACK {
         _l_HSV = __l_HSV;
     }
     
+    void camObjTracker::exitThreadLoop() {
+        _isRunning = false;
+        if (_thread_processCam.joinable()) {
+            _thread_processCam.join();
+        }
+    }
 
     void camObjTracker::_process__1_readCam() {
         _cap >> ptr_data_write->imgRaw;
@@ -289,7 +335,19 @@ namespace CVTRACK {
     bool camObjTracker::isInit() {
         return _init;
     }
+    bool camObjTracker::isThreadLoopInit() {
+        if(!_options_useThreads) {
+            throw std::runtime_error("isThreadLoopInit(): Class object is not running in thread mode!");
+        }
+        if(!_init) {
+            throw std::runtime_error("isThreadLoopInit(): Class object is not initialized!");
+        }
+        return _threadLoopInit;
+    }
     bool camObjTracker::isRunning() {
+        if(!_options_useThreads) {
+            throw std::runtime_error("isRunning(): Class object is not running in thread mode!");
+        }
         return _isRunning;
     }
     camObjTrackerData camObjTracker::data() {
