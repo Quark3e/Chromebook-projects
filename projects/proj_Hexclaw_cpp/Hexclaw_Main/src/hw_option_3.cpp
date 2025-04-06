@@ -66,6 +66,7 @@ void HW_option3() {
 	while(true) {
 		/// Main option loop
 		
+
 		#if useThreads
 		if(init_camObj) {
 			if(!(camObj[0].isThreadLoopInit() && camObj[1].isThreadLoopInit())) {
@@ -156,40 +157,45 @@ void HW_option3() {
 			// std::cerr << e.what() << '\n';
 		}
 
+		
+		// std::cout << "\x1B[2J\x1B[H" << " \n"; // clear screen
+
 		if(init_camObj && _CONFIG_OPTIONS.get("displayToWindow")) {
 			cv::Mat winImg, concThresh, concFlipped;
 
 			CVTRACK::camObjTrackerData camObjData0 = camObj[0].data();
 			CVTRACK::camObjTrackerData camObjData1 = camObj[1].data();
 
+			cv::cvtColor(camObjData0.imgThreshold, camObjData0.imgThreshold, cv::COLOR_GRAY2BGR);
+			cv::cvtColor(camObjData1.imgThreshold, camObjData1.imgThreshold, cv::COLOR_GRAY2BGR);
+			camObjData0.imgThreshold.convertTo(camObjData0.imgThreshold, CV_8UC3);
+			
 			cv::resize(camObjData0.imgFlipped, camObjData0.imgFlipped, cv::Size(), 0.5, 0.5);
 			cv::resize(camObjData1.imgFlipped, camObjData1.imgFlipped, cv::Size(), 0.5, 0.5);
 			cv::resize(camObjData0.imgThreshold, camObjData0.imgThreshold, cv::Size(), 0.5, 0.5);
 			cv::resize(camObjData1.imgThreshold, camObjData1.imgThreshold, cv::Size(), 0.5, 0.5);
 
-			std::cout << "flip0: " << camObjData0.imgFlipped.size().aspectRatio() << std::endl;
-			std::cout << "flip1: " << camObjData1.imgFlipped.size().aspectRatio() << std::endl;
-			std::cout << "thre0: " << camObjData0.imgThreshold.size().aspectRatio() << std::endl;
-			std::cout << "thre1: " << camObjData1.imgThreshold.size().aspectRatio() << std::endl;
-
-			std::cout << "size0: x:" << camObjData0.imgFlipped.size().width << " y:" << camObjData0.imgFlipped.size().height << std::endl;
-			std::cout << "size1: x:" << camObjData1.imgFlipped.size().width << " y:" << camObjData1.imgFlipped.size().height << std::endl;
-			std::cout << "size0: x:" << camObjData0.imgThreshold.size().width << " y:" << camObjData0.imgThreshold.size().height << std::endl;
-			std::cout << "size1: x:" << camObjData1.imgThreshold.size().width << " y:" << camObjData1.imgThreshold.size().height << std::endl;
 
 			cv::hconcat(camObjData0.imgFlipped,   camObjData1.imgFlipped, concFlipped);
 			cv::hconcat(camObjData0.imgThreshold, camObjData1.imgThreshold, concThresh);
 			
-			// std::cout << concFlipped.size.dims() << std::endl;
-			// std::cout << concThresh.size.dims() << std::endl;
+			cv::vconcat(concFlipped, concThresh, winImg);
 
-			
-			// cv::vconcat(concFlipped, concThresh, winImg);
+			static std::vector<int> loc_U_HSV{180, 255, 255};
+			static std::vector<int> loc_L_HSV{  0,   0,   0};
 
-			cv::imshow("Main thread window", concFlipped);
-			// cv::imshow("Main thread window", winImg);
-			cv::imshow("Main thread window: threshold", concThresh);
-		
+			cv::namedWindow("HSV controls",  cv::WINDOW_AUTOSIZE);
+			// cv::createTrackbar("U_Hue", "HSV controls", &loc_U_HSV[0], 179, NULL);
+			// cv::createTrackbar("U_Sat", "HSV controls", &loc_U_HSV[1], 255, NULL);
+			// cv::createTrackbar("U_Val", "HSV controls", &loc_U_HSV[2], 255, NULL);
+			// cv::createTrackbar("L_Hue", "HSV controls", &loc_L_HSV[0], 179, NULL);
+			// cv::createTrackbar("L_Sat", "HSV controls", &loc_L_HSV[1], 255, NULL);
+			// cv::createTrackbar("L_Val", "HSV controls", &loc_L_HSV[2], 255, NULL);
+
+			cv::namedWindow("Main thread window", cv::WINDOW_AUTOSIZE);
+			cv::imshow("Main thread window", winImg);
+			// cv::imshow("HSV controls", winImg);
+
 			int keyInp = cv::waitKey(5);
 		
 			bool _exitLoop = false;
