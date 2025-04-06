@@ -32,24 +32,32 @@ void HW_option3() {
 	
 	orientObj.update(false);
 	
-	createTable printTable(7, 4);
+	/**
+	 * output print table:
+	 *  
+	 * 
+	 *  | camPos	| x0| y0| x1| y1|
+	 *  | PP		| x	| y	| z	|
+	 *  | tilt		| a	| b	| Y	|
+	 *  | servo		| 0	| 1	| 2 | 3 | 4 | 5 |
+	 *  | objArea 	| 0 | 1 |
+	 */
+	createTable printTable(7, 5);
 	printTable.insertText("camPos", 0, 0);
 	printTable.insertText("PP", 0, 1);
-	printTable.insertText("orient", 0, 2);
+	printTable.insertText("tilt", 0, 2);
 	printTable.insertText("servo", 0, 3);
+	printTable.insertText("objArea", 0, 4);
 
 	#if useThreads
-	std::unique_lock<std::mutex> u_lck0(mtx[0], std::defer_lock);
-	std::unique_lock<std::mutex> u_lck1(mtx[1], std::defer_lock);
 	if(init_camObj) {
 		std::unique_lock<std::mutex> u_lck_cout(mtx_cout, std::defer_lock);
 	
-		std::thread t0(thread_task, &camObj[0], 0);
-		std::thread t1(thread_task, &camObj[1], 1);
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		// std::thread t0(thread_task, &camObj[0], 0);
+		// std::thread t1(thread_task, &camObj[1], 1);
+		// std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 	#endif //useThreads
-
 
 	/// Initialise the camera objects and the threads
 
@@ -60,34 +68,17 @@ void HW_option3() {
 		
 		#if useThreads
 		if(init_camObj) {
-			while(!threadsInit[2]) {
-				/// While the main thread isn't initialised, keep checking the sub-threads
-				/// and update the camera variables
-				/// until both the subthreads are initialised and main thread can be declared as initialised.
-				u_lck0.lock();
-				u_lck1.lock();
-				updateCamVars(0);
-				updateCamVars(1);
-				if(threadsInit[0] && threadsInit[1]) {
-					threadsInit[2] = true;
+			if(!(camObj[0].isThreadLoopInit() && camObj[1].isThreadLoopInit())) {
+				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: NOTE: Threads have not been initialised:\n -initialising."); }
+	
+				while(!(camObj[0].isThreadLoopInit() && camObj[1].isThreadLoopInit())) {
+					std::this_thread::sleep_for(std::chrono::milliseconds(500));
 				}
-				u_lck1.unlock();
-				u_lck0.unlock();
-			}
-
-			u_lck0.lock();
-			updateCamVars(0);
-			u_lck0.unlock();
-			u_lck1.lock();
-			updateCamVars(1);
-			u_lck1.unlock();
-			if(returCodes_main[0]==-1) {
-				if(threadDebug) lock_cout(mtx_cout,"\ncamObj[0] process error\n",true,true);
-				return;
-			}
-			if(returCodes_main[1]==-1) {
-				if(threadDebug) lock_cout(mtx_cout,"\ncamObj[1] process error\n",true,true);
-				return;
+				lock_cout(
+					mtx_cout, "\n-------------\nSuccessfully initialised both threads:\nstarting tracking:",
+					true, true, true
+				);
+				if(threadDebug) lock_cout(mtx_cout, "\nthread:[2]: sub-threads have been initialised!\n", true, true);
 			}
 		}
 		#endif //useThreads
@@ -95,7 +86,9 @@ void HW_option3() {
 		printTable.insertNum(PP[0],1,1,1);
 		printTable.insertNum(PP[1],2,1,1);
 		printTable.insertNum(PP[2],3,1,1);
-		
+		printTable.setColWidth(1, 6);
+		printTable.setColWidth(2, 6);
+		printTable.setColWidth(3, 6);
 		try {
 			orientObj.update(false);
 			printTable.insertNum(orientObj.Roll,1,2,1);
@@ -114,14 +107,26 @@ void HW_option3() {
 		
 		#if useThreads
 		if(init_camObj) {
-			if(numContours_main[0]>0) {
-				printTable.insertNum(camObjPos_main[0][0],1,0,1);
-				printTable.insertNum(camObjPos_main[0][1],2,0,1);
-				printTable.insertNum(camObjPos_main[1][0],3,0,1);
-				printTable.insertNum(camObjPos_main[1][1],4,0,1);
+			printTable.insertNum(camObj[0].data().cnt_pos[0],1,0,1);
+			printTable.insertNum(camObj[0].data().cnt_pos[1],2,0,1);
+			printTable.insertNum(camObj[1].data().cnt_pos[0],3,0,1);
+			printTable.insertNum(camObj[1].data().cnt_pos[1],4,0,1);
+
+			if(camObj[0].data().cnt_area==0) { /// cam 0: no object detected
+				// printTable.insertText("cam0: no object", 1, 0);
+				printTable.insertText("cam0: no object", 1, 4);
 			}
 			else {
-				printTable.insertText("ERROR:no tracked object visible on cams", 1, 1);
+				printTable.insertNum(camObj[0].data().cnt_area,1,4,1);
+				printTable.add_to_cell("px",1,4);
+			}
+			if(camObj[1].data().cnt_area==0) { /// cam 1: no object detected
+				// printTable.insertText("cam1: no object", 2, 0);
+				printTable.insertText("cam1: no object", 2, 4);
+			}
+			else {
+				printTable.insertNum(camObj[1].data().cnt_area,2,4,1);
+				printTable.add_to_cell("px",1,4);
 			}
 		}
 		#endif //useThreads
@@ -153,37 +158,37 @@ void HW_option3() {
 
 		if(init_camObj && _CONFIG_OPTIONS.get("displayToWindow")) {
 			cv::Mat winImg;
-			cv::hconcat(flippedImg_main[0], flippedImg_main[1], winImg);
+			cv::hconcat(camObj[0].data().imgFlipped, camObj[1].data().imgFlipped, winImg);
 			cv::imshow("Main thread window", winImg);
 		
 			int keyInp = cv::waitKey(5);
 		
 			bool _exitLoop = false;
 			switch (keyInp) {
-			case 27: _exitLoop=true; break;
-			case 32: _exitLoop=true; break;
-			case 114: { //'r'
-				std::string inputVar = "";
-				int indVar = 0;
-				// std::cout << "Enter index in hsv file\ninput: ";
-				ANSI_mvprint(0, 0, "Enter index in hsv file", true, "abs", "rel");
-				ANSI_mvprint(0, 0, "input: ", true, "abs", "rel");
-				std::cin >> inputVar;
-				if(inputVar=="exit") exit(1);
-				indVar = stoi(inputVar);
-				std::cin.clear();
-				std::cin.ignore();
-				hsv_settingsRead(camObj, HW_HSV[0][0], HW_HSV[0][1], HW_HSV[0][2], HW_HSV[1][0], HW_HSV[1][1], HW_HSV[1][2], window_name, indVar);
-			}
-			case 115: { //'s'
-				hsv_settingsWrite(HW_HSV[0][0], HW_HSV[0][1], HW_HSV[0][2], HW_HSV[1][0], HW_HSV[1][1], HW_HSV[1][2], 0);
-				break;
-			}
-			case 116: { //'t'
-				hsv_settingsRead(camObj, HW_HSV[0][0], HW_HSV[0][1], HW_HSV[0][2], HW_HSV[1][0], HW_HSV[1][1], HW_HSV[1][2], window_name, 0); 
-			}
-			default:
-				break;
+				case 27: _exitLoop=true; break;
+				case 32: _exitLoop=true; break;
+				// case 114: { //'r'
+				// 	std::string inputVar = "";
+				// 	int indVar = 0;
+				// 	// std::cout << "Enter index in hsv file\ninput: ";
+				// 	ANSI_mvprint(0, 0, "Enter index in hsv file", true, "abs", "rel");
+				// 	ANSI_mvprint(0, 0, "input: ", true, "abs", "rel");
+				// 	std::cin >> inputVar;
+				// 	if(inputVar=="exit") exit(1);
+				// 	indVar = stoi(inputVar);
+				// 	std::cin.clear();
+				// 	std::cin.ignore();
+				// 	hsv_settingsRead(camObj, HW_HSV[0][0], HW_HSV[0][1], HW_HSV[0][2], HW_HSV[1][0], HW_HSV[1][1], HW_HSV[1][2], window_name, indVar);
+				// }
+				// case 115: { //'s'
+				// 	hsv_settingsWrite(HW_HSV[0][0], HW_HSV[0][1], HW_HSV[0][2], HW_HSV[1][0], HW_HSV[1][1], HW_HSV[1][2], 0);
+				// 	break;
+				// }
+				// case 116: { //'t'
+				// 	hsv_settingsRead(camObj, HW_HSV[0][0], HW_HSV[0][1], HW_HSV[0][2], HW_HSV[1][0], HW_HSV[1][1], HW_HSV[1][2], window_name, 0); 
+				// }
+				default:
+					break;
 			}
 			if(_exitLoop) break;
 			if(keyInp==27) break;
@@ -200,12 +205,7 @@ void HW_option3() {
 		cv::destroyWindow("Main thread window");
 	}
 
-	u_lck0.lock();
-	exit_thread[0] = true;
-	u_lck0.unlock();
-	u_lck1.lock();
-	exit_thread[1] = true;
-	u_lck1.unlock();
+	
 
 	ANSI_mvprint(0, 0, "Exiting main thread", true, "abs", "rel");
 }

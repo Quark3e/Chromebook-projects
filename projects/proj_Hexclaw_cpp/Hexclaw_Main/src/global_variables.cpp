@@ -75,10 +75,14 @@ std::vector<pos3d<int>> HW_HSV{
 };
 
 std::string window_name = "Window";
+
 // IR camtracking header class initialization
-std::vector<IR_camTracking> camObj;
-// {0, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf},
-// {2, prefSize[0], prefSize[1], useAutoBrightne, displayToWindow, takeCVTrackPerf},
+// std::vector<IR_camTracking> camObj;
+
+std::vector<CVTRACK::camObjTracker> camObj{
+	CVTRACK::camObjTracker(false, 0, 640, 480, false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000),
+	CVTRACK::camObjTracker(false, 2, 640, 480, false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000)
+};
 
 
 // Two_cam_triangle header class initialisation
@@ -105,196 +109,23 @@ getPerf perfObj[3] {
 opencv_recorder recObj;
 
 
-void lock_cout(
-	std::mutex &coutMutex,
-	std::string toPrint,
-	bool blockingLock,
-	bool flushOut,
-	bool startClearScr
-) {
-    std::unique_lock<std::mutex> u_lck_cout(coutMutex, std::defer_lock);
-    if(blockingLock) {
-        u_lck_cout.lock();
-		if(startClearScr) std::cout << "\x1B[2J";
-        std::cout << toPrint;
-		if(flushOut) std::cout.flush();
-        u_lck_cout.unlock();
-    }
-    else {
-        if(u_lck_cout.try_lock()) {
-			if(startClearScr) std::cout << "\x1B[2J";
-            std::cout << toPrint;
-			if(flushOut) std::cout.flush();
-            u_lck_cout.unlock();
-        }
-    }
-}
 
 #if useThreads
 #if takePerf
 //sub thread(s) performance measurements
-
 
 std::mutex mtx_perfObj_threads[2];
 // getPerf perfObj[2] {
 // 	{"sub-thread[0]"},
 // 	{"sub-thread[1]"}
 // };
-#endif
+#endif // takePerf
 
-
-bool threadsInit[3] = {false, false, false};
-
-cv::Mat flippedImg_main[2];
-cv::Mat flippedImg_interm[2];
-
-
-float camObjPos_main[2][2];
-float camObjPos_interm[2][2];
-
-
-int returCodes_main[2];
-int returCodes_interm[2] = {0, 0};
-
-
-std::vector<float> camProcess_delays[2];
-
-std::vector<std::string> camProcess_delayNames[2];
-
-size_t numContours_main[2] = {0, 0};
-size_t numContours_interm[2] = {0, 0};
-
-void transferCamVars(IR_camTracking* camPtr, int t_idx) {
-    // if(dispToWindow) {
-        flippedImg_interm[t_idx] = (*camPtr).imgFlipped;
-    // }
-    camObjPos_interm[t_idx][0]  = (*camPtr).totCnt_pos[0];
-    camObjPos_interm[t_idx][1]  = (*camPtr).totCnt_pos[1];
-    returCodes_interm[t_idx]    = (*camPtr).processReturnCode;
-    numContours_interm[t_idx]   = (*camPtr).allCnt_pos.size();
-}
-void updateCamVars(int t_idx) {
-    // if(dispToWindow) {
-        flippedImg_main[t_idx] = flippedImg_interm[t_idx];
-    // }
-    camObjPos_main[t_idx][0]    = camObjPos_interm[t_idx][0];
-    camObjPos_main[t_idx][1]    = camObjPos_interm[t_idx][1];
-    returCodes_main[t_idx]      = returCodes_interm[t_idx];
-    numContours_main[t_idx]     = numContours_interm[t_idx];
-}
-
-std::mutex mtx[2];
-std::mutex mtx_sync[2];
 std::mutex mtx_cout;
 
-// /**mutex for saving frames onto `opencv_recorder` class object*/
-// std::mutex mtx_vidRec;
-
-bool exit_thread[2] = {false, false};
-
-void thread_task(IR_camTracking* camPtr, int t_idx) {
-	std::unique_lock<std::mutex> u_lck(mtx[t_idx], std::defer_lock);
-	std::unique_lock<std::mutex> u_lck_cout(mtx_cout, std::defer_lock);
-	std::unique_lock<std::mutex> u_lck_sync(mtx_sync[t_idx], std::defer_lock);
-	std::unique_lock<std::mutex> u_lck_syncCheck(mtx_sync[std::abs(t_idx-1)], std::defer_lock);
-	#if takePerf
-	std::unique_lock<std::mutex> u_lck_threadPerfObj(mtx_perfObj_threads[t_idx], std::defer_lock);
-	#endif
-	// #if recordFrames
-	// std::unique_lock<std::mutex> u_lck_rec(mtx_vidRec, std::defer_lock);
-	// #endif
-
-	if(threadDebug) {
-		u_lck_cout.lock();
-		std::cout << "\nthread " << t_idx << " initialised" << std::endl;
-		u_lck_cout.unlock();
-	}
-	(*camPtr).printAll = false;
-	while(true) {
-		/*Synchronisation between sub-threads*/
-		// u_lck_sync.lock();
-		// while(true) {
-		// 	if(u_lck_syncCheck.try_lock()) u_lck_syncCheck.unlock();
-		// 	else break;
-		// 	std::this_thread::sleep_for(10ms);
-		// }
-		// if(threadDebug) lock_cout(mtx_cout, "\n["+std::to_string(t_idx)+"]: sub-threads have been synced",true,true);
-		// u_lck_sync.unlock();
-
-		#if takePerf
-		u_lck_threadPerfObj.lock();
-		perfObj[t_idx+1].add_checkpoint("thread-syncing"); //c1
-		u_lck_threadPerfObj.unlock();
-		#endif
-
-		/*Webcam reading and processing*/
-		camPtr->processCam();
-		#if takePerf
-		u_lck_threadPerfObj.lock();
-
-		if(!threadsInit[t_idx]) {
-			for(size_t i=1; i<(*camPtr).perfObj.names.size(); i++) {
-				camProcess_delayNames[t_idx].push_back(
-					(*camPtr).perfObj.names.at(i).substr(3)
-				);
-				camProcess_delays[t_idx].push_back(
-					(*camPtr).perfObj.delays_ms.at(i)
-				);
-			}
-		}
-		else {
-			for(size_t i=1; i<(*camPtr).perfObj.names.size(); i++) {
-				camProcess_delays[t_idx][i-1] = (*camPtr).perfObj.delays_ms.at(i);
-			}
-		}
-
-		// if(t_idx==0) {
-		// 	u_lck_cout.lock();
-		// 	std::cout << "\x1B[H"<<std::endl;
-		// 	for(size_t i=0; i<(*camPtr).perfObj.names.size(); i++) {
-		// 		std::cout<<"\n|"<<std::setw(10)<<(*camPtr).perfObj.names.at(i)<<"|: "<<(*camPtr).perfObj.delays_ms.at(i);
-		// 	}
-		// 	std::cout<<"\n-----------"<<std::endl;
-		// 	if(threadsInit[t_idx]) {
-		// 		for(size_t i=0; i<camProcess_delayNames[t_idx].size(); i++) {
-		// 			std::cout<<"\n|"<<std::setw(10)<<camProcess_delayNames[t_idx].at(i)<<"|: "<<camProcess_delays[t_idx].at(i);
-		// 		}
-		// 	}
-		// 	u_lck_cout.unlock();
-		// }
-
-		perfObj[t_idx+1].add_checkpoint("cam-processing"); //c2
-		u_lck_threadPerfObj.unlock();
-		#endif
-
-		/*Transfer of cam processing results from local thread-affected variables to
-		independant main-thread variables*/
-		u_lck.lock();
-		transferCamVars(camPtr, t_idx);
-		if(!threadsInit[t_idx]) threadsInit[t_idx] = true;
-		if(threadDebug) {
-			lock_cout(mtx_cout, "\n\tthread:["+std::to_string(t_idx)+"]: transferCamVars called",true,false);
-		}
-		if(exit_thread[t_idx] || returCodes_interm[t_idx]==-1) {
-			u_lck_cout.lock();
-			if(returCodes_interm[t_idx]==-1) std::cout << "\nERROR: IR_camTracking error:";
-			std::cout << "\n\tthread:["<<t_idx<<"]: exit called. exiting...";
-			u_lck_cout.unlock();
-			break;
-		}
-		u_lck.unlock();
-		#if takePerf
-		u_lck_threadPerfObj.lock();
-		perfObj[t_idx+1].add_checkpoint("transf_to_main_var"); //c3
-		perfObj[t_idx+1].update_totalInfo(true,false,false);
-		u_lck_threadPerfObj.unlock();
-		#endif
-
-	}
-}
+#endif // useThreads
 
 
-#endif
 
 int subMenuPos[2] = {20, 0};
 
@@ -448,13 +279,20 @@ int _init__pca(_initClass_dataStruct *_passData) {
 	return 0;
 }
 int _init__camObj(_initClass_dataStruct *_passData) {
-	camObj = std::vector<IR_camTracking>(2);
+	// camObj = std::vector<IR_camTracking>(2);
+	camObj = std::vector<CVTRACK::camObjTracker>{
+		CVTRACK::camObjTracker(false, 0, 640, 480, false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000),
+		CVTRACK::camObjTracker(false, 2, 640, 480, false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000)
+	};
+	
+
 	// camObj.reserve(2);
-	IR_camTracking* camObj_ptr = nullptr;
+	// IR_camTracking* camObj_ptr = nullptr;
+	CVTRACK::camObjTracker* camObj_ptr = nullptr;
 	try {
 		// camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf")));
 		camObj_ptr = &camObj.at(0);
-		new (camObj_ptr) IR_camTracking(0, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf"));
+		new (camObj_ptr) CVTRACK::camObjTracker(false, 0, 640, 480, false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000);
 		_passData->_message = "";
 	} catch (const std::exception& e) {
 		_passData->_message = 	"cam0:"+std::string(e.what());
@@ -464,7 +302,7 @@ int _init__camObj(_initClass_dataStruct *_passData) {
 	try {
 		// camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf")));
 		camObj_ptr = &camObj.at(1);
-		new (camObj_ptr) IR_camTracking(2, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf"));
+		new (camObj_ptr) CVTRACK::camObjTracker(false, 2, 640, 480, false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000);
 		_passData->_message = "";
 	} catch (const std::exception& e) {
 		_passData->_message = "cam1:"+std::string(e.what());
@@ -539,8 +377,8 @@ int _close__pca(_initClass_dataStruct *_passData) {
 }
 int _close__camObj(_initClass_dataStruct *_passData) {
 	if(_init_status.get("camObj").isInit()) {
-		(&camObj[0])->~IR_camTracking();
-		(&camObj[1])->~IR_camTracking();
+		(&camObj[0])->~camObjTracker();
+		(&camObj[1])->~camObjTracker();
 	}
 	
 	return 0;

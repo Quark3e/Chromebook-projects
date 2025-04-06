@@ -32,9 +32,12 @@ void HW_option0() {
 
 
 	//create windows regardless because i need a way to properly exit the loop
-	camObj[0].setup_window("Main thread window");
-	camObj[1].setup_window("Main thread window");
+	// camObj[0].setup_window("Main thread window");
+	// camObj[1].setup_window("Main thread window");
+	
+	
 	if(!_CONFIG_OPTIONS.get("displayToWindow")) {
+		cv::namedWindow("Main thread window", cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO | cv::WINDOW_GUI_EXPANDED);
 		cv::resizeWindow("Main thread window", 100, 100);
 	}
 
@@ -85,31 +88,32 @@ void HW_option0() {
 		printTable.add_row();
 		printTable.insertText("perf.", 0, 4);
 
-		#if useThreads
-			delayTable.insertText("thread-sync",2,1);
-			delayTable.insertText("cam-process",2,2);
-			delayTable.insertText("main-sub_tr",2,3);
+		// #if useThreads
+			// delayTable.insertText("thread-sync",2,1);
+			// delayTable.insertText("cam-process",2,2);
+			// delayTable.insertText("main-sub_tr",2,3);
 
-			printTable.add_row();
-			printTable.add_row();
-			printTable.insertText("perf_t0", 0, 5);
-			printTable.insertText("perf_t1", 0, 6);
-			std::unique_lock<std::mutex> u_lck_tPerfObj0(mtx_perfObj_threads[0], std::defer_lock);
-			std::unique_lock<std::mutex> u_lck_tPerfObj1(mtx_perfObj_threads[1], std::defer_lock);
-		#endif
+			// printTable.add_row();
+			// printTable.add_row();
+			// printTable.insertText("perf_t0", 0, 5);
+			// printTable.insertText("perf_t1", 0, 6);
+			// std::unique_lock<std::mutex> u_lck_tPerfObj0(mtx_perfObj_threads[0], std::defer_lock);
+			// std::unique_lock<std::mutex> u_lck_tPerfObj1(mtx_perfObj_threads[1], std::defer_lock);
+		// #endif
 	#endif
 
-    #if useThreads
-		// std::cout << " Initialising local `std::unique_lock<std::mutex>` and variables starting threads"<<endl;
-		ANSI_mvprint(0, 0, " Initialising local `std::unqiue_lock<std::mutex>` and variables starting threads", true, "abs", "rel");
-        std::unique_lock<std::mutex> u_lck0(mtx[0], std::defer_lock);
-        std::unique_lock<std::mutex> u_lck1(mtx[1], std::defer_lock);
-        std::unique_lock<std::mutex> u_lck_cout(mtx_cout, std::defer_lock);
+    // #if useThreads
+	// 	// std::cout << " Initialising local `std::unique_lock<std::mutex>` and variables starting threads"<<endl;
+	// 	ANSI_mvprint(0, 0, " Initialising local `std::unqiue_lock<std::mutex>` and variables starting threads", true, "abs", "rel");
+    //     std::unique_lock<std::mutex> u_lck0(mtx[0], std::defer_lock);
+    //     std::unique_lock<std::mutex> u_lck1(mtx[1], std::defer_lock);
+	std::unique_lock<std::mutex> u_lck_cout(mtx_cout, std::defer_lock);
 
-        std::thread t_cam0(thread_task, &camObj[0], 0);
-        std::thread t_cam1(thread_task, &camObj[1], 1);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    #endif
+    //     std::thread t_cam0(thread_task, &camObj[0], 0);
+    //     std::thread t_cam1(thread_task, &camObj[1], 1);
+    //     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    // #endif
+
 
 	while(true) {
 		static bool loopInit=false;
@@ -119,55 +123,23 @@ void HW_option0() {
 		// perfObj[0].add_checkpoint("loop start");
 		#endif
 
-		#if useThreads
-		if(!threadsInit[2]) {
+		if(!(camObj[0].isThreadLoopInit() && camObj[1].isThreadLoopInit())) {
 			if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: NOTE: Threads have not been initialised:\n -initialising."); }
 
-			while(!threadsInit[2]) {
-				u_lck0.lock();
-				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -u_lck0 locked."); std::this_thread::sleep_for(std::chrono::milliseconds(100)); }
-				u_lck1.lock();
-				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -u_lck1 locked."); std::this_thread::sleep_for(std::chrono::milliseconds(100)); }
-				updateCamVars(0);
-				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -updateCamVars(0)."); }
-				updateCamVars(1);
-				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: -updateCamVars(1)."); }
-				if(threadsInit[0] && threadsInit[1]) {
-					// u_lck_cout.lock();
-					// std::cin.get();
-					// u_lck_cout.unlock();
-					lock_cout(
-						mtx_cout, "\n-------------\nSuccessfully initialised both threads:\nstarting tracking:",
-						true, true, true
-					);
-					threadsInit[2] = true;
-				}
-				if(threadDebug) lock_cout(mtx_cout, ".", true, true);
+			while(!(camObj[0].isThreadLoopInit() && camObj[1].isThreadLoopInit())) {
 				std::this_thread::sleep_for(std::chrono::milliseconds(500));
-				u_lck1.unlock();
-				u_lck0.unlock();
 			}
-			if(threadDebug) lock_cout(mtx_cout, "\nthread:[2]: Initialised!\n",true,true);
+			lock_cout(
+				mtx_cout, "\n-------------\nSuccessfully initialised both threads:\nstarting tracking:",
+				true, true, true
+			);
+			if(threadDebug) lock_cout(mtx_cout, "\nthread:[2]: sub-threads have been initialised!\n", true, true);
 		}
-		u_lck0.lock();
-		updateCamVars(0);
-		u_lck0.unlock();
-		u_lck1.lock();
-		updateCamVars(1);
-		u_lck1.unlock();
-		if(returCodes_main[0]==-1) {
-			if(threadDebug) lock_cout(mtx_cout,"\ncamObj[0] process error\n",true,true);
-			return;
-		}
-		if(returCodes_main[1]==-1) {
-			if(threadDebug) lock_cout(mtx_cout,"\ncamObj[1] process error\n",true,true);
-			return;
-		}
-		#endif
+
 		#if takePerf
 		perfObj[0].add_checkpoint("upd.Cam"); /*c1*/
 		#endif
-		if(numContours_main[0]>0) {
+		{
 			// getCoordinates(camObjPos_main[0], camObjPos_main[1], 2);
 			printTable.insertNum(PP[0],1,1,1);
 			printTable.insertNum(PP[1],2,1,1);
@@ -178,10 +150,10 @@ void HW_option0() {
 			printTable.insertNum(orient[1],2,2,1);
 			printTable.insertNum(orient[2],3,2,1);
 
-			printTable.insertNum(camObjPos_main[0][0],1,0,1);
-			printTable.insertNum(camObjPos_main[0][1],2,0,1);
-			printTable.insertNum(camObjPos_main[1][0],3,0,1);
-			printTable.insertNum(camObjPos_main[1][1],4,0,1);
+			printTable.insertNum(camObj[0].data().cnt_pos[0],1,0,1);
+			printTable.insertNum(camObj[0].data().cnt_pos[1],2,0,1);
+			printTable.insertNum(camObj[1].data().cnt_pos[0],3,0,1);
+			printTable.insertNum(camObj[1].data().cnt_pos[1],4,0,1);
 
 			#if takePerf
 			perfObj[0].add_checkpoint("getCoords"); /*c2*/
@@ -203,18 +175,18 @@ void HW_option0() {
 			else {
 				printTable.strExport("ERROR:no valid orient\n");
 			}
-			#if useThreads
+
 			u_lck_cout.lock();
-			#endif
+
 			ansiPrint(printTable.exportStr, 1.1, 0.1, false, false, "\n", "\n", false);
 			ansiPrint(delayTable.exportStr, 1.0, 0.3, false, false, "\n", "\n", false);
 			std::cout.flush();
-			#if useThreads
+
 			u_lck_cout.unlock();
-			#endif
+
 			#if takePerf
 			perfObj[0].add_checkpoint("toServo"); /*c3*/
-			#endif
+			#endif // takePerf
 		}
 		#if takePerf
 		perfObj[0].update_totalInfo(true,false,false);
@@ -229,107 +201,119 @@ void HW_option0() {
 		}
 
 		#if useThreads
-		float c0_1, c0_2, c0_3, c0_total;
-		float c1_1, c1_2, c1_3, c1_total;
-		if(u_lck_tPerfObj0.try_lock()) {
-			// lock_cout(mtx_cout, "\nT[0]: tPerfObj locked",true,true);
-			static bool init_delayTable_name = false;
-			if(!init_delayTable_name && camProcess_delayNames[0].size()>1) {
-				lock_cout(mtx_cout, std::to_string(camProcess_delayNames[0].size()));
-				// u_lck_cout.lock();
-				// std::cin.get();
-				// u_lck_cout.unlock();
-				for(int i=0; i<static_cast<int>(camProcess_delayNames[0].size())-static_cast<int>(delayTable.table.size()-4); i++) {
-					delayTable.add_row();
-				}
-				for(size_t i=0; i<camProcess_delayNames[0].size(); i++) {
-					delayTable.insertText(
-						camProcess_delayNames[0].at(i),
-						2, i+4
-					);
-				}
-				init_delayTable_name = true;
-			}
-			for(size_t i=0; i<camProcess_delays[0].size(); i++) {
-				delayTable.insertNum(
-					camProcess_delays[0].at(i),
-					3, i+4, 1
-				);
-			}
-			c0_1 = perfObj[1].delays_ms.at(1);
-			c0_2 = perfObj[1].delays_ms.at(2);
-			c0_3 = perfObj[1].delays_ms.at(3);
-			for(size_t i=0; i<3; i++) { delayTable.insertNum(perfObj[1].delays_ms.at(i+1),3,i+1); }
-			u_lck_tPerfObj0.unlock();
+		// float c0_1, c0_2, c0_3, c0_total;
+		// float c1_1, c1_2, c1_3, c1_total;
+		// if(u_lck_tPerfObj0.try_lock()) {
+		// 	// lock_cout(mtx_cout, "\nT[0]: tPerfObj locked",true,true);
+		// 	static bool init_delayTable_name = false;
+		// 	if(!init_delayTable_name && camProcess_delayNames[0].size()>1) {
+		// 		lock_cout(mtx_cout, std::to_string(camProcess_delayNames[0].size()));
+		// 		// u_lck_cout.lock();
+		// 		// std::cin.get();
+		// 		// u_lck_cout.unlock();
+		// 		for(int i=0; i<static_cast<int>(camProcess_delayNames[0].size())-static_cast<int>(delayTable.table.size()-4); i++) {
+		// 			delayTable.add_row();
+		// 		}
+		// 		for(size_t i=0; i<camProcess_delayNames[0].size(); i++) {
+		// 			delayTable.insertText(
+		// 				camProcess_delayNames[0].at(i),
+		// 				2, i+4
+		// 			);
+		// 		}
+		// 		init_delayTable_name = true;
+		// 	}
+		// 	for(size_t i=0; i<camProcess_delays[0].size(); i++) {
+		// 		delayTable.insertNum(
+		// 			camProcess_delays[0].at(i),
+		// 			3, i+4, 1
+		// 		);
+		// 	}
+		// 	c0_1 = perfObj[1].delays_ms.at(1);
+		// 	c0_2 = perfObj[1].delays_ms.at(2);
+		// 	c0_3 = perfObj[1].delays_ms.at(3);
+		// 	for(size_t i=0; i<3; i++) { delayTable.insertNum(perfObj[1].delays_ms.at(i+1),3,i+1); }
+		// 	u_lck_tPerfObj0.unlock();
 
-			u_lck_tPerfObj1.lock();
-			c1_1 = perfObj[2].delays_ms.at(1);
-			c1_2 = perfObj[2].delays_ms.at(2);
-			c1_3 = perfObj[2].delays_ms.at(3);
-			for(size_t i=0; i<3; i++) { delayTable.insertNum(perfObj[2].delays_ms.at(i+1),4,i+1); }
+		// 	u_lck_tPerfObj1.lock();
+		// 	c1_1 = perfObj[2].delays_ms.at(1);
+		// 	c1_2 = perfObj[2].delays_ms.at(2);
+		// 	c1_3 = perfObj[2].delays_ms.at(3);
+		// 	for(size_t i=0; i<3; i++) { delayTable.insertNum(perfObj[2].delays_ms.at(i+1),4,i+1); }
 			
-			for(size_t i=0; i<camProcess_delays[1].size(); i++) {
-				delayTable.insertNum(
-					camProcess_delays[1].at(i),
-					4, i+4, 1
-				);
-			}
-			delayTable.strExport("");
-			u_lck_tPerfObj1.unlock();
-		}
+		// 	for(size_t i=0; i<camProcess_delays[1].size(); i++) {
+		// 		delayTable.insertNum(
+		// 			camProcess_delays[1].at(i),
+		// 			4, i+4, 1
+		// 		);
+		// 	}
+		// 	delayTable.strExport("");
+		// 	u_lck_tPerfObj1.unlock();
+		// }
 
-		c0_total = c0_1+c0_2+c0_3;
-		c1_total = c1_1+c1_2+c1_3;
+		// c0_total = c0_1+c0_2+c0_3;
+		// c1_total = c1_1+c1_2+c1_3;
 
-		printTable.insertNum(c0_1,1,5,1);
-		printTable.insertNum(c0_2,2,5,1);
-		printTable.insertNum(c0_3,3,5,1);
-		printTable.insertNum(c0_total,4,5,1);
-		printTable.add_to_cell("ms",4,5);
-		printTable.insertNum(c0_1,1,6,1);
-		printTable.insertNum(c0_2,2,6,1);
-		printTable.insertNum(c0_3,3,6,1);
-		printTable.insertNum(c0_total,4,6,1);
-		printTable.add_to_cell("ms",4,6);
-		#endif
+		// printTable.insertNum(c0_1,1,5,1);
+		// printTable.insertNum(c0_2,2,5,1);
+		// printTable.insertNum(c0_3,3,5,1);
+		// printTable.insertNum(c0_total,4,5,1);
+		// printTable.add_to_cell("ms",4,5);
+		// printTable.insertNum(c0_1,1,6,1);
+		// printTable.insertNum(c0_2,2,6,1);
+		// printTable.insertNum(c0_3,3,6,1);
+		// printTable.insertNum(c0_total,4,6,1);
+		// printTable.add_to_cell("ms",4,6);
+		#endif // useThreads
 
-		#endif
+		#endif // takePerf
 
 		// if(displayTFT) matToTFT()
 
 		if(recordFrames) {
 			cv::Mat concatImg;
-			cv::hconcat(flippedImg_main[0], flippedImg_main[1], concatImg);
+			cv::hconcat(camObj[0].data().imgFlipped, camObj[1].data().imgFlipped, concatImg);
 			recObj.addFrame(concatImg);
 		}
 
 		if(_CONFIG_OPTIONS.get("displayToWindow")) {
 			cv::Mat winImg;
-			cv::hconcat(flippedImg_main[0], flippedImg_main[1], winImg);
+			cv::hconcat(camObj[0].data().imgFlipped, camObj[1].data().imgFlipped, winImg);
 			cv::imshow("Main thread window", winImg);
 		}
-		int keyInp = cv::waitKey(5);
-		if(keyInp==27) break; //'esc'
-		else if(keyInp==32) break; //'space'
-		else if(keyInp==115) { /*'s'*/
-			/*save HSV values*/
-			hsv_settingsWrite(HW_HSV[0][0], HW_HSV[0][1], HW_HSV[0][2], HW_HSV[1][0], HW_HSV[1][1], HW_HSV[1][2], 0);
+
+		int keyInp = cv::waitKey(5);		
+		bool breakLoop = false;
+		switch (keyInp) {
+			case 27: //'esc'
+				breakLoop = true;
+				break;
+			case 32: //'space'
+				breakLoop = true;
+				break;
+			case 115: //'s'
+				/*save HSV values*/
+				hsv_settingsWrite(HW_HSV[0][0], HW_HSV[0][1], HW_HSV[0][2], HW_HSV[1][0], HW_HSV[1][1], HW_HSV[1][2], 0);
+				break;
+			case 114: //'r'
+				// std::string inputVar = "";
+				// int indVar = 0;
+				// // std::cout << "Enter index in hsv file\ninput: ";
+				// ANSI_mvprint(0, 0, "Enter index in hsv file", true, "abs", "rel");
+				// ANSI_mvprint(0, 0, "input: ", true, "abs", "rel");
+				// std::cin >> inputVar;
+				// if(inputVar=="exit") exit(1);
+				// indVar = stoi(inputVar);
+				// std::cin.clear();
+				// std::cin.ignore();
+				// hsv_settingsRead(camObj, HW_HSV[0][0], HW_HSV[0][1], HW_HSV[0][2], HW_HSV[1][0], HW_HSV[1][1], HW_HSV[1][2], window_name, indVar);
+				break;
+			case 116: //'t'
+				// hsv_settingsRead(camObj, HW_HSV[0][0], HW_HSV[0][1], HW_HSV[0][2], HW_HSV[1][0], HW_HSV[1][1], HW_HSV[1][2], window_name, 0);
+				break;	
+			default:
+				break;
 		}
-		else if(keyInp==114) { //'r'
-			std::string inputVar = "";
-			int indVar = 0;
-			// std::cout << "Enter index in hsv file\ninput: ";
-			ANSI_mvprint(0, 0, "Enter index in hsv file", true, "abs", "rel");
-			ANSI_mvprint(0, 0, "input: ", true, "abs", "rel");
-			std::cin >> inputVar;
-			if(inputVar=="exit") exit(1);
-			indVar = stoi(inputVar);
-			std::cin.clear();
-			std::cin.ignore();
-			hsv_settingsRead(camObj, HW_HSV[0][0], HW_HSV[0][1], HW_HSV[0][2], HW_HSV[1][0], HW_HSV[1][1], HW_HSV[1][2], window_name, indVar);
-		}
-		else if(keyInp==116) { /*'t'*/ hsv_settingsRead(camObj, HW_HSV[0][0], HW_HSV[0][1], HW_HSV[0][2], HW_HSV[1][0], HW_HSV[1][1], HW_HSV[1][2], window_name, 0); }
-		
+		if(breakLoop) break;
 
 
 		loopInit=true;
@@ -340,12 +324,6 @@ void HW_option0() {
 
 	if(recordFrames) recObj.releaseVideo();
 
-	u_lck0.lock();
-	exit_thread[0] = true;
-	u_lck0.unlock();
-	u_lck1.lock();
-	exit_thread[1] = true;
-	u_lck1.unlock();
 	// std::cout << "\nExit called. Exiting." << std::endl;
 	ANSI_mvprint(0, 2, "Exit called. Exiting.", true, "abs", "rel");
 }

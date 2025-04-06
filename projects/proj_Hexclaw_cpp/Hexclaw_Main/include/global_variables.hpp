@@ -93,12 +93,6 @@ extern nodemcu_orient orientObj;
 extern pos2d<int> prefSize;
 // extern int prefSize[2];
 
-// /// @brief whether to use automatic brightness adjustment with opencv cam tracking
-// extern bool useAutoBrightne;
-// /// @brief whether to read and measure performance (delays/fps) for `IR_camTracking` class
-// extern bool takeCVTrackPerf;
-// /// @brief whether to display `IR_camTracking`'s images
-// extern bool displayToWindow;
 
 extern bool displayTFT;
 
@@ -111,11 +105,15 @@ extern std::vector<pos3d<int>> HW_HSV;
 
 // extern const char* window_name;
 extern std::string window_name;
-// IR camtracking header class initialization
-extern std::vector<IR_camTracking> camObj;
+
+/// Cam object tracking related
+
+// extern std::vector<IR_camTracking> camObj;
+extern std::vector<CVTRACK::camObjTracker> camObj;
 
 
-// Two_cam_triangle header class initialisation
+/// Two_cam_triangle header class initialisation
+
 extern float camPosition[2][2];
 extern float camAng_offs[2];
 extern float inpPos[2];
@@ -134,6 +132,25 @@ extern getPerf perfObj[3];
 extern opencv_recorder recObj;
 
 
+// /**
+//  * simple function for locking a mutex reference and printing `toPrint` to cout buffer
+//  * NOTE: this function will release after locking but before calling the function *make sure* the mutex object is unlocked,
+//  * because otherwise it'll give undefined behavious.
+//  * @param coutMutex `std::mutex` object reference.
+//  * @param toPrint the string object to print to cout.
+//  * @param blockingLock whether to use the blocking member function
+//  * `std::mutex::lock()` or the nonblocking `std::mutex::try_lock()`.
+//  * @param flushOut whether to flush after printing to cout
+// */
+// void lock_cout(
+// 	std::mutex &coutMutex,
+// 	std::string toPrint,
+// 	bool blockingLock = true,
+// 	bool flushOut = false,
+// 	bool startClearScr = false
+// );
+
+
 /**
  * simple function for locking a mutex reference and printing `toPrint` to cout buffer
  * NOTE: this function will release after locking but before calling the function *make sure* the mutex object is unlocked,
@@ -144,13 +161,31 @@ extern opencv_recorder recObj;
  * `std::mutex::lock()` or the nonblocking `std::mutex::try_lock()`.
  * @param flushOut whether to flush after printing to cout
 */
-void lock_cout(
+inline void lock_cout(
 	std::mutex &coutMutex,
 	std::string toPrint,
 	bool blockingLock = true,
 	bool flushOut = false,
 	bool startClearScr = false
-);
+) {
+    std::unique_lock<std::mutex> u_lck_cout(coutMutex, std::defer_lock);
+    if(blockingLock) {
+        u_lck_cout.lock();
+		if(startClearScr) std::cout << "\x1B[2J";
+        std::cout << toPrint;
+		if(flushOut) std::cout.flush();
+        u_lck_cout.unlock();
+    }
+    else {
+        if(u_lck_cout.try_lock()) {
+			if(startClearScr) std::cout << "\x1B[2J";
+            std::cout << toPrint;
+			if(flushOut) std::cout.flush();
+            u_lck_cout.unlock();
+        }
+    }
+}
+
 #if useThreads
 #if takePerf
 //sub thread(s) performance measurements
@@ -163,121 +198,14 @@ extern std::mutex mtx_perfObj_threads[2];
 // 	{"sub-thread[0]"},
 // 	{"sub-thread[1]"}
 // };
-#endif
+#endif // takePerf
 
-/** array to hold initialisation boolean values (true if it's been init, false otherwise)
- * `[0]` = cam0-thread
- * `[1]` = cam1-thread
- * `[2]` = main-thread
-*/
-extern bool threadsInit[3];
-
-/// variable/container for cv::Mat display objects/img's that's used in the main thread
-extern cv::Mat flippedImg_main[2];
-/// @brief variable/container for intermediary cv::Mat images; temporarily holds new values from sub threads
-extern cv::Mat flippedImg_interm[2];
-
-/** main camera tracked object center position holder/container array;
- * `[0][0, 1]` = cam/thread 0;
- * `[1][0, 1]` = cam/thread 1;
-*/
-extern float camObjPos_main[2][2];
-/**
- * intermediary container/holder array for tracked-object-center-positions received from sub-threads
- * `[0][0, 1]` = sub-thread[0]
- * `[1][0, 1]` = sub-thread[1]
-*/
-extern float camObjPos_interm[2][2];
-
-/**
- * main-thread container/holder array for error exit codes from threads
- * `[0]` = sub-thread[0]
- * `[1]` = sub-thread[1]
-*/
-extern int returCodes_main[2];
-/**
- * sub-thread container/holder array for error exit codes
- * `[0]` = sub-thread[0]
- * `[1]` = sub-thread[1]
-*/
-extern int returCodes_interm[2];
-
-/**
- * vector of cam processing delays for each webcam
- * in an array.
-*/
-extern std::vector<float> camProcess_delays[2];
-
-/**
- * vector of cam processing delay names for each webcam
- * in an array.
-*/
-extern std::vector<std::string> camProcess_delayNames[2];
-
-/**
- * container array for number of contours detected, to be used in main thread
- * `[0]` = sub-thread[0]
- * `[1]` = sub-thread[1]
-*/
-extern size_t numContours_main[2];
-/**
- * container array for number of contours detected, to be used in sub threads
- * `[0]` = sub-thread[0]
- * `[1]` = sub-thread[1]
-*/
-extern size_t numContours_interm[2];
-
-/**
- * @brief transfer results from sub thread[`t-idx`] to `[..]_interm[t_idx]` variables
- * @param camPtr `IR_camTracking` object pointer
- * @param t_idx `int` value of which thread to use function on
-*/
-void transferCamVars(IR_camTracking* camPtr, int t_idx);
-/**
- * @brief update main-thread `[..]_main[t-idx]` variables with sub-thread `[..]_interm[t_idx]` variables
- * @param t_idx `int` value of which thread to use function on
-*/
-void updateCamVars(int t_idx);
-/**
- * general variable mutexes
- * `[0]` = sub-thread[0]
- * `[1]` = sub-thread[1]
-*/
-extern std::mutex mtx[2];
-
-/**
- * Syncing purpose mutexes:
- * 
- * Purpose is for a sub-thread to lock its own mutex, then
- * continuously `try_lock()` and `unlock()` the other mutex to check if that sub-thread
- * has reached same point in process.
- * 
- * When both sub-threads have "hard"-locked their mutexes the
- * `try_lock()` will return false, from which each sub-thread can unlock their own mutex and run
- * the rest of the function
- * '[0]' = sub-thread[0]
- * '[1]' = sub-thread[1]
-*/
-extern std::mutex mtx_sync[2];
-
-/**
- * mutex for std::iostream::cout
-*/
 extern std::mutex mtx_cout;
 
-// /**mutex for saving frames onto `opencv_recorder` class object*/
-// std::mutex mtx_vidRec;
+#endif // useThreads
 
-extern bool exit_thread[2];
 
-/**
- * @brief Multithread function for processing and storing image/webcam processing results
- * @param camRef `IR_camTracking` object pointer
- * @param t_idx `int` value for thread indexing/naming
-*/
-void thread_task(IR_camTracking* camPtr, int t_idx);
-#endif
-
+/// Terminal menu related
 
 extern TUI::termMenu menu__config_options;
 extern TUI::termMenu menu__init_options;
