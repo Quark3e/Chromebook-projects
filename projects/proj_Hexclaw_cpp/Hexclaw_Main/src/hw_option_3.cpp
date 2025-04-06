@@ -157,8 +157,15 @@ void HW_option3() {
 		}
 
 		if(init_camObj && _CONFIG_OPTIONS.get("displayToWindow")) {
-			cv::Mat winImg;
-			cv::hconcat(camObj[0].data().imgFlipped, camObj[1].data().imgFlipped, winImg);
+			cv::Mat winImg, concThresh, concFlipped;
+			cv::hconcat(camObj[0].data().imgFlipped, camObj[1].data().imgFlipped, concFlipped);
+			cv::hconcat(camObj[0].data().imgThreshold, camObj[1].data().imgThreshold, concThresh);
+			
+			cv::resize(concFlipped, concFlipped, cv::Size(), 0.5, 0.5);
+			cv::resize(concThresh, concThresh, cv::Size(), 0.5, 0.5);
+			
+			cv::vconcat(concFlipped, concThresh, winImg);
+
 			cv::imshow("Main thread window", winImg);
 		
 			int keyInp = cv::waitKey(5);
@@ -205,7 +212,7 @@ void HW_option3() {
 		cv::destroyWindow("Main thread window");
 	}
 
-	
+
 
 	ANSI_mvprint(0, 0, "Exiting main thread", true, "abs", "rel");
 }
