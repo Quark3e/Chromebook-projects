@@ -172,6 +172,10 @@ void HW_option3() {
 			std::cout << "thre0: " << camObjData0.imgThreshold.size().aspectRatio() << std::endl;
 			std::cout << "thre1: " << camObjData1.imgThreshold.size().aspectRatio() << std::endl;
 
+			std::cout << "size0: x:" << camObjData0.imgFlipped.size().width << " y:" << camObjData0.imgFlipped.size().height << std::endl;
+			std::cout << "size1: x:" << camObjData1.imgFlipped.size().width << " y:" << camObjData1.imgFlipped.size().height << std::endl;
+			std::cout << "size0: x:" << camObjData0.imgThreshold.size().width << " y:" << camObjData0.imgThreshold.size().height << std::endl;
+			std::cout << "size1: x:" << camObjData1.imgThreshold.size().width << " y:" << camObjData1.imgThreshold.size().height << std::endl;
 
 			cv::hconcat(camObjData0.imgFlipped,   camObjData1.imgFlipped, concFlipped);
 			cv::hconcat(camObjData0.imgThreshold, camObjData1.imgThreshold, concThresh);
