@@ -61,7 +61,6 @@ pos2d<int> prefSize{DEFAULT_PREF_WIDTH, DEFAULT_PREF_HEIGHT};
 bool displayTFT = false;
 
 
-
 // int l_HSV[3] = {0, 0, 255};
 // int u_HSV[3] = {179, 9, 255};
 // int HW_HSV[2][3] = {
@@ -69,9 +68,10 @@ bool displayTFT = false;
 // 	{179, 9, 255}
 // };
 
-std::vector<pos3d<int>> HW_HSV{
-	{0, 0, 255},
-	{179, 9, 255}
+// HSV color range for object tracking
+std::vector<std::vector<int>> HW_HSV{
+	{0, 0, 255},	//{0, 0, 255},
+	{179, 9, 255}	//{0, 0, 255}
 };
 
 std::string window_name = "Window";
@@ -79,9 +79,16 @@ std::string window_name = "Window";
 // IR camtracking header class initialization
 // std::vector<IR_camTracking> camObj;
 
+
+#if _WIN32
+	std::vector<int> camID{0, 1};
+#else
+	std::vector<int> camID{0, 2};
+#endif
+
 std::vector<CVTRACK::camObjTracker> camObj{
-	CVTRACK::camObjTracker(false, 0, 640, 480, false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000),
-	CVTRACK::camObjTracker(false, 2, 640, 480, false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000)
+	CVTRACK::camObjTracker(false, camID[0], prefSize[0], prefSize[1], false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000),
+	CVTRACK::camObjTracker(false, camID[1], prefSize[0], prefSize[1], false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000)
 };
 
 
@@ -109,8 +116,6 @@ getPerf perfObj[3] {
 opencv_recorder recObj;
 
 
-
-#if useThreads
 #if takePerf
 //sub thread(s) performance measurements
 
@@ -122,9 +127,6 @@ std::mutex mtx_perfObj_threads[2];
 #endif // takePerf
 
 std::mutex mtx_cout;
-
-#endif // useThreads
-
 
 
 int subMenuPos[2] = {20, 0};
@@ -281,8 +283,8 @@ int _init__pca(_initClass_dataStruct *_passData) {
 int _init__camObj(_initClass_dataStruct *_passData) {
 	// camObj = std::vector<IR_camTracking>(2);
 	camObj = std::vector<CVTRACK::camObjTracker>{
-		CVTRACK::camObjTracker(false, 0, 640, 480, false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000),
-		CVTRACK::camObjTracker(false, 2, 640, 480, false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000)
+		CVTRACK::camObjTracker(false, camID[0], prefSize[0], prefSize[1], false, _CONFIG_OPTIONS.get("camObj_useThreads"), {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000),
+		CVTRACK::camObjTracker(false, camID[1], prefSize[0], prefSize[1], false, _CONFIG_OPTIONS.get("camObj_useThreads"), {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000)
 	};
 	
 
@@ -292,7 +294,8 @@ int _init__camObj(_initClass_dataStruct *_passData) {
 	try {
 		// camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf")));
 		camObj_ptr = &camObj.at(0);
-		new (camObj_ptr) CVTRACK::camObjTracker(false, 0, 640, 480, false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000);
+		new (camObj_ptr) CVTRACK::camObjTracker(false, camID[0], prefSize[0], prefSize[1], false, _CONFIG_OPTIONS.get("camObj_useThreads"), {-1, 6}, HW_HSV[0], HW_HSV[1], 1000);
+		camObj[0].setConsolePrintMutex(&mtx_cout);
 		if(!camObj.at(0).init()) {
 			throw std::runtime_error("_init__camObj[0]: init() failed");
 		}
@@ -302,19 +305,22 @@ int _init__camObj(_initClass_dataStruct *_passData) {
 		_passData->_message = 	"cam0:"+std::string(e.what());
 		return 1;
 	}
-	std::cout<<"[3]";std::cout.flush();std::this_thread::sleep_for(std::chrono::milliseconds(500));
 	try {
 		// camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf")));
 		camObj_ptr = &camObj.at(1);
-		new (camObj_ptr) CVTRACK::camObjTracker(false, 2, 640, 480, false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000);
+		new (camObj_ptr) CVTRACK::camObjTracker(false, camID[1], prefSize[0], prefSize[1], false, _CONFIG_OPTIONS.get("camObj_useThreads"), {-1, 6}, HW_HSV[0], HW_HSV[1], 1000);
+		camObj[1].setConsolePrintMutex(&mtx_cout);
 		if(!camObj.at(1).init()) {
 			throw std::runtime_error("_init__camObj[1]: init() failed");
 		}
+		
 		_passData->_message = "";
 	} catch (const std::exception& e) {
 		_passData->_message = "cam1:"+std::string(e.what());
 		return 1;
 	}
+
+
 	return 0;
 }
 int _init__pigpio(_initClass_dataStruct *_passData) {

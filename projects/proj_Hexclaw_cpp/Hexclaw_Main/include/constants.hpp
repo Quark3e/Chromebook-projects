@@ -10,8 +10,6 @@
 #define _MACHINE__RPI_MAIN  (_WIN32? false : true)
 
 
-/// Whether to use threads
-#define useThreads		true
 /// Whether to print checkpoints
 #define threadDebug		false
 
@@ -27,8 +25,8 @@
 #define recordFrames	false
 
 
-#define DEFAULT_PREF_WIDTH   640
-#define DEFAULT_PREF_HEIGHT  480
+#define DEFAULT_PREF_WIDTH   320 //640
+#define DEFAULT_PREF_HEIGHT  240 //480
 
 
 #if !_MACHINE__RPI_MAIN

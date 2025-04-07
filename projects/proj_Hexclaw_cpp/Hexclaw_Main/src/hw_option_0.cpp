@@ -123,7 +123,7 @@ void HW_option0() {
 		// perfObj[0].add_checkpoint("loop start");
 		#endif
 
-		if(!(camObj[0].isThreadLoopInit() && camObj[1].isThreadLoopInit())) {
+		if(_CONFIG_OPTIONS.get("camObj_useThreads") && !(camObj[0].isThreadLoopInit() && camObj[1].isThreadLoopInit())) {
 			if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: NOTE: Threads have not been initialised:\n -initialising."); }
 
 			while(!(camObj[0].isThreadLoopInit() && camObj[1].isThreadLoopInit())) {

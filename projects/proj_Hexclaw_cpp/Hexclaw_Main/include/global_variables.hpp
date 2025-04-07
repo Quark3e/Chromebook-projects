@@ -29,7 +29,8 @@
 inline DIY::typed_dict<std::string, bool> _CONFIG_OPTIONS({
 	{"useAutoBrightness", 	true},
 	{"takeCVTrackPerf",		true},
-	{"displayToWindow",		true}
+	{"displayToWindow",		true},
+	{"camObj_useThreads",	true}
 });
 
 /// @brief absolute path of the current directory for this program
@@ -101,10 +102,13 @@ extern bool displayTFT;
 // int u_HSV[3] = {179, 9, 255};
 // extern int HW_HSV[2][3];
 
-extern std::vector<pos3d<int>> HW_HSV;
+extern std::vector<std::vector<int>> HW_HSV;
 
 // extern const char* window_name;
 extern std::string window_name;
+
+/// @brief ID of the camera for camObj
+extern std::vector<int> camID;
 
 /// Cam object tracking related
 
@@ -186,7 +190,6 @@ inline void lock_cout(
     }
 }
 
-#if useThreads
 #if takePerf
 //sub thread(s) performance measurements
 
@@ -202,7 +205,6 @@ extern std::mutex mtx_perfObj_threads[2];
 
 extern std::mutex mtx_cout;
 
-#endif // useThreads
 
 
 /// Terminal menu related

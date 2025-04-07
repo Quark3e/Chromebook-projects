@@ -12,6 +12,12 @@
 #include "hw_options.hpp"
 
 
+void trackBarCallback(int, void* _callBackBool) {
+	std::cout << "trackbar callback" << std::endl;
+	// std::cout.flush();
+
+	*reinterpret_cast<bool*>(_callBackBool) = true;
+}
 
 void HW_option3() {
 
@@ -48,30 +54,39 @@ void HW_option3() {
 	printTable.insertText("tilt", 0, 2);
 	printTable.insertText("servo", 0, 3);
 	printTable.insertText("objArea", 0, 4);
-
-	#if useThreads
-	if(init_camObj) {
-		std::unique_lock<std::mutex> u_lck_cout(mtx_cout, std::defer_lock);
 	
-		// std::thread t0(thread_task, &camObj[0], 0);
-		// std::thread t1(thread_task, &camObj[1], 1);
-		// std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-	}
-	#endif //useThreads
+	
+	std::unique_lock<std::mutex> u_lck_cout;
 
-	/// Initialise the camera objects and the threads
+	
+	bool trackBarUpdate = false;
+	if(init_camObj) {
+
+		u_lck_cout = std::unique_lock<std::mutex>(mtx_cout, std::defer_lock);
+		
+		if(_CONFIG_OPTIONS.get("displayToWindow")) {
+			cv::namedWindow("Main thread window", cv::WINDOW_AUTOSIZE | cv::WINDOW_GUI_EXPANDED);
+
+			cv::namedWindow("Main thread window",  cv::WINDOW_AUTOSIZE);
+			cv::createTrackbar("L_Hue", "Main thread window", &HW_HSV[0][0], 179, trackBarCallback, &trackBarUpdate);
+			cv::createTrackbar("L_Sat", "Main thread window", &HW_HSV[0][1], 255, trackBarCallback, &trackBarUpdate);
+			cv::createTrackbar("L_Val", "Main thread window", &HW_HSV[0][2], 255, trackBarCallback, &trackBarUpdate);
+			cv::createTrackbar("U_Hue", "Main thread window", &HW_HSV[1][0], 179, trackBarCallback, &trackBarUpdate);
+			cv::createTrackbar("U_Sat", "Main thread window", &HW_HSV[1][1], 255, trackBarCallback, &trackBarUpdate);
+			cv::createTrackbar("U_Val", "Main thread window", &HW_HSV[1][2], 255, trackBarCallback, &trackBarUpdate);
+		}
+	}
+
+	cv::Mat emptyMat = cv::Mat::zeros(prefSize[1], prefSize[0], CV_8UC3);
 
 	// camObj/thread initialisation loop boolean.
 	bool loopInit = false;
 	while(true) {
 		/// Main option loop
-		
-
-		#if useThreads
 		if(init_camObj) {
-			if(!(camObj[0].isThreadLoopInit() && camObj[1].isThreadLoopInit())) {
+			if(_CONFIG_OPTIONS.get("camObj_useThreads") && !(camObj[0].isThreadLoopInit() && camObj[1].isThreadLoopInit())) {
 				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: NOTE: Threads have not been initialised:\n -initialising."); }
-	
+				
 				while(!(camObj[0].isThreadLoopInit() && camObj[1].isThreadLoopInit())) {
 					std::this_thread::sleep_for(std::chrono::milliseconds(500));
 				}
@@ -82,7 +97,6 @@ void HW_option3() {
 				if(threadDebug) lock_cout(mtx_cout, "\nthread:[2]: sub-threads have been initialised!\n", true, true);
 			}
 		}
-		#endif //useThreads
 
 		printTable.insertNum(PP[0],1,1,1);
 		printTable.insertNum(PP[1],2,1,1);
@@ -95,7 +109,7 @@ void HW_option3() {
 			printTable.insertNum(orientObj.Roll,1,2,1);
 			printTable.insertNum(orientObj.Pitch,2,2,1);
 			printTable.insertNum(0,3,2,1);
-
+			
 			orient[0] = orientObj.Roll;
 			orient[1] = orientObj.Pitch;
 		}
@@ -106,13 +120,12 @@ void HW_option3() {
 		}
 		
 		
-		#if useThreads
 		if(init_camObj) {
 			printTable.insertNum(camObj[0].data().cnt_pos[0],1,0,1);
 			printTable.insertNum(camObj[0].data().cnt_pos[1],2,0,1);
 			printTable.insertNum(camObj[1].data().cnt_pos[0],3,0,1);
 			printTable.insertNum(camObj[1].data().cnt_pos[1],4,0,1);
-
+			
 			if(camObj[0].data().cnt_area==0) { /// cam 0: no object detected
 				// printTable.insertText("cam0: no object", 1, 0);
 				printTable.insertText("cam0: no object", 1, 4);
@@ -130,8 +143,7 @@ void HW_option3() {
 				printTable.add_to_cell("px",1,4);
 			}
 		}
-		#endif //useThreads
-
+		
 		for(size_t i=0; i<6; i++) {
 			printTable.setColWidth(i+1, 6);
 		}
@@ -156,43 +168,56 @@ void HW_option3() {
 			printTable.insertText(e.what(), 2, 3);
 			// std::cerr << e.what() << '\n';
 		}
-
+		
 		
 		// std::cout << "\x1B[2J\x1B[H" << " \n"; // clear screen
+		
+		u_lck_cout.lock();
+		std::cout << formatVector(HW_HSV[0], 3, 0) << " " << formatVector(HW_HSV[1], 3, 0) << std::endl;
+		u_lck_cout.unlock();
 
+		CVTRACK::camObjTrackerData camObjData0;
+		CVTRACK::camObjTrackerData camObjData1;
 		if(init_camObj && _CONFIG_OPTIONS.get("displayToWindow")) {
-			cv::Mat winImg, concThresh, concFlipped;
-
-			CVTRACK::camObjTrackerData camObjData0 = camObj[0].data();
-			CVTRACK::camObjTrackerData camObjData1 = camObj[1].data();
+			if(trackBarUpdate) {
+				camObj[0].setHSV(HW_HSV[0], HW_HSV[1]);
+				camObj[1].setHSV(HW_HSV[0], HW_HSV[1]);
+				trackBarUpdate = false;
+			}
+			
+			cv::Mat winImg, concThresh, concFlipped, concHSV;
+			
+			
+			if(!_CONFIG_OPTIONS.get("camObj_useThreads")) {
+				camObjData0 = camObj[0].updateData();
+				camObjData1 = camObj[1].updateData();
+								
+			}
+			else {
+				camObjData0 = camObj[0].data();
+				camObjData1 = camObj[1].data();
+			}
 
 			cv::cvtColor(camObjData0.imgThreshold, camObjData0.imgThreshold, cv::COLOR_GRAY2BGR);
 			cv::cvtColor(camObjData1.imgThreshold, camObjData1.imgThreshold, cv::COLOR_GRAY2BGR);
+
+			// cv::cvtColor(camObjData0.imgHSV, camObjData0.imgHSV, cv::COLOR_HSV2BGR);
+			// cv::cvtColor(camObjData1.imgHSV, camObjData1.imgHSV, cv::COLOR_HSV2BGR);
+
 			camObjData0.imgThreshold.convertTo(camObjData0.imgThreshold, CV_8UC3);
+			camObjData1.imgThreshold.convertTo(camObjData1.imgThreshold, CV_8UC3);
+
+			camObjData0.imgHSV.convertTo(camObjData0.imgHSV, CV_8UC3);
+			camObjData1.imgHSV.convertTo(camObjData1.imgHSV, CV_8UC3);
+		
+			cv::hconcat(camObjData0.imgFlipped,   	camObjData1.imgFlipped, 	concFlipped);
+			cv::hconcat(camObjData0.imgHSV,     	camObjData1.imgHSV,     	concHSV);
+			cv::hconcat(camObjData0.imgThreshold, 	camObjData1.imgThreshold,	concThresh);
 			
-			cv::resize(camObjData0.imgFlipped, camObjData0.imgFlipped, cv::Size(), 0.5, 0.5);
-			cv::resize(camObjData1.imgFlipped, camObjData1.imgFlipped, cv::Size(), 0.5, 0.5);
-			cv::resize(camObjData0.imgThreshold, camObjData0.imgThreshold, cv::Size(), 0.5, 0.5);
-			cv::resize(camObjData1.imgThreshold, camObjData1.imgThreshold, cv::Size(), 0.5, 0.5);
+			cv::vconcat(concFlipped, concHSV, winImg);
+			cv::vconcat(winImg, concThresh, winImg);
 
 
-			cv::hconcat(camObjData0.imgFlipped,   camObjData1.imgFlipped, concFlipped);
-			cv::hconcat(camObjData0.imgThreshold, camObjData1.imgThreshold, concThresh);
-			
-			cv::vconcat(concFlipped, concThresh, winImg);
-
-			static std::vector<int> loc_U_HSV{180, 255, 255};
-			static std::vector<int> loc_L_HSV{  0,   0,   0};
-
-			cv::namedWindow("HSV controls",  cv::WINDOW_AUTOSIZE);
-			// cv::createTrackbar("U_Hue", "HSV controls", &loc_U_HSV[0], 179, NULL);
-			// cv::createTrackbar("U_Sat", "HSV controls", &loc_U_HSV[1], 255, NULL);
-			// cv::createTrackbar("U_Val", "HSV controls", &loc_U_HSV[2], 255, NULL);
-			// cv::createTrackbar("L_Hue", "HSV controls", &loc_L_HSV[0], 179, NULL);
-			// cv::createTrackbar("L_Sat", "HSV controls", &loc_L_HSV[1], 255, NULL);
-			// cv::createTrackbar("L_Val", "HSV controls", &loc_L_HSV[2], 255, NULL);
-
-			cv::namedWindow("Main thread window", cv::WINDOW_AUTOSIZE);
 			cv::imshow("Main thread window", winImg);
 			// cv::imshow("HSV controls", winImg);
 
@@ -242,6 +267,8 @@ void HW_option3() {
 	}
 
 
-
+	if(init_camObj && _CONFIG_OPTIONS.get("camObj_useThreads")) u_lck_cout.lock();
 	ANSI_mvprint(0, 0, "Exiting main thread", true, "abs", "rel");
+	if(init_camObj && _CONFIG_OPTIONS.get("camObj_useThreads")) u_lck_cout.unlock();
+
 }
