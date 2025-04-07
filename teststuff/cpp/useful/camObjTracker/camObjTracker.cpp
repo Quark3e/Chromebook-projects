@@ -10,8 +10,8 @@ namespace CVTRACK {
         bool __setAutoBrightness,
         bool __useThreads,
         std::vector<int> __morphological_schedule__size,
-        std::vector<int> __u_HSV,
         std::vector<int> __l_HSV,
+        std::vector<int> __u_HSV,
         int areaLim
     ) : _camIdx(__camIndex), _frameSize(__frameWidth, __frameHeight), 
         _options_autoBrightness(__setAutoBrightness), _options_useThreads(__useThreads),
@@ -155,8 +155,8 @@ namespace CVTRACK {
         bool __setAutoBrightness,
         bool __useThreads,
         std::vector<int> __morphological_schedule__size,
-        std::vector<int> __u_HSV,
         std::vector<int> __l_HSV,
+        std::vector<int> __u_HSV,
         int areaLim
     ) {
         if (_isRunning) {
@@ -167,6 +167,8 @@ namespace CVTRACK {
             throw std::runtime_error("Class object is already initialized!");
             return false;
         }
+
+        putenv("OPENCV_VIDEOIO_PRIORITY_MSMF=0"); // Disable MSMF backend for Windows
 
         _camIdx = __camIndex;
         _frameSize = pos2d<float>(__frameWidth, __frameHeight);
@@ -187,8 +189,8 @@ namespace CVTRACK {
         if (_options_autoBrightness) {
             _cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);
         }
-        _cap.set(cv::CAP_PROP_FRAME_WIDTH, static_cast<double>(_frameSize.x));
-        _cap.set(cv::CAP_PROP_FRAME_HEIGHT, static_cast<double>(_frameSize.y));
+        // _cap.set(cv::CAP_PROP_FRAME_WIDTH, static_cast<double>(_frameSize.x));
+        // _cap.set(cv::CAP_PROP_FRAME_HEIGHT, static_cast<double>(_frameSize.y));
 
 
         ptr_data_write = &_data_write;
@@ -257,15 +259,32 @@ namespace CVTRACK {
         }
         _morphological_schedule__size = __schedule;
     }
-    void camObjTracker::setHSV(std::vector<int> __u_HSV, std::vector<int> __l_HSV) {
-        std::lock_guard<std::mutex> lock(_mtx_dataAccess);
+    void camObjTracker::setHSV(std::vector<int> __l_HSV, std::vector<int> __u_HSV) {
+        if (__u_HSV.size() != 3 || __l_HSV.size() != 3) {
+            throw std::runtime_error("HSV values must be of size 3!");
+            return;
+        }
         if (__u_HSV == _u_HSV && __l_HSV == _l_HSV) {
             return;
         }
+        std::lock_guard<std::mutex> lock(_mtx_dataAccess_hsv);
         _u_HSV = __u_HSV;
         _l_HSV = __l_HSV;
     }
-    
+    void camObjTracker::setConsolePrintMutex(std::mutex* __mtx_cout) {
+        if(!_options_useThreads) {
+            throw std::runtime_error("setConsolePrintMutex(): Class object is not running in thread mode!");
+            return;
+        }
+        std::lock_guard<std::mutex> lock(_mtx_dataAccess);
+        if (__mtx_cout == nullptr) {
+            throw std::runtime_error("Console print mutex cannot be null!");
+            return;
+        }
+        _mtx_cout = __mtx_cout;
+    }
+
+
     void camObjTracker::exitThreadLoop() {
         _isRunning = false;
         if (_thread_processCam.joinable()) {
@@ -280,8 +299,8 @@ namespace CVTRACK {
         }
     }
     void camObjTracker::_process__2_resizeImg() {
-        // cv::resize(ptr_data_write->imgRaw, ptr_data_write->imgOriginal, cv::Size(static_cast<int>(_frameSize.x), static_cast<int>(_frameSize.y)));
-        ptr_data_write->imgOriginal = ptr_data_write->imgRaw.clone();
+        cv::resize(ptr_data_write->imgRaw, ptr_data_write->imgOriginal, cv::Size(static_cast<int>(_frameSize.x), static_cast<int>(_frameSize.y)));
+        // ptr_data_write->imgOriginal = ptr_data_write->imgRaw.clone();
         cv::flip(ptr_data_write->imgOriginal, ptr_data_write->imgFlipped, 1);
     }
     void camObjTracker::_process__3_cvt() {
@@ -351,11 +370,16 @@ namespace CVTRACK {
         return _isRunning;
     }
     camObjTrackerData camObjTracker::data() {
-        std::lock_guard<std::mutex> lock(_mtx_dataSwitch);
+        if(!_options_useThreads) {
+            std::cout << "WARNING: Class object is not running in thread mode. Use `updateData()` to get the latest data." << std::endl;
+        }
+        else {
+            std::lock_guard<std::mutex> lock(_mtx_dataSwitch);
+        }
         return *ptr_data_read;
     }
 
-    camObjTrackerData camObjTracker::updateData() {
+    camObjTrackerData& camObjTracker::updateData() {
         if(!isInit()) {
             throw std::runtime_error("Class object is not initialized!");
         }
