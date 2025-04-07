@@ -9,8 +9,12 @@
 
 #include "useful/pos2d.hpp"
 
+// #include <cstdlib>
+
 
 int main(int argc, char** argv) {
+    putenv("OPENCV_VIDEOIO_PRIORITY_MSMF=0"); // Disable MSMF backend for Windows
+    
     int capIdx = 0; // Default camera index
     if(argc==2) {
         try {
@@ -98,9 +102,13 @@ int main(int argc, char** argv) {
         cv::circle(thresholdFrame, cv::Point(static_cast<int>(pos.x), static_cast<int>(pos.y)), 5, cv::Scalar(0, 0, 255), -1); // Draw detected object position
         cv::putText(thresholdFrame, "Area: " + std::to_string(avgArea), cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(255, 255, 255), 2); // Display area
         
+        cv::resize(frame,           frame,          cv::Size(320, 240)); // Resize frame image to match original frame size
+        cv::resize(hsvFrame,        hsvFrame,       cv::Size(320, 240)); // Resize hsvFrame image to match original frame size
+        cv::resize(thresholdFrame,  thresholdFrame, cv::Size(320, 240)); // Resize thresholded image to match original frame size
+        cv::resize(displayImg,      displayImg,     cv::Size(320, 240)); // Resize displayImg image to match original frame size
         
-        cv::vconcat(frame, thresholdFrame, displayImg); // Concatenate original and thresholded images vertically
-
+        cv::vconcat(frame, hsvFrame, displayImg); // Concatenate original and thresholded images vertically
+        cv::vconcat(displayImg, thresholdFrame, displayImg); // Concatenate the concatenated image with the HSV image vertically
 
         cv::imshow("Display Window", displayImg); // Show the original frame
 
@@ -109,6 +117,7 @@ int main(int argc, char** argv) {
             break;
         }
     }
+
 
     cv::destroyAllWindows(); // Close all OpenCV windows
     cap.release(); // Release the camera

@@ -217,6 +217,9 @@ int main(int argc, char* argv[]) {
 	// std::cout << "simplified init called..."<<std::endl;
 	// usleep(5'000'000);
 
+	cv::utils::logging::setLogLevel(cv::utils::logging::LogLevel::LOG_LEVEL_SILENT);
+	
+
 	if(_init_status.get("pca").isInit()) sendToServo(&pca, new_q, current_q, true);
 	HW_setup_options();
 
