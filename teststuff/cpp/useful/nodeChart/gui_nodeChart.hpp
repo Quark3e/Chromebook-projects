@@ -82,8 +82,9 @@ struct Vec2i {
 namespace gNC {
 
     template<typename _varType>
-    static auto to_ImVec2 = [](pos2d toConv) { return ImVec2(toConv.x, toConv.y); };
-    static auto to_pos2d  = [](ImVec2 toConv){ return pos2d(toConv.x, toConv.y); };
+    auto to_ImVec2 = [](pos2d<_varType> toConv) { return ImVec2(toConv.x, toConv.y); };
+    template<typename _varType>
+    auto to_pos2d  = [](ImVec2 toConv){ return pos2d<_varType>(toConv.x, toConv.y); };
 
 
     extern ImVec2 _DRAW_SCALAR;
