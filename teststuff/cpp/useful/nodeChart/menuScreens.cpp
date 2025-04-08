@@ -420,6 +420,7 @@ void gNC::_menu__rightClick(
                 "", "", ""
             );
             nodePtr_menu__node_details = _chart->lastAdded_NODE();
+            ImGui::SetWindowFocus(nodePtr_menu__node_details->addr.c_str());
             // mouseAction_left = 0;
         }
             

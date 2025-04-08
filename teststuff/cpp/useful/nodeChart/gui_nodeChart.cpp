@@ -47,7 +47,10 @@ gNC::gNODE::gNODE(
     
     // std::time_t t = std::time(nullptr);
     // std::tm date = *std::localtime(&t);
-    date = tm{};
+    time_t now;
+    time(&now);
+    date = *localtime(&now);
+
     // std::cout << std::put_time(&date, "%A, %B %d, %Y") << std::endl;
     // std::cout << "created node with date: " << date.tm_mday << " " << date.tm_mon << " " << date.tm_year << std::endl;
     // if(date.tm_mday<1) date.tm_mday = 1;
@@ -1445,6 +1448,9 @@ int gNC::guiNodeChart::draw() {
     // std::cout << "{" << std::setw(2) << mouseAction_left << "," << std::setw(3) << decay_mouseClick_left << "} ";
 #endif
 
+    _menu__rightClick(thisPtr);
+
+
     /// @brief whether a node has been focused when they're iterated.
     bool node_focused = false;
     /// @brief whether a link has been focused when they're iterated.
@@ -1454,7 +1460,6 @@ int gNC::guiNodeChart::draw() {
 
     ImVec2 sMousePos = ImVec2_divide(io.MousePos, _DRAW_SCALAR);
     static ImVec2 _moving_node__origPos = ImVec2(0, 0);
-
     for (auto itr = _links.begin(); itr != this->_links.end(); ++itr) {
         std::vector<ImVec2> linkPos{
             ImVec2_multiply(ImVec2((*itr).Pos_src.x + screen_pos[0], (*itr).Pos_src.y + screen_pos[1]),  _DRAW_SCALAR),
@@ -1547,6 +1552,8 @@ int gNC::guiNodeChart::draw() {
                         lockMove_node = false;
                         mouseAction_left = 1;
                         decay_mouseClick_left = 100;
+                        // nodePtr_menu__node_details = &(*itr); //Disabled for now because this method overlaps when moving nodes. Need to create a method to differentiate what vector is "above" other nodes
+                        node_focused = true;
                     }
                 }
                 else {
@@ -1685,9 +1692,10 @@ int gNC::guiNodeChart::draw() {
 
 
         ImGui::SetWindowPos(ImVec2_multiply(nodePos, _DRAW_SCALAR));
-        if (ImGui::IsWindowFocused()) {
+        if (ImGui::IsWindowFocused() /*nodePtr_menu__node_details == &(*itr)*/) {
             // _menu__node_details(&(*itr));
             nodePtr_menu__node_details = &(*itr);
+            
             // if (guiKeys.isHolding(ImGuiKey_MouseLeft)) nodePtr_focused = &(*itr);
             if(keyBinds.pressing("MouseLeft")) nodePtr_focused = &(*itr);
             node_focused = true;
@@ -1735,7 +1743,6 @@ int gNC::guiNodeChart::draw() {
 
         _menu__link_details(linkPtr_menu__link_details, this);
     }
-
     if (static_mouseAction_left != 1 && (mouseDrag_left)) {
         if (!node_focused) nodePtr_menu__node_details = nullptr;
     }
@@ -1744,7 +1751,6 @@ int gNC::guiNodeChart::draw() {
     }
 
     if (!guiKeys.isHolding(ImGuiKey_MouseLeft)) nodePtr_focused = nullptr;
-
 
     if ((mouseAction_left == 0 || mouseAction_left == -1) && keyBinds.pressing("MouseLeft") /*isKeyPressed(655, &(*pressed_keys)[pressed_keys->size() - 1])*/ && !_mode__fileExplorer) {
         lockMove_screen = false;
@@ -1791,7 +1797,6 @@ int gNC::guiNodeChart::draw() {
             default: break;
         };
     }
-    _menu__rightClick(thisPtr);
 
     // std::cout << mouseAction_left << " " << static_mouseAction_left << std::endl;
 
@@ -1808,7 +1813,7 @@ int gNC::guiNodeChart::saveToFile(
     std::string filename,
     bool overwrite
 ) {
-
+    
     time_t tempTime;
     static auto getDateLambda = [](tm* param_date) {
         char c_out[256];
@@ -1817,7 +1822,7 @@ int gNC::guiNodeChart::saveToFile(
 
         std::string _tempStr(c_out);
         return _tempStr.substr(0, _tempStr.find('\n'));
-        };
+    };
     static auto prepString = [](std::string str) {
         std::string _out = "";
         for (int i = 0; i < str.length(); i++) {
@@ -1856,6 +1861,7 @@ int gNC::guiNodeChart::saveToFile(
     _file << std::string(ind * 4, ' ') << "\"nodes\"" << "\t: [\n"; ind++;
 
     for (auto itr = _nodes.begin(); itr != _nodes.end(); ++itr) {
+
         if (itr == _nodes.begin())  _file << std::string(ind * 4, ' ');
         _file << "{\n"; ind++;
 
