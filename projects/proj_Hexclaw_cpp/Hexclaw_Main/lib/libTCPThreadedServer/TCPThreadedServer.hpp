@@ -61,13 +61,14 @@ namespace TCPTS {
             int getPort();
             _buffType getBuffer();
 
-            void updateBuffer(_buffType buf);
+            void updateBuffer(_buffType buf, size_t buf_size);
  
         private:
             
             void threadFunc();
 
             _buffType stored_buf_;
+            size_t stored_buf_size_ = 0;
 
             int port_;
             
@@ -254,9 +255,10 @@ namespace TCPTS {
     }
 
     template<class _buffType>
-    void TCPThreadedServer<_buffType>::updateBuffer(_buffType buf) {
+    void TCPThreadedServer<_buffType>::updateBuffer(_buffType buf, size_t buf_size) {
         std::lock_guard<std::mutex> lock(mtx_dataAccess_buf_);
         stored_buf_ = buf;
+        stored_buf_size_ = buf_size;
     }
 
 
@@ -296,10 +298,80 @@ namespace TCPTS {
             ipaddr_client_ = std::string(sendBuf_);
             u_lck_clientInfo.unlock();
 
-            while(true) {
+            /// Expected message size for the initial request msg.
+            const size_t msgSize_initialRecv = 10;
+            while(true) { /// Loop until the connection is closed
+
+                bytesReceived_ = recv(
+                    socket_client_,
+#if _WIN32
+                    (char*)recvBuf_,
+                    msgSize_initialRecv,
+#else
+                    recvBuf_,
+                    msgSize_initialRecv,
+#endif //_WIN32
+                    MSG_WAITALL
+                );
+                /// Check if recv was successful
+                if (bytesReceived_ <= 0) {
+                    std::cerr << "recv() failed or connection closed" << std::endl;
+                    exit(1);
+                }
+                recvBuf_[bytesReceived_] = '\0'; // Null-terminate the received string
+                /// Send size of the buf size
+                bytesSent_ = send(
+                    socket_client_,
+#if _WIN32
+                    (char*)&stored_buf_size_,
+                    sizeof(stored_buf_size_),
+#else
+                    &stored_buf_,
+                    sizeof(stored_buf_size_), MSG_NOSIGNAL |
+#endif //_WIN32
+                    0
+                );
+                /// Check if send was successful
+                if (bytesSent_ <= 0) {
+                    std::cerr << "send() failed" << std::endl;
+                    exit(1);
+                }
+
+                /// Send the buffer data
+                u_lck_buf.lock();
+                bytesSent_ = send(
+                    socket_client_,
+#if _WIN32
+                    (char*)&stored_buf_,
+                    stored_buf_size_*sizeof(stored_buf_[0]),
+#else
+                    stored_buf_,
+                    stored_buf_size_, MSG_NOSIGNAL |
+#endif //_WIN32
+                    0
+                );
+                u_lck_buf.unlock();
+                /// Check if send was successful
+                if (bytesSent_ <= 0) {
+                    std::cerr << "send() failed" << std::endl;
+                    exit(1);
+                }
 
             }
 
+            /// Empty out the buffer
+            while(recv(socket_client_, recvBuf_, sizeof(recvBuf_), 0) > 0);
+            /// Close the client socket
+#if _WIN32
+            closesocket(socket_client_);
+#else
+            shutdown(socket_client_, SHUT_RDWR);
+            if(close(socket_client_)) {
+                std::cerr << "close() failed" << std::endl;
+                exit(1);
+            }
+#endif //_WIN32
+            socketOpen_client_ = false;
         }
     }
 

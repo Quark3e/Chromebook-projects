@@ -111,7 +111,6 @@ void *display(/*void *ptr*/) {
 
     int imgSize = imgFused.total() * imgFused.elemSize();
     int bytes = 0;
-    int key;
 
     if(__VERBOSE) std::cout << "Image size: " << imgSize << std::endl;
 
