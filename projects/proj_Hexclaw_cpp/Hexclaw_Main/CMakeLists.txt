@@ -99,6 +99,7 @@ endif(WIN32)
 
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/lib)
 target_include_directories(${PROJECT_NAME} PRIVATE ${DIR_CPP_USEFUL}/useful/)
 target_include_directories(${PROJECT_NAME} PRIVATE ${DIR_CPP_USEFUL})
 target_include_directories(${PROJECT_NAME} PRIVATE ${DIR_CPP_USEFUL}/basic/Performance)
