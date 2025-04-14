@@ -580,8 +580,17 @@ pos2d<int> TUI::termMenu::driver(
     int init_driverCallKeys_count = init_driverCallKeys.size();
     int init_driverCallKeys_full = init_driverCallKeys_count;
     if(!driverFuncInit) driverFuncInit=true;
+
+    auto t0 = std::chrono::steady_clock::now();
+    auto t1 = std::chrono::steady_clock::now();
+    int iterSleepDuration = 0;
+    float delta_time = 0;
+
     while(/*(c=getch()) != 27 &&*/ !exitDriver) {
+        bool skipIteration = false;
         std::this_thread::sleep_for(std::chrono::milliseconds(msDelay));
+        t0 = std::chrono::steady_clock::now();
+
         #ifdef DEBUG__PRINT
         debug_checkPointStr  = "11.1";
         #endif
@@ -593,6 +602,7 @@ pos2d<int> TUI::termMenu::driver(
             
 #if _WIN32
             if(loopInit) {
+                c = -1;
                 if(_kbhit()) {
                     c = getch();
                 }
@@ -620,10 +630,13 @@ debug_checkPointStr  = "11.2";
             // menuTable.strExport("\n", false, "\n", " ");
         }
         //???
-        if(!callFunc && c==-1 && driverInit) continue;
+        if(!callFunc && c==-1 && driverInit) {
+            skipIteration = true;
+            // continue;
+        }
         if(c==-1 && loopInit && loopInit_count==0) {
             driverInit = true;
-            if(callFunc) continue;
+            // if(callFunc) continue;
         }
         #ifdef DEBUG__PRINT
         debug_checkPointStr  = "11.3";
@@ -631,6 +644,7 @@ debug_checkPointStr  = "11.2";
         if(loopInit_count>0) { loopInit_count--; }
         if(c==-1) c=0;
 
+        if(!skipIteration) {
         lastKeyPress = c;
         /// Hovered cell movement
         if(c==CUSTOM_KEY_LEFT) {
@@ -702,6 +716,7 @@ debug_checkPointStr  = "11.2";
         }
 
         bool subBreak = false;
+        /// Check the pressed key with option assigned keys
         for(int y=0; y<option_key.size(); y++) {
             for(int x=0; x<option_key.at(y).size(); x++) {
                 if(c==option_key.at(y).at(x)) {
@@ -777,7 +792,8 @@ debug_checkPointStr  = "11.2";
         #ifdef DEBUG__PRINT
         debug_checkPointStr  = "11.5.0.1";
         #endif
-        /// cursorMode based movement drawing.
+        }
+        /// Main drawing section: cursorMode based movement drawing.
         if(cursorMode==-1) {
             ansiPrint(
                 menuTable.exportStr,
@@ -1038,6 +1054,25 @@ debug_checkPointStr  = "11.2";
         refresh();
 #endif
         if(!loopInit) loopInit=true;
+
+        
+        if(delta_time < msDelay) iterSleepDuration = static_cast<int>(msDelay - delta_time);
+        else iterSleepDuration = 0;
+        std::this_thread::sleep_for(std::chrono::milliseconds(iterSleepDuration));
+
+        t1 = std::chrono::steady_clock::now();
+        
+        delta_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
+        
+        FPS_totalDelay+=delta_time;
+        if(FPS_totalDelay>=FPS_measureLim) {
+            FPS = static_cast<float>(FPS_frameCnt) / (FPS_totalDelay/1000);
+            FPS_totalDelay = 0;
+            FPS_frameCnt = 1;
+        }
+        else {
+            FPS_frameCnt++;
+        }
     }
     loopInit = false;
     #ifdef DEBUG__PRINT

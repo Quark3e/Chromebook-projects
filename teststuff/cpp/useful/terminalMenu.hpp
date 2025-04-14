@@ -316,6 +316,12 @@ namespace TUI {
         public:
         const std::string ansi_code = "\x1B[";
 
+        size_t  FPS_measureLim  = 200;
+        float   FPS_totalDelay  = 0;
+        size_t  FPS_frameCnt    = 1;
+        float   FPS = 0;
+
+
         
         int lastKeyPress = 0;
         /// @brief boolean for whether to exit `termMenu::driver()` main while loop

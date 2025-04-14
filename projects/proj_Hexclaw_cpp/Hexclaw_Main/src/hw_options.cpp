@@ -141,7 +141,7 @@ void HW__init_options() {
                 }
                 menu__init_options.addOpt(call_msg, 2, pressed_pos[1], -1, static_cast<TUI::TDEF_void__>(nullptr));
 
-                
+
             }
         }
         if(pressed_pos==pos2d<int>{0, static_cast<int>(1+_init_status.size())}) {
@@ -154,6 +154,8 @@ void HW__init_options() {
 
 
 void _mainDriver_updateFunc(TUI::termMenu* ptr_menu) {
+    ptr_menu->addTextCell("FPS:"+formatNumber(ptr_menu->FPS, 6, 1), 6, 0);
+
     _mainDriver_updateFunc__orientObj(ptr_menu);
     _mainDriver_updateFunc__serverObj_clientInfo(ptr_menu);
 
@@ -161,7 +163,7 @@ void _mainDriver_updateFunc(TUI::termMenu* ptr_menu) {
 }
 void _mainDriver_updateFunc__serverObj_clientInfo(TUI::termMenu* ptr_menu) {
     static std::string prevStr="";
-    std::string textCell_text=formatNumber("serverObj",10,0,"left")+":";
+    std::string textCell_text=formatNumber("serverObj",10,0,"left")+": ";
     if(!serverObj.isRunning()) {
         textCell_text += "not running.";
     }
@@ -174,7 +176,7 @@ void _mainDriver_updateFunc__serverObj_clientInfo(TUI::termMenu* ptr_menu) {
         }
     }
     
-    ptr_menu->addTextCell(textCell_text, 6, 0);
+    ptr_menu->addTextCell(textCell_text, 6, 1);
     if(prevStr!=textCell_text) {
         // ptr_menu->updateTable();
         prevStr = textCell_text;
@@ -182,23 +184,24 @@ void _mainDriver_updateFunc__serverObj_clientInfo(TUI::termMenu* ptr_menu) {
 }
 void _mainDriver_updateFunc__orientObj(TUI::termMenu* ptr_menu) {
     static std::string prevStr="";
-    std::string textCell_text=formatNumber("orientObj",10,0,"left")+":";
+    std::string textCell_text=formatNumber("orientObj",10,0,"left")+": ";
     if(!_init_status.get("orientObj").isInit()) {
         textCell_text += "not running.";
     }
     else {
         try {
             orientObj.update(false);
-            textCell_text += std::string(orientObj.accel);
+            textCell_text += std::string(formatContainer1(orientObj.accel, 3, 5, 2));
         }
         catch(std::exception &e) {
             textCell_text += e.what();
         }
     }
 
-    ptr_menu->addTextCell(textCell_text, 6, 1);
+    ptr_menu->addTextCell(textCell_text, 6, 2);
     if(prevStr!=textCell_text) {
         // ptr_menu->updateTable();
         prevStr = textCell_text;
     }
+
 }
