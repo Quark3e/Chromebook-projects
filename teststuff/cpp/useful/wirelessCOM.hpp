@@ -63,9 +63,9 @@ struct vec3 {
         switch (_axis) {
         case 0: return this->x; break;
         case 1: return this->y; break;
-        case 3: return this->z; break;
+        case 2: return this->z; break;
         default:
-            throw std::invalid_argument("_axis argument is invalid.");
+            throw std::invalid_argument("_axis argument is invalid: "+std::to_string(_axis));
             break;
         }
     }
