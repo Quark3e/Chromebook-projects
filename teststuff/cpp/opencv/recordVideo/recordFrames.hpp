@@ -54,11 +54,8 @@ class opencv_recorder {
             true
         );
         if(!videoObj.isOpened()) {
-            std::cout << "ERROR: cannot open/initialise VideoWriter object. Paused: enter to continue" << std::endl;
-            std::cin.get();
-            std::cin.clear();
-            std::cin.ignore();
-            return -1;
+            throw std::runtime_error("ERROR: cannot open/initialise VideoWriter object.");
+
         }
         return 0;
     }
