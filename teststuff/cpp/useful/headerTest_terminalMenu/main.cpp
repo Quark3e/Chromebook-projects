@@ -36,7 +36,7 @@
 
 
 void termMenu_call();
-void loop_call();
+void loop_call(TUI::termMenu* _);
 void exit_menu();
 
 pos2d<int> selectedPos{0, 0};
@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
 void termMenu_call() {
     // std::cout << formatContainer1(selectedPos, 2, 0, 0, "left") << std::endl;
 }
-void loop_call() {
+void loop_call(TUI::termMenu* _) {
     hoveredPos = menu.currCell;
     selectedPos= menu.pressedCell;
     std::string outStr = "hovered"+formatContainer1(hoveredPos, 2, 2, 0)+" selected"+formatContainer1(selectedPos, 2, 2, 0);

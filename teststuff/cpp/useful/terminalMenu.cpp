@@ -248,7 +248,7 @@ int TUI::termMenu::addOpt_nullFunc(std::string optName, int x_column, int y_row,
         x_column- (static_cast<int>((menuTable.table.size()>0? menuTable.table.at(0).size() : 0) -1 )),
         y_row   - (static_cast<int>(menuTable.table.size())-1)
     );
-    if(container_insertKey(keyPress, x_column, y_row)==-1) return 1;
+    container_insertKey(keyPress, x_column, y_row);
     menuTable.insertText(optName, x_column, y_row);
 
     optFunc_identifier.at(y_row).at(x_column) = 0;
@@ -263,7 +263,7 @@ int TUI::termMenu::addOpt(std::string optName, int x_column, int y_row, int keyP
         x_column-(static_cast<int>((menuTable.table.size()>0? menuTable.table.at(0).size() : 0) -1 )),
         y_row-(static_cast<int>(menuTable.table.size())-1)
     );
-    if(container_insertKey(keyPress, x_column, y_row)==-1) return 1;
+    container_insertKey(keyPress, x_column, y_row);
     menuTable.insertText(optName, x_column, y_row);
 
 
@@ -279,7 +279,7 @@ int TUI::termMenu::addOpt(std::string optName, int x_column, int y_row, int keyP
         x_column-(static_cast<int>((menuTable.table.size()>0? menuTable.table.at(0).size() : 0) -1 )),
         y_row-(static_cast<int>(menuTable.table.size())-1)
     );
-    if(container_insertKey(keyPress, x_column, y_row)==-1) return 1;
+    container_insertKey(keyPress, x_column, y_row);
     menuTable.insertText(optName, x_column, y_row);
 
 
@@ -301,7 +301,7 @@ int TUI::termMenu::addOpt(std::string optName, int x_column, int y_row, int keyP
         x_column-(static_cast<int>((menuTable.table.size()>0? menuTable.table.at(0).size() : 0) -1 )),
         y_row-(static_cast<int>(menuTable.table.size())-1)
     );
-    if(container_insertKey(keyPress, x_column, y_row)==-1) return 1;
+    container_insertKey(keyPress, x_column, y_row);
     menuTable.insertText(optName, x_column, y_row);
 
 
@@ -318,7 +318,7 @@ int TUI::termMenu::addOpt(std::string optName, int x_column, int y_row, int keyP
         x_column-(static_cast<int>((menuTable.table.size()>0? menuTable.table.at(0).size() : 0) -1 )),
         y_row-(static_cast<int>(menuTable.table.size())-1)
     );
-    if(container_insertKey(keyPress, x_column, y_row)==-1) return 1;
+    container_insertKey(keyPress, x_column, y_row);
     menuTable.insertText(optName, x_column, y_row);
 
 
@@ -335,7 +335,7 @@ int TUI::termMenu::addOpt(std::string optName, int x_column, int y_row, int keyP
         x_column-(static_cast<int>((menuTable.table.size()>0? menuTable.table.at(0).size() : 0) -1 )),
         y_row-(static_cast<int>(menuTable.table.size())-1)
     );
-    if(container_insertKey(keyPress, x_column, y_row)==-1) return 1;
+    container_insertKey(keyPress, x_column, y_row);
     menuTable.insertText(optName, x_column, y_row);
 
 
@@ -346,6 +346,29 @@ int TUI::termMenu::addOpt(std::string optName, int x_column, int y_row, int keyP
     return 0;
 }
 
+int TUI::termMenu::addTextCell(std::string cellText, int x_column, int y_row, bool convertCellType
+) {
+    if(
+        !convertCellType &&
+        y_row < menuTable.table.size() &&
+        x_column < menuTable.table.at(0).size() &&
+        (option_key[y_row][x_column]!=CELLOPTSPEC_TEXT && menuTable.table.at(y_row).at(x_column) != "")
+    ) {
+        throw std::runtime_error("addToCell: convertCellType==false && [y][x]!=\"\"");
+    }
+    
+    int ext_x = x_column-(static_cast<int>((menuTable.table.size()>0? menuTable.table.at(0).size() : 0) - 1));
+    int ext_y = y_row-(static_cast<int>(menuTable.table.size())-1);
+    
+    extend_containers(
+        ext_x, ext_y
+    );
+    container_insertKey(CELLOPTSPEC_TEXT, x_column, y_row);
+    menuTable.insertText(cellText, x_column, y_row);
+    // if(x_column==5 && y_row==0) std::cout << " [addTextCell called:"<<cellText<<"] "; std::cout.flush();
+
+    return 0;
+}
 
 int TUI::termMenu::rename_opt(
     int x_column,
@@ -363,7 +386,7 @@ pos2d<int> TUI::termMenu::driver(
     int pos_y,
     int msDelay,
     bool init_clear,
-    TDEF_void__ loopFunc,
+    TDEF_void_pTermMenu loopFunc,
     bool iterClear,
     std::string highlight_textColour,
     std::string highlight_bgColour,
@@ -569,9 +592,21 @@ pos2d<int> TUI::termMenu::driver(
         else {
             
 #if _WIN32
-            if(loopInit) c = getch();
+            if(loopInit) {
+                if(_kbhit()) {
+                    c = getch();
+                }
+                else {
+                    c = -1;
+                }
+            }
 #else
-            c = getch();
+            if(khibit()) {
+                c = getch();
+            }
+            else {
+                c = -1;
+            }
 #endif
         }
 #if _WIN32
@@ -580,7 +615,10 @@ pos2d<int> TUI::termMenu::driver(
 #ifdef DEBUG__PRINT
 debug_checkPointStr  = "11.2";
 #endif
-        if(loopFunc) loopFunc();
+        if(loopFunc) {
+            loopFunc(this);
+            // menuTable.strExport("\n", false, "\n", " ");
+        }
         //???
         if(!callFunc && c==-1 && driverInit) continue;
         if(c==-1 && loopInit && loopInit_count==0) {
@@ -594,11 +632,11 @@ debug_checkPointStr  = "11.2";
         if(c==-1) c=0;
 
         lastKeyPress = c;
-        /// Cell movement
+        /// Hovered cell movement
         if(c==CUSTOM_KEY_LEFT) {
             currCell[0]--;
             if(currCell[0]<0) currCell[0] = menuTable.table[currCell[1]].size()-1;
-            if(menuTable.table.at(currCell[1]).at(currCell[0])=="") { //skip empty cells
+            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) { //skip empty cells
                 for(int i=0; i<menuTable.table[currCell[1]].size(); i++) {
                     currCell[0]--;
                     if(currCell[0]<0) currCell[0] = menuTable.table[currCell[1]].size()-1;
@@ -609,7 +647,7 @@ debug_checkPointStr  = "11.2";
         else if(c==CUSTOM_KEY_RIGHT) {
             currCell[0]++;
             if(currCell[0]>(menuTable.table[currCell[1]].size()-1)) currCell[0]=0;
-            if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
+            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
                 for(int i=0; i<menuTable.table[currCell[1]].size(); i++) {
                     currCell[0]++;
                     if(currCell[0]>(menuTable.table[currCell[1]].size()-1)) currCell[0]=0;
@@ -620,7 +658,7 @@ debug_checkPointStr  = "11.2";
         else if(c==CUSTOM_KEY_UP) {
             currCell[1]--;
             if(currCell[1]<0) currCell[1] = static_cast<int>(menuTable.table.size())-1;
-            if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
+            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
                 for(int i=0; i<menuTable.table.size(); i++) {
                     currCell[1]--;
                     if(currCell[1]<0) currCell[1] = static_cast<int>(menuTable.table.size())-1;
@@ -631,7 +669,7 @@ debug_checkPointStr  = "11.2";
         else if(c==CUSTOM_KEY_DOWN) {
             currCell[1]++;
             if(currCell[1]>(static_cast<int>(menuTable.table.size())-1)) currCell[1]=0;
-            if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
+            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
                 for(int i=0; i<menuTable.table.size(); i++) {
                     currCell[1]++;
                     if(currCell[1]>(static_cast<int>(menuTable.table.size())-1)) currCell[1]=0;
@@ -1023,6 +1061,9 @@ debug_checkPointStr  = "14";
     return pressed_option;
 }
 
+void TUI::termMenu::updateTable() {
+    menuTable.strExport("\n", false, "\n", " ");
+}
 
 std::string TUI::termMenu::termInput(
     int eventMethod,
@@ -1200,7 +1241,7 @@ void TUI::termMenu::moveCurrCell(int xDir, int yDir) {
         for(int x=xDir; x<0; x++) {
             currCell[0]--;
             if(currCell[0]<0) currCell[0] = menuTable.table[currCell[1]].size()-1;
-            if(menuTable.table.at(currCell[1]).at(currCell[0])=="") { //skip empty cells
+            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) { //skip empty cells
                 for(int i=0; i<menuTable.table[currCell[1]].size(); i++) {
                     currCell[0]--;
                     if(currCell[0]<0) currCell[0] = menuTable.table[currCell[1]].size()-1;
@@ -1213,7 +1254,7 @@ void TUI::termMenu::moveCurrCell(int xDir, int yDir) {
         for(int x=0; x<xDir; x++) {
             currCell[0]++;
             if(currCell[0]>(menuTable.table[currCell[1]].size()-1)) currCell[0]=0;
-            if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
+            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
                 for(int i=0; i<menuTable.table[currCell[1]].size(); i++) {
                     currCell[0]++;
                     if(currCell[0]>(menuTable.table[currCell[1]].size()-1)) currCell[0]=0;
@@ -1226,7 +1267,7 @@ void TUI::termMenu::moveCurrCell(int xDir, int yDir) {
         for(int y=0; y<yDir; y++) {
             currCell[1]++;
             if(currCell[1]>(static_cast<int>(menuTable.table.size())-1)) currCell[1]=0;
-            if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
+            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
                 for(int i=0; i<menuTable.table.size(); i++) {
                     currCell[1]++;
                     if(currCell[1]>(static_cast<int>(menuTable.table.size())-1)) currCell[1]=0;
@@ -1239,7 +1280,7 @@ void TUI::termMenu::moveCurrCell(int xDir, int yDir) {
         for(int y=yDir; y<0; y++) {
             currCell[1]--;
             if(currCell[1]<0) currCell[1] = static_cast<int>(menuTable.table.size())-1;
-            if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
+            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
                 for(int i=0; i<menuTable.table.size(); i++) {
                     currCell[1]--;
                     if(currCell[1]<0) currCell[1] = static_cast<int>(menuTable.table.size())-1;

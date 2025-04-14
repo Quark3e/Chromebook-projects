@@ -48,6 +48,9 @@
 inline std::string debug_checkPointStr = "";
 
 namespace TUI {
+
+    class termMenu;
+
     /// @brief placeholder function for empty function parameter
     inline void termMenu_nullFunc_void__() {}
     inline void termMenu_nullFunc_void_pBool(bool*) {}
@@ -72,7 +75,15 @@ namespace TUI {
     typedef void    (*TDEF_void_pChar)(char*);      /*id:`3`: type `void (char*)`*/
     typedef void    (*TDEF_void_pStr)(std::string*);/*id:`4`: type `void (std::string*)`*/
 
+    /**
+     * Function definition that's used mainly in TUI::termMenu::driver member to pass a pointer to itself
+     */
+    typedef void    (*TDEF_void_pTermMenu)(termMenu*);
 
+    enum CELLOPTSPEC {
+        /// @brief Cell is handled as a textbox and can't be hovered over
+        CELLOPTSPEC_TEXT = -69
+    };
 
     #if _WIN32
         inline int CUSTOM_KEY_UP       = -691;
@@ -129,7 +140,6 @@ namespace TUI {
 
     class termMenu {
         private:
-
 
     #if _WIN32
         /**
@@ -302,6 +312,7 @@ namespace TUI {
         int cursorMode = -1;
 
         bool _ncurses_windowOpen = false;
+
         public:
         const std::string ansi_code = "\x1B[";
 
@@ -373,7 +384,6 @@ namespace TUI {
             std::string startText = "",
             bool *tabCalled = &termMenu_nullParam_bool
         );
-
 
 
         /**
@@ -492,6 +502,17 @@ namespace TUI {
         */
         int addOpt(std::string optName, int x_column, int y_row, int keyPress=-1, TDEF_void_pStr optFunc=termMenu_nullFunc_void_pStr, std::string* param0=&termMenu_nullParam_string);
 
+        /**
+         * @brief Create a text cell in the terminal menu.
+         * 
+         * @param cellText `std::string` variable of the text for the text cell
+         * @param x_column x-coordinate/column location button/option to add/set/edit.
+         * @param y_row y-coordinate/row location location of button/option to add/set/edit.
+         * @param convertCellType whether, in case the coordinate cell is another type, to convert that cell to a text cell type. If it's set to `false` then
+         *  this method will throw `std::runtime_error` IF the given coordinates lead to an already existing cell that is not a text cell.
+         * @return int `0` if successful: `1` if an error occurred.
+         */
+        int addTextCell(std::string cellText, int x_column, int y_row, bool convertCellType=true);
 
         /**
          * Main driver function for detecting keyboard events/presses and navigating the options/buttons
@@ -513,13 +534,15 @@ namespace TUI {
             int pos_y = 0,
             int msDelay = 0,
             bool init_clear = true,
-            TDEF_void__ loopFunc = termMenu_nullFunc_void__,
+            TDEF_void_pTermMenu loopFunc = nullptr,
             bool iterClear = true,
             std::string highlight_textColour = "7",
             std::string highlight_bgColour = "7",
             std::string bg_textColour = "",
             std::string bg_bgColour = ""
         );
+
+        void updateTable();
 
         /**
          * @brief add single keys to `init_driverCallKeys` vector
