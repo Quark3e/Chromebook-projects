@@ -75,7 +75,7 @@ nodemcu_connect::nodemcu_connect(bool _initialise, std::string _board_IP, int _b
 
 nodemcu_connect::~nodemcu_connect() {
 	if(!this->_init) {
-		std::cout << this->_info_name<<"::~nodemcu_connect() NOTE: this class wasn't initialised when its destructor is now called." << std::endl;
+		// std::cout << this->_info_name<<"::~nodemcu_connect() NOTE: this class wasn't initialised when its destructor is now called." << std::endl;
 		return;
 	}
 	if(!this->_socket_closed) {
