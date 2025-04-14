@@ -91,6 +91,7 @@ std::vector<CVTRACK::camObjTracker> camObj{
 	CVTRACK::camObjTracker(false, camID[1], prefSize[0], prefSize[1], false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000)
 };
 
+TCPTS::TCPThreadedServer<std::vector<uint8_t>, uint8_t*> serverObj(false, TCPThreadedServer__DEFAULT_PORT, &mtx_cout);
 
 // Two_cam_triangle header class initialisation
 float camPosition[2][2] = {{0, 0}, {250, 0}};
@@ -136,19 +137,19 @@ TUI::termMenu menu__config_options({}, false);
 TUI::termMenu menu__init_options({}, false);
 
 TUI::termMenu menu_group__main({
-	{"[0]	Intro", 0, 0, '0', HW_option1_intro},
+	{"[0] Intro", 0, 0, '0', HW_option1_intro},
 
-	{"[2]	Main", 0, 2, '2', HW_option0},
-	{"[3]	Tracking-telemetry", 0, 3, '3', HW_option3},
-	{"[4]	Orient", 0, 4, '4', HW_option5_orient},
-	{"[t]	Terminal", 0, 5, 't', HW_option6_terminal},
+	{"[2] Main", 0, 2, '2', HW_option0},
+	{"[3] Tracking-telemetry", 0, 3, '3', HW_option3},
+	{"[4] Orient", 0, 4, '4', HW_option5_orient},
+	{"[t] Terminal", 0, 5, 't', HW_option6_terminal},
 	
-	{"[c]	Calibrate", 0, 7, 'c', HW_group__calibrate},
+	{"[c] Calibrate", 0, 7, 'c', HW_group__calibrate},
 	
-	{"[o]	options", 0, 9, 'o', HW__config_options},
-	{"[i]	init-status", 0, 10, 'i', HW__init_options},
+	{"[o] options", 0, 9, 'o', HW__config_options},
+	{"[i] init-status", 0, 10, 'i', HW__init_options},
 
-	{"[esc]	Exit",	    0, 12,  27, TUI::DEDICATED__exitDriver}
+	{"[esc] Exit",	    0, 12,  27, TUI::DEDICATED__exitDriver}
 });
 TUI::termMenu menu_group__calibrate({
 	{"[0]	Webcam object tracking HSV-values", 0, 0, '0', HW_option2},
@@ -180,6 +181,7 @@ TUI::termMenu opt6_control_panel({
 	{"back", 1, 5, 27},
 	{"enter", 5, 5, 10}
 }, false);
+
 
 
 _initClass::_initClass(
@@ -221,16 +223,14 @@ std::string _initClass::get_callMsg() {
 }
 
 
-DIY::typed_dict<std::string, _initClass> _init_status(
-	{"pca", "camObj", "pigpio", "opencv recorder", "orientObj"},
-	{
-		_initClass(_init__pca, _close__pca, false),
-		_initClass(_init__camObj, _close__camObj, false),
-		_initClass(_init__pigpio, _close__pigpio, false),
-		_initClass(_init__opencv_recorder, _close__opencv_recorder, false),
-		_initClass(_init__orientObj, _close__orientObj, false)
-	}
-);
+DIY::typed_dict<std::string, _initClass> _init_status({
+	{"pca", 			_initClass(_init__pca, _close__pca, false)},
+	{"camObj", 			_initClass(_init__camObj, _close__camObj, false)},
+	{"pigpio", 			_initClass(_init__pigpio, _close__pigpio, false)},
+	{"opencv recorder", _initClass(_init__opencv_recorder, _close__opencv_recorder, false)},
+	{"orientObj", 		_initClass(_init__orientObj, _close__orientObj, false)},
+	{"serverObj",		_initClass(_init__serverObj, _close__serverObj, false)}
+});
 
 
 void simplified_init() {
@@ -271,6 +271,7 @@ int _init__pca(_initClass_dataStruct *_passData) {
 		// std::cout << e.what() << std::endl;
 	}
 	if(!init_success) return 1;
+	_passData->_message = "";
 	pca.set_pwm_freq(50.0);
 	return 0;
 #else
@@ -333,6 +334,7 @@ int _init__pigpio(_initClass_dataStruct *_passData) {
 		}
 		gpioSetMode(pin_ledRelay, PI_OUTPUT);
 		gpioWrite(pin_ledRelay, 1);
+		_passData->_message = "";
 	} catch(const std::exception& e) {
 		_passData->_message = e.what();
 		return 1;
@@ -358,6 +360,7 @@ int _init__orientObj(_initClass_dataStruct *_passData) {
 	int init_success = -1;
 	try	{
 		init_success = orientObj.connectObj.init();
+		_passData->_message = "";
 	}
 	catch(const std::exception& e)
 	{
@@ -369,6 +372,7 @@ int _init__orientObj(_initClass_dataStruct *_passData) {
 		try {
 			orientObj.update(false);
 			_connected = true;
+			_passData->_message = "";
 			break;
 		}
 		catch(const std::exception& e) {
@@ -381,6 +385,18 @@ int _init__orientObj(_initClass_dataStruct *_passData) {
 	}
 
 	return init_success;
+}
+int _init__serverObj(_initClass_dataStruct *_passData) {
+	// serverObj = TCPTS::TCPThreadedServer<std::vector<uint8_t>>(true, DEFAULT__PORT);
+	try {
+		if(!serverObj.start()) {
+			throw std::runtime_error("::start()==false");
+		}
+	} catch (const std::exception& e) {
+		_passData->_message = e.what();
+		return 1;
+	}
+	return 0;
 }
 int _close__pca(_initClass_dataStruct *_passData) {
 	(&pca)->~PCA9685();
@@ -413,4 +429,8 @@ int _close__orientObj(_initClass_dataStruct *_passData) {
 	new (&orientObj) nodemcu_orient("192.168.1.117", DEFAULT__PORT, false);
 	return 0;
 }
-
+int _close__serverObj(_initClass_dataStruct *_passData) {
+	(&serverObj)->~TCPThreadedServer<std::vector<uint8_t>, uint8_t*>();
+	new (&serverObj) TCPTS::TCPThreadedServer<std::vector<uint8_t>, uint8_t*>(false, TCPThreadedServer__DEFAULT_PORT, &mtx_cout);
+	return 0;
+}

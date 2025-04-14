@@ -245,10 +245,10 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 	
-	std::cout << "ending.."<<std::endl;
-
+	
 	for(int n=0; n<6; n++) new_q[n] = startup_q[n];
-	printf("\n- section: \"closing\"\n");
+	std::cout << "\n- section: \"closing\"\n";
+
 	if(_init_status.get("pca").isInit()) {
 		sendToServo(&pca, new_q, current_q, false, 2, 2);
 	}
@@ -258,7 +258,7 @@ int main(int argc, char* argv[]) {
 		// gpioTerminate();
 		#endif
 	}
-
+	
 	std::cout << "\x1B[H";
 	std::cout.flush();
 	return 0;

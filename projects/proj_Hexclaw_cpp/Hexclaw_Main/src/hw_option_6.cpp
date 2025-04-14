@@ -124,7 +124,7 @@ void HW_option6_control_panel() {
         else {
             opt6_control_panel.init_driverCallKeys_clear();
         }
-        pressedKey = opt6_control_panel.driver(termLoc_control_panel[0], termLoc_control_panel[1], 0, false, TUI::termMenu_nullFunc_void__, true);
+        pressedKey = opt6_control_panel.driver(termLoc_control_panel[0], termLoc_control_panel[1], 0, false, nullptr, true);
         if(tabCalled) {
             tabCalled = false;
             opt6_control_panel.init_driverCallKeys_clear();

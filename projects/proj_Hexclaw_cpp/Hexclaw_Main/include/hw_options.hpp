@@ -74,13 +74,21 @@ void HW_option6_settings();
 void HW_option6_runFromFile();
 
 
-
 /**
  * @brief setup for HW command line arguemtns: (there's a better way. I just haven't gotten around to using it)
 */
 void HW_setup_options();
 
 
+void _mainDriver_updateFunc(TUI::termMenu* ptr_menu);
+/**
+ * @brief termMenu driver function for displaying connected client data to menu_group__main
+ * 
+ * @param ptr_menu pointer to the termMenu class instance/object. This is referenced by the TUI::termMenu::driver member itself.
+ */
+void _mainDriver_updateFunc__serverObj_clientInfo(TUI::termMenu* ptr_menu);
+
+void _mainDriver_updateFunc__orientObj(TUI::termMenu* ptr_menu);
 
 
 #endif

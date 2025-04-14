@@ -55,7 +55,7 @@ TUI::termMenu menu__calibrateMotor_angles({
 	{"exit", 1, 24, 27}
 }, false);
 
-void tempFunc_updateOrient() {
+void tempFunc_updateOrient(TUI::termMenu* _) {
 	orientObj.update(false);
 	menu__calibrateMotor_angles.rename_opt(1, 1, formatNumber(orientObj.pitch, 7, 1));
 	menu__calibrateMotor_angles.rename_opt(2, 1, formatNumber(orientObj.roll, 7, 1));
@@ -69,7 +69,7 @@ void HW_option4() {
 		for(int _=0; _<3; _++) {
 			// std::cout << " ."; std::cout.flush();
 			ANSI_mvprint(0, -1, " .", true, "rel", "rel");
-			std::this_thread::sleep_for(std::chrono::milliseconds(1'000));
+			SHLEEP((1'000));
 		}
 		return;
 	}
@@ -79,7 +79,7 @@ void HW_option4() {
 		printFuncLabel(" Running: opt4: Calibrate servo motors");
 		ANSI_mvprint(0, 0, "Select a joint/motor to calibrate", true, "abs", "rel");
 
-		pos2d<int> pressed_pos = menu__calibrateMotor_main.driver(0, 5, 1, false, TUI::termMenu_nullFunc_void__, false);
+		pos2d<int> pressed_pos = menu__calibrateMotor_main.driver(0, 5, 1, false, nullptr, false);
 
 		if(pressed_pos==pos2d<int>(0, 9)) break;
 		if(pressed_pos.inRegion({0, 2}, {0, 7})) { //check if pressed_pos is in region of the selectable motor options
@@ -105,7 +105,7 @@ void HW_option4() {
 					else {
 						// ANSI_mvprint(0, 0, "ERROR: pca has not been initialised: "+_init_status.get("pca").get_callMsg(), true, "abs", "rel");
 					}
-					std::this_thread::sleep_for(std::chrono::milliseconds(500));
+					SHLEEP((500));
 					// orientObj.update(false);
 
 					menu__calibrateMotor_angles.rename_opt(2, pressed_pos_angles[1], formatNumber(orientObj.pitch, 7, 1));
@@ -147,7 +147,7 @@ void HW_option4() {
 					ANSI_mvprint(0, 2, "solved coeffs: "+formatVector(coeffs, 6, 1), true, "abs", "rel");
 					std::this_thread::sleep_for(std::chrono::seconds(2));
 					for(size_t cnt=0; cnt<3; cnt++) {
-						std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+						SHLEEP((1000));
 						ANSI_mvprint(0, -1, ".", true, "rel", "abs");
 					}
 				}

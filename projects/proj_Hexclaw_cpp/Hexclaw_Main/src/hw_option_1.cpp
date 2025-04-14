@@ -36,44 +36,44 @@ void HW_option1_intro() {
 	new_q[5] = 0;
 	// printf("running intro...\n");
 	//sendToServo(&pca, current_q, new_q, false, 0, 0);
-	std::this_thread::sleep_for(std::chrono::milliseconds(1'000));
+	SHLEEP((1'000));
 	if(_init_status.get("pigpio").isInit()) {
 		#if _MACHINE__RPI_MAIN
 		gpioWrite(pin_ledRelay, 0);
 		gpioWrite(pin_ledRelay, 1);
 		#endif
 	}
-	std::this_thread::sleep_for(std::chrono::milliseconds(750));
+	SHLEEP((750));
 	// std::cout<<"\n- section: \"slow start\"\n";
 	ANSI_mvprint(0, 0, "\n- section: \"slow start\"\n", true, "abs", "rel");
 	sendToServo(&pca, new_q, current_q, false, 2, 10);
 
 	// std::cout<<"intro finished\n";
 	ANSI_mvprint(0, 0, "intro finished\n", true, "abs", "rel");
-	std::this_thread::sleep_for(std::chrono::milliseconds(3'000));
+	SHLEEP((3'000));
 	if(_init_status.get("pigpio").isInit()) {
 
 		#if _MACHINE__RPI_MAIN
 		for(int i=0; i<4; i++) {
 			gpioWrite(pin_ledRelay, 0);
-			std::this_thread::sleep_for(std::chrono::milliseconds(30));
+			SHLEEP((30));
 			gpioWrite(pin_ledRelay, 1);
-			std::this_thread::sleep_for(std::chrono::milliseconds(30));
+			SHLEEP((30));
 		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(1'500));
+		SHLEEP((1'500));
 		gpioWrite(pin_ledRelay, 0);
-		std::this_thread::sleep_for(std::chrono::milliseconds(250));
+		SHLEEP((250));
 		gpioWrite(pin_ledRelay, 1);
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		SHLEEP((500));
 		gpioWrite(pin_ledRelay, 0);
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		SHLEEP((100));
 		gpioWrite(pin_ledRelay, 1);
-		std::this_thread::sleep_for(std::chrono::milliseconds(2'000));
+		SHLEEP((2'000));
 		gpioWrite(pin_ledRelay, 0);
 		#endif
 	
 	}
-	std::this_thread::sleep_for(std::chrono::milliseconds(2'000));
+	SHLEEP((2'000));
 
 	#if _MACHINE__RPI_MAIN
 	if(_init_status.get("pigpio").isInit()) gpioWrite(pin_ledRelay, 1);
@@ -88,6 +88,6 @@ void HW_option1_intro() {
 	// std::cout<<"\n- section: \"crash\"\n";
 	ANSI_mvprint(0, 0, "\n- section: \"crash\"\n", true, "abs", "rel");
 	sendToServo(&pca, new_q, current_q, false);
-	std::this_thread::sleep_for(std::chrono::milliseconds(2'000));
+	SHLEEP((2'000));
 
 }

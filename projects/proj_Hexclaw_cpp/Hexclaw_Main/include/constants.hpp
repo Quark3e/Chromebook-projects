@@ -13,6 +13,8 @@
 /// Whether to print checkpoints
 #define threadDebug		false
 
+#define SHLEEP(sleep_ms) (std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms)))
+
 /**
  * Whether to setup and handle performances of the program.
  * That includes:

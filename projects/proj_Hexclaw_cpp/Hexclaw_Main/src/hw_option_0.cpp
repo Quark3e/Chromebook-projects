@@ -111,7 +111,7 @@ void HW_option0() {
 
     //     std::thread t_cam0(thread_task, &camObj[0], 0);
     //     std::thread t_cam1(thread_task, &camObj[1], 1);
-    //     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    //     SHLEEP((1000));
     // #endif
 
 
@@ -127,7 +127,7 @@ void HW_option0() {
 			if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: NOTE: Threads have not been initialised:\n -initialising."); }
 
 			while(!(camObj[0].isThreadLoopInit() && camObj[1].isThreadLoopInit())) {
-				std::this_thread::sleep_for(std::chrono::milliseconds(500));
+				SHLEEP((500));
 			}
 			lock_cout(
 				mtx_cout, "\n-------------\nSuccessfully initialised both threads:\nstarting tracking:",

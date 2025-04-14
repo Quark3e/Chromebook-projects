@@ -116,6 +116,8 @@ extern std::vector<int> camID;
 extern std::vector<CVTRACK::camObjTracker> camObj;
 
 
+extern TCPTS::TCPThreadedServer<std::vector<uint8_t>, uint8_t*> serverObj;
+
 /// Two_cam_triangle header class initialisation
 
 extern float camPosition[2][2];
@@ -302,6 +304,7 @@ int _init__camObj(_initClass_dataStruct *_passData);
 int _init__pigpio(_initClass_dataStruct *_passData);
 int _init__opencv_recorder(_initClass_dataStruct *_passData);
 int _init__orientObj(_initClass_dataStruct *_passData);
+int _init__serverObj(_initClass_dataStruct *_passData);
 /**
  * call closing operations related to pca object
  * 
@@ -311,5 +314,6 @@ int _close__camObj(_initClass_dataStruct *_passData);
 int _close__pigpio(_initClass_dataStruct *_passData);
 int _close__opencv_recorder(_initClass_dataStruct *_passData);
 int _close__orientObj(_initClass_dataStruct *_passData);
+int _close__serverObj(_initClass_dataStruct *_passData);
 
 #endif

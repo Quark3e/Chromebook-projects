@@ -7,6 +7,7 @@ labeledFunction hexclaw_cmdArgs;
 createTable cmdArgs_output_table;
 
 
+
 void printFuncLabel(std::string functionName) {
 	int termDim[2];
 	getTermSize(termDim[0], termDim[1]);
@@ -57,8 +58,17 @@ void HW_setup_options() {
 }
 
 void HW_group__main() {
-    
-    menu_group__main.driver(1, 1, 5, true, TUI::termMenu_nullFunc_void__, true);
+    std::string textCell_text="";
+    if(serverObj.isClientConnected()) {
+        textCell_text = "client: "+serverObj.getClientIPaddr()+","+std::to_string(serverObj.getClientPort());
+    }
+    else {
+        textCell_text = "client: no client connected. init.";
+    }
+    // SHLEEP((100));
+
+    menu_group__main.driver(1, 1, 5, true, _mainDriver_updateFunc, true);
+
 
 }
 void HW_group__calibrate() {
@@ -131,6 +141,7 @@ void HW__init_options() {
                 }
                 menu__init_options.addOpt(call_msg, 2, pressed_pos[1], -1, static_cast<TUI::TDEF_void__>(nullptr));
 
+                
             }
         }
         if(pressed_pos==pos2d<int>{0, static_cast<int>(1+_init_status.size())}) {
@@ -141,3 +152,53 @@ void HW__init_options() {
 
 }
 
+
+void _mainDriver_updateFunc(TUI::termMenu* ptr_menu) {
+    _mainDriver_updateFunc__orientObj(ptr_menu);
+    _mainDriver_updateFunc__serverObj_clientInfo(ptr_menu);
+
+    ptr_menu->updateTable();
+}
+void _mainDriver_updateFunc__serverObj_clientInfo(TUI::termMenu* ptr_menu) {
+    static std::string prevStr="";
+    std::string textCell_text=formatNumber("serverObj",10,0,"left")+":";
+    if(!serverObj.isRunning()) {
+        textCell_text += "not running.";
+    }
+    else {
+        if(serverObj.isClientConnected()) {
+            textCell_text += serverObj.getClientIPaddr()+","+std::to_string(serverObj.getClientPort());
+        }
+        else {
+            textCell_text += "no client found.";
+        }
+    }
+    
+    ptr_menu->addTextCell(textCell_text, 6, 0);
+    if(prevStr!=textCell_text) {
+        // ptr_menu->updateTable();
+        prevStr = textCell_text;
+    }
+}
+void _mainDriver_updateFunc__orientObj(TUI::termMenu* ptr_menu) {
+    static std::string prevStr="";
+    std::string textCell_text=formatNumber("orientObj",10,0,"left")+":";
+    if(!_init_status.get("orientObj").isInit()) {
+        textCell_text += "not running.";
+    }
+    else {
+        try {
+            orientObj.update(false);
+            textCell_text += std::string(orientObj.accel);
+        }
+        catch(std::exception &e) {
+            textCell_text += e.what();
+        }
+    }
+
+    ptr_menu->addTextCell(textCell_text, 6, 1);
+    if(prevStr!=textCell_text) {
+        // ptr_menu->updateTable();
+        prevStr = textCell_text;
+    }
+}

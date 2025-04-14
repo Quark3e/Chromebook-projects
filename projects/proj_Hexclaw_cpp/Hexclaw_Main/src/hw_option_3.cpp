@@ -29,7 +29,7 @@ void HW_option3() {
 		for(int _=0; _<3; _++) {
 			// std::cout << " ."; std::cout.flush();
 			ANSI_mvprint(0, -1, " .", true, "rel", "rel");
-			std::this_thread::sleep_for(std::chrono::milliseconds(1'000));
+			SHLEEP((1'000));
 		}
 		return;
 	}
@@ -88,7 +88,7 @@ void HW_option3() {
 				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: NOTE: Threads have not been initialised:\n -initialising."); }
 				
 				while(!(camObj[0].isThreadLoopInit() && camObj[1].isThreadLoopInit())) {
-					std::this_thread::sleep_for(std::chrono::milliseconds(500));
+					SHLEEP((500));
 				}
 				lock_cout(
 					mtx_cout, "\n-------------\nSuccessfully initialised both threads:\nstarting tracking:",
