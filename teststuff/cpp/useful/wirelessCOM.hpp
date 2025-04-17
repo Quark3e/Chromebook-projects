@@ -209,6 +209,9 @@ class nodemcu_orient {
 
     vec3<float> accel{0, 0, 0}; // Container for accelerometer data for the across XYZ-axes. [unit: G]
     vec3<float> gyro{0, 0, 0};  // Container for gyroscopic data for the XYZ-axes
+    
+    vec3<float> accel_offs{0, 0, 0};
+    
 
     // float x_accel = 0, y_accel = 0, z_accel = 0;
     float pitch, roll, Pitch=0, Roll=0;

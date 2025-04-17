@@ -49,6 +49,9 @@ void HW_option2();
 void HW_option3();
 /// @brief mode 2: calibrate servo motors by sending rotation signals to the motors individually and compare them with statically recorded tilt readings
 void HW_option4();
+
+void HW_option4_accelOffsets();
+
 /// @brief mode 3: orient mode. Only read and send end-effector orientation from nodemcu device
 void HW_option5_orient();
 /**

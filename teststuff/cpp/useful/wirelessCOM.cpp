@@ -162,11 +162,11 @@ bool nodemcu_orient::parseData(std::string _str) {
 
 	/// Example: "{0.11:-0.11:1.02;-0.03:-0.01:-0.01}11;"
 
-	accel.x = stof(_str.substr(1, _str.find(':')));
+	accel.x = stof(_str.substr(1, _str.find(':'))) - accel_offs.x;
 	_str.erase(0, _str.find(':')+1);
-	accel.y = stof(_str.substr(0, _str.find(':')));
+	accel.y = stof(_str.substr(0, _str.find(':'))) - accel_offs.y;
 	_str.erase(0, _str.find(':')+1);
-	accel.z = stof(_str.substr(0, _str.find(';')));
+	accel.z = stof(_str.substr(0, _str.find(';'))) - accel_offs.z;
 	_str.erase(0, _str.find(';')+1);
 	
 	gyro.x = stof(_str.substr(1, _str.find(':')));
