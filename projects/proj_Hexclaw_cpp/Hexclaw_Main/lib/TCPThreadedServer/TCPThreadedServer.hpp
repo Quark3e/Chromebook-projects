@@ -388,12 +388,12 @@ namespace TCPTS {
         
         while (running_) {
             /// Listen and Accept a client connection
-#if _WIN32
             if(mtx_print_ && loopInit) {
                 // u_lck_cout.lock();
                 // std::cout<<"TCPTS:"<<this<<": before accept loop."<<std::endl;
                 // u_lck_cout.unlock();
             }
+#if _WIN32
             SOCKET _acceptCode = INVALID_SOCKET;
             while((_acceptCode=accept(socket_server_, reinterpret_cast<sockaddr*>(&client_addr_), &sockAddrLen_))==INVALID_SOCKET) {
                 if(WSAGetLastError()!=WSAEWOULDBLOCK) {
@@ -417,16 +417,9 @@ namespace TCPTS {
             //     WSACleanup();
             //     throw std::runtime_error("Accept failed: " + std::to_string(WSAGetLastError()));
             // }
-            if(mtx_print_ && loopInit) {
-                // u_lck_cout.lock();
-                // std::cout<<"TCPTS:"<<this<<": after accept loop."<<std::endl;
-                // u_lck_cout.unlock();
-            }
 #else
-
-            bool exit_acceptLoop = false;
             int _acceptCode = -1;
-            for(; _code==-1; _code=accept(socket_server_, (struct sockaddr*)&client_addr_, (socklen_t*)&sockAddrLen_)) {
+            while((_acceptCode=accept(socket_server_, (struct sockaddr*)&client_addr_, (socklen_t*)&sockAddrLen_))<0) {
                 if(errno!=EAGAIN || errno!=EWOULDBLOCK) {
                     close(socket_server_);
                     throw std::runtime_error("non-blocking accept() gave error != EAGAIN / EWOULDBLOCK.");
@@ -437,14 +430,18 @@ namespace TCPTS {
                 }
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
-            if(exit_acceptLoop) break;
             socket_client_ = _acceptCode;
             // if ((socket_client_ = accept(socket_server_, (struct sockaddr*)&client_addr_, (socklen_t*)&sockAddrLen_)) < 0) {
             //     close(socket_server_);
             //     throw std::runtime_error("Accept failed: " + std::to_string(errno));
             // }
 #endif // _WIN32
-
+            if(mtx_print_ && loopInit) {
+                // u_lck_cout.lock();
+                // std::cout<<"TCPTS:"<<this<<": after accept loop."<<std::endl;
+                // u_lck_cout.unlock();
+            }
+            
             socketOpen_client_ = true;
             u_lck_callback_clientFound_.lock();
             if(callback_clientFound_) callback_clientFound_(true);
