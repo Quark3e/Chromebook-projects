@@ -375,10 +375,15 @@ namespace TCPTS {
             // std::cout<<"TCPTS:"<<this<<": before list."<<std::endl;
             // u_lck_cout.unlock();
         }
-        if (listen(socket_server_, 1) == SOCKET_ERROR) {
+        if (listen(socket_server_, 1) < 0) {
+#if _WIN32
             closesocket(socket_server_);
             WSACleanup();
             throw std::runtime_error("Listen failed: " + std::to_string(WSAGetLastError()));
+#else
+            close(socket_server_);
+#endif //_WIN32
+            throw std::runtime_error("Listen failed: " + std::to_string(errno));
         }
         
         while (running_) {
@@ -418,10 +423,7 @@ namespace TCPTS {
                 // u_lck_cout.unlock();
             }
 #else
-            if (listen(socket_server_, 1) < 0) {
-                close(socket_server_);
-                throw std::runtime_error("Listen failed: " + std::to_string(errno));
-            }
+
             bool exit_acceptLoop = false;
             int _acceptCode = -1;
             for(; _code==-1; _code=accept(socket_server_, (struct sockaddr*)&client_addr_, (socklen_t*)&sockAddrLen_)) {
