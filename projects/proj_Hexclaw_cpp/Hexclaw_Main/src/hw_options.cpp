@@ -107,15 +107,15 @@ void HW__init_options() {
     // if(_init) {
         maxStrSize = _init_status.getKey(getVal_findString(_init_status.keys(), 0)).length();
     // }
-    menu__init_options.addOpt_nullFunc("maxStrSize: "+formatNumber(maxStrSize), 5, 0, -1);
-    menu__init_options.addOpt_nullFunc("keys: "+formatVector(_init_status.keys()), 5, 1, -1);
-    menu__init_options.addOpt_nullFunc("_sizes: "+formatVector(_tempRef), 5, 2, -1);
-    menu__init_options.addOpt_nullFunc("key idx: "+formatNumber(getVal_findString(_init_status.keys(), 0)), 5, 3, -1);
+    // menu__init_options.addOpt_nullFunc("maxStrSize: "+formatNumber(maxStrSize), 5, 0, -1);
+    // menu__init_options.addOpt_nullFunc("keys: "+formatVector(_init_status.keys()), 5, 1, -1);
+    // menu__init_options.addOpt_nullFunc("_sizes: "+formatVector(_tempRef), 5, 2, -1);
+    // menu__init_options.addOpt_nullFunc("key idx: "+formatNumber(getVal_findString(_init_status.keys(), 0)), 5, 3, -1);
 
     while(true) {
         for(size_t i=0; i<_init_status.size(); i++) {
             menu__init_options.addOpt(
-                formatNumber(_init_status.getKey(i), maxStrSize+1, 0, "left")+": "+formatNumber(_init_status[i].isInit(), 5, 0, "left"),
+                " "+formatNumber(_init_status.getKey(i), maxStrSize+1, 0, "left")+": "+formatNumber(_init_status[i].isInit(), 5, 0, "left"),
                 0, i, -1, static_cast<TUI::TDEF_void__>(nullptr)
             );
         }
@@ -139,7 +139,7 @@ void HW__init_options() {
                 else {
                     call_msg = "init  success   : "+_init_status[pressed_pos[1]].get_callMsg();
                 }
-                menu__init_options.addOpt(call_msg, 2, pressed_pos[1], -1, static_cast<TUI::TDEF_void__>(nullptr));
+                menu__init_options.addTextCell(call_msg, 2, pressed_pos[1]);
 
 
             }
@@ -156,8 +156,8 @@ void HW__init_options() {
 void _mainDriver_updateFunc(TUI::termMenu* ptr_menu) {
     ptr_menu->addTextCell("FPS:"+formatNumber(ptr_menu->FPS, 6, 1), 6, 0);
 
-    _mainDriver_updateFunc__orientObj(ptr_menu);
     _mainDriver_updateFunc__serverObj_clientInfo(ptr_menu);
+    _mainDriver_updateFunc__orientObj(ptr_menu);
 
     ptr_menu->updateTable();
 }

@@ -16,8 +16,8 @@ bool hardExit = false;
 
 // IK related: ik calc variable declaration
 
-// float current_q[6]	= {0,0,0,0,0,0};
-// float new_q[6]		= {0,0,0,0,0,0};
+// float current_q[6]    = {0,0,0,0,0,0};
+// float new_q[6]    	= {0,0,0,0,0,0};
 
 servo_angles_6DOF current_q(0);
 servo_angles_6DOF new_q(0);
@@ -26,11 +26,11 @@ servo_angles_6DOF new_q(0);
  * `{yaw, pitch, roll}` variables:
  * unit: degrees
  * */
-// float orient[3]		= {0,0,0};
-// float PP[3]			= {0,150,150};
-// float axisScal[3]	= {1, 1, 1};
-// float axisOffset[3]	= {0, 100, -200};
-// float axisFilter[3]	= {1, 1, 1};
+// float orient[3]    	= {0,0,0};
+// float PP[3]    		= {0,150,150};
+// float axisScal[3]    = {1, 1, 1};
+// float axisOffset[3]    = {0, 100, -200};
+// float axisFilter[3]    = {1, 1, 1};
 
 pos3d<float> orient{0, 0, 0};
 pos3d<float> PP{0, 150, 150};
@@ -108,9 +108,9 @@ int pin_ledRelay = 23;
 #if takePerf
 //main thread performance measurement
 getPerf perfObj[3] {
-	{"main thread"},
-	{"sub thread[0]"},
-	{"sub thread[1]"}
+	{" main thread"},
+	{" sub thread[0]"},
+	{" sub thread[1]"}
 };
 #endif
 
@@ -122,8 +122,8 @@ opencv_recorder recObj;
 
 std::mutex mtx_perfObj_threads[2];
 // getPerf perfObj[2] {
-// 	{"sub-thread[0]"},
-// 	{"sub-thread[1]"}
+// 	{" sub-thread[0]"},
+// 	{" sub-thread[1]"}
 // };
 #endif // takePerf
 
@@ -137,37 +137,38 @@ TUI::termMenu menu__config_options({}, false);
 TUI::termMenu menu__init_options({}, false);
 
 TUI::termMenu menu_group__main({
-	{"[0] Intro", 0, 0, '0', HW_option1_intro},
+	{" [0]    Intro", 0, 0, '0', HW_option1_intro},
 
-	{"[2] Main", 0, 2, '2', HW_option0},
-	{"[3] Tracking-telemetry", 0, 3, '3', HW_option3},
-	{"[4] Orient", 0, 4, '4', HW_option5_orient},
-	{"[t] Terminal", 0, 5, 't', HW_option6_terminal},
+	{" [2]    Main", 0, 2, '2', HW_option0},
+	{" [3]    Tracking-telemetry", 0, 3, '3', HW_option3},
+	{" [4]    Orient", 0, 4, '4', HW_option5_orient},
+	{" [t]    Terminal", 0, 5, 't', HW_option6_terminal},
 	
-	{"[c] Calibrate", 0, 7, 'c', HW_group__calibrate},
+	{" [c]    Calibrate", 0, 7, 'c', HW_group__calibrate},
 	
-	{"[o] options", 0, 9, 'o', HW__config_options},
-	{"[i] init-status", 0, 10, 'i', HW__init_options},
+	{" [o]    options", 0, 9, 'o', HW__config_options},
+	{" [i]    init-status", 0, 10, 'i', HW__init_options},
 
-	{"[esc] Exit",	    0, 12,  27, TUI::DEDICATED__exitDriver}
+	{" [esc]  Exit",	    0, 12,  27, TUI::DEDICATED__exitDriver}
 });
 TUI::termMenu menu_group__calibrate({
-	{"[0]	Webcam object tracking HSV-values", 0, 0, '0', HW_option2},
-	{"[1]	Servo motor drift trend-solution",  0, 1, '1', HW_option4},
+	{" [0]    Webcam object tracking HSV-values", 0, 0, '0', HW_option2},
+	{" [1]    Servo motor drift trend-solution"	, 0, 1, '1', HW_option4},
+	{" [2]    Accelerometer drift measurement"	, 0, 2, '2', HW_option4_accelOffsets},
 
-	{"[esc] Exit", 0, 3, 27, TUI::DEDICATED__exitDriver}
+	{" [esc] Exit", 0, 4, 27, TUI::DEDICATED__exitDriver}
 });
 
 
 TUI::termMenu opt6_startMenu({
-	{"[1]	Control Panel", 0, 0, '1', HW_option6_control_panel},
-	{"[2]	Raw input", 	0, 1, '2', HW_option6_rawTerminal},
-	{"[3]	Run file", 		0, 2, '3', HW_option6_runFromFile},
+	{" [1]    Control Panel", 0, 0, '1', HW_option6_control_panel},
+	{" [2]    Raw input", 	0, 1, '2', HW_option6_rawTerminal},
+	{" [3]    Run file", 		0, 2, '3', HW_option6_runFromFile},
 
-	{"[s]	Settings", 		0, 4, 's', HW_option6_settings},
+	{" [s]    Settings", 		0, 4, 's', HW_option6_settings},
 
-	{"[esc]	Back", 			0, 6, 27, TUI::DEDICATED__exitDriver},
-	{"[e]	Exit", 			0, 7, 'e', TUI::DEDICATED__exitDriver}
+	{" [esc]  Back", 			0, 6, 27, TUI::DEDICATED__exitDriver},
+	{" [e]    Exit", 			0, 7, 'e', TUI::DEDICATED__exitDriver}
 });
 TUI::termMenu opt6_control_panel({
 	{formatNumber("x:",8,0,"left"), 1, 1, 'x'},
@@ -178,8 +179,8 @@ TUI::termMenu opt6_control_panel({
 	{formatNumber("B:",8,0,"left"), 3, 3, 'b'},
 	{formatNumber("Y:",8,0,"left"), 5, 3, 'y'},
 
-	{"back", 1, 5, 27},
-	{"enter", 5, 5, 10}
+	{" back", 1, 5, 27},
+	{" enter", 5, 5, 10}
 }, false);
 
 
