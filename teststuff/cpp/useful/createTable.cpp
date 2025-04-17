@@ -82,13 +82,15 @@ void createTable::add_to_cell(std::string text, int column, int row, int loc) {
 }
 
 void createTable::insertText(std::string newText, int column, int row) {
-    if(column>=table[0].size() || row>=table.size()) return;
+    if(column>=table[0].size()) throw std::runtime_error("createTable::insertText(): column out of range.");
+    if(row>=table.size())       throw std::runtime_error("createTable::insertText(): row out of range.");
     table[row][column] = newText;
     cellType[row][column] = "text";
 }
 
 void createTable::insertNum(int num, int column, int row) {
-    if(column>=table[0].size() || row>=table.size()) return;
+    if(column>=table[0].size()) throw std::runtime_error("createTable::insertNum(): column out of range.");
+    if(row>=table.size())       throw std::runtime_error("createTable::insertNum(): row out of range.");
     table[row][column] = std::to_string(num);
     cellType[row][column] = "number";
 }
@@ -174,7 +176,12 @@ std::string createTable::strExport(
 
                     tPos = ePos+1;
                     extraRows[nCount] += sss.str();
-                    if(col<table[row].size()-1) extraRows[nCount] += colSep;
+                    if(col<table[row].size()-1) {
+                        if(col+1<table[row].size() && maxColumnLen[col+1]>0) extraRows[nCount] += colSep;
+                        else {
+                            extraRows[nCount] += std::string(colSep.size(), ' ');
+                        }
+                    }
                     nCount++;
                 }
                 sss.str(std::string());
@@ -191,14 +198,22 @@ std::string createTable::strExport(
 
                 tPos = ePos+1;
                 extraRows[nCount] += sss.str();
-                if(col<table[row].size()-1) extraRows[nCount] += colSep;
+                if(col<table[row].size()-1) {
+                    if(col+1<table[row].size() && maxColumnLen[col+1]>0) extraRows[nCount] += colSep;
+                    else {
+                        extraRows[nCount] += std::string(colSep.size(), ' ');
+                    }
+                }
 
             }
-            ss<<std::setw(maxColumnLen[col]+columnPadding[col])<<table[row][col].substr(
-                0, table[row][col].find('\n',0)
-            );
+            ss<<std::setw(maxColumnLen[col]+columnPadding[col]) << table[row][col].substr(0, table[row][col].find('\n',0));
             exportStr += ss.str();
-            if(col<table[row].size()-1) exportStr += colSep;
+            if(col<table[row].size()-1) {
+                if(col+1<table[row].size() && maxColumnLen[col+1]>0) exportStr += colSep;
+                else {
+                    exportStr += std::string(colSep.size(), ' ');
+                }
+            }
         }
         if(createBorder) { exportStr += border_heightChar; }
         exportStr += rowEnd;

@@ -354,6 +354,8 @@ int TUI::termMenu::addTextCell(std::string cellText, int x_column, int y_row, bo
         x_column < menuTable.table.at(0).size() &&
         (option_key[y_row][x_column]!=CELLOPTSPEC_TEXT && menuTable.table.at(y_row).at(x_column) != "")
     ) {
+        /// There is an existing cell creation, not of type textcell, already at the given column/row coordinates
+        /// and this function call is set to not override the type.
         throw std::runtime_error("addToCell: convertCellType==false && [y][x]!=\"\"");
     }
     
@@ -365,6 +367,9 @@ int TUI::termMenu::addTextCell(std::string cellText, int x_column, int y_row, bo
     );
     container_insertKey(CELLOPTSPEC_TEXT, x_column, y_row);
     menuTable.insertText(cellText, x_column, y_row);
+
+    optFunc_identifier.at(y_row).at(x_column) = -1;
+
     // if(x_column==5 && y_row==0) std::cout << " [addTextCell called:"<<cellText<<"] "; std::cout.flush();
 
     return 0;
@@ -393,46 +398,34 @@ pos2d<int> TUI::termMenu::driver(
     std::string bg_textColour,
     std::string bg_bgColour
 ) {
-    #ifdef DEBUG__PRINT
-    debug_checkPointStr = "0";
-    #endif
+
     if(menuTable.table.size()==0) {
         throw std::logic_error("menuTable.table is empty. No cell's are made.");
     }
     if(pos_x==0) pos_x = 1;
     if(pos_y==0) pos_y = 1;
-    #ifdef DEBUG__PRINT
-    debug_checkPointStr  = "1";
-    #endif
+
     termLoc[0] = pos_x;
     termLoc[1] = pos_y;
 
     getTermSize(termSize[0], termSize[1]);
-    #ifdef DEBUG__PRINT
-    debug_checkPointStr  = "2";
-    #endif
+
     // static int pressed_option[2] = {0, 0};
     pos2d<int> pressed_option(0, 0);
     bool loopInit = false; //boolean for whether the driver loop has ran a full iteration already
     int loopInit_count = 0;
-    #ifdef DEBUG__PRINT
-    debug_checkPointStr  = "3";
-    #endif
+
     exitDriver = false;
-    menuTable.strExport("\n", false, "\n", " ");
+    menuTable.strExport("\n", true, "\n", "| ");
     // createTable displayTable = menuTable;
-    #ifdef DEBUG__PRINT
-    debug_checkPointStr  = "4";
-    #endif
+
     if(display_dim[1][0]-display_dim[0][0]>menuTable.table[0].size()-1) {
         display_dim[1][0] = display_dim[0][0] + menuTable.table[0].size()-1;
     }
     if(display_dim[1][1]-display_dim[0][1]>static_cast<int>(menuTable.table.size())-1) {
         display_dim[1][1] = display_dim[0][1] + static_cast<int>(menuTable.table.size())-1;
     }
-    #ifdef DEBUG__PRINT
-    debug_checkPointStr  = "5";
-    #endif
+
     if(cursorMode==-1) {
         display_dim[0][0] = 0;
         display_dim[0][1] = 0;
@@ -476,33 +469,15 @@ pos2d<int> TUI::termMenu::driver(
         }
     }
     // createTable displayTable(display_dim[1][0]-display_dim[0][0], display_dim[1][1]-display_dim[0][1]);
-    #ifdef DEBUG__PRINT
-    debug_checkPointStr  = "6";
-    #endif
+
     /// @brief bounding boxed table which will be displayed to terminal if cursorMode != -1
-    std::vector<std::vector<std::string>> dispTable_vec(
-        display_dim[1][1]-display_dim[0][1],
-        std::vector<std::string>(
-            display_dim[1][0]-display_dim[0][0],
-            ""
-        )
-    );
-    #ifdef DEBUG__PRINT
-    debug_checkPointStr  = "7";
-    #endif
+    std::vector<std::vector<std::string>> dispTable_vec(display_dim[1][1]-display_dim[0][1], std::vector<std::string>(display_dim[1][0]-display_dim[0][0], ""));
+
     /// @brief `createTable` instance that is a cropped/ROI version of menuTable
-    createTable dispTable(
-        display_dim[1][0]-display_dim[0][0]+1,
-        display_dim[1][1]-display_dim[0][1]+1
-    );
-    #ifdef DEBUG__PRINT
-    debug_checkPointStr  = "8";
-    #endif
+    createTable dispTable(display_dim[1][0]-display_dim[0][0]+1, display_dim[1][1]-display_dim[0][1]+1);
+
     /// @brief width and height of displayed-window/dynamic-edges
-    int dispDim[2] = {
-        display_dim[1][0]-display_dim[0][0]+1,
-        display_dim[1][1]-display_dim[0][1]+1
-    };
+    int dispDim[2] = {display_dim[1][0]-display_dim[0][0]+1, display_dim[1][1]-display_dim[0][1]+1};
 
 #ifndef _WIN32
     MEVENT mouse_event;
@@ -515,9 +490,7 @@ pos2d<int> TUI::termMenu::driver(
     scrollok(stdscr, TRUE); //std::cout<<" check 5.6"<<std::endl; std::this_thread::sleep_for(std::chrono::seconds(1));
     _ncurses_windowOpen = true;
 #endif
-#ifdef DEBUG__PRINT
-    debug_checkPointStr  = "9";
-#endif
+
     int c = 0;
     if(!driverFuncInit) {
         if(cursorMode!=-1) {
@@ -529,7 +502,7 @@ pos2d<int> TUI::termMenu::driver(
             bool _cellFound = false;
             for(size_t _y=0; _y<menuTable.table.size(); _y++) {
                 for(size_t _x=0; _x<menuTable.table.at(_y).size(); _x++) {
-                    if(menuTable.table.at(_y).at(_x)!="") {
+                    if(menuTable.table.at(_y).at(_x)!="" /*&& option_key.at(_x).at(_y)!=CELLOPTSPEC_TEXT*/) {
                         currCell = pos2d<int>(_x, _y);
                         _cellFound = true;
                         break;
@@ -538,6 +511,7 @@ pos2d<int> TUI::termMenu::driver(
                 if(_cellFound) break;
             }
         }
+
     }
     int carriagePos[2] = {0, 0};
 
@@ -549,32 +523,18 @@ pos2d<int> TUI::termMenu::driver(
      *
     */
     bool cursLock[2][2]= {{false, false}, {false, false}};
-    #ifdef DEBUG__PRINT
-    debug_checkPointStr  = "10";
-    #endif
+
 
     /// vectors to hold the indices in a range for both axes {x/columns, y/rows}
-    std::vector<int> display_range[2] = {
-        std::vector<int>(dispDim[0], 0),
-        std::vector<int>(dispDim[1], 0)
-    };
+    std::vector<int> display_range[2] = {std::vector<int>(dispDim[0], 0), std::vector<int>(dispDim[1], 0)};
 
     /**
      * vector<vector<int>>`of table element {x, y} index
      * [disp_y][disp_x][menu x or y] = index
     */
-    std::vector<std::vector<std::vector<int>>> displayIDX_raw(
-        dispDim[1],
-        std::vector<std::vector<int>>(
-            dispDim[0],
-            std::vector<int>(2, /*number of values {x, y}*/ 0  /*value*/)
-        )
-    );
+    std::vector<std::vector<std::vector<int>>> displayIDX_raw(dispDim[1], std::vector<std::vector<int>>(dispDim[0], std::vector<int>(2, /*number of values {x, y}*/ 0  /*value*/)));
     if(init_clear) std::cout << ansi_code+"2J" <<std::endl;
     
-    #ifdef DEBUG__PRINT
-    debug_checkPointStr  = "11";
-    #endif
     bool driverInit = false;
 
     int init_driverCallKeys_count = init_driverCallKeys.size();
@@ -591,9 +551,7 @@ pos2d<int> TUI::termMenu::driver(
         std::this_thread::sleep_for(std::chrono::milliseconds(msDelay));
         t0 = std::chrono::steady_clock::now();
 
-        #ifdef DEBUG__PRINT
-        debug_checkPointStr  = "11.1";
-        #endif
+
         if(init_driverCallKeys_count>0) {
             c = init_driverCallKeys.at(init_driverCallKeys_full-init_driverCallKeys_count);
             init_driverCallKeys_count--;
@@ -622,12 +580,10 @@ pos2d<int> TUI::termMenu::driver(
 #if _WIN32
         if(loopInit) c = keyCheck(c);
 #endif
-#ifdef DEBUG__PRINT
-debug_checkPointStr  = "11.2";
-#endif
+
         if(loopFunc) {
             loopFunc(this);
-            // menuTable.strExport("\n", false, "\n", " ");
+            // menuTable.strExport("\n", false, "\n", "|");
         }
         //???
         if(!callFunc && c==-1 && driverInit) {
@@ -638,9 +594,7 @@ debug_checkPointStr  = "11.2";
             driverInit = true;
             // if(callFunc) continue;
         }
-        #ifdef DEBUG__PRINT
-        debug_checkPointStr  = "11.3";
-        #endif
+
         if(loopInit_count>0) { loopInit_count--; }
         if(c==-1) c=0;
 
@@ -650,52 +604,135 @@ debug_checkPointStr  = "11.2";
         if(c==CUSTOM_KEY_LEFT) {
             currCell[0]--;
             if(currCell[0]<0) currCell[0] = menuTable.table[currCell[1]].size()-1;
-            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) { //skip empty cells
-                for(int i=0; i<menuTable.table[currCell[1]].size(); i++) {
+            // if(menuTable.table.at(currCell[1]).at(currCell[0])=="") { //skip empty cells
+            //     for(int i=0; i<menuTable.table[currCell[1]].size(); i++) {
+            //         currCell[0]--;
+            //         if(currCell[0]<0) currCell[0] = menuTable.table[currCell[1]].size()-1;
+            //         if(menuTable.table.at(currCell[1]).at(currCell[0])!="") break;
+            //     }
+            // }
+            // if(option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
+            //     for(int i=0; i<menuTable.table[currCell[1]].size(); i++) {
+            //         currCell[0]--;
+            //         if(currCell[0]<0) currCell[0] = menuTable.table[currCell[1]].size()-1;
+            //         if(option_key[currCell[1]][currCell[0]]!=CELLOPTSPEC_TEXT) break;
+            //     }
+            // }
+            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key.at(currCell[1]).at(currCell[0])==CELLOPTSPEC_TEXT) {
+                for(int i=0; i<menuTable.table.at(currCell[1]).size(); i++) {
                     currCell[0]--;
-                    if(currCell[0]<0) currCell[0] = menuTable.table[currCell[1]].size()-1;
-                    if(menuTable.table.at(currCell[1]).at(currCell[0])!="") break;
+
+                    if(currCell[0] < 0) currCell[0] = menuTable.table.at(currCell[1]).size()-1;
+                    if(option_key.at(currCell[1]).at(currCell[0]) != CELLOPTSPEC_TEXT && menuTable.table.at(currCell[1]).at(currCell[0])!="") {
+                        if(option_key.at(currCell[1]).at(currCell[0])==CELLOPTSPEC_TEXT) {
+                            std::cout << "\t\t\tERROR:[KEY IS INVALID YET IT RETURNED TRUE]"; std::cout.flush();
+                            std::this_thread::sleep_for(std::chrono::seconds(1));
+                        }
+                        break;
+                    }
                 }
             }
         }
         else if(c==CUSTOM_KEY_RIGHT) {
             currCell[0]++;
             if(currCell[0]>(menuTable.table[currCell[1]].size()-1)) currCell[0]=0;
-            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
-                for(int i=0; i<menuTable.table[currCell[1]].size(); i++) {
+            // if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
+            //     for(int i=0; i<menuTable.table[currCell[1]].size(); i++) {
+            //         currCell[0]++;
+            //         if(currCell[0]>(menuTable.table[currCell[1]].size()-1)) currCell[0]=0;
+            //         if(menuTable.table.at(currCell[1]).at(currCell[0])!="") break;
+            //     }
+            // }
+            // if(option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
+            //     for(int i=0; i<menuTable.table[currCell[1]].size(); i++) {
+            //         currCell[0]++;
+            //         if(currCell[0]>(menuTable.table[currCell[1]].size()-1)) currCell[0]=0;
+            //         if(option_key[currCell[1]][currCell[0]]!=CELLOPTSPEC_TEXT) break;
+            //     }
+            // }
+            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key.at(currCell[1]).at(currCell[0])==CELLOPTSPEC_TEXT) {
+                for(int i=0; i<menuTable.table.at(currCell[1]).size(); i++) {
                     currCell[0]++;
-                    if(currCell[0]>(menuTable.table[currCell[1]].size()-1)) currCell[0]=0;
-                    if(menuTable.table.at(currCell[1]).at(currCell[0])!="") break;
+
+                    if(currCell[0] > menuTable.table.at(currCell[1]).size()-1) currCell[0] = 0;
+                    if(option_key.at(currCell[1]).at(currCell[0]) != CELLOPTSPEC_TEXT && menuTable.table.at(currCell[1]).at(currCell[0])!="") {
+                        if(option_key.at(currCell[1]).at(currCell[0])==CELLOPTSPEC_TEXT) {
+                            std::cout << "\t\t\tERROR:[KEY IS INVALID YET IT RETURNED TRUE]"; std::cout.flush();
+                            std::this_thread::sleep_for(std::chrono::seconds(1));
+                        }
+                        break;
+                    }
                 }
             }
         }
         else if(c==CUSTOM_KEY_UP) {
             currCell[1]--;
             if(currCell[1]<0) currCell[1] = static_cast<int>(menuTable.table.size())-1;
-            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
+            // if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
+            //     for(int i=0; i<menuTable.table.size(); i++) {
+            //         currCell[1]--;
+            //         if(currCell[1]<0) currCell[1] = static_cast<int>(menuTable.table.size())-1;
+            //         if(menuTable.table.at(currCell[1]).at(currCell[0])!="") break;
+            //     }
+            // }
+            // if(option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
+            //     for(int i=0; i<menuTable.table.size(); i++) {
+            //         currCell[1]--;
+            //         if(currCell[1]<0) currCell[1] = static_cast<int>(menuTable.table.size())-1;
+            //         if(option_key[currCell[1]][currCell[0]]!=CELLOPTSPEC_TEXT) break;
+            //     }
+            // }
+            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key.at(currCell[1]).at(currCell[0])==CELLOPTSPEC_TEXT) {
                 for(int i=0; i<menuTable.table.size(); i++) {
                     currCell[1]--;
+
                     if(currCell[1]<0) currCell[1] = static_cast<int>(menuTable.table.size())-1;
-                    if(menuTable.table.at(currCell[1]).at(currCell[0])!="") break;
+                    if(option_key.at(currCell[1]).at(currCell[0]) != CELLOPTSPEC_TEXT && menuTable.table.at(currCell[1]).at(currCell[0])!="") {
+                        if(option_key.at(currCell[1]).at(currCell[0])==CELLOPTSPEC_TEXT) {
+                            std::cout << "\t\t\tERROR:[KEY IS INVALID YET IT RETURNED TRUE]"; std::cout.flush();
+                            std::this_thread::sleep_for(std::chrono::seconds(1));
+                        }
+                        break;
+                    }
                 }
             }
         }
         else if(c==CUSTOM_KEY_DOWN) {
             currCell[1]++;
             if(currCell[1]>(static_cast<int>(menuTable.table.size())-1)) currCell[1]=0;
-            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
+            // if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
+            //     for(int i=0; i<menuTable.table.size(); i++) {
+            //         currCell[1]++;
+            //         if(currCell[1]>(static_cast<int>(menuTable.table.size())-1)) currCell[1]=0;
+            //         if(menuTable.table.at(currCell[1]).at(currCell[0])!="") break;
+            //     }
+            // }
+            // if(option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
+            //     for(int i=0; i<menuTable.table.size(); i++) {
+            //         currCell[1]++;
+            //         if(currCell[1]>(static_cast<int>(menuTable.table.size())-1)) currCell[1]=0;
+            //         if(option_key[currCell[1]][currCell[0]]!=CELLOPTSPEC_TEXT) break;
+            //     }
+            // }
+            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key.at(currCell[1]).at(currCell[0])==CELLOPTSPEC_TEXT) {
                 for(int i=0; i<menuTable.table.size(); i++) {
                     currCell[1]++;
+
                     if(currCell[1]>(static_cast<int>(menuTable.table.size())-1)) currCell[1]=0;
-                    if(menuTable.table.at(currCell[1]).at(currCell[0])!="") break;
+                    if(option_key.at(currCell[1]).at(currCell[0]) != CELLOPTSPEC_TEXT && menuTable.table.at(currCell[1]).at(currCell[0])!="") {
+                        if(option_key.at(currCell[1]).at(currCell[0])==CELLOPTSPEC_TEXT) {
+                            std::cout << "\t\t\tERROR:[KEY IS INVALID YET IT RETURNED TRUE]"; std::cout.flush();
+                            std::this_thread::sleep_for(std::chrono::seconds(1));
+                        }
+                        break;
+                    }
                 }
             }
         }
+
         // else if(c==9) { // tab
         // }
-        #ifdef DEBUG__PRINT
-        debug_checkPointStr  = "11.4";
-        #endif
+
         if(loopInit && (c==CUSTOM_KEY_ENTER || c=='\n')) {
             pressedCell[0] = currCell[0];
             pressedCell[1] = currCell[1];
@@ -742,9 +779,7 @@ debug_checkPointStr  = "11.2";
             }
             if(subBreak) break;
         }
-        #ifdef DEBUG__PRINT
-        debug_checkPointStr  = "11.5.0";
-        #endif
+
 #ifndef _WIN32
         if(c==KEY_MOUSE) {
             if(getmouse(&mouse_event) == OK) {
@@ -789,9 +824,7 @@ debug_checkPointStr  = "11.2";
             }
         }
 #endif
-        #ifdef DEBUG__PRINT
-        debug_checkPointStr  = "11.5.0.1";
-        #endif
+
         }
         /// Main drawing section: cursorMode based movement drawing.
         if(cursorMode==-1) {
@@ -862,7 +895,7 @@ debug_checkPointStr  = "11.2";
             }
             
             menuTable.copyTo_settings(dispTable);
-            dispTable.strExport("\n", false, "\n", " ");
+            dispTable.strExport("\n", true, "\n", "| ");
             ansiPrint(
                 dispTable.exportStr,
                 static_cast<int>(pos_x),
@@ -947,7 +980,7 @@ debug_checkPointStr  = "11.2";
 
             /// copy settings from absolute table to display table and export display table
             menuTable.copyTo_settings(dispTable);
-            dispTable.strExport("\n", false, "\n", " ");
+            dispTable.strExport("\n", true, "\n", "| ");
 
             /// print display table
             ansiPrint(
@@ -1012,7 +1045,7 @@ debug_checkPointStr  = "11.2";
 
             /// copy settings from absolute table to display table and export display table
             menuTable.copyTo_settings(dispTable);
-            dispTable.strExport("\n", false, "\n", " ");
+            dispTable.strExport("\n", true, "\n", "| ");
 
             
             // ANSI_mvprint(1, 6, "check 6");
@@ -1046,10 +1079,7 @@ debug_checkPointStr  = "11.2";
             // ANSI_mvprint(1, 9, "check 9");
 
         }
-        
-        #ifdef DEBUG__PRINT
-        debug_checkPointStr  = "11.6";
-        #endif
+
 #ifndef _WIN32
         refresh();
 #endif
@@ -1075,29 +1105,20 @@ debug_checkPointStr  = "11.2";
         }
     }
     loopInit = false;
-    #ifdef DEBUG__PRINT
-    debug_checkPointStr  = "12";
-    #endif
+
     ANSI_mvprint(termSize[0]-10, 1, "exited");
-    // std::cin.get();
-    // std::cin.ignore();
-    // std::cin.clear();
-    #ifdef DEBUG__PRINT
-    debug_checkPointStr  = "13";
-    #endif
+
 #if _WIN32
     std::cout << ansi_code+"2J" <<std::endl;
 #else
     endwin();
 #endif
-#ifdef DEBUG__PRINT    
-debug_checkPointStr  = "14";
-#endif
+
     return pressed_option;
 }
 
 void TUI::termMenu::updateTable() {
-    menuTable.strExport("\n", false, "\n", " ");
+    menuTable.strExport("\n", true, "\n", "| ");
 }
 
 std::string TUI::termMenu::termInput(
@@ -1276,11 +1297,18 @@ void TUI::termMenu::moveCurrCell(int xDir, int yDir) {
         for(int x=xDir; x<0; x++) {
             currCell[0]--;
             if(currCell[0]<0) currCell[0] = menuTable.table[currCell[1]].size()-1;
-            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) { //skip empty cells
+            if(menuTable.table.at(currCell[1]).at(currCell[0])=="") { //skip empty cells
                 for(int i=0; i<menuTable.table[currCell[1]].size(); i++) {
                     currCell[0]--;
                     if(currCell[0]<0) currCell[0] = menuTable.table[currCell[1]].size()-1;
                     if(menuTable.table.at(currCell[1]).at(currCell[0])!="") break;
+                }
+            }
+            if(option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
+                for(int i=0; i<menuTable.table[currCell[1]].size(); i++) {
+                    currCell[0]--;
+                    if(currCell[0]<0) currCell[0] = menuTable.table[currCell[1]].size()-1;
+                    if(option_key[currCell[1]][currCell[0]]!=CELLOPTSPEC_TEXT) break;
                 }
             }
         }
@@ -1289,11 +1317,18 @@ void TUI::termMenu::moveCurrCell(int xDir, int yDir) {
         for(int x=0; x<xDir; x++) {
             currCell[0]++;
             if(currCell[0]>(menuTable.table[currCell[1]].size()-1)) currCell[0]=0;
-            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
+            if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
                 for(int i=0; i<menuTable.table[currCell[1]].size(); i++) {
                     currCell[0]++;
                     if(currCell[0]>(menuTable.table[currCell[1]].size()-1)) currCell[0]=0;
                     if(menuTable.table.at(currCell[1]).at(currCell[0])!="") break;
+                }
+            }
+            if(option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
+                for(int i=0; i<menuTable.table[currCell[1]].size(); i++) {
+                    currCell[0]++;
+                    if(currCell[0]>(menuTable.table[currCell[1]].size()-1)) currCell[0]=0;
+                    if(option_key[currCell[1]][currCell[0]]!=CELLOPTSPEC_TEXT) break;
                 }
             }
         }
@@ -1302,11 +1337,18 @@ void TUI::termMenu::moveCurrCell(int xDir, int yDir) {
         for(int y=0; y<yDir; y++) {
             currCell[1]++;
             if(currCell[1]>(static_cast<int>(menuTable.table.size())-1)) currCell[1]=0;
-            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
+            if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
                 for(int i=0; i<menuTable.table.size(); i++) {
                     currCell[1]++;
                     if(currCell[1]>(static_cast<int>(menuTable.table.size())-1)) currCell[1]=0;
                     if(menuTable.table.at(currCell[1]).at(currCell[0])!="") break;
+                }
+            }
+            if(option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
+                for(int i=0; i<menuTable.table.size(); i++) {
+                    currCell[1]++;
+                    if(currCell[1]>(static_cast<int>(menuTable.table.size())-1)) currCell[1]=0;
+                    if(option_key[currCell[1]][currCell[0]]!=CELLOPTSPEC_TEXT) break;
                 }
             }
         }
@@ -1315,11 +1357,18 @@ void TUI::termMenu::moveCurrCell(int xDir, int yDir) {
         for(int y=yDir; y<0; y++) {
             currCell[1]--;
             if(currCell[1]<0) currCell[1] = static_cast<int>(menuTable.table.size())-1;
-            if(menuTable.table.at(currCell[1]).at(currCell[0])=="" || option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
+            if(menuTable.table.at(currCell[1]).at(currCell[0])=="") {
                 for(int i=0; i<menuTable.table.size(); i++) {
                     currCell[1]--;
                     if(currCell[1]<0) currCell[1] = static_cast<int>(menuTable.table.size())-1;
                     if(menuTable.table.at(currCell[1]).at(currCell[0])!="") break;
+                }
+            }
+            if(option_key[currCell[1]][currCell[0]]==CELLOPTSPEC_TEXT) {
+                for(int i=0; i<menuTable.table.size(); i++) {
+                    currCell[1]--;
+                    if(currCell[1]<0) currCell[1] = static_cast<int>(menuTable.table.size())-1;
+                    if(option_key[currCell[1]][currCell[0]]!=CELLOPTSPEC_TEXT) break;
                 }
             }
         }

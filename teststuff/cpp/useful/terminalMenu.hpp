@@ -163,8 +163,20 @@ namespace TUI {
         }
     #endif
 
-        bool driverFuncInit = false; // init boolean for whether the driver has been called: class scope
+        
+        /**
+         * @brief Flag indicating whether the driver function has been initialized.
+         * 
+         * This boolean variable is used to track the initialization state of the 
+         * driver function. It is set to `false` by default and should be updated 
+         * to `true` once the initialization process is complete.
+         */
+        bool driverFuncInit = false;
         bool classInit = false;
+        /**
+         * @brief Whether to call an assigned function when an option is selected, or exit the driver function and return the pressed opt coordinates.
+         * 
+         */
         bool callFunc = false;
 
         std::vector<int> init_driverCallKeys; // `std::vector<int>` container of keyboard key(/integers) to call during `termMenu::driver()` function call.
