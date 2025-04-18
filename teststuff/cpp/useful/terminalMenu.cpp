@@ -569,12 +569,12 @@ pos2d<int> TUI::termMenu::driver(
                 }
             }
 #else
-            if(khibit()) {
+            // if(khibit()) {
                 c = getch();
-            }
-            else {
-                c = -1;
-            }
+            // }
+            // else {
+            //     c = -1;
+            // }
 #endif
         }
 #if _WIN32

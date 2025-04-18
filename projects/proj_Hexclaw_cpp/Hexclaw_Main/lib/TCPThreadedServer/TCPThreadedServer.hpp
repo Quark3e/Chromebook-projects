@@ -425,8 +425,8 @@ namespace TCPTS {
                     throw std::runtime_error("non-blocking accept() gave error != EAGAIN / EWOULDBLOCK.");
                 }
                 if(!running_) {
-                    exit_acceptLoop = true;
-                    break;
+                    
+                    return;
                 }
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
@@ -481,7 +481,7 @@ namespace TCPTS {
                     (char*)&stored_buf_size_,
                     sizeof(stored_buf_size_),
 #else
-                    &stored_buf_,
+                    &stored_buf_size_,
                     sizeof(stored_buf_size_), MSG_NOSIGNAL |
 #endif //_WIN32
                     0
@@ -497,10 +497,11 @@ namespace TCPTS {
                 bytesSent_ = send(
                     socket_client_,
 #if _WIN32
-                    (char*)&stored_buf_,
+                    // (char*)&stored_buf_ptr_,
+                    stored_buf_ptr_,
                     stored_buf_size_*sizeof(stored_buf_[0]),
 #else
-                    stored_buf_,
+                    stored_buf_ptr_,
                     stored_buf_size_, MSG_NOSIGNAL |
 #endif //_WIN32
                     0
