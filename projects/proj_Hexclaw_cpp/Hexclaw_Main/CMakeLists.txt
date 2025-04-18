@@ -15,8 +15,8 @@ else()
     # additional warnings
     # add_compile_options(-Wall -Wextra -Wpedantic)
     # add_compile_options(-FS)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 endif()
-# SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 if(WIN32)
     set(CMAKE_TOOLCHAIN_FILE "C:\\Users\\berkh\\Libraries\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake")

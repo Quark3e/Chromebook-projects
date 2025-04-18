@@ -25,7 +25,7 @@
 #include <libgen.h>
 #include <linux/limits.h>
 #include <unistd.h>
-#include <ncurses.h>
+// #include <ncurses.h>
 #else
 
 #endif
