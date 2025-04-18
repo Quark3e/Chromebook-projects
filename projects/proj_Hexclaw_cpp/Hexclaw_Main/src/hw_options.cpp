@@ -89,7 +89,7 @@ void HW__config_options() {
             menu__config_options.addOpt(formatNumber(_CONFIG_OPTIONS.getKey(i), maxStrSize+1, 0, "left")+":  "+formatNumber(_CONFIG_OPTIONS[i], 5, 0, "left"), 0, i, -1, static_cast<TUI::TDEF_void__>(nullptr));
         }
         menu__config_options.addOpt("back", 0, 1+_CONFIG_OPTIONS.size(), 27, TUI::DEDICATED__exitDriver);
-        pos2d<int> pressed_pos = menu__config_options.driver(1, 1, 1, true);
+        pos2d<int> pressed_pos = menu__config_options.driver(1, 1, 5, true);
         if(pressed_pos.inRegion({0, 0}, {0, static_cast<int>(_CONFIG_OPTIONS.size())})) {
             _CONFIG_OPTIONS[pressed_pos.y] = !_CONFIG_OPTIONS[pressed_pos.y];
         }
@@ -121,7 +121,7 @@ void HW__init_options() {
         }
         menu__init_options.addOpt("back", 0, 1+_init_status.size(), 27, TUI::DEDICATED__exitDriver);
 
-        pos2d<int> pressed_pos = menu__init_options.driver(1, 1, 1, true);
+        pos2d<int> pressed_pos = menu__init_options.driver(1, 1, 5, true);
         if(pressed_pos.inRegion({0, 0}, {0, static_cast<int>(_init_status.size())})) {
             /// Calling a init status value
             if(_init_status[pressed_pos[1]].isInit()) {

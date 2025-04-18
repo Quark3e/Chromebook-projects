@@ -74,7 +74,7 @@ void HW_option4() {
 		printFuncLabel(" Running: opt4: Calibrate servo motors");
 		// ANSI_mvprint(0, 0, "Select a joint/motor to calibrate", true, "abs", "rel", true);
 
-		pos2d<int> pressed_pos = menu__calibrateMotor_main.driver(1, 5, 1, true, _mainDriver_updateFunc__orientObj, true);
+		pos2d<int> pressed_pos = menu__calibrateMotor_main.driver(1, 5, 5, true, _mainDriver_updateFunc__orientObj, true);
 
 		if(pressed_pos==pos2d<int>(0, 9)) break;
 		if(pressed_pos.inRegion({0, 2}, {0, 7})) { //check if pressed_pos is in region of the selectable motor options
@@ -84,7 +84,7 @@ void HW_option4() {
 			bool runAngles = true;
 			while(runAngles) {
 				ANSI_mvprint(0, 0, "Select an angle to calibrate", true, "abs", "abs", true);
-				pos2d<int> pressed_pos_angles = menu__calibrateMotor_angles.driver(1, 4, 1, false, _mainDriver_updateFunc__orientObj, false);
+				pos2d<int> pressed_pos_angles = menu__calibrateMotor_angles.driver(1, 4, 5, false, _mainDriver_updateFunc__orientObj, false);
 				if(pressed_pos_angles==pos2d<int>(0, 9)) break;
 				if(pressed_pos_angles.inRegion({1, 2}, {1, 20})) { //check if pressed_pos is in region of the selectable motor options
 					if(_init_status.get("pca").isInit()) {

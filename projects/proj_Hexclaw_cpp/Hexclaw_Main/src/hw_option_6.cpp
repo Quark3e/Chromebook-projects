@@ -39,7 +39,7 @@ void HW_option6_terminal() {
     // opt6_startMenu.addOpt("[e]   Exit         ", 0, 6, 'e', exitFrom_lvl2, &opt6_startMenu.exitDriver);
 
 
-    opt6_startMenu.driver(1, 1, 0, true);
+    opt6_startMenu.driver(1, 1, 5, true);
 }
 
 
