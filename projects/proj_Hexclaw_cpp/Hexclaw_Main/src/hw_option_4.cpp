@@ -16,12 +16,12 @@
 TUI::termMenu menu__calibrateMotor_main({
 	{" Select a joint/motor to calibrate", 0, 0, TUI::CELLOPTSPEC_TEXT}, {" Error regr", 1, 0, TUI::CELLOPTSPEC_TEXT}, {" Regr solution", 2, 0, TUI::CELLOPTSPEC_TEXT},
 	
-	{" q[0]", 0, 2, '0'}, {" ", 1, 2, -1},
-	{" q[1]", 0, 3, '1'}, {" ", 1, 3, -1},
-	{" q[2]", 0, 4, '2'}, {" ", 1, 4, -1},
-	{" q[3]", 0, 5, '3'}, {" ", 1, 5, -1},
-	{" q[4]", 0, 6, '4'}, {" ", 1, 6, -1},
-	{" q[5]", 0, 7, '5'}, {" ", 1, 7, -1},
+	{" q[0]", 0, 2, '0'}, {std::string(15, ' '), 1, 2, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 2, -1},
+	{" q[1]", 0, 3, '1'}, {std::string(15, ' '), 1, 3, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 3, -1},
+	{" q[2]", 0, 4, '2'}, {std::string(15, ' '), 1, 4, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 4, -1},
+	{" q[3]", 0, 5, '3'}, {std::string(15, ' '), 1, 5, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 5, -1},
+	{" q[4]", 0, 6, '4'}, {std::string(15, ' '), 1, 6, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 6, -1},
+	{" q[5]", 0, 7, '5'}, {std::string(15, ' '), 1, 7, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 7, -1},
 
 	{" back", 0, 9, 27}
 }, false);
@@ -29,25 +29,25 @@ TUI::termMenu menu__calibrateMotor_main({
 TUI::termMenu menu__calibrateMotor_angles({
 
 
-	{"   0", 1,  2, -1}, {"    ", 2,  2, TUI::CELLOPTSPEC_TEXT},
-	{"  10", 1,  3, -1}, {"    ", 2,  3, TUI::CELLOPTSPEC_TEXT},
-	{"  20", 1,  4, -1}, {"    ", 2,  4, TUI::CELLOPTSPEC_TEXT},
-	{"  30", 1,  5, -1}, {"    ", 2,  5, TUI::CELLOPTSPEC_TEXT},
-	{"  40", 1,  6, -1}, {"    ", 2,  6, TUI::CELLOPTSPEC_TEXT},
-	{"  50", 1,  7, -1}, {"    ", 2,  7, TUI::CELLOPTSPEC_TEXT},
-	{"  60", 1,  8, -1}, {"    ", 2,  8, TUI::CELLOPTSPEC_TEXT},
-	{"  70", 1,  9, -1}, {"    ", 2,  9, TUI::CELLOPTSPEC_TEXT},
-	{"  80", 1, 10, -1}, {"    ", 2, 10, TUI::CELLOPTSPEC_TEXT},
-	{"  90", 1, 11, -1}, {"    ", 2, 11, TUI::CELLOPTSPEC_TEXT},
-	{" 100", 1, 12, -1}, {"    ", 2, 12, TUI::CELLOPTSPEC_TEXT},
-	{" 110", 1, 13, -1}, {"    ", 2, 13, TUI::CELLOPTSPEC_TEXT},
-	{" 120", 1, 14, -1}, {"    ", 2, 14, TUI::CELLOPTSPEC_TEXT},
-	{" 130", 1, 15, -1}, {"    ", 2, 15, TUI::CELLOPTSPEC_TEXT},
-	{" 140", 1, 16, -1}, {"    ", 2, 16, TUI::CELLOPTSPEC_TEXT},
-	{" 150", 1, 17, -1}, {"    ", 2, 17, TUI::CELLOPTSPEC_TEXT},
-	{" 160", 1, 18, -1}, {"    ", 2, 18, TUI::CELLOPTSPEC_TEXT},
-	{" 170", 1, 19, -1}, {"    ", 2, 19, TUI::CELLOPTSPEC_TEXT},
-	{" 180", 1, 20, -1}, {"    ", 2, 20, TUI::CELLOPTSPEC_TEXT},
+	{"   0", 1,  2, -1}, {std::string(17, ' '), 2,  2, TUI::CELLOPTSPEC_TEXT},
+	{"  10", 1,  3, -1}, {std::string(17, ' '), 2,  3, TUI::CELLOPTSPEC_TEXT},
+	{"  20", 1,  4, -1}, {std::string(17, ' '), 2,  4, TUI::CELLOPTSPEC_TEXT},
+	{"  30", 1,  5, -1}, {std::string(17, ' '), 2,  5, TUI::CELLOPTSPEC_TEXT},
+	{"  40", 1,  6, -1}, {std::string(17, ' '), 2,  6, TUI::CELLOPTSPEC_TEXT},
+	{"  50", 1,  7, -1}, {std::string(17, ' '), 2,  7, TUI::CELLOPTSPEC_TEXT},
+	{"  60", 1,  8, -1}, {std::string(17, ' '), 2,  8, TUI::CELLOPTSPEC_TEXT},
+	{"  70", 1,  9, -1}, {std::string(17, ' '), 2,  9, TUI::CELLOPTSPEC_TEXT},
+	{"  80", 1, 10, -1}, {std::string(17, ' '), 2, 10, TUI::CELLOPTSPEC_TEXT},
+	{"  90", 1, 11, -1}, {std::string(17, ' '), 2, 11, TUI::CELLOPTSPEC_TEXT},
+	{" 100", 1, 12, -1}, {std::string(17, ' '), 2, 12, TUI::CELLOPTSPEC_TEXT},
+	{" 110", 1, 13, -1}, {std::string(17, ' '), 2, 13, TUI::CELLOPTSPEC_TEXT},
+	{" 120", 1, 14, -1}, {std::string(17, ' '), 2, 14, TUI::CELLOPTSPEC_TEXT},
+	{" 130", 1, 15, -1}, {std::string(17, ' '), 2, 15, TUI::CELLOPTSPEC_TEXT},
+	{" 140", 1, 16, -1}, {std::string(17, ' '), 2, 16, TUI::CELLOPTSPEC_TEXT},
+	{" 150", 1, 17, -1}, {std::string(17, ' '), 2, 17, TUI::CELLOPTSPEC_TEXT},
+	{" 160", 1, 18, -1}, {std::string(17, ' '), 2, 18, TUI::CELLOPTSPEC_TEXT},
+	{" 170", 1, 19, -1}, {std::string(17, ' '), 2, 19, TUI::CELLOPTSPEC_TEXT},
+	{" 180", 1, 20, -1}, {std::string(17, ' '), 2, 20, TUI::CELLOPTSPEC_TEXT},
 
 	{" Solve",1, 21, -1},
 	
@@ -55,12 +55,36 @@ TUI::termMenu menu__calibrateMotor_angles({
 	{" exit", 1, 24, 27}
 }, false);
 
+void _updateFunc_option4_servoCalibration(TUI::termMenu* ptr_menu) {
+	std::string textCell_text = "";
+	bool TextCellModified = false;
+	try {
+		orientObj.update(false);
+		textCell_text += "{";
+		textCell_text += formatNumber(orientObj.Pitch+90, 6, 1) + ",";
+		textCell_text += formatNumber(orientObj.Roll+90, 6, 1);
+		textCell_text += "}";
+		TextCellModified = true;
+	}
+	catch(const std::exception& e) {
+		textCell_text += e.what();
+		TextCellModified = true;
+	}
+	ptr_menu->addTextCell(" FPS: "+formatNumber(ptr_menu->FPS, 5, 1), 3, 0);
+	ptr_menu->addTextCell(textCell_text, 3, 1);
+	
+	if(TextCellModified) {
+		ptr_menu->updateTable();
+	}
+	
+}
 
 void HW_option4() {
 	// simplified_init();
-	if(!(_init_status.get("pca").isInit() || _init_status.get("orientObj").isInit())) {
-		if(!_init_status.get("pca").isInit()) 		ANSI_mvprint(0, 0, "ERROR: pca    	 has not been initialised (required): "+_init_status.get("pca").get_callMsg(), true, "abs", "rel");
-		if(!_init_status.get("orientObj").isInit()) ANSI_mvprint(0, 0, "ERROR: orientObj has not been initialised (required): "+_init_status.get("orientObj").get_callMsg(), true, "abs", "rel");
+	if((!_init_status.get("pca").isInit() && !_init_status.get("orientObj").isInit())) {
+		ANSI_mvprint(0, 0, "ERROR: both pca and orientObj has not been initialised (required for either).", true, "abs", "rel");
+		if(!_init_status.get("pca").isInit()) 		ANSI_mvprint(0, 0, "ERROR: pca    	 : "+_init_status.get("pca").get_callMsg(), true, "abs", "rel");
+		if(!_init_status.get("orientObj").isInit()) ANSI_mvprint(0, 0, "ERROR: orientObj : "+_init_status.get("orientObj").get_callMsg(), true, "abs", "rel");
 		for(int _=0; _<3; _++) {
 			// std::cout << " ."; std::cout.flush();
 			ANSI_mvprint(0, -1, " .", true, "rel", "rel");
@@ -74,19 +98,19 @@ void HW_option4() {
 		printFuncLabel(" Running: opt4: Calibrate servo motors");
 		// ANSI_mvprint(0, 0, "Select a joint/motor to calibrate", true, "abs", "rel", true);
 
-		pos2d<int> pressed_pos = menu__calibrateMotor_main.driver(1, 5, 5, true, _mainDriver_updateFunc__orientObj, true);
+		pos2d<int> pressed_pos = menu__calibrateMotor_main.driver(1, 5, 5, true, _updateFunc_option4_servoCalibration, true);
 
 		if(pressed_pos==pos2d<int>(0, 9)) break;
-		if(pressed_pos.inRegion({0, 2}, {0, 7})) { //check if pressed_pos is in region of the selectable motor options
+		if(pressed_pos.inRegion({0, 2}, {0, 7})) { // pressed_pos is in region of the selectable motor
 			ANSI_mvprint(0, 2, "Calibrating motor: q["+formatNumber(pressed_pos[1]-2)+"]", true, "abs", "abs", false);
 			
 			// calibrate motor
 			bool runAngles = true;
 			while(runAngles) {
 				ANSI_mvprint(0, 0, "Select an angle to calibrate", true, "abs", "abs", true);
-				pos2d<int> pressed_pos_angles = menu__calibrateMotor_angles.driver(1, 4, 5, false, _mainDriver_updateFunc__orientObj, false);
+				pos2d<int> pressed_pos_angles = menu__calibrateMotor_angles.driver(1, 4, 5, true, _updateFunc_option4_servoCalibration, false);
 				if(pressed_pos_angles==pos2d<int>(0, 9)) break;
-				if(pressed_pos_angles.inRegion({1, 2}, {1, 20})) { //check if pressed_pos is in region of the selectable motor options
+				if(pressed_pos_angles.inRegion({1, 2}, {1, 20})) { // Pressed button in region of the selectable motor angles
 					if(_init_status.get("pca").isInit()) {
 						// set motor to angle
 						servo_angles_6DOF newAngles(0);
@@ -94,7 +118,7 @@ void HW_option4() {
 						float angle = (pressed_pos_angles[1]-2)*10.0f;
 						// float rad = toRadians(angle);
 						newAngles[motorIdx] = angle;
-						if(_init_status.get("pca").isInit()) sendToServo(&pca, newAngles, current_q, false);
+						if(_init_status.get("pca").isInit()) sendToServo(&pca, newAngles, current_q, false, 0, 0, false);
 					}
 					else {
 						// ANSI_mvprint(0, 0, "ERROR: pca has not been initialised: "+_init_status.get("pca").get_callMsg(), true, "abs", "rel");
@@ -102,7 +126,7 @@ void HW_option4() {
 					SHLEEP((500));
 					// orientObj.update(false);
 
-					menu__calibrateMotor_angles.rename_opt(2, pressed_pos_angles[1], formatNumber(orientObj.Pitch+90, 7, 1));
+					menu__calibrateMotor_angles.addTextCell(formatNumber(orientObj.Pitch+90, 7, 1), 2, pressed_pos_angles[1]);
 
 					/// Manual input of angles
 					// std::string inpValue = menu__calibrateMotor_angles.termInput(0);
@@ -135,8 +159,8 @@ void HW_option4() {
 					std::vector<float> coeffs 		= HW_KINEMATICS::solveServoDriftRegression(refrAngles, readAngles, 2);
 					std::vector<float> coeffs_sol	= HW_KINEMATICS::solveServoDriftRegression(readAngles, refrAngles, 2);
 					
-					menu__calibrateMotor_main.rename_opt(1, pressed_pos[1], formatVector(coeffs, 6, 2));
-					menu__calibrateMotor_main.rename_opt(2, pressed_pos[1], formatVector(coeffs_sol, 6, 2));
+					menu__calibrateMotor_main.addTextCell(formatVector(coeffs, 6, 2), 1, pressed_pos[1]);
+					menu__calibrateMotor_main.addTextCell(formatVector(coeffs_sol, 6, 2), 2, pressed_pos[1]);
 					
 					ANSI_mvprint(0, 2, "solved coeffs: "+formatVector(coeffs, 6, 1), true, "abs", "rel");
 					std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -145,10 +169,10 @@ void HW_option4() {
 						ANSI_mvprint(0, -1, ".", true, "rel", "abs");
 					}
 				}
-				else if(pressed_pos_angles==pos2d<int>(1, 23)) {
+				else if(pressed_pos_angles==pos2d<int>(1, 23)) { // "back" button pressed
 					runAngles = false;
 				}
-				else if(pressed_pos_angles==pos2d<int>(1, 24)) {
+				else if(pressed_pos_angles==pos2d<int>(1, 24)) { // "exit" button pressed
 					runAngles = false;
 					runMain = false;
 				}
@@ -182,7 +206,7 @@ void _updateFunc_opt4_accelOffset(TUI::termMenu* ptr_menu) {
 	std::string textCell_text;
 	try {
 		orientObj.update(false);
-		ptr_menu->addTextCell(orientObj.accel, 2, 0);
+		ptr_menu->addTextCell(formatContainer1(orientObj.accel, 3, 5, 2), 2, 0);
 	}
 	catch(const std::exception& e) {
 		ptr_menu->addTextCell(e.what(), 2, 0);
@@ -260,3 +284,5 @@ void HW_option4_accelOffsets() {
 	}
 
 }
+
+
