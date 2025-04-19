@@ -15,6 +15,9 @@
 
 #define SHLEEP(sleep_ms) (std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms)))
 
+#define GET_PRGRSS(STARTVAL, ENDVAL, PRGRS_DECIM) (STARTVAL+(ENDVAL-STARTVAL)*PRGRS_DECIM)
+
+
 /**
  * Whether to setup and handle performances of the program.
  * That includes:

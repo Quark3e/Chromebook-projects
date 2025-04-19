@@ -14,7 +14,7 @@
 
 
 TUI::termMenu menu__calibrateMotor_main({
-	{" Select a joint/motor to calibrate", 0, 0, TUI::CELLOPTSPEC_TEXT}, {" Error regr", 1, 0, TUI::CELLOPTSPEC_TEXT}, {" Regr solution", 2, 0, TUI::CELLOPTSPEC_TEXT},
+	{" Motors", 0, 0, TUI::CELLOPTSPEC_TEXT}, {" Error regr", 1, 0, TUI::CELLOPTSPEC_TEXT}, {" Regr solution", 2, 0, TUI::CELLOPTSPEC_TEXT},
 	
 	{" q[0]", 0, 2, '0'}, {std::string(15, ' '), 1, 2, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 2, -1},
 	{" q[1]", 0, 3, '1'}, {std::string(15, ' '), 1, 3, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 3, -1},
@@ -54,6 +54,62 @@ TUI::termMenu menu__calibrateMotor_angles({
 	{" back", 1, 23, 27},
 	{" exit", 1, 24, 27}
 }, false);
+
+
+/**
+ * A vector of preset servo angles for a 6-DOF robotic arm.
+ * 
+ * This vector contains predefined sets of angles for the servos of a 
+ * 6-degree-of-freedom robotic arm. Each element in the vector represents 
+ * a specific configuration of the arm, with six angles corresponding to 
+ * the six servos.
+ * 
+ * The angles are specified in degrees and follow the order:
+ * {servo1, servo2, servo3, servo4, servo5, servo6}.
+ * 
+ * Preset configurations:
+ * - { -90,  90,   0,   0,   0,   0} : Initial position with servo1 at -90° and servo2 at 90°.
+ * - {   0,   0, -45,   0,   0,   0} : Servo3 is tilted to -45°.
+ * - {   0, 135,-135,   0,   0,   0} : Servo2 and servo3 are at 135° and -135°, respectively.
+ * - {   0,  90, -90, -90,   0,   0} : Servo4 is tilted to -90°.
+ * - {   0,  90,   0,   0, -90,   0} : Servo5 is tilted to -90°.
+ * - {   0,  90,   0,   0, -90, -90} : Servo5 and servo6 are tilted to -90°.
+ * 
+ * note: These configurations can be used as starting points or presets 
+ *       for controlling the robotic arm.
+ */
+std::vector<servo_angles_6DOF> presetAngles_start{
+	{ -90,  90,   0,   0,   0,   0},	// q1
+	{   0,   0, -45,   0,   0,   0},	// q2
+	{   0, 135,-135,   0,   0,   0},	// q3
+	{   0,  90, -90, -90,   0,   0},	// q4
+	{   0,  90,   0,   0, -90,   0},	// q5
+	{   0,  90,   0,   0, -90, -90}		// q6
+};
+/**
+ * A vector of preset servo angles for a 6 Degrees of Freedom (6DOF) robotic arm.
+ * 
+ * This vector contains predefined sets of angles for the servos in the robotic arm to reach.
+ * Each element in the vector represents a configuration of servo angles, where:
+ * - The first value corresponds to the angle of the first servo.
+ * - The second value corresponds to the angle of the second servo.
+ * - The third value corresponds to the angle of the third servo.
+ * - The fourth value corresponds to the angle of the fourth servo.
+ * - The fifth value corresponds to the angle of the fifth servo.
+ * - The sixth value corresponds to the angle of the sixth servo.
+ * 
+ * These preset angles can be used to move the robotic arm to specific positions or
+ * perform predefined actions.
+ */
+std::vector<servo_angles_6DOF> presetAngles_end{
+	{  90,  90,   0,   0,   0,   0},	// q1
+	{   0, 180, -90,   0,   0,   0},	// q2
+	{   0, 135,  45,   0,   0,   0},	// q3
+	{   0,  90, -90,  90,   0,   0},	// q4
+	{   0,  90,   0,   0,  90,   0},	// q5
+	{   0,  90,   0,   0, -90,  90}		// q6
+};
+
 
 void _updateFunc_option4_servoCalibration(TUI::termMenu* ptr_menu) {
 	std::string textCell_text = "";
@@ -96,9 +152,9 @@ void HW_option4() {
 	bool runMain = true;
 	while(runMain) {
 		printFuncLabel(" Running: opt4: Calibrate servo motors");
-		// ANSI_mvprint(0, 0, "Select a joint/motor to calibrate", true, "abs", "rel", true);
+		ANSI_mvprint(0, 0, "Select a joint/motor to calibrate", true, "abs", "rel", true);
 
-		pos2d<int> pressed_pos = menu__calibrateMotor_main.driver(1, 5, 5, true, _updateFunc_option4_servoCalibration, true);
+		pos2d<int> pressed_pos = menu__calibrateMotor_main.driver(1, 5, 5, false, _updateFunc_option4_servoCalibration, false);
 
 		if(pressed_pos==pos2d<int>(0, 9)) break;
 		if(pressed_pos.inRegion({0, 2}, {0, 7})) { // pressed_pos is in region of the selectable motor
@@ -108,7 +164,7 @@ void HW_option4() {
 			bool runAngles = true;
 			while(runAngles) {
 				ANSI_mvprint(0, 0, "Select an angle to calibrate", true, "abs", "abs", true);
-				pos2d<int> pressed_pos_angles = menu__calibrateMotor_angles.driver(1, 4, 5, true, _updateFunc_option4_servoCalibration, false);
+				pos2d<int> pressed_pos_angles = menu__calibrateMotor_angles.driver(1, 4, 5, false, _updateFunc_option4_servoCalibration, false);
 				if(pressed_pos_angles==pos2d<int>(0, 9)) break;
 				if(pressed_pos_angles.inRegion({1, 2}, {1, 20})) { // Pressed button in region of the selectable motor angles
 					if(_init_status.get("pca").isInit()) {
@@ -118,12 +174,12 @@ void HW_option4() {
 						float angle = (pressed_pos_angles[1]-2)*10.0f;
 						// float rad = toRadians(angle);
 						newAngles[motorIdx] = angle;
-						if(_init_status.get("pca").isInit()) sendToServo(&pca, newAngles, current_q, false, 0, 0, false);
+						sendToServo(&pca, newAngles, current_q, false, 0, 0, false);
+						SHLEEP((500));
 					}
 					else {
 						// ANSI_mvprint(0, 0, "ERROR: pca has not been initialised: "+_init_status.get("pca").get_callMsg(), true, "abs", "rel");
 					}
-					SHLEEP((500));
 					// orientObj.update(false);
 
 					menu__calibrateMotor_angles.addTextCell(formatNumber(orientObj.Pitch+90, 7, 1), 2, pressed_pos_angles[1]);
@@ -165,7 +221,7 @@ void HW_option4() {
 					ANSI_mvprint(0, 2, "solved coeffs: "+formatVector(coeffs, 6, 1), true, "abs", "rel");
 					std::this_thread::sleep_for(std::chrono::seconds(2));
 					for(size_t cnt=0; cnt<3; cnt++) {
-						SHLEEP((1000));
+						SHLEEP(1000);
 						ANSI_mvprint(0, -1, ".", true, "rel", "abs");
 					}
 				}
@@ -177,8 +233,64 @@ void HW_option4() {
 					runMain = false;
 				}
 
+			}
+		}
+		if(pressed_pos.inRegion({3, 2}, {3, 7})) { // pressed_pos is in region of the [auto] for selectable motor.
+			// Index to the motor that's being tested
+			int motorIdx = pressed_pos[1]-2;
+			ANSI_mvprint(0, 0, "Running automated servo motor read for q["+std::to_string(motorIdx)+"]", true, "abs", "abs", true);
 
+			std::vector<float> refrAngles;
+			std::vector<float> readAngles;
 
+			std::vector<float> coeffs		= std::vector<float>(2, 0);
+			std::vector<float> coeffs_sol	= std::vector<float>(2, 0);
+
+			float progress = 0;
+			servo_angles_6DOF anglesToSend(0);
+			for(float angle=0; angle<=180; angle+=1) {
+				ANSI_mvprint(0, 2, "angle: "+formatNumber(angle, 3, 0)+" deg");
+
+				refrAngles.push_back(angle);
+				
+				progress = angle/180;
+				if(_init_status.get("pca").isInit()) {
+					for(size_t motorID=0; motorID<6; motorID++) {
+						anglesToSend[motorID] = GET_PRGRSS(presetAngles_start[motorIdx][motorID], presetAngles_end[motorIdx][motorID], progress);
+					}
+					int returCode_sendToServo = 0;
+					if((returCode_sendToServo=sendToServo(&pca, anglesToSend, current_q, false, 0, 0, true))!=0) {
+						throw std::runtime_error("ERROR: sendToServo failed with code: "+std::to_string(returCode_sendToServo));
+					}
+					SHLEEP(100); //total movement will take 18 seconds
+				}
+				
+				try {
+					orientObj.update(false);
+					readAngles.push_back(std::roundf(orientObj.Pitch+90));
+				}
+				catch(const std::exception& e) {
+					readAngles.push_back(angle);
+				}
+
+				if(int(angle)%10==0) {
+					coeffs 		= HW_KINEMATICS::solveServoDriftRegression(refrAngles, readAngles, 2);
+					coeffs_sol	= HW_KINEMATICS::solveServoDriftRegression(refrAngles, readAngles, 2);
+
+					ANSI_mvprint(0, 3, "coeffs     : "+formatVector(coeffs    , 9, 4));
+					ANSI_mvprint(0, 4, "coeffs_sol : "+formatVector(coeffs_sol, 9, 4));
+				}
+				
+			}
+
+			menu__calibrateMotor_main.addTextCell(formatVector(coeffs, 6, 2)	, 1, pressed_pos[1]);
+			menu__calibrateMotor_main.addTextCell(formatVector(coeffs_sol, 6, 2), 2, pressed_pos[1]);
+
+			ANSI_mvprint(0, 2, "solved coeffs: "+formatVector(coeffs, 6, 1), true, "abs", "rel");
+			std::this_thread::sleep_for(std::chrono::seconds(2));
+			for(size_t cnt=0; cnt<3; cnt++) {
+				SHLEEP(1000);
+				ANSI_mvprint(0, -1, ".", true, "rel", "abs");
 			}
 		}
 	}
