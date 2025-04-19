@@ -215,7 +215,7 @@ class nodemcu_orient {
 
     // float x_accel = 0, y_accel = 0, z_accel = 0;
     float pitch, roll, Pitch=0, Roll=0;
-    bool useFilter = false;
+    bool useFilter = true;
     float accelFilter = 0.1;
 
     float* orientPtr = nullptr;
