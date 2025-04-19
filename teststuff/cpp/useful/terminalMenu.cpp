@@ -79,14 +79,16 @@ void TUI::termMenu::extend_containers(int xAdd, int yAdd) {
     menuTable.checkMaxLen();
 }
 int TUI::termMenu::container_insertKey(int keyPress, int x_column, int y_row) {
-    if(keyPress==-1) {
-        option_key.at(y_row).at(x_column) = -1;
+    if(keyPress<0) {
+        /// If they key's value is <0 then it's a special case where it can be repeated.
+        option_key.at(y_row).at(x_column) = keyPress;
     }
     else {
         bool toBreak=false;
+        /// Iterate over every cell in the menu and check that there aren't any duplicates.
         for(int y=0; y<option_key.size(); y++) {
             for(int x=0; x<option_key.at(y).size(); x++) {
-                if(x==x_column && y==y_row) continue;
+                if(x==x_column && y==y_row) continue; /// skip the cell that is to be added.
                 if(option_key.at(y).at(x)==keyPress) {
                     toBreak = true;
                     break;
@@ -502,7 +504,7 @@ pos2d<int> TUI::termMenu::driver(
             bool _cellFound = false;
             for(size_t _y=0; _y<menuTable.table.size(); _y++) {
                 for(size_t _x=0; _x<menuTable.table.at(_y).size(); _x++) {
-                    if(menuTable.table.at(_y).at(_x)!="" /*&& option_key.at(_x).at(_y)!=CELLOPTSPEC_TEXT*/) {
+                    if(menuTable.table.at(_y).at(_x)!="" && option_key.at(_x).at(_y)!=CELLOPTSPEC_TEXT) {
                         currCell = pos2d<int>(_x, _y);
                         _cellFound = true;
                         break;
