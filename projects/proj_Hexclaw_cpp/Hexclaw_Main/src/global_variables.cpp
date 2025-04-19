@@ -94,9 +94,9 @@ std::vector<CVTRACK::camObjTracker> camObj{
 TCPTS::TCPThreadedServer<std::vector<uint8_t>, uint8_t*> serverObj(false, TCPThreadedServer__DEFAULT_PORT, &mtx_cout);
 
 // Two_cam_triangle header class initialisation
-float camPosition[2][2] = {{0, 0}, {250, 0}};
+float camPosition[2][2] = {{0, 0}, {132, 0}};
 
-float camAng_offs[2] = {90, 123};
+float camAng_offs[2] = {90, 125};
 float inpPos[2], solvedPos[2];
 camTriangle camTri(camPosition, camAng_offs);
 
