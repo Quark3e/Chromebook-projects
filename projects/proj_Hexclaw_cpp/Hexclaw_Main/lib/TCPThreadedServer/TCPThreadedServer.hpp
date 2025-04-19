@@ -497,8 +497,7 @@ namespace TCPTS {
                 bytesSent_ = send(
                     socket_client_,
 #if _WIN32
-                    // (char*)&stored_buf_ptr_,
-                    stored_buf_ptr_,
+                    (char*)&stored_buf_ptr_,
                     stored_buf_size_*sizeof(stored_buf_[0]),
 #else
                     stored_buf_ptr_,
