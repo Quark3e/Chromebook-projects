@@ -117,8 +117,8 @@ void _updateFunc_option4_servoCalibration(TUI::termMenu* ptr_menu) {
 	try {
 		orientObj.update(false);
 		textCell_text += "{";
-		textCell_text += formatNumber(orientObj.Pitch+90, 6, 1) + ",";
-		textCell_text += formatNumber(orientObj.Roll+90, 6, 1);
+		textCell_text += formatNumber(orientObj.pitch+90, 6, 1) + ",";
+		textCell_text += formatNumber(orientObj.roll+90, 6, 1);
 		textCell_text += "}";
 		TextCellModified = true;
 	}
@@ -137,7 +137,7 @@ void _updateFunc_option4_servoCalibration(TUI::termMenu* ptr_menu) {
 
 void HW_option4() {
 	// simplified_init();
-	if((!_init_status.get("pca").isInit() && !_init_status.get("orientObj").isInit())) {
+	if((!_init_status.get("orientObj").isInit())) { // any options within this option requires orientObj to be available/initialised.
 		ANSI_mvprint(0, 0, "ERROR: both pca and orientObj has not been initialised (required for either).", true, "abs", "rel");
 		if(!_init_status.get("pca").isInit()) 		ANSI_mvprint(0, 0, "ERROR: pca    	 : "+_init_status.get("pca").get_callMsg(), true, "abs", "rel");
 		if(!_init_status.get("orientObj").isInit()) ANSI_mvprint(0, 0, "ERROR: orientObj : "+_init_status.get("orientObj").get_callMsg(), true, "abs", "rel");
@@ -175,14 +175,14 @@ void HW_option4() {
 						// float rad = toRadians(angle);
 						newAngles[motorIdx] = angle;
 						sendToServo(&pca, newAngles, current_q, false, 0, 0, false);
-						SHLEEP((500));
 					}
 					else {
 						// ANSI_mvprint(0, 0, "ERROR: pca has not been initialised: "+_init_status.get("pca").get_callMsg(), true, "abs", "rel");
 					}
+					SHLEEP((500));
 					// orientObj.update(false);
 
-					menu__calibrateMotor_angles.addTextCell(formatNumber(orientObj.Pitch+90, 7, 1), 2, pressed_pos_angles[1]);
+					menu__calibrateMotor_angles.addTextCell(formatNumber(orientObj.pitch+90, 7, 1), 2, pressed_pos_angles[1]);
 
 					/// Manual input of angles
 					// std::string inpValue = menu__calibrateMotor_angles.termInput(0);
@@ -249,7 +249,7 @@ void HW_option4() {
 			float progress = 0;
 			servo_angles_6DOF anglesToSend(0);
 			for(float angle=0; angle<=180; angle+=1) {
-				ANSI_mvprint(0, 2, "angle: "+formatNumber(angle, 3, 0)+" deg");
+				ANSI_mvprint(0, 3, "angle: "+formatNumber(angle, 3, 0)+" deg");
 
 				refrAngles.push_back(angle);
 				
@@ -262,12 +262,13 @@ void HW_option4() {
 					if((returCode_sendToServo=sendToServo(&pca, anglesToSend, current_q, false, 0, 0, true))!=0) {
 						throw std::runtime_error("ERROR: sendToServo failed with code: "+std::to_string(returCode_sendToServo));
 					}
-					SHLEEP(100); //total movement will take 18 seconds
 				}
+				SHLEEP(100); //total movement will take 18 seconds
 				
 				try {
 					orientObj.update(false);
-					readAngles.push_back(std::roundf(orientObj.Pitch+90));
+					ANSI_mvprint(0, 5, "{"+formatNumber(orientObj.pitch+90, 6, 1)+","+formatNumber(orientObj.roll+90, 6, 1)+"}");
+					readAngles.push_back(std::roundf(orientObj.pitch+90));
 				}
 				catch(const std::exception& e) {
 					readAngles.push_back(angle);
@@ -275,10 +276,10 @@ void HW_option4() {
 
 				if(int(angle)%10==0) {
 					coeffs 		= HW_KINEMATICS::solveServoDriftRegression(refrAngles, readAngles, 2);
-					coeffs_sol	= HW_KINEMATICS::solveServoDriftRegression(refrAngles, readAngles, 2);
+					coeffs_sol	= HW_KINEMATICS::solveServoDriftRegression(readAngles, refrAngles, 2);
 
-					ANSI_mvprint(0, 3, "coeffs     : "+formatVector(coeffs    , 9, 4));
-					ANSI_mvprint(0, 4, "coeffs_sol : "+formatVector(coeffs_sol, 9, 4));
+					ANSI_mvprint(0, 7, "coeffs     : "+formatVector(coeffs    , 9, 4));
+					ANSI_mvprint(0, 8, "coeffs_sol : "+formatVector(coeffs_sol, 9, 4));
 				}
 				
 			}
@@ -286,7 +287,7 @@ void HW_option4() {
 			menu__calibrateMotor_main.addTextCell(formatVector(coeffs, 6, 2)	, 1, pressed_pos[1]);
 			menu__calibrateMotor_main.addTextCell(formatVector(coeffs_sol, 6, 2), 2, pressed_pos[1]);
 
-			ANSI_mvprint(0, 2, "solved coeffs: "+formatVector(coeffs, 6, 1), true, "abs", "rel");
+			ANSI_mvprint(0, 10, "solved coeffs: "+formatVector(coeffs, 6, 1), true, "abs", "rel");
 			std::this_thread::sleep_for(std::chrono::seconds(2));
 			for(size_t cnt=0; cnt<3; cnt++) {
 				SHLEEP(1000);
