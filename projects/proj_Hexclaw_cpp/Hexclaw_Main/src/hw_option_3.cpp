@@ -36,7 +36,7 @@ void HW_option3() {
 
 	printFuncLabel(" Running: opt3: display opencv but don't move servo");
 	
-	orientObj.update(false);
+	if(init_orientObj) orientObj.update(false);
 	
 	/**
 	 * output print table:
@@ -79,11 +79,15 @@ void HW_option3() {
 
 	cv::Mat emptyMat = cv::Mat::zeros(prefSize[1], prefSize[0], CV_8UC3);
 
+	CVTRACK::camObjTrackerData camObjData0;
+	CVTRACK::camObjTrackerData camObjData1;
+
 	// camObj/thread initialisation loop boolean.
 	bool loopInit = false;
 	while(true) {
 		/// Main option loop
 		if(init_camObj) {
+			/// Check if camObj threads have been initialised
 			if(_CONFIG_OPTIONS.get("camObj_useThreads") && !(camObj[0].isThreadLoopInit() && camObj[1].isThreadLoopInit())) {
 				if(threadDebug) { lock_cout(mtx_cout, "\nthread:[2]: NOTE: Threads have not been initialised:\n -initialising."); }
 				
@@ -104,49 +108,74 @@ void HW_option3() {
 		printTable.setColWidth(1, 6);
 		printTable.setColWidth(2, 6);
 		printTable.setColWidth(3, 6);
-		try {
-			orientObj.update(false);
-			printTable.insertNum(orientObj.Roll,1,2,1);
-			printTable.insertNum(orientObj.Pitch,2,2,1);
-			printTable.insertNum(0,3,2,1);
-			
-			orient[0] = orientObj.Roll;
-			orient[1] = orientObj.Pitch;
+		if(init_orientObj) {
+			try {
+				orientObj.update(false);
+				printTable.insertNum(orientObj.Roll,1,2,1);
+				printTable.insertNum(orientObj.Pitch,2,2,1);
+				printTable.insertNum(0,3,2,1);
+				
+				orient[0] = orientObj.Roll;
+				orient[1] = orientObj.Pitch;
+			}
+			catch(const std::exception& e) {
+				printTable.insertText("ERROR:", 1, 2);
+				printTable.insertText(e.what(), 2, 2);
+				// std::cerr << e.what() << '\n';
+			}
 		}
-		catch(const std::exception& e) {
-			printTable.insertText("ERROR:", 1, 2);
-			printTable.insertText(e.what(), 2, 2);
-			// std::cerr << e.what() << '\n';
+		else {
+			printTable.insertText("orientObj not init.", 1, 2);
+			orient[0] = 0;
+			orient[1] = 0;
 		}
 		
 		
 		if(init_camObj) {
-			printTable.insertNum(camObj[0].data().cnt_pos[0],1,0,1);
-			printTable.insertNum(camObj[0].data().cnt_pos[1],2,0,1);
-			printTable.insertNum(camObj[1].data().cnt_pos[0],3,0,1);
-			printTable.insertNum(camObj[1].data().cnt_pos[1],4,0,1);
+			/// Update camObjData values
+			if(!_CONFIG_OPTIONS.get("camObj_useThreads")) {
+				camObjData0 = camObj[0].updateData();
+				camObjData1 = camObj[1].updateData();
+			}
+			else {
+				camObjData0 = camObj[0].data();
+				camObjData1 = camObj[1].data();
+			}
 			
-			if(camObj[0].data().cnt_area==0) { /// cam 0: no object detected
+			getCoordinates(camObjData0.cnt_pos, camObjData1.cnt_pos, 2, prefSize.cast<float>());
+
+			/// Insert cnt_pos data to termMenu tables
+			printTable.insertNum(camObjData0.cnt_pos[0],1,0,1);
+			printTable.insertNum(camObjData0.cnt_pos[1],2,0,1);
+			printTable.insertNum(camObjData1.cnt_pos[0],3,0,1);
+			printTable.insertNum(camObjData1.cnt_pos[1],4,0,1);
+			
+			/// Insert cnt_area data to termMenu tables
+			if(camObjData0.cnt_area==0) { /// cam 0: no object detected
 				// printTable.insertText("cam0: no object", 1, 0);
 				printTable.insertText("cam0: no object", 1, 4);
 			}
 			else {
-				printTable.insertNum(camObj[0].data().cnt_area,1,4,1);
-				printTable.add_to_cell("px",1,4);
+				printTable.insertNum(camObjData0.cnt_area, 1, 4, 1);
+				printTable.add_to_cell("px", 1, 4);
 			}
-			if(camObj[1].data().cnt_area==0) { /// cam 1: no object detected
+			if(camObjData1.cnt_area==0) { /// cam 1: no object detected
 				// printTable.insertText("cam1: no object", 2, 0);
 				printTable.insertText("cam1: no object", 2, 4);
 			}
 			else {
-				printTable.insertNum(camObj[1].data().cnt_area,2,4,1);
-				printTable.add_to_cell("px",1,4);
+				printTable.insertNum(camObjData1.cnt_area, 2, 4, 1);
+				printTable.add_to_cell("px", 2, 4);
 			}
+
 		}
 		
+		/// Re-define termMenu column width's
 		for(size_t i=0; i<6; i++) {
 			printTable.setColWidth(i+1, 6);
 		}
+
+		/// Solve angles from PP and orient
 		try {
 			if(HW_KINEMATICS::getAngles(new_q, PP, RADIANS(orient[0]), RADIANS(orient[1]), RADIANS(orient[2]), 1)) {
 				for(int i=0; i<6; i++) printTable.insertNum(new_q[i],1+i,3,1);
@@ -157,27 +186,22 @@ void HW_option3() {
 				printTable.insertNum(orient[1],2,2,1);
 				printTable.insertNum(orient[2],3,2,1);
 				for(int i=0; i<6; i++) printTable.insertNum(new_q[i],1+i,3,1);
-				printTable.strExport(std::string(21,' ')+"\n");
 			}
 			else {
-				printTable.insertText("ERROR:no valid angles", 1, 3);
+				printTable.insertText("ERROR:no valid", 1, 3);
 			}
 		}
 		catch(const std::exception& e) {
-			printTable.insertText("ERROR:", 1, 3);
-			printTable.insertText(e.what(), 2, 3);
+			printTable.insertText("ERROR: exc", 1, 3);
+			// printTable.insertText(e.what(), 2, 3);
 			// std::cerr << e.what() << '\n';
 		}
 		
-		
-		// std::cout << "\x1B[2J\x1B[H" << " \n"; // clear screen
 		
 		u_lck_cout.lock();
 		std::cout << formatVector(HW_HSV[0], 3, 0) << " " << formatVector(HW_HSV[1], 3, 0) << std::endl;
 		u_lck_cout.unlock();
 
-		CVTRACK::camObjTrackerData camObjData0;
-		CVTRACK::camObjTrackerData camObjData1;
 		if(init_camObj && _CONFIG_OPTIONS.get("displayToWindow")) {
 			if(trackBarUpdate) {
 				camObj[0].setHSV(HW_HSV[0], HW_HSV[1]);
@@ -186,21 +210,10 @@ void HW_option3() {
 			}
 			
 			cv::Mat winImg, concThresh, concFlipped, concHSV;
-			
-			
-			if(!_CONFIG_OPTIONS.get("camObj_useThreads")) {
-				camObjData0 = camObj[0].updateData();
-				camObjData1 = camObj[1].updateData();
-								
-			}
-			else {
-				camObjData0 = camObj[0].data();
-				camObjData1 = camObj[1].data();
-			}
 
 			cv::cvtColor(camObjData0.imgThreshold, camObjData0.imgThreshold, cv::COLOR_GRAY2BGR);
 			cv::cvtColor(camObjData1.imgThreshold, camObjData1.imgThreshold, cv::COLOR_GRAY2BGR);
-
+			
 			// cv::cvtColor(camObjData0.imgHSV, camObjData0.imgHSV, cv::COLOR_HSV2BGR);
 			// cv::cvtColor(camObjData1.imgHSV, camObjData1.imgHSV, cv::COLOR_HSV2BGR);
 
@@ -210,6 +223,16 @@ void HW_option3() {
 			camObjData0.imgHSV.convertTo(camObjData0.imgHSV, CV_8UC3);
 			camObjData1.imgHSV.convertTo(camObjData1.imgHSV, CV_8UC3);
 		
+			cv::putText(camObjData0.imgFlipped, "Cam 0", cv::Point(25, 25), 0, 1, cv::Scalar(250, 250, 250, 250));
+			cv::putText(camObjData1.imgFlipped, "Cam 1", cv::Point(25, 25), 0, 1, cv::Scalar(250, 250, 250, 250));
+
+			cv::circle(camObjData0.imgFlipped, cv::Point(camObjData0.cnt_pos.x, camObjData0.cnt_pos.y), 10, cv::Scalar(200, 100, 100, 250));
+			cv::circle(camObjData1.imgFlipped, cv::Point(camObjData1.cnt_pos.x, camObjData1.cnt_pos.y), 10, cv::Scalar(200, 100, 100, 250));
+			cv::line(camObjData0.imgFlipped, cv::Point(camObjData0.cnt_pos.x, camObjData0.cnt_pos.y+5), cv::Point(camObjData0.cnt_pos.x, camObjData0.cnt_pos.y-5), cv::Scalar(200, 100, 100, 250));
+			cv::line(camObjData0.imgFlipped, cv::Point(camObjData0.cnt_pos.x+5, camObjData0.cnt_pos.y), cv::Point(camObjData0.cnt_pos.x-5, camObjData0.cnt_pos.y), cv::Scalar(200, 100, 100, 250));
+			cv::line(camObjData1.imgFlipped, cv::Point(camObjData1.cnt_pos.x, camObjData1.cnt_pos.y+5), cv::Point(camObjData1.cnt_pos.x, camObjData1.cnt_pos.y-5), cv::Scalar(200, 100, 100, 250));
+			cv::line(camObjData1.imgFlipped, cv::Point(camObjData1.cnt_pos.x+5, camObjData1.cnt_pos.y), cv::Point(camObjData1.cnt_pos.x-5, camObjData1.cnt_pos.y), cv::Scalar(200, 100, 100, 250));
+
 			cv::hconcat(camObjData0.imgFlipped,   	camObjData1.imgFlipped, 	concFlipped);
 			cv::hconcat(camObjData0.imgHSV,     	camObjData1.imgHSV,     	concHSV);
 			cv::hconcat(camObjData0.imgThreshold, 	camObjData1.imgThreshold,	concThresh);
@@ -256,6 +279,7 @@ void HW_option3() {
 
 		}
 		
+		printTable.strExport(std::string(21,' ')+"\n");
 		ANSI_mvprint(0, 4, printTable.exportStr, true, "abs", "abs");
 
 		loopInit = true;

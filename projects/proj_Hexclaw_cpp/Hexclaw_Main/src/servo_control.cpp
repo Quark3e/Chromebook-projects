@@ -195,6 +195,11 @@ int getCoordinates(
 
     }
     else if(mode==2) {
+        camTri.camRes[0][0] = prefSize[0];
+        camTri.camRes[0][1] = prefSize[1];
+        camTri.camRes[1][0] = prefSize[0];
+        camTri.camRes[1][1] = prefSize[1];
+
         float inputPos[2] {0, 0};
         inputPos[0] = static_cast<float>(camDim[0]) - cam0_pos[0];
         inputPos[1] = static_cast<float>(camDim[1]) - cam1_pos[0];
