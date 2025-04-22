@@ -3,11 +3,26 @@
 #ifndef HPP_HEXCLAW_CONSTANTS
 #define HPP_HEXCLAW_CONSTANTS
 
+#define _XSTRINGLIT(x) STRINGLIT(x)
+#define STRINGLIT(x) #x
+
 /**
  * Whether the project is built on the main rpi board.
  * If this is `false` then the project is being built on remote machines without gpio methods.
  */
 #define _MACHINE__RPI_MAIN  (_WIN32? false : true)
+
+/**
+ * Absolute path of the program directory.
+ * Will be used as a frame of reference for accessing files such as data and e.t.c so it'll be defined by the compiler definitions
+ * during build.
+ * 
+ */
+// #define _PROGRAM_PATH ""
+
+// #define _PROGRAM_PATH__EXE ""
+
+// #define _PROGRAM_PATH__DATA ""
 
 
 /// Whether to print checkpoints

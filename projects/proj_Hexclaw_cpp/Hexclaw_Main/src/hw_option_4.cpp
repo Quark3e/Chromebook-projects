@@ -9,9 +9,10 @@
  * 
  */
 
-
 #include "hw_options.hpp"
 
+#include <ctime>
+#include <fstream>
 
 TUI::termMenu menu__calibrateMotor_main({
 	{" Motors", 0, 0, TUI::CELLOPTSPEC_TEXT}, {" Error regr", 1, 0, TUI::CELLOPTSPEC_TEXT}, {" Regr solution", 2, 0, TUI::CELLOPTSPEC_TEXT},
@@ -117,8 +118,8 @@ void _updateFunc_option4_servoCalibration(TUI::termMenu* ptr_menu) {
 	try {
 		orientObj.update(false);
 		textCell_text += "{";
-		textCell_text += formatNumber(orientObj.pitch+90, 6, 1) + ",";
-		textCell_text += formatNumber(orientObj.roll+90, 6, 1);
+		textCell_text += "p:"+formatNumber(orientObj.pitch+90, 6, 1) + ",";
+		textCell_text += "r:"+formatNumber(orientObj.roll+90, 6, 1);
 		textCell_text += "}";
 		TextCellModified = true;
 	}
@@ -149,6 +150,17 @@ void HW_option4() {
 		return;
 	}
 	
+	size_t numPolynomials = 3;
+
+
+	// Total container for all the data readings
+	std::vector<std::vector<float>> servoMotor_readAngleData(6, std::vector<float>(181, -1));
+
+	std::vector<std::vector<float>> servoMotor_coeffs(6, std::vector<float>(numPolynomials, 0));
+	std::vector<std::vector<float>> servoMotor_coeffs_sol(6, std::vector<float>(numPolynomials, 0));
+
+	bool motorsCalibrated = false;
+
 	bool runMain = true;
 	while(runMain) {
 		printFuncLabel(" Running: opt4: Calibrate servo motors");
@@ -156,7 +168,58 @@ void HW_option4() {
 
 		pos2d<int> pressed_pos = menu__calibrateMotor_main.driver(1, 5, 5, false, _updateFunc_option4_servoCalibration, false);
 
-		if(pressed_pos==pos2d<int>(0, 9)) break;
+		if(pressed_pos==pos2d<int>(0, 9)) { // "back" option pressed
+
+			if(motorsCalibrated) {
+				try {
+					std::fstream file_readAngles(_XSTRINGLIT(_PROGRAM_PATH__DATA)+std::string("/data_servoMotorDrift/servoMotorDrift_readAngles.csv"), std::ios_base::app);
+					std::fstream file_regrFunc_read(_XSTRINGLIT(_PROGRAM_PATH__DATA)+std::string("/data_servoMotorDrift/servoMotorDrift_regrFunc_read.csv"), std::ios_base::app);
+					std::fstream file_regrFunc_sol(_XSTRINGLIT(_PROGRAM_PATH__DATA)+std::string("/data_servoMotorDrift/servoMotorDrift_regrFunc_sol.csv"), std::ios_base::app);
+		
+					if(!file_readAngles.is_open()) 		throw std::runtime_error("file failed to open: file_readAngles");
+					if(!file_regrFunc_read.is_open()) 	throw std::runtime_error("file failed to open: file_regrFunc_read");
+					if(!file_regrFunc_sol.is_open()) 	throw std::runtime_error("file failed to open: file_regrFunc_sol");
+
+					time_t timestamp;
+					time(&timestamp);
+					std::string dateStr = ctime(&timestamp);
+					if(dateStr.at(dateStr.size()-1)=='\n') dateStr = dateStr.substr(0, dateStr.size()-1);
+
+					/// Fill in readAngles file
+					for(int angle=0; angle<=180; angle++) {
+						file_readAngles << dateStr << "," << angle;
+						for(size_t motor=0; motor<=5; motor++) {
+							file_readAngles << "," << servoMotor_readAngleData.at(motor).at(angle);
+						}
+						file_readAngles << "\n";
+					}
+		
+					/// Fill in regrFunc file(s)
+					for(size_t motor=0; motor<=5; motor++) {
+						file_regrFunc_read	<< dateStr << "," << motor;
+						file_regrFunc_sol 	<< dateStr << "," << motor;
+						for(size_t numCoeffs=0; numCoeffs<10; numCoeffs++) {
+							file_regrFunc_read	<< "," << (numCoeffs<servoMotor_coeffs.at(motor).size()? 		servoMotor_coeffs.at(motor).at(numCoeffs) : -1);
+							file_regrFunc_sol 	<< "," << (numCoeffs<servoMotor_coeffs_sol.at(motor).size()? 	servoMotor_coeffs_sol.at(motor).at(numCoeffs) : -1);
+						}
+						file_regrFunc_read	<< "\n";
+						file_regrFunc_sol	<< "\n";
+					}
+		
+					file_readAngles.close();
+					file_regrFunc_read.close();
+					file_regrFunc_sol.close();
+					
+				}
+				catch(const std::exception& e) {
+					std::cerr << e.what() << std::endl;
+					SHLEEP(1000);
+					exit(1);
+				}
+			}
+
+			break;
+		}
 		if(pressed_pos.inRegion({0, 2}, {0, 7})) { // pressed_pos is in region of the selectable motor
 			ANSI_mvprint(0, 2, "Calibrating motor: q["+formatNumber(pressed_pos[1]-2)+"]", true, "abs", "abs", false);
 			
@@ -212,8 +275,8 @@ void HW_option4() {
 					ANSI_mvprint(0, 0, "refrAngles: "+formatVector(refrAngles, 6, 1), true, "abs", "rel");
 					ANSI_mvprint(0, 1, "readAngles: "+formatVector(readAngles, 6, 1), true, "abs", "rel");
 
-					std::vector<float> coeffs 		= HW_KINEMATICS::solveServoDriftRegression(refrAngles, readAngles, 2);
-					std::vector<float> coeffs_sol	= HW_KINEMATICS::solveServoDriftRegression(readAngles, refrAngles, 2);
+					std::vector<float> coeffs 		= HW_KINEMATICS::solveServoDriftRegression(refrAngles, readAngles, numPolynomials);
+					std::vector<float> coeffs_sol	= HW_KINEMATICS::solveServoDriftRegression(readAngles, refrAngles, numPolynomials);
 					
 					menu__calibrateMotor_main.addTextCell(formatVector(coeffs, 6, 2), 1, pressed_pos[1]);
 					menu__calibrateMotor_main.addTextCell(formatVector(coeffs_sol, 6, 2), 2, pressed_pos[1]);
@@ -243,8 +306,8 @@ void HW_option4() {
 			std::vector<float> refrAngles;
 			std::vector<float> readAngles;
 
-			std::vector<float> coeffs		= std::vector<float>(2, 0);
-			std::vector<float> coeffs_sol	= std::vector<float>(2, 0);
+			std::vector<float> coeffs		= std::vector<float>(numPolynomials, 0);
+			std::vector<float> coeffs_sol	= std::vector<float>(numPolynomials, 0);
 
 			float progress = 0;
 			servo_angles_6DOF anglesToSend(0);
@@ -275,8 +338,8 @@ void HW_option4() {
 				}
 
 				if(int(angle)%10==0) {
-					coeffs 		= HW_KINEMATICS::solveServoDriftRegression(refrAngles, readAngles, 2);
-					coeffs_sol	= HW_KINEMATICS::solveServoDriftRegression(readAngles, refrAngles, 2);
+					coeffs 		= HW_KINEMATICS::solveServoDriftRegression(refrAngles, readAngles, numPolynomials);
+					coeffs_sol	= HW_KINEMATICS::solveServoDriftRegression(readAngles, refrAngles, numPolynomials);
 
 					ANSI_mvprint(0, 7, "coeffs     : "+formatVector(coeffs    , 9, 4));
 					ANSI_mvprint(0, 8, "coeffs_sol : "+formatVector(coeffs_sol, 9, 4));
@@ -284,15 +347,28 @@ void HW_option4() {
 				
 			}
 
+			servoMotor_coeffs.at(motorIdx) = coeffs;
+			servoMotor_coeffs_sol.at(motorIdx) = coeffs_sol;
+
 			menu__calibrateMotor_main.addTextCell(formatVector(coeffs, 6, 2)	, 1, pressed_pos[1]);
 			menu__calibrateMotor_main.addTextCell(formatVector(coeffs_sol, 6, 2), 2, pressed_pos[1]);
+			
+			motorsCalibrated = true;
+
 
 			ANSI_mvprint(0, 10, "solved coeffs: "+formatVector(coeffs, 6, 1), true, "abs", "rel");
+			
+			// servoMotor_readAngleData.at(motorIdx)
+			for(size_t i=0; i<readAngles.size(); i++) {
+				servoMotor_readAngleData.at(motorIdx).at(i) = readAngles.at(i);
+			}
+
 			std::this_thread::sleep_for(std::chrono::seconds(2));
 			for(size_t cnt=0; cnt<3; cnt++) {
 				SHLEEP(1000);
 				ANSI_mvprint(0, -1, ".", true, "rel", "abs");
 			}
+			
 		}
 	}
 

@@ -193,6 +193,12 @@ void loadData_csvArtif(bool printVar=true) {
 
 
 int main(int argc, char* argv[]) {
+
+	std::cout << "PROGRAM START" << std::endl;
+	std::cout << " path: _PROGRAM_PATH		= \"" << _XSTRINGLIT(_PROGRAM_PATH) 		<< "\"" << std::endl;
+	std::cout << " path: _PROGRAM_PATH__EXE	= \"" << _XSTRINGLIT(_PROGRAM_PATH__EXE) 	<< "\"" << std::endl;
+	std::cout << " path: _PROGRAM_PATH__DATA= \"" << _XSTRINGLIT(_PROGRAM_PATH__DATA)	<< "\"" << std::endl;
+	// SHLEEP(2'000);
 	// std::cout<<"\x1B[2J"<<std::endl;
 
 	int termSize[2] = {0, 0};

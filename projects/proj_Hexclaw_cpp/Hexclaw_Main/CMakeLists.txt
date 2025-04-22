@@ -28,7 +28,6 @@ if(WIN32)
         REQUIRED
     )
 
-
     set(EIGEN3_INCLUDE_DIR "C:/msys64/mingw64/include/eigen3")
 else()
     find_package(PiPCA9685 REQUIRED)
@@ -55,6 +54,7 @@ set(HW_depends
     ${DIR_CPP_USEFUL}/basic/Performance/getPerformance.cpp
     ${DIR_CPP_USEFUL}/two_cam_coordinate/two_cam_coordinate.cpp
 )
+
 
 if(WIN32)
 else()
@@ -109,3 +109,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${REPO_ROOT}/teststuff/cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE ${EIGEN3_INCLUDE_DIR})
 
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
+
+
+# add_definitions(-D_PROGRAM_PATH=${CMAKE_SOURCE_DIR})
+# add_definitions(-D_PROGRAM_PATH__EXE=${CMAKE_BUILD_RPATH})
+# add_definitions(-D_PROGRAM_PATH__DATA=${PROGRAM_PATH}/data)
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE _PROGRAM_PATH=${CMAKE_SOURCE_DIR})
+target_compile_definitions(${PROJECT_NAME} PRIVATE _PROGRAM_PATH__EXE=${CMAKE_CURRENT_BINARY_DIR})
+target_compile_definitions(${PROJECT_NAME} PRIVATE _PROGRAM_PATH__DATA=${CMAKE_SOURCE_DIR}/data)
