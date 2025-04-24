@@ -10,7 +10,7 @@ servo_angles_6DOF startup_q{0, 115, -90, 0, -25, 0};
 
 
 std::vector<size_t> pcaBoard_motorIndices{
-    0, 1, 2, 3, 4, 7
+    0, 1, 2, 3, 4, 5
 };
 
 // void add_defaults(float angles[6]) {

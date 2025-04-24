@@ -112,32 +112,49 @@ std::vector<servo_angles_6DOF> presetAngles_end{
 };
 
 float extractAngle() {
-	return orientObj.pitch+90;
+	return orientObj.roll+90;
+	// if(orientObj.accel.z>0) {
+	// 	return (orientObj.roll);
+	// }
+	// else {
+	// 	return 180-orientObj.pitch;
+	// }
+
+	// return orientObj.pitch+90;
 }
 
 void testMotor(size_t motorID) {
 	if(motorID>=6) throw std::runtime_error("testMotor: motorID is out of range: "+std::to_string(motorID));
-	servo_angles_6DOF newAngles = current_q;
+	servo_angles_6DOF newAngles = presetAngles_start[motorID];
 	newAngles[motorID] = 0;
 	sendToServo(&pca, newAngles, current_q, false, 0, 0, false);
 	SHLEEP(1000);
-	for(size_t angle=0; angle<=180; angle++) {
+	ANSI_mvprint(0, 1, " 0->180: 1", true, "abs", "rel");
+	for(int angle=0; angle<=180; angle++) {
 		newAngles[motorID] = angle;
+		sendToServo(&pca, newAngles, current_q, false, 0, 0, false);
 		SHLEEP(10);
 	}
-	SHLEEP(1000);
-	for(size_t angle=180; angle>=0; angle--) {
+	SHLEEP(500);
+	ANSI_mvprint(0, 0, " 180->0: 1", true, "abs", "rel");
+	for(int angle=180; angle>=0; angle--) {
 		newAngles[motorID] = angle;
+		sendToServo(&pca, newAngles, current_q, false, 0, 0, false);
 		SHLEEP(10);
 	}
-	SHLEEP(1000);
-	for(size_t angle=0; angle<=180; angle+=10) {
+	SHLEEP(500);
+
+	ANSI_mvprint(0, 0, " 0->180: 1", true, "abs", "rel");
+	for(int angle=0; angle<=180; angle+=10) {
 		newAngles[motorID] = angle;
+		sendToServo(&pca, newAngles, current_q, false, 0, 0, false);
 		SHLEEP(100);
 	}
-	SHLEEP(1000);
-	for(size_t angle=180; angle>=0; angle-=10) {
+	SHLEEP(500);
+	ANSI_mvprint(0, 0, " 180->0: 1", true, "abs", "rel");
+	for(int angle=180; angle>=0; angle-=10) {
 		newAngles[motorID] = angle;
+		sendToServo(&pca, newAngles, current_q, false, 0, 0, false);
 		SHLEEP(100);
 	}
 	SHLEEP(1000);
@@ -341,7 +358,13 @@ void HW_option4() {
 			std::vector<float> coeffs_sol	= std::vector<float>(numPolynomials, 0);
 
 			float progress = 0;
-			servo_angles_6DOF anglesToSend(0);
+			servo_angles_6DOF anglesToSend = presetAngles_start[motorIdx];
+
+			if(_init_status.get("pca").isInit()) {
+				sendToServo(&pca, anglesToSend, current_q, false, 0, 0, true);
+				SHLEEP(1000);
+			}
+
 			for(float angle=0; angle<=180; angle+=1) {
 				ANSI_mvprint(0, 3, "angle: "+formatNumber(angle, 3, 0)+" deg");
 
@@ -361,7 +384,7 @@ void HW_option4() {
 				
 				try {
 					orientObj.update(false);
-					ANSI_mvprint(0, 5, "{"+formatNumber(orientObj.pitch+90, 6, 1)+","+formatNumber(orientObj.roll+90, 6, 1)+"}");
+					ANSI_mvprint(0, 5, "{"+formatNumber(orientObj.pitch+90, 6, 1)+","+formatNumber(orientObj.roll+90, 6, 1)+"} read:"+std::to_string(extractAngle()));
 					readAngles.push_back(std::roundf(extractAngle()));
 				}
 				catch(const std::exception& e) {
