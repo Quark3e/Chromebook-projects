@@ -142,7 +142,7 @@ void HW_option3() {
 				camObjData1 = camObj[1].data();
 			}
 			
-			getCoordinates(camObjData0.cnt_pos, camObjData1.cnt_pos, 2, prefSize.cast<float>());
+			getCoordinates(camObjData1.cnt_pos, camObjData0.cnt_pos, 2, prefSize.cast<float>());
 
 			/// Insert cnt_pos data to termMenu tables
 			printTable.insertNum(camObjData0.cnt_pos[0],1,0,1);

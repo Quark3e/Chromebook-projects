@@ -200,15 +200,27 @@ int getCoordinates(
         camTri.camRes[1][0] = prefSize[0];
         camTri.camRes[1][1] = prefSize[1];
 
+        camTri.setCamCoefs();
+
         float inputPos[2] {0, 0};
         inputPos[0] = static_cast<float>(camDim[0]) - cam0_pos[0];
         inputPos[1] = static_cast<float>(camDim[1]) - cam1_pos[0];
         camTri.solvePos(inputPos, solvedPos, false);
 	    float solvedZ = -sin(toRadians((camTri.camRes[0][1]*0.5-(static_cast<float>(camDim[1])-cam0_pos[1])) * camTri.camCoef[0][1])) * solvedPos[1];
         
-        PP[0] = axisFilter[0]*float(round(solvedPos[0]*axisScal[0]+axisOffset[0])) + (1-axisFilter[0])*PP[0];
-        PP[1] = axisFilter[1]*float(solvedZ*axisScal[1]+axisOffset[1]) + (1-axisFilter[1])*PP[1];
-        PP[2] = axisFilter[2]*float(round(solvedPos[1]*axisScal[2]+axisOffset[2])) + (1-axisFilter[2])*PP[2];
+        float newPP[3] = {
+            roundf((solvedPos[0] + axisOffset[0])*axisScal[0]),
+            (solvedZ + axisOffset[1])*axisScal[1],
+            roundf((solvedPos[1] + axisOffset[2])*axisScal[2])
+        };
+
+        PP[0] = axisFilter[0]*newPP[0] + (1.0-axisFilter[0])*PP[0];
+        PP[1] = axisFilter[1]*newPP[1] + (1.0-axisFilter[1])*PP[1];
+        PP[2] = axisFilter[2]*newPP[2] + (1.0-axisFilter[2])*PP[2];
+
+        // PP[0] = axisFilter[0]*float(round(solvedPos[0]*axisScal[0]+axisOffset[0])) + (1-axisFilter[0])*PP[0];
+        // PP[1] = axisFilter[1]*float(solvedZ*axisScal[1]+axisOffset[1]) + (1-axisFilter[1])*PP[1];
+        // PP[2] = axisFilter[2]*float(round(solvedPos[1]*axisScal[2]+axisOffset[2])) + (1-axisFilter[2])*PP[2];
         
     }
 

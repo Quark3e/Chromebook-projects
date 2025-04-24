@@ -33,9 +33,10 @@ servo_angles_6DOF new_q(0);
 // float axisFilter[3]    = {1, 1, 1};
 
 pos3d<float> orient{0, 0, 0};
-pos3d<float> PP{0, 150, 150};
-pos3d<float> axisScal{1, 1, 1};
-pos3d<float> axisOffset{0, 100, 200};
+pos3d<float> PP{-250, 150, 150};
+pos3d<float> axisScal{-1, 1, 1};
+pos3d<float> axisOffset{0, 100, -100};
+// pos3d<float> axisOffset{-100, 0, 0};
 pos3d<float> axisFilter{1, 1, 1};
 
 
@@ -86,17 +87,19 @@ std::string window_name = "Window";
 	std::vector<int> camID{0, 2};
 #endif
 
+float opt_camObj__areaLim = 100;
+
 std::vector<CVTRACK::camObjTracker> camObj{
-	CVTRACK::camObjTracker(false, camID[0], prefSize[0], prefSize[1], false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000),
-	CVTRACK::camObjTracker(false, camID[1], prefSize[0], prefSize[1], false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000)
+	CVTRACK::camObjTracker(false, camID[0], prefSize[0], prefSize[1], false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, opt_camObj__areaLim),
+	CVTRACK::camObjTracker(false, camID[1], prefSize[0], prefSize[1], false, true, {-1, 6}, {0, 0, 255}, {179, 9, 255}, opt_camObj__areaLim)
 };
 
 TCPTS::TCPThreadedServer<std::vector<uint8_t>, uint8_t*> serverObj(false, TCPThreadedServer__DEFAULT_PORT, &mtx_cout);
 
 // Two_cam_triangle header class initialisation
-float camPosition[2][2] = {{0, 0}, {132, 0}};
+float camPosition[2][2] = {{0, 0}, {160, 0}};
 
-float camAng_offs[2] = {90, 125};
+float camAng_offs[2] = {90, 120};
 float inpPos[2], solvedPos[2];
 camTriangle camTri(camPosition, camAng_offs);
 
@@ -285,8 +288,8 @@ int _init__pca(_initClass_dataStruct *_passData) {
 int _init__camObj(_initClass_dataStruct *_passData) {
 	// camObj = std::vector<IR_camTracking>(2);
 	camObj = std::vector<CVTRACK::camObjTracker>{
-		CVTRACK::camObjTracker(false, camID[0], prefSize[0], prefSize[1], false, _CONFIG_OPTIONS.get("camObj_useThreads"), {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000),
-		CVTRACK::camObjTracker(false, camID[1], prefSize[0], prefSize[1], false, _CONFIG_OPTIONS.get("camObj_useThreads"), {-1, 6}, {0, 0, 255}, {179, 9, 255}, 1000)
+		CVTRACK::camObjTracker(false, camID[0], prefSize[0], prefSize[1], false, _CONFIG_OPTIONS.get("camObj_useThreads"), {-1, 6}, {0, 0, 255}, {179, 9, 255}, opt_camObj__areaLim),
+		CVTRACK::camObjTracker(false, camID[1], prefSize[0], prefSize[1], false, _CONFIG_OPTIONS.get("camObj_useThreads"), {-1, 6}, {0, 0, 255}, {179, 9, 255}, opt_camObj__areaLim)
 	};
 	
 
@@ -296,7 +299,7 @@ int _init__camObj(_initClass_dataStruct *_passData) {
 	try {
 		// camObj.push_back(IR_camTracking(0, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf")));
 		camObj_ptr = &camObj.at(0);
-		new (camObj_ptr) CVTRACK::camObjTracker(false, camID[0], prefSize[0], prefSize[1], false, _CONFIG_OPTIONS.get("camObj_useThreads"), {-1, 6}, HW_HSV[0], HW_HSV[1], 1000);
+		new (camObj_ptr) CVTRACK::camObjTracker(false, camID[0], prefSize[0], prefSize[1], false, _CONFIG_OPTIONS.get("camObj_useThreads"), {-1, 6}, HW_HSV[0], HW_HSV[1], opt_camObj__areaLim);
 		camObj[0].setConsolePrintMutex(&mtx_cout);
 		if(!camObj.at(0).init()) {
 			throw std::runtime_error("_init__camObj[0]: init() failed");
@@ -310,7 +313,7 @@ int _init__camObj(_initClass_dataStruct *_passData) {
 	try {
 		// camObj.push_back(IR_camTracking(2, prefSize[0], prefSize[1], _CONFIG_OPTIONS.get("useAutoBrightness"), _CONFIG_OPTIONS.get("displayToWindow"), _CONFIG_OPTIONS.get("takeCVTrackPerf")));
 		camObj_ptr = &camObj.at(1);
-		new (camObj_ptr) CVTRACK::camObjTracker(false, camID[1], prefSize[0], prefSize[1], false, _CONFIG_OPTIONS.get("camObj_useThreads"), {-1, 6}, HW_HSV[0], HW_HSV[1], 1000);
+		new (camObj_ptr) CVTRACK::camObjTracker(false, camID[1], prefSize[0], prefSize[1], false, _CONFIG_OPTIONS.get("camObj_useThreads"), {-1, 6}, HW_HSV[0], HW_HSV[1], opt_camObj__areaLim);
 		camObj[1].setConsolePrintMutex(&mtx_cout);
 		if(!camObj.at(1).init()) {
 			throw std::runtime_error("_init__camObj[1]: init() failed");
@@ -322,6 +325,8 @@ int _init__camObj(_initClass_dataStruct *_passData) {
 		return 1;
 	}
 
+	camObj[0].setAreaLim(opt_camObj__areaLim);
+	camObj[1].setAreaLim(opt_camObj__areaLim);
 
 	return 0;
 }
