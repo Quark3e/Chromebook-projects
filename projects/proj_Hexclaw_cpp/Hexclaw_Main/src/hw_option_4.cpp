@@ -111,6 +111,14 @@ std::vector<servo_angles_6DOF> presetAngles_end{
 	{   0,  90,   0,   0, -90,  90}		// q6
 };
 
+float extractAngle() {
+	return orientObj.pitch+90;
+}
+
+void testMotor(size_t motorID) {
+	if(motorID>=6) throw std::runtime_error("testMotor: motorID is out of range: "+std::to_string(motorID));
+	servo_angles_6DOF newAngles = oldRotation
+}
 
 void _updateFunc_option4_servoCalibration(TUI::termMenu* ptr_menu) {
 	std::string textCell_text = "";
@@ -118,8 +126,8 @@ void _updateFunc_option4_servoCalibration(TUI::termMenu* ptr_menu) {
 	try {
 		orientObj.update(false);
 		textCell_text += "{";
-		textCell_text += "p:"+formatNumber(orientObj.pitch+90, 6, 1) + ",";
-		textCell_text += "r:"+formatNumber(orientObj.roll+90, 6, 1);
+		textCell_text += "p:"+formatNumber(orientObj.pitch, 6, 1) + ",";
+		textCell_text += "r:"+formatNumber(orientObj.roll, 6, 1);
 		textCell_text += "}";
 		TextCellModified = true;
 	}
@@ -331,7 +339,7 @@ void HW_option4() {
 				try {
 					orientObj.update(false);
 					ANSI_mvprint(0, 5, "{"+formatNumber(orientObj.pitch+90, 6, 1)+","+formatNumber(orientObj.roll+90, 6, 1)+"}");
-					readAngles.push_back(std::roundf(orientObj.pitch+90));
+					readAngles.push_back(std::roundf(extractAngle()));
 				}
 				catch(const std::exception& e) {
 					readAngles.push_back(angle);
