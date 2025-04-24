@@ -6,7 +6,7 @@
 #include "includes.hpp"
 
 
-extern guiwin_nc::imguiwin guiwin;
+extern GUINC::imguiwin guiwin;
 
 
 void _keyBind__Master_Close();

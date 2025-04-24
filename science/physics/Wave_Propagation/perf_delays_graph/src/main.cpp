@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
         loadCSV_file("perf_delaysFile__Wave_Propagation.csv");
         if(Loaded_Data__perfDelays.size()==0) perror("ERROR: loaded data has a size of 0.");
 
-        guiwin_nc::win_dim = guiwin_nc::toImVec2(dim__programWindow);
+        GUINC::win_dim = GUINC::toImVec2(dim__programWindow);
         pos2d<float> graphReg_padding = (dim__graphWindow-dim__graphRegion).modify([](int _var){return _var/2;}).cast<float>();
         graphObj.set_graphDim(dim__graphRegion.cast<float>());
         graphObj.setPos_GraphOrigo({
@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
             graphWin.newFrame();
             if(!graphWin.running()) break;
             ImGui::SetNextWindowPos(ImVec2(0,0));
-            ImGui::SetNextWindowSize(guiwin_nc::toImVec2(dim__selectionsWindow));
+            ImGui::SetNextWindowSize(GUINC::toImVec2(dim__selectionsWindow));
             ImGui::PushStyleColor(ImGuiCol_WindowBg, bgWindowCol);
             if(ImGui::Begin("selectionsWindow", NULL, bgWindowFlags)) {
                 ImGui::PopStyleColor();
@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
             ImGui::End();
             // if(!graphWin.running()) break;
             ImGui::SetNextWindowPos(ImVec2(dim__selectionsWindow.x, 0));
-            ImGui::SetNextWindowSize(guiwin_nc::toImVec2(dim__graphWindow));
+            ImGui::SetNextWindowSize(GUINC::toImVec2(dim__graphWindow));
             ImGui::PushStyleColor(ImGuiCol_WindowBg, bgWindowCol);
             if(ImGui::Begin("graphWindow", NULL, bgWindowFlags)) {
                 ImGui::PopStyleColor();

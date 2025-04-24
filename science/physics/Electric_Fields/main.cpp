@@ -94,7 +94,7 @@ int chargeDetectRadius = 20;
 
 // bool setting_showGrid   = false;
 
-guiwin_nc::imguiwin guiwin(false);
+GUINC::imguiwin guiwin(false);
 
 
 void _keyBind__Master_Close() {
@@ -125,15 +125,15 @@ size_t keyAction_chargeIDX = 0;
 
 
 int main(int argc, char** argv) {
-    guiwin_nc::win_dim = ImVec2(1000, 1000);
+    GUINC::win_dim = ImVec2(1000, 1000);
     guiwin.callback_func__running_exit = exitFunc;
     
 
     meter_per_px = ((system_charges[1].pos.x - system_charges[0].pos.x) / 600);
 
     pos2d<size_t> numSides(
-        int(roundf(guiwin_nc::win_dim.x / float(fieldVectorDist)))+1,
-        int(roundf(guiwin_nc::win_dim.y / float(fieldVectorDist)))+1
+        int(roundf(GUINC::win_dim.x / float(fieldVectorDist)))+1,
+        int(roundf(GUINC::win_dim.y / float(fieldVectorDist)))+1
     );
     /**
      * Force vectors affecting each point in current pixel space [F_x, F_y]
@@ -165,8 +165,8 @@ int main(int argc, char** argv) {
                     [](double _var){return (_var/meter_per_px);}
                 ).cast<int>([](double _var){ return int(roundf(_var)); })
             ) - abs_cam_pixelPos;
-            guiwin.draw()->AddRect(guiwin_nc::toImVec2(pixel_pos-chargeDetectRadius), guiwin_nc::toImVec2(pixel_pos+chargeDetectRadius), IM_COL32(100, 100, 100, 100));
-            if(guiwin_nc::inRegion(io.MousePos, guiwin_nc::toImVec2(pixel_pos-chargeDetectRadius), guiwin_nc::toImVec2(pixel_pos+chargeDetectRadius))) {
+            guiwin.draw()->AddRect(GUINC::toImVec2(pixel_pos-chargeDetectRadius), GUINC::toImVec2(pixel_pos+chargeDetectRadius), IM_COL32(100, 100, 100, 100));
+            if(GUINC::inRegion(io.MousePos, GUINC::toImVec2(pixel_pos-chargeDetectRadius), GUINC::toImVec2(pixel_pos+chargeDetectRadius))) {
                 if(keyBinds.pressing("MouseLeft")) {
                     keyAction_mouseLeft = 1;
                     keyAction_chargeIDX = i;
@@ -178,7 +178,7 @@ int main(int argc, char** argv) {
                 
                 break;
             case 1:
-                system_charges.at(keyAction_chargeIDX).pos = guiwin_nc::toPos2d(io.MousePos).cast<double>().modify([](double _var){ return (_var*meter_per_px); });
+                system_charges.at(keyAction_chargeIDX).pos = GUINC::toPos2d(io.MousePos).cast<double>().modify([](double _var){ return (_var*meter_per_px); });
                 break;
             default:
                 break;
@@ -222,12 +222,12 @@ int main(int argc, char** argv) {
                 // pos2d<int> locOffset(drawVecLen, drawVecLen);
                 
                 guiwin.draw()->AddLine(
-                    guiwin_nc::toImVec2(bg_vectLoc[x][y]),
-                    guiwin_nc::toImVec2((bg_vectLoc[x][y]+locOffset)),
+                    GUINC::toImVec2(bg_vectLoc[x][y]),
+                    GUINC::toImVec2((bg_vectLoc[x][y]+locOffset)),
                     col_fieldDir
                 );
                 // guiwin.draw()->AddCircleFilled(
-                //     guiwin_nc::toImVec2(bg_vectLoc[x][y]), 2, col_fieldDir, 10
+                //     GUINC::toImVec2(bg_vectLoc[x][y]), 2, col_fieldDir, 10
                 // );
             }
         }
@@ -237,7 +237,7 @@ int main(int argc, char** argv) {
             charge_q& charg = system_charges[i];
             pos2d<int> pixel_pos = pos2d<int>(charg.pos.modify([](double _var){return (_var/meter_per_px);}).cast<int>([](double _var){ return int(roundf(_var)); })) - abs_cam_pixelPos;
             
-            guiwin.draw()->AddCircleFilled(guiwin_nc::toImVec2(pixel_pos), 10, (charg.charge>0? col_chargePos : col_chargeNeg), 10);
+            guiwin.draw()->AddCircleFilled(GUINC::toImVec2(pixel_pos), 10, (charg.charge>0? col_chargePos : col_chargeNeg), 10);
         }
 
         guiwin.endFrame();

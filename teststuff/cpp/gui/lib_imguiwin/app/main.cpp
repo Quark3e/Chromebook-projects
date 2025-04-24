@@ -2,7 +2,7 @@
 #include <iostream>
 #include <imguiwin.hpp>
 
-using namespace guiwin_nc;
+using namespace GUINC;
 
 
 int main(int argc, char** argv) {

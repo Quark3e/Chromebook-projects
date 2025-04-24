@@ -6,7 +6,7 @@
 #include "graph_methods.hpp"
 #include <diy_dictionary.hpp>
 
-extern guiwin_nc::imguiwin graphWin;
+extern GUINC::imguiwin graphWin;
 extern imguigraph graphObj;
 
 /**

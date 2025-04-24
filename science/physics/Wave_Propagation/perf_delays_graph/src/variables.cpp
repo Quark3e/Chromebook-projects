@@ -10,7 +10,7 @@ pos2d<int> dim__selectionsWindow{200, dim__programWindow.y};
 pos2d<int> dim__graphWindow{dim__programWindow.x-dim__selectionsWindow.x, dim__programWindow.y};
 pos2d<int> dim__graphRegion{int(double(dim__graphWindow.x)*0.8), int(double(dim__graphWindow.y)*0.8)};
 
-guiwin_nc::imguiwin graphWin(false);
+GUINC::imguiwin graphWin(false);
 imguigraph graphObj({float(dim__programWindow.x), float(dim__programWindow.y)}, {float(dim__graphWindow.x-dim__graphRegion.x)/2, float(dim__graphWindow.y-(dim__graphWindow.y-dim__graphRegion.y)/2)});
 
 

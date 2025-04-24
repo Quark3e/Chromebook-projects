@@ -2,8 +2,8 @@
 #include "imguiwin.hpp"
 
 
-bool guiwin_nc::inRegion(ImVec2 cursorPos, ImVec2 cornerA, ImVec2 cornerB, bool includeEdge) {
-    if(cornerA.x==cornerB.x && cornerA.y==cornerB.y) throw std::invalid_argument("guiwin_nc::inRegion(ImVec2, ImVec2, ImVec2) the coordinates of the corner's can't be the exact same.");
+bool GUINC::inRegion(ImVec2 cursorPos, ImVec2 cornerA, ImVec2 cornerB, bool includeEdge) {
+    if(cornerA.x==cornerB.x && cornerA.y==cornerB.y) throw std::invalid_argument("GUINC::inRegion(ImVec2, ImVec2, ImVec2) the coordinates of the corner's can't be the exact same.");
     ///cornerA will hold minimum values and cornerB will hold maximum values
     if(cornerA.x>cornerB.x) {
         float temp = cornerA.x;
@@ -28,12 +28,12 @@ bool guiwin_nc::inRegion(ImVec2 cursorPos, ImVec2 cornerA, ImVec2 cornerB, bool 
 }
 
 
-guiwin_nc::imguiwin::imguiwin(bool _init) {
+GUINC::imguiwin::imguiwin(bool _init) {
     if(__init) throw std::runtime_error("ERROR: imguiwin(bool) this library instance is already initialised.");
     
     if(_init) this->init();
 }
-guiwin_nc::imguiwin::~imguiwin() {
+GUINC::imguiwin::~imguiwin() {
     if(!__init) return;
 
     ImGui_ImplAllegro5_Shutdown();
@@ -45,9 +45,9 @@ guiwin_nc::imguiwin::~imguiwin() {
     if(callback_func__running_exit) callback_func__running_exit();
 }
 
-bool guiwin_nc::imguiwin::init() {
+bool GUINC::imguiwin::init() {
     if(__init) {
-        std::cout << "guiwin_nc::imguiwin::init(): WARNING: member function 'init()' is called when this class instance has already been initialised." << std::endl;
+        std::cout << "GUINC::imguiwin::init(): WARNING: member function 'init()' is called when this class instance has already been initialised." << std::endl;
         return true;
     }
 
@@ -77,7 +77,7 @@ bool guiwin_nc::imguiwin::init() {
 }
 
 
-void guiwin_nc::imguiwin::newFrame() {
+void GUINC::imguiwin::newFrame() {
     if(!__init)         throw std::runtime_error("ERROR: newFrame called when library hasn't been initialised.");
     if(__frameStarted)  throw std::runtime_error("ERROR: a frame hasn't been called to end before trying to set a new frame.");
     if(!__running)      throw std::runtime_error("ERROR: the library is not running before newFrame is called. Likely the window has been closed.");
@@ -108,7 +108,7 @@ void guiwin_nc::imguiwin::newFrame() {
     __running = true;
     __frameStarted = true;
 }
-void guiwin_nc::imguiwin::endFrame() {
+void GUINC::imguiwin::endFrame() {
     if(!__init)         throw std::runtime_error("ERROR: newFrame called when library hasn't been initialised.");
     if(!__frameStarted) throw std::runtime_error("ERROR: a new frame hasn't been started before calling to end it.");
     if(!__running)      throw std::runtime_error("ERROR: the library is not running before endFrame is called. Likely the window has been closed.");
@@ -129,11 +129,11 @@ void guiwin_nc::imguiwin::endFrame() {
     __frameStarted = false;
 }
 
-const bool guiwin_nc::imguiwin::running() {
+const bool GUINC::imguiwin::running() {
     return __running;
 }
 
-ImDrawList* guiwin_nc::imguiwin::draw() {
+ImDrawList* GUINC::imguiwin::draw() {
     if(!__init)         throw std::runtime_error("ERROR: newFrame called when library hasn't been initialised.");
     if(!__frameStarted) throw std::runtime_error("ERROR: a frame hasn't been started before trying to draw.");
     if(!__running)      throw std::runtime_error("ERROR: the library is not running before newFrame is called. Likely the window has been closed.");
@@ -141,6 +141,6 @@ ImDrawList* guiwin_nc::imguiwin::draw() {
     return ImGui::GetWindowDrawList();
 }
 
-void guiwin_nc::imguiwin::exit() {
+void GUINC::imguiwin::exit() {
     __running = false;
 }

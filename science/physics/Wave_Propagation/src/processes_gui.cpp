@@ -15,14 +15,14 @@ void process_gui() {
     std::unique_lock<std::mutex> u_lck__meter_per_px(mtx__meter_per_px_Access, std::defer_lock);
 
 
-    guiwin_nc::win_dim = ImVec2(system_dim.x, system_dim.y);
-    ImVec2 info_win_dim = ImVec2(guiwin_nc::win_dim.x, 200);
+    GUINC::win_dim = ImVec2(system_dim.x, system_dim.y);
+    ImVec2 info_win_dim = ImVec2(GUINC::win_dim.x, 200);
     
     guiwin.callback_func__running_exit = exitGui;
     
     guiwin.init();
     al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-    ALLEGRO_BITMAP* bmp = al_create_bitmap(guiwin_nc::win_dim.x/pixelSpacing, guiwin_nc::win_dim.y/pixelSpacing);
+    ALLEGRO_BITMAP* bmp = al_create_bitmap(GUINC::win_dim.x/pixelSpacing, GUINC::win_dim.y/pixelSpacing);
     al_set_new_bitmap_flags(!ALLEGRO_MEMORY_BITMAP);
     // while(guiwin.running()) {
     while(atm__running_process_calc.load()) {
@@ -37,7 +37,7 @@ void process_gui() {
 
         u_lck__ptrBMPsystem.lock();
         try {
-            loadBitmap_fromBitArray(bmp, &(ptr_BMP_system_gui->get_BMP_arr()), "GRAY", guiwin_nc::win_dim.x/pixelSpacing, guiwin_nc::win_dim.y/pixelSpacing);
+            loadBitmap_fromBitArray(bmp, &(ptr_BMP_system_gui->get_BMP_arr()), "GRAY", GUINC::win_dim.x/pixelSpacing, GUINC::win_dim.y/pixelSpacing);
             
         }
         catch(const std::exception& e) {
@@ -47,16 +47,16 @@ void process_gui() {
         u_lck__ptrBMPsystem.unlock();
 
         ImGui::SetCursorPos(ImVec2(0, 0));
-        ImGui::Image((ImTextureID)(intptr_t)bmp, ImVec2(guiwin_nc::win_dim.x*2, guiwin_nc::win_dim.y*2));
+        ImGui::Image((ImTextureID)(intptr_t)bmp, ImVec2(GUINC::win_dim.x*2, GUINC::win_dim.y*2));
 
 
-        guiwin.draw()->AddLine(guiwin_nc::toImVec2(detectLine[0]), guiwin_nc::toImVec2(detectLine[1]), IM_COL32(10, 10, 10, 250), 2);
+        guiwin.draw()->AddLine(GUINC::toImVec2(detectLine[0]), GUINC::toImVec2(detectLine[1]), IM_COL32(10, 10, 10, 250), 2);
         pos2d<float> detectDelta = detectLine[1] - detectLine[0];
         pos2d<float> detectDelta_gap = detectDelta.modify([detectDelta](float _var) {return (_var/roundf(detectDelta.hypotenuse())); });
 
-        ImGui::SetNextWindowSizeConstraints(info_win_dim, ImVec2(info_win_dim.x, guiwin_nc::win_dim.y));
+        ImGui::SetNextWindowSizeConstraints(info_win_dim, ImVec2(info_win_dim.x, GUINC::win_dim.y));
         ImGui::SetNextWindowPos(
-            ImVec2(0, guiwin_nc::win_dim.y),
+            ImVec2(0, GUINC::win_dim.y),
             0,
             ImVec2(0, 1)
         );
@@ -67,7 +67,7 @@ void process_gui() {
             ;
 
         if(ImGui::Begin("Graph Window", NULL, graphWin_flags)) {
-            ImGui::SetWindowPos(ImVec2(0, guiwin_nc::win_dim.y-ImGui::GetWindowSize().y));
+            ImGui::SetWindowPos(ImVec2(0, GUINC::win_dim.y-ImGui::GetWindowSize().y));
             pos2d<float> pixelPos = detectLine[0].modify([](float _var){return _var/pixelSpacing;});
             std::vector<pos2d<double>>  elemPos;
             std::vector<float>          elemScalar;
@@ -111,7 +111,7 @@ void process_gui() {
             // mutex_cout("thread-gui : before ImGui::Begin() end", mtx__cout);
         }
         else {
-            ImGui::SetWindowPos(ImVec2(0, guiwin_nc::win_dim.y-ImGui::GetWindowSize().y));
+            ImGui::SetWindowPos(ImVec2(0, GUINC::win_dim.y-ImGui::GetWindowSize().y));
         }
         ImGui::End();
 
@@ -153,8 +153,8 @@ void process_gui() {
             WaveSource& src = system_waves[i];
             pos2d<int> pixel_pos = pos2d<int>(src.pos.modify([](double _var){return (_var/meter_per_px);}).cast<int>([](double _var){return int(roundf(_var));})) - abs_cam_pixelPos;
             
-            guiwin.draw()->AddCircleFilled(guiwin_nc::toImVec2(pixel_pos), 5, IM_COL32(255, 255, 255, 255), 10);
-            guiwin.draw()->AddCircle(guiwin_nc::toImVec2(pixel_pos), 5, IM_COL32(20, 20, 20, 255), 10);
+            guiwin.draw()->AddCircleFilled(GUINC::toImVec2(pixel_pos), 5, IM_COL32(255, 255, 255, 255), 10);
+            guiwin.draw()->AddCircle(GUINC::toImVec2(pixel_pos), 5, IM_COL32(20, 20, 20, 255), 10);
         }
         // u_lck__system_waves.unlock();
         // mutex_cout("thread-gui : after system waves unlock", mtx__cout);

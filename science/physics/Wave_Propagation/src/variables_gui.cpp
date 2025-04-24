@@ -1,7 +1,7 @@
 
 #include "variables_gui.hpp"
 
-guiwin_nc::imguiwin guiwin(false);
+GUINC::imguiwin guiwin(false);
 
 
 void _keyBind__Master_Close() {

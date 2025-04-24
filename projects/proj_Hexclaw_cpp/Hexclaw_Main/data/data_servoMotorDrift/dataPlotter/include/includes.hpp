@@ -1,6 +1,6 @@
 #pragma once
-#ifndef HPP__HEXCLAW_MAIN__DATA_PLOTTER
-#define HPP__HEXCLAW_MAIN__DATA_PLOTTER
+#ifndef HPP__HEXCLAW_MAIN__DATA_PLOTTER__INCLUDES
+#define HPP__HEXCLAW_MAIN__DATA_PLOTTER__INCLUDES
 
 #include <iostream>
 
@@ -13,4 +13,4 @@
 #include <imguiwin.hpp>
 
 
-#endif //HPP__HEXCLAW_MAIN__DATA_PLOTTER
+#endif //HPP__HEXCLAW_MAIN__DATA_PLOTTER__INCLUDES

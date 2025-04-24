@@ -40,8 +40,8 @@ inline std::vector<float> solveServoDriftRegression(
 }
 
 int main(int argc, char** argv) {
-    guiwin_nc::imguiwin win(false);
-    guiwin_nc::win_dim = ImVec2(500, 500);
+    GUINC::imguiwin win(false);
+    GUINC::win_dim = ImVec2(500, 500);
 
     std::vector<float> refrValues = {-1, 0, 1, 2, 3, 4, 5};
     std::vector<float> readValues = {-0.5, 0, 1.5, 2.8, 3.1, 4.4, 5.0};
@@ -59,8 +59,8 @@ int main(int argc, char** argv) {
     ImVec2 pos_origo(250, 250);
     pos2d<float> range_x(-10, 10);
     pos2d<float> range_y(-10, 10);
-    float scal_x = range_x.delta()/guiwin_nc::win_dim.x;
-    float scal_y = range_y.delta()/guiwin_nc::win_dim.y;
+    float scal_x = range_x.delta()/GUINC::win_dim.x;
+    float scal_y = range_y.delta()/GUINC::win_dim.y;
 
 
     win.init();
@@ -77,8 +77,8 @@ int main(int argc, char** argv) {
             ImGui::PopStyleColor();
 
             ImDrawList* draw_list = ImGui::GetWindowDrawList();
-            draw_list->AddLine(ImVec2(0, pos_origo.y), ImVec2(guiwin_nc::win_dim.x, pos_origo.y), IM_COL32(5, 5, 5, 255), 1.0f);
-            draw_list->AddLine(ImVec2(pos_origo.x, 0), ImVec2(pos_origo.x, guiwin_nc::win_dim.y), IM_COL32(5, 5, 5, 255), 1.0f);
+            draw_list->AddLine(ImVec2(0, pos_origo.y), ImVec2(GUINC::win_dim.x, pos_origo.y), IM_COL32(5, 5, 5, 255), 1.0f);
+            draw_list->AddLine(ImVec2(pos_origo.x, 0), ImVec2(pos_origo.x, GUINC::win_dim.y), IM_COL32(5, 5, 5, 255), 1.0f);
 
             for(int i=0; i<500; i++) {
                 float x = float(i-pos_origo.x)*scal_x;

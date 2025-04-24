@@ -6,7 +6,7 @@
 #include "pos2d.hpp"
 
 
-namespace guiwin_nc {
+namespace GUINC {
     
     /**
      * @brief Check if a cursor's coordinate position is located within/inside a bounding box with it's opposite corners given
@@ -71,7 +71,7 @@ namespace guiwin_nc {
     
      
 
-} // namespace imguiwin_nc
+} // namespace imGUINC
 
 
 
