@@ -9,6 +9,10 @@ servo_angles_6DOF startup_q{0, 115, -90, 0, -25, 0};
 // float startup_q[6] = {0, 115, -90, 0, -25, 00};
 
 
+std::vector<size_t> pcaBoard_motorIndices{
+    0, 1, 2, 3, 4, 7
+};
+
 // void add_defaults(float angles[6]) {
 void add_defaults(servo_angles_6DOF& angles) {
     angles[0] = offset_q[0] + angles[0];
@@ -131,7 +135,7 @@ int sendToServo(
     int total_iteration = 135;
     if(mode==0) {
         for(int q=0; q<6; q++) {
-            pcaBoard->set_pwm(q, 0, round(400*(float(new_rotation[q])/180))+100);
+            pcaBoard->set_pwm(pcaBoard_motorIndices[q], 0, round(400*(float(new_rotation[q])/180))+100);
             old_rotation[q] = new_rotation[q];
         }
     }
@@ -159,11 +163,11 @@ int sendToServo(
                 if(mode==1) {
                     val = s_diff[q]/total_iteration;
                     s_temp[q]+=val;
-                    pcaBoard->set_pwm(q, 0, round(400*(s_temp[q]/180))+100);
+                    pcaBoard->set_pwm(pcaBoard_motorIndices[q], 0, round(400*(s_temp[q]/180))+100);
                 }
                 else if(mode==2) { 
                     val = s_temp[q] + s_diff[q]*mp1(float(count)/total_iteration);
-                    pcaBoard->set_pwm(q, 0, round(400*(val/180))+100);
+                    pcaBoard->set_pwm(pcaBoard_motorIndices[q], 0, round(400*(val/180))+100);
                 }
                 old_rotation[q] = val;
                 if(printResult) printf("%3d ",int(round(val)));

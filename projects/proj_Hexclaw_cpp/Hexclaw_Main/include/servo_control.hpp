@@ -25,6 +25,8 @@ extern servo_angles_6DOF offset_q;
 extern servo_angles_6DOF startup_q;
 // extern float startup_q[6];
 
+/// @brief Specific motor indices used in the pca9685 board.
+extern std::vector<size_t> pcaBoard_motorIndices;
 
 /// @brief Apply real-world servo motor offsets to input angles
 /// @param angles float()[6] values to add defaults onto: NOTE: original var will be modified

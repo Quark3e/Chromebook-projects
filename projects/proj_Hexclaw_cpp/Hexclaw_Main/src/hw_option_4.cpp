@@ -17,12 +17,12 @@
 TUI::termMenu menu__calibrateMotor_main({
 	{" Motors", 0, 0, TUI::CELLOPTSPEC_TEXT}, {" Error regr", 1, 0, TUI::CELLOPTSPEC_TEXT}, {" Regr solution", 2, 0, TUI::CELLOPTSPEC_TEXT},
 	
-	{" q[0]", 0, 2, '0'}, {std::string(15, ' '), 1, 2, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 2, -1},
-	{" q[1]", 0, 3, '1'}, {std::string(15, ' '), 1, 3, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 3, -1},
-	{" q[2]", 0, 4, '2'}, {std::string(15, ' '), 1, 4, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 4, -1},
-	{" q[3]", 0, 5, '3'}, {std::string(15, ' '), 1, 5, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 5, -1},
-	{" q[4]", 0, 6, '4'}, {std::string(15, ' '), 1, 6, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 6, -1},
-	{" q[5]", 0, 7, '5'}, {std::string(15, ' '), 1, 7, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 7, -1},
+	{" q[0]", 0, 2, '0'}, {std::string(15, ' '), 1, 2, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 2, -1}, {" [test] ", 4, 2, -1},
+	{" q[1]", 0, 3, '1'}, {std::string(15, ' '), 1, 3, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 3, -1}, {" [test] ", 4, 3, -1},
+	{" q[2]", 0, 4, '2'}, {std::string(15, ' '), 1, 4, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 4, -1}, {" [test] ", 4, 4, -1},
+	{" q[3]", 0, 5, '3'}, {std::string(15, ' '), 1, 5, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 5, -1}, {" [test] ", 4, 5, -1},
+	{" q[4]", 0, 6, '4'}, {std::string(15, ' '), 1, 6, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 6, -1}, {" [test] ", 4, 6, -1},
+	{" q[5]", 0, 7, '5'}, {std::string(15, ' '), 1, 7, TUI::CELLOPTSPEC_TEXT}, {" [auto] ", 3, 7, -1}, {" [test] ", 4, 7, -1},
 
 	{" back", 0, 9, 27}
 }, false);
@@ -117,7 +117,30 @@ float extractAngle() {
 
 void testMotor(size_t motorID) {
 	if(motorID>=6) throw std::runtime_error("testMotor: motorID is out of range: "+std::to_string(motorID));
-	servo_angles_6DOF newAngles = oldRotation
+	servo_angles_6DOF newAngles = current_q;
+	newAngles[motorID] = 0;
+	sendToServo(&pca, newAngles, current_q, false, 0, 0, false);
+	SHLEEP(1000);
+	for(size_t angle=0; angle<=180; angle++) {
+		newAngles[motorID] = angle;
+		SHLEEP(10);
+	}
+	SHLEEP(1000);
+	for(size_t angle=180; angle>=0; angle--) {
+		newAngles[motorID] = angle;
+		SHLEEP(10);
+	}
+	SHLEEP(1000);
+	for(size_t angle=0; angle<=180; angle+=10) {
+		newAngles[motorID] = angle;
+		SHLEEP(100);
+	}
+	SHLEEP(1000);
+	for(size_t angle=180; angle>=0; angle-=10) {
+		newAngles[motorID] = angle;
+		SHLEEP(100);
+	}
+	SHLEEP(1000);
 }
 
 void _updateFunc_option4_servoCalibration(TUI::termMenu* ptr_menu) {
@@ -377,6 +400,18 @@ void HW_option4() {
 				ANSI_mvprint(0, -1, ".", true, "rel", "abs");
 			}
 			
+		}
+		if(pressed_pos.inRegion({4, 2}, {4, 7})) { // pressed_pos is in region of [test] for selectable motor
+			int motorIdx = pressed_pos[1]-2;
+			ANSI_mvprint(0, 0, "Running servo motor rotation test for q["+std::to_string(motorIdx)+"]", true, "abs", "abs", true);
+			if(!_init_status.get("pca").isInit()) {
+				ANSI_mvprint(0, 0, "ERROR: servo motor rotation test called whilst pcaboard hasn't been initialised.", true, "abs", "rel");
+				SHLEEP(1000);
+				continue;
+			}
+
+			testMotor(motorIdx);
+
 		}
 	}
 
