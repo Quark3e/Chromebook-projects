@@ -19,7 +19,9 @@ message("lsb_release id short: " LSB_RELEASE_ID_SHORT)
 endif(WIN32)
 
 # Add the executable
-add_executable(dataPlotter main.cpp)
+add_executable(dataPlotter 
+    src/main.cpp
+)
 
 # Include directories (if needed)
 target_include_directories(dataPlotter PRIVATE ${PROJECT_SOURCE_DIR}/include)
