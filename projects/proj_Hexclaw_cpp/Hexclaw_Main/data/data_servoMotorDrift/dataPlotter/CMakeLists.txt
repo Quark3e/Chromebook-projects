@@ -15,7 +15,7 @@ execute_process(COMMAND ${LSB_RELEASE_EXEC} -is
     OUTPUT_VARIABLE LSB_RELEASE_ID_SHORT
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-message("lsb_release id short: " LSB_RELEASE_ID_SHORT)
+message("lsb_release id short: " ${LSB_RELEASE_ID_SHORT})
 endif(WIN32)
 
 # Add the executable
