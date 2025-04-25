@@ -28,9 +28,12 @@ bool GUINC::inRegion(ImVec2 cursorPos, ImVec2 cornerA, ImVec2 cornerB, bool incl
 }
 
 
-GUINC::imguiwin::imguiwin(bool _init) {
+GUINC::imguiwin::imguiwin(bool _init, size_t _width, size_t _height) {
     if(__init) throw std::runtime_error("ERROR: imguiwin(bool) this library instance is already initialised.");
     
+    win_dim[0] = _width;
+    win_dim[1] = _height;
+
     if(_init) this->init();
 }
 GUINC::imguiwin::~imguiwin() {
@@ -38,8 +41,8 @@ GUINC::imguiwin::~imguiwin() {
 
     ImGui_ImplAllegro5_Shutdown();
     ImGui::DestroyContext();
-    al_destroy_event_queue(queue);
-    al_destroy_display(display);
+    al_destroy_event_queue(__queue);
+    al_destroy_display(__display);
 
     __running = false;
     if(callback_func__running_exit) callback_func__running_exit();
@@ -57,19 +60,19 @@ bool GUINC::imguiwin::init() {
     al_init_primitives_addon();
     al_set_new_display_flags(ALLEGRO_RESIZABLE);
     
-    this->display = al_create_display(win_dim.x, win_dim.y);
-    al_set_window_title(this->display, "imguiwin window");
-    this->queue = al_create_event_queue();
-    al_register_event_source(queue, al_get_display_event_source(display));
-    al_register_event_source(queue, al_get_keyboard_event_source());
-    al_register_event_source(queue, al_get_mouse_event_source());
+    this->__display = al_create_display(win_dim.x, win_dim.y);
+    al_set_window_title(this->__display, "imguiwin window");
+    this->__queue = al_create_event_queue();
+    al_register_event_source(__queue, al_get_display_event_source(__display));
+    al_register_event_source(__queue, al_get_keyboard_event_source());
+    al_register_event_source(__queue, al_get_mouse_event_source());
 
     IMGUI_CHECKVERSION();
 
     ImGui::CreateContext();
 
 
-    ImGui_ImplAllegro5_Init(display);
+    ImGui_ImplAllegro5_Init(__display);
 
     __running = true;
     __init = true;
@@ -83,7 +86,7 @@ void GUINC::imguiwin::newFrame() {
     if(!__running)      throw std::runtime_error("ERROR: the library is not running before newFrame is called. Likely the window has been closed.");
 
     ALLEGRO_EVENT al_event;
-    while(al_get_next_event(queue, &al_event)) {
+    while(al_get_next_event(__queue, &al_event)) {
         ImGui_ImplAllegro5_ProcessEvent(&al_event);
         if(al_event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
             __running = false;
@@ -92,9 +95,9 @@ void GUINC::imguiwin::newFrame() {
         }
         if(al_event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
             ImGui_ImplAllegro5_InvalidateDeviceObjects();
-            al_acknowledge_resize(display);
+            al_acknowledge_resize(__display);
             ImGui_ImplAllegro5_CreateDeviceObjects();
-            win_dim = ImVec2(al_get_display_width(display), al_get_display_height(display));
+            win_dim = ImVec2(al_get_display_width(__display), al_get_display_height(__display));
         }
     }
 
@@ -142,5 +145,6 @@ ImDrawList* GUINC::imguiwin::draw() {
 }
 
 void GUINC::imguiwin::exit() {
+    if(callback_func__running_exit) callback_func__running_exit();
     __running = false;
 }

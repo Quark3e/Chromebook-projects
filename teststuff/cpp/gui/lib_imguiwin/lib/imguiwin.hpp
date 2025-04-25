@@ -31,27 +31,20 @@ namespace GUINC {
 
     inline ImVec2 win_dim{DEFAULT_WIN_WIDTH, DEFAULT_WIN_HEIGHT};
 
-    // using TDEF_void__ = void(*)();
 
     class imguiwin {
     private:
-        ALLEGRO_DISPLAY*        display = nullptr;
-        ALLEGRO_EVENT_QUEUE*    queue;
+        ALLEGRO_DISPLAY*        __display = nullptr;
+        ALLEGRO_EVENT_QUEUE*    __queue;
 
         bool __frameStarted = false;
         bool __init = false;
         bool __running = false;
     public:
         // imguiwin() = default;
-        ImGuiWindowFlags winFlags_main =
-            ImGuiWindowFlags_NoMove |
-            ImGuiWindowFlags_NoResize | 
-            ImGuiWindowFlags_NoCollapse |
-            ImGuiWindowFlags_NoTitleBar |
-            ImGuiWindowFlags_NoBringToFrontOnFocus |
-            ImGuiWindowFlags_NoScrollbar;
+        ImGuiWindowFlags winFlags_main = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoScrollbar;
     
-        imguiwin(bool _init=true);
+        imguiwin(bool _init=true, size_t _width=DEFAULT_WIN_WIDTH, size_t _height=DEFAULT_WIN_HEIGHT);
         ~imguiwin();
     
         bool init();
