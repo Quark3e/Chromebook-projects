@@ -15,10 +15,10 @@
 
 
 #ifndef toDEGREES
-#define toDEGREES(RAD) (RAD*180)/M_PI
+#define toDEGREES(RAD) ((RAD)*180/M_PI)
 #endif
 #ifndef toRADIANS
-#define toRADIANS(DEG) (DEG*M_PI)/180
+#define toRADIANS(DEG) ((DEG)*M_PI/180.0)
 #endif
 
 

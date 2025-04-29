@@ -11,6 +11,19 @@
 #include <iomanip>
 
 
+#ifndef M_PI
+#define M_PI  3.1415926535
+#endif
+
+
+#ifndef toDEGREES
+#define toDEGREES(RAD) ((RAD)*180/M_PI)
+#endif
+#ifndef toRADIANS
+#define toRADIANS(DEG) ((DEG)*M_PI/180.0)
+#endif
+
+
 template<typename _varType>
 struct pos2d {
     _varType x;
@@ -154,16 +167,18 @@ struct pos2d {
     }
     
 
+    pos2d& rotate(pos2d pivotPoint, double rotateAngle) {
+        pos2d delta(x-pivotPoint.x, y-pivotPoint.y);
 
-    pos2d rounded(int decimals) {
-        return pos2d(
-            roundf(this->x*pow(10, decimals)) / pow(10, decimals),
-            roundf(this->y*pow(10, decimals)) / pow(10, decimals)
-        );
+        x = pivotPoint.x + delta.x*cos(toRADIANS(rotateAngle)) - delta.y*sin(toRADIANS(rotateAngle));
+        y = pivotPoint.y + delta.x*sin(toRADIANS(rotateAngle)) + delta.y*cos(toRADIANS(rotateAngle));
+
+        return *this;
     }
     
+    
     template<typename _lambda>
-    pos2d modify(_lambda modificationFunc) {
+    pos2d getModify(_lambda modificationFunc) {
         return pos2d(modificationFunc(x), modificationFunc(y));
     }
 
@@ -176,31 +191,38 @@ struct pos2d {
         return pos2d<_castType>(modificationFunc(x), modificationFunc(y));
     }
 
-    pos2d abs() {
+    pos2d getAbs() {
         return pos2d(
             (x>0? x : x*(-1)),
             (y>0? y : y*(-1))
         );
     }
-    _varType hypotenuse() {
+    _varType getHypotenuse() {
         return sqrt(pow(x, 2)+pow(y, 2));
     }
-    _varType hypotenuse() const {
+    _varType getHypotenuse() const {
         return sqrt(pow(x, 2)+pow(y, 2));
     }
 
-    _varType delta(bool reverse=false) {
+    _varType getDelta(bool reverse=false) {
         if(reverse) return x-y;
         return y-x;
     }
 
-    // template<class _twoSizeContainerType>
-    // operator _twoSizeContainerType() {
-    //     _twoSizeContainerType _var;
-    //     _var[0] = x;
-    //     _var[1] = y;
-    //     return _var;
-    // }
+    pos2d getRounded(int decimals) {
+        return pos2d(
+            roundf(this->x*pow(10, decimals)) / pow(10, decimals),
+            roundf(this->y*pow(10, decimals)) / pow(10, decimals)
+        );
+    }
+
+    pos2d getRotated(pos2d pivotPoint, double rotateAngle) {
+        pos2d delta(x-pivotPoint.x, y-pivotPoint.y);
+        return pos2d(
+            pivotPoint.x + delta.x*cos(toRADIANS(rotateAngle)) - delta.y*sin(toRADIANS(rotateAngle)),
+            pivotPoint.y + delta.x*sin(toRADIANS(rotateAngle)) + delta.y*cos(toRADIANS(rotateAngle));
+        );
+    }
 
 
     int _printPrecision = 2;
