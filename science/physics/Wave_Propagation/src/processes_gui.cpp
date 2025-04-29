@@ -52,7 +52,7 @@ void process_gui() {
 
         guiwin.draw()->AddLine(GUINC::toImVec2(detectLine[0]), GUINC::toImVec2(detectLine[1]), IM_COL32(10, 10, 10, 250), 2);
         pos2d<float> detectDelta = detectLine[1] - detectLine[0];
-        pos2d<float> detectDelta_gap = detectDelta.modify([detectDelta](float _var) {return (_var/roundf(detectDelta.hypotenuse())); });
+        pos2d<float> detectDelta_gap = detectDelta.getModify([detectDelta](float _var) {return (_var/roundf(detectDelta.getHypotenuse())); });
 
         ImGui::SetNextWindowSizeConstraints(info_win_dim, ImVec2(info_win_dim.x, GUINC::win_dim.y));
         ImGui::SetNextWindowPos(
@@ -68,13 +68,13 @@ void process_gui() {
 
         if(ImGui::Begin("Graph Window", NULL, graphWin_flags)) {
             ImGui::SetWindowPos(ImVec2(0, GUINC::win_dim.y-ImGui::GetWindowSize().y));
-            pos2d<float> pixelPos = detectLine[0].modify([](float _var){return _var/pixelSpacing;});
+            pos2d<float> pixelPos = detectLine[0].getModify([](float _var){return _var/pixelSpacing;});
             std::vector<pos2d<double>>  elemPos;
             std::vector<float>          elemScalar;
             
             std::vector<double> amplitudeLim{-system_waves.size()*1.0, system_waves.size()*1.0};
             u_lck__ptrBMPsystem.lock();
-            for(float _gap=0; _gap<=detectDelta.hypotenuse(); _gap+=detectDelta_gap.hypotenuse()) {
+            for(float _gap=0; _gap<=detectDelta.getHypotenuse(); _gap+=detectDelta_gap.getHypotenuse()) {
                 
                 float sumScal = 0;
                 SystemWaveData_info_ref refObj = ptr_BMP_system_gui->at(pixelPos.x, pixelPos.y);
@@ -85,7 +85,7 @@ void process_gui() {
                     }
                     break;
                     case 1: { // phase shift vector sum sq
-                        sumScal = pow(refObj.sum_phaseVector.hypotenuse(), 2) / pow(amplitudeLim[1], 2);
+                        sumScal = pow(refObj.sum_phaseVector.getHypotenuse(), 2) / pow(amplitudeLim[1], 2);
                     }
                     break;
                     default: throw std::invalid_argument("invalid scalMethod arg.");
@@ -94,7 +94,7 @@ void process_gui() {
                 elemPos.push_back(detectPos);
                 elemScalar.push_back(sumScal);
                 
-                pixelPos += detectDelta_gap.modify([](float _var) {return _var/pixelSpacing; });
+                pixelPos += detectDelta_gap.getModify([](float _var) {return _var/pixelSpacing; });
             }
             u_lck__ptrBMPsystem.unlock();
             ImVec2 childDim(info_win_dim.x-20, info_win_dim.y-20);
@@ -151,7 +151,7 @@ void process_gui() {
         // u_lck__system_waves.lock();
         for(size_t i=0; i<system_waves.size(); i++) {
             WaveSource& src = system_waves[i];
-            pos2d<int> pixel_pos = pos2d<int>(src.pos.modify([](double _var){return (_var/meter_per_px);}).cast<int>([](double _var){return int(roundf(_var));})) - abs_cam_pixelPos;
+            pos2d<int> pixel_pos = pos2d<int>(src.pos.getModify([](double _var){return (_var/meter_per_px);}).cast<int>([](double _var){return int(roundf(_var));})) - abs_cam_pixelPos;
             
             guiwin.draw()->AddCircleFilled(GUINC::toImVec2(pixel_pos), 5, IM_COL32(255, 255, 255, 255), 10);
             guiwin.draw()->AddCircle(GUINC::toImVec2(pixel_pos), 5, IM_COL32(20, 20, 20, 255), 10);

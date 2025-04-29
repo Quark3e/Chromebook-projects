@@ -70,12 +70,12 @@ float getFieldVectorDrawLen(std::vector<double> _lim_chargeVec, double _val) {
     return val;
 }
 pos2d<float> getDrawVectors(pos2d<double> fieldVector, float drawLen) {
-    double scal_x = pow(fieldVector.x, 2) / pow(fieldVector.hypotenuse(), 2);
-    double scal_y = pow(fieldVector.y, 2) / pow(fieldVector.hypotenuse(), 2);
+    double scal_x = pow(fieldVector.x, 2) / pow(fieldVector.getHypotenuse(), 2);
+    double scal_y = pow(fieldVector.y, 2) / pow(fieldVector.getHypotenuse(), 2);
     double drawLenSq = pow(drawLen, 2);
-    pos2d<int> unitVec = (fieldVector / fieldVector.abs()).cast<int>([](double _var){return int(roundf(_var));});
+    pos2d<int> unitVec = (fieldVector / fieldVector.getAbs()).cast<int>([](double _var){return int(roundf(_var));});
     if(abs(unitVec.x) > 1 || abs(unitVec.y) > 1) {
-        std::cout << "unitVec invalid: " << unitVec << " | fieldVector: " << fieldVector << " fieldVector_abs: " << fieldVector.abs() << std::endl;
+        std::cout << "unitVec invalid: " << unitVec << " | fieldVector: " << fieldVector << " fieldVector_abs: " << fieldVector.getAbs() << std::endl;
     }
     return pos2d<float>(
         sqrt(drawLenSq * scal_x) * unitVec.x,
@@ -161,7 +161,7 @@ int main(int argc, char** argv) {
         for(size_t i=0; i<system_charges.size(); i++) {
             charge_q& charg = system_charges[i];
             pos2d<int> pixel_pos = pos2d<int>(
-                charg.pos.modify(
+                charg.pos.getModify(
                     [](double _var){return (_var/meter_per_px);}
                 ).cast<int>([](double _var){ return int(roundf(_var)); })
             ) - abs_cam_pixelPos;
@@ -178,7 +178,7 @@ int main(int argc, char** argv) {
                 
                 break;
             case 1:
-                system_charges.at(keyAction_chargeIDX).pos = GUINC::toPos2d(io.MousePos).cast<double>().modify([](double _var){ return (_var*meter_per_px); });
+                system_charges.at(keyAction_chargeIDX).pos = GUINC::toPos2d(io.MousePos).cast<double>().getModify([](double _var){ return (_var*meter_per_px); });
                 break;
             default:
                 break;
@@ -197,8 +197,8 @@ int main(int argc, char** argv) {
                 
                 pos2d<double> chargeVector = solveVector_sumChargeForce(system_charges, charge_pos, -charge_electon);
                 bg_vectors[x][y] = chargeVector;
-                if(chargeVector.hypotenuse() < lim_chargeVec[0]) lim_chargeVec[0] = chargeVector.hypotenuse();
-                if(chargeVector.hypotenuse() > lim_chargeVec[1]) lim_chargeVec[1] = chargeVector.hypotenuse();
+                if(chargeVector.getHypotenuse() < lim_chargeVec[0]) lim_chargeVec[0] = chargeVector.getHypotenuse();
+                if(chargeVector.getHypotenuse() > lim_chargeVec[1]) lim_chargeVec[1] = chargeVector.getHypotenuse();
             }
         }
 
@@ -206,8 +206,8 @@ int main(int argc, char** argv) {
         for(size_t x=0; x<bg_vectors.size(); x++) {
             for(size_t y=0; y<bg_vectors[x].size(); y++) {
                 
-                double _scal = (bg_vectors[x][y].hypotenuse() / lim_chargeVec[1]);    // relative scalar percentage of current vector's magnitude vs the biggest magnitude
-                float drawVecLen = getFieldVectorDrawLen(lim_chargeVec, bg_vectors[x][y].hypotenuse());
+                double _scal = (bg_vectors[x][y].getHypotenuse() / lim_chargeVec[1]);    // relative scalar percentage of current vector's magnitude vs the biggest magnitude
+                float drawVecLen = getFieldVectorDrawLen(lim_chargeVec, bg_vectors[x][y].getHypotenuse());
                 
                 // pixel XY offset values 
                 pos2d<int> locOffset(
@@ -235,7 +235,7 @@ int main(int argc, char** argv) {
         /// Draw system charges
         for(size_t i=0; i<system_charges.size(); i++) {
             charge_q& charg = system_charges[i];
-            pos2d<int> pixel_pos = pos2d<int>(charg.pos.modify([](double _var){return (_var/meter_per_px);}).cast<int>([](double _var){ return int(roundf(_var)); })) - abs_cam_pixelPos;
+            pos2d<int> pixel_pos = pos2d<int>(charg.pos.getModify([](double _var){return (_var/meter_per_px);}).cast<int>([](double _var){ return int(roundf(_var)); })) - abs_cam_pixelPos;
             
             guiwin.draw()->AddCircleFilled(GUINC::toImVec2(pixel_pos), 10, (charg.charge>0? col_chargePos : col_chargeNeg), 10);
         }
@@ -262,7 +262,7 @@ pos2d<double> solveVector_sumChargeForce(
         if(pos==system_charges[i].pos) continue;
         charge_q& sys_charge = system_charges[i];
         pos2d<double>   pos_delta   = pos - sys_charge.pos;
-        pos2d<double>   unitVec     = (pos_delta / pos_delta.abs()).modify([](double var) {
+        pos2d<double>   unitVec     = (pos_delta / pos_delta.getAbs()).getModify([](double var) {
             if(isnan(var)) return double(0);
             return double(roundf(var));
         });
@@ -275,8 +275,8 @@ pos2d<double> solveVector_sumChargeForce(
             unitVec[1] = (-1)*unitVec[1];
         }
 
-        double chargeForce = f_chargeForce(sys_charge.charge, charge, pos_delta.hypotenuse());
-        double deltaSQ[3] = {pow(pos_delta.x, 2), pow(pos_delta.y, 2), pow(pos_delta.hypotenuse(), 2)};
+        double chargeForce = f_chargeForce(sys_charge.charge, charge, pos_delta.getHypotenuse());
+        double deltaSQ[3] = {pow(pos_delta.x, 2), pow(pos_delta.y, 2), pow(pos_delta.getHypotenuse(), 2)};
         pos2d<double>   scalars{
             (deltaSQ[0] * chargeForce) / deltaSQ[2],
             (deltaSQ[1] * chargeForce) / deltaSQ[2]

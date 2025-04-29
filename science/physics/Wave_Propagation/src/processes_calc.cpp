@@ -187,7 +187,7 @@ void process_calc() {
                     }
                     break;
                     case 1: { // phase shift vector sum sq
-                        RGB_col = graph_colour_scale(pow(sum_phaseVec.hypotenuse(), 2) / pow(amplitudeLim[1], 2));
+                        RGB_col = graph_colour_scale(pow(sum_phaseVec.getHypotenuse(), 2) / pow(amplitudeLim[1], 2));
                     }
                     break;
                     default: throw std::invalid_argument("invalid scalMethod arg.");
@@ -308,7 +308,7 @@ void subProcess_calc(size_t processIdx, size_t idx_start, size_t idx_end) {
             }
             break;
             case 1: { // phase shift vector sum sq
-                RGB_col = graph_colour_scale(pow(sum_phaseVec.hypotenuse(), 2) / pow(amplitudeLim[1], 2));
+                RGB_col = graph_colour_scale(pow(sum_phaseVec.getHypotenuse(), 2) / pow(amplitudeLim[1], 2));
             }
             break;
             default: throw std::invalid_argument("invalid scalMethod arg.");

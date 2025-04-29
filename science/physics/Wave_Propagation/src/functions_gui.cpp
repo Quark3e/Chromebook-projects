@@ -14,7 +14,7 @@ float scalarMethod(pos2d<double> &_objPos, std::vector<WaveSource> &_system_wave
         break;
         case 1: { // phase shift vector sum sq
             pos2d<double> vecSum = getWaveVectorSum(_objPos, _system_waves);
-            return (pow(vecSum.hypotenuse(), 2) / pow(_lim[1], 2));
+            return (pow(vecSum.getHypotenuse(), 2) / pow(_lim[1], 2));
         }
         break;
         default: throw std::invalid_argument("invalid _method arg.");

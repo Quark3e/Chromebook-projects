@@ -117,7 +117,7 @@ void graph__totalTime() {
     static std::vector<std::vector<int>> plotColours;
     if(init) {
         pos2d<float> HSV_range(0, 180);
-        float HSV_spacing = HSV_range.delta()/(Loaded_Data__perfDelays.size());
+        float HSV_spacing = HSV_range.getDelta()/(Loaded_Data__perfDelays.size());
         for(size_t i=0; i<Loaded_Data__perfDelays.size(); i++) {
             std::vector<float> HSV_col{HSV_range[0], 80, 99};
             std::vector<float> rgbConv = convert_HSV_RGB(HSV_col);
@@ -239,7 +239,7 @@ void graph__processTime() {
     static std::vector<std::vector<int>> plotColours;
     if(init) {
         pos2d<float> HSV_range(0, 180);
-        float HSV_spacing = HSV_range.delta()/(Loaded_Data__perfDelays.size());
+        float HSV_spacing = HSV_range.getDelta()/(Loaded_Data__perfDelays.size());
         for(size_t i=0; i<Loaded_Data__perfDelays.size(); i++) {
             std::vector<float> HSV_col{HSV_range[0], 80, 99};
             std::vector<float> rgbConv = convert_HSV_RGB(HSV_col);
@@ -363,7 +363,7 @@ void graph__iterationDelays() {
     if(init) {
         // plotColours.clear();
         pos2d<float> HSV_range(0, 180);
-        float HSV_spacing = HSV_range.delta()/(Loaded_Data__perfDelays[0].size());
+        float HSV_spacing = HSV_range.getDelta()/(Loaded_Data__perfDelays[0].size());
         for(size_t t=0; t<Loaded_Data__perfDelays.size(); t++) {
             plotColours.push_back(std::vector<std::vector<int>>());
             HSV_range[0] = 0;

@@ -54,7 +54,7 @@ inline double getTheta(
     if(pos__line_end==pos__line_pivot) throw std::invalid_argument("pos__line_end and pos__line_pivot can't be the same.");
     pos2d<_varType> delta(pos__line_end - pos__line_pivot);
     
-    pos2d<_varType> magnitude = delta.modify([](_varType _var) { return (_var>0? _var : _var*(-1)); });
+    pos2d<_varType> magnitude = delta.getModify([](_varType _var) { return (_var>0? _var : _var*(-1)); });
     // pos2d<_varType> magnitude = delta.std::abs();
 
     pos2d<int> unitVec(0, 0);
@@ -62,7 +62,7 @@ inline double getTheta(
         if(magnitude[i]!=0) unitVec[i] = magnitude[i];
     }
 
-    _varType    radius  = delta.hypotenuse();
+    _varType    radius  = delta.getHypotenuse();
     double      theta   = DEGREES(acos(delta.x / radius));
     if(unitVec.y < 0) theta = 360 - theta;
 
@@ -78,7 +78,7 @@ inline pos2d<_varType> rotateCoordinate(
     if(toRotate==centerOfRotation) throw std::invalid_argument("toRotate and centerOfRotation argument coordinates can't be the same.");
     pos2d<_varType> delta(toRotate - centerOfRotation);
 
-    pos2d<_varType> magnitude = delta.modify([](_varType _var) { return (_var>0? _var : _var*(-1)); });
+    pos2d<_varType> magnitude = delta.getModify([](_varType _var) { return (_var>0? _var : _var*(-1)); });
     
     pos2d<int> unitVec(0, 0);
     for(size_t i=0; i<2; i++) {
@@ -89,7 +89,7 @@ inline pos2d<_varType> rotateCoordinate(
         }
     }
     
-    _varType    radius  = delta.hypotenuse();
+    _varType    radius  = delta.getHypotenuse();
     double      theta   = DEGREES(acos(delta.x / radius));
     if(unitVec.y < 0) theta = 360 - theta;
 
@@ -154,8 +154,8 @@ inline pos2d<_varType> getLineIntersect_2D(
     ); 
     
 
-    double theta_A  = DEGREES(asin(deltaA.y / deltaA.hypotenuse()));
-    double theta_B  = DEGREES(asin(deltaB.y / deltaB.hypotenuse()));
+    double theta_A  = DEGREES(asin(deltaA.y / deltaA.getHypotenuse()));
+    double theta_B  = DEGREES(asin(deltaB.y / deltaB.getHypotenuse()));
     double theta_AB = std::abs(theta_B - theta_A);
 
 

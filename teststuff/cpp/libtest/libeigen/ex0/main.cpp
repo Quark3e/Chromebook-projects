@@ -59,8 +59,8 @@ int main(int argc, char** argv) {
     ImVec2 pos_origo(250, 250);
     pos2d<float> range_x(-10, 10);
     pos2d<float> range_y(-10, 10);
-    float scal_x = range_x.delta()/GUINC::win_dim.x;
-    float scal_y = range_y.delta()/GUINC::win_dim.y;
+    float scal_x = range_x.getDelta()/GUINC::win_dim.x;
+    float scal_y = range_y.getDelta()/GUINC::win_dim.y;
 
 
     win.init();

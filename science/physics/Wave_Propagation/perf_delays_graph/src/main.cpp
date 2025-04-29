@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
         if(Loaded_Data__perfDelays.size()==0) perror("ERROR: loaded data has a size of 0.");
 
         GUINC::win_dim = GUINC::toImVec2(dim__programWindow);
-        pos2d<float> graphReg_padding = (dim__graphWindow-dim__graphRegion).modify([](int _var){return _var/2;}).cast<float>();
+        pos2d<float> graphReg_padding = (dim__graphWindow-dim__graphRegion).getModify([](int _var){return _var/2;}).cast<float>();
         graphObj.set_graphDim(dim__graphRegion.cast<float>());
         graphObj.setPos_GraphOrigo({
             graphReg_padding.x+dim__selectionsWindow.x, 

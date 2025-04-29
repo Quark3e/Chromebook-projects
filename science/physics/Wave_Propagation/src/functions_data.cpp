@@ -10,7 +10,7 @@ pos2d<double> getWaveVectorSum(
     pos2d<double> indivPhaseVec(0, 0);
     for(size_t i=0; i<_waves.size(); i++) {
         pos2d<double> delta = _pos - _waves[i].pos;
-        indivPhaseVec = _waves[i].getPhaseShiftVector(delta.hypotenuse());
+        indivPhaseVec = _waves[i].getPhaseShiftVector(delta.getHypotenuse());
         sumPhaseShiftVector += indivPhaseVec;
         if(_copy_indiv_phaseShift) _copy_indiv_phaseShift->push_back(indivPhaseVec);
     }
@@ -26,7 +26,7 @@ double getWavePhaseAmplitudeSum(
 
     for(size_t i=0; i<_waves.size(); i++) {
         pos2d<double> delta = _pos - _waves[i].pos;
-        double indivAmplit = sin(_waves[i].getPhaseShiftAngle(delta.hypotenuse()));
+        double indivAmplit = sin(_waves[i].getPhaseShiftAngle(delta.getHypotenuse()));
         sumAmplitude += indivAmplit;
         if(_copy_indiv_amplitude) _copy_indiv_amplitude->push_back(indivAmplit);
     }
