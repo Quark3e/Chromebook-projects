@@ -1,0 +1,102 @@
+
+#include "draw_methods.hpp"
+
+
+namespace DRMETHS {
+    pos2d<double> spaceScalar(1, 1);
+
+    void drawRect(pos2d<double> _rectCenter, pos2d<double> _rectDim, double _angle, ImU32 _col, float _thickness) {
+        ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+        static std::vector<pos2d<double>> cornerPos(4);
+
+        cornerPos.at(0) = (_rectCenter + _rectDim/2).rotate(_rectCenter, _angle);
+        cornerPos.at(2) = (_rectCenter - _rectDim/2).rotate(_rectCenter, _angle);
+        cornerPos.at(1) = (_rectCenter + pos2d<double>(-_rectDim.x, _rectDim.y)/2).rotate(_rectCenter, _angle);
+        cornerPos.at(3) = (_rectCenter - pos2d<double>(-_rectDim.x, _rectDim.y)/2).rotate(_rectCenter, _angle);
+
+        for(size_t i=0; i<4; i++) {
+            if(i<3) drawList->AddLine(GUINC::toImVec2(cornerPos.at(i)), GUINC::toImVec2(cornerPos.at(i+1)), _col, _thickness);
+            // drawList->AddCircle(GUINC::toImVec2(cornerPos.at(i)), 100, IM_COL32(100, 200, 120, 240), 100, _thickness);
+            // drawList->AddCircle(GUINC::toImVec2(cornerPos.at(i)), 2, IM_COL32(100, 100, 200, 240), 100, _thickness);
+        }
+        drawList->AddLine(GUINC::toImVec2(cornerPos.at(3)), GUINC::toImVec2(cornerPos.at(0)), _col, _thickness);
+
+
+    }
+    
+    void draw_camUnit(SOC::CamU _CamU_toDraw, bool _drawFOV) {
+
+        draw_camUnit(_CamU_toDraw.pos(), _CamU_toDraw.angle, _drawFOV, _CamU_toDraw.FOV);
+    }
+    void draw_camUnit(pos2d<double> _pos, double _angle, bool _drawFOV, double _FOV) {
+        static pos2d<double> drawCamU_lens(30, 5);
+        static pos2d<double> drawCamU_box(50, 20);
+        static pos2d<double> posOffset(0, 0);
+        
+        ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+
+        if(_drawFOV) {
+            draw_angleArc(_pos, _angle, _FOV, 50, 100);
+        }
+        /**
+         * Default state because an angle of 0 degrees means the camera center axis is facing right along x axis,
+         * but drawRect draws it as if the center is facing up, along the y axis (with current width/height dimensions.)
+         * 
+         */
+        // _angle -= 90;
+
+        drawList->AddCircle(GUINC::toImVec2(_pos), 2, IM_COL32(200,200,200,200),10);
+
+        posOffset.x = cos(toRADIANS(_angle))*drawCamU_lens.y/2;
+        posOffset.y = -sin(toRADIANS(_angle))*drawCamU_lens.y/2;
+        drawRect(_pos - posOffset, drawCamU_lens, -(_angle-90), IM_COL32(100, 200, 150, 255));
+        posOffset.x += cos(toRADIANS(_angle))*(drawCamU_lens.y+drawCamU_box.y/2);
+        posOffset.y -= sin(toRADIANS(_angle))*(drawCamU_lens.y+drawCamU_box.y/2);
+        drawRect(_pos - posOffset, drawCamU_box,  -(_angle-90), IM_COL32(100, 200, 150, 255));
+
+    }
+    
+    void draw_angleArc(pos2d<double> _pos, double _offsCenterAngle, double _arcAngle, double _radius, double _radius_extra) {
+        static std::vector<pos2d<double>> arcPoints_line(3, pos2d<double>(0, 0));
+        
+        size_t numSegs = 50; //std::roundf(50*(_arcAngle/360));
+        std::vector<pos2d<double>> arcPoints_arc(numSegs+1, pos2d<double>(0, 0));
+
+        ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+        drawList->AddLine(
+            GUINC::toImVec2(_pos),
+            GUINC::toImVec2(_pos+pos2d<double>(cos(toRADIANS(_offsCenterAngle))*(_radius+_radius_extra), -sin(toRADIANS(_offsCenterAngle))*(_radius+_radius_extra))),
+            IM_COL32(250, 100, 100, 100)
+        );
+
+        drawList->AddCircle(GUINC::toImVec2(_pos+pos2d<double>(cos(toRADIANS(_offsCenterAngle))*(_radius+_radius_extra), -sin(toRADIANS(_offsCenterAngle))*(_radius+_radius_extra))), 10, IM_COL32(80, 80, 80, 150), 20);
+        
+        arcPoints_line.at(0).x = _pos.x + cos(toRADIANS(_offsCenterAngle+_arcAngle/2))*(_radius+_radius_extra);
+        arcPoints_line.at(0).y = _pos.y - sin(toRADIANS(_offsCenterAngle+_arcAngle/2))*(_radius+_radius_extra);
+        
+        arcPoints_line.at(1).x = _pos.x;
+        arcPoints_line.at(1).y = _pos.y;
+
+        arcPoints_line.at(2).x = _pos.x + cos(toRADIANS(_offsCenterAngle-_arcAngle/2))*(_radius+_radius_extra);
+        arcPoints_line.at(2).y = _pos.y - sin(toRADIANS(_offsCenterAngle-_arcAngle/2))*(_radius+_radius_extra);
+
+
+        double _segAng = _offsCenterAngle + _arcAngle/2;
+        for(size_t i=0; i<numSegs; i++) {
+            arcPoints_arc.at(i).x = _pos.x + cos(toRADIANS(_segAng))*_radius;
+            arcPoints_arc.at(i).y = _pos.y - sin(toRADIANS(_segAng))*_radius;
+            _segAng -= _arcAngle/numSegs;
+        }
+        arcPoints_arc.at(numSegs).x = _pos.x + cos(toRADIANS(_offsCenterAngle-_arcAngle/2))*_radius;
+        arcPoints_arc.at(numSegs).y = _pos.y - sin(toRADIANS(_offsCenterAngle-_arcAngle/2))*_radius;
+
+        for(size_t i=0; i<arcPoints_arc.size()-1; i++)  drawList->AddLine(GUINC::toImVec2(arcPoints_arc.at(i)), GUINC::toImVec2(arcPoints_arc.at(i+1)), IM_COL32(50, 60, 55, 150));
+        for(size_t i=0; i<arcPoints_line.size()-1; i++) drawList->AddLine(GUINC::toImVec2(arcPoints_line.at(i)), GUINC::toImVec2(arcPoints_line.at(i+1)), IM_COL32(50, 60, 55, 150));
+    }
+    
+    // void draw_line(pos2d<double> _pos1, pos2d<double> _pos2) {  }
+
+};
