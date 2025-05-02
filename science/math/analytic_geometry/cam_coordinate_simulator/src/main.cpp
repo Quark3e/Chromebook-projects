@@ -5,10 +5,7 @@
 
 
 int main(int argc, char** argv) {
-    SOC::CamSystem camSys({500, 200}, {
-        {90,  85, 300, 500},
-        {90, 100, 700, 500}
-    });
+
 
     assert(guiwin.init());
     while(guiwin.running()) {

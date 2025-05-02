@@ -31,12 +31,21 @@
 
 namespace SOC {
 
+    extern pos2d<double> drawCamU_lens;
+    extern pos2d<double> drawCamU_box;
+
     struct CamU {
 
         double x = 0;
         double y = 0;
         double angle = 90;
         double FOV = 135;
+
+        /**
+         * Coordinates to the points that make up the shape of this CamU.
+         * used for gui interaction with the CamU.
+         */
+        std::vector<pos2d<double>> pos_shape{pos2d<double>(0, 0)};
 
         CamU() = default;
         CamU(const CamU &_copy);

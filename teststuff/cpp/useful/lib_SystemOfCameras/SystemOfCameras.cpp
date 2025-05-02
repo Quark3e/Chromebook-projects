@@ -2,6 +2,10 @@
 #include "SystemOfCameras.hpp"
 
 namespace SOC {
+    
+    pos2d<double> drawCamU_lens(30, 5);
+    pos2d<double> drawCamU_box(50, 20);
+
     CamU::CamU(const CamU &_copy): x(_copy.x), y(_copy.y), angle(_copy.angle), FOV(_copy.FOV) {
 
     }
@@ -65,6 +69,7 @@ namespace SOC {
 
         return angle_camCenterToObj;
     }
+
 
 
     CamSystem::CamSystem(const CamSystem& _copy)

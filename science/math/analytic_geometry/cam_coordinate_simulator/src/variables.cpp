@@ -25,3 +25,12 @@ DIY_KBH::keyBind_handler keyBinds({
 pressed_key__struct guiKeys;
 
 
+size_t selectable_itemID = 0;
+bool selectable_isSelected = false;
+
+
+SOC::CamSystem camSys({500, 200}, {
+    {90,  75, 300, 500},
+    {90, 110, 700, 500}
+});
+

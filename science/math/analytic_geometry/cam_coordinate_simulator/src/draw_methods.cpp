@@ -5,40 +5,51 @@
 namespace DRMETHS {
     pos2d<double> spaceScalar(1, 1);
 
-    void drawRect(pos2d<double> _rectCenter, pos2d<double> _rectDim, double _angle, ImU32 _col, float _thickness) {
+
+    std::vector<pos2d<double>> drawRect(pos2d<double> _rectCenter, pos2d<double> _rectDim, double _angle, ImU32 _col, float _thickness, RectCrnrs _startCorner, int _createDir, bool _drawRect) {
         ImDrawList* drawList = ImGui::GetWindowDrawList();
 
-        static std::vector<pos2d<double>> cornerPos(4);
+        static std::vector<pos2d<double>> cornerPos(4, pos2d<double>(0, 0));
+        static std::vector<pos2d<double>> returnCorners(4, pos2d<double>(0, 0));
 
-        cornerPos.at(0) = (_rectCenter + _rectDim/2).rotate(_rectCenter, _angle);
-        cornerPos.at(2) = (_rectCenter - _rectDim/2).rotate(_rectCenter, _angle);
-        cornerPos.at(1) = (_rectCenter + pos2d<double>(-_rectDim.x, _rectDim.y)/2).rotate(_rectCenter, _angle);
-        cornerPos.at(3) = (_rectCenter - pos2d<double>(-_rectDim.x, _rectDim.y)/2).rotate(_rectCenter, _angle);
+        cornerPos.at(0) = (_rectCenter - pos2d<double>(-_rectDim.x, _rectDim.y)/2).rotate(_rectCenter, _angle); // top_right
+        cornerPos.at(1) = (_rectCenter - _rectDim/2).rotate(_rectCenter, _angle);                               // top_left
+        cornerPos.at(2) = (_rectCenter + pos2d<double>(-_rectDim.x, _rectDim.y)/2).rotate(_rectCenter, _angle); // bot_left
+        cornerPos.at(3) = (_rectCenter + _rectDim/2).rotate(_rectCenter, _angle);                               // bot_right
 
-        for(size_t i=0; i<4; i++) {
-            if(i<3) drawList->AddLine(GUINC::toImVec2(cornerPos.at(i)), GUINC::toImVec2(cornerPos.at(i+1)), _col, _thickness);
-            // drawList->AddCircle(GUINC::toImVec2(cornerPos.at(i)), 100, IM_COL32(100, 200, 120, 240), 100, _thickness);
-            // drawList->AddCircle(GUINC::toImVec2(cornerPos.at(i)), 2, IM_COL32(100, 100, 200, 240), 100, _thickness);
+        if(_drawRect) {
+            for(size_t i=0; i<4; i++) {
+                if(i<3) drawList->AddLine(GUINC::toImVec2(cornerPos.at(i)), GUINC::toImVec2(cornerPos.at(i+1)), _col, _thickness);
+                // drawList->AddCircle(GUINC::toImVec2(cornerPos.at(i)), 100, IM_COL32(100, 200, 120, 240), 100, _thickness);
+                // drawList->AddCircle(GUINC::toImVec2(cornerPos.at(i)), 2, IM_COL32(100, 100, 200, 240), 100, _thickness);
+            }
+            drawList->AddLine(GUINC::toImVec2(cornerPos.at(3)), GUINC::toImVec2(cornerPos.at(0)), _col, _thickness);
         }
-        drawList->AddLine(GUINC::toImVec2(cornerPos.at(3)), GUINC::toImVec2(cornerPos.at(0)), _col, _thickness);
 
-
+        for(int i=0; i<4; i+=_createDir) {
+            switch (i) {
+                case -1: i = 3; break;
+                case  4: i = 0; break;
+                default: {
+                    size_t cornerIdx = i+_startCorner;
+                    if(cornerIdx>=4) cornerIdx -= 4;
+                    returnCorners.at(i) = cornerPos.at(cornerIdx);
+                }
+            }
+        }
+        
+        return returnCorners;
     }
     
-    void draw_camUnit(SOC::CamU _CamU_toDraw, bool _drawFOV) {
+    void draw_camUnit(SOC::CamU &_CamU_toDraw, bool _drawFOV, int _CamU_idx) {
 
-        draw_camUnit(_CamU_toDraw.pos(), _CamU_toDraw.angle, _drawFOV, _CamU_toDraw.FOV);
-    }
-    void draw_camUnit(pos2d<double> _pos, double _angle, bool _drawFOV, double _FOV) {
-        static pos2d<double> drawCamU_lens(30, 5);
-        static pos2d<double> drawCamU_box(50, 20);
-        static pos2d<double> posOffset(0, 0);
+        pos2d<double> posOffset(0, 0);
         
         ImDrawList* drawList = ImGui::GetWindowDrawList();
 
 
         if(_drawFOV) {
-            draw_angleArc(_pos, _angle, _FOV, 50, 100);
+            draw_angleArc(_CamU_toDraw.pos(), _CamU_toDraw.angle, _CamU_toDraw.FOV, 50, 100);
         }
         /**
          * Default state because an angle of 0 degrees means the camera center axis is facing right along x axis,
@@ -47,17 +58,33 @@ namespace DRMETHS {
          */
         // _angle -= 90;
 
-        drawList->AddCircle(GUINC::toImVec2(_pos), 2, IM_COL32(200,200,200,200),10);
+        drawList->AddCircle(GUINC::toImVec2(_CamU_toDraw.pos()), 2, IM_COL32(200,200,200,200),10);
 
-        posOffset.x = cos(toRADIANS(_angle))*drawCamU_lens.y/2;
-        posOffset.y = -sin(toRADIANS(_angle))*drawCamU_lens.y/2;
-        drawRect(_pos - posOffset, drawCamU_lens, -(_angle-90), IM_COL32(100, 200, 150, 255));
-        posOffset.x += cos(toRADIANS(_angle))*(drawCamU_lens.y+drawCamU_box.y/2);
-        posOffset.y -= sin(toRADIANS(_angle))*(drawCamU_lens.y+drawCamU_box.y/2);
-        drawRect(_pos - posOffset, drawCamU_box,  -(_angle-90), IM_COL32(100, 200, 150, 255));
+        posOffset.x = cos(toRADIANS(_CamU_toDraw.angle))*SOC::drawCamU_lens.y/2;
+        posOffset.y = -sin(toRADIANS(_CamU_toDraw.angle))*SOC::drawCamU_lens.y/2;
+        // if(_CamU_idx>=0) {
 
+        // }
+        // else {
+            _CamU_toDraw.pos_shape = drawRect(_CamU_toDraw.pos() - posOffset, SOC::drawCamU_lens, -(_CamU_toDraw.angle-90), IM_COL32(100, 200, 150, 255), 1, RectCrnrs_BotRight, 1, false);
+            _CamU_toDraw.pos_shape.push_back(_CamU_toDraw.pos_shape.at(0));
+        // }
+        posOffset.x += cos(toRADIANS(_CamU_toDraw.angle))*(SOC::drawCamU_lens.y+SOC::drawCamU_box.y/2);
+        posOffset.y -= sin(toRADIANS(_CamU_toDraw.angle))*(SOC::drawCamU_lens.y+SOC::drawCamU_box.y/2);
+
+        auto temp_pos_shape = drawRect(_CamU_toDraw.pos() - posOffset, SOC::drawCamU_box,  -(_CamU_toDraw.angle-90), IM_COL32(100, 200, 150, 255), 1, RectCrnrs_TopRight, 1, false);
+        _CamU_toDraw.pos_shape.insert(_CamU_toDraw.pos_shape.end(), temp_pos_shape.begin(), temp_pos_shape.end());
+        _CamU_toDraw.pos_shape.push_back(temp_pos_shape.at(0));
+        
+        for(size_t i=0; i<_CamU_toDraw.pos_shape.size()-1; i++) {
+            drawList->AddLine(GUINC::toImVec2(_CamU_toDraw.pos_shape.at(i)), GUINC::toImVec2(_CamU_toDraw.pos_shape.at(i+1)), IM_COL32(200, 100, 150, 255), 1);
+        }
+        drawList->AddLine(GUINC::toImVec2(_CamU_toDraw.pos_shape.at(_CamU_toDraw.pos_shape.size()-1)), GUINC::toImVec2(_CamU_toDraw.pos_shape.at(0)), IM_COL32(200, 100, 150, 255), 1);
+
+        // draw_camUnit(_CamU_toDraw.pos(), _CamU_toDraw.angle, _drawFOV, _CamU_toDraw.FOV, _CamU_idx);
     }
-    
+
+
     void draw_angleArc(pos2d<double> _pos, double _offsCenterAngle, double _arcAngle, double _radius, double _radius_extra) {
         static std::vector<pos2d<double>> arcPoints_line(3, pos2d<double>(0, 0));
         
