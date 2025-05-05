@@ -16,12 +16,12 @@ set(DIR_HC_SCIENCE  "${REPO_ROOT}/science")
 #message(DIR_HC_USEFUL=${DIR_HC_USEFUL})
 
 add_library(${PROJECT_NAME}
-    PolyRegionCheck.cpp
+    PolyRegionCheck.cpp #not utilised as of now. Included here just to have it here for the future.
 )
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${DIR_HC_USEFUL})
-target_include_directories(${PROJECT_NAME} PUBLIC ${DIR_HC_SCIENCE})
+target_include_directories(${PROJECT_NAME} PUBLIC ${REPO_ROOT}/science/math/line_intersection/line_intersection_2D)
 target_include_directories(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 
@@ -34,5 +34,5 @@ install(TARGETS ${PROJECT_NAME}
 
 export( EXPORT ${PROJECT_NAME}_targets
         NAMESPACE ${PROJECT_NAME}::
-        FILE "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}/${PROJECT_NAME}-config.cmake")
+        FILE "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}/${PROJECT_NAME}Config.cmake")
         

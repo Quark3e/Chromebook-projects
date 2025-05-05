@@ -6,6 +6,7 @@
 #include <string>
 #include <iostream>
 
+
 #include <pos2d.hpp>
 #include "line_intersect2D.hpp"
 
@@ -28,7 +29,7 @@ namespace PRC {
         pos2d<_varType> p_min{0, 0};
         pos2d<_varType> p_max{0, 0};
 
-        polySide(pos2d _p0, pos2d _p1): p0(_p0), p1(_p1), p_min(GET_2_MIN(_p0.x, _p1.x), GET_2_MIN(_p0.y, _p1.y)), p_max(GET_2_MAX(_p0.x, _p1.x), GET_2_MAX(_p0.y, _p1.y)) {
+        polySide(pos2d<_varType> _p0, pos2d<_varType> _p1): p0(_p0), p1(_p1), p_min(GET_2_MIN(_p0.x, _p1.x), GET_2_MIN(_p0.y, _p1.y)), p_max(GET_2_MAX(_p0.x, _p1.x), GET_2_MAX(_p0.y, _p1.y)) {
             if(p0==p1) throw std::runtime_error("ERROR: polySide::polyside(pos2d, pos2d): the two end points coordinates can't be the exact same.");
             
         }
@@ -97,40 +98,47 @@ namespace PRC {
     template<typename _varType>
     bool PosInPolygonPerimeter(
         pos2d<_varType> pos_pointToCheck,
-        std::vector<pos2d<_varType>> pos_polygonPoints
+        std::vector<pos2d<_varType>> pos_polygonPoints,
+        pos2d<_varType>* _get_range_min=nullptr,
+        pos2d<_varType>* _get_range_max=nullptr
     ) {
         if(pos_polygonPoints.size()<3) throw std::invalid_argument("ERROR: PosInPolygonPerimeter(pos2d, std::vector): pos_polygonPoints do not contain enough points to form a polygon: "+std::to_string(pos_polygonPoints.size()));
 
-        pos2d range_min(0, 0);
-        pos2d range_max(0, 0);
+        pos2d<_varType> range_min(0, 0);
+        pos2d<_varType> range_max(0, 0);
 
         /// Solve the absolute outer range of the polygon perimeter
         for(size_t i=0; i<pos_polygonPoints.size(); i++) {
-            pos2d &polyPointRef = pos_polygonPoints.at(i);
+            pos2d<_varType> &polyPointRef = pos_polygonPoints.at(i);
             if(polyPointRef.x < range_min.x) range_min.x = polyPointRef.x;
             if(polyPointRef.y < range_min.y) range_min.y = polyPointRef.y;
             if(polyPointRef.x > range_max.x) range_max.x = polyPointRef.x;
-            if(polyPointRef.y > range_max.y) range_max.x = polyPointRef.y;
+            if(polyPointRef.y > range_max.y) range_max.y = polyPointRef.y;
         }
+
+        if(_get_range_min) *_get_range_min = range_min;
+        if(_get_range_max) *_get_range_max = range_max;
         
         /// First basic inRegion check of the simple square.
-        if(!pos_pointToCheck.inRegion(range_min, range_max)) return false;
+        if(!pos_pointToCheck.inRegion(range_min, range_max)) {
+            return false;
+        }
 
 
         /// @brief Number of times that the pointToCheck has crossed a perimeter border.
-        size_t perimeterTouchCount = 0;
+        int perimeterTouchCount = 0;
 
-        polySide crossingPoint(pos_pointToCheck, pos2d(range_max.x, pos_pointToCheck.y));
+        polySide<_varType> crossingPoint(pos_pointToCheck, pos2d(range_max.x, pos_pointToCheck.y));
         
-        polySide a_side(pos_polygonPoints.at(pos_polygonPoints.size()-1), pos_polygonPoints.at(0));
-        if(getLineIntersect_2D(crossingPoint.p0, crossingPoint.p1, a_side.p0, a_side.p1, true)!=pos2d(-1, -1)) perimeterTouchCount++;
+        polySide<_varType> a_side(pos_polygonPoints.at(pos_polygonPoints.size()-1), pos_polygonPoints.at(0));
+        if(getLineIntersect_2D(crossingPoint.p0, crossingPoint.p1, a_side.p0, a_side.p1, true, 3, 0.0001, false)!=pos2d<float>(-1, -1)) perimeterTouchCount++;
         for(size_t i=0; i<pos_polygonPoints.size()-1; i++) {
             a_side = polySide(pos_polygonPoints.at(i), pos_polygonPoints.at(i+1));
-            if(getLineIntersect_2D(crossingPoint.p0, crossingPoint.p1, a_side.p0, a_side.p1, true)!=pos2d(-1, -1)) perimeterTouchCount++;
+            if(getLineIntersect_2D(crossingPoint.p0, crossingPoint.p1, a_side.p0, a_side.p1, true, 3, 0.0001, false)!=pos2d<float>(-1, -1)) perimeterTouchCount++;
         }
 
-        if(perimeterTouchCount%2!=0) return true;
-        return false;
+        if(perimeterTouchCount%2==0) return false;
+        return true;
     }
 
 };
