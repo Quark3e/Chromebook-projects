@@ -79,6 +79,9 @@ struct pos2d {
     /**
      * @brief Check whether a pos2d value is within the region given by min-max corners of a Bounding Box.
      * 
+     * @note The function relies on the user to properly apply the min/max coordinates. This member function does
+     * not do internal checking.
+     * 
      * @param corner_min corner coordinate with minimum values.
      * @param corner_max corner coordinate with maximum values.
      * @param _includeBB whether to include the Bounding Box borner region (ex: `>=`) or not (`>`)
