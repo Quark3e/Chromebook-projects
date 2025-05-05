@@ -10,9 +10,10 @@ else()
 endif(WIN32)
 
 set(REPO_ROOT "../../../..")
-set(DIR_HC_USEFUL "${REPO_ROOT}/teststuff/cpp/useful")
+set(DIR_HC_USEFUL   "${REPO_ROOT}/teststuff/cpp/useful")
+set(DIR_HC_SCIENCE  "${REPO_ROOT}/science")
 
-message(DIR_HC_USEFUL=${DIR_HC_USEFUL})
+#message(DIR_HC_USEFUL=${DIR_HC_USEFUL})
 
 add_library(${PROJECT_NAME}
     PolyRegionCheck.cpp
@@ -20,6 +21,7 @@ add_library(${PROJECT_NAME}
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${DIR_HC_USEFUL})
+target_include_directories(${PROJECT_NAME} PUBLIC ${DIR_HC_SCIENCE})
 target_include_directories(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 
