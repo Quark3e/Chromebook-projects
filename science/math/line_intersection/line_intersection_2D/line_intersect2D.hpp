@@ -119,6 +119,8 @@ inline std::vector<pos2d<_varType>> rotateCoordinates(std::vector<pos2d<_varType
  *                  Default is 3.
  * @param tolerance The tolerance value for boundary checks when limited_lines is true.
  *                  Default is 0.0001.
+ * @param throwExcept_limited_lines If true, the function will throw an exception whenever a line is intersected outside limited lines.
+ *                                  Default is true.
  * 
  * @return pos2d<_varType> The intersection point of the two lines. If the lines
  *                         are parallel or do not intersect, the function returns
@@ -127,6 +129,7 @@ inline std::vector<pos2d<_varType>> rotateCoordinates(std::vector<pos2d<_varType
  * @throws std::invalid_argument If the start and end points of either line are the same.
  * @throws std::runtime_error If limited_lines is true and the intersection point
  *                            lies outside the bounds of the given line segments.
+ * @throws std::logic_error If an intersection is found outside the point range and limited_lines is set to true.
  */
 template<typename _varType>
 inline pos2d<_varType> getLineIntersect_2D(
@@ -134,9 +137,10 @@ inline pos2d<_varType> getLineIntersect_2D(
     pos2d<_varType> lineA_1,
     pos2d<_varType> lineB_0,
     pos2d<_varType> lineB_1,
-    bool            limited_lines = false,
+    bool            limited_lines   = false,
     int             precision = 3,
-    double          tolerance = 0.0001
+    double          tolerance = 0.0001,
+    bool            throwExcept_limited_lines   = true
 ) {
     if(lineA_0==lineA_1) throw std::invalid_argument("lineA end point coordinates can't be the same.");
     if(lineB_0==lineB_1) throw std::invalid_argument("lineA end point coordinates can't be the same.");
@@ -235,19 +239,49 @@ inline pos2d<_varType> getLineIntersect_2D(
 
     if(limited_lines) {
         std::string exceptStr = std::string("ERROR: found intersection at position: ") + std::string(intersect_pos) + std::string(" but it's outside given line limitations");
-
-        if(intersect_pos.x < min(lineA_0.x, lineA_1.x)-_varType(tolerance)) throw std::runtime_error(exceptStr+" for x axis for line A minimum: "+formatNumber(min(lineA_0.x, lineA_1.x), 5, 2));
-        if(intersect_pos.x > max(lineA_0.x, lineA_1.x)+_varType(tolerance)) throw std::runtime_error(exceptStr+" for x axis for line A maximum: "+formatNumber(max(lineA_0.x, lineA_1.x), 5, 2));
+        bool _throwExcept_limited_lines = false;
+        if(intersect_pos.x < min(lineA_0.x, lineA_1.x)-_varType(tolerance)) {
+            exceptStr += std::string(exceptStr+" for x axis for line A minimum: "+formatNumber(min(lineA_0.x, lineA_1.x), 5, 2));
+            _throwExcept_limited_lines = true;
+        }
+        if(intersect_pos.x > max(lineA_0.x, lineA_1.x)+_varType(tolerance)) {
+            exceptStr += std::string(exceptStr+" for x axis for line A maximum: "+formatNumber(max(lineA_0.x, lineA_1.x), 5, 2));
+            _throwExcept_limited_lines = true;
+        }
         
-        if(intersect_pos.x < min(lineB_0.x, lineB_1.x)-_varType(tolerance)) throw std::runtime_error(exceptStr+" for x axis for line B minimum: "+formatNumber(min(lineB_0.x, lineB_1.x), 5, 2));
-        if(intersect_pos.x > max(lineB_0.x, lineB_1.x)+_varType(tolerance)) throw std::runtime_error(exceptStr+" for x axis for line B maximum: "+formatNumber(max(lineB_0.x, lineB_1.x), 5, 2));
+        if(intersect_pos.x < min(lineB_0.x, lineB_1.x)-_varType(tolerance)) {
+            exceptStr += std::string(exceptStr+" for x axis for line B minimum: "+formatNumber(min(lineB_0.x, lineB_1.x), 5, 2));
+            _throwExcept_limited_lines = true;
+        }
+        if(intersect_pos.x > max(lineB_0.x, lineB_1.x)+_varType(tolerance)) {
+            exceptStr += std::string(exceptStr+" for x axis for line B maximum: "+formatNumber(max(lineB_0.x, lineB_1.x), 5, 2));
+            _throwExcept_limited_lines = true;
+        }
         
-        if(intersect_pos.y < min(lineA_0.y, lineA_1.y)-_varType(tolerance)) throw std::runtime_error(exceptStr+" for y axis for line A minimum: "+formatNumber(min(lineA_0.y, lineA_1.y), 5, 2));
-        if(intersect_pos.y > max(lineA_0.y, lineA_1.y)+_varType(tolerance)) throw std::runtime_error(exceptStr+" for y axis for line A maximum: "+formatNumber(max(lineA_0.y, lineA_1.y), 5, 2));
+        if(intersect_pos.y < min(lineA_0.y, lineA_1.y)-_varType(tolerance)) {
+            exceptStr += std::string(exceptStr+" for y axis for line A minimum: "+formatNumber(min(lineA_0.y, lineA_1.y), 5, 2));
+            _throwExcept_limited_lines = true;
+        }
+        if(intersect_pos.y > max(lineA_0.y, lineA_1.y)+_varType(tolerance)) {
+            exceptStr += std::string(exceptStr+" for y axis for line A maximum: "+formatNumber(max(lineA_0.y, lineA_1.y), 5, 2));
+            _throwExcept_limited_lines = true;
+        }
         
-        if(intersect_pos.y < min(lineB_0.y, lineB_1.y)-_varType(tolerance)) throw std::runtime_error(exceptStr+" for y axis for line B minimum: "+formatNumber(min(lineB_0.y, lineB_1.y), 5, 2));
-        if(intersect_pos.y > max(lineB_0.y, lineB_1.y)+_varType(tolerance)) throw std::runtime_error(exceptStr+" for y axis for line B maximum: "+formatNumber(max(lineB_0.y, lineB_1.y), 5, 2));
+        if(intersect_pos.y < min(lineB_0.y, lineB_1.y)-_varType(tolerance)) {
+            exceptStr += std::string(exceptStr+" for y axis for line B minimum: "+formatNumber(min(lineB_0.y, lineB_1.y), 5, 2));
+            _throwExcept_limited_lines = true;
+        }
+        if(intersect_pos.y > max(lineB_0.y, lineB_1.y)+_varType(tolerance)) {
+            exceptStr += std::string(exceptStr+" for y axis for line B maximum: "+formatNumber(max(lineB_0.y, lineB_1.y), 5, 2));
+            _throwExcept_limited_lines = true;
+        }
         
+        if(_throwExcept_limited_lines) {
+            if(throwExcept_limited_lines) throw std::runtime_error(exceptStr);
+            else {
+                return pos2d<_varType>(-1, -1);
+            }
+        }
     }
 
     return intersect_pos;
