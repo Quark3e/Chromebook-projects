@@ -223,7 +223,7 @@ struct pos2d {
         pos2d delta(x-pivotPoint.x, y-pivotPoint.y);
         return pos2d(
             pivotPoint.x + delta.x*cos(toRADIANS(rotateAngle)) - delta.y*sin(toRADIANS(rotateAngle)),
-            pivotPoint.y + delta.x*sin(toRADIANS(rotateAngle)) + delta.y*cos(toRADIANS(rotateAngle));
+            pivotPoint.y + delta.x*sin(toRADIANS(rotateAngle)) + delta.y*cos(toRADIANS(rotateAngle))
         );
     }
 
