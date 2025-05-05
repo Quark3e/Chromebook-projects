@@ -32,5 +32,5 @@ install(TARGETS ${PROJECT_NAME}
 
 export( EXPORT ${PROJECT_NAME}_targets
         NAMESPACE ${PROJECT_NAME}::
-        FILE "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}/${PROJECT_NAME}-config.cmake")
+        FILE "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}/${PROJECT_NAME}Config.cmake")
         
