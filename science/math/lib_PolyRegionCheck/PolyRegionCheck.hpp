@@ -1,0 +1,139 @@
+#pragma once
+#ifndef HPP_LIB_POLYREGIONCHECK
+#define HPP_LIB_POLYREGIONCHECK
+
+#include <vector>
+#include <string>
+#include <iostream>
+
+#include <pos2d.hpp>
+#include "line_intersect2D.hpp"
+
+#ifndef GET_2_MIN
+#define GET_2_MIN(a, b) ((a)<(b)? (a) : (b))
+#endif //GET_2_MIN
+
+#ifndef GET_2_MAX
+#define GET_2_MAX(a, b) ((a)>(b)? (a) : (b))
+#endif //GET_2_MAX
+
+namespace PRC {
+
+
+    template<class _varType>
+    struct polySide {
+        pos2d<_varType> p0;
+        pos2d<_varType> p1;
+
+        pos2d<_varType> p_min{0, 0};
+        pos2d<_varType> p_max{0, 0};
+
+        polySide(pos2d _p0, pos2d _p1): p0(_p0), p1(_p1), p_min(GET_2_MIN(_p0.x, _p1.x), GET_2_MIN(_p0.y, _p1.y)), p_max(GET_2_MAX(_p0.x, _p1.x), GET_2_MAX(_p0.y, _p1.y)) {
+            if(p0==p1) throw std::runtime_error("ERROR: polySide::polyside(pos2d, pos2d): the two end points coordinates can't be the exact same.");
+            
+        }
+    
+        /**
+         * @brief Checks if a given value lies within the range of the X-axis bounds.
+         * 
+         * This function determines whether the provided `_x_value` falls within the 
+         * range defined by `p_min.x` and `p_max.x`. The behavior of the check can 
+         * include or exclude the boundary values based on the `_includeBB` parameter.
+         * 
+         * @tparam _varType The type of the value being checked (e.g., float, double, int).
+         * @param _x_value The value to check against the X-axis bounds.
+         * @param _includeBB A boolean flag indicating whether to include the boundary 
+         *                   values in the range check. 
+         * 
+         *                   - If `true`, the range is inclusive (`<=` and `>=`).
+         * 
+         *                   - If `false`, the range is exclusive (`<` and `>`).
+         * 
+         * @return `true` if `_x_value` lies within the specified range, `false` otherwise.
+         */
+        bool inAxisRange_X(_varType _x_value, bool _includeBB=true) {
+            if(_includeBB) {
+                if(_x_value <= p_max.x && _x_value >= p_min.x) {
+                    return true;
+                }
+            }
+            else {
+                if(_x_value <  p_max.x && _x_value >  p_min.x) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        /**
+         * @brief Checks if a given Y-axis value is within the range defined by the object's bounding box.
+         * 
+         * @tparam _varType The data type of the Y-axis value (e.g., float, double, int).
+         * @param _y_value The Y-axis value to check.
+         * @param _includeBB A boolean flag indicating whether to include the bounding box limits in the range check.
+         * 
+         *                    - If true, the range is inclusive of the bounding box limits (p_min.y <= _y_value <= p_max.y).
+         * 
+         *                    - If false, the range is exclusive of the bounding box limits (p_min.y < _y_value < p_max.y).
+         * 
+         * @return true If the Y-axis value is within the specified range.
+         * @return false Otherwise.
+         */
+        bool inAxisRange_Y(_varType _y_value, bool _includeBB=true) {
+            if(_includeBB) {
+                if(_y_value <= p_max.y && _y_value >= p_min.y) {
+                    return true;
+                }
+            }
+            else {
+                if(_y_value <  p_max.y && _y_value >  p_min.y) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+    };
+
+    template<typename _varType>
+    bool PosInPolygonPerimeter(
+        pos2d<_varType> pos_pointToCheck,
+        std::vector<pos2d<_varType>> pos_polygonPoints
+    ) {
+        if(pos_polygonPoints.size()<3) throw std::invalid_argument("ERROR: PosInPolygonPerimeter(pos2d, std::vector): pos_polygonPoints do not contain enough points to form a polygon: "+std::to_string(pos_polygonPoints.size()));
+
+        pos2d range_min(0, 0);
+        pos2d range_max(0, 0);
+
+        /// Solve the absolute outer range of the polygon perimeter
+        for(size_t i=0; i<pos_polygonPoints.size(); i++) {
+            pos2d &polyPointRef = pos_polygonPoints.at(i);
+            if(polyPointRef.x < range_min.x) range_min.x = polyPointRef.x;
+            if(polyPointRef.y < range_min.y) range_min.y = polyPointRef.y;
+            if(polyPointRef.x > range_max.x) range_max.x = polyPointRef.x;
+            if(polyPointRef.y > range_max.y) range_max.x = polyPointRef.y;
+        }
+        
+        /// First basic inRegion check of the simple square.
+        if(!pos_pointToCheck.inRegion(range_min, range_max)) return false;
+
+
+        /// @brief Number of times that the pointToCheck has crossed a perimeter border.
+        size_t perimeterTouchCount = 0;
+
+        polySide crossingPoint(pos_pointToCheck, pos2d(range_max.x, pos_pointToCheck.y));
+        
+        polySide a_side(pos_polygonPoints.at(pos_polygonPoints.size()-1), pos_polygonPoints.at(0));
+        if(getLineIntersect_2D(crossingPoint.p0, crossingPoint.p1, a_side.p0, a_side.p1, true)!=pos2d(-1, -1)) perimeterTouchCount++;
+        for(size_t i=0; i<pos_polygonPoints.size()-1; i++) {
+            a_side = polySide(pos_polygonPoints.at(i), pos_polygonPoints.at(i+1));
+            if(getLineIntersect_2D(crossingPoint.p0, crossingPoint.p1, a_side.p0, a_side.p1, true)!=pos2d(-1, -1)) perimeterTouchCount++;
+        }
+
+        if(perimeterTouchCount%2!=0) return true;
+        return false;
+    }
+
+};
+
+
+#endif //HPP_LIB_POLYREGIONCHECK
