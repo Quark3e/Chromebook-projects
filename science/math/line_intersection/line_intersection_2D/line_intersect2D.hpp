@@ -177,14 +177,17 @@ inline pos2d<_varType> getLineIntersect_2D(
 
 
     double theta_newDelta = 0;
-    
+    double dir_A=1, dir_B=1;
+    double theta_deltaA=0, theta_deltaB=0;
 
+    ///CURSED CODE: This works "without issue" on the chromeos/unix unit for some reasion.
+    /// Find a new rotation theta angle if any of the side lengths has an angle higher than 45 degrees.
     if(std::abs(theta_A)>45 || std::abs(theta_B)>45) {
-        double dir_A    = dir_A / std::abs(dir_A);
-        double dir_B    = dir_B / std::abs(dir_B);
+        dir_A    = theta_A / std::abs(theta_A);
+        dir_B    = theta_B / std::abs(theta_B);
 
-        double theta_deltaA = std::abs(theta_A) - 45;
-        double theta_deltaB = std::abs(theta_B) - 45;
+        theta_deltaA = std::abs(theta_A) - 45;
+        theta_deltaB = std::abs(theta_B) - 45;
         
         double dir_new  = 0;
         if(std::abs(theta_A) > std::abs(theta_B)) {
@@ -199,6 +202,7 @@ inline pos2d<_varType> getLineIntersect_2D(
         }
 
     }
+
 
     /// If the lines need to be rotated, rotate them here.
     if(theta_newDelta != 0) {
@@ -236,8 +240,9 @@ inline pos2d<_varType> getLineIntersect_2D(
     intersect_pos.y = std::roundf(intersect_pos.y*std::pow(10, precision)) / std::pow(10, precision);
 
 
-
+    // if(isnan(intersect_pos.x) || isnan(intersect_pos.y)) return pos2d<_varType>(-1, -1);
     if(limited_lines) {
+
         std::string exceptStr = std::string("ERROR: found intersection at position: ") + std::string(intersect_pos) + std::string(" but it's outside given line limitations");
         bool _throwExcept_limited_lines = false;
         if(intersect_pos.x < min(lineA_0.x, lineA_1.x)-_varType(tolerance)) {

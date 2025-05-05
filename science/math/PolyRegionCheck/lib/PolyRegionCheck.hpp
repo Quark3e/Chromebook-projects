@@ -10,6 +10,10 @@
 #include <pos2d.hpp>
 #include "line_intersect2D.hpp"
 
+
+#include "imguiwin.hpp"
+
+
 #ifndef GET_2_MIN
 #define GET_2_MIN(a, b) ((a)<(b)? (a) : (b))
 #endif //GET_2_MIN
@@ -104,8 +108,8 @@ namespace PRC {
     ) {
         if(pos_polygonPoints.size()<3) throw std::invalid_argument("ERROR: PosInPolygonPerimeter(pos2d, std::vector): pos_polygonPoints do not contain enough points to form a polygon: "+std::to_string(pos_polygonPoints.size()));
 
-        pos2d<_varType> range_min(0, 0);
-        pos2d<_varType> range_max(0, 0);
+        pos2d<_varType> range_min(pos_polygonPoints.at(0));
+        pos2d<_varType> range_max(pos_polygonPoints.at(0));
 
         /// Solve the absolute outer range of the polygon perimeter
         for(size_t i=0; i<pos_polygonPoints.size(); i++) {
@@ -128,13 +132,20 @@ namespace PRC {
         /// @brief Number of times that the pointToCheck has crossed a perimeter border.
         int perimeterTouchCount = 0;
 
-        polySide<_varType> crossingPoint(pos_pointToCheck, pos2d(range_max.x, pos_pointToCheck.y));
+        polySide<_varType> crossingPoint(pos_pointToCheck, pos2d<_varType>(range_max.x*1.01, pos_pointToCheck.y));
+
+
+        ImDrawList* drawList = ImGui::GetWindowDrawList();
+        drawList->AddLine(GUINC::toImVec2(crossingPoint.p0), GUINC::toImVec2(crossingPoint.p1), IM_COL32(100, 100, 200, 240));
+
         
         polySide<_varType> a_side(pos_polygonPoints.at(pos_polygonPoints.size()-1), pos_polygonPoints.at(0));
         if(getLineIntersect_2D(crossingPoint.p0, crossingPoint.p1, a_side.p0, a_side.p1, true, 3, 0.0001, false)!=pos2d<float>(-1, -1)) perimeterTouchCount++;
         for(size_t i=0; i<pos_polygonPoints.size()-1; i++) {
             a_side = polySide(pos_polygonPoints.at(i), pos_polygonPoints.at(i+1));
-            if(getLineIntersect_2D(crossingPoint.p0, crossingPoint.p1, a_side.p0, a_side.p1, true, 3, 0.0001, false)!=pos2d<float>(-1, -1)) perimeterTouchCount++;
+            pos2d<_varType> intersectPos = getLineIntersect_2D(crossingPoint.p0, crossingPoint.p1, a_side.p0, a_side.p1, true, 3, 0.0001, false);
+
+            if(intersectPos!=pos2d<float>(-1, -1)) perimeterTouchCount++;
         }
 
         if(perimeterTouchCount%2==0) return false;
