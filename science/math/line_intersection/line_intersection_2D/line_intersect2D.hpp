@@ -31,10 +31,7 @@
 
 
 template<typename _varType>
-inline std::vector<_varType> getLinearCoefficients(
-    pos2d<_varType> point_A,
-    pos2d<_varType> point_B
-) {
+inline std::vector<_varType> getLinearCoefficients(pos2d<_varType> point_A, pos2d<_varType> point_B) {
     if(point_A==point_B) throw std::invalid_argument("both points can't be the same");
 
     pos2d<_varType> delta(point_B-point_A);
@@ -47,10 +44,7 @@ inline std::vector<_varType> getLinearCoefficients(
 }
 
 template<typename _varType>
-inline double getTheta(
-    pos2d<_varType> pos__line_end,
-    pos2d<_varType> pos__line_pivot
-) {
+inline double getTheta(pos2d<_varType> pos__line_end, pos2d<_varType> pos__line_pivot) {
     if(pos__line_end==pos__line_pivot) throw std::invalid_argument("pos__line_end and pos__line_pivot can't be the same.");
     pos2d<_varType> delta(pos__line_end - pos__line_pivot);
     
@@ -70,11 +64,7 @@ inline double getTheta(
 }
 
 template<typename _varType>
-inline pos2d<_varType> rotateCoordinate(
-    pos2d<_varType> toRotate,
-    pos2d<_varType> centerOfRotation,
-    double          anglesToRotate_CCW
-) {
+inline pos2d<_varType> rotateCoordinate(pos2d<_varType> toRotate, pos2d<_varType> centerOfRotation, double anglesToRotate_CCW) {
     if(toRotate==centerOfRotation) throw std::invalid_argument("toRotate and centerOfRotation argument coordinates can't be the same.");
     pos2d<_varType> delta(toRotate - centerOfRotation);
 
@@ -83,7 +73,7 @@ inline pos2d<_varType> rotateCoordinate(
     pos2d<int> unitVec(0, 0);
     for(size_t i=0; i<2; i++) {
         if(magnitude[i]!=0) {
-            unitVec[i] = roundf(delta[i]/magnitude[i]);
+            unitVec[i] = std::roundf(delta[i]/magnitude[i]);
         }
         else {
         }
@@ -102,11 +92,7 @@ inline pos2d<_varType> rotateCoordinate(
 }
 
 template<typename _varType>
-inline std::vector<pos2d<_varType>> rotateCoordinates(
-    std::vector<pos2d<_varType>> coordinatesToRotate,
-    pos2d<_varType>              centerOfRotation,
-    double                       anglesToRotate_CCW
-) {
+inline std::vector<pos2d<_varType>> rotateCoordinates(std::vector<pos2d<_varType>> coordinatesToRotate, pos2d<_varType> centerOfRotation, double anglesToRotate_CCW) {
     std::vector<pos2d<_varType>> rotated(coordinatesToRotate.size());
     for(size_t i=0; i<coordinatesToRotate.size(); i++) {
         rotated[i] = rotateCoordinate(coordinatesToRotate[i], centerOfRotation, anglesToRotate_CCW);
@@ -114,7 +100,34 @@ inline std::vector<pos2d<_varType>> rotateCoordinates(
     return rotated;
 }
 
-
+/**
+ * @brief Calculates the intersection point of two 2D lines.
+ * 
+ * This function determines the intersection point of two lines in a 2D plane.
+ * It supports both limited and unlimited lines, and can handle precision and
+ * tolerance adjustments for the calculations.
+ * 
+ * @tparam _varType The data type of the coordinates (e.g., float, double).
+ * 
+ * @param lineA_0 The starting point of line A.
+ * @param lineA_1 The ending point of line A.
+ * @param lineB_0 The starting point of line B.
+ * @param lineB_1 The ending point of line B.
+ * @param limited_lines If true, the function ensures the intersection point lies
+ *                      within the bounds of the given line segments. Default is false.
+ * @param precision The number of decimal places to round the intersection point to.
+ *                  Default is 3.
+ * @param tolerance The tolerance value for boundary checks when limited_lines is true.
+ *                  Default is 0.0001.
+ * 
+ * @return pos2d<_varType> The intersection point of the two lines. If the lines
+ *                         are parallel or do not intersect, the function returns
+ *                         a default value of (-1, -1).
+ * 
+ * @throws std::invalid_argument If the start and end points of either line are the same.
+ * @throws std::runtime_error If limited_lines is true and the intersection point
+ *                            lies outside the bounds of the given line segments.
+ */
 template<typename _varType>
 inline pos2d<_varType> getLineIntersect_2D(
     pos2d<_varType> lineA_0,
@@ -215,8 +228,8 @@ inline pos2d<_varType> getLineIntersect_2D(
         lineB_1 = rotateCoordinate(lineB_1, pivot_point, -theta_newDelta);
     }
 
-    intersect_pos.x = roundf(intersect_pos.x*pow(10, precision)) / pow(10, precision);
-    intersect_pos.y = roundf(intersect_pos.y*pow(10, precision)) / pow(10, precision);
+    intersect_pos.x = std::roundf(intersect_pos.x*std::pow(10, precision)) / std::pow(10, precision);
+    intersect_pos.y = std::roundf(intersect_pos.y*std::pow(10, precision)) / std::pow(10, precision);
 
 
 
