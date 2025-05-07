@@ -37,10 +37,11 @@ extern pressed_key__struct guiKeys;
  */
 extern size_t selectable_itemID;
 /**
- * Whether a selectable item has been selected
+ * Index to the selectable itemID carry number that's been selected. `-1` means nothing has been selected
+ * 
  * 
  */
-extern bool selectable_isSelected;
+extern int selectable_isSelected;
 
 
 extern SOC::CamSystem camSys;

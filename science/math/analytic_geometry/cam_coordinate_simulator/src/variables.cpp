@@ -26,7 +26,7 @@ pressed_key__struct guiKeys;
 
 
 size_t selectable_itemID = 0;
-bool selectable_isSelected = false;
+int selectable_isSelected = -1;
 
 
 SOC::CamSystem camSys({500, 200}, {

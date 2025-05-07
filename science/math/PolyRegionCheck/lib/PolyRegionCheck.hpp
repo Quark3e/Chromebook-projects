@@ -99,6 +99,38 @@ namespace PRC {
 
     };
 
+
+    /**
+     * @brief Determines if a given point lies within the perimeter of a polygon.
+     * 
+     * This function checks whether a specified point is inside the perimeter of a polygon
+     * defined by a set of vertices. It also optionally calculates the minimum and maximum
+     * bounding ranges of the polygon.
+     * 
+     * @tparam _varType The data type of the coordinates (e.g., float, double, int).
+     * @param pos_pointToCheck The point to check for inclusion within the polygon perimeter.
+     * @param pos_polygonPoints A vector of points representing the vertices of the polygon.
+     *                          The polygon must have at least 3 points.
+     * @param _get_range_min (Optional) Pointer to store the minimum bounding range of the polygon.
+     * @param _get_range_max (Optional) Pointer to store the maximum bounding range of the polygon.
+     * @return true If the point lies within the polygon perimeter.
+     * @return false If the point lies outside the polygon perimeter.
+     * 
+     * @throws std::invalid_argument If the polygon does not have enough points to form a valid polygon.
+     * 
+     * @details
+     * - The function first calculates the bounding box of the polygon and performs a quick
+     *   check to see if the point lies within this bounding box.
+     * - If the point is within the bounding box, the function uses a ray-casting algorithm
+     *   to determine the number of times a ray extending from the point crosses the polygon's edges.
+     * - If the number of crossings is odd, the point is inside the polygon; otherwise, it is outside.
+     * - The function uses helper functions such as `getLineIntersect_2D` to calculate intersections.
+     * 
+     * @note
+     * - The function assumes the polygon is defined in a 2D Cartesian coordinate system.
+     * @note
+     * - The function uses ImGui's drawing utilities for debugging purposes (e.g., visualizing the ray).
+     */
     template<typename _varType>
     bool PosInPolygonPerimeter(
         pos2d<_varType> pos_pointToCheck,
