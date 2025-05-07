@@ -17,10 +17,10 @@
 #endif
 
 
-#ifndef EXTRACT_NUM
+#ifndef CARRYNUM
 #include <cmath>
-#define EXTRACT_NUM(_NUM, _CARRY, _BASE) ((_NUM)/std::pow(_BASE,_CARRY))-(std::roundf((_NUM)/std::pow(_BASE,_CARRY+1))*std::pow(_BASE,1))
-#endif //EXTRACT_NUM
+#define CARRYNUM(_NUM, _CARRY, _BASE) ((_NUM)/std::pow((_BASE),(_CARRY)))-(std::roundf((_NUM)/std::pow((_BASE),(_CARRY)+1))*std::pow((_BASE),1))
+#endif //CARRYNUM
 
 
 

@@ -45,8 +45,9 @@ namespace DRMETHS {
      * 
      * @param _CamU_toDraw reference to the CamU object to draw.
      * @param _drawFOV whether to draw the CamU's FOV lines to indicate the range.
+     * @param _drawState the state at which the CamU is to be draw: [`0`: default, `1`: hovered, `2`: selected]
      */
-    void draw_camUnit(SOC::CamU &_CamU_toDraw, bool _drawFOV=false);
+    void draw_camUnit(SOC::CamU &_CamU_toDraw, bool _drawFOV=false, int _drawState=0);
     /**
      * @brief Draw an angle arc onto current window of ImGui
      * 

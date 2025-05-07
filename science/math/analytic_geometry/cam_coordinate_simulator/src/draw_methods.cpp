@@ -41,7 +41,13 @@ namespace DRMETHS {
         return returnCorners;
     }
     
-    void draw_camUnit(SOC::CamU &_CamU_toDraw, bool _drawFOV) {
+    void draw_camUnit(SOC::CamU &_CamU_toDraw, bool _drawFOV, int _drawState) {
+        static std::vector<ImGuiCol> camUnit_drawColour{
+            int(IM_COL32(100, 200, 150, 255)),
+            int(IM_COL32(120, 210, 110, 255)),
+            int(IM_COL32(160, 250, 200, 255))
+        };
+
 
         pos2d<double> posOffset(0, 0);
         
@@ -63,12 +69,12 @@ namespace DRMETHS {
         posOffset.x = cos(toRADIANS(_CamU_toDraw.angle))*SOC::drawCamU_lens.y/2;
         posOffset.y = -sin(toRADIANS(_CamU_toDraw.angle))*SOC::drawCamU_lens.y/2;
 
-        _CamU_toDraw.pos_shape = drawRect(_CamU_toDraw.pos() - posOffset, SOC::drawCamU_lens, -(_CamU_toDraw.angle-90), IM_COL32(100, 200, 150, 255), 1, RectCrnrs_BotRight, -1, false);
+        _CamU_toDraw.pos_shape = drawRect(_CamU_toDraw.pos() - posOffset, SOC::drawCamU_lens, -(_CamU_toDraw.angle-90), camUnit_drawColour.at(_drawState), 1, RectCrnrs_BotRight, -1, false);
 
         posOffset.x += cos(toRADIANS(_CamU_toDraw.angle))*(SOC::drawCamU_lens.y+SOC::drawCamU_box.y/2);
         posOffset.y -= sin(toRADIANS(_CamU_toDraw.angle))*(SOC::drawCamU_lens.y+SOC::drawCamU_box.y/2);
 
-        auto temp_pos_shape = drawRect(_CamU_toDraw.pos() - posOffset, SOC::drawCamU_box,  -(_CamU_toDraw.angle-90), IM_COL32(100, 200, 150, 255), 1, RectCrnrs_TopLeft, -1, false);
+        auto temp_pos_shape = drawRect(_CamU_toDraw.pos() - posOffset, SOC::drawCamU_box,  -(_CamU_toDraw.angle-90), camUnit_drawColour.at(_drawState), 1, RectCrnrs_TopLeft, -1, false);
         _CamU_toDraw.pos_shape.insert(_CamU_toDraw.pos_shape.end(), temp_pos_shape.begin(), temp_pos_shape.end());
         _CamU_toDraw.pos_shape.push_back(_CamU_toDraw.pos_shape.at(0));
         

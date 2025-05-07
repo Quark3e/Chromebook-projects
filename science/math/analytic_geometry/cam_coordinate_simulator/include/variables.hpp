@@ -20,18 +20,20 @@ extern DIY_KBH::keyBind_handler keyBinds;
 extern pressed_key__struct guiKeys;
 
 /**
- * ID of the currently selected selectable item with sub categories in base 10
+ * The states of each selectable item is depicted here by each carry number, starting from right hand side n*10^0.
  * 
- * Structure of the total number accordance to base 10 value (ex. `2` means 10^2):
- * - `0`: ID of moveable item (objectPos, CamU[0], CamU[1])
- * - `1`: ID of type of movement (axial positioning, rotation)
+ * Each selectable items ID is stored with each carry number, and the state of each selectable item is stored as the carry factor.
+ * Selectable itemID: 
+ *  - 10^0: objectPos
+ *  - 10^1: CamU[0]
+ *  - 10^2: CamU[1]
+ *  - 10^3: CamU[2]
  * 
- * item ID's:
- * - `000` move pos of CamU[0]
- * - `001` move pos of CamU[1]
- * - `011` rotate orient of CamU[1]
- * - `009` move objectPos
- * 
+ * Item state:
+ *  - 0: Default
+ *  - 1: Hovered
+ *  - 2: Selected: Move
+ *  - 3: Selected: Rotate (only CamU)
  */
 extern size_t selectable_itemID;
 /**
