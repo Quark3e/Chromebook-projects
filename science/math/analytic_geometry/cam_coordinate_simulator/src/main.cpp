@@ -23,12 +23,15 @@ int main(int argc, char** argv) {
     
 
             // int selected_camSys = -1;
+            int selectable_itemID_hovered = -1;
             if(selectable_isSelected<0) {
                 selectable_itemID = 0;
                 for(size_t i=0; i<camSys.size(); i++) {
+                    if(camSys[i].pos_shape.size()<2) continue;
                     if(PRC::PosInPolygonPerimeter(GUINC::toPos2d(io.MousePos).cast<double>(), camSys[i].pos_shape)) {
                         // selected_camSys = static_cast<int>(i);
                         selectable_itemID += 1*std::pow(10, i+1);
+                        selectable_itemID_hovered = i+1;
                     }
                     else {
                         selectable_itemID -= CARRYNUM(selectable_itemID, i+1, 10);
@@ -42,10 +45,14 @@ int main(int argc, char** argv) {
 
                 // selectable_isSelected = true;
                 /// Iterate through every power of 10
-                for(size_t n=0; n<8*sizeof(size_t)*std::log(2); n++) {
+                for(int n=8*sizeof(size_t)*std::log(2); n>=0; n--) {
                     
                 }
-                std::cout << sizeof(size_t) << std::endl;
+                if(selectable_itemID_hovered>=0) {
+                    /// An item that was hovered over has been clicked.
+                    selectable_isSelected = static_cast<size_t>(selectable_itemID_hovered);
+                }
+                // std::cout << sizeof(size_t) << std::endl;
 
             }
             else if(keyBinds.pressing("MouseLeft")) { /// Left mouse button is being pressed
@@ -66,8 +73,19 @@ int main(int argc, char** argv) {
     
             for(size_t i=0; i<camSys.size(); i++) {
                 // DRMETHS::draw_camUnit(camSys[i].pos(), camSys[i].angle, true, camSys[i].FOV);
-                DRMETHS::draw_camUnit(camSys[i], true);
+                int drawState = 0;
+                if(CARRYNUM(selectable_itemID, i+1, 10)==1) {
+                    drawState = 2;
+                    std::cout << "pressed";
+                }
+                else if(i==selectable_itemID_hovered-1) {
+                    drawState = 1;
+                    std::cout << "hover";
+                }
+                else drawState = 0;
+                DRMETHS::draw_camUnit(camSys[i], true, drawState);
             }
+            std::cout << std::endl;
     
             guiwin.endFrame();
         }

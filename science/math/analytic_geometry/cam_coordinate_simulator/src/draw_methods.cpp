@@ -43,9 +43,9 @@ namespace DRMETHS {
     
     void draw_camUnit(SOC::CamU &_CamU_toDraw, bool _drawFOV, int _drawState) {
         static std::vector<ImGuiCol> camUnit_drawColour{
-            int(IM_COL32(100, 200, 150, 255)),
-            int(IM_COL32(120, 210, 110, 255)),
-            int(IM_COL32(160, 250, 200, 255))
+            int(IM_COL32(100, 10, 150, 255)),
+            int(IM_COL32(180, 210, 190, 255)),
+            int(IM_COL32( 80,  50,  20, 255))
         };
 
 
@@ -76,12 +76,12 @@ namespace DRMETHS {
 
         auto temp_pos_shape = drawRect(_CamU_toDraw.pos() - posOffset, SOC::drawCamU_box,  -(_CamU_toDraw.angle-90), camUnit_drawColour.at(_drawState), 1, RectCrnrs_TopLeft, -1, false);
         _CamU_toDraw.pos_shape.insert(_CamU_toDraw.pos_shape.end(), temp_pos_shape.begin(), temp_pos_shape.end());
-        _CamU_toDraw.pos_shape.push_back(_CamU_toDraw.pos_shape.at(0));
+        // _CamU_toDraw.pos_shape.push_back(_CamU_toDraw.pos_shape.at(0));
         
         for(size_t i=0; i<_CamU_toDraw.pos_shape.size()-1; i++) {
-            drawList->AddLine(GUINC::toImVec2(_CamU_toDraw.pos_shape.at(i)), GUINC::toImVec2(_CamU_toDraw.pos_shape.at(i+1)), IM_COL32(200, 100, 150, 255), 1);
+            drawList->AddLine(GUINC::toImVec2(_CamU_toDraw.pos_shape.at(i)), GUINC::toImVec2(_CamU_toDraw.pos_shape.at(i+1)), camUnit_drawColour.at(_drawState), 1);
         }
-        drawList->AddLine(GUINC::toImVec2(_CamU_toDraw.pos_shape.at(_CamU_toDraw.pos_shape.size()-1)), GUINC::toImVec2(_CamU_toDraw.pos_shape.at(0)), IM_COL32(200, 100, 150, 255), 1);
+        drawList->AddLine(GUINC::toImVec2(_CamU_toDraw.pos_shape.at(_CamU_toDraw.pos_shape.size()-1)), GUINC::toImVec2(_CamU_toDraw.pos_shape.at(0)), camUnit_drawColour.at(_drawState), 1);
 
     }
 

@@ -164,7 +164,7 @@ namespace PRC {
         /// @brief Number of times that the pointToCheck has crossed a perimeter border.
         int perimeterTouchCount = 0;
 
-        polySide<_varType> crossingPoint(pos_pointToCheck, pos2d<_varType>(range_max.x*1.01, pos_pointToCheck.y));
+        polySide<_varType> crossingPoint(pos_pointToCheck, pos2d<_varType>(range_max.x*1.1, pos_pointToCheck.y));
 
 
         ImDrawList* drawList = ImGui::GetWindowDrawList();
@@ -172,12 +172,12 @@ namespace PRC {
 
         
         polySide<_varType> a_side(pos_polygonPoints.at(pos_polygonPoints.size()-1), pos_polygonPoints.at(0));
-        if(getLineIntersect_2D(crossingPoint.p0, crossingPoint.p1, a_side.p0, a_side.p1, true, 3, 0.0001, false)!=pos2d<float>(-1, -1)) perimeterTouchCount++;
+        if(getLineIntersect_2D(crossingPoint.p0, crossingPoint.p1, a_side.p0, a_side.p1, true, 3, 0.0001, false)!=pos2d<_varType>(-1, -1)) perimeterTouchCount++;
         for(size_t i=0; i<pos_polygonPoints.size()-1; i++) {
             a_side = polySide(pos_polygonPoints.at(i), pos_polygonPoints.at(i+1));
             pos2d<_varType> intersectPos = getLineIntersect_2D(crossingPoint.p0, crossingPoint.p1, a_side.p0, a_side.p1, true, 3, 0.0001, false);
 
-            if(intersectPos!=pos2d<float>(-1, -1)) perimeterTouchCount++;
+            if(intersectPos!=pos2d<_varType>(-1, -1)) perimeterTouchCount++;
         }
 
         if(perimeterTouchCount%2==0) return false;

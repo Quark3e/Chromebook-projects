@@ -11,7 +11,7 @@ set(
     CMAKE_PREFIX_PATH
     ${DIR_ROOT}/teststuff/cpp/gui/lib_imguiwin/lib/build/
     ${DIR_ROOT}/teststuff/cpp/useful/lib_SystemOfCameras/build/
-    ${REPO_ROOT}/science/math/PolyRegionCheck/lib/build/
+    ${DIR_ROOT}/science/math/PolyRegionCheck/lib/build/
 )
 
 find_package(imguiwin REQUIRED)
