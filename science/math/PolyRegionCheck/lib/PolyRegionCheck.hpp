@@ -167,8 +167,9 @@ namespace PRC {
         polySide<_varType> crossingPoint(pos_pointToCheck, pos2d<_varType>(range_max.x*1.1, pos_pointToCheck.y));
 
 
-        ImDrawList* drawList = ImGui::GetWindowDrawList();
-        drawList->AddLine(GUINC::toImVec2(crossingPoint.p0), GUINC::toImVec2(crossingPoint.p1), IM_COL32(100, 100, 200, 240));
+        // /// To display the crossing line.
+        // ImDrawList* drawList = ImGui::GetWindowDrawList();
+        // drawList->AddLine(GUINC::toImVec2(crossingPoint.p0), GUINC::toImVec2(crossingPoint.p1), IM_COL32(100, 100, 200, 240));
 
         
         polySide<_varType> a_side(pos_polygonPoints.at(pos_polygonPoints.size()-1), pos_polygonPoints.at(0));

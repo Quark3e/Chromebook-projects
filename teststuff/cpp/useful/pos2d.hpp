@@ -227,6 +227,16 @@ struct pos2d {
         );
     }
 
+    double getTheta(pos2d pivotPoint) {
+        pos2d delta(x-pivotPoint.x, y-pivotPoint.y);
+        
+        if(delta.y>0) {
+            return acos(delta.x/delta.getHypotenuse());
+        }
+        else {
+            return 2.0*M_PI-acos(delta.x/delta.getHypotenuse());
+        }
+    }
 
     int _printPrecision = 2;
     int _printWidth     = 0;

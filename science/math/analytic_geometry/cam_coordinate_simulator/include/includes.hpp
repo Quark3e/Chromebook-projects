@@ -10,7 +10,7 @@
 
 #include "imguiwin.hpp"
 #include "SystemOfCameras.hpp"
-// #include "PolyRegionCheck.hpp"
+#include "PolyRegionCheck.hpp"
 
 #include <keyBind_handler.hpp>
 #include <nodeChart/extra_imgui.hpp>

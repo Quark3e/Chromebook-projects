@@ -44,8 +44,8 @@ namespace DRMETHS {
     void draw_camUnit(SOC::CamU &_CamU_toDraw, bool _drawFOV, int _drawState) {
         static std::vector<ImGuiCol> camUnit_drawColour{
             int(IM_COL32(100, 10, 150, 255)),
-            int(IM_COL32(180, 210, 190, 255)),
-            int(IM_COL32( 80,  50,  20, 255))
+            int(IM_COL32(150, 60, 180, 255)),
+            int(IM_COL32(200, 160, 220, 255))
         };
 
 
@@ -53,30 +53,25 @@ namespace DRMETHS {
         
         ImDrawList* drawList = ImGui::GetWindowDrawList();
 
-
+        /// CamU draw: FOV arc
         if(_drawFOV) {
             draw_angleArc(_CamU_toDraw.pos(), _CamU_toDraw.angle, _CamU_toDraw.FOV, 50, 100);
         }
-        /**
-         * Default state because an angle of 0 degrees means the camera center axis is facing right along x axis,
-         * but drawRect draws it as if the center is facing up, along the y axis (with current width/height dimensions.)
-         * 
-         */
-        // _angle -= 90;
 
+        /// CamU draw: Absolute center
         drawList->AddCircle(GUINC::toImVec2(_CamU_toDraw.pos()), 2, IM_COL32(200,200,200,200),10);
 
+        /// CamU draw: part: "lens"
         posOffset.x = cos(toRADIANS(_CamU_toDraw.angle))*SOC::drawCamU_lens.y/2;
         posOffset.y = -sin(toRADIANS(_CamU_toDraw.angle))*SOC::drawCamU_lens.y/2;
-
         _CamU_toDraw.pos_shape = drawRect(_CamU_toDraw.pos() - posOffset, SOC::drawCamU_lens, -(_CamU_toDraw.angle-90), camUnit_drawColour.at(_drawState), 1, RectCrnrs_BotRight, -1, false);
 
+        /// CamU draw: part: "body"
         posOffset.x += cos(toRADIANS(_CamU_toDraw.angle))*(SOC::drawCamU_lens.y+SOC::drawCamU_box.y/2);
         posOffset.y -= sin(toRADIANS(_CamU_toDraw.angle))*(SOC::drawCamU_lens.y+SOC::drawCamU_box.y/2);
-
         auto temp_pos_shape = drawRect(_CamU_toDraw.pos() - posOffset, SOC::drawCamU_box,  -(_CamU_toDraw.angle-90), camUnit_drawColour.at(_drawState), 1, RectCrnrs_TopLeft, -1, false);
         _CamU_toDraw.pos_shape.insert(_CamU_toDraw.pos_shape.end(), temp_pos_shape.begin(), temp_pos_shape.end());
-        // _CamU_toDraw.pos_shape.push_back(_CamU_toDraw.pos_shape.at(0));
+
         
         for(size_t i=0; i<_CamU_toDraw.pos_shape.size()-1; i++) {
             drawList->AddLine(GUINC::toImVec2(_CamU_toDraw.pos_shape.at(i)), GUINC::toImVec2(_CamU_toDraw.pos_shape.at(i+1)), camUnit_drawColour.at(_drawState), 1);
@@ -94,12 +89,14 @@ namespace DRMETHS {
 
         ImDrawList* drawList = ImGui::GetWindowDrawList();
 
+        /// Draw: Arc center line.
         drawList->AddLine(
             GUINC::toImVec2(_pos),
             GUINC::toImVec2(_pos+pos2d<double>(cos(toRADIANS(_offsCenterAngle))*(_radius+_radius_extra), -sin(toRADIANS(_offsCenterAngle))*(_radius+_radius_extra))),
             IM_COL32(250, 100, 100, 100)
         );
 
+        /// Draw: Arc center line end point.
         drawList->AddCircle(GUINC::toImVec2(_pos+pos2d<double>(cos(toRADIANS(_offsCenterAngle))*(_radius+_radius_extra), -sin(toRADIANS(_offsCenterAngle))*(_radius+_radius_extra))), 10, IM_COL32(80, 80, 80, 150), 20);
         
         arcPoints_line.at(0).x = _pos.x + cos(toRADIANS(_offsCenterAngle+_arcAngle/2))*(_radius+_radius_extra);
