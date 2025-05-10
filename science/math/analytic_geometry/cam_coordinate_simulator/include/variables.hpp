@@ -14,7 +14,8 @@ extern pos2d<int> dim__infoBox_CamU;
 
 /// @brief 2d position of the drawing area's  top left corner
 extern pos2d<int> pos__draw_area;
-
+/// @brief Location of the center point within the draw_area's cartesian coordinate map
+extern pos2d<int> pos__draw_area_loc;
 
 extern GUINC::imguiwin guiwin;
 

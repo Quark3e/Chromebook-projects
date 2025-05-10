@@ -148,6 +148,9 @@ namespace DRMETHS {
         ImGui::TextWrapped("Position: (%.2f, %.2f)", _CamU_ref.pos().x, _CamU_ref.pos().y);
         ImGui::TextWrapped("Angle: %.2f degrees", _CamU_ref.angle);
         ImGui::TextWrapped("Field of View: %.2f degrees", _CamU_ref.FOV);
+        
+        ImGui::Separator();
+        ImGui::TextWrapped("Angle to object: %.2f degrees", _CamU_ref.toObjectAngle);
         // ImGui::Text("Draw State: %d", _CamU_ref.drawState);
     
         ImGui::Separator();

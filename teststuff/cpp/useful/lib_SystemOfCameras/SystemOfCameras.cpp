@@ -152,6 +152,7 @@ namespace SOC {
             try {
                 double _toObjAngle = __system_CamU.at(i).getCamAngle(__objectPos);
                 __system_CamU_angles.at(i) = _toObjAngle;
+                __system_CamU.at(i).toObjectAngle = _toObjAngle;
             }
             catch(const std::exception& e) {
                 __system_CamU_angles.at(i) = -1;

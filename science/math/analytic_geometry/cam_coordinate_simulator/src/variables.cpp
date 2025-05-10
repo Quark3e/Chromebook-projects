@@ -8,7 +8,7 @@ pos2d<int> dim__draw_area(dim__programWindow);
 pos2d<int> dim__infoBox_CamU{200, 200};
 
 pos2d<int> pos__draw_area{0, 0};
-
+pos2d<int> pos__draw_area_loc{0, 0};
 
 GUINC::imguiwin guiwin(false, dim__programWindow.x, dim__programWindow.y);
 

@@ -41,6 +41,8 @@ namespace SOC {
         double angle = 90;
         double FOV = 135;
 
+        double toObjectAngle = 0;
+        
         /**
          * Coordinates to the points that make up the shape of this CamU.
          * used for gui interaction with the CamU.

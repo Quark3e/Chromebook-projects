@@ -118,7 +118,6 @@ int main(int argc, char** argv) {
                             break;
                             case 3: {
                                 pos2d<double> pivPoint(camSys[selectable_isSelected-1].x, camSys[selectable_isSelected-1].y);
-                                // pivPoint += ((posMousePos-moveObject_mouseOffset-pivPoint)*2);
                                 pivPoint.y += ((posMousePos.y-moveObject_mouseOffset.y-pivPoint.y)*2);
 
                                 camSys[selectable_isSelected-1].angle = toDEGREES((posMousePos - moveObject_mouseOffset).getTheta(
@@ -146,6 +145,8 @@ int main(int argc, char** argv) {
                 std::advance(itr, selectable_itemID_hovered-1);
                 *itr = true;
             }
+
+            camSys.update();
 
             /// ---------- Drawing ----------
 
