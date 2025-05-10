@@ -41,14 +41,6 @@ namespace DRMETHS {
     std::vector<pos2d<double>> drawRect(pos2d<double> _rectCenter, pos2d<double> _rectDim, double _angle, ImU32 _col, float _thickness = (1.0F), RectCrnrs _startCorner = RectCrnrs_TopLeft, int _createDir=1, bool _drawRect=true);
 
     /**
-     * @brief Draw the referenced `SOCK::CamU` object onto current window of ImGui
-     * 
-     * @param _CamU_toDraw reference to the CamU object to draw.
-     * @param _drawFOV whether to draw the CamU's FOV lines to indicate the range.
-     * @param _drawState the state at which the CamU is to be draw: [`0`: default, `1`: hovered, `2`: selected]
-     */
-    void draw_camUnit(SOC::CamU &_CamU_toDraw, bool _drawFOV=false, int _drawState=0);
-    /**
      * @brief Draw an angle arc onto current window of ImGui
      * 
      * @param _pos 2 value container for the coordinate position of the angle origo/origin.
@@ -59,8 +51,17 @@ namespace DRMETHS {
      */
     void draw_angleArc(pos2d<double> _pos, double _offsCenterAngle, double _arcAngle, double _radius, double _radius_extra=0);
     
-    // void draw_line(pos2d<double> _pos1, pos2d<double> _pos2);
+    /**
+     * @brief Draw the referenced `SOCK::CamU` object onto current window of ImGui
+     * 
+     * @param _CamU_toDraw reference to the CamU object to draw.
+     * @param _drawFOV whether to draw the CamU's FOV lines to indicate the range.
+     * @param _drawState the state at which the CamU is to be draw: [`0`: default, `1`: hovered, `2`: selected]
+     */
+    void draw_camUnit(SOC::CamU &_CamU_toDraw, bool _drawFOV=false, int _drawState=0);
 
+    
+    void draw_infoBox_camUnit(SOC::CamU &_CamU_ref, bool *_openPtr, pos2d<int> _infoBox_dim=pos2d<int>{100, 100});
 };
 
 

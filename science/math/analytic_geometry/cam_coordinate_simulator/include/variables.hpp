@@ -5,10 +5,12 @@
 #include "includes.hpp"
 #include "constants.hpp"
 
-/// @brief 2d dimension of the program window
+/// @brief 2d dimensions of the program window
 extern pos2d<int> dim__programWindow;
-/// @brief 2d dimension of the drawing area
+/// @brief 2d dimensions of the drawing area
 extern pos2d<int> dim__draw_area;
+/// @brief 2d dimensions of CamU info boxes
+extern pos2d<int> dim__infoBox_CamU;
 
 /// @brief 2d position of the drawing area's  top left corner
 extern pos2d<int> pos__draw_area;
@@ -45,6 +47,11 @@ extern int selectable_isSelected;
 
 
 extern SOC::CamSystem camSys;
+/**
+ * Container for boolean values determining whether the infoBox for a given CamU object is to be drawn.
+ * 
+ */
+extern std::list<bool> infoBox_open_CamU;
 
 
 #endif //HPP__CAM_COORDINATE_SIMULATOR__VARIABLES

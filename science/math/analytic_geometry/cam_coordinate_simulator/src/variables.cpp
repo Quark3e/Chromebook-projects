@@ -5,6 +5,7 @@
 
 pos2d<int> dim__programWindow{DEFAULT__WINDOW_WIDTH, DEFAULT__WINDOW_HEIGHT};
 pos2d<int> dim__draw_area(dim__programWindow);
+pos2d<int> dim__infoBox_CamU{200, 200};
 
 pos2d<int> pos__draw_area{0, 0};
 
@@ -34,3 +35,4 @@ SOC::CamSystem camSys({500, 200}, {
     {90, 110, 700, 500}
 });
 
+std::list<bool> infoBox_open_CamU(camSys.size(), false);
