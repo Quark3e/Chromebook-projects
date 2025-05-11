@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
             camSys.update();
     
             
-            pos2d<double> posMousePos(io.MousePos.x, io.MousePos.y);
+            pos2d<double> inRealMousePos(func_convPos_pxToReal(GUINC::toPos2d(io.MousePos).cast<double>()));
 
             int selectable_itemID_hovered = -1;
             /**
@@ -42,14 +42,14 @@ int main(int argc, char** argv) {
                 for(size_t i=0; i<camSys.size(); i++) {
                     if(camSys[i].pos_shape.size()<2) continue;
 
-                    pos2d<double> CamU_FOV_centerLine_point(camSys[i].x+cos(toRADIANS(camSys[i].angle))*(50+100), camSys[i].y-sin(toRADIANS(camSys[i].angle))*(50+100));
-                    if(PRC::PosInPolygonPerimeter(posMousePos, camSys[i].pos_shape)) { /// Hover: type 2 selected: Move item: CamU
+                    pos2d<double> CamU_FOV_centerLine_point(camSys[i].x+cos(toRADIANS(camSys[i].angle))*(50+100), camSys[i].y+sin(toRADIANS(camSys[i].angle))*(50+100));
+                    if(PRC::PosInPolygonPerimeter(inRealMousePos, camSys[i].pos_shape)) { /// Hover: type 2 selected: Move item: CamU
                         
                         selectable_itemID += 1*std::pow(10, i+1);
                         selectable_itemID_hovered = i+1;
                         selectable_itemID_typeOfHover = 2;
                     }
-                    else if(posMousePos.inRegion(CamU_FOV_centerLine_point-pos2d<double>(10, 10), CamU_FOV_centerLine_point+pos2d<double>(10, 10))) { /// Hover: type 3 selected: Rotate item: CamU
+                    else if(inRealMousePos.inRegion(CamU_FOV_centerLine_point-pos2d<double>(10, 10), CamU_FOV_centerLine_point+pos2d<double>(10, 10))) { /// Hover: type 3 selected: Rotate item: CamU
 
                         selectable_itemID += 1*std::pow(10, i+1);
                         selectable_itemID_hovered = i+1;
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
 
                 }
 
-                if(posMousePos.inRegion(camSys.get_objectPos()-pos2d<double>(10,10), camSys.get_objectPos()+pos2d<double>(10,10))) { /// Hover: type 2 selected: Move item: objectPos
+                if(inRealMousePos.inRegion(camSys.get_objectPos()-pos2d<double>(10,10), camSys.get_objectPos()+pos2d<double>(10,10))) { /// Hover: type 2 selected: Move item: objectPos
 
                     selectable_itemID += 1;
                     selectable_itemID_hovered = 0;
@@ -81,18 +81,18 @@ int main(int argc, char** argv) {
                     
                     if(selectable_isSelected==0) { /// The object pos has been chosen to be moved
                         selectable_itemID += 1*std::pow(10, selectable_itemID_hovered); // +=1 because the item is already hovered over.
-                        moveObject_mouseOffset = posMousePos - camSys.get_objectPos();
+                        moveObject_mouseOffset = inRealMousePos - camSys.get_objectPos();
                     }
                     else if(selectable_isSelected>0 && selectable_isSelected<camSys.size()+1 && camSys.size()>0) { /// An CamU object has been chosen
                         SOC::CamU& camU_ref = camSys[selectable_isSelected-1];
                         switch (selectable_itemID_typeOfHover) {
                             case 2: /// itemID: CamU: type of hover: move
                             selectable_itemID += 1*std::pow(10, selectable_itemID_hovered);
-                            moveObject_mouseOffset = posMousePos - camU_ref.pos();
+                            moveObject_mouseOffset = inRealMousePos - camU_ref.pos();
                             break;
                             case 3:  /// itemID: CamU: type of hover: rotate
                             selectable_itemID += 2*std::pow(10, selectable_itemID_hovered);
-                            moveObject_mouseOffset = posMousePos - pos2d<double>(camU_ref.x+cos(toRADIANS(camU_ref.angle))*(50+100), camU_ref.y-sin(toRADIANS(camU_ref.angle))*(50+100));
+                            moveObject_mouseOffset = inRealMousePos - pos2d<double>(camU_ref.x+cos(toRADIANS(camU_ref.angle))*(50+100), camU_ref.y+sin(toRADIANS(camU_ref.angle))*(50+100));
     
                             break;
                             default: throw std::logic_error("Invalid selectable_itemID_typeOfHover value: "+std::to_string(selectable_itemID_typeOfHover));
@@ -106,21 +106,21 @@ int main(int argc, char** argv) {
                 if(selectable_isSelected>=0) { /// a selected item is being moved/manipulated by left mouse button
                     if(selectable_isSelected==0) {
                         /// moving the object pos
-                        camSys.set_objectPos(posMousePos-moveObject_mouseOffset);
+                        camSys.set_objectPos(inRealMousePos-moveObject_mouseOffset);
                     }
                     else if(selectable_isSelected>0 && selectable_isSelected<camSys.size()+1 && camSys.size()>0) { /// moving one of the camU objects
                         size_t typeOfSelected = CARRYNUM(selectable_itemID, selectable_isSelected, 10);
                         switch (typeOfSelected) {
                             case 2:
-                            camSys[selectable_isSelected-1].x = posMousePos.x - moveObject_mouseOffset.x;
-                            camSys[selectable_isSelected-1].y = posMousePos.y - moveObject_mouseOffset.y;
+                            camSys[selectable_isSelected-1].x = inRealMousePos.x - moveObject_mouseOffset.x;
+                            camSys[selectable_isSelected-1].y = inRealMousePos.y - moveObject_mouseOffset.y;
                             
                             break;
                             case 3: {
                                 pos2d<double> pivPoint(camSys[selectable_isSelected-1].x, camSys[selectable_isSelected-1].y);
-                                pivPoint.y += ((posMousePos.y-moveObject_mouseOffset.y-pivPoint.y)*2);
+                                // pivPoint.y += ((inRealMousePos.y-moveObject_mouseOffset.y-pivPoint.y)*2);
 
-                                camSys[selectable_isSelected-1].angle = toDEGREES((posMousePos - moveObject_mouseOffset).getTheta(
+                                camSys[selectable_isSelected-1].angle = toDEGREES((inRealMousePos - moveObject_mouseOffset).getTheta(
                                     pos2d<double>(pivPoint.x, pivPoint.y)
                                 ));
                                 
@@ -173,28 +173,35 @@ int main(int argc, char** argv) {
             default:
                 break;
             }
-            winDrawList->AddCircleFilled(GUINC::toImVec2(camSys.get_objectPos()), 10, objectPos_colours.at(objectPos_drawState), 10);
+            winDrawList->AddCircleFilled(GUINC::toImVec2(func_convPos_realToPx(camSys.get_objectPos())), 10, objectPos_colours.at(objectPos_drawState), 10);
             
-            pos2d<double> CamU_FOV_centerLine_point(0, 0);
             for(size_t i=0; i<camSys.size(); i++) {
                 int drawState = 0;
                 switch (size_t(CARRYNUM(selectable_itemID, i+1, 10))) {
                     case 1: drawState = 1; break;
                     case 2: drawState = 2; break;
                     case 3: 
-                        // CamU_FOV_centerLine_point = pos2d<double>(camSys[i].x+cos(toRADIANS(camSys[i].angle))*(50+100), camSys[i].y-sin(toRADIANS(camSys[i].angle))*(50+100));
-                        winDrawList->AddCircle(ImVec2(camSys[i].x+cos(toRADIANS(camSys[i].angle))*(50+100), camSys[i].y-sin(toRADIANS(camSys[i].angle))*(50+100)), 10, IM_COL32(130, 130, 130, 150), 20, 3);
+                        winDrawList->AddCircle(
+                            GUINC::toImVec2(func_convPos_realToPx({
+                                camSys[i].x+cos(toRADIANS(camSys[i].angle))*(50+100),
+                                camSys[i].y+sin(toRADIANS(camSys[i].angle))*(50+100)
+                            })),
+                            10,
+                            IM_COL32(130, 130, 130, 150),
+                            20,
+                            3
+                        );
                         break;
                 default:
                     drawState = 0;
                     break;
                 }
 
-                DRMETHS::draw_camUnit(camSys[i], true, drawState);
+                draw_camUnit(camSys[i], true, drawState);
 
                 auto itr = infoBox_open_CamU.begin();
                 std::advance(itr, i);
-                DRMETHS::draw_infoBox_camUnit(camSys[i], &(*itr), dim__infoBox_CamU);
+                draw_infoBox_camUnit(camSys[i], &(*itr), dim__infoBox_CamU);
             }
             
 

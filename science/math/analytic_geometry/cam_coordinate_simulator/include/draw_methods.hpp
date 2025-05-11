@@ -50,18 +50,7 @@ namespace DRMETHS {
      * @param _radius_extra extra length of the arc sides/radii to draw.
      */
     void draw_angleArc(pos2d<double> _pos, double _offsCenterAngle, double _arcAngle, double _radius, double _radius_extra=0);
-    
-    /**
-     * @brief Draw the referenced `SOCK::CamU` object onto current window of ImGui
-     * 
-     * @param _CamU_toDraw reference to the CamU object to draw.
-     * @param _drawFOV whether to draw the CamU's FOV lines to indicate the range.
-     * @param _drawState the state at which the CamU is to be draw: [`0`: default, `1`: hovered, `2`: selected]
-     */
-    void draw_camUnit(SOC::CamU &_CamU_toDraw, bool _drawFOV=false, int _drawState=0);
 
-    
-    void draw_infoBox_camUnit(SOC::CamU &_CamU_ref, bool *_openPtr, pos2d<int> _infoBox_dim=pos2d<int>{100, 100});
 };
 
 
