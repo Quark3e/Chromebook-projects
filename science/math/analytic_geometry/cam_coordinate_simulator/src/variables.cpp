@@ -34,8 +34,8 @@ int selectable_isSelected = -1;
 
 
 SOC::CamSystem camSys({500, 500}, {
-    {90,  75, 300, 200},
-    {90, 110, 700, 200}
+    {60,  75, 300, 200},
+    {60, 110, 700, 200}
 });
 
 std::list<bool> infoBox_open_CamU(camSys.size(), false);
@@ -44,6 +44,7 @@ std::list<bool> infoBox_open_CamU(camSys.size(), false);
 
 
 void draw_camUnit(SOC::CamU &_CamU_toDraw, bool _drawFOV, int _drawState) {
+    
     static std::vector<ImGuiCol> camUnit_drawColour{
         int(IM_COL32(100, 10, 150, 255)),
         int(IM_COL32(150, 60, 180, 255)),
@@ -57,7 +58,119 @@ void draw_camUnit(SOC::CamU &_CamU_toDraw, bool _drawFOV, int _drawState) {
 
     /// CamU draw: FOV arc
     if(_drawFOV) {
-        DRMETHS::draw_angleArc(func_convPos_realToPx(_CamU_toDraw.pos()), _CamU_toDraw.angle, _CamU_toDraw.FOV, 50, 100);
+        /// @brief Point coordinates of the FOV ranges end points withing the draw_area.
+        static std::vector<pos2d<double>> CamU_FOV_range{pos2d<double>(0, 0), pos2d<double>(0, 0)};
+        auto draw_area_realPos = (dim__draw_area.cast<double>());
+
+        double FOV_line_maxlength = 100;
+        // /*
+        for(size_t i=0; i<CamU_FOV_range.size(); i++) {
+            static double CamU_angle   = 0;
+            static double ySinAngle    = 0;
+            static double CamU_ySinAngle    = 0;
+            static pos2d<double> cornerDelta{0, 0};
+            switch (i) { /// Choose which of the FOV side lines' angles to use.
+                case 0: CamU_angle = _CamU_toDraw.angle+_CamU_toDraw.FOV/2; break;
+                case 1: CamU_angle = _CamU_toDraw.angle-_CamU_toDraw.FOV/2; break;
+            }
+            if(CamU_angle < 0) {
+                CamU_angle += 360;
+            }
+            else if(CamU_angle > 360) {
+                CamU_angle -= 360;
+            }
+            
+            switch (int(std::floor(CamU_angle/90))) { /// Define corner specific variables
+                case 0: /// Range:   0<=i< 90, Top-Right
+                cornerDelta.x = draw_area_realPos.x - _CamU_toDraw.x;
+                cornerDelta.y = draw_area_realPos.y - _CamU_toDraw.y;
+                CamU_ySinAngle = CamU_angle;
+                // ySinAngle = asin(cornerDelta.y/cornerDelta.getHypotenuse());
+                
+                break;
+                case 1: /// Range:  90<=i<180, Top-Left
+                cornerDelta.x = 0 - _CamU_toDraw.x;
+                cornerDelta.y = draw_area_realPos.y - _CamU_toDraw.y;
+                CamU_ySinAngle = 180-CamU_angle;
+                // ySinAngle = asin(cornerDelta.y/cornerDelta.getHypotenuse());
+                
+                break;
+                case 2: /// Range: 180<=i<270, Bot-Left
+                cornerDelta.x = 0 - _CamU_toDraw.x;
+                cornerDelta.y = 0 - _CamU_toDraw.y;
+                CamU_ySinAngle = 180-CamU_angle;
+                // ySinAngle = asin(cornerDelta.y/cornerDelta.getHypotenuse());
+                
+                break;
+                case 3: /// Range: 279<=i<360, Bot-Right
+                cornerDelta.x = draw_area_realPos.x - _CamU_toDraw.x;
+                cornerDelta.y = 0 - _CamU_toDraw.y;
+                CamU_ySinAngle = CamU_angle - 360;
+                // ySinAngle = asin(cornerDelta.y/cornerDelta.getHypotenuse());
+                
+                break;
+                default: throw std::logic_error("ERROR: CamU_angle is somehow outside the range: "+std::to_string(CamU_angle));
+            }
+            
+            ySinAngle = toDEGREES(asin(cornerDelta.y/cornerDelta.getHypotenuse()));
+            
+            auto unitVec = cornerDelta / cornerDelta.getAbs();
+            if(std::abs(CamU_ySinAngle) > std::abs(ySinAngle)) { /// Corner angle line cropped by y "roof"
+                CamU_FOV_range.at(i).y = _CamU_toDraw.y + cornerDelta.y;
+                CamU_FOV_range.at(i).x = _CamU_toDraw.x + unitVec.x*std::sqrt(std::pow(cornerDelta.y/std::sin(toRADIANS(CamU_angle)), 2) - std::pow(cornerDelta.y, 2));
+            }
+            else { /// Corner angle line cropped by x "wall"
+                CamU_FOV_range.at(i).x = _CamU_toDraw.x + cornerDelta.x;
+                CamU_FOV_range.at(i).y = _CamU_toDraw.y + unitVec.y*std::sqrt(std::pow(cornerDelta.x/std::cos(toRADIANS(CamU_angle)), 2) - std::pow(cornerDelta.x, 2));
+            }
+
+            double FOV_line_length = (CamU_FOV_range.at(i)-_CamU_toDraw.pos()).getHypotenuse();
+            if(FOV_line_length > FOV_line_maxlength) FOV_line_maxlength = FOV_line_length;
+
+            // /// Circles to show the line edges
+            // drawList->AddCircle(GUINC::toImVec2(func_convPos_realToPx(CamU_FOV_range.at(i))), 50, IM_COL32(200, 20, 20, 100), 10);
+            
+        }
+        // */
+        static pos2d<double> cornerPos{0, 0};
+
+        switch (int(std::floor(_CamU_toDraw.angle/90))) { /// Define corner specific variables
+            case 0: /// Range:   0<=i< 90, Top-Right
+            cornerPos.x = draw_area_realPos.x;
+            cornerPos.y = draw_area_realPos.y;
+            // ySinAngle = asin(cornerDelta.y/cornerDelta.getHypotenuse());
+            
+            break;
+            case 1: /// Range:  90<=i<180, Top-Left
+            cornerPos.x = 0;
+            cornerPos.y = draw_area_realPos.y;
+            // ySinAngle = asin(cornerDelta.y/cornerDelta.getHypotenuse());
+            
+            break;
+            case 2: /// Range: 180<=i<270, Bot-Left
+            cornerPos.x = 0;
+            cornerPos.y = 0;
+            // ySinAngle = asin(cornerDelta.y/cornerDelta.getHypotenuse());
+            
+            break;
+            case 3: /// Range: 279<=i<360, Bot-Right
+            cornerPos.x = draw_area_realPos.x;
+            cornerPos.y = 0;
+            // ySinAngle = asin(cornerDelta.y/cornerDelta.getHypotenuse());
+            
+            break;
+            default: throw std::logic_error("ERROR: _CamU_toDraw.angle is somehow outside the range: "+std::to_string(_CamU_toDraw.angle));
+        }
+        bool objInRange = (std::abs(_CamU_toDraw.toObjectAngle) <= _CamU_toDraw.FOV/2);
+        drawList->AddQuadFilled(
+            GUINC::toImVec2(func_convPos_realToPx(_CamU_toDraw.pos())),
+            GUINC::toImVec2(func_convPos_realToPx(CamU_FOV_range.at(0))),
+            GUINC::toImVec2(func_convPos_realToPx(cornerPos)),
+            GUINC::toImVec2(func_convPos_realToPx(CamU_FOV_range.at(1))),
+            (objInRange? IM_COL32(20, 130, 20, 80) : IM_COL32(130, 20, 20, 80))
+        );
+        DRMETHS::draw_angleArc(func_convPos_realToPx(_CamU_toDraw.pos()), _CamU_toDraw.angle, _CamU_toDraw.FOV, 50, FOV_line_maxlength-50);
+
     }
 
     /// CamU draw: Absolute center

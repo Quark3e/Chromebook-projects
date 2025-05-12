@@ -52,12 +52,12 @@ namespace DRMETHS {
         /// Draw: Arc center line.
         drawList->AddLine(
             GUINC::toImVec2(_pos),
-            GUINC::toImVec2(_pos-pos2d<double>(-cos(toRADIANS(_offsCenterAngle))*(_radius+_radius_extra), sin(toRADIANS(_offsCenterAngle))*(_radius+_radius_extra))),
+            GUINC::toImVec2(_pos-pos2d<double>(-cos(toRADIANS(_offsCenterAngle))*(_radius+100), sin(toRADIANS(_offsCenterAngle))*(_radius+100))),
             IM_COL32(250, 100, 100, 100)
         );
 
         /// Draw: Arc center line end point.
-        drawList->AddCircle(GUINC::toImVec2(_pos-pos2d<double>(-cos(toRADIANS(_offsCenterAngle))*(_radius+_radius_extra), sin(toRADIANS(_offsCenterAngle))*(_radius+_radius_extra))), 10, IM_COL32(80, 80, 80, 150), 20);
+        drawList->AddCircle(GUINC::toImVec2(_pos-pos2d<double>(-cos(toRADIANS(_offsCenterAngle))*(_radius+100), sin(toRADIANS(_offsCenterAngle))*(_radius+100))), 10, IM_COL32(80, 80, 80, 150), 20);
         
         arcPoints_line.at(0).x = _pos.x + cos(toRADIANS(_offsCenterAngle+_arcAngle/2))*(_radius+_radius_extra);
         arcPoints_line.at(0).y = _pos.y - sin(toRADIANS(_offsCenterAngle+_arcAngle/2))*(_radius+_radius_extra);
