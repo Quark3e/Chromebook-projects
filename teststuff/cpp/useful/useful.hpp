@@ -16,7 +16,6 @@
 #include <array>
 #include <initializer_list>
 
-// #include <bits/stdc++.h>
 #include <chrono>
 #include <ctime>
 
@@ -103,6 +102,35 @@ inline bool decimalSame(_contType _var0, _contType _var1, size_t _contSize, size
 
 // namespace USEFUL {
 
+
+    template<class _varType>
+    inline void makeElementsContinious(
+        std::vector<_varType>& _toSortOut,
+        _varType _maxAllowedElementDelta,
+        bool _ascendingOrder=true
+        // size_t _sortMethod=0
+    ) {
+        std::sort(_toSortOut.begin(), _toSortOut.end());
+        std::vector<_varType> tempVec(_toSortOut.size());
+        if(!_ascendingOrder) {
+            for(size_t i=0; i<_toSortOut.size(); i++) tempVec.at(_toSortOut.size()-1-i) = _toSortOut.at(i);
+            _toSortOut.swap(tempVec);
+        }
+
+        size_t splitIdx = _toSortOut.size();
+        for(size_t i=1; i<_toSortOut.size(); i++) {
+            if(_toSortOut.at(i)-_toSortOut.at(i-1) > _maxAllowedElementDelta) {
+                splitIdx = i;
+                break;
+            }
+        }
+        if(splitIdx==_toSortOut.size()) return;
+        
+        tempVec.clear();
+        tempVec.insert(tempVec.end(), _toSortOut.begin()+splitIdx, _toSortOut.end());
+        tempVec.insert(tempVec.end(), _toSortOut.begin(), _toSortOut.begin()+splitIdx);
+        _toSortOut.swap(tempVec);
+    }
 
     /// @brief Convert decimal number to std::string with set decimal numbers and minimum total width
     /// @tparam T 
