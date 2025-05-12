@@ -133,42 +133,73 @@ void draw_camUnit(SOC::CamU &_CamU_toDraw, bool _drawFOV, int _drawState) {
         }
         // */
         static pos2d<double> cornerPos{0, 0};
+        static double cornerTheta = 0;
+        std::vector<pos2d<double>> visibleCorners;
+        for(size_t i=0; i<4; i++) {
+            switch (i) {
+                case 0:
+                cornerPos = draw_area_realPos;
 
-        switch (int(std::floor(_CamU_toDraw.angle/90))) { /// Define corner specific variables
-            case 0: /// Range:   0<=i< 90, Top-Right
-            cornerPos.x = draw_area_realPos.x;
-            cornerPos.y = draw_area_realPos.y;
-            // ySinAngle = asin(cornerDelta.y/cornerDelta.getHypotenuse());
-            
-            break;
-            case 1: /// Range:  90<=i<180, Top-Left
-            cornerPos.x = 0;
-            cornerPos.y = draw_area_realPos.y;
-            // ySinAngle = asin(cornerDelta.y/cornerDelta.getHypotenuse());
-            
-            break;
-            case 2: /// Range: 180<=i<270, Bot-Left
-            cornerPos.x = 0;
-            cornerPos.y = 0;
-            // ySinAngle = asin(cornerDelta.y/cornerDelta.getHypotenuse());
-            
-            break;
-            case 3: /// Range: 279<=i<360, Bot-Right
-            cornerPos.x = draw_area_realPos.x;
-            cornerPos.y = 0;
-            // ySinAngle = asin(cornerDelta.y/cornerDelta.getHypotenuse());
-            
-            break;
-            default: throw std::logic_error("ERROR: _CamU_toDraw.angle is somehow outside the range: "+std::to_string(_CamU_toDraw.angle));
+                break;
+                case 1:
+                cornerPos = {0, draw_area_realPos.y};
+                
+                break;
+                case 2:
+                cornerPos = {0, 0};
+
+                break;
+                case 3:
+                cornerPos = {draw_area_realPos.x, 0};
+                break;
+
+                default: throw std::logic_error("ERROR: i for visibleCorners is somehow not in range 0<=i<4: "+std::to_string(i));
+            }
+            cornerTheta = toDEGREES(cornerPos.getTheta(_CamU_toDraw.pos()));
+            if(i==0 && _CamU_toDraw.angle+_CamU_toDraw.FOV/2>360) cornerTheta += 360;
+            else if(i==3 && _CamU_toDraw.angle-_CamU_toDraw.FOV/2<0) cornerTheta -= 360;
+            if(cornerTheta <= _CamU_toDraw.angle+_CamU_toDraw.FOV/2 && cornerTheta >=_CamU_toDraw.angle-_CamU_toDraw.FOV/2) visibleCorners.push_back(cornerPos);
         }
+
         bool objInRange = (std::abs(_CamU_toDraw.toObjectAngle) <= _CamU_toDraw.FOV/2);
-        drawList->AddQuadFilled(
+        
+        drawList->AddTriangleFilled(
             GUINC::toImVec2(func_convPos_realToPx(_CamU_toDraw.pos())),
             GUINC::toImVec2(func_convPos_realToPx(CamU_FOV_range.at(0))),
-            GUINC::toImVec2(func_convPos_realToPx(cornerPos)),
             GUINC::toImVec2(func_convPos_realToPx(CamU_FOV_range.at(1))),
             (objInRange? IM_COL32(20, 130, 20, 80) : IM_COL32(130, 20, 20, 80))
         );
+        switch (visibleCorners.size()) {
+            case 0:
+            break;
+            case 1:
+            drawList->AddTriangleFilled(
+                GUINC::toImVec2(func_convPos_realToPx(CamU_FOV_range.at(0))),
+                GUINC::toImVec2(func_convPos_realToPx(CamU_FOV_range.at(1))),
+                GUINC::toImVec2(func_convPos_realToPx(visibleCorners.at(0))),
+                (objInRange? IM_COL32(20, 130, 20, 80) : IM_COL32(130, 20, 20, 80))
+            );
+            break;
+            case 2:
+            drawList->AddQuadFilled(
+                GUINC::toImVec2(func_convPos_realToPx(CamU_FOV_range.at(0))),
+                GUINC::toImVec2(func_convPos_realToPx(CamU_FOV_range.at(1))),
+                GUINC::toImVec2(func_convPos_realToPx(visibleCorners.at(0))),
+                GUINC::toImVec2(func_convPos_realToPx(visibleCorners.at(1))),
+                (objInRange? IM_COL32(20, 130, 20, 80) : IM_COL32(130, 20, 20, 80))
+            );
+            break;
+            case 3:
+            // drawList->AddTriangleFilled(
+            //     GUINC::toImVec2(func_convPos_realToPx(CamU_FOV_range.at(0))),
+            //     GUINC::toImVec2(func_convPos_realToPx(CamU_FOV_range.at(1))),
+            //     GUINC::toImVec2(func_convPos_realToPx(visibleCorners.at(0))),
+            //     (objInRange? IM_COL32(20, 130, 20, 80) : IM_COL32(130, 20, 20, 80))
+            // );
+
+            break;
+            default: throw std::logic_error("What the fuck did you do to show more than 3 corners of the square the same time: "+std::to_string(visibleCorners.size()));
+        }
         DRMETHS::draw_angleArc(func_convPos_realToPx(_CamU_toDraw.pos()), _CamU_toDraw.angle, _CamU_toDraw.FOV, 50, FOV_line_maxlength-50);
 
     }
