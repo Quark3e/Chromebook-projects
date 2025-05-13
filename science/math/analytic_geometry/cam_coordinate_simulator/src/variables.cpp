@@ -135,6 +135,7 @@ void draw_camUnit(SOC::CamU &_CamU_toDraw, bool _drawFOV, int _drawState) {
         static pos2d<double> cornerPos{0, 0};
         static double cornerTheta = 0;
         std::vector<pos2d<double>> visibleCorners;
+        std::vector<size_t> corner_idx;
         for(size_t i=0; i<4; i++) {
             switch (i) {
                 case 0:
@@ -158,8 +159,12 @@ void draw_camUnit(SOC::CamU &_CamU_toDraw, bool _drawFOV, int _drawState) {
             cornerTheta = toDEGREES(cornerPos.getTheta(_CamU_toDraw.pos()));
             if(i==0 && _CamU_toDraw.angle+_CamU_toDraw.FOV/2>360) cornerTheta += 360;
             else if(i==3 && _CamU_toDraw.angle-_CamU_toDraw.FOV/2<0) cornerTheta -= 360;
-            if(cornerTheta <= _CamU_toDraw.angle+_CamU_toDraw.FOV/2 && cornerTheta >=_CamU_toDraw.angle-_CamU_toDraw.FOV/2) visibleCorners.push_back(cornerPos);
+            if(cornerTheta <= _CamU_toDraw.angle+_CamU_toDraw.FOV/2 && cornerTheta >=_CamU_toDraw.angle-_CamU_toDraw.FOV/2) {
+                visibleCorners.push_back(cornerPos);
+                corner_idx.push_back(i);
+            }
         }
+        makeElementsContinious<size_t>(corner_idx, 1, visibleCorners);
 
         bool objInRange = (std::abs(_CamU_toDraw.toObjectAngle) <= _CamU_toDraw.FOV/2);
         
