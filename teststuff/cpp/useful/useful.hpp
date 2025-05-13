@@ -102,35 +102,127 @@ inline bool decimalSame(_contType _var0, _contType _var1, size_t _contSize, size
 
 // namespace USEFUL {
 
-
-    template<class _varType>
-    inline void makeElementsContinious(
+    
+    /**
+     * @brief Rearranges the elements of a vector to make them continuous based on a maximum allowed delta,
+     *        optionally reordering an equivalent vector accordingly.
+     *
+     * This function sorts the input vector `_toSortOut` and checks for the largest gap between consecutive elements.
+     * If a gap larger than `_maxAllowedElementDelta` is found, the vector is rotated so that the elements after the gap
+     * come first, making the elements more "continuous". Optionally, the order can be reversed, and an equivalent vector
+     * (`_equivalentSortVector`) can be reordered to match the new arrangement.
+     *
+     * @tparam _varType        The type of the elements in the vector to be sorted.
+     * @tparam _equivType      The type of the elements in the equivalent vector.
+     * @param[in,out] _toSortOut              The vector whose elements will be rearranged for continuity.
+     * @param[in]     _maxAllowedElementDelta  The maximum allowed difference between consecutive elements.
+     * @param[in,out] _equivalentSortVector    The vector to be reordered in correspondence with `_toSortOut`.
+     * @param[in]     _ascendingOrder          If true, the resulting order is ascending; if false, descending.
+     * @param[in]     _useEquivVec             If true, `_equivalentSortVector` is reordered to match `_toSortOut`.
+     *
+     * @throws std::logic_error If an element from the original vector cannot be found in the sorted vector.
+     */
+    template<typename _varType, typename _equivType>
+    void makeElementsContinious(
         std::vector<_varType>& _toSortOut,
         _varType _maxAllowedElementDelta,
-        bool _ascendingOrder=true
-        // size_t _sortMethod=0
+        std::vector<_equivType>& _equivalentSortVector,
+        bool _ascendingOrder=true,
+        bool _useEquivVec = true
     ) {
-        std::sort(_toSortOut.begin(), _toSortOut.end());
-        std::vector<_varType> tempVec(_toSortOut.size());
-        if(!_ascendingOrder) {
-            for(size_t i=0; i<_toSortOut.size(); i++) tempVec.at(_toSortOut.size()-1-i) = _toSortOut.at(i);
-            _toSortOut.swap(tempVec);
-        }
+        std::vector<_varType> vecCopy = _toSortOut;
+        std::vector<_varType> tempVec(vecCopy.size());
+        std::sort(vecCopy.begin(), vecCopy.end());
 
-        size_t splitIdx = _toSortOut.size();
-        for(size_t i=1; i<_toSortOut.size(); i++) {
-            if(_toSortOut.at(i)-_toSortOut.at(i-1) > _maxAllowedElementDelta) {
+
+        size_t splitIdx = vecCopy.size();
+        for(size_t i=1; i<vecCopy.size(); i++) {
+            if(vecCopy.at(i)-vecCopy.at(i-1) > _maxAllowedElementDelta) {
                 splitIdx = i;
                 break;
             }
         }
-        if(splitIdx==_toSortOut.size()) return;
+        if(splitIdx==vecCopy.size()) return;
         
         tempVec.clear();
-        tempVec.insert(tempVec.end(), _toSortOut.begin()+splitIdx, _toSortOut.end());
-        tempVec.insert(tempVec.end(), _toSortOut.begin(), _toSortOut.begin()+splitIdx);
-        _toSortOut.swap(tempVec);
+        tempVec.insert(tempVec.end(), vecCopy.begin()+splitIdx, vecCopy.end());
+        tempVec.insert(tempVec.end(), vecCopy.begin(), vecCopy.begin()+splitIdx);
+        vecCopy.swap(tempVec);
+        
+        if(!_ascendingOrder) { /// Flip the order
+            for(size_t i=0; i<vecCopy.size(); i++) tempVec.at(vecCopy.size()-1-i) = vecCopy.at(i);
+            vecCopy.swap(tempVec);
+        }
+
+        if(_useEquivVec) {
+            std::vector<_equivType> equivCopy = _equivalentSortVector;
+        
+            /// Sort the _equivalentSortVector with the sorted order of vecCopy.
+            for(size_t i=0; i<vecCopy.size(); i++) {
+                size_t findIdx = std::string::npos;
+                for(size_t ii=0; ii<vecCopy.size(); ii++) { /// Find out where the sorted vector placed each element from the original vector
+                	if(vecCopy.at(ii)==_toSortOut.at(i)) {
+                    	findIdx = ii;
+                        break;
+                    }
+                }
+                if(findIdx==std::string::npos) throw std::logic_error("ERROR: Somehow ii for find for-loop is not found..");
+                //size_t newIdx = std::find(vecCopy.begin(), vecCopy.end(), vecCopy.at(i));
+                equivCopy.at(findIdx) = _equivalentSortVector.at(i);
+            }
+            _equivalentSortVector.swap(equivCopy);
+        }
+        _toSortOut.swap(vecCopy);
     }
+    
+    /**
+     * @brief Rearranges the elements of a vector to make them continuous based on a maximum allowed delta.
+     *
+     * This function sorts the input vector and checks for the first occurrence where the difference between
+     * consecutive elements exceeds the specified maximum allowed delta. If such a split is found, the vector
+     * is rotated so that the elements after the split come first, followed by the elements before the split.
+     * Optionally, the resulting vector can be reversed to achieve descending order.
+     *
+     * @tparam _varType The type of elements in the vector. Must support comparison and subtraction.
+     * @param _toSortOut Reference to the vector to be rearranged.
+     * @param _maxAllowedElementDelta The maximum allowed difference between consecutive elements for continuity.
+     * @param _ascendingOrder If true (default), the result is in ascending order; if false, in descending order.
+     *
+     * @note If no split is found (i.e., all elements are within the allowed delta), the vector remains unchanged.
+     */
+    template<typename _varType>
+    void makeElementsContinious(
+        std::vector<_varType>& _toSortOut,
+        _varType _maxAllowedElementDelta,
+        bool _ascendingOrder = true
+    ) {
+        std::vector<_varType> vecCopy = _toSortOut;
+        std::vector<_varType> tempVec(vecCopy.size());
+        std::sort(vecCopy.begin(), vecCopy.end());
+
+        size_t splitIdx = vecCopy.size();
+        for(size_t i = 1; i < vecCopy.size(); i++) {
+            if(vecCopy.at(i) - vecCopy.at(i - 1) > _maxAllowedElementDelta) {
+                splitIdx = i;
+                break;
+            }
+        }
+        if(splitIdx == vecCopy.size()) return;
+
+        tempVec.clear();
+        tempVec.insert(tempVec.end(), vecCopy.begin() + splitIdx, vecCopy.end());
+        tempVec.insert(tempVec.end(), vecCopy.begin(), vecCopy.begin() + splitIdx);
+        vecCopy.swap(tempVec);
+
+        if(!_ascendingOrder) {
+            for(size_t i = 0; i < vecCopy.size(); i++)
+                tempVec.at(vecCopy.size() - 1 - i) = vecCopy.at(i);
+            vecCopy.swap(tempVec);
+        }
+
+        _toSortOut.swap(vecCopy);
+    }
+
 
     /// @brief Convert decimal number to std::string with set decimal numbers and minimum total width
     /// @tparam T 
