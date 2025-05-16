@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
              */
             int selectable_itemID_typeOfHover = 2;
 
-            
+            /// Detect cursor interaction with the different items if no item is selected currently
             if(selectable_isSelected<0) {
                 selectable_itemID = 0;
 
@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
                 }
             }
 
-
+            /// Do UI movements/actions with the varying states of the mouse left button click.
             static pos2d<double> moveObject_mouseOffset{0, 0};
             if(keyBinds.clicked("MouseLeft")) {/// Left mouse button has been clicked
                 if(selectable_isSelected>=0) throw std::logic_error("ERROR: a selectable has been seleected even though the MouseLeft just signaled to true value.");
@@ -139,24 +139,20 @@ int main(int argc, char** argv) {
 
             }
             
-
-            if(selectable_itemID_hovered>0 && mouseLeft_doubleClicked) {
+            
+            if(selectable_itemID_hovered>0 && mouseLeft_doubleClicked) { // If selectable CamU item has been double clicked, open its info box
                 auto itr = infoBox_open_CamU.begin();
                 std::advance(itr, selectable_itemID_hovered-1);
                 *itr = true;
             }
 
+            /// SystemOfCameras update, which also updates the states and variables of each internal CamU object respectively
             camSys.update();
 
             /// ---------- Drawing ----------
-
             
-            // ImGui::SetNextWindowPos(GUINC::toImVec2(pos__draw_area));
-            // ImGui::SetNextWindowSize(GUINC::toImVec2(dim__draw_area));
-
-            // ImGui::Begin("window_draw_area", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBringToFrontOnFocus);
+            ImGui::Begin("window_draw_area", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBringToFrontOnFocus);
             
-
             ImDrawList* winDrawList = ImGui::GetWindowDrawList();
 
             /// Draw item: objectPos
@@ -205,7 +201,7 @@ int main(int argc, char** argv) {
             }
             
 
-            // ImGui::End(); //window_draw_area
+            ImGui::End(); //window_draw_area
     
             guiwin.endFrame();
         }

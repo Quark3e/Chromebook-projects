@@ -42,7 +42,6 @@ std::list<bool> infoBox_open_CamU(camSys.size(), false);
 
 
 
-
 void draw_camUnit(SOC::CamU &_CamU_toDraw, bool _drawFOV, int _drawState) {
     
     static std::vector<ImGuiCol> camUnit_drawColour{

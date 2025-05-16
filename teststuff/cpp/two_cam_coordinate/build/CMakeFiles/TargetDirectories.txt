@@ -1,3 +1,0 @@
-/home/pi/Chromebook-projects/teststuff/cpp/two_cam_coordinate/build/CMakeFiles/edit_cache.dir
-/home/pi/Chromebook-projects/teststuff/cpp/two_cam_coordinate/build/CMakeFiles/rebuild_cache.dir
-/home/pi/Chromebook-projects/teststuff/cpp/two_cam_coordinate/build/CMakeFiles/TwoCamCoordinate_exe.dir
