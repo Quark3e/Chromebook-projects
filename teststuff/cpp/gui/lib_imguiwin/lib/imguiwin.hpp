@@ -42,7 +42,15 @@ namespace GUINC {
         bool __running = false;
     public:
         // imguiwin() = default;
-        ImGuiWindowFlags winFlags_main = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoScrollbar;
+        ImGuiWindowFlags winFlags_main = 
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoTitleBar | 
+            ImGuiWindowFlags_NoBringToFrontOnFocus | 
+            ImGuiWindowFlags_NoScrollbar |
+            ImGuiWindowFlags_NoBackground
+        ;
     
         imguiwin(bool _init=true, size_t _width=DEFAULT_WIN_WIDTH, size_t _height=DEFAULT_WIN_HEIGHT);
         ~imguiwin();
