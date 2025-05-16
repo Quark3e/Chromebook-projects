@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
-project(SystemOfCameras)
+project(TwoCamCoordinate)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -10,7 +10,7 @@ set(DIR_HC_USEFUL "${REPO_ROOT}/teststuff/cpp/useful")
 message(DIR_HC_USEFUL=${DIR_HC_USEFUL})
 
 add_library(${PROJECT_NAME}
-    SystemOfCameras.cpp
+    TwoCamCoordinate.cpp
 )
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 

@@ -1,5 +1,5 @@
 
-#include "two_cam_coordinate.hpp"
+#include "TwoCamCoordinate.hpp"
 #include <cstdlib>
 
 camTriangle::camTriangle(float camLocation[2][2], float camAngleOffset[2]) {
