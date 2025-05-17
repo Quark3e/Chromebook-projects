@@ -148,7 +148,22 @@ int main(int argc, char** argv) {
 
             /// SystemOfCameras update, which also updates the states and variables of each internal CamU object respectively
             camSys.update();
+            
+            camTri.camPos = {camSys[0].pos(), camSys[1].pos()};
+            camTri.ang_offset = {camSys[0].angle, camSys[1].angle};
+            camTri.setcamScalars();
+            static std::vector<pos2d<double>> fpv_objectPos(2, pos2d<double>{0, 480/2});
+            fpv_objectPos[0].x = 640/2 + (640/2)*(camSys[0].toObjectAngle/(camSys[0].FOV/2));
+            fpv_objectPos[1].x = 640/2 + (640/2)*(camSys[1].toObjectAngle/(camSys[1].FOV/2));
+            camTri.solvePos(fpv_objectPos, false);
 
+
+            std::cout << "read_pix:"<<formatVector(camTri.read_pix, 10) << " | ";
+            std::cout << "ang_read:"<<formatVector(camTri.ang_read, 6) << " | ";
+            std::cout << "lengths:"<<camTri.l_tri[0]<<", "<<camTri.l_tri[1]<<", "<<camTri.l_hypotenuse<< " | ";
+            std::cout << "ang_offs:"<<formatVector(camTri.ang_offset, 6) << " | ";
+            std::cout << formatVector(fpv_objectPos, 10) << " | " << formatVector(camTri.solvedPos, 10) << std::endl;
+            
             /// ---------- Drawing ----------
             
             ImGui::Begin("window_draw_area", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBringToFrontOnFocus);
@@ -170,6 +185,7 @@ int main(int argc, char** argv) {
                 break;
             }
             winDrawList->AddCircleFilled(GUINC::toImVec2(func_convPos_realToPx(camSys.get_objectPos())), 10, objectPos_colours.at(objectPos_drawState), 10);
+            winDrawList->AddCircle(GUINC::toImVec2(func_convPos_realToPx({camTri.solvedPos[0], camTri.solvedPos[1]})), 12, IM_COL32(0, 128, 128, 140), 5, 1);
             
             for(size_t i=0; i<camSys.size(); i++) {
                 int drawState = 0;

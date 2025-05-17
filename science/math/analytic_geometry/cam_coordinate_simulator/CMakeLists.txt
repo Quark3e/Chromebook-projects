@@ -11,7 +11,7 @@ set(
     CMAKE_PREFIX_PATH
     ${DIR_ROOT}/teststuff/cpp/gui/lib_imguiwin/lib/build/
     ${DIR_ROOT}/teststuff/cpp/useful/lib_SystemOfCameras/build/
-    ${DIR_ROOT}/teststuff/cpp/two_cam_coordinate/lib/build/
+    ${DIR_ROOT}/teststuff/cpp/TwoCamCoordinate/lib/build/
     ${DIR_ROOT}/science/math/PolyRegionCheck/lib/build/
 )
 

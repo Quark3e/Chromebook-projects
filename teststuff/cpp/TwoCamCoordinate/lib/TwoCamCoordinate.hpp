@@ -2,17 +2,18 @@
 #ifndef H_TWO_CAM_COORDINATE
 #define H_TWO_CAM_COORDINATE
 
-#include <math.h>
-#include <cmath>
-#include <numbers>
-#include <time.h>
+
 #include <iostream>
 #include <iomanip>
+#include <vector>
+#include <cmath>
+
+#include <pos2d.hpp>
+
 
 #ifndef M_PI
 #define M_PI  3.1415926535
 #endif
-
 
 #ifndef toDEGREES
 #define toDEGREES(RAD) ((RAD)*180/M_PI)
@@ -21,46 +22,54 @@
 #define toRADIANS(DEG) ((DEG)*M_PI/180.0)
 #endif
 
+#ifndef TWOCAMCOORDINATE_DEFAULT__RES
+#define TWOCAMCOORDINATE_DEFAULT__RES (pos2d<double>(640, 480))
+#endif
+
+#ifndef TWOCAMCOORDINATE_DEFAULT__FOV
+#define TWOCAMCOORDINATE_DEFAULT__FOV (pos2d<double>(60, 45))
+#endif
 
 /// @brief Class to solve object position relative to the position of two webcams via seen pixel positions
 class camTriangle {
     public:
-    float camPos[2][2];
-    float camRes[2][2] = {{640, 480}, {640, 480}};
-    float camFOV[2][2] = {{60, 45}, {60, 45}};
-    float camCoef[2][2] = {{0, 0}, {0, 0}}; 
+    std::vector<pos2d<double>> camPos{pos2d<double>(0, 0), pos2d<double>(0, 0)};
+    std::vector<pos2d<double>> camRes{TWOCAMCOORDINATE_DEFAULT__RES, TWOCAMCOORDINATE_DEFAULT__RES};
+    std::vector<pos2d<double>> camFOV{TWOCAMCOORDINATE_DEFAULT__FOV, TWOCAMCOORDINATE_DEFAULT__FOV};
+    std::vector<pos2d<double>> camScalar{pos2d<double>(1, 1), pos2d<double>(1, 1)};
 
-    float l_delta[2] = {-1, -1};
-    float l_hypotenuse = -1;
-    float l_tri[2] = {-1, -1};
+    std::vector<double> l_delta{-1, -1};
+    double l_hypotenuse = -1;
+    std::vector<double> l_tri{-1, -1};
+    
+    std::vector<double> ang_offset{0, 0};
+    std::vector<double> ang_d{0, 0};
 
-    float ang_offset[2] = {0, 0};
-    float ang_d[2] = {0, 0};
+    std::vector<double> ang_tri{-1, -1};
+    double ang_p = 0;
 
-    float ang_tri[2] = {0, 0};
-    float ang_p = 0;
+    std::vector<pos2d<double>> read_pix{pos2d<double>(0, 0), pos2d<double>(0, 0)};
+    std::vector<double> ang_read{0, 0, 0};
 
-    float read_pix[2][2] = {{0, 0}, {0, 0}};
-    float ang_read[2] = {0, 0};
+    std::vector<double> solvedPos{0, 0, 0};
+    std::vector<double> solvedPos_filter{1, 1, 1};
+    
 
+    camTriangle() = default;
+    camTriangle(const camTriangle& _copy);
+    camTriangle(std::vector<pos2d<double>> camLocation, std::vector<double> camAngleOffset);
+    ~camTriangle();
 
-    float solvedPos[2] = {0, 0};
-    float filter_solvedPos[2] = {1, 1};
+    camTriangle &operator=(const camTriangle& _copy);
 
-    int fps = 0;
-    int frames = 0;
-    int framesLim = 1;
-    float totalDelay = 0;
-    clock_t t1, t2;
-
-    /// @brief camTriangle class initializor function
-    /// @param camLocation real world location of webcams {{x, y}, {x, y}}
-    /// @param camAngleOffset [unit: degrees] webcam offset angle relative to X-axis plane, perpendicular is 90 degrees
-    camTriangle(float camLocation[2][2], float camAngleOffset[2]);
-    void setCamCoefs();
+    void setcamScalars();
     void solveAngles();
-    void solvePos(float rawPos[2], float returnArr[2], bool printText);
-    void setFilter(float x_filter, float y_filter);
+    void solvePos(std::vector<pos2d<double>> rawPxPos, bool printText=false);
+    void setFilter(double x_filter, double y_filter);
+
+    int _printPrecision = 2;
+    int _printWidth     = 0;
+    friend auto operator<<(std::ostream &os, camTriangle const& m) -> std::ostream&;
 };
 
 

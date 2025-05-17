@@ -75,6 +75,8 @@ extern SOC::CamSystem camSys;
 extern std::list<bool> infoBox_open_CamU;
 
 
+extern camTriangle camTri;
+
 
 /**
  * @brief Draws a camera unit with optional field of view (FOV) and state visualization.

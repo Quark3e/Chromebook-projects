@@ -40,6 +40,7 @@ SOC::CamSystem camSys({500, 500}, {
 
 std::list<bool> infoBox_open_CamU(camSys.size(), false);
 
+camTriangle camTri({camSys[0].pos(), camSys[1].pos()}, {camSys[0].angle, camSys[1].angle});
 
 
 void draw_camUnit(SOC::CamU &_CamU_toDraw, bool _drawFOV, int _drawState) {
