@@ -161,8 +161,8 @@ int main(int argc, char** argv) {
             std::cout << "read_pix:"<<formatVector(camTri.read_pix, 10) << " | ";
             std::cout << "ang_read:"<<formatVector(camTri.ang_read, 6) << " | ";
             std::cout << "lengths:"<<camTri.l_tri[0]<<", "<<camTri.l_tri[1]<<", "<<camTri.l_hypotenuse<< " | ";
-            std::cout << "ang_offs:"<<formatVector(camTri.ang_offset, 6) << " | ";
-            std::cout << formatVector(fpv_objectPos, 10) << " | " << formatVector(camTri.solvedPos, 10) << std::endl;
+            std::cout << "ang_tri:"<<formatVector(camTri.ang_tri, 6) << " | ";
+            std::cout << formatVector(fpv_objectPos, 10) << " | " << formatVector(camTri.solvedPos, 7) << std::endl;
             
             /// ---------- Drawing ----------
             
