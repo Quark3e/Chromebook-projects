@@ -158,9 +158,10 @@ int main(int argc, char** argv) {
             camTri.solvePos(fpv_objectPos, false);
 
 
-            std::cout << "read_pix:"<<formatVector(camTri.read_pix, 10) << " | ";
+
+            std::cout << "ang_d:"<<formatVector(camTri.ang_d, 5) << " | ";
             std::cout << "ang_read:"<<formatVector(camTri.ang_read, 6) << " | ";
-            std::cout << "lengths:"<<camTri.l_tri[0]<<", "<<camTri.l_tri[1]<<", "<<camTri.l_hypotenuse<< " | ";
+            std::cout << "lengths:"<<camTri.l_tri[0]<<", "<<camTri.l_tri[1]<<", "<<camTri.pos_delta.getHypotenuse()<< " | ";
             std::cout << "ang_tri:"<<formatVector(camTri.ang_tri, 6) << " | ";
             std::cout << formatVector(fpv_objectPos, 10) << " | " << formatVector(camTri.solvedPos, 7) << std::endl;
             
