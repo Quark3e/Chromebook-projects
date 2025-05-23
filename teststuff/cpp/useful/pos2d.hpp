@@ -227,14 +227,15 @@ struct pos2d {
         );
     }
 
-    double getTheta(pos2d pivotPoint) {
+    double getTheta(pos2d pivotPoint, bool nonNegative=true) {
         pos2d delta(x-pivotPoint.x, y-pivotPoint.y);
         
         if(delta.y>0) {
             return acos(delta.x/delta.getHypotenuse());
         }
         else {
-            return 2.0*M_PI-acos(delta.x/delta.getHypotenuse());
+            if(!nonNegative) return -acos(delta.x/delta.getHypotenuse());
+            else return 2.0*M_PI-acos(delta.x/delta.getHypotenuse());
         }
     }
 
