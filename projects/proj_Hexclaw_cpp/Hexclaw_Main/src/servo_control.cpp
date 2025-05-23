@@ -212,9 +212,9 @@ int getCoordinates(
         camTri.solvePos(camTri_inputPos, false);
         
         float newPP[3] = {
-            camTri.solvedPos[0],
-            camTri.solvedPos[1],
-            camTri.solvedPos[2]
+            axisScal[0]*(camTri.solvedPos[0])+axisOffset[0],
+            axisScal[1]*(camTri.solvedPos[2])+axisOffset[1],
+            axisScal[2]*(camTri.solvedPos[1])+axisOffset[2]
         };
 
         PP[0] = newPP[0];

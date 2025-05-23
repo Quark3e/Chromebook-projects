@@ -22,22 +22,12 @@ bool hardExit = false;
 servo_angles_6DOF current_q(0);
 servo_angles_6DOF new_q(0);
 
-/**
- * `{yaw, pitch, roll}` variables:
- * unit: degrees
- * */
-// float orient[3]    	= {0,0,0};
-// float PP[3]    		= {0,150,150};
-// float axisScal[3]    = {1, 1, 1};
-// float axisOffset[3]    = {0, 100, -200};
-// float axisFilter[3]    = {1, 1, 1};
 
 pos3d<float> orient{0, 0, 0};
 pos3d<float> PP{-250, 150, 150};
-pos3d<float> axisScal{-1, 1, 1};
-pos3d<float> axisOffset{0, 100, -100};
-// pos3d<float> axisOffset{-100, 0, 0};
-pos3d<float> axisFilter{0.1, 0.1, 0.1};
+pos3d<float> axisScal{1, 1, 1};
+pos3d<float> axisOffset{0, 200, -200};
+pos3d<float> axisFilter{0.01, 0.01, 0.01};
 
 
 
