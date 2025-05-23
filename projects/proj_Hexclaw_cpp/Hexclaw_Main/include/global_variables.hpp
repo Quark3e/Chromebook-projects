@@ -18,7 +18,7 @@
 #include <terminalMenu.hpp>
 #include <diy_dictionary.hpp>
 #include <opencv/recordVideo/recordFrames.hpp>
-#include <two_cam_coordinate/two_cam_coordinate.hpp>
+#include <TwoCamCoordinate.hpp>
 #include "includes.hpp"
 
 
@@ -98,10 +98,6 @@ extern pos2d<int> prefSize;
 extern bool displayTFT;
 
 
-// int l_HSV[3] = {0, 0, 255};
-// int u_HSV[3] = {179, 9, 255};
-// extern int HW_HSV[2][3];
-
 extern std::vector<std::vector<int>> HW_HSV;
 
 // extern const char* window_name;
@@ -120,10 +116,8 @@ extern TCPTS::TCPThreadedServer<std::vector<uint8_t>, uint8_t*> serverObj;
 
 /// Two_cam_triangle header class initialisation
 
-extern float camPosition[2][2];
-extern float camAng_offs[2];
-extern float inpPos[2];
-extern float solvedPos[2];
+extern std::vector<pos2d<double>> camPosition;
+extern std::vector<double> camAng_offs;
 extern camTriangle camTri;
 
 
@@ -137,24 +131,6 @@ extern getPerf perfObj[3];
 
 extern opencv_recorder recObj;
 
-
-// /**
-//  * simple function for locking a mutex reference and printing `toPrint` to cout buffer
-//  * NOTE: this function will release after locking but before calling the function *make sure* the mutex object is unlocked,
-//  * because otherwise it'll give undefined behavious.
-//  * @param coutMutex `std::mutex` object reference.
-//  * @param toPrint the string object to print to cout.
-//  * @param blockingLock whether to use the blocking member function
-//  * `std::mutex::lock()` or the nonblocking `std::mutex::try_lock()`.
-//  * @param flushOut whether to flush after printing to cout
-// */
-// void lock_cout(
-// 	std::mutex &coutMutex,
-// 	std::string toPrint,
-// 	bool blockingLock = true,
-// 	bool flushOut = false,
-// 	bool startClearScr = false
-// );
 
 
 /**
@@ -195,9 +171,7 @@ inline void lock_cout(
 #if takePerf
 //sub thread(s) performance measurements
 
-/**
- * sub-thread perfObj mutexes
-*/
+
 extern std::mutex mtx_perfObj_threads[2];
 // getPerf perfObj[2] {
 // 	{"sub-thread[0]"},

@@ -134,15 +134,15 @@ void HW_option3() {
 		if(init_camObj) {
 			/// Update camObjData values
 			if(!_CONFIG_OPTIONS.get("camObj_useThreads")) {
-				camObjData0 = camObj[0].updateData();
-				camObjData1 = camObj[1].updateData();
+				camObjData0 = camObj[1].updateData();
+				camObjData1 = camObj[0].updateData();
 			}
 			else {
-				camObjData0 = camObj[0].data();
-				camObjData1 = camObj[1].data();
+				camObjData0 = camObj[1].data();
+				camObjData1 = camObj[0].data();
 			}
 			
-			getCoordinates(camObjData1.cnt_pos, camObjData0.cnt_pos, 2, prefSize.cast<float>());
+			getCoordinates(camObjData0.cnt_pos, camObjData1.cnt_pos, 2, prefSize.cast<float>());
 
 			/// Insert cnt_pos data to termMenu tables
 			printTable.insertNum(camObjData0.cnt_pos[0],1,0,1);

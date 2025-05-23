@@ -88,7 +88,7 @@
 #include <diy_dictionary.hpp>
 
 
-#include <two_cam_coordinate/two_cam_coordinate.hpp>
+#include <TwoCamCoordinate.hpp>
 #include <opencv/recordVideo/recordFrames.hpp>
 #include <camObjTracker/camObjTracker.hpp>
 

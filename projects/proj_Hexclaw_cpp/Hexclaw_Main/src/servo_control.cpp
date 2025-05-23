@@ -199,28 +199,31 @@ int getCoordinates(
 
     }
     else if(mode==2) {
-        camTri.camRes[0][0] = prefSize[0];
-        camTri.camRes[0][1] = prefSize[1];
-        camTri.camRes[1][0] = prefSize[0];
-        camTri.camRes[1][1] = prefSize[1];
+        camTri.camRes[0] = prefSize.cast<double>();
+        camTri.camRes[1] = prefSize.cast<double>();
 
-        camTri.setCamCoefs();
+        camTri.solvedPos_filter = {axisFilter[0], axisFilter[1], axisFilter[2]};
+        camTri.setcamScalars();
 
-        float inputPos[2] {0, 0};
-        inputPos[0] = static_cast<float>(camDim[0]) - cam0_pos[0];
-        inputPos[1] = static_cast<float>(camDim[1]) - cam1_pos[0];
-        camTri.solvePos(inputPos, solvedPos, false);
-	    float solvedZ = -sin(toRadians((camTri.camRes[0][1]*0.5-(static_cast<float>(camDim[1])-cam0_pos[1])) * camTri.camCoef[0][1])) * solvedPos[1];
+        static std::vector<pos2d<double>> camTri_inputPos(2, pos2d<double>(0, 0));
+        camTri_inputPos[0] = cam0_pos.cast<double>();
+        camTri_inputPos[1] = cam1_pos.cast<double>();
+        
+        camTri.solvePos(camTri_inputPos, false);
         
         float newPP[3] = {
-            roundf((solvedPos[0] + axisOffset[0])*axisScal[0]),
-            (solvedZ + axisOffset[1])*axisScal[1],
-            roundf((solvedPos[1] + axisOffset[2])*axisScal[2])
+            camTri.solvedPos[0],
+            camTri.solvedPos[1],
+            camTri.solvedPos[2]
         };
 
-        PP[0] = axisFilter[0]*newPP[0] + (1.0-axisFilter[0])*PP[0];
-        PP[1] = axisFilter[1]*newPP[1] + (1.0-axisFilter[1])*PP[1];
-        PP[2] = axisFilter[2]*newPP[2] + (1.0-axisFilter[2])*PP[2];
+        PP[0] = newPP[0];
+        PP[1] = newPP[1];
+        PP[2] = newPP[2];
+
+        // PP[0] = axisFilter[0]*newPP[0] + (1.0-axisFilter[0])*PP[0];
+        // PP[1] = axisFilter[1]*newPP[1] + (1.0-axisFilter[1])*PP[1];
+        // PP[2] = axisFilter[2]*newPP[2] + (1.0-axisFilter[2])*PP[2];
 
         // PP[0] = axisFilter[0]*float(round(solvedPos[0]*axisScal[0]+axisOffset[0])) + (1-axisFilter[0])*PP[0];
         // PP[1] = axisFilter[1]*float(solvedZ*axisScal[1]+axisOffset[1]) + (1-axisFilter[1])*PP[1];

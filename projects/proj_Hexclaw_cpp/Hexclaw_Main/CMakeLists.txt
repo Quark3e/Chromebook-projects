@@ -5,8 +5,17 @@ set(CMAKE_CXX_STANDARD 17)
 # set(CMAKE_FIND_DEBUG_MODE 1)
 # set(BUILD_MODE Debug)
 
-set(REPO_ROOT "../../..")
-set(DIR_CPP_USEFUL "${REPO_ROOT}/teststuff/cpp")
+set(DIR_ROOT "../../..")
+set(DIR_CPP_USEFUL "${DIR_ROOT}/teststuff/cpp")
+
+set(
+    CMAKE_PREFIX_PATH
+    # ${DIR_ROOT}/teststuff/cpp/gui/lib_imguiwin/lib/build/
+    # ${DIR_ROOT}/teststuff/cpp/useful/lib_SystemOfCameras/build/
+    ${DIR_ROOT}/teststuff/cpp/TwoCamCoordinate/lib/build/
+    # ${DIR_ROOT}/science/math/PolyRegionCheck/lib/build/
+)
+
 
 if (MSVC)
     # # warning level 4
@@ -37,6 +46,7 @@ endif(WIN32)
 
 
 find_package(OpenCV REQUIRED)
+find_package(TwoCamCoordinate REQUIRED)
 
 
 file(GLOB HW_src CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/src/*.cpp")
@@ -52,7 +62,6 @@ set(HW_depends
     ${DIR_CPP_USEFUL}/useful//terminalMenu.cpp
     ${DIR_CPP_USEFUL}/useful/camObjTracker/camObjTracker.cpp
     ${DIR_CPP_USEFUL}/basic/Performance/getPerformance.cpp
-    ${DIR_CPP_USEFUL}/two_cam_coordinate/two_cam_coordinate.cpp
 )
 
 
@@ -68,11 +77,12 @@ add_executable(${PROJECT_NAME}
 )
 
 if(WIN32)
-    target_include_directories(Hexclaw_Main PRIVATE ${DIR_PDCURSES}/include/)
-    target_link_libraries(Hexclaw_Main ${pdcurses})
+    target_include_directories(${PROJECT_NAME} PRIVATE ${DIR_PDCURSES}/include/)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${pdcurses})
 else()
     target_link_libraries(
-        Hexclaw_Main
+        ${PROJECT_NAME}
+        PRIVATE
         bcm2835
         rt
         pigpio
@@ -85,7 +95,7 @@ else()
     )
 
     target_compile_options(
-        Hexclaw_Main
+        ${PROJECT_NAME}
         PUBLIC
         # -Wall
         -Wno-psabi
@@ -94,7 +104,7 @@ else()
         -lncurses
     )
 
-    target_link_libraries(Hexclaw_Main ${PiPCA9685_LIBRARY})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${PiPCA9685_LIBRARY})
 endif(WIN32)
 
 
@@ -104,12 +114,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${DIR_CPP_USEFUL}/useful/)
 target_include_directories(${PROJECT_NAME} PRIVATE ${DIR_CPP_USEFUL})
 target_include_directories(${PROJECT_NAME} PRIVATE ${DIR_CPP_USEFUL}/basic/Performance)
 target_include_directories(${PROJECT_NAME} PRIVATE ${OpenCV_INCLUDE_DIRS})
-target_include_directories(${PROJECT_NAME} PRIVATE ${REPO_ROOT}/teststuff/cpp)
-
+target_include_directories(${PROJECT_NAME} PRIVATE ${DIR_ROOT}/teststuff/cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE ${EIGEN3_INCLUDE_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE TwoCamCoordinate)
 
-target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
-
+target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})
+target_link_libraries(${PROJECT_NAME} PRIVATE TwoCamCoordinate::TwoCamCoordinate)
 
 # add_definitions(-D_PROGRAM_PATH=${CMAKE_SOURCE_DIR})
 # add_definitions(-D_PROGRAM_PATH__EXE=${CMAKE_BUILD_RPATH})

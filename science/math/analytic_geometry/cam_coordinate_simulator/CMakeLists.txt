@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
-project(CamCoordianteSim)
+project(CamCoordinateSim)
 
 
 set(CMAKE_CXX_STANDARD 17)

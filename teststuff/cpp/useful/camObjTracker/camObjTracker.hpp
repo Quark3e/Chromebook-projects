@@ -18,7 +18,7 @@
 
 #include <pos2d.hpp>
 
-#include <useful/useful.hpp>
+#include <useful.hpp>
 
 
 #if _WIN32

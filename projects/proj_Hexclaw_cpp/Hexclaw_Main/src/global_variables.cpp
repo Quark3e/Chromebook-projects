@@ -37,7 +37,7 @@ pos3d<float> PP{-250, 150, 150};
 pos3d<float> axisScal{-1, 1, 1};
 pos3d<float> axisOffset{0, 100, -100};
 // pos3d<float> axisOffset{-100, 0, 0};
-pos3d<float> axisFilter{1, 1, 1};
+pos3d<float> axisFilter{0.1, 0.1, 0.1};
 
 
 
@@ -97,10 +97,8 @@ std::vector<CVTRACK::camObjTracker> camObj{
 TCPTS::TCPThreadedServer<std::vector<uint8_t>, uint8_t*> serverObj(false, TCPThreadedServer__DEFAULT_PORT, &mtx_cout);
 
 // Two_cam_triangle header class initialisation
-float camPosition[2][2] = {{0, 0}, {160, 0}};
-
-float camAng_offs[2] = {90, 120};
-float inpPos[2], solvedPos[2];
+std::vector<pos2d<double>> camPosition = {{0, 0}, {150, 0}};
+std::vector<double> camAng_offs = {90, 120};
 camTriangle camTri(camPosition, camAng_offs);
 
 
