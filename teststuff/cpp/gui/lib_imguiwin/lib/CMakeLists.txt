@@ -9,7 +9,12 @@ if(WIN32)
         HINTS "Libraries"
         REQUIRED
     )
+    
+    # find_package(Allegro CONFIG REQUIRED PATHS "C:/Users/berkh/Libraries/vcpkg/packages/allegro5_x64-windows/share/allegro5")
+    # find_package(Imgui CONFIG REQUIRED PATHS "C:/Users/berkh/Libraries/vcpkg/packages/imgui_x64-windows/share/imgui")
+
     # set(DIR_IMGUI "C:/Users/berkh/Libraries")
+    message(DIR_IMGUI : ${DIR_IMGUI})
 else()
     # find_path(DIR_IMGUI
     #     NAMES "imgui.h"
@@ -28,8 +33,6 @@ set(DIR_HC_USEFUL "${REPO_ROOT}/teststuff/cpp/useful")
 # include_directories(${DIR_HC_USEFUL})
 # include_directories(${DIR_IMGUI}/imgui)
 
-link_directories(${DIR_IMGUI}/imgui/backends)
-
 file(GLOB imgui_depends CONFIGURE_DEPENDS
     "${DIR_IMGUI}/imgui/imgui*.cpp"
 )
@@ -47,6 +50,8 @@ add_library(imguiwin STATIC
     ${DIR_IMGUI}/imgui/misc/cpp/imgui_stdlib.cpp
     ${imgui_depends}
 )
+target_link_directories(imguiwin PUBLIC ${DIR_IMGUI}/imgui/backends)
+
 add_library(imguiwin::imguiwin ALIAS imguiwin)
 
 target_include_directories(imguiwin PUBLIC ${DIR_HC_USEFUL})
