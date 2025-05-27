@@ -6,8 +6,8 @@
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
-#include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_allegro5.h>
+#include <imgui.h>
+#include <imgui_impl_allegro5.h>
 
 #include <cstdlib>
 

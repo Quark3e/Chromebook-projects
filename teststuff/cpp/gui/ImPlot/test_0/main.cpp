@@ -33,6 +33,7 @@ int main(int argc, char** argv) {
         data_y.push_back(4.0*std::sin(double(i)*((2*M_PI)/1000))+5);
     }
 
+    
     assert(guiwin.init());
     while(guiwin.running()) {
         try {
@@ -45,7 +46,7 @@ int main(int argc, char** argv) {
                 ImPlot::PlotBars("My Bar Plot", bar_data, 11);
                 // ImPlot::PlotLine("My Line Plot", x_data, y_data, 1000);
                 ImPlot::PlotLine("My Line Plot", data_x.data(), data_y.data(), data_x.size());
-                
+
                 ImPlot::EndPlot();
             }
 
