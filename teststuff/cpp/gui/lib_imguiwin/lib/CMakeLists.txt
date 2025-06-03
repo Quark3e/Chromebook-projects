@@ -58,7 +58,7 @@ target_include_directories(imguiwin PUBLIC ${DIR_HC_USEFUL})
 # target_include_directories(imguiwin PUBLIC ${DIR_IMGUI}/imgui)
 # target_link_directories(imguiwin ${DIR_IMGUI}/backends)
 
-target_include_directories(imguiwin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+target_include_directories(imguiwin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>)
 # target_include_directories(imguiwin PUBLIC ${DIR_IMGUI})
 target_include_directories(imguiwin PUBLIC ${imgui})
 target_include_directories(imguiwin PUBLIC ${Allegro})
